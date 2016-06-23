@@ -1,0 +1,9 @@
+#Ant properties
+#Fri May 27 13:27:55 BST 2016
+builddate=20160527 1327
+description=worldpaycscockpit
+name=worldpaycscockpit
+releasedate=20160517 1225
+vendor=hybris
+version=6.0.0.1
+version.api=6.0.0
