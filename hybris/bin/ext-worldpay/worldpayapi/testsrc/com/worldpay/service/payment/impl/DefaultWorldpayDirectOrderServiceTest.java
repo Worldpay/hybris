@@ -46,6 +46,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
 import static com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService.THREE_D_SECURE_COOKIE_PARAM;
@@ -110,9 +111,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Mock
     private DirectAuthoriseServiceResponse directAuthoriseServiceResponseMock;
     @Mock (answer = RETURNS_DEEP_STUBS)
-    private DirectAuthoriseServiceRequest directAuthoriseServiceRequestMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
-    private DirectAuthoriseServiceRequest directAuthoriseBankTransferServiceRequestMock;
+    private DirectAuthoriseServiceRequest directAuthoriseServiceRequestMock, directAuthoriseBankTransferServiceRequestMock;
     @Mock
     private AddressModel deliveryAddressModelMock, paymentAddressModelMock;
     @Mock
@@ -136,7 +135,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Mock
     private CreateTokenServiceRequest createTokenServiceRequestMock;
     @Mock
-    private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock;
+    private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock, newlyCreatedCreditCardPaymentInfoModel;
     @Mock (answer = RETURNS_DEEP_STUBS)
     private CreateTokenResponse createTokenResponse;
     @Mock
@@ -269,7 +268,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
         verify(worldpayPaymentInfoServiceMock, never()).updateCreditCardPaymentInfo(eq(cartModelMock), any(UpdateTokenServiceRequest.class));
         verify(cartModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
-        verify(modelServiceMock).save(cartModelMock);
+        verify(cartServiceMock).saveOrder(cartModelMock);
     }
 
     @Test
@@ -278,14 +277,31 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(cseAdditionalAuthInfoMock.getSaveCard()).thenReturn(false);
         when(createTokenResponse.getToken().getTokenDetails().getTokenEvent()).thenReturn(TokenEvent.CONFLICT.name());
         when(worldpayRequestFactoryMock.buildTokenUpdateRequest(merchantInfoMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock, createTokenResponse)).thenReturn(updateTokenServiceRequestMock);
-        when(worldpayPaymentInfoServiceMock.updateCreditCardPaymentInfo(cartModelMock, updateTokenServiceRequestMock)).thenReturn(creditCardPaymentInfoModelMock);
+        when(worldpayPaymentInfoServiceMock.updateCreditCardPaymentInfo(cartModelMock, updateTokenServiceRequestMock)).thenReturn(Optional.of(creditCardPaymentInfoModelMock));
 
         testObj.createToken(merchantInfoMock, cartModelMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
 
         verify(worldpayPaymentInfoServiceMock, never()).createCreditCardPaymentInfo(cartModelMock, createTokenResponse, false);
         verify(worldpayServiceGatewayMock).updateToken(updateTokenServiceRequestMock);
         verify(cartModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
-        verify(modelServiceMock).save(cartModelMock);
+        verify(cartServiceMock).saveOrder(cartModelMock);
+    }
+
+    @Test
+    public void shouldCreateNewPaymentInfoWhenNoCardIsUpdatedOnConflict() throws WorldpayException {
+        when(worldpayServiceGatewayMock.createToken(createTokenServiceRequestMock)).thenReturn(createTokenResponse);
+        when(cseAdditionalAuthInfoMock.getSaveCard()).thenReturn(false);
+        when(createTokenResponse.getToken().getTokenDetails().getTokenEvent()).thenReturn(TokenEvent.CONFLICT.name());
+        when(worldpayRequestFactoryMock.buildTokenUpdateRequest(merchantInfoMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock, createTokenResponse)).thenReturn(updateTokenServiceRequestMock);
+        when(worldpayPaymentInfoServiceMock.updateCreditCardPaymentInfo(cartModelMock, updateTokenServiceRequestMock)).thenReturn(Optional.empty());
+        when(worldpayPaymentInfoServiceMock.createCreditCardPaymentInfo(cartModelMock, createTokenResponse, false)).thenReturn(newlyCreatedCreditCardPaymentInfoModel);
+
+        testObj.createToken(merchantInfoMock, cartModelMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+
+        verify(worldpayPaymentInfoServiceMock).createCreditCardPaymentInfo(cartModelMock, createTokenResponse, false);
+        verify(worldpayServiceGatewayMock).updateToken(updateTokenServiceRequestMock);
+        verify(cartModelMock).setPaymentInfo(newlyCreatedCreditCardPaymentInfoModel);
+        verify(cartServiceMock).saveOrder(cartModelMock);
     }
 
     @Test (expected = WorldpayException.class)

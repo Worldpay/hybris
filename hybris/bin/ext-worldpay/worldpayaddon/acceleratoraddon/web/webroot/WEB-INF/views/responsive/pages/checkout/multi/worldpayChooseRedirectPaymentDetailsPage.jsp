@@ -32,11 +32,12 @@
                         <div class="checkout-paymentmethod">
                             <div class="checkout-indent">
                                 <ycommerce:testId code="paymentDetailsForm">
-
                                     <c:if test="${not empty paymentInfos}">
                                         <div class="form-group">
                                             <c:if test="${not empty paymentInfos}">
-                                                <button type="button" class="btn btn-default btn-block js-saved-payments"><spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useSavedCard"/></button>
+                                                <button type="button" class="btn btn-default btn-block js-saved-payments">
+                                                    <spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useSavedCard"/>
+                                                </button>
                                             </c:if>
                                         </div>
                                         <wp-multi-checkout:savedPaymentInfos/>
@@ -61,14 +62,14 @@
                                         </div>
                                         <wp-multi-checkout:termsAndConditions/>
 
-                                        <div class="form-actions">
-                                            <button class="btn btn-primary btn-block submit_worldpayHopForm checkout-next" tabindex="20">
-                                                <spring:theme code="checkout.multi.paymentMethod.continue" text="Continue"/>
-                                            </button>
-                                        </div>
                                     </form:form>
                                 </ycommerce:testId>
                             </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-block submit_worldpayHopForm checkout-next" tabindex="20">
+                                <spring:theme code="checkout.multi.paymentMethod.continue" text="Continue"/>
+                            </button>
                         </div>
                     </ycommerce:testId>
                 </multi-checkout:checkoutSteps>

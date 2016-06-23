@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.Optional;
 
 import static com.worldpay.enums.token.TokenEvent.CONFLICT;
 
@@ -113,14 +114,22 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
             if (updateTokenResponse.isError()) {
                 throw new WorldpayException(updateTokenResponse.getErrorDetail().getMessage());
             }
-            creditCardPaymentInfoModel = getWorldpayPaymentInfoService().updateCreditCardPaymentInfo(cartModel, updateTokenServiceRequest);
+            creditCardPaymentInfoModel = updateOrCreateCreditCard(cartModel, cseAdditionalAuthInfo.getSaveCard(), createTokenResponse, updateTokenServiceRequest);
         } else {
             creditCardPaymentInfoModel = getWorldpayPaymentInfoService().createCreditCardPaymentInfo(cartModel, createTokenResponse, cseAdditionalAuthInfo.getSaveCard());
         }
         if (creditCardPaymentInfoModel != null) {
             cartModel.setPaymentInfo(creditCardPaymentInfoModel);
-            getModelService().save(cartModel);
+            cartService.saveOrder(cartModel);
         }
+    }
+
+    protected CreditCardPaymentInfoModel updateOrCreateCreditCard(final CartModel cartModel, final boolean saveCard, final CreateTokenResponse createTokenResponse, final UpdateTokenServiceRequest updateTokenServiceRequest) {
+        final Optional<CreditCardPaymentInfoModel> creditCardPaymentInfoModelOptional = getWorldpayPaymentInfoService().updateCreditCardPaymentInfo(cartModel, updateTokenServiceRequest);
+        if (!creditCardPaymentInfoModelOptional.isPresent()) {
+            return getWorldpayPaymentInfoService().createCreditCardPaymentInfo(cartModel, createTokenResponse, saveCard);
+        }
+        return creditCardPaymentInfoModelOptional.get();
     }
 
     protected boolean createTokenRepliesWithConflict(final CreateTokenResponse createTokenResponse) {

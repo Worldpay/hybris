@@ -47,9 +47,15 @@
                     libraryObject = new WPCL.Library();
                     libraryObject.setup(customOptions);
                     $("#checkoutContentPanel").remove();
+                    $(".form-actions").remove();
                 });
             </script>
         </c:if>
+        <script>
+            $(document).ready(function () {
+                ACC.worldpayRedirect.initForm();
+            });
+        </script>
     </jsp:attribute>
 
     <jsp:body>
@@ -60,55 +66,57 @@
                     <spring:theme code="checkout.multi.secure.checkout"/>
                 </div>
                 <multi-checkout:checkoutSteps checkoutSteps="${checkoutSteps}" progressBarId="${progressBarId}">
-                <ycommerce:testId code="checkoutStepThree">
-                <div class="checkout-paymentmethod">
-                    <div class="checkout-indent">
-                        <div id="checkoutContentPanel">
-                            <ycommerce:testId code="paymentDetailsForm">
-                                <div class="clearfix">
-                                    <c:if test="${not empty paymentInfos}">
-                                        <div class="form-group">
+                    <ycommerce:testId code="checkoutStepThree">
+                        <div class="checkout-paymentmethod">
+                            <div class="checkout-indent">
+                                <div id="checkoutContentPanel">
+                                    <div class="clearfix">
+                                        <ycommerce:testId code="paymentDetailsForm">
+
                                             <c:if test="${not empty paymentInfos}">
-                                                <button type="button" class="btn btn-default btn-block js-saved-payments"><spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useSavedCard"/></button>
+                                                <div class="form-group">
+                                                    <c:if test="${not empty paymentInfos}">
+                                                        <button type="button" class="btn btn-default btn-block js-saved-payments"><spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useSavedCard"/></button>
+                                                    </c:if>
+                                                </div>
+                                                <wp-multi-checkout:savedPaymentInfos/>
                                             </c:if>
-                                        </div>
-                                        <wp-multi-checkout:savedPaymentInfos/>
-                                    </c:if>
 
-                                    <c:url value="/checkout/multi/worldpay/iframe/add-payment-details" var="addPaymentAddressUrl"/>
-                                    <form:form id="worldpayBillingAddressForm" commandName="paymentDetailsForm" method="post"
-                                               action="${addPaymentAddressUrl}" class="create_update_payment_form">
+                                            <c:url value="/checkout/multi/worldpay/iframe/add-payment-details" var="addPaymentAddressUrl"/>
+                                            <form:form id="worldpayBillingAddressForm" commandName="paymentDetailsForm" method="post"
+                                                       action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
-                                        <wp-multi-checkout:paymentButtons/>
-                                        <wp-multi-checkout:bankSelect/>
+                                                <wp-multi-checkout:paymentButtons/>
+                                                <wp-multi-checkout:bankSelect/>
 
-                                        <sec:authorize ifNotGranted="ROLE_ANONYMOUS">
-                                            <div class="save_payment_details checkbox">
-                                                <label for="SaveDetails">
-                                                    <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>
-                                                    <spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.savePaymentDetailsInAccount"/>
-                                                </label>
-                                            </div>
-                                        </sec:authorize>
+                                                <sec:authorize ifNotGranted="ROLE_ANONYMOUS">
+                                                    <div class="save_payment_details checkbox">
+                                                        <label for="SaveDetails">
+                                                            <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>
+                                                            <spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.savePaymentDetailsInAccount"/>
+                                                        </label>
+                                                    </div>
+                                                </sec:authorize>
 
-                                        <wp-multi-checkout:billingAddress/>
-                                        <div class="form-additionals">
-                                        </div>
-                                        <wp-multi-checkout:termsAndConditions/>
-                                        <div class="form-actions">
-                                            <button class="btn btn-primary btn-block submit_worldpayHopForm checkout-next" tabindex="20">
-                                                <spring:theme code="checkout.multi.paymentMethod.continue" text="Continue"/>
-                                            </button>
-                                        </div>
-                                    </form:form>
+                                                <wp-multi-checkout:billingAddress/>
+                                                <div class="form-additionals">
+                                                </div>
+                                                <wp-multi-checkout:termsAndConditions/>
+                                            </form:form>
+                                        </ycommerce:testId>
+                                    </div>
                                 </div>
-                            </ycommerce:testId>
+                                <div id='custom-html'></div>
+                            </div>
                         </div>
-                        <div id='custom-html'></div>
-                    </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary btn-block submit_worldpayHopForm checkout-next" tabindex="20">
+                                <spring:theme code="checkout.multi.paymentMethod.continue" text="Continue"/>
+                            </button>
+                        </div>
                     </ycommerce:testId>
-                    </multi-checkout:checkoutSteps>
-                </div>
+                </multi-checkout:checkoutSteps>
+
             </div>
             <div class="col-sm-6 hidden-xs">
                 <multi-checkout:checkoutOrderDetails cartData="${cartData}" showDeliveryAddress="true" showPaymentInfo="false" showTaxEstimate="false" showTax="true"/>

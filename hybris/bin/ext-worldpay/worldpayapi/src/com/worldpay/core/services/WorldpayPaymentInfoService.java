@@ -12,6 +12,8 @@ import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 
+import java.util.Optional;
+
 /**
  * Payment Info Service interface.
  * The Service is responsible for creating {@link WorldpayAPMPaymentInfoModel} and updating the Payment Info of the given Payment Transaction.
@@ -79,10 +81,11 @@ public interface WorldpayPaymentInfoService {
     void setCreditCardType(CreditCardPaymentInfoModel creditCardPaymentInfoModel, PaymentReply paymentReply);
 
     /**
-     * Updates the {@link CreditCardPaymentInfoModel} based on the {@UpdateTokenServiceRequest}
+     * Updates the {@link CreditCardPaymentInfoModel} based on the {@UpdateTokenServiceRequest} if there is a matching tokenised card.
+     *
      * @param cartModel
      * @param updateTokenServiceRequest
-     * @return The updated {@link CreditCardPaymentInfoModel}
+     * @return Optional {@link Optional} that will contain the updated CreditCardPaymentInfoModel or empty if no matching tokenised card is found
      */
-    CreditCardPaymentInfoModel updateCreditCardPaymentInfo(CartModel cartModel, UpdateTokenServiceRequest updateTokenServiceRequest);
+    Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(CartModel cartModel, UpdateTokenServiceRequest updateTokenServiceRequest);
 }

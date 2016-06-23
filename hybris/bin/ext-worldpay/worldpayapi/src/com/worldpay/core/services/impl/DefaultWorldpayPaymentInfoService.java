@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
@@ -155,7 +156,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     }
 
     @Override
-    public CreditCardPaymentInfoModel updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest) {
+    public Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest) {
         final String paymentTokenId = updateTokenServiceRequest.getUpdateTokenRequest().getPaymentTokenId();
 
         final CreditCardPaymentInfoModel matchingTokenisedCard = findMatchingTokenisedCard(cartModel.getUser(), paymentTokenId);
@@ -165,9 +166,9 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             matchingTokenisedCard.setValidToMonth(cardDetails.getExpiryDate().getMonth());
             matchingTokenisedCard.setValidToYear(cardDetails.getExpiryDate().getYear());
             modelService.save(matchingTokenisedCard);
-            return matchingTokenisedCard;
+            return Optional.of(matchingTokenisedCard);
         }
-        return null;
+        return Optional.empty();
     }
 
     private void updateCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final PaymentReply paymentReply) {
