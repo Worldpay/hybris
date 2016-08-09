@@ -57,7 +57,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final OrderStatus orderStatus = (OrderStatus) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
-        final Payment payment = (Payment) orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTP().get(0);
+        final Payment payment = (Payment) orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
 
         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
         assertEquals(TRANSACTION_AMOUNT.getValue(), payment.getAmount().getValue());
@@ -72,7 +72,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final OrderStatus orderStatus = (OrderStatus) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
-        final Payment payment = (Payment) orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTP().get(0);
+        final Payment payment = (Payment) orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
         final Token token = orderStatus.getToken();
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();

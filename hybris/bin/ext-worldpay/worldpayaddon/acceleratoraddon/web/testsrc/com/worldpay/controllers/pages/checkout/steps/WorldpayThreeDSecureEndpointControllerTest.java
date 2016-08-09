@@ -38,7 +38,7 @@ public class WorldpayThreeDSecureEndpointControllerTest {
     private static final String GUID = "guid";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    private static final int RETURN_CODE = 13;
+    private static final String RETURN_CODE = "A13";
 
     @Spy
     @InjectMocks

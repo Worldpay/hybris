@@ -7,8 +7,8 @@
 	<classpathentry exported="true" kind="src" path="/hmc" />
 	<classpathentry exported="true" kind="src" path="/acceleratorfacades" />
 	<classpathentry exported="true" kind="src" path="/acceleratorservices" />
-	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-1.12-SNAPSHOT-javadoc.jar" />
-	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-1.12-SNAPSHOT.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-1.13-SNAPSHOT-javadoc.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-1.13-SNAPSHOT.jar" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/hmc/classes" kind="src" path="hmc/src" />

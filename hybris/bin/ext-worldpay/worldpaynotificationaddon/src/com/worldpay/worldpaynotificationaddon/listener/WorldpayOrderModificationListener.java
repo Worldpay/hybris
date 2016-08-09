@@ -43,8 +43,8 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
     }
 
     protected void setDeclineCodeInCart(final OrderNotificationMessage orderNotificationMessage) {
-        final int returnCode = orderNotificationMessage.getPaymentReply().getReturnCode();
-        if (returnCode != 0) {
+        final String returnCode = orderNotificationMessage.getPaymentReply().getReturnCode();
+        if (!returnCode.equalsIgnoreCase("0")) {
             worldpayCartService.setWorldpayDeclineCodeOnCart(orderNotificationMessage.getOrderCode(), returnCode);
         }
     }
