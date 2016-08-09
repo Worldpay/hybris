@@ -36,13 +36,13 @@
     <bean class="de.hybris.platform.commercefacades.order.data.AbstractOrderData">
         <property name="worldpayOrderCode" type="java.lang.String"/>
         <property name="worldpayAPMPaymentInfo" type="com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData"/>
-        <property name="worldpayDeclineCode" type="java.lang.Integer"/>
+        <property name="worldpayDeclineCode" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.payment.DirectResponseData">
         <property name="orderData" type="de.hybris.platform.commercefacades.order.data.OrderData"/>
         <property name="transactionStatus" type="com.worldpay.payment.TransactionStatus"/>
-        <property name="returnCode" type="java.lang.Integer"/>
+        <property name="returnCode" type="java.lang.String"/>
         <property name="issuerURL" type="java.lang.String"/>
         <property name="paRequest" type="java.lang.String"/>
     </bean>

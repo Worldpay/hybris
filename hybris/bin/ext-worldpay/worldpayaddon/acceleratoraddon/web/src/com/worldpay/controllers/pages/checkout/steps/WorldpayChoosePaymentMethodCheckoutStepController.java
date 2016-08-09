@@ -123,8 +123,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     @RequestMapping (value = "/getDeclineMessage", method = GET)
     @ResponseBody
     public String getDeclineMessage() {
-        final Integer worldpayDeclineCode = getCheckoutFacade().getCheckoutCart().getWorldpayDeclineCode();
-        if (worldpayDeclineCode != null && worldpayDeclineCode != 0) {
+        final String worldpayDeclineCode = getCheckoutFacade().getCheckoutCart().getWorldpayDeclineCode();
+        if (worldpayDeclineCode != null && !worldpayDeclineCode.equalsIgnoreCase("0")) {
             return getLocalisedDeclineMessage(worldpayDeclineCode);
         }
         return EMPTY;
@@ -163,11 +163,11 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     protected void resetDeclineCodeOnCart() {
         final String worldpayOrderCode = getCheckoutFacade().getCheckoutCart().getWorldpayOrderCode();
         if (StringUtils.isNotBlank(worldpayOrderCode)) {
-            worldpayCartService.setWorldpayDeclineCodeOnCart(worldpayOrderCode, 0);
+            worldpayCartService.setWorldpayDeclineCodeOnCart(worldpayOrderCode, "0");
         }
     }
 
-    protected String getLocalisedDeclineMessage(final int returnCode) {
+    protected String getLocalisedDeclineMessage(final String returnCode) {
         return themeSource.getMessage(CHECKOUT_MULTI_WORLD_PAY_DECLINED_MESSAGE + returnCode, null, getI18nService().getCurrentLocale());
     }
 

@@ -37,7 +37,7 @@ public class WorldpayOrderModificationListenerTest {
     public static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     public static final String ORDER_CODE = "orderCode";
     public static final String SERIALIZED = "serialized";
-    public static final int RETURN_CODE = 19;
+    public static final String RETURN_CODE = "A19";
 
     @InjectMocks
     private WorldpayOrderModificationListener testObj = new WorldpayOrderModificationListener();
@@ -94,11 +94,11 @@ public class WorldpayOrderModificationListenerTest {
     @Test
     public void onEventRefusedShouldNotUpdateCartModelWhenDeclineCodeIsZero() throws OrderCancelException {
         when(journalReplyMock.getJournalType()).thenReturn(REFUSED);
-        when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn(0);
+        when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn("0");
 
         testObj.onEvent(orderModificationEventMock);
 
-        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyInt());
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
         verify(modelServiceMock).save(worldpayOrderModificationModelMock);
         verify(worldpayOrderModificationModelMock).setType(CANCEL);
         verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
@@ -111,7 +111,7 @@ public class WorldpayOrderModificationListenerTest {
 
         testObj.onEvent(orderModificationEventMock);
 
-        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyInt());
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
         verify(modelServiceMock).save(worldpayOrderModificationModelMock);
         verify(worldpayOrderModificationModelMock).setType(AUTHORIZATION);
         verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
@@ -124,7 +124,7 @@ public class WorldpayOrderModificationListenerTest {
 
         testObj.onEvent(orderModificationEventMock);
 
-        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyInt());
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
         verify(modelServiceMock).save(worldpayOrderModificationModelMock);
         verify(worldpayOrderModificationModelMock).setType(CAPTURE);
         verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
@@ -134,12 +134,12 @@ public class WorldpayOrderModificationListenerTest {
     @Test
     public void onEventREFUSEDShouldSaveModificationModelWhenTransactionBelongsToACart() throws OrderCancelException {
         when(journalReplyMock.getJournalType()).thenReturn(REFUSED);
-        when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn(0);
+        when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn("0");
         when(paymentTransactionModelMock.getOrder()).thenReturn(cartModelMock);
 
         testObj.onEvent(orderModificationEventMock);
 
-        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyInt());
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
         verify(modelServiceMock).save(worldpayOrderModificationModelMock);
         verify(worldpayOrderModificationModelMock).setType(any(PaymentTransactionType.class));
         verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(anyString());
@@ -150,11 +150,11 @@ public class WorldpayOrderModificationListenerTest {
     @Test
     public void onEventREFUSEDShouldSaveModificationModelWhenTransactionBelongsToAnOrder() throws OrderCancelException {
         when(journalReplyMock.getJournalType()).thenReturn(REFUSED);
-        when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn(0);
+        when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn("0");
 
         testObj.onEvent(orderModificationEventMock);
 
-        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyInt());
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
         verify(modelServiceMock).save(worldpayOrderModificationModelMock);
         verify(worldpayOrderModificationModelMock).setType(CANCEL);
         verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);

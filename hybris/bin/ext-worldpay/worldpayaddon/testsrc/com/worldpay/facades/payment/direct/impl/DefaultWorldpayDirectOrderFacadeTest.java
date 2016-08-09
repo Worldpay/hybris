@@ -58,7 +58,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private static final String ISSUER_URL = "issuerURL";
     private static final String PA_REQUEST = "paRequest";
     private static final String PA_RESPONSE = "paResponse";
-    private static final Integer RETURN_CODE = 12;
+    private static final String RETURN_CODE = "A12";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final String URL_TO_BANK = "urlToBank";
     private static final String CVC = "cvc";

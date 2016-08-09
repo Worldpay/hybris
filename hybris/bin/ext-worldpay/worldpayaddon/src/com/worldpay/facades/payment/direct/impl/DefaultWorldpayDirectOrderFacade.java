@@ -214,7 +214,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         response.setTransactionStatus(TransactionStatus.AUTHORISED);
     }
 
-    protected void handleRefusedResponse(final DirectResponseData response, final Integer returnCode) {
+    protected void handleRefusedResponse(final DirectResponseData response, final String returnCode) {
         response.setTransactionStatus(TransactionStatus.REFUSED);
         response.setReturnCode(returnCode);
     }

@@ -334,7 +334,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void testGetDeclineMessageShouldReturnEmptyStringWhenDeclineCodeIsZERO() throws Exception {
-        when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn(0);
+        when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn("0");
 
         final String result = testObj.getDeclineMessage();
 
@@ -352,7 +352,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void testGetDeclineMessageShouldReturnDeclineMessageWhenDeclineCodeIsNotZERO() throws Exception {
-        when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn(1);
+        when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn("1");
         when(i18NServiceMock.getCurrentLocale()).thenReturn(UK);
         when(themeSourceMock.getMessage(anyString(), eq(null), eq(UK))).thenReturn(DECLINE_MESSAGE);
 
@@ -415,7 +415,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     public void shouldSetDeclineCodeToZero() {
         testObj.resetDeclineCodeOnCart();
 
-        verify(worldpayCartServiceMock).setWorldpayDeclineCodeOnCart(WORLDPAY_ORDER_CODE, 0);
+        verify(worldpayCartServiceMock).setWorldpayDeclineCodeOnCart(WORLDPAY_ORDER_CODE, "0");
     }
 
     @Test
@@ -424,7 +424,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
         testObj.resetDeclineCodeOnCart();
 
-        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyInt());
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
     }
 
     @Test
