@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 public class WorldpayAbstractOrderPopulatorTest {
 
     public static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    public static final int WORLDPAY_DECLINE_CODE = 19;
+    public static final String WORLDPAY_DECLINE_CODE = "A19";
 
     @InjectMocks
     private WorldpayAbstractOrderPopulator testObj = new WorldpayAbstractOrderPopulator();

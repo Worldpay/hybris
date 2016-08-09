@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 public class DefaultWorldpayCartServiceTest {
 
     private static final String WORLDPAY_ORDER_CODE = "orderCode";
-    private static final int DECLINE_CODE = 19;
+    private static final String DECLINE_CODE = "A19";
 
 
     @InjectMocks

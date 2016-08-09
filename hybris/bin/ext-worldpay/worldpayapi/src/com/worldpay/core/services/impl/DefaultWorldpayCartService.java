@@ -24,7 +24,7 @@ public class DefaultWorldpayCartService implements WorldpayCartService {
      * {@inheritDoc}
      */
     @Override
-    public void setWorldpayDeclineCodeOnCart(String worldpayOrderCode, int declineCode) {
+    public void setWorldpayDeclineCodeOnCart(String worldpayOrderCode, String declineCode) {
 
         final List<CartModel> cartsByWorldpayOrderCode = findCartsByWorldpayOrderCode(worldpayOrderCode);
 

@@ -17,7 +17,7 @@ public interface WorldpayCartService {
      * @param worldpayOrderCode the world pay order code
      * @param declineCode       the decline code
      */
-    void setWorldpayDeclineCodeOnCart(final String worldpayOrderCode, final int declineCode);
+    void setWorldpayDeclineCodeOnCart(final String worldpayOrderCode, final String declineCode);
 
     /**
      * Returns the list of carts by WorldpayOrderCode

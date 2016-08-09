@@ -34,7 +34,7 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
 
     private static final String SECURE_TERM_URL = "termUrl";
     private static final String ORDER_CODE = "orderCode";
-    private static final int RETURN_CODE = 12;
+    private static final String RETURN_CODE = "A12";
     private static final String LOCALISED_DECLINE_MESSAGE = "localisedDeclineMessage";
     private static final String ERROR = "error";
 
