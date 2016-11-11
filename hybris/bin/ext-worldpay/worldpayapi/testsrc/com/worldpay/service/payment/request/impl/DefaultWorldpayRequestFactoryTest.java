@@ -160,6 +160,7 @@ public class DefaultWorldpayRequestFactoryTest {
         when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
         when(cartModelMock.getTotalPrice()).thenReturn(INTEGER_TOTAL);
         when(worldpayOrderServiceMock.createBasicOrderInfo(WORLDPAY_ORDER_CODE, WORLDPAY_ORDER_CODE, amountMock)).thenReturn(basicOrderInfoMock);
+        when(worldpayOrderServiceMock.createBasicOrderInfo(WORLDPAY_ORDER_CODE, WORLDPAY_ORDER_CODE, null)).thenReturn(basicOrderInfoMock);
         doReturn(tokenMock).when(testObj).createToken(SUBSCRIPTION_ID, CVC_CODE);
         when(cartModelMock.getPaymentInfo()).thenReturn(creditCardPaymentInfoModelMock);
         when(creditCardPaymentInfoModelMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
@@ -220,9 +221,9 @@ public class DefaultWorldpayRequestFactoryTest {
 
     @Test
     public void shouldCreate3DSecureAuthoriseRequest() throws WorldpayException {
-        doReturn(directAuthoriseServiceRequestMock).when(testObj).createDirect3DAuthoriseRequest(worldpayConfigMock, merchantInfoMock, basicOrderInfoMock, tokenMock, authenticatedShopperMock, sessionMock, PA_RESPONSE, ECHO_DATA, shippingAddressMock);
+        doReturn(directAuthoriseServiceRequestMock).when(testObj).createDirect3DAuthoriseRequest(worldpayConfigMock, merchantInfoMock, basicOrderInfoMock, sessionMock, PA_RESPONSE);
 
-        final DirectAuthoriseServiceRequest result = testObj.build3dDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE, ECHO_DATA, COOKIE);
+        final DirectAuthoriseServiceRequest result = testObj.build3dDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE, COOKIE);
 
         assertEquals(directAuthoriseServiceRequestMock, result);
         verify(directAuthoriseServiceRequestMock).setCookie(COOKIE);

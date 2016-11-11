@@ -47,8 +47,4 @@
         <property name="paRequest" type="java.lang.String"/>
     </bean>
 
-    <bean class="com.worldpay.facades.BankConfigurationData">
-        <property name="bankCode" type="java.lang.String"/>
-        <property name="bankName" type="java.lang.String"/>
-    </bean>
 </beans>

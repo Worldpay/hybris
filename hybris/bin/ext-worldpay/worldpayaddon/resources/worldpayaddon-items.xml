@@ -16,12 +16,6 @@
 <items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="items.xsd">
 
-    <enumtypes>
-        <enumtype code="CreditCardType" autocreate="false" generate="false">
-            <value code="jcb"/>
-            <value code="token"/>
-        </enumtype>
-    </enumtypes>
     <itemtypes>
         <typegroup name="cms">
 			<itemtype code="WorldpayCCComponent" autocreate="true" generate="true"

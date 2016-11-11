@@ -1,7 +1,7 @@
 package com.worldpay.worldpayasm.asm.impl;
 
 import com.worldpay.worldpayasm.asm.WorldpayASMService;
-import de.hybris.platform.assistedservicefacades.util.AssistedServiceSession;
+import de.hybris.platform.assistedserviceservices.utils.AssistedServiceSession;
 import de.hybris.platform.servicelayer.session.SessionService;
 import org.springframework.beans.factory.annotation.Required;
 

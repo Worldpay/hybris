@@ -144,11 +144,10 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     @Override
     public DirectAuthoriseServiceResponse authorise3DSecure(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                             final String paResponse) throws WorldpayException {
-        final String echoData = getAndRemoveSessionAttribute(THREE_D_SECURE_ECHO_DATA_PARAM);
         final String cookie = getAndRemoveSessionAttribute(THREE_D_SECURE_COOKIE_PARAM);
 
         final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = worldpayRequestFactory.build3dDirectAuthoriseRequest(
-                merchantInfo, cartModel, worldpayAdditionalInfoData, paResponse, echoData, cookie);
+                merchantInfo, cartModel, worldpayAdditionalInfoData, paResponse, cookie);
         return getWorldpayOrderService().getWorldpayServiceGateway().directAuthorise(directAuthoriseServiceRequest);
     }
 

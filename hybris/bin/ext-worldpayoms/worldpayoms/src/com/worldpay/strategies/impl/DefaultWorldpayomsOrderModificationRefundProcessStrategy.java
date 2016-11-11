@@ -8,7 +8,7 @@ import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.processengine.model.BusinessProcessModel;
 import de.hybris.platform.returns.model.ReturnRequestModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import de.hybris.platform.warehousing.model.ReturnProcessModel;
+import de.hybris.platform.returns.model.ReturnProcessModel;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Collection;

@@ -7,7 +7,7 @@
 
 <div id="cardDetailsFieldSet">
     <fieldset class="cardForm">
-        <sec:authorize ifNotGranted="ROLE_ANONYMOUS">
+        <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
             <div class="save_payment_details checkbox">
                 <label for="SaveDetails">
                     <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>

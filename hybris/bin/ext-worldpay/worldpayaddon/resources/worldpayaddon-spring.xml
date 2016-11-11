@@ -110,7 +110,6 @@
         <property name="supportedChannels">
             <list value-type="de.hybris.platform.commerceservices.enums.SiteChannel">
                 <value>B2C</value>
-                <value>B2B</value>
             </list>
         </property>
         <property name="addonExtensionMetadata">

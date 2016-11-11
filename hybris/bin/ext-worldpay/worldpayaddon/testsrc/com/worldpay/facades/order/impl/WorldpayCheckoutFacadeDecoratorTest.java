@@ -12,6 +12,7 @@ import de.hybris.platform.commerceservices.order.CommerceCartModification;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.order.CartService;
@@ -91,6 +92,8 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     private PointOfServiceModel pointOfServiceModelMock;
     @Mock
     private CommerceCartModification commerceCartModificationMock;
+    @Mock
+    private PaymentInfoModel paymentInfoModelMock;
 
     @Before
     public void setup() throws CommerceCartModificationException {
@@ -102,6 +105,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
         when(acceleratorCheckoutService.consolidateCheckoutCart(cartModelMock, pointOfServiceModelMock)).thenReturn(Collections.singletonList(commerceCartModificationMock));
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
         when(cartFacadeMock.getSessionCart()).thenReturn(cartDataMock);
+        when(cartModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
     }
 
     @Test
@@ -299,12 +303,6 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     public void removeDeliveryMode() {
         testObj.removeDeliveryMode();
         verify(checkoutFlowFacadeMock).removeDeliveryMode();
-    }
-
-    @Test
-    public void getCountryForIsocode() {
-        testObj.getCountryForIsocode(COUNTRY_ISO);
-        verify(checkoutFlowFacadeMock).getCountryForIsocode(COUNTRY_ISO);
     }
 
     @Test

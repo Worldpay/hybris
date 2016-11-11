@@ -5,5 +5,5 @@
 ##   * productCatalog   = product catalog id
 ##   * siteUid - site id
 ##   * storeUid - id of the store
-##   * channel - site channel; B2B or B2C
+##   * channel - site channel; only B2C
 #######

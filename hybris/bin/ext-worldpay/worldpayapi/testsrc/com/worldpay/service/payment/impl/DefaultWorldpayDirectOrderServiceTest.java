@@ -226,14 +226,13 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Test
     public void shouldRecoverEchoDataAndCookieFromSessionAndAddTo3dRequest() throws WorldpayException {
-        when(worldpayRequestFactoryMock.build3dDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE, ECHO_DATA, COOKIE)).thenReturn(directAuthoriseServiceRequestMock);
+        when(worldpayRequestFactoryMock.build3dDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE, COOKIE)).thenReturn(directAuthoriseServiceRequestMock);
         when(sessionServiceMock.getAttribute(THREE_D_SECURE_COOKIE_PARAM)).thenReturn(COOKIE);
         when(sessionServiceMock.getAttribute(THREE_D_SECURE_ECHO_DATA_PARAM)).thenReturn(ECHO_DATA);
 
         testObj.authorise3DSecure(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE);
 
         verify(sessionServiceMock).removeAttribute(THREE_D_SECURE_COOKIE_PARAM);
-        verify(sessionServiceMock).removeAttribute(THREE_D_SECURE_ECHO_DATA_PARAM);
         verify(worldpayServiceGatewayMock).directAuthorise(directAuthoriseServiceRequestMock);
     }
 

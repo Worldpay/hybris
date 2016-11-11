@@ -66,8 +66,7 @@ public class DefaultWorldpayResponseBuilderTest {
                     if (replyElement instanceof OrderStatus) {
                         final OrderStatus orderStatus = (OrderStatus) replyElement;
                         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
-                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
-                        assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
+                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();                        assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
                         for (Object orderStatusElement : orderStatusElements) {
                             if (orderStatusElement instanceof Reference) {
                                 Reference reference = (Reference) orderStatusElement;

@@ -59,14 +59,13 @@ public interface WorldpayRequestFactory {
      * @param cartModel                  the session cart
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
      * @param paRes                      the payer Response required for 3D request
-     * @param echoData                   the echo Data from the authorise response
      * @param cookie                     the cookie from the authorise response
      * @return
      * @throws WorldpayConfigurationException
      */
     DirectAuthoriseServiceRequest build3dDirectAuthoriseRequest(MerchantInfo merchantInfo, CartModel cartModel,
                                                                 WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                                String paRes, String echoData, String cookie) throws WorldpayConfigurationException;
+                                                                String paRes, String cookie) throws WorldpayConfigurationException;
 
     /**
      * Builds a direct authorise request to send to Worldpay

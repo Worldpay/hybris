@@ -29,6 +29,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import static com.worldpay.worldpaynotificationaddon.enums.DefectiveReason.INVALID_AUTHENTICATED_SHOPPER_ID;
@@ -75,7 +76,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     @Mock
     private ProcessDefinitionDao processDefinitionDaoMock;
     @Mock
-    private WorldpayOrderModificationModel orderModificationModelMock, existingOrderModificationModelMock;
+    private WorldpayOrderModificationModel orderModificationModelMock, existingOrderModificationModelMock, anotherExistingOrderModificationModelMock;
     @Mock
     private ModelService modelServiceMock;
     @Mock
@@ -142,7 +143,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         verify(orderNotificationServiceMock).processOrderNotificationMessage(orderNotificationMessageMock);
         verify(businessProcessServiceMock).triggerEvent(CAPTURE_BPM_PROCESS_CODE + "_" + CAPTURE.getCode());
         verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
-        verify(orderModificationModelMock, never()).setDefective(any(Boolean.class));
+        verify(orderModificationModelMock, never()).setDefective(Boolean.TRUE);
         verify(modelServiceMock).save(orderModificationModelMock);
     }
 
@@ -155,7 +156,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         verify(orderNotificationServiceMock).processOrderNotificationMessage(orderNotificationMessageMock);
         verify(businessProcessServiceMock, never()).triggerEvent(anyString());
         verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
-        verify(orderModificationModelMock, never()).setDefective(any(Boolean.class));
+        verify(orderModificationModelMock, never()).setDefective(Boolean.TRUE);
         verify(modelServiceMock).save(orderModificationModelMock);
         assertTrue(result);
     }
@@ -190,14 +191,14 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     @Test
     public void shouldMarkTheOrderModificationAsProcessedAndDefectiveWhenNoTransactionIsFound() {
         when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(null);
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
         when(existingOrderModificationModelMock.getDefectiveCounter()).thenReturn(DEFECTIVE_COUNT);
 
         final boolean result = testObj.processOrderModificationMessages(CAPTURE);
 
         assertTrue(result);
         verify(businessProcessServiceMock, never()).triggerEvent(anyString());
-        verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
+        verify(orderModificationModelMock).setProcessed(Boolean.FALSE);
         verify(orderModificationModelMock).setDefective(Boolean.TRUE);
         verify(orderModificationModelMock).setDefectiveReason(NO_PAYMENT_TRANSACTION_MATCHED);
         verify(orderModificationModelMock).setDefectiveCounter(DEFECTIVE_COUNT + 1);
@@ -213,7 +214,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
         verify(businessProcessServiceMock).triggerEvent(anyString());
         verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
-        verify(orderModificationModelMock, never()).setDefective(any(Boolean.class));
+        verify(orderModificationModelMock, never()).setDefective(Boolean.TRUE);
         verify(modelServiceMock).save(any(WorldpayOrderModificationModel.class));
         verify(processDefinitionDaoMock).findWaitingOrderProcesses(anyString(), any(PaymentTransactionType.class));
         assertTrue(result);
@@ -241,10 +242,8 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         final boolean result = testObj.processOrderModificationMessages(CANCEL);
 
         assertTrue(result);
-        verify(processDefinitionDaoMock).findWaitingOrderProcesses(ORDER_CODE, AUTHORIZATION);
         verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
-        verify(orderModificationModelMock, never()).setDefective(any(Boolean.class));
-        verify(businessProcessServiceMock).triggerEvent(AUTHORISE_PROCESS_CODE + "_" + AUTHORIZATION);
+        verify(orderModificationModelMock, never()).setDefective(Boolean.TRUE);
         verify(modelServiceMock).save(orderModificationModelMock);
     }
 
@@ -253,7 +252,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         doThrow(new NullPointerException(EXCEPTION_MESSAGE)).when(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));//NOPMD
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
         when(existingOrderModificationModelMock.getDefectiveCounter()).thenReturn(DEFECTIVE_COUNT);
 
         final boolean result = testObj.processOrderModificationMessages(AUTHORIZATION);
@@ -304,7 +303,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
 
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(emptyList());
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(emptyList());
 
         testObj.processOrderModificationMessages(AUTHORIZATION);
 
@@ -321,7 +320,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
         when(existingOrderModificationModelMock.getDefectiveCounter()).thenReturn(DEFECTIVE_COUNT);
 
         testObj.processOrderModificationMessages(AUTHORIZATION);
@@ -340,7 +339,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
         when(existingOrderModificationModelMock.getDefectiveCounter()).thenReturn(null);
 
         testObj.processOrderModificationMessages(AUTHORIZATION);
@@ -359,7 +358,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(emptyList());
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(emptyList());
         when(orderModificationModelMock.getDefectiveCounter()).thenReturn(null);
 
         testObj.processOrderModificationMessages(AUTHORIZATION);
@@ -373,12 +372,12 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void shouldNotCountWhenNoPreviousDefectiveModificationsFoundButCurrentModificationHasCount() {
+    public void shouldIncreaseDefectiveCounterOnEveryDefectiveRetry() {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
-        when(orderModificationDaoMock.getExistingModifications(orderModificationModelMock)).thenReturn(emptyList());
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(emptyList());
         when(orderModificationModelMock.getDefectiveCounter()).thenReturn(10);
 
         testObj.processOrderModificationMessages(AUTHORIZATION);
@@ -388,9 +387,33 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
         verify(orderModificationModelMock).setDefective(Boolean.TRUE);
         verify(orderModificationModelMock).setDefectiveReason(INVALID_AUTHENTICATED_SHOPPER_ID);
-        verify(orderModificationModelMock, never()).setDefectiveCounter(any());
+        verify(orderModificationModelMock).setDefectiveCounter(11);
     }
 
+    @Test
+    public void setDefectiveCounterAsSumOfPreviousDefectiveModificationsFound() {
+        when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(null);
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(Arrays.asList(existingOrderModificationModelMock, anotherExistingOrderModificationModelMock));
+        when(existingOrderModificationModelMock.getDefectiveCounter()).thenReturn(5);
+        when(anotherExistingOrderModificationModelMock.getDefectiveCounter()).thenReturn(7);
+
+        final boolean result = testObj.processOrderModificationMessages(AUTHORIZATION);
+
+        assertTrue(result);
+        verify(orderModificationModelMock).setDefectiveCounter(5 + 7 + 1);
+    }
+
+    @Test
+    public void removePreviousDefectiveModificationsFound() {
+        when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(null);
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(Arrays.asList(existingOrderModificationModelMock, anotherExistingOrderModificationModelMock));
+
+        final boolean result = testObj.processOrderModificationMessages(AUTHORIZATION);
+
+        assertTrue(result);
+        verify(modelServiceMock).remove(existingOrderModificationModelMock);
+        verify(modelServiceMock).remove(anotherExistingOrderModificationModelMock);
+    }
 
     @Test
     public void markNotificationAsProcessedWhenContainsTokenReplyContainsNonMatchingAuthenticatedShopperId() {

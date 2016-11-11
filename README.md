@@ -78,12 +78,13 @@ The AddOn's are independent and can be installed on separate server instances. F
 
 ## Installing the Plugin using the provided recipes
 
-The AddOn provides 3 gradle recipes to be used with the hybris installer.
-1. wp_b2c_acc with fulfilment functionality
-2. wp_b2c_acc_oms with OMS functionality.
-3. wp_b2b_acc that uses the B2B accelerator
+The AddOn provides 2 gradle recipes to be used with the hybris installer.
 
-The recipes are based on the b2c_acc, b2c_acc_oms and b2b_acc recipes provided by hybris.
+1. wp_b2c_acc with fulfilment functionality
+
+2. wp_b2c_acc_oms with OMS functionality.
+
+The recipes are based on the b2c_acc and b2c_acc_oms recipes provided by hybris.
 
 The recipes can be found under the installer folder.
 

@@ -137,9 +137,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     @Override
     public boolean setPaymentDetails(String paymentInfoId) {
         final boolean result = getCheckoutFlowFacade().setPaymentDetails(paymentInfoId);
-        final CartModel sessionCart = getSessionCart();
-        sessionCart.setPaymentAddress(sessionCart.getPaymentInfo().getBillingAddress());
-        cartService.saveOrder(sessionCart);
+        setPaymentInfoBillingAddressOnSessionCart();
         return result;
     }
 
@@ -181,15 +179,6 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     @Override
     public boolean removeDeliveryMode() {
         return getCheckoutFlowFacade().removeDeliveryMode();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    @Override
-    public CountryData getCountryForIsocode(String countryIso) {
-        return getCheckoutFlowFacade().getCountryForIsocode(countryIso);
     }
 
     /**
@@ -349,7 +338,9 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      */
     @Override
     public AcceleratorCheckoutFacade.ExpressCheckoutResult performExpressCheckout() {
-        return getCheckoutFlowFacade().performExpressCheckout();
+        AcceleratorCheckoutFacade.ExpressCheckoutResult result = getCheckoutFlowFacade().performExpressCheckout();
+        setPaymentInfoBillingAddressOnSessionCart();
+        return result;
     }
 
     /**
@@ -419,4 +410,11 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     public void setAddressConverter(Converter<AddressModel, AddressData> addressConverter) {
         this.addressConverter = addressConverter;
     }
+
+    protected void setPaymentInfoBillingAddressOnSessionCart() {
+        final CartModel sessionCart = getSessionCart();
+        sessionCart.setPaymentAddress(sessionCart.getPaymentInfo().getBillingAddress());
+        cartService.saveOrder(sessionCart);
+    }
+
 }

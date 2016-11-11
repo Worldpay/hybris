@@ -42,7 +42,7 @@ public class DefaultWorldpayCaptureResponseBuilderTest {
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final Ok ok = (Ok) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
-        final CaptureReceived captureReceived = (CaptureReceived) ok.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrTransactionCertificateReceivedOrDefenceReceivedOrUpdateTokenReceived().get(0);
+        final CaptureReceived captureReceived = (CaptureReceived) ok.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceived().get(0);
         assertEquals(TRANSACTION_AMOUNT.getValue(), captureReceived.getAmount().getValue());
     }
 
@@ -52,7 +52,7 @@ public class DefaultWorldpayCaptureResponseBuilderTest {
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final Ok ok = (Ok) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
-        final CaptureReceived captureReceived = (CaptureReceived) ok.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrTransactionCertificateReceivedOrDefenceReceivedOrUpdateTokenReceived().get(0);
+        final CaptureReceived captureReceived = (CaptureReceived) ok.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceived().get(0);
         assertEquals(WORLDPAY_ORDER_CODE, captureReceived.getOrderCode());
     }
 
@@ -62,10 +62,10 @@ public class DefaultWorldpayCaptureResponseBuilderTest {
 
         final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(WORLDPAY_ORDER_CODE);
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAddTransactionCertificateOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetails().add(capture);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDate().add(capture);
 
         final Modify modify = new Modify();
-        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdate().add(orderModification);
+        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
 
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(MERCHANT_CODE);

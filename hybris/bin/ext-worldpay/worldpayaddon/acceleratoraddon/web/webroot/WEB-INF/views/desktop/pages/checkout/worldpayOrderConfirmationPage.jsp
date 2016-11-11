@@ -51,7 +51,7 @@
                     <div><spring:theme code="text.account.order.orderStatus" text="The order is {0}" arguments="${orderStatus}"/></div>
                 </c:if>
             </div>
-            <sec:authorize ifAnyGranted="ROLE_ANONYMOUS">
+            <sec:authorize access="hasAnyRole('ROLE_ANONYMOUS')">
                 <div class="span-24 delivery_stages-guest last">
                     <user:guestRegister actionNameKey="guest.register.submit"/>
                 </div>

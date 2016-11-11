@@ -41,5 +41,5 @@ public interface OrderModificationDao {
      * @param worldpayOrderModificationModel the latest creation date
      * @return the list of {@link WorldpayOrderModificationModel}
      */
-    List<WorldpayOrderModificationModel> getExistingModifications(final WorldpayOrderModificationModel worldpayOrderModificationModel);
+    List<WorldpayOrderModificationModel> findExistingModifications(final WorldpayOrderModificationModel worldpayOrderModificationModel);
 }

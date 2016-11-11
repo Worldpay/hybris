@@ -20,7 +20,6 @@
 worldpayaddon.application-context=worldpayaddon-spring.xml
 
 yacceleratorstorefront.additionalWebSpringConfigs.worldpayaddon=classpath:/worldpayaddon/web/spring/worldpayaddon-web-spring.xml, classpath:/worldpayaddon/web/spring/b2c-multi-step-checkout-spring.xml
-yb2bacceleratorstorefront.additionalWebSpringConfigs.worldpayaddon=classpath:/worldpayaddon/web/spring/worldpayaddon-web-spring.xml, classpath:/worldpayaddon/web/spring/b2b-multi-step-checkout-spring.xml
 
 storefront.supportedUiExperienceLevels.electronics=DESKTOP,MOBILE
 storefront.supportedUiExperienceLevels.apparel-uk=DESKTOP,MOBILE

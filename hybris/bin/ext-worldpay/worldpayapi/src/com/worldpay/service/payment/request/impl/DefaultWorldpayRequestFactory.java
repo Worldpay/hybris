@@ -113,31 +113,20 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     /**
      * {@inheritDoc}
      *
-     * @see WorldpayRequestFactory#build3dDirectAuthoriseRequest(MerchantInfo, CartModel, WorldpayAdditionalInfoData, String, String, String)
+     * @see WorldpayRequestFactory#build3dDirectAuthoriseRequest(MerchantInfo, CartModel, WorldpayAdditionalInfoData, String, String)
      */
     @Override
     public DirectAuthoriseServiceRequest build3dDirectAuthoriseRequest(MerchantInfo merchantInfo, CartModel cartModel,
                                                                        WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                                       String paRes, String echoData, String cookie) throws WorldpayConfigurationException {
+                                                                       String paRes, String cookie) throws WorldpayConfigurationException {
         final String orderCode = cartModel.getWorldpayOrderCode();
         final WorldpayConfig config = getWorldpayConfigLookupService().lookupConfig();
-        final Amount amount = getWorldpayOrderService().createAmount(cartModel.getCurrency(), cartModel.getTotalPrice());
-        final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(orderCode, orderCode, amount);
-
-        final Token token = createToken(((CreditCardPaymentInfoModel) cartModel.getPaymentInfo()).getSubscriptionId(), worldpayAdditionalInfoData.getSecurityCode());
-
-        final CustomerModel customerModel = (CustomerModel) cartModel.getUser();
-
-        final String shopperEmailAddress = getCustomerEmailResolutionService().getEmailForCustomer(customerModel);
+        final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(orderCode, orderCode, null);
 
         final Session session = getWorldpayOrderService().createSession(worldpayAdditionalInfoData);
-        final Browser browser = getWorldpayOrderService().createBrowser(worldpayAdditionalInfoData);
 
-        final Shopper authenticatedShopper = getWorldpayOrderService().createAuthenticatedShopper(shopperEmailAddress, worldpayAdditionalInfoData.getAuthenticatedShopperId(), session, browser);
-        final AddressModel deliveryAddress = worldpayDeliveryAddressStrategy.getDeliveryAddress(cartModel);
-
-        final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = createDirect3DAuthoriseRequest(config, merchantInfo, orderInfo, token,
-                authenticatedShopper, session, paRes, echoData, getWorldpayAddressConverter().convert(deliveryAddress));
+        final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = createDirect3DAuthoriseRequest(config, merchantInfo, orderInfo,
+                session, paRes);
         directAuthoriseServiceRequest.setCookie(cookie);
         return directAuthoriseServiceRequest;
     }
@@ -145,7 +134,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     /**
      * {@inheritDoc}
      *
-     * @see WorldpayRequestFactory#build3dDirectAuthoriseRequest(MerchantInfo, CartModel, WorldpayAdditionalInfoData, String, String, String)
+     * @see WorldpayRequestFactory#buildDirectAuthoriseBankTransferRequest(MerchantInfo, CartModel, BankTransferAdditionalAuthInfo, WorldpayAdditionalInfoData)
      */
     @Override
     public DirectAuthoriseServiceRequest buildDirectAuthoriseBankTransferRequest(final MerchantInfo merchantInfo, final CartModel cartModel,
@@ -224,8 +213,8 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return PaymentBuilder.createCSE(cseAdditionalAuthInfo.getEncryptedData(), billingAddress);
     }
 
-    protected DirectAuthoriseServiceRequest createDirect3DAuthoriseRequest(final WorldpayConfig worldpayConfig, final MerchantInfo merchantInfo, final BasicOrderInfo basicOrderInfo, final Token token, final Shopper shopper, final Session session, final String paRes, final String echoData, final Address shippingAddress) {
-        return DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(worldpayConfig, merchantInfo, basicOrderInfo, token, shopper, session, paRes, echoData, shippingAddress, null, null);
+    protected DirectAuthoriseServiceRequest createDirect3DAuthoriseRequest(final WorldpayConfig worldpayConfig, final MerchantInfo merchantInfo, final BasicOrderInfo basicOrderInfo, final Session session, final String paRes) {
+        return DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(worldpayConfig, merchantInfo, basicOrderInfo, session, paRes);
     }
 
     protected DirectAuthoriseServiceRequest createTokenisedDirectAuthoriseRequest(final WorldpayConfig worldpayConfig, final MerchantInfo merchantInfo, final BasicOrderInfo basicOrderInfo, final Token token, final Shopper shopper, final Address shippingAddress) {

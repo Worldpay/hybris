@@ -28,6 +28,10 @@
         <enumtype code="PaymentTransactionType" autocreate="false" generate="false">
             <value code="SETTLED" />
         </enumtype>
+        <enumtype code="CreditCardType" autocreate="false" generate="false">
+            <value code="jcb"/>
+            <value code="token"/>
+        </enumtype>
     </enumtypes>
 
     <itemtypes>

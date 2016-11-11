@@ -19,6 +19,7 @@ import com.worldpay.worldpayresponsemock.responses.WorldpayTokenCreateResponseBu
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
 
@@ -68,7 +69,8 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
             Submit submit = (Submit) paymentServiceRequest.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
             final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
             if (possibleOrder instanceof Order) {
-                return ((Order) possibleOrder).getPaymentMethodMaskOrPaymentDetailsOrPayAsOrder().get(0) instanceof PaymentMethodMask;
+                final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
+                return  orderElements.stream().anyMatch(e -> e instanceof PaymentMethodMask);
             }
         }
         return false;
@@ -77,9 +79,9 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
     private boolean requestContainsCapture(PaymentService request) {
         if (request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) instanceof Modify) {
             Modify modify = (Modify) request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-            if (modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdate().get(0) instanceof OrderModification) {
-                OrderModification orderModification = (OrderModification) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdate().get(0);
-                return orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAddTransactionCertificateOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetails().get(0) instanceof Capture;
+            if (modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0) instanceof OrderModification) {
+                OrderModification orderModification = (OrderModification) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0);
+                return orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDate().get(0) instanceof Capture;
             }
         }
         return false;
@@ -90,7 +92,8 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
             Submit submit = (Submit) request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
             final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
             if (possibleOrder instanceof Order) {
-                return ((Order) possibleOrder).getPaymentMethodMaskOrPaymentDetailsOrPayAsOrder().get(0) instanceof PaymentDetails;
+                final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
+                return  orderElements.stream().anyMatch(e -> e instanceof PaymentDetails);
             }
         }
         return false;
