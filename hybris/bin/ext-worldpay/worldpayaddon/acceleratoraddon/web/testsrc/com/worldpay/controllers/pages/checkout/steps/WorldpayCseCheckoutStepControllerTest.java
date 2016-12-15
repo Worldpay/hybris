@@ -12,6 +12,7 @@ import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
@@ -46,14 +47,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
-import static com.worldpay.controllers.WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CSEPaymentDetailsPage;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.PAYMENT_METHOD_PARAM;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SHOPPER_BANK_CODE;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.CSE_PAYMENT_FORM;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.CSE_PUBLIC_KEY;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.REDIRECT_TO_CSE_PAGE;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.*;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static com.worldpay.service.model.payment.PaymentType.PAYPAL;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
@@ -62,12 +60,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -81,6 +74,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String SESSION_ID = "sessionID";
     private static final String BILLING_ERROR_VIEW = "billingErrorView";
     private static final String RESOLVED_PAGE_TITLE = "resolvedPageTitle";
+    private static final String CSE_PAYMENT_DETAILS_PAGE = "CSEPaymentDetailsPage";
 
     @Spy
     @InjectMocks
@@ -148,6 +142,8 @@ public class WorldpayCseCheckoutStepControllerTest {
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
     @Mock
     private DirectResponseData directResponseDataMock;
+    @Mock
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @Before
     public void setUp() throws Exception {
@@ -172,6 +168,7 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(resourceBreadcrumbBuilder.getBreadcrumbs(anyString())).thenReturn(Collections.singletonList(breadcrumbMock));
         when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);
+        when(worldpayAddonEndpointService.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
     }
 
     @Test
@@ -190,7 +187,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
 
-        assertEquals(CSEPaymentDetailsPage, result);
+        assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
     }
 
     @Test
@@ -209,7 +206,7 @@ public class WorldpayCseCheckoutStepControllerTest {
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
 
         verify(cseFormValidatorMock).validate(csePaymentFormMock, bindingResultMock);
-        assertEquals(CSEPaymentDetailsPage, result);
+        assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
     }
 
     @Test

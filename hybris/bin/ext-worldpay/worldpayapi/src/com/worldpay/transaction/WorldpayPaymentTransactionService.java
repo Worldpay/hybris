@@ -4,6 +4,7 @@ import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
@@ -114,10 +115,10 @@ public interface WorldpayPaymentTransactionService {
      *
      * @param paymentTransaction The {@link PaymentTransactionModel} to associate the paymentTransactionEntry to
      * @param merchantCode       The merchantCode used in the transaction with Worldpay
-     * @param cartModel          The {@link CartModel} to get the amount and currency information from
+     * @param abstractOrderModel The cart or order to get the amount and currency information from
      * @return the new {@link PaymentTransactionType#AUTHORIZATION} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(PaymentTransactionModel paymentTransaction, String merchantCode, CartModel cartModel);
+    PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(PaymentTransactionModel paymentTransaction, String merchantCode, AbstractOrderModel abstractOrderModel);
 
     /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}

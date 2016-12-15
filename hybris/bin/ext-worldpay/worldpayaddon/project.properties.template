@@ -46,3 +46,5 @@ worldpayaddon.css.paths.mobile=/mobile/common/css/worldpayaddon.css
 
 # The amount of time in seconds to wait before asking for the decline-code
 hop.decline.message.wait.timer.seconds=2
+
+worldpay.addon.prefix=addon:/worldpayaddon/

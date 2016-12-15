@@ -149,7 +149,7 @@
         <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
         <property name="worldpayOrderService" ref="worldpayOrderService"/>
         <property name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
-        <property name="worldpayGenerateMerchantTransactionCodeStrategy" ref="worldpayGenerateMerchantTransactionCodeStrategy"/>
+        <property name="worldpayGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
     </bean>
 
     <alias name="defaultWorldpayRedirectOrderService" alias="worldpayRedirectOrderService"/>
@@ -176,7 +176,7 @@
         <property name="worldpayConfigLookupService" ref="worldpayConfigLookupService"/>
         <property name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
         <property name="worldpayOrderService" ref="worldpayOrderService"/>
-        <property name="worldpayGenerateMerchantTransactionCodeStrategy" ref="worldpayGenerateMerchantTransactionCodeStrategy"/>
+        <property name="recurringGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
         <property name="worldpayTokenEventReferenceCreationStrategy" ref="worldpayTokenEventReferenceCreationStrategy"/>
         <property name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
     </bean>
@@ -188,6 +188,7 @@
         <property name="errorPath" value="/checkout/multi/worldpay/error"/>
         <property name="cancelPath" value="/checkout/multi/worldpay/hop-cancel"/>
         <property name="threeDSecureTermPath" value="/checkout/multi/worldpay/3dsecure/sop/response"/>
+        <property name="threeDSecureQuoteTermPath" value="/my-account/worldpay/3dsecure/sop/response"/>
     </bean>
 
     <bean id="bankTransferWorldpayUrlService" class="com.worldpay.service.impl.DefaultWorldpayUrlService" parent="abstractWorldpayUrlService">
@@ -304,8 +305,8 @@
         <property name="worldpayAuthorisationResultService" ref="worldpayAuthorisationResultService"/>
     </bean>
 
-    <alias name="defaultWorldpayGenerateMerchantTransactionCodeStrategy" alias="worldpayGenerateMerchantTransactionCodeStrategy"/>
-    <bean id="defaultWorldpayGenerateMerchantTransactionCodeStrategy" class="com.worldpay.core.services.strategies.impl.WorldpayGenerateMerchantTransactionCodeStrategy">
+    <alias name="defaultRecurringGenerateMerchantTransactionCodeStrategy" alias="recurringGenerateMerchantTransactionCodeStrategy"/>
+    <bean id="defaultRecurringGenerateMerchantTransactionCodeStrategy" class="com.worldpay.core.services.strategies.impl.DefaultRecurringGenerateMerchantTransactionCodeStrategy">
         <property name="modelService" ref="modelService"/>
         <property name="cartService" ref="cartService"/>
     </bean>
@@ -331,6 +332,18 @@
     <alias alias="worldpayCartService" name="defaultWorldpayCartService"/>
     <bean id="defaultWorldpayCartService" class="com.worldpay.core.services.impl.DefaultWorldpayCartService">
         <property name="worldpayCartDao" ref="worldpayCartDao"/>
+        <property name="modelService" ref="modelService"/>
+    </bean>
+
+    <alias alias="worldpayHybrisOrderDao" name="defaultWorldpayHybrisOrderDao"/>
+    <bean id="defaultWorldpayHybrisOrderDao" class="com.worldpay.core.dao.impl.DefaultWorldpayHybrisOrderDao" parent="abstractItemDao">
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+        <property name="modelService" ref="modelService"/>
+    </bean>
+
+    <alias alias="worldpayHybrisOrderService" name="defaultWorldpayHybrisOrderService"/>
+    <bean id="defaultWorldpayHybrisOrderService" class="com.worldpay.core.services.impl.DefaultWorldpayHybrisOrderService">
+        <property name="worldpayHybrisOrderDao" ref="worldpayHybrisOrderDao"/>
         <property name="modelService" ref="modelService"/>
     </bean>
 

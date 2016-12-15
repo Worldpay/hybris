@@ -23,6 +23,8 @@ public interface WorldpayOrderService {
      * Creates a Worldpay {@link Amount} object using the {@link CurrencyModel} and the amount.
      * @param currencyModel currency to be used
      * @param amount        total amount of the order
+     *
+     * @return Amount object
      */
     Amount createAmount(final CurrencyModel currencyModel, final double amount);
 
@@ -37,12 +39,16 @@ public interface WorldpayOrderService {
     /**
      * Creates a Worldpay {@link Session} object
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     *
+     * @return Session object
      */
     Session createSession(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
 
     /**
      * Creates a Worldpay {@link Browser} object
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     *
+     * @return Browser object
      */
     Browser createBrowser(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
 
@@ -51,11 +57,15 @@ public interface WorldpayOrderService {
      * @param worldpayOrderCode Identifier of the order in Worldpay
      * @param description       Description of the order
      * @param amount            Payable amount {@link Amount}
+     *
+     * @return Basic order information object
      */
     BasicOrderInfo createBasicOrderInfo(final String worldpayOrderCode, final String description, final Amount amount);
 
     /**
      * @return {@link WorldpayServiceGateway} used to communicate with Worldpay
+     *
+     * @return Gateway to Worldpay
      */
     WorldpayServiceGateway getWorldpayServiceGateway();
 

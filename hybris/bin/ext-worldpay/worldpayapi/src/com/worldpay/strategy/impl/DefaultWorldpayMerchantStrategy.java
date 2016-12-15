@@ -19,6 +19,11 @@ public class DefaultWorldpayMerchantStrategy implements WorldpayMerchantStrategy
     }
 
     @Override
+    public WorldpayMerchantConfigData getReplenishmentMerchant() {
+        return worldpayMerchantConfigDataService.getMerchantConfiguration().get(REPLENISHMENT_MERCHANT);
+    }
+
+    @Override
     public WorldpayMerchantConfigData getCustomerServiceMerchant() {
         return worldpayMerchantConfigDataService.getMerchantConfiguration().get(CUSTOMER_SERVICE_MERCHANT);
     }

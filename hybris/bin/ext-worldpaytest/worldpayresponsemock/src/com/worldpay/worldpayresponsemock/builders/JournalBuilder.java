@@ -8,6 +8,9 @@ import com.worldpay.internal.model.Journal;
 
 import java.time.LocalDate;
 
+/**
+ * Builder for the internal Journal model generated from the Worldpay DTD
+ */
 public final class JournalBuilder {
 
     private static final String IN_PROCESS_AUTHORISED = "inProcessAuthorised";
@@ -21,25 +24,50 @@ public final class JournalBuilder {
     private JournalBuilder() {
     }
 
+    /**
+     * Factory method to create a builder
+     * @return an Journal builder object
+     */
     public static JournalBuilder aJournalBuilder() {
         return new JournalBuilder();
     }
 
+    /**
+     * Build with these given values
+     * @param day
+     * @param month
+     * @param year
+     * @return this builder
+     */
     public JournalBuilder withBookingDate(String day, String month, String year) {
         journalBookingDate = buildDate(day, month, year);
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param journalType
+     * @return this builder
+     */
     public JournalBuilder withJournalType(String journalType) {
         this.journalType = journalType;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param amount
+     * @return this builder
+     */
     public JournalBuilder withAmount(Amount amount) {
         this.amount = amount;
         return this;
     }
 
+    /**
+     * Build the Journal object based on the builders internal state
+     * @return the internal Journal model
+     */
     public Journal build() {
         final Journal journal = new Journal();
 

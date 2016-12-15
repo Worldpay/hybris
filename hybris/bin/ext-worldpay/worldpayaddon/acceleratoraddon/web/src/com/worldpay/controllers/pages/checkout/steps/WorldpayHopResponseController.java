@@ -1,8 +1,8 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.controllers.WorldpayaddonControllerConstants;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
@@ -31,9 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.ERROR;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.service.model.AuthorisedStatus.*;
 import static java.text.MessageFormat.format;
 
 
@@ -55,6 +53,8 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     @Resource
     private Converter<AbstractOrderModel, OrderData> orderConverter;
+    @Resource
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @Resource
     private Set<String> apmErrorResponseStatuses;
@@ -179,7 +179,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         final PaymentDetailsForm wpPaymentDetailsForm = new PaymentDetailsForm();
         model.addAttribute(BILLING_ADDRESS_FORM, wpPaymentDetailsForm);
         populateAddressForm(countryIsoCode, useDeliveryAddress, wpPaymentDetailsForm);
-        return WorldpayaddonControllerConstants.Views.Fragments.Checkout.BillingAddressForm;
+        return worldpayAddonEndpointService.getBillingAddressForm();
     }
 
     protected void processRedirectResponse(final RedirectAuthoriseResult result) {

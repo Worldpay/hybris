@@ -12,7 +12,7 @@
             </div>
             <c:if test="${not empty orderData.paymentInfo.id}">
                 <div class="col-md-6 order-payment-data">
-                    <order:paymentDetailsItem order="${orderData}"/>
+                    <wp-order:paymentDetailsItem order="${orderData}"/>
                 </div>
             </c:if>
             <c:if test="${not empty orderData.worldpayAPMPaymentInfo.name}">

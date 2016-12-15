@@ -41,6 +41,18 @@ public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoS
      * @throws WorldpayConfigurationException
      */
     @Override
+    public MerchantInfo getReplenishmentMerchant() throws WorldpayConfigurationException {
+        final WorldpayMerchantConfigData replensihmentMerchantConfigData = worldpayMerchantStrategy.getReplenishmentMerchant();
+        return createMerchantInfo(replensihmentMerchantConfigData);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     * @throws WorldpayConfigurationException
+     */
+    @Override
     public MerchantInfo getCustomerServicesMerchant() throws WorldpayConfigurationException {
         final WorldpayMerchantConfigData customerServiceMerchantConfigData = worldpayMerchantStrategy.getCustomerServiceMerchant();
         return createMerchantInfo(customerServiceMerchantConfigData);

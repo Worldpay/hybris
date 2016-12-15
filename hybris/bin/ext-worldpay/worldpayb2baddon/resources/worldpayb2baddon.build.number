@@ -1,0 +1,9 @@
+#Ant properties
+#Thu Dec 15 12:11:43 GMT 2016
+builddate=20161215 1211
+description=worldpayb2baddon
+name=worldpayb2baddon
+releasedate=20161110 1533
+vendor=hybris
+version=6.2.0.1
+version.api=6.2.0

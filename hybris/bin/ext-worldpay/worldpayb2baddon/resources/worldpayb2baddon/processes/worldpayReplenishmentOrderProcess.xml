@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2000-2016 SAP SE or an SAP affiliate company.
+ All rights reserved.
+
+ This software is the confidential and proprietary information of SAP
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with SAP.
+-->
+<process xmlns="http://www.hybris.de/xsd/processdefinition"
+         start="cloneCartAction"
+         name="replenishmentOrderProcess"
+         processClass="de.hybris.platform.b2bacceleratorservices.model.process.ReplenishmentProcessModel"
+         onError="error">
+
+    <action id="cloneCartAction" bean="cloneCartAction">
+        <transition name="OK" to="calculateCartAction"/>
+        <transition name="NOK" to="cleanUpClonedCartOnFailedAction"/>
+    </action>
+
+    <action id="calculateCartAction" bean="calculateCartAction">
+        <transition name="OK" to="authorizePaymentAction"/>
+        <transition name="NOK" to="cleanUpClonedCartOnFailedAction"/>
+    </action>
+
+    <action id="authorizePaymentAction" bean="authorizePaymentAction">
+        <transition name="OK" to="placeOrderAction"/>
+        <transition name="NOK" to="cleanUpClonedCartOnFailedAction"/>
+    </action>
+
+    <action id="placeOrderAction" bean="placeOrderAction">
+        <transition name="OK" to="cleanUpClonedCartAction"/>
+        <transition name="NOK" to="error"/>
+    </action>
+
+    <action id="cleanUpClonedCartAction" bean="cleanUpClonedCartAction">
+        <transition name="OK" to="confirmationAction"/>
+    </action>
+
+    <action id="confirmationAction" bean="confirmationAction">
+        <transition name="OK" to="success"/>
+        <transition name="NOK" to="error"/>
+    </action>
+
+    <action id="cleanUpClonedCartOnFailedAction" bean="cleanUpClonedCartAction">
+        <transition name="OK" to="failed"/>
+    </action>
+
+    <end id="error" state="ERROR">Something went wrong.</end>
+    <end id="failed" state="FAILED">Could not create a replenishment order.</end>
+    <end id="success" state="SUCCEEDED">Created a replenishment order.</end>
+
+</process>

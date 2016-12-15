@@ -10,14 +10,22 @@ The plugin contains several hybris extensions. Take the following steps to inclu
 
 2. Copy the extracted folders to the ${HYBRIS_BIN_DIR} of your hybris installation.
 
-3. Run the ‘ant clean’ command from within your hybris bin/platform directory.
+3. Remove conflicting AddOn:
+- If you are installing the B2C AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
+- If you are installing the B2B AddOn: Delete the worldpayaddon extension from ${HYBRIS_BIN_DIR}/ext-worldpay
 
-4. Copy the following lines into your localextensions.xml after <path dir="${HYBRIS_BIN_DIR}"/>. The extensions do not rely on any absolute paths so it is also possible to place the extensions in a different location (such as ${HYBRIS_BIN_DIR}/custom).
+4. Run the ‘ant clean’ command from within your hybris bin/platform directory.
+
+5. Copy the following lines into your localextensions.xml after <path dir="${HYBRIS_BIN_DIR}"/>. The extensions do not rely on any absolute paths so it is also possible to place the extensions in a different location (such as ${HYBRIS_BIN_DIR}/custom).
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpay"/>
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpayfulfilment"/>
 
-5. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant):
+6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant):
 
+- If you are installing the B2C AddOn:
+- ant addoninstall -Daddonnames="worldpayaddon,worldpaynotificationaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+
+- If you are installing the B2B AddOn:
 - ant addoninstall -Daddonnames="worldpayb2caddon,worldpaynotificationaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 ### Optional
@@ -48,17 +56,25 @@ The plugin is supplied as a zip file with several hybris extensions inside. Take
 
 2. Copy the extracted folders to the ${HYBRIS_BIN_DIR} of your hybris installation.
 
-3. Run the ‘ant clean’ command from within your hybris bin/platform directory.
+3. Remove conflicting AddOn:
+- If you are installing the B2C AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
+- If you are installing the B2B AddOn: Delete the worldpayaddon extension from ${HYBRIS_BIN_DIR}/ext-worldpay
 
-4. Copy the following lines into your localextensions.xml after <path dir="${HYBRIS_BIN_DIR}"/>. The extensions do not rely on any absolute paths so it is also possible to place the extensions in a different location (such as ${HYBRIS_BIN_DIR}/custom).
+4. Run the ‘ant clean’ command from within your hybris bin/platform directory.
+
+5. Copy the following lines into your localextensions.xml after <path dir="${HYBRIS_BIN_DIR}"/>. The extensions do not rely on any absolute paths so it is also possible to place the extensions in a different location (such as ${HYBRIS_BIN_DIR}/custom).
 
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpay"/>
 
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpayoms"/>
 
-5. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant):
+6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant):
 
-- ant addoninstall -Daddonnames="worldpayb2caddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+- If you are installing the B2C AddOn:
+- ant addoninstall -Daddonnames="worldpayaddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+
+- If you are installing the B2B AddOn:
+- ant addoninstall -Daddonnames="worldpayb2baddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 ### Optional
 
@@ -78,13 +94,15 @@ The AddOn's are independent and can be installed on separate server instances. F
 
 ## Installing the Plugin using the provided recipes
 
-The AddOn provides 2 gradle recipes to be used with the hybris installer.
+The AddOn provides three gradle recipes to be used with the hybris installer.
 
 1. wp_b2c_acc with fulfilment functionality
 
 2. wp_b2c_acc_oms with OMS functionality.
 
-The recipes are based on the b2c_acc and b2c_acc_oms recipes provided by hybris.
+3. wp_b2b_acc with fulfilment functionality
+
+The recipes are based on the b2c_acc, b2c_acc_oms and b2b_acc recipes provided by hybris.
 
 The recipes can be found under the installer folder.
 

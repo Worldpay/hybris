@@ -6,14 +6,12 @@ import de.hybris.platform.jalo.SessionContext;
 import de.hybris.platform.jalo.type.ComposedType;
 import org.apache.log4j.Logger;
 
-public class WorldpayAPMComponent extends GeneratedWorldpayAPMComponent
-{
+public class WorldpayAPMComponent extends GeneratedWorldpayAPMComponent {
 	@SuppressWarnings("unused")
 	private final static Logger LOG = Logger.getLogger( WorldpayAPMComponent.class.getName() );
-	
+
 	@Override
-	protected Item createItem(final SessionContext ctx, final ComposedType type, final ItemAttributeMap allAttributes) throws JaloBusinessException
-	{
+	protected Item createItem(final SessionContext ctx, final ComposedType type, final ItemAttributeMap allAttributes) throws JaloBusinessException {
 		// business code placed here will be executed before the item is created
 		// then create the item
 		final Item item = super.createItem( ctx, type, allAttributes );
@@ -21,5 +19,5 @@ public class WorldpayAPMComponent extends GeneratedWorldpayAPMComponent
 		// and return the item
 		return item;
 	}
-	
+
 }

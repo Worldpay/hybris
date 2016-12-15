@@ -5,6 +5,7 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.forms.validation.PaymentDetailsFormValidator;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
@@ -24,21 +25,11 @@ import org.springframework.validation.BindingResult;
 
 import java.util.Locale;
 
-import static com.worldpay.controllers.WorldpayaddonControllerConstants.Views.Fragments.Checkout.BillingAddressInPaymentForm;
-import static com.worldpay.controllers.WorldpayaddonControllerConstants.Views.Fragments.Common.GlobalErrorsFragment;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController.PAYMENT_DETAILS_FORM;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayLightboxCheckoutStepController.CHECKOUT_MULTI_LIGHTBOX_REDIRECT_ERROR;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayLightboxCheckoutStepController.ERROR_MESSAGE_KEY;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayLightboxCheckoutStepController.PAYMENT_DETAILS_FORM_ERRORS;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayLightboxCheckoutStepController.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -47,6 +38,8 @@ public class WorldpayLightboxCheckoutStepControllerTest {
     private static final String PAYMENT_METHOD = "paymentMethod";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final String ERROR_MESSAGE = "errorMessage";
+    private static final String BILLINGADDRESS_INPAYMENTFORM = "billingAddressInPaymentForm";
+    private static final String GLOBAL_ERRORFRAGMENT = "globalErrorFragment";
 
     @Spy
     @InjectMocks
@@ -70,11 +63,14 @@ public class WorldpayLightboxCheckoutStepControllerTest {
     @Mock
     private PaymentData paymentDataMock;
     @Mock
+
     private MessageSource themeSourceMock;
     @Mock
     private I18NService i18NServiceMock;
     @Mock
     private SessionService sessionServiceMock;
+    @Mock
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @Before
     public void setUp() throws CMSItemNotFoundException {
@@ -87,6 +83,8 @@ public class WorldpayLightboxCheckoutStepControllerTest {
         when(i18NServiceMock.getCurrentLocale()).thenReturn(Locale.UK);
         when(sessionServiceMock.getAttribute(PAYMENT_DETAILS_FORM)).thenReturn(paymentDetailsFormMock);
         when(sessionServiceMock.getAttribute(PAYMENT_DETAILS_FORM_ERRORS)).thenReturn(bindingResultMock);
+        when(worldpayAddonEndpointService.getBillingAddressInPaymentForm()).thenReturn(BILLINGADDRESS_INPAYMENTFORM);
+        when(worldpayAddonEndpointService.getGlobalErrorsFragment()).thenReturn(GLOBAL_ERRORFRAGMENT);
     }
 
     @Test
@@ -99,7 +97,7 @@ public class WorldpayLightboxCheckoutStepControllerTest {
         verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         verify(testObj).resetDeclineCodeOnCart();
         verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
-        assertEquals(BillingAddressInPaymentForm, result);
+        assertEquals(BILLINGADDRESS_INPAYMENTFORM, result);
     }
 
     @Test
@@ -113,7 +111,7 @@ public class WorldpayLightboxCheckoutStepControllerTest {
         verify(testObj, never()).handleAndSaveAddresses(paymentDetailsFormMock);
         verify(testObj).prepareErrorView(modelMock, paymentDetailsFormMock);
         verify(testObj).resetDeclineCodeOnCart();
-        assertEquals(BillingAddressInPaymentForm, result);
+        assertEquals(BILLINGADDRESS_INPAYMENTFORM, result);
     }
 
     @Test
@@ -124,7 +122,7 @@ public class WorldpayLightboxCheckoutStepControllerTest {
 
         verify(testObj).addGlobalErrors(modelMock, bindingResultMock);
         verify(sessionServiceMock).getAttribute(PAYMENT_DETAILS_FORM_ERRORS);
-        assertEquals(GlobalErrorsFragment, result);
+        assertEquals(GLOBAL_ERRORFRAGMENT, result);
     }
 
     @Test

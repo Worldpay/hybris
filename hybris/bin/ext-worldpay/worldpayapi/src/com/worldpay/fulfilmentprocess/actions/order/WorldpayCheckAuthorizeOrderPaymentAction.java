@@ -19,6 +19,9 @@ import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_NOT_AUTHORIZED;
 import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_PENDING;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 
+/**
+ * Action to check authorization state on order payment
+ */
 public class WorldpayCheckAuthorizeOrderPaymentAction extends AbstractAction<OrderProcessModel> {
 
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
@@ -44,15 +47,7 @@ public class WorldpayCheckAuthorizeOrderPaymentAction extends AbstractAction<Ord
                     return NOK.toString();
                 }
 
-                boolean waitForAuthorisation = false;
-                // All payment transactions must be authorised and not pending
-                // otherwise we wait in the order-process
-                for (final PaymentTransactionModel paymentTransaction : order.getPaymentTransactions()) {
-                    if (worldpayPaymentTransactionService.isPaymentTransactionPending(paymentTransaction, AUTHORIZATION)) {
-                        waitForAuthorisation = true;
-                        break;
-                    }
-                }
+                boolean waitForAuthorisation = isAuthorizationPending(order);
 
                 if (waitForAuthorisation) {
                     setOrderStatus(order, PAYMENT_PENDING);
@@ -66,11 +61,25 @@ public class WorldpayCheckAuthorizeOrderPaymentAction extends AbstractAction<Ord
         return returnTransition;
     }
 
+    private boolean isAuthorizationPending(OrderModel order) {
+        boolean waitForAuthorisation = false;
+        for (final PaymentTransactionModel paymentTransaction : order.getPaymentTransactions()) {
+            if (worldpayPaymentTransactionService.isPaymentTransactionPending(paymentTransaction, AUTHORIZATION)) {
+                waitForAuthorisation = true;
+                break;
+            }
+        }
+        return waitForAuthorisation;
+    }
+
     @Required
     public void setPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }
 
+    /**
+     * Enum with transitions stated when this action is used.
+     */
     public enum Transition {
         OK, NOK, WAIT;
 

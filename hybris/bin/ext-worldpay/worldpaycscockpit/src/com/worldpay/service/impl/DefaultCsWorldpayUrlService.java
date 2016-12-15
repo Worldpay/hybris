@@ -62,6 +62,18 @@ public class DefaultCsWorldpayUrlService extends AbstractWorldpayUrlService {
     }
 
     /**
+     * In the CS Cockpit the CS Agent will not be asked for the 3D Secure Authentication. In the CS Cockpit the MOTO (Mail Order Telephone Order) merchant
+     * should be set.
+     *
+     * @return null
+     * @throws WorldpayConfigurationException
+     */
+    @Override
+    public String getFullThreeDSecureQuoteTermURL() throws WorldpayConfigurationException {
+        return null;
+    }
+
+    /**
      * Get the path prefix from config
      *
      * @return the path prefix of the current cscockpit application

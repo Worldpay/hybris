@@ -7,6 +7,9 @@ import com.worldpay.internal.model.Address3;
 
 import java.util.List;
 
+/**
+ * Builder for the internal Address model generated from the Worldpay DTD
+ */
 public final class AddressBuilder {
 
     private static final String DEFAULT_ADDRESS_1 = "default address 1";
@@ -28,45 +31,88 @@ public final class AddressBuilder {
     private AddressBuilder() {
     }
 
+    /**
+     * Factory method to create a builder
+     * @return an Address builder object
+     */
     public static AddressBuilder anAddressBuilder() {
         return new AddressBuilder();
     }
 
+    /**
+     * Build with this given value
+     * @param address1
+     * @return this builder
+     */
     public AddressBuilder withAddress1(String address1) {
         this.address1 = address1;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param address2
+     * @return this builder
+     */
     public AddressBuilder withAddress2(String address2) {
         this.address2 = address2;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param address3
+     * @return this builder
+     */
     public AddressBuilder withAddress3(String address3) {
         this.address3 = address3;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param lastName
+     * @return this builder
+     */
     public AddressBuilder withLastName(String lastName) {
         this.lastName = lastName;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param postalCode
+     * @return this builder
+     */
     public AddressBuilder withPostalCode(String postalCode) {
         this.postalCode = postalCode;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param city
+     * @return this builder
+     */
     public AddressBuilder withCity(String city) {
         this.city = city;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param countryCode
+     * @return this builder
+     */
     public AddressBuilder withCountryCode(String countryCode) {
         this.countryCode = countryCode;
         return this;
     }
 
+    /**
+     * Build the Address object based on the builders internal state
+     * @return the internal Address model
+     */
     public Address build() {
         final Address address = new Address();
 

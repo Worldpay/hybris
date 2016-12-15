@@ -14,6 +14,7 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
     private String failurePath;
     private String cancelPath;
     private String threeDSecureTermPath;
+    private String threeDSecureQuoteTermPath;
     private String errorPath;
 
     public String getSuccessPath() {
@@ -54,6 +55,14 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
 
     public String getThreeDSecureTermPath() {
         return threeDSecureTermPath;
+    }
+
+    public String getThreeDSecureQuoteTermPath() {
+        return threeDSecureQuoteTermPath;
+    }
+
+    public void setThreeDSecureQuoteTermPath(String threeDSecureQuoteTermPath) {
+        this.threeDSecureQuoteTermPath = threeDSecureQuoteTermPath;
     }
 
     public String getErrorPath() {

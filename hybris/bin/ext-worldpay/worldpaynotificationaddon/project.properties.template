@@ -19,6 +19,7 @@
 worldpaynotificationaddon.application-context=worldpaynotificationaddon-spring.xml
 
 yacceleratorstorefront.additionalWebSpringConfigs.worldpaynotificationaddon=classpath:/worldpaynotificationaddon/web/spring/worldpaynotificationaddon-web-spring.xml
+yb2bacceleratorstorefront.additionalWebSpringConfigs.worldpaynotificationaddon=classpath:/worldpaynotificationaddon/web/spring/worldpaynotificationaddon-web-spring.xml
 
 worldpayOrderSync.notification.received.trigger.activate=true
 worldpayOrderSync.notification.unprocessed.trigger.activate=true

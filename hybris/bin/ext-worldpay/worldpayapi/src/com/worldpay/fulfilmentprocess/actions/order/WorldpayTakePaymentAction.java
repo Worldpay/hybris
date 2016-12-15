@@ -20,12 +20,18 @@ import de.hybris.platform.processengine.action.AbstractAction;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
+/**
+ * Atcion that handle payment transactions and update order status
+ */
 public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel> {
     private static final Logger LOG = Logger.getLogger(WorldpayTakePaymentAction.class);
 
     private PaymentService paymentService;
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
 
+    /**
+     * Enum with transitions stated when this action is used.
+     */
     public enum Transition {
         OK, NOK, WAIT;
 

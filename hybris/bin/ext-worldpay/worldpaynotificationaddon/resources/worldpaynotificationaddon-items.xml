@@ -129,24 +129,5 @@
             </attributes>
         </itemtype>
 
-        <itemtype code="AbstractOrder" autocreate="false" generate="false">
-            <description>Extending Abstract Order to hold the worldpay order code</description>
-            <attributes>
-                <attribute qualifier="worldpayOrderCode" type="java.lang.String" generate="true" autocreate="true">
-                    <persistence type="property"/>
-                    <description>This is the code that Worldpay will use in their systems.</description>
-                </attribute>
-                <attribute qualifier="worldpayDeclineCode" type="java.lang.String" generate="true" autocreate="true">
-                    <persistence type="property"/>
-                    <description>Decline code of the transaction if it was refused</description>
-                </attribute>
-            </attributes>
-            <indexes>
-                <index name="worldpayOrderCodeIdx">
-                    <key attribute="worldpayOrderCode"/>
-                </index>
-            </indexes>
-        </itemtype>
-
     </itemtypes>
 </items>

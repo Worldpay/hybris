@@ -11,6 +11,7 @@ import com.worldpay.transaction.EntryCodeStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.converters.Populator;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.dto.TransactionStatus;
@@ -212,8 +213,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     }
 
     @Override
-    public PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode, final CartModel cartModel) {
-        final PaymentTransactionEntryModel transactionEntryModel = createAuthorizationPaymentTransactionEntryModel(paymentTransaction, merchantCode, cartModel);
+    public PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode, final AbstractOrderModel abstractOrderModel) {
+        final PaymentTransactionEntryModel transactionEntryModel = createAuthorizationPaymentTransactionEntryModel(paymentTransaction, merchantCode, abstractOrderModel);
         transactionEntryModel.setPending(Boolean.FALSE);
 
         modelService.save(transactionEntryModel);
@@ -232,14 +233,14 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public PaymentTransactionModel createPaymentTransaction(final boolean apmOpen, final String merchantCode, final CommerceCheckoutParameter commerceCheckoutParameter) {
         final PaymentTransactionModel paymentTransactionModel = modelService.create(PaymentTransactionModel.class);
-        final CartModel cartModel = commerceCheckoutParameter.getCart();
-        String worldpayOrderCode = cartModel.getWorldpayOrderCode();
+        final AbstractOrderModel abstractOrderModel = commerceCheckoutParameter.getCart() == null ? commerceCheckoutParameter.getOrder() : commerceCheckoutParameter.getCart();
+        String worldpayOrderCode = abstractOrderModel.getWorldpayOrderCode();
         paymentTransactionModel.setCode(worldpayOrderCode);
         paymentTransactionModel.setRequestId(worldpayOrderCode);
         paymentTransactionModel.setRequestToken(merchantCode);
         paymentTransactionModel.setPaymentProvider(commerceCheckoutParameter.getPaymentProvider());
-        paymentTransactionModel.setOrder(cartModel);
-        paymentTransactionModel.setCurrency(cartModel.getCurrency());
+        paymentTransactionModel.setOrder(abstractOrderModel);
+        paymentTransactionModel.setCurrency(abstractOrderModel.getCurrency());
         paymentTransactionModel.setInfo(commerceCheckoutParameter.getPaymentInfo());
         paymentTransactionModel.setApmOpen(apmOpen);
         paymentTransactionModel.setPlannedAmount(commerceCheckoutParameter.getAuthorizationAmount());
@@ -247,6 +248,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         modelService.save(paymentTransactionModel);
         return paymentTransactionModel;
     }
+
 
 
     /**
@@ -357,19 +359,19 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         LOG.warn(format("The amount for the transaction entry [{0}] has changed from [{1}] to [{2}] during [{3}]", entry.getCode(), entry.getAmount(), amountValue, entry.getType()));
     }
 
-    private PaymentTransactionEntryModel createAuthorizationPaymentTransactionEntryModel(final PaymentTransactionModel paymentTransaction, final String merchantCode, final CartModel cartModel) {
+    private PaymentTransactionEntryModel createAuthorizationPaymentTransactionEntryModel(final PaymentTransactionModel paymentTransaction, final String merchantCode, final AbstractOrderModel abstractOrderModel) {
         final PaymentTransactionEntryModel transactionEntryModel = modelService.create(PaymentTransactionEntryModel.class);
 
         transactionEntryModel.setType(AUTHORIZATION);
         transactionEntryModel.setPaymentTransaction(paymentTransaction);
-        transactionEntryModel.setRequestId(cartModel.getWorldpayOrderCode());
+        transactionEntryModel.setRequestId(abstractOrderModel.getWorldpayOrderCode());
         transactionEntryModel.setRequestToken(merchantCode);
         transactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransaction));
         transactionEntryModel.setTime(DateTime.now().toDate());
         transactionEntryModel.setTransactionStatus(ACCEPTED.name());
         transactionEntryModel.setTransactionStatusDetails(SUCCESFULL.name());
-        transactionEntryModel.setAmount(new BigDecimal(cartModel.getTotalPrice()));
-        transactionEntryModel.setCurrency(cartModel.getCurrency());
+        transactionEntryModel.setAmount(new BigDecimal(abstractOrderModel.getTotalPrice()));
+        transactionEntryModel.setCurrency(abstractOrderModel.getCurrency());
         return transactionEntryModel;
     }
 

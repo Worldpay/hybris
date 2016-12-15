@@ -17,6 +17,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
+/**
+ * Worldpay fraud check action - using the hybris fraud service
+ */
 public class WorldpayFraudCheckOrderInternalAction extends WorldpayAbstractFraudCheckAction<OrderProcessModel> {
 
     private static final Logger LOG = Logger.getLogger(WorldpayFraudCheckOrderInternalAction.class);

@@ -23,7 +23,8 @@ import java.util.Set;
  */
 public abstract class WorldpayAbstractFraudCheckAction<T extends OrderProcessModel> extends WorldpayAbstractOrderAction<T> {
 
-    public static final String FRAUD_CHECK_TEXT = "Fraud check [";
+    public static final String FRAUD_CHECK_TEXT_OK = "Fraud check [{0}]: OK";
+    public static final String FRAUD_CHECK_TEXT_NOK = "Fraud check [{0}]: {1}. Check the fraud report : {2}";
 
     protected FraudReportModel createFraudReport(String providerName, FraudServiceResponse response, OrderModel order, FraudStatus status) {
         final FraudReportModel fraudReport = this.modelService.create(FraudReportModel.class);
@@ -55,9 +56,9 @@ public abstract class WorldpayAbstractFraudCheckAction<T extends OrderProcessMod
     protected OrderHistoryEntryModel createHistoryLog(String providerName, OrderModel order, FraudStatus status, String code) {
         String description;
         if (status.equals(FraudStatus.OK)) {
-            description = MessageFormat.format(FRAUD_CHECK_TEXT + "{0} ]: OK", providerName);
+            description = MessageFormat.format(FRAUD_CHECK_TEXT_OK, providerName);
         } else {
-            description = MessageFormat.format(FRAUD_CHECK_TEXT + "{0} ]: {1}. Check the fraud report : {2}", providerName, status.toString(), code);
+            description = MessageFormat.format(FRAUD_CHECK_TEXT_NOK, providerName, status.toString(), code);
         }
 
         return this.createHistoryLog(description, order);
