@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.exception.WorldpayException;
 import com.worldpay.worldpayresponsemock.controllers.WorldpayResponseMockControllerConstants;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import com.worldpay.worldpayresponsemock.merchant.WorldpayResponseMockMerchantInfoService;
@@ -33,7 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-
+/**
+ * Controller for page to post mocked order modifications into hybris.
+ * With this mock you can emulate order changes in Worldpay
+ */
 @Controller
 public class WorldpayOrderModificationMockController {
 
@@ -104,6 +108,11 @@ public class WorldpayOrderModificationMockController {
     @Resource
     private WorldpayMockConnector worldpayMockConnector;
 
+    /**
+     * Get form for mocked order modifications
+     * @param model
+     * @return
+     */
     @RequestMapping (value = "/responses", method = GET)
     public ModelAndView getAllAnswers(ModelMap model) {
         populateModel(model, null);
@@ -146,8 +155,16 @@ public class WorldpayOrderModificationMockController {
         return responseForm;
     }
 
+    /**
+     * Post the mocked order modification into hybris
+     * @param responseForm
+     * @param model
+     * @param request
+     * @return
+     * @throws WorldpayException
+     */
     @RequestMapping (value = "/sendSelectedResponse", method = POST)
-    public String sendResponse(final ResponseForm responseForm, ModelMap model, final HttpServletRequest request) throws Exception {
+    public String sendResponse(final ResponseForm responseForm, ModelMap model, final HttpServletRequest request) throws WorldpayException {
         responseForm.setResponseDescription(ISO8583ResponseCodes.get(responseForm.getResponseCode()));
         responseForm.setTestCreditCard(maskCreditCardNumber(responseForm.getTestCreditCard()));
         responseForm.setObfuscatedPAN(maskCreditCardNumber(responseForm.getObfuscatedPAN()));
@@ -159,6 +176,11 @@ public class WorldpayOrderModificationMockController {
         return WorldpayResponseMockControllerConstants.Pages.Views.RESPONSES;
     }
 
+    /**
+     * Get merchants for a given site
+     * @param siteUid
+     * @return
+     */
     @RequestMapping (value = "/merchants/{siteUid}", method = GET)
     @ResponseBody
     public List<String> getMerchantsBySite(@PathVariable String siteUid) {

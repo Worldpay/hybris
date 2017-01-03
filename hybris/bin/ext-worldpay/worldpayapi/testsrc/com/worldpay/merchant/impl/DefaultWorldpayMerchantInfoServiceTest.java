@@ -57,9 +57,9 @@ public class DefaultWorldpayMerchantInfoServiceTest {
     @Mock
     private WorldpayMerchantStrategy worldpayMerchantStrategyMock;
     @Mock
-    private WorldpayMerchantConfigData customerServiceMerchantConfigDataMock, webSiteMerchantConfigDataMock;
+    private WorldpayMerchantConfigData merchantConfigDataMock;
     @Mock
-    private MerchantInfo customerServiceMerchantInfo, webSiteMerchantInfo;
+    private MerchantInfo merchantInfo;
 
     @Before
     public void setUp() {
@@ -70,22 +70,32 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Test
     public void shouldCreateMerchantInfoFromCustomerServiceMerchantConfigData() throws WorldpayConfigurationException {
-        when(worldpayMerchantStrategyMock.getCustomerServiceMerchant()).thenReturn(customerServiceMerchantConfigDataMock);
-        doReturn(customerServiceMerchantInfo).when(testObj).createMerchantInfo(customerServiceMerchantConfigDataMock);
+        when(worldpayMerchantStrategyMock.getCustomerServiceMerchant()).thenReturn(merchantConfigDataMock);
+        doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
 
         final MerchantInfo result = testObj.getCustomerServicesMerchant();
 
-        assertEquals(customerServiceMerchantInfo, result);
+        assertEquals(merchantInfo, result);
+    }
+
+    @Test
+    public void shouldCreateMerchantInfoFromReplenishmentMerchantConfigData() throws WorldpayConfigurationException {
+        when(worldpayMerchantStrategyMock.getReplenishmentMerchant()).thenReturn(merchantConfigDataMock);
+        doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
+
+        final MerchantInfo result = testObj.getReplenishmentMerchant();
+
+        assertEquals(merchantInfo, result);
     }
 
     @Test
     public void shouldCreateMerchantInfoFromWebSiteMerchantConfigData() throws WorldpayConfigurationException {
-        when(worldpayMerchantStrategyMock.getMerchant(DESKTOP)).thenReturn(webSiteMerchantConfigDataMock);
-        doReturn(webSiteMerchantInfo).when(testObj).createMerchantInfo(webSiteMerchantConfigDataMock);
+        when(worldpayMerchantStrategyMock.getMerchant(DESKTOP)).thenReturn(merchantConfigDataMock);
+        doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
 
         final MerchantInfo result = testObj.getCurrentSiteMerchant(DESKTOP);
 
-        assertEquals(webSiteMerchantInfo, result);
+        assertEquals(merchantInfo, result);
     }
 
     @Test
@@ -118,12 +128,12 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Test
     public void shouldCreateMerchantInfoUsingMacValidation() throws WorldpayConfigurationException {
-        when(webSiteMerchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
-        when(webSiteMerchantConfigDataMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
-        when(webSiteMerchantConfigDataMock.getMacSecret()).thenReturn(MAC_SECRET);
-        when(webSiteMerchantConfigDataMock.getMacValidation()).thenReturn(true);
+        when(merchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
+        when(merchantConfigDataMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
+        when(merchantConfigDataMock.getMacSecret()).thenReturn(MAC_SECRET);
+        when(merchantConfigDataMock.getMacValidation()).thenReturn(true);
 
-        final MerchantInfo result = testObj.createMerchantInfo(webSiteMerchantConfigDataMock);
+        final MerchantInfo result = testObj.createMerchantInfo(merchantConfigDataMock);
 
         assertEquals(MAC_SECRET, result.getMacSecret());
         assertEquals(MERCHANT_CODE, result.getMerchantCode());
@@ -133,12 +143,12 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Test
     public void shouldCreateMerchantInfoNotUsingMacValidation() throws WorldpayConfigurationException {
-        when(webSiteMerchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
-        when(webSiteMerchantConfigDataMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
-        when(webSiteMerchantConfigDataMock.getMacSecret()).thenReturn(MAC_SECRET);
-        when(webSiteMerchantConfigDataMock.getMacValidation()).thenReturn(false);
+        when(merchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
+        when(merchantConfigDataMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
+        when(merchantConfigDataMock.getMacSecret()).thenReturn(MAC_SECRET);
+        when(merchantConfigDataMock.getMacValidation()).thenReturn(false);
 
-        final MerchantInfo result = testObj.createMerchantInfo(webSiteMerchantConfigDataMock);
+        final MerchantInfo result = testObj.createMerchantInfo(merchantConfigDataMock);
 
         assertEquals(MERCHANT_CODE, result.getMerchantCode());
         assertEquals(MERCHANT_PASSWORD, result.getMerchantPassword());

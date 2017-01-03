@@ -1,6 +1,0 @@
-$checkoutGroup=worldpayB2BCheckoutGroup
-$storeUid=powertools
-
-# Base Store
-UPDATE BaseStore;uid[unique=true];checkoutFlowGroup
-;$storeUid;$checkoutGroup

@@ -11,6 +11,7 @@ public interface WorldpayMerchantStrategy {
     String MOBILE_MERCHANT = "mobile";
     String DESKTOP_MERCHANT = "web";
     String CUSTOMER_SERVICE_MERCHANT = "customerService";
+    String REPLENISHMENT_MERCHANT = "replenishment";
 
     /**
      * Returns the merchant configured for the current uiExperience
@@ -26,4 +27,11 @@ public interface WorldpayMerchantStrategy {
      * @return
      */
     WorldpayMerchantConfigData getCustomerServiceMerchant();
+
+    /**
+     * Returns the merchant configured for Replenishment
+     *
+     * @return
+     */
+    WorldpayMerchantConfigData getReplenishmentMerchant();
 }

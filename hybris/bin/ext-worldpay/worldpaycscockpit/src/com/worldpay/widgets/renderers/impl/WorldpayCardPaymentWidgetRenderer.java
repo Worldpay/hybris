@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-
+/**
+ * Widget render for worldpay card payments
+ */
 public class WorldpayCardPaymentWidgetRenderer extends CardPaymentWidgetRenderer {
 
     private static final Logger LOG = Logger.getLogger(WorldpayCardPaymentWidgetRenderer.class);
@@ -78,7 +80,7 @@ public class WorldpayCardPaymentWidgetRenderer extends CardPaymentWidgetRenderer
             for (final Entry<String, String> entry : entrySet) {
                 paramBuffer.append(entry.getKey()).append("=").append(URLEncoder.encode(entry.getValue(), ENCODING)).append("&");
             }
-            paramBuffer.append(QUERY_PARAM_DEBUG_MODE + "=").append(URLEncoder.encode("" + isDebugMode(), ENCODING));
+            paramBuffer.append(QUERY_PARAM_DEBUG_MODE + "=").append(URLEncoder.encode("" + Boolean.toString(isDebugMode()), ENCODING));
         } catch (final UnsupportedEncodingException e) {
             LOG.error("Error encoding URL: " + paymentData, e);
         }

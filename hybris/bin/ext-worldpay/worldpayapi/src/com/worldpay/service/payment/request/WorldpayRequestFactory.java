@@ -9,6 +9,7 @@ import com.worldpay.service.request.CreateTokenServiceRequest;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import com.worldpay.service.response.CreateTokenResponse;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 
 
@@ -59,14 +60,13 @@ public interface WorldpayRequestFactory {
      * @param cartModel                  the session cart
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
      * @param paRes                      the payer Response required for 3D request
-     * @param echoData                   the echo Data from the authorise response
      * @param cookie                     the cookie from the authorise response
      * @return
      * @throws WorldpayConfigurationException
      */
-    DirectAuthoriseServiceRequest build3dDirectAuthoriseRequest(MerchantInfo merchantInfo, CartModel cartModel,
+    DirectAuthoriseServiceRequest build3dDirectAuthoriseRequest(MerchantInfo merchantInfo, String worldpayOrderCode,
                                                                 WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                                String paRes, String echoData, String cookie) throws WorldpayConfigurationException;
+                                                                String paRes, String cookie) throws WorldpayConfigurationException;
 
     /**
      * Builds a direct authorise request to send to Worldpay
@@ -86,11 +86,11 @@ public interface WorldpayRequestFactory {
      * Builds an authorise recurring payment request to send to Worldpay
      *
      * @param merchantInfo               the merchantInfo
-     * @param cartModel                  the session cart
+     * @param abstractOrderModel         the session cart or an order
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
      * @return Built {@link DirectAuthoriseServiceRequest}
      * @throws WorldpayConfigurationException
      */
-    DirectAuthoriseServiceRequest buildDirectAuthoriseRecurringPayment(MerchantInfo merchantInfo, CartModel cartModel, WorldpayAdditionalInfoData worldpayAdditionalInfoData)
+    DirectAuthoriseServiceRequest buildDirectAuthoriseRecurringPayment(MerchantInfo merchantInfo, AbstractOrderModel abstractOrderModel, WorldpayAdditionalInfoData worldpayAdditionalInfoData)
                 throws WorldpayConfigurationException;
 }

@@ -1,6 +1,7 @@
 package com.worldpay.worldpayresponsemock.mock;
 
 
+import com.worldpay.exception.WorldpayException;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.http.client.HttpClient;
@@ -13,6 +14,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -20,8 +22,15 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+
 import static org.apache.http.conn.socket.PlainConnectionSocketFactory.getSocketFactory;
 
+/**
+ * Mocked connector to Worldpay
+ */
 public class WorldpayMockConnector {
 
     protected static final String WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT = "worldpayresponsemock.order.notification.endpoint";
@@ -29,19 +38,35 @@ public class WorldpayMockConnector {
     protected static final String STOREFRONT_CONTEXT_ROOT = "storefrontContextRoot";
     protected static final String SCHEME_SEPARATOR = "://";
     protected static final String PROTOCOL_SEPARATOR = ":";
+    protected static final String EXCEPTION_MESSAGE = "Exception sending response using the mocked connector";
+
+    private static final Logger LOG = Logger.getLogger(WorldpayMockConnector.class);
 
     private RestTemplate worldpayRestTemplate;
     private ConfigurationService configurationService;
 
-    public void sendResponse(ResponseForm responseForm, HttpServletRequest request, String responseXML) throws Exception {
+    /**
+     * Send the response
+     * @param responseForm
+     * @param request
+     * @param responseXML
+     * @throws WorldpayException
+     */
+    public void sendResponse(ResponseForm responseForm, HttpServletRequest request, String responseXML) throws WorldpayException {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = buildAllowingAllHostNamesHttpClient();
+        HttpClient httpClient = null;
+        try {
+            httpClient = buildAllowingAllHostNamesHttpClient();
+        } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+            LOG.error(EXCEPTION_MESSAGE, e);
+            throw new WorldpayException(EXCEPTION_MESSAGE, e);
+        }
         factory.setHttpClient(httpClient);
         worldpayRestTemplate.setRequestFactory(factory);
         worldpayRestTemplate.postForObject(constructEndpoint(request) + SITE_PARAMETER_NAME + responseForm.getSiteId(), responseXML, String.class);
     }
 
-    protected HttpClient buildAllowingAllHostNamesHttpClient() throws Exception {
+    protected HttpClient buildAllowingAllHostNamesHttpClient() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
         final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 
         final SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (x509Certificates, authType) -> true).build();

@@ -11,7 +11,7 @@
     <div class="description"><spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.enterYourCardDetails"/></div>
     <div class="cardForm">
         <div class="save_payment_details">
-            <sec:authorize ifNotGranted="ROLE_ANONYMOUS">
+            <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
                 <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>
                 <label for="SaveDetails"><spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.savePaymentDetailsInAccount"/></label>
             </sec:authorize>

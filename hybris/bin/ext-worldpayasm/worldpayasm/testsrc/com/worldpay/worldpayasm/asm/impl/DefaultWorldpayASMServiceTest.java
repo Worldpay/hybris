@@ -1,7 +1,7 @@
 package com.worldpay.worldpayasm.asm.impl;
 
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.assistedservicefacades.util.AssistedServiceSession;
+import de.hybris.platform.assistedserviceservices.utils.AssistedServiceSession;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.servicelayer.session.SessionService;
 import org.junit.Test;

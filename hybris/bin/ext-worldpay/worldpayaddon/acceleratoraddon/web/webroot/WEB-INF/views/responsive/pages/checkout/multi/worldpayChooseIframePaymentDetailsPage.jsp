@@ -89,7 +89,7 @@
                                                 <wp-multi-checkout:paymentButtons/>
                                                 <wp-multi-checkout:bankSelect/>
 
-                                                <sec:authorize ifNotGranted="ROLE_ANONYMOUS">
+                                                <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
                                                     <div class="save_payment_details checkbox">
                                                         <label for="SaveDetails">
                                                             <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>

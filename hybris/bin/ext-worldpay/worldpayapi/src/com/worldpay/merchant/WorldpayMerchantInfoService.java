@@ -20,6 +20,13 @@ public interface WorldpayMerchantInfoService {
     MerchantInfo getCustomerServicesMerchant() throws WorldpayConfigurationException;
 
     /**
+     * Returns the merchant configured to be used for order replenishment (B2B)
+     * @return
+     * @throws WorldpayConfigurationException
+     */
+    MerchantInfo getReplenishmentMerchant() throws WorldpayConfigurationException;
+
+    /**
      * Returns the merchant configured to be used depending on the UI experience level.
      * @param uiExperienceLevel
      * @return

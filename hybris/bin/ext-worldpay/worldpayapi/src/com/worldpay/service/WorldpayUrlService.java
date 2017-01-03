@@ -49,4 +49,11 @@ public interface WorldpayUrlService {
      * @return Fully qualified 3D secure termURL
      */
     String getFullThreeDSecureTermURL() throws WorldpayConfigurationException;
+
+    /**
+     * Get the fully qualified 3D secure termURL for Quote acceptance to provide to card issuer
+     *
+     * @return Fully qualified 3D secure termURL for Quote acceptance
+     */
+    String getFullThreeDSecureQuoteTermURL() throws WorldpayConfigurationException;
 }

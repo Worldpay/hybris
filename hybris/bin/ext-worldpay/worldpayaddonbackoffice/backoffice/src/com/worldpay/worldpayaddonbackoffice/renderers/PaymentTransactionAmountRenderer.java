@@ -18,6 +18,9 @@ import org.zkoss.zul.Listcell;
 
 import java.math.BigDecimal;
 
+/**
+ * Backoffice amount render for PaymentTransaction
+ */
 public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
     private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionAmountRenderer.class);
     protected static final String PAYMENT_TRANSACTION = "PaymentTransaction";
@@ -27,12 +30,20 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
     private LabelService labelService;
     private PermissionFacade permissionFacade;
 
+    /**
+     * Render the amounts
+     * @param listCell
+     * @param columnConfiguration
+     * @param object
+     * @param dataType
+     * @param widgetInstanceManager
+     */
     public void render(Listcell listCell, ListColumn columnConfiguration, Object object, DataType dataType, WidgetInstanceManager widgetInstanceManager) {
         String qualifier = columnConfiguration.getQualifier();
 
         try {
-            dataType = typeFacade.load(PAYMENT_TRANSACTION);
-            if (dataType != null && permissionFacade.canReadProperty(dataType.getCode(), qualifier)) {
+            DataType paymentTransactionDataType = typeFacade.load(PAYMENT_TRANSACTION);
+            if (paymentTransactionDataType != null && permissionFacade.canReadProperty(paymentTransactionDataType.getCode(), qualifier)) {
                 Object e = propertyValueService.readValue(object, qualifier);
                 if (e == null) {
                     listCell.setLabel(StringUtils.EMPTY);

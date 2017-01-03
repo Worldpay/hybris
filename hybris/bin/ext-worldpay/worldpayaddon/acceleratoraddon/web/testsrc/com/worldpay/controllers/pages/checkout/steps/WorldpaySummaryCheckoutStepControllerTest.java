@@ -1,11 +1,11 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.controllers.WorldpayaddonControllerConstants;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
@@ -20,12 +20,7 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
-import de.hybris.platform.commercefacades.order.data.CartData;
-import de.hybris.platform.commercefacades.order.data.CartModificationData;
-import de.hybris.platform.commercefacades.order.data.CartRestorationData;
-import de.hybris.platform.commercefacades.order.data.DeliveryModeData;
-import de.hybris.platform.commercefacades.order.data.OrderEntryData;
+import de.hybris.platform.commercefacades.order.data.*;
 import de.hybris.platform.commercefacades.product.ProductFacade;
 import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
@@ -49,33 +44,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.ALL_ITEMS;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.CART_DATA;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.CART_SUFFIX;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.CMS_PAGE_MODEL;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.DELIVERY_ADDRESS;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.DELIVERY_MODE;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.META_ROBOTS;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.PAYMENT_INFO;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.REQUEST_SECURITY_CODE;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.*;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
 import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
 import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
-import static java.util.Collections.EMPTY_LIST;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -94,6 +73,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private static final String PLACE_ORDER_FORM = "placeOrderForm";
     private static final String REDIRECT_VIEW = "redirectView";
     private static final String CHECKOUT_MULTI_DELIVERY_METHOD_CHOOSE = "/checkout/multi/delivery-method/choose";
+    private static final String CHECKOUT_SUMMARY_PAGE = "CheckoutSummaryPage";
 
     @Spy
     @InjectMocks
@@ -157,6 +137,9 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private DirectResponseData directResponseDataMock;
     @Mock
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
+    @Mock
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+
     private Model modelMock = new ExtendedModelMap();
 
     @Before
@@ -183,6 +166,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
         when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
         when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
+        when(worldpayAddonEndpointService.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
         doNothing().when(testObj).setupAddPaymentPage(modelMock);
     }
 
@@ -217,7 +201,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         assertEquals(StringUtils.remove(checkoutStepMock.currentStep(), REDIRECT_PREFIX), modelMock.asMap().get("currentStepUrl"));
         assertEquals(checkoutStepMock.getProgressBarId(), modelMock.asMap().get("progressBarId"));
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -238,7 +222,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -247,7 +231,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -266,7 +250,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -275,7 +259,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -284,7 +268,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -293,7 +277,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -303,7 +287,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -312,7 +296,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -321,7 +305,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
@@ -341,7 +325,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock);
 
-        assertEquals(WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage, result);
+        assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test

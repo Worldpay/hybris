@@ -20,6 +20,12 @@
         <value>USE</value>
     </enum>
 
+    <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
+        <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
+            <description>Used for recurring orders where no CartModel is provided</description>
+        </property>
+    </bean>
+
 	<bean class="com.worldpay.hostedorderpage.data.RedirectAuthoriseResult">
 		<property name="orderKey" type="java.lang.String"/>
 		<property name="orderCode" type="java.lang.String"/>
@@ -78,5 +84,10 @@
 
     <bean class="com.worldpay.data.BankTransferAdditionalAuthInfo" extends="com.worldpay.data.AdditionalAuthInfo">
         <property name="shopperBankCode" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.facades.BankConfigurationData">
+        <property name="bankCode" type="java.lang.String"/>
+        <property name="bankName" type="java.lang.String"/>
     </bean>
 </beans>

@@ -12,7 +12,8 @@
 --><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
 
     <extension abstractclassprefix="Generated" classprefix="Worldpaysampledataaddon" description="worldpaysampledataaddon extension" managername="WorldpaysampledataaddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpaysampledataaddon">
-        <requires-extension name="worldpayaddon"/>
+        <!-- Needed to ensure loading of accelerator data before adding sample data -->
+        <requires-extension name="worldpayapi"/>
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpaysampledataaddonManager" packageroot="com.worldpay"/>
     </extension>
 

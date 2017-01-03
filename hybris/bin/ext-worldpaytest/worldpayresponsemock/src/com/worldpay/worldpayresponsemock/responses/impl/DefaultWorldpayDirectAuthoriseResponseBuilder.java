@@ -1,17 +1,10 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
-import com.worldpay.internal.model.Address;
-import com.worldpay.internal.model.Order;
-import com.worldpay.internal.model.OrderStatus;
-import com.worldpay.internal.model.Payment;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.Reply;
-import com.worldpay.internal.model.Shopper;
-import com.worldpay.internal.model.Submit;
-import com.worldpay.internal.model.Token;
+import com.worldpay.internal.model.*;
 import com.worldpay.worldpayresponsemock.responses.WorldpayDirectAuthoriseResponseBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.worldpay.worldpayresponsemock.builders.AddressBuilder.anAddressBuilder;
 import static com.worldpay.worldpayresponsemock.builders.PaymentBuilder.aPaymentBuilder;
@@ -55,13 +48,17 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
 
             if (requestElement instanceof Order) {
                 Order requestOrder = (Order) requestElement;
+                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
+                Amount intAmount = (Amount) orderElements.stream().filter(e -> e instanceof Amount).findFirst().get();
                 final Payment payment = aPaymentBuilder()
-                        .withTransactionAmount(requestOrder.getAmount().getValue()).withLastEvent(AUTHORISED).build();
+                        .withTransactionAmount(intAmount.getValue()).withLastEvent(AUTHORISED).build();
                 orderStatus.setOrderCode(requestOrder.getOrderCode());
-                orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().add(payment);
-                if (requestOrder.getCreateToken() != null) {
+                orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().add(payment);
+
+                Optional<Object> createTokenOptional = orderElements.stream().filter(e -> e instanceof CreateToken).findFirst();
+                if (createTokenOptional.isPresent()) {
                     shouldCreateToken = true;
-                    tokenReason = requestOrder.getCreateToken().getTokenReason().getvalue();
+                    tokenReason = ((CreateToken)createTokenOptional.get()).getTokenReason().getvalue();
                 }
 
             }

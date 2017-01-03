@@ -1,9 +1,9 @@
 #Ant properties
-#Fri Aug 05 11:48:25 BST 2016
-builddate=20160805 1148
+#Thu Dec 15 12:11:41 GMT 2016
+builddate=20161215 1211
 description=worldpayapi
 name=worldpayapi
-releasedate=20160517 1225
+releasedate=20161110 1533
 vendor=hybris
-version=6.0.0.1
-version.api=6.0.0
+version=6.2.0.1
+version.api=6.2.0

@@ -8,36 +8,61 @@ def localProps = {
 }
 
 def ext = {
-    scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpay'
     scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayfulfilment'
 
     extName 'mcc'
-    extName 'backoffice'
     extName 'commercesearchbackoffice'
     extName 'b2bcommercebackoffice'
-    extName 'commerceservicesbackoffice'
     extName 'solrfacetsearchbackoffice'
     extName 'b2badmincockpit'
 
     extName 'yacceleratorcockpits'
     extName 'yacceleratorinitialdata'
     extName 'yacceleratorfulfilmentprocess'
-    extName 'yaddon'
     extName 'ycommercewebservices'
+    extName 'orderselfserviceaddon'
 
     extName 'powertoolsstore'
     extName 'solrserver'
 
+    extName 'liveeditaddon'
     extName 'acceleratorwebservicesaddon'
     extName 'b2bacceleratoraddon'
     extName 'commerceorgaddon'
+    extName 'commerceorgsamplesaddon'
 
     extName 'customersupportbackoffice'
+    extName 'customerticketingaddon'
 
     extName 'rulebuilderbackoffice'
-    extName 'promotionenginebackoffice'
+    extName 'couponbackoffice'
     extName 'droolsruleengineservices'
+    extName 'couponfacades'
     extName 'promotionenginesamplesaddon'
+
+    extName 'textfieldconfiguratortemplatebackoffice'
+    extName 'textfieldconfiguratortemplateaddon'
+
+    extName 'cmswebservices'
+    extName 'smarteditwebservices'
+    extName 'previewwebservices'
+    extName 'permissionswebservices'
+    extName 'smarteditaddon'
+    extName 'cmssmartedit'
+    extName 'assistedservicestorefront'
+
+    extName 'assistedserviceatddtests'
+    extName 'promotionengineatddtests'
+    extName 'commercesearchatddtests'
+    extName 'textfieldconfiguratortemplateatddtests'
+
+    extName 'worldpayaddonbackoffice'
+    extName 'worldpayapi'
+    extName 'worldpayb2baddon'
+    extName 'worldpaycscockpit'
+    extName 'worldpaynotificationaddon'
+    extName 'worldpaysampledataaddon'
+
 
 }
 
@@ -60,14 +85,7 @@ task setup << {
     pl.setup()
 
     pl.project.addons {
-        names "worldpayaddon,worldpaynotificationaddon,worldpaysampledataaddon"
-        template "yb2bacceleratorstorefront"
-        storeFronts "yb2bacceleratorstorefront"
-        platform pl
-    }
-
-    pl.project.addons {
-        names "b2bacceleratoraddon,commerceorgaddon,promotionenginesamplesaddon"
+        names "worldpayb2baddon,worldpaynotificationaddon,worldpaysampledataaddon,b2bacceleratoraddon,commerceorgaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,textfieldconfiguratortemplateaddon,smarteditaddon,assistedservicestorefront,customerticketingaddon,liveeditaddon,orderselfserviceaddon"
         template "yacceleratorstorefront"
         storeFronts "yb2bacceleratorstorefront"
         platform pl

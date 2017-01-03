@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <process xmlns="http://www.hybris.de/xsd/processdefinition" start="initialReturnAction"
-         name="return-process" processClass="de.hybris.platform.warehousing.model.ReturnProcessModel">
+         name="return-process" processClass="de.hybris.platform.returns.model.ReturnProcessModel">
 
     <action id="initialReturnAction" bean="initialReturnAction">
         <transition name="ONLINE" to="waitForConfirmOrCancelReturnAction"/>

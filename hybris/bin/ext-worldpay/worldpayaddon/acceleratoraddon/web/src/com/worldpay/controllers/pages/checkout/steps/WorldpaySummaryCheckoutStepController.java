@@ -1,11 +1,11 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.controllers.WorldpayaddonControllerConstants;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
@@ -39,9 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.ERROR_MESSAGES_HOLDER;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.addErrorMessage;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.addFlashMessage;
+import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.*;
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
 import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
 import static java.text.MessageFormat.format;
@@ -79,6 +77,8 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
     private MessageSource messageSource;
+    @Resource
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * {@inheritDoc}
@@ -114,7 +114,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
         final String subscriptionId = cartData.getPaymentInfo().getSubscriptionId();
         model.addAttribute(REQUEST_SECURITY_CODE, StringUtils.isNotBlank(subscriptionId));
-        return WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage;
+        return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
     /**
@@ -156,7 +156,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
     protected String getErrorView(final Model model) throws CMSItemNotFoundException {
         setupAddPaymentPage(model);
-        return WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CheckoutSummaryPage;
+        return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
     protected String getLocalisedDeclineMessage(final int returnCode) {

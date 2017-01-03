@@ -1,9 +1,9 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.controllers.WorldpayaddonControllerConstants;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.forms.PaymentDetailsForm;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -29,6 +30,9 @@ public class WorldpayLightboxCheckoutStepController extends WorldpayChoosePaymen
     protected static final String CHECKOUT_MULTI_LIGHTBOX_REDIRECT_ERROR = "checkout.multi.lightbox.redirect.error";
     protected static final String ERROR_MESSAGE_KEY = "errorMessage";
     protected static final String PAYMENT_DETAILS_FORM_ERRORS = "paymentDetailsFormErrors";
+
+    @Resource
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @RequireHardLogIn
     @RequestMapping (value = "/add-payment-details", method = POST)
@@ -46,7 +50,7 @@ public class WorldpayLightboxCheckoutStepController extends WorldpayChoosePaymen
             model.addAttribute(SAVE_PAYMENT_INFO, paymentDetailsForm.getSaveInAccount());
             setupAddPaymentPage(model);
         }
-        return WorldpayaddonControllerConstants.Views.Fragments.Checkout.BillingAddressInPaymentForm;
+        return worldpayAddonEndpointService.getBillingAddressInPaymentForm();
     }
 
     @RequestMapping (value = "/check-global-errors", method = GET)
@@ -54,7 +58,7 @@ public class WorldpayLightboxCheckoutStepController extends WorldpayChoosePaymen
     public String getGlobalErrors(final Model model) throws CMSItemNotFoundException {
         final BindingResult bindingResult = getSessionService().getAttribute(PAYMENT_DETAILS_FORM_ERRORS);
         addGlobalErrors(model, bindingResult);
-        return WorldpayaddonControllerConstants.Views.Fragments.Common.GlobalErrorsFragment;
+        return worldpayAddonEndpointService.getGlobalErrorsFragment();
     }
 
     @RequestMapping (value = "/payment-data", method = GET)

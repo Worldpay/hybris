@@ -18,6 +18,9 @@ import com.worldpay.internal.model.TokenDetails;
 import com.worldpay.internal.model.TokenReason;
 import org.joda.time.DateTime;
 
+/**
+ * Builder for the internal Token model generated from the Worldpay DTD
+ */
 public final class TokenBuilder {
 
     private static final String VISA_SSL = "VISA-SSL";
@@ -47,88 +50,174 @@ public final class TokenBuilder {
     private TokenBuilder() {
     }
 
+    /**
+     * Factory method to create a builder
+     * @return an Token builder object
+     */
     public static TokenBuilder aTokenBuilder() {
         return new TokenBuilder();
     }
 
+    /**
+     * Build with this given value
+     * @param authenticatedShopperId
+     * @return this builder
+     */
     public TokenBuilder withAuthenticatedShopperId(String authenticatedShopperId) {
         this.authenticatedShopperId = authenticatedShopperId;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param tokenReasonValue
+     * @return this builder
+     */
     public TokenBuilder withTokenReason(String tokenReasonValue) {
         this.tokenReasonValue = tokenReasonValue;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param cardAddress
+     * @return this builder
+     */
     public TokenBuilder withCardAddress(Address cardAddress) {
         this.cardAddress = cardAddress;
         return this;
     }
 
 
+    /**
+     * Build with these given values
+     * @param day
+     * @param month
+     * @param year
+     * @return this builder
+     */
     public TokenBuilder withTokenExpiryDate(String day, String month, String year) {
         tokenExpiryDate = buildDate(day, month, year);
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param tokenId
+     * @return this builder
+     */
     public TokenBuilder withTokenId(String tokenId) {
         this.tokenId = tokenId;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param tokenReasonForTokenDetails
+     * @return this builder
+     */
     public TokenBuilder withTokenDetailsTokenReason(String tokenReasonForTokenDetails) {
         this.tokenReasonForTokenDetails = tokenReasonForTokenDetails;
         return this;
     }
 
 
+    /**
+     * Build with this given value
+     * @param tokenDetailsTokenEventReference
+     * @return this builder
+     */
     public TokenBuilder withTokenDetailsTokenEventReference(String tokenDetailsTokenEventReference) {
         this.tokenDetailsTokenEventReference = tokenDetailsTokenEventReference;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param tokenEvent
+     * @return this builder
+     */
     public TokenBuilder withTokenEvent(String tokenEvent) {
         this.tokenEvent = tokenEvent;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param tokenEventReference
+     * @return this builder
+     */
     public TokenBuilder withTokenEventReference(String tokenEventReference) {
         this.tokenEventReference = tokenEventReference;
         return this;
     }
 
+    /**
+     * Build with these given values
+     * @param month
+     * @param year
+     * @return this builder
+     */
     public TokenBuilder withCardExpiryDate(String month, String year) {
         cardExpiryDate = buildDate(null, month, year);
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param cardHolderName
+     * @return this builder
+     */
     public TokenBuilder withCardHolderName(String cardHolderName) {
         this.cardHolderNameValue = cardHolderName;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param obfuscatedPAN
+     * @return this builder
+     */
     public TokenBuilder withObfuscatedPAN(String obfuscatedPAN) {
         this.obfuscatedPAN = obfuscatedPAN;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param cardBrand
+     * @return this builder
+     */
     public TokenBuilder withCardBrand(String cardBrand) {
         this.cardBrand = cardBrand;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param cardSubBrand
+     * @return this builder
+     */
     public TokenBuilder withCardSubBrand(String cardSubBrand) {
         this.cardSubBrand = cardSubBrand;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param issuerCountryCode
+     * @return this builder
+     */
     public TokenBuilder withIssuerCountryCode(String issuerCountryCode) {
         this.issuerCountryCode = issuerCountryCode;
         return this;
     }
 
 
+    /**
+     * Build the Token object based on the builders internal state
+     * @return the internal Address model
+     */
     public Token build() {
         notNull(authenticatedShopperId, "A token must contain an authenticated shopper Id");
 

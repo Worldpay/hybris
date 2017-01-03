@@ -11,7 +11,14 @@ import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.servicelayer.util.ServicesUtil;
 
+/**
+ * Action to verify fraud check, end in undefined if no fraudulent on the order
+ */
 public class WorldpayOrderManualCheckedAction extends WorldpayAbstractOrderAction<OrderProcessModel> {
+
+    /**
+     * Enum with transitions stated when this action is used.
+     */
     public enum Transition {
         OK, NOK, UNDEFINED;
 

@@ -133,6 +133,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             if (customerSavedCard != null) {
                 if (!customerSavedCard.isSaved()) {
                     customerSavedCard.setSaved(saveCard);
+                    modelService.save(customerSavedCard);
                 }
                 cartModel.setPaymentInfo(customerSavedCard);
                 modelService.save(cartModel);

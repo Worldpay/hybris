@@ -20,7 +20,6 @@
 worldpayaddon.application-context=worldpayaddon-spring.xml
 
 yacceleratorstorefront.additionalWebSpringConfigs.worldpayaddon=classpath:/worldpayaddon/web/spring/worldpayaddon-web-spring.xml, classpath:/worldpayaddon/web/spring/b2c-multi-step-checkout-spring.xml
-yb2bacceleratorstorefront.additionalWebSpringConfigs.worldpayaddon=classpath:/worldpayaddon/web/spring/worldpayaddon-web-spring.xml, classpath:/worldpayaddon/web/spring/b2b-multi-step-checkout-spring.xml
 
 storefront.supportedUiExperienceLevels.electronics=DESKTOP,MOBILE
 storefront.supportedUiExperienceLevels.apparel-uk=DESKTOP,MOBILE
@@ -47,3 +46,5 @@ worldpayaddon.css.paths.mobile=/mobile/common/css/worldpayaddon.css
 
 # The amount of time in seconds to wait before asking for the decline-code
 hop.decline.message.wait.timer.seconds=2
+
+worldpay.addon.prefix=addon:/worldpayaddon/

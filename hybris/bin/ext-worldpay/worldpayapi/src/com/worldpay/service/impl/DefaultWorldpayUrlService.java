@@ -95,6 +95,11 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
         return getFullUrl(getThreeDSecureTermPath(), true);
     }
 
+    @Override
+    public String getFullThreeDSecureQuoteTermURL() throws WorldpayConfigurationException {
+        return getFullUrl(getThreeDSecureQuoteTermPath(), true);
+    }
+
     public BaseSiteService getBaseSiteService() {
         return baseSiteService;
     }

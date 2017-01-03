@@ -1,0 +1,23 @@
+$contentCatalog=powertoolsContentCatalog
+$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+
+INSERT_UPDATE JspIncludeComponent;$contentCV[unique=true];uid[unique=true];name;page
+# This update modifies the existing AccountOrderDetailsShippingComponent jspInclude component (with payment details in order history) by setting a new page existing in the worldpayb2baddon
+;;AccountOrderDetailsShippingComponent;Account Order Details Shipping Info Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountOrderDetailShippingInfo.jsp
+;;OrderConfirmationShippingComponent;Order Confirmation Shipping Info Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountOrderDetailShippingInfo.jsp
+;;OrderConfirmationThankMessageComponent;Order Confirmation Thank You Message Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/checkout/worldpayCheckoutConfirmationThankMessage.jsp
+# This update modifies the existing CheckoutComponent jspInclude component by setting a new page existing in the worldpayb2baddon
+;;CheckoutComponent;Checkout Display Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/cart/checkoutDisplay.jsp
+
+UPDATE ReorderAction;$contentCV[unique=true];uid[unique=true];url
+;;ReorderAction;/checkout/worldpay/summary/reorder
+
+INSERT_UPDATE WorldpayAcceptQuoteAndOrderAction;$contentCV[unique=true];uid[unique=true];url;name;restrictions(uid,$contentCV);&actionRef
+;;WorldpayAcceptQuoteAndOrderAction;/my-account/worldpay/quote/acceptQuoteOrder;Accept Quote and Order Action;ActionRestriction;WorldpayAcceptQuoteAndOrderAction
+
+INSERT_UPDATE ApplicableCmsActionsTypeForCmsComponent;target(code)[unique=true];source(code)[unique=true];
+;JspIncludeComponent;WorldpayAcceptQuoteAndOrderAction;
+
+UPDATE JspIncludeComponent;$contentCV[unique=true];uid[unique=true];actions(uid,$contentCV)
+;;AccountQuoteDetailsOverviewComponent;WorldpayAcceptQuoteAndOrderAction
+;;AccountQuoteDetailsBottomActionsComponent;WorldpayAcceptQuoteAndOrderAction

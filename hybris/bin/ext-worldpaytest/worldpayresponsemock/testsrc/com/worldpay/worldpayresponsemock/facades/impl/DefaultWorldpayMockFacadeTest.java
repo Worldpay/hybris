@@ -95,7 +95,8 @@ public class DefaultWorldpayMockFacadeTest {
     public void shouldBuildDirectResponseIfPaymentServiceContainsSubmitWithPaymentDetails() throws WorldpayException {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(submitMock));
         when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate()).thenReturn(singletonList(orderMock));
-        when(orderMock.getPaymentMethodMaskOrPaymentDetailsOrPayAsOrder()).thenReturn(singletonList(paymentMethodDetailMock));
+        when(orderMock.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession())
+                .thenReturn(singletonList(paymentMethodDetailMock));
 
         final String result = testObj.buildResponse(paymentServiceMock, httpRequestMock);
 
@@ -105,8 +106,8 @@ public class DefaultWorldpayMockFacadeTest {
     @Test
     public void shouldReturnCaptureResponseIfRequestContainsModifyWithCapture() throws WorldpayException {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(modifyMock));
-        when(modifyMock.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdate()).thenReturn(singletonList(orderModificationMock));
-        when(orderModificationMock.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAddTransactionCertificateOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetails()).thenReturn(singletonList(captureMock));
+        when(modifyMock.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete()).thenReturn(singletonList(orderModificationMock));
+        when(orderModificationMock.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDate()).thenReturn(singletonList(captureMock));
         when(paymentServiceMarshaller.marshal(responsePaymentService)).thenReturn(CAPTURE_OK);
 
         final String result = testObj.buildResponse(paymentServiceMock, httpRequestMock);
@@ -117,7 +118,7 @@ public class DefaultWorldpayMockFacadeTest {
     @Test
     public void shouldReturnNullIfRequestContainsModifyWithoutCapture() throws WorldpayException {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(modifyMock));
-        when(modifyMock.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdate()).thenReturn(singletonList(batchModification));
+        when(modifyMock.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete()).thenReturn(singletonList(batchModification));
 
         final String result = testObj.buildResponse(paymentServiceMock, httpRequestMock);
 
@@ -128,7 +129,8 @@ public class DefaultWorldpayMockFacadeTest {
     public void shouldReturnRedirectXMLIfRequestContainsSubmitWithPaymentMethodMask() throws WorldpayException {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(submitMock));
         when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate()).thenReturn(singletonList(orderMock));
-        when(orderMock.getPaymentMethodMaskOrPaymentDetailsOrPayAsOrder()).thenReturn(singletonList(paymentMethodMaskMock));
+        when(orderMock.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession())
+                .thenReturn(singletonList(paymentMethodMaskMock));
         when(paymentServiceMarshaller.marshal(responsePaymentService)).thenReturn(REDIRECT_XML);
 
         final String result = testObj.buildResponse(paymentServiceMock, httpRequestMock);

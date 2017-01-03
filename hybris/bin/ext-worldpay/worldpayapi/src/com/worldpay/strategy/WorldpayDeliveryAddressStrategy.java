@@ -1,6 +1,6 @@
 package com.worldpay.strategy;
 
-import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.user.AddressModel;
 
 /**
@@ -9,10 +9,10 @@ import de.hybris.platform.core.model.user.AddressModel;
 public interface WorldpayDeliveryAddressStrategy {
 
     /**
-     * Method for getting the address that will act as main delivery address for a cart
+     * Method for getting the address that will act as main delivery address for an abstract order
      *
-     * @param cartModel
-     * @return The delivery address best representing the given cart.
+     * @param abstractOrderModel
+     * @return The delivery address best representing the given abstract order.
      */
-    AddressModel getDeliveryAddress(final CartModel cartModel);
+    AddressModel getDeliveryAddress(final AbstractOrderModel abstractOrderModel);
 }

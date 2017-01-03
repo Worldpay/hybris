@@ -1,0 +1,13 @@
+$regulargroup=regulargroup
+$customergroup=customergroup
+
+$defaultPassword=12341234
+
+
+
+$START_USERRIGHTS;;;;;;;;;
+Type;UID;MemberOfGroups;Password;Target;read;change;create;remove;change_perm
+UserGroup;cockpitgroup;;;;;;;;
+;;;;WorldpayAPMConfiguration;+;+;+;+;+;
+;;;;WorldpayCurrencyRange;+;+;+;+;+;
+$END_USERRIGHTS;;;;;

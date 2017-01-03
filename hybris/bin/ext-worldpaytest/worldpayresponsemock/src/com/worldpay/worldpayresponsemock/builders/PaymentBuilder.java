@@ -19,6 +19,9 @@ import org.joda.time.LocalDate;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 
+/**
+ * Builder for the internal Payment model generated from the Worldpay DTD
+ */
 public final class PaymentBuilder {
 
     private static final String TEST_CREDIT_CARD = "4111********1111";
@@ -57,100 +60,198 @@ public final class PaymentBuilder {
     private PaymentBuilder() {
     }
 
+    /**
+     * Factory method to create a builder
+     * @return an Payment builder object
+     */
     public static PaymentBuilder aPaymentBuilder() {
         return new PaymentBuilder();
     }
 
+    /**
+     * Build with this given value
+     * @param cardNumber
+     * @return this builder
+     */
     public PaymentBuilder withCardNumber(String cardNumber) {
         this.cardNumber = cardNumber;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param cardType
+     * @return this builder
+     */
     public PaymentBuilder withCardType(String cardType) {
         this.cardType = cardType;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param expiryMonth
+     * @return this builder
+     */
     public PaymentBuilder withExpiryMonth(String expiryMonth) {
         this.expiryMonth = expiryMonth;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param expiryYear
+     * @return this builder
+     */
     public PaymentBuilder withExpiryYear(String expiryYear) {
         this.expiryYear = expiryYear;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param cardHolderName
+     * @return this builder
+     */
     public PaymentBuilder withCardHolderName(String cardHolderName) {
         this.cardHolderName = cardHolderName;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param lastEvent
+     * @return this builder
+     */
     public PaymentBuilder withLastEvent(String lastEvent) {
         this.lastEvent = lastEvent;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param selectedRiskScore
+     * @return this builder
+     */
     public PaymentBuilder withSelectedRiskScore(String selectedRiskScore) {
         this.selectedRiskScore = selectedRiskScore;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param riskValue
+     * @return this builder
+     */
     public PaymentBuilder withRiskValue(String riskValue) {
         this.riskValue = riskValue;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param finalScore
+     * @return
+     */
     public PaymentBuilder withFinalScore(String finalScore) {
         this.finalScore = finalScore;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param paymentMethod
+     * @return this builder
+     */
     public PaymentBuilder withPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param creditCardPaymentMethod
+     * @return this builder
+     */
     public PaymentBuilder withCreditCardPaymentMethod(String creditCardPaymentMethod) {
         this.creditCardPaymentMethod = creditCardPaymentMethod;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param apmPaymentMethod
+     * @return this builder
+     */
     public PaymentBuilder withApmPaymentMethod(String apmPaymentMethod) {
         this.apmPaymentMethod = apmPaymentMethod;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param transactionAmount
+     * @return this builder
+     */
     public PaymentBuilder withTransactionAmount(String transactionAmount) {
         this.transactionAmount = transactionAmount;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param currencyCode
+     * @return this builder
+     */
     public PaymentBuilder withCurrencyCode(String currencyCode) {
         this.currencyCode = currencyCode;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param exponent
+     * @return this builder
+     */
     public PaymentBuilder withExponent(String exponent) {
         this.exponent = exponent;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param responseCode
+     * @return this builder
+     */
     public PaymentBuilder withResponseCode(String responseCode) {
         this.responseCode = responseCode;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param responseCodeDescription
+     * @return this builder
+     */
     public PaymentBuilder withResponseCodeDescription(String responseCodeDescription) {
         this.responseCodeDescription = responseCodeDescription;
         return this;
     }
 
+    /**
+     * Build with this given value
+     * @param refundReference
+     * @return this builder
+     */
     public PaymentBuilder withRefundReference(String refundReference) {
         this.refundReference = refundReference;
         return this;
     }
 
+    /**
+     * Build the Payment object based on the builders internal state
+     * @return the internal Payment model
+     */
     public Payment build() {
         final Payment payment = new Payment();
 

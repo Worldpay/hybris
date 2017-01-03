@@ -7,7 +7,11 @@ import de.hybris.platform.processengine.action.AbstractAction;
 import de.hybris.platform.servicelayer.time.TimeService;
 import org.springframework.beans.factory.annotation.Required;
 
-
+/**
+ * The Worldpay Abstract Order Action. Can create order history logs.
+ *
+ * @param <T> extends {@link OrderProcessModel}
+ */
 public abstract class WorldpayAbstractOrderAction<T extends OrderProcessModel> extends AbstractAction<T> {
 
     private TimeService timeService;

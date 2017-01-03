@@ -3,6 +3,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -23,11 +24,7 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.ui.Model;
@@ -37,24 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.BILLING_ADDRESS_FORM;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.PAYMENT_STATUS_PARAMETER_NAME;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.REDIRECT_URL_ADD_DELIVERY_ADDRESS;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.REDIRECT_URL_CHOOSE_DELIVERY_METHOD;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.ERROR;
-import static com.worldpay.service.model.AuthorisedStatus.EXPIRED;
-import static com.worldpay.service.model.AuthorisedStatus.OPEN;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.*;
+import static com.worldpay.service.model.AuthorisedStatus.*;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyMapOf;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -120,6 +106,8 @@ public class WorldpayHopResponseControllerTest {
     private CartModel cartModelMock;
     @Mock (name = "orderConverter")
     private Converter<AbstractOrderModel, OrderData> orderConverterMock;
+    @Mock
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @Before
     public void setUp() {
@@ -131,6 +119,7 @@ public class WorldpayHopResponseControllerTest {
         when(orderConverterMock.convert(orderModelMock)).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(worldpayHostedOrderFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(true);
+        when(worldpayAddonEndpointService.getHostedOrderPostPage()).thenReturn("hostedOrderPostPage");
     }
 
     @Test

@@ -10,6 +10,7 @@ import de.hybris.platform.commerceservices.customer.CustomerEmailResolutionServi
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.commerceservices.strategies.GenerateMerchantTransactionCodeStrategy;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
@@ -44,14 +45,20 @@ public abstract class AbstractWorldpayOrderService {
     /**
      * Creates a {@link CommerceCheckoutParameter} based on the passed {@link CartModel} and {@link PaymentInfoModel} given
      *
-     * @param cartModel           The cart to base the commerceCheckoutParameter on
+     * @param abstractOrderModel  The abstractOrderModel to base the commerceCheckoutParameter on
      * @param paymentInfoModel    The paymentInfo to base the commerceCheckoutParameter on
      * @param authorisationAmount The authorised amount by the payment provider
+     *
+     * @return the created parameters
      */
-    public CommerceCheckoutParameter createCommerceCheckoutParameter(final CartModel cartModel, final PaymentInfoModel paymentInfoModel, final BigDecimal authorisationAmount) {
+    public CommerceCheckoutParameter createCommerceCheckoutParameter(final AbstractOrderModel abstractOrderModel, final PaymentInfoModel paymentInfoModel, final BigDecimal authorisationAmount) {
         final CommerceCheckoutParameter parameter = new CommerceCheckoutParameter();
         parameter.setEnableHooks(true);
-        parameter.setCart(cartModel);
+        if (abstractOrderModel instanceof CartModel) {
+            parameter.setCart((CartModel) abstractOrderModel);
+        } else {
+            parameter.setOrder(abstractOrderModel);
+        }
         parameter.setPaymentInfo(paymentInfoModel);
         parameter.setAuthorizationAmount(authorisationAmount);
         parameter.setPaymentProvider(commerceCheckoutService.getPaymentProvider());
@@ -63,6 +70,11 @@ public abstract class AbstractWorldpayOrderService {
      * Potential bug in class: DefaultCommercePlaceOrderStrategy
      * Method: public CommerceOrderResult placeOrder(CommerceCheckoutParameter parameter) throws InvalidCartException {...}
      * Logic: if(cartModel.getPaymentInfo() != null && cartModel.getPaymentInfo().getBillingAddress() != null) {...}
+     *
+     * @param cartModel holding the source address
+     * @param paymentInfoModel holding the address owner
+     *
+     * @return the cloned address model
      */
     public AddressModel cloneAndSetBillingAddressFromCart(final CartModel cartModel, final PaymentInfoModel paymentInfoModel) {
         final AddressModel paymentAddress = cartModel.getPaymentAddress();

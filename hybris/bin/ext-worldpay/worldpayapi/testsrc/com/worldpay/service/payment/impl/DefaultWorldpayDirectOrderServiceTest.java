@@ -226,14 +226,13 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Test
     public void shouldRecoverEchoDataAndCookieFromSessionAndAddTo3dRequest() throws WorldpayException {
-        when(worldpayRequestFactoryMock.build3dDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE, ECHO_DATA, COOKIE)).thenReturn(directAuthoriseServiceRequestMock);
+        when(worldpayRequestFactoryMock.build3dDirectAuthoriseRequest(merchantInfoMock, ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE, COOKIE)).thenReturn(directAuthoriseServiceRequestMock);
         when(sessionServiceMock.getAttribute(THREE_D_SECURE_COOKIE_PARAM)).thenReturn(COOKIE);
         when(sessionServiceMock.getAttribute(THREE_D_SECURE_ECHO_DATA_PARAM)).thenReturn(ECHO_DATA);
 
-        testObj.authorise3DSecure(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, PA_RESPONSE);
+        testObj.authorise3DSecure(merchantInfoMock, ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE);
 
         verify(sessionServiceMock).removeAttribute(THREE_D_SECURE_COOKIE_PARAM);
-        verify(sessionServiceMock).removeAttribute(THREE_D_SECURE_ECHO_DATA_PARAM);
         verify(worldpayServiceGatewayMock).directAuthorise(directAuthoriseServiceRequestMock);
     }
 
@@ -333,12 +332,11 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Test
     public void shouldCompleteAuthoriseWhenComplete3DAuthorise() {
-        when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
         when(directAuthoriseServiceRequestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(worldpayPaymentTransactionServiceMock.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock)).thenReturn(paymentTransactionEntryModelMock);
         when(cartModelMock.getPaymentInfo()).thenReturn(creditCardPaymentInfoModelMock);
 
-        testObj.completeAuthorise3DSecure(directAuthoriseServiceResponseMock, merchantInfoMock);
+        testObj.completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponseMock, merchantInfoMock);
 
         verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, creditCardPaymentInfoModelMock);
         verify(commerceCheckoutServiceMock).setPaymentInfo(commerceCheckoutParameterMock);

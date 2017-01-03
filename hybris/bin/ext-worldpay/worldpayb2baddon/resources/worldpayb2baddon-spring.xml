@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ [y] hybris Platform
+
+ Copyright (c) 2000-2016 hybris AG
+ All rights reserved.
+
+ This software is the confidential and proprietary information of hybris
+ ("Confidential Information"). You shall not disclose such Confidential
+ Information and shall use it only in accordance with the terms of the
+ license agreement you entered into with hybris.
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+           
+    <context:annotation-config/>
+
+	<alias alias="commercePaymentAuthorizationStrategy" name="worldpayCommercePaymentAuthorizationStrategy"/>
+	<bean id="worldpayCommercePaymentAuthorizationStrategy" parent="defaultPaymentAuthorizationStrategy">
+		<property name="generateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
+	</bean>
+
+	<alias name="worldpayB2BAcceleratorCheckoutFacadeDecorator" alias="worldpayCheckoutFacade"/>
+	<bean id="worldpayB2BAcceleratorCheckoutFacadeDecorator" class="com.worldpay.facades.order.impl.WorldpayB2BAcceleratorCheckoutFacadeDecorator" parent="defaultB2BAcceleratorCheckoutFacade">
+		<property name="l10NService" ref="l10nService"/>
+		<property name="b2BAcceleratorCheckoutFacade" ref="defaultB2BAcceleratorCheckoutFacade"/>
+	</bean>
+
+	<alias name="defaultB2BWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>
+	<bean id="defaultB2BWorldpayDirectOrderFacade" parent="defaultWorldpayDirectOrderFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayB2BDirectOrderFacade">
+		<property name="b2BOrderService" ref="b2bOrderService" />
+	</bean>
+
+	<!-- Converters and populators -->
+	<alias name="defaultBankConfigurationModelBankConfigurationDataConverter" alias="bankConfigurationModelBankConfigurationDataConverter"/>
+	<bean id="defaultBankConfigurationModelBankConfigurationDataConverter" parent="abstractPopulatingConverter">
+		<property name="targetClass" value="com.worldpay.facades.BankConfigurationData"/>
+		<property name="populators">
+			<list>
+				<ref bean="bankConfigurationPopulator"/>
+			</list>
+		</property>
+	</bean>
+
+	<alias name="defaultBankConfigurationPopulator" alias="bankConfigurationPopulator"/>
+	<bean id="defaultBankConfigurationPopulator" class="com.worldpay.converters.populators.WorldpayBankConfigurationPopulator"/>
+
+	<!--Fix issue with template cms content scripts not running-->
+	<bean parent="modifyPopulatorList">
+		<property name="list" ref="selectedContentCatalogImpexMacroParametersPopulators"/>
+		<property name="add" ref="supportedUiExperienceImpexMacroParameterPopulator"/>
+	</bean>
+
+	<bean id="worldpayb2baddonCoreDataImportedEventListener" parent="abstractCoreDataImportedEventListener">
+		<property name="supportedChannels">
+			<list value-type="de.hybris.platform.commerceservices.enums.SiteChannel">
+				<value>B2B</value>
+			</list>
+		</property>
+		<property name="addonExtensionMetadata">
+			<bean class="de.hybris.platform.addonsupport.data.AddonExtensionMetadata">
+				<property name="suffixChannel" value="false"/>
+				<property name="baseExtensionName" value="worldpayb2baddon"/>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="worldpayb2baddonSampleDataEventListener" parent="abstractGenericAddOnSampleDataEventListener"  >
+		<property name="extensionName" value="worldpayb2baddon" />
+	</bean>
+
+	<bean id="worldpayAcceleratorStatusDisplayMapMergeDirective" depends-on="acceleratorStatusDisplayMap" parent="mapMergeDirective">
+		<property name="key" value="APM_OPEN"/>
+		<property name="value" value="pending"/>
+	</bean>
+
+	<!-- REPLENISHMENT PROCESSES -->
+
+	<bean id="replenishmentOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+		<property name="resource" value="classpath:/worldpayb2baddon/processes/worldpayReplenishmentOrderProcess.xml"/>
+	</bean>
+
+	<bean name="cloneCartAction" class="com.worldpay.actions.replenishment.WorldpayCloneCartAction" parent="abstractAction" >
+		<property name="keyGenerator" ref="orderCodeGenerator"/>
+		<property name="guidKeyGenerator" ref="guidKeyGenerator"/>
+	</bean>
+
+	<bean name="authorizePaymentAction" class="com.worldpay.actions.replenishment.WorldpayAuthorizePaymentAction" parent="abstractAction" />
+	
+</beans>

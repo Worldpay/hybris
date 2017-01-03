@@ -1,6 +1,5 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.controllers.WorldpayaddonControllerConstants;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
@@ -9,6 +8,7 @@ import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
@@ -49,6 +49,8 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     private UiExperienceService uiExperienceService;
     @Resource
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    @Resource
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * Returns the CSE payment details page
@@ -62,7 +64,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     public String getCseDataPage(final Model model) throws CMSItemNotFoundException {
         if (getCheckoutFacade().hasCheckoutCart()) {
             setupAddPaymentPage(model);
-            return WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CSEPaymentDetailsPage;
+            return worldpayAddonEndpointService.getCSEPaymentDetailsPage();
         } else {
             return REDIRECT_URL_CART;
         }
@@ -123,6 +125,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSEAdditionalAuthInfo(csePaymentForm);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm.getCvc());
         try {
+            worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
             final DirectResponseData directResponseData = worldpayDirectOrderFacade.authorise(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
             return handleDirectResponse(model, directResponseData);
         } catch (InvalidCartException | WorldpayException e) {
@@ -151,6 +154,6 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     @Override
     protected String getErrorView(final Model model) throws CMSItemNotFoundException {
         setupAddPaymentPage(model);
-        return WorldpayaddonControllerConstants.Views.Pages.MultiStepCheckout.CSEPaymentDetailsPage;
+        return worldpayAddonEndpointService.getCSEPaymentDetailsPage();
     }
 }

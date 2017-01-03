@@ -100,7 +100,7 @@
 			</div>
 
 			<div data-theme="b">
-				<sec:authorize ifAnyGranted="ROLE_ANONYMOUS">
+				<sec:authorize access="hasAnyRole('ROLE_ANONYMOUS')">
 					<user:guestRegister actionNameKey="guest.register.submit"/>
 				</sec:authorize>
 			</div>
@@ -108,7 +108,7 @@
 			<ul class="mFormList" data-theme="c" data-content-theme="c">
 				<li>
 					<div class="ui-grid-a doubleButton">
-						<sec:authorize ifNotGranted="ROLE_ANONYMOUS">
+						<sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
 							<c:set var="buttonStyling" value="class='ui-block-a' style='width: 38%;'"/>
 						</sec:authorize>
 						<div ${buttonStyling}>
@@ -117,7 +117,7 @@
 									<spring:theme code="cart.page.shop"/>
 								</a>
 						</div>
-						<sec:authorize ifNotGranted="ROLE_ANONYMOUS">
+						<sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
 						<div class="ui-block-b" style="width: 58%;">
 								<c:url value="/my-account/orders" var="accountOrdersUrl"/>
 								<a href="${accountOrdersUrl}" data-role="button" data-theme="d" data-icon="arrow-r" data-iconpos="right" >

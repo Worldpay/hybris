@@ -17,6 +17,12 @@ import java.util.Map;
 
 import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
 
+/**
+ * Listener for order modifications events - the event is publish when received from Worldpay
+ * @see OrderModificationController
+ *
+ * The listener save the order notification message for later processing
+ */
 public class WorldpayOrderModificationListener extends AbstractEventListener<OrderModificationEvent> {
 
     private static final Logger LOG = Logger.getLogger(WorldpayOrderModificationListener.class);
@@ -26,6 +32,9 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
     private Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap;
     private OrderModificationSerialiser orderModificationSerialiser;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onEvent(OrderModificationEvent orderModificationEvent) {
         final OrderNotificationMessage orderNotificationMessage = orderModificationEvent.getOrderNotificationMessage();
@@ -44,7 +53,7 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
 
     protected void setDeclineCodeInCart(final OrderNotificationMessage orderNotificationMessage) {
         final String returnCode = orderNotificationMessage.getPaymentReply().getReturnCode();
-        if (!returnCode.equalsIgnoreCase("0")) {
+        if (!"0".equalsIgnoreCase(returnCode)) {
             worldpayCartService.setWorldpayDeclineCodeOnCart(orderNotificationMessage.getOrderCode(), returnCode);
         }
     }

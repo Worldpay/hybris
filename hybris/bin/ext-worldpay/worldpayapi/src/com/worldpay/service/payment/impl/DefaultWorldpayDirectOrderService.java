@@ -15,6 +15,7 @@ import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
@@ -72,8 +73,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authoriseRecurringPayment(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
-        final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRecurringPayment(merchantInfo, cartModel, worldpayAdditionalInfoData);
+    public DirectAuthoriseServiceResponse authoriseRecurringPayment(final MerchantInfo merchantInfo, final AbstractOrderModel abstractOrderModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
+        final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRecurringPayment(merchantInfo, abstractOrderModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayOrderService().getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
         if (response.getRequest3DInfo() != null) {
             sessionService.setAttribute(THREE_D_SECURE_COOKIE_PARAM, response.getCookie());
@@ -139,54 +140,58 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     /**
      * {@inheritDoc}DefaultWorldpayOrderService.java
      *
-     * @see WorldpayDirectOrderService#authorise3DSecure(MerchantInfo, CartModel, WorldpayAdditionalInfoData, String)
+     * @see WorldpayDirectOrderService#authorise3DSecure(MerchantInfo, String, WorldpayAdditionalInfoData, String)
      */
     @Override
-    public DirectAuthoriseServiceResponse authorise3DSecure(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+    public DirectAuthoriseServiceResponse authorise3DSecure(final MerchantInfo merchantInfo, final String worldpayOrderCode, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                             final String paResponse) throws WorldpayException {
-        final String echoData = getAndRemoveSessionAttribute(THREE_D_SECURE_ECHO_DATA_PARAM);
         final String cookie = getAndRemoveSessionAttribute(THREE_D_SECURE_COOKIE_PARAM);
 
         final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = worldpayRequestFactory.build3dDirectAuthoriseRequest(
-                merchantInfo, cartModel, worldpayAdditionalInfoData, paResponse, echoData, cookie);
+                merchantInfo, worldpayOrderCode, worldpayAdditionalInfoData, paResponse, cookie);
         return getWorldpayOrderService().getWorldpayServiceGateway().directAuthorise(directAuthoriseServiceRequest);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @see WorldpayDirectOrderService#completeAuthorise(DirectAuthoriseServiceResponse, CartModel, String)
+     * @see WorldpayDirectOrderService#completeAuthorise(DirectAuthoriseServiceResponse, AbstractOrderModel, String)
      */
     @Override
-    public void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final CartModel cartModel, final String merchantCode) {
-        final PaymentInfoModel paymentInfoModel = cartModel.getPaymentInfo();
-
-        cloneAndSetBillingAddressFromCart(cartModel, paymentInfoModel);
+    public void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode) {
+        final PaymentInfoModel paymentInfoModel = abstractOrderModel.getPaymentInfo();
         final BigDecimal authorisationAmount = convertAmount(serviceResponse.getPaymentReply().getAmount());
-        final CommerceCheckoutParameter commerceCheckoutParameter = createCommerceCheckoutParameter(cartModel, paymentInfoModel, authorisationAmount);
-        getCommerceCheckoutService().setPaymentInfo(commerceCheckoutParameter);
+        CommerceCheckoutParameter commerceCheckoutParameter;
+
+        if (abstractOrderModel instanceof CartModel) {
+            CartModel cartModel = (CartModel) abstractOrderModel;
+            cloneAndSetBillingAddressFromCart(cartModel, paymentInfoModel);
+            commerceCheckoutParameter = createCommerceCheckoutParameter(cartModel, paymentInfoModel, authorisationAmount);
+            getCommerceCheckoutService().setPaymentInfo(commerceCheckoutParameter);
+        } else {
+            commerceCheckoutParameter = createCommerceCheckoutParameter(abstractOrderModel, paymentInfoModel, authorisationAmount);
+        }
 
         final PaymentTransactionModel paymentTransaction = getWorldpayPaymentTransactionService().createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
         getWorldpayPaymentTransactionService().addRiskScore(paymentTransaction, serviceResponse.getPaymentReply());
 
-        final PaymentTransactionEntryModel transactionEntry = getWorldpayPaymentTransactionService().createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, cartModel);
+        final PaymentTransactionEntryModel transactionEntry = getWorldpayPaymentTransactionService().createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, abstractOrderModel);
         getWorldpayPaymentTransactionService().addAavFields(transactionEntry, serviceResponse.getPaymentReply());
 
         if (paymentInfoModel instanceof CreditCardPaymentInfoModel) {
             getWorldpayPaymentInfoService().setCreditCardType((CreditCardPaymentInfoModel) paymentInfoModel, serviceResponse.getPaymentReply());
         }
-        getWorldpayPaymentInfoService().updateAndAttachPaymentInfoModel(paymentTransaction, cartModel, paymentInfoModel);
+        getWorldpayPaymentInfoService().updateAndAttachPaymentInfoModel(paymentTransaction, abstractOrderModel, paymentInfoModel);
     }
 
     /**
      * {@inheritDoc}
      *
-     * @see WorldpayDirectOrderService#completeAuthorise3DSecure(DirectAuthoriseServiceResponse, MerchantInfo)
+     * @see WorldpayDirectOrderService#completeAuthorise3DSecure(AbstractOrderModel, DirectAuthoriseServiceResponse, MerchantInfo)
      */
     @Override
-    public void completeAuthorise3DSecure(final DirectAuthoriseServiceResponse serviceResponse, final MerchantInfo merchantInfo) {
-        final CartModel cartModel = cartService.getSessionCart();
-        completeAuthorise(serviceResponse, cartModel, merchantInfo.getMerchantCode());
+    public void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse, final MerchantInfo merchantInfo) {
+        completeAuthorise(serviceResponse, abstractOrderModel, merchantInfo.getMerchantCode());
     }
 
     private String getAndRemoveSessionAttribute(final String param) {
