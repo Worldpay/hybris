@@ -32,6 +32,7 @@
 		<property name="paymentStatus" type="java.lang.String"/>
 		<property name="pending" type="java.lang.Boolean"/>
 		<property name="saveCard" type="java.lang.Boolean"/>
+        <property name="paymentAmount" type="java.math.BigDecimal"/>
 	</bean>
     
     <bean class="com.worldpay.order.data.WorldpayCCPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">

@@ -11,6 +11,7 @@ import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -107,7 +108,7 @@ public interface WorldpayPaymentTransactionService {
      * @param cartModel          The {@link CartModel} to get the amount and currency information from
      * @return the new {@link PaymentTransactionType#AUTHORIZATION} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode, final CartModel cartModel);
+    PaymentTransactionEntryModel createPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode, final CartModel cartModel, final BigDecimal authorisedAmount);
 
     /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}
@@ -118,7 +119,7 @@ public interface WorldpayPaymentTransactionService {
      * @param abstractOrderModel The cart or order to get the amount and currency information from
      * @return the new {@link PaymentTransactionType#AUTHORIZATION} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(PaymentTransactionModel paymentTransaction, String merchantCode, AbstractOrderModel abstractOrderModel);
+    PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode, final AbstractOrderModel abstractOrderModel, final BigDecimal authorisedAmount);
 
     /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}
@@ -178,4 +179,13 @@ public interface WorldpayPaymentTransactionService {
      * @param amount             amount to set in the transactionEntries
      */
     void updateEntriesAmount(final List<PaymentTransactionEntryModel> transactionEntries, final Amount amount);
+
+    /**
+     * Matching order total against sum of amounts from PaymentTransactionEntries with
+     * type {@link PaymentTransactionType#AUTHORIZATION}.
+     *
+     * @param order                  The current order {@link OrderModel}
+     * @return true if sum of amounts are equal to order total. Otherwise false.
+     */
+    boolean isAuthorisedAmountCorrect(OrderModel order);
 }

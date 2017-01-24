@@ -1,0 +1,9 @@
+#Ant properties
+#Tue Jan 24 11:44:59 GMT 2017
+builddate=20170124 1144
+description=worldpayoccaddon
+name=worldpayoccaddon
+releasedate=20161110 1533
+vendor=hybris
+version=6.2.0.1
+version.api=6.2.0

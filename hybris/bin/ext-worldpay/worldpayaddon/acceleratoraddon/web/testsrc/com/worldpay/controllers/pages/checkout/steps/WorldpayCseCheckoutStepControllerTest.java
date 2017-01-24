@@ -174,7 +174,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Test
     public void shouldRedirectToOrderConfirmation() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
         doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock);
-        when(worldpayDirectOrderFacadeMock.authorise(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(directResponseDataMock);
+        when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenReturn(directResponseDataMock);
 
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
 
@@ -183,7 +183,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
     @Test
     public void shouldRedirectToErrorIfExceptionThrownByFacade() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
-        when(worldpayDirectOrderFacadeMock.authorise(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
+        when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
 
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
 
@@ -192,7 +192,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
     @Test
     public void shouldDisplayCsePaymentPageIfErrorAuthorisingPayment() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
-        when(worldpayDirectOrderFacadeMock.authorise(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
+        when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
 
         testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
 
