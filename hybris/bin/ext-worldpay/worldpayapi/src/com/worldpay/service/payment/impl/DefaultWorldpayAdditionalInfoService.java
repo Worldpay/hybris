@@ -1,11 +1,11 @@
 package com.worldpay.service.payment.impl;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.payment.WorldpayAdditionalInfoService;
 import com.worldpay.strategy.WorldpayCustomerIpAddressStrategy;
 import org.springframework.beans.factory.annotation.Required;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * {@inheritDoc}
@@ -34,4 +34,5 @@ public class DefaultWorldpayAdditionalInfoService implements WorldpayAdditionalI
     public void setWorldpayCustomerIpAddressStrategy(WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy) {
         this.worldpayCustomerIpAddressStrategy = worldpayCustomerIpAddressStrategy;
     }
+
 }

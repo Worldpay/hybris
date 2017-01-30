@@ -126,7 +126,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm.getCvc());
         try {
             worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
-            final DirectResponseData directResponseData = worldpayDirectOrderFacade.authorise(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
+            final DirectResponseData directResponseData = worldpayDirectOrderFacade.authorise(worldpayAdditionalInfoData);
             return handleDirectResponse(model, directResponseData);
         } catch (InvalidCartException | WorldpayException e) {
             GlobalMessages.addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
