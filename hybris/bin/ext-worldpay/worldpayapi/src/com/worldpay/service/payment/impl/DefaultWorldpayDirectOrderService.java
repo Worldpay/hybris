@@ -47,10 +47,11 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     /**
      * {@inheritDoc}
      *
-     * @see WorldpayDirectOrderService#authorise(MerchantInfo, CartModel, WorldpayAdditionalInfoData)
+     * @see WorldpayDirectOrderService#authorise(MerchantInfo, CartModel, CSEAdditionalAuthInfo, WorldpayAdditionalInfoData)
      */
     @Override
-    public DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
+    public DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                                    final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
 
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRequest(merchantInfo, cartModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayOrderService().getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
@@ -174,7 +175,7 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         final PaymentTransactionModel paymentTransaction = getWorldpayPaymentTransactionService().createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
         getWorldpayPaymentTransactionService().addRiskScore(paymentTransaction, serviceResponse.getPaymentReply());
 
-        final PaymentTransactionEntryModel transactionEntry = getWorldpayPaymentTransactionService().createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, abstractOrderModel, authorisationAmount);
+        final PaymentTransactionEntryModel transactionEntry = getWorldpayPaymentTransactionService().createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, abstractOrderModel);
         getWorldpayPaymentTransactionService().addAavFields(transactionEntry, serviceResponse.getPaymentReply());
 
         if (paymentInfoModel instanceof CreditCardPaymentInfoModel) {

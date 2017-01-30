@@ -9,7 +9,12 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.hostedorderpage.service.WorldpayURIService;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.mac.MacValidator;
-import com.worldpay.service.model.*;
+import com.worldpay.service.model.Address;
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.model.BasicOrderInfo;
+import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.model.RedirectReference;
+import com.worldpay.service.model.Shopper;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
@@ -104,10 +109,10 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
 
         final PaymentInfoModel paymentInfoModel = getWorldpayPaymentInfoService().createPaymentInfo(cartModel);
         cloneAndSetBillingAddressFromCart(cartModel, paymentInfoModel);
-        final CommerceCheckoutParameter commerceCheckoutParameter = createCommerceCheckoutParameter(cartModel, paymentInfoModel, result.getPaymentAmount());
+        final CommerceCheckoutParameter commerceCheckoutParameter = createCommerceCheckoutParameter(cartModel, paymentInfoModel, null);
         getCommerceCheckoutService().setPaymentInfo(commerceCheckoutParameter);
         final PaymentTransactionModel paymentTransaction = getWorldpayPaymentTransactionService().createPaymentTransaction(result.getPending(), merchantCode, commerceCheckoutParameter);
-        getWorldpayPaymentTransactionService().createPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, cartModel, result.getPaymentAmount());
+        getWorldpayPaymentTransactionService().createPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, cartModel);
     }
 
     /**

@@ -24,10 +24,12 @@ public interface WorldpayDirectOrderService {
      *
      * @param merchantInfo               Merchant configuration
      * @param cartModel                  {@link CartModel} used in the current checkout.
+     * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
-    DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
+    DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                             final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
 
     /**
      * Builds the directAuthoriseRequest containing the encrypted card details and the address-details.

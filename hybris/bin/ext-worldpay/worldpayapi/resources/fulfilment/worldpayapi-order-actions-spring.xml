@@ -10,7 +10,6 @@
     <alias name="worldpayCheckAuthorizeOrderPaymentAction" alias="checkAuthorizeOrderPaymentAction"/>
     <bean id="worldpayCheckAuthorizeOrderPaymentAction" class="com.worldpay.fulfilmentprocess.actions.order.WorldpayCheckAuthorizeOrderPaymentAction" parent="abstractAction">
         <property name="paymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <property name="timeService" ref="timeService"/>
     </bean>
 
     <bean id="worldpayAbstractOrderAction" class="com.worldpay.fulfilmentprocess.actions.order.WorldpayAbstractOrderAction" abstract="true" parent="abstractAction">

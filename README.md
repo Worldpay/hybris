@@ -12,8 +12,6 @@ The plugin contains several hybris extensions. Take the following steps to inclu
 
 3. Remove conflicting AddOn:
 - If you are installing the B2C AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are only installing the OCC AddOn: Delete the worldpayaddon and the worldpayb2baddon extensions ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are installing the B2C AddOn and the OCC AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
 - If you are installing the B2B AddOn: Delete the worldpayaddon extension from ${HYBRIS_BIN_DIR}/ext-worldpay
 
 4. Run the ‘ant clean’ command from within your hybris bin/platform directory.
@@ -22,18 +20,13 @@ The plugin contains several hybris extensions. Take the following steps to inclu
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpay"/>
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpayfulfilment"/>
 
-6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant)
-or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommercewebservices" with your OCC extension if relevant):
+6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant):
 
 - If you are installing the B2C AddOn:
 - ant addoninstall -Daddonnames="worldpayaddon,worldpaynotificationaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 - If you are installing the B2B AddOn:
 - ant addoninstall -Daddonnames="worldpayb2caddon,worldpaynotificationaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-- If you are installing the OCC AddOn:
-- ant addoninstall -Daddonnames="worldpayoccaddon" -DaddonStorefront.ycommercewebservices="ycommercewebservices"
-
 
 ### Optional
 
@@ -65,8 +58,6 @@ The plugin is supplied as a zip file with several hybris extensions inside. Take
 
 3. Remove conflicting AddOn:
 - If you are installing the B2C AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are only installing the OCC AddOn: Delete the worldpayaddon and the worldpayb2baddon extensions ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are installing the B2C AddOn and the OCC AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
 - If you are installing the B2B AddOn: Delete the worldpayaddon extension from ${HYBRIS_BIN_DIR}/ext-worldpay
 
 4. Run the ‘ant clean’ command from within your hybris bin/platform directory.
@@ -77,17 +68,13 @@ The plugin is supplied as a zip file with several hybris extensions inside. Take
 
 - &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpayoms"/>
 
-6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant)
-or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommercewebservices" with your OCC extension if relevant):
+6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant):
 
 - If you are installing the B2C AddOn:
 - ant addoninstall -Daddonnames="worldpayaddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 - If you are installing the B2B AddOn:
 - ant addoninstall -Daddonnames="worldpayb2baddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-- If you are installing the OCC AddOn:
-- ant addoninstall -Daddonnames="worldpayoccaddon" -DaddonStorefront.ycommercewebservices="ycommercewebservices"
 
 ### Optional
 
@@ -109,11 +96,11 @@ The AddOn's are independent and can be installed on separate server instances. F
 
 The AddOn provides three gradle recipes to be used with the hybris installer.
 
-1. wp_b2c_acc with fulfilment functionality for both accelerator storefront and OCC web service.
+1. wp_b2c_acc with fulfilment functionality
 
-2. wp_b2c_acc_oms with OMS functionality for both accelerator storefront and OCC web service.
+2. wp_b2c_acc_oms with OMS functionality.
 
-3. wp_b2b_acc with fulfilment functionality for only accelerator storefront.
+3. wp_b2b_acc with fulfilment functionality
 
 The recipes are based on the b2c_acc, b2c_acc_oms and b2b_acc recipes provided by hybris.
 

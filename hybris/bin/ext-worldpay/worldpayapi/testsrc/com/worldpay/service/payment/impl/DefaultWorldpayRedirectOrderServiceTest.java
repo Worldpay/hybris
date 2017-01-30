@@ -9,7 +9,12 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.hostedorderpage.service.WorldpayURIService;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.WorldpayUrlService;
-import com.worldpay.service.model.*;
+import com.worldpay.service.model.Address;
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.model.BasicOrderInfo;
+import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.model.RedirectReference;
+import com.worldpay.service.model.Shopper;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.payment.WorldpayOrderService;
@@ -42,22 +47,36 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.*;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_CANCEL_URL;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_COUNTRY;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_ERROR_URL;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_FAILURE_URL;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_LANGUAGE;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_MAC;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_PAYMENT_AMOUNT;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_PAYMENT_CURRENCY;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_PENDING_URL;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.KEY_SUCCESS_URL;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.ORDER_KEY;
+import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.PAYMENT_STATUS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyMapOf;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -159,8 +178,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategyMock;
     @Mock
     private List<PaymentType> paymentTypeListMock;
-    @Mock
-    private BigDecimal bigDecimalMock;
 
     @Before
     public void setUp() throws WorldpayException {
@@ -185,7 +202,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FULL_FAILURE_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(FULL_CANCEL_URL);
         when(worldpayUrlServiceMock.getFullErrorURL()).thenReturn(FULL_ERROR_URL);
-        doReturn(commerceCheckoutParameterMock).when(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
+        doReturn(commerceCheckoutParameterMock).when(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, null);
         when(worldpayPaymentInfoServiceMock.createPaymentInfo(cartModelMock)).thenReturn(paymentInfoModelMock);
         when(worldpayAuthenticatedShopperIdStrategyMock.getAuthenticatedShopperId(customerModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayTokenEventReferenceCreationStrategyMock.createTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
@@ -305,9 +322,9 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         testObj.completeRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
 
         verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
-        verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
+        verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, null);
         verify(commerceCheckoutServiceMock).setPaymentInfo(commerceCheckoutParameterMock);
-        verify(worldpayPaymentTransactionServiceMock).createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, bigDecimalMock);
+        verify(worldpayPaymentTransactionServiceMock).createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock);
     }
 
     @Test
@@ -318,9 +335,9 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         testObj.completeRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
 
         verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
-        verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
+        verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, null);
         verify(worldpayPaymentTransactionServiceMock).createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock);
-        verify(worldpayPaymentTransactionServiceMock).createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, bigDecimalMock);
+        verify(worldpayPaymentTransactionServiceMock).createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock);
     }
 
     @Test
@@ -401,6 +418,5 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(paymentStatus);
         when(redirectAuthoriseResultMock.getOrderKey()).thenReturn(ORDER_KEY);
         when(redirectAuthoriseResultMock.getPending()).thenReturn(true);
-        when(redirectAuthoriseResultMock.getPaymentAmount()).thenReturn(bigDecimalMock);
     }
 }

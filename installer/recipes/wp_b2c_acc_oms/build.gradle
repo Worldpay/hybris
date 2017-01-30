@@ -62,7 +62,6 @@ def ext = {
     extName 'worldpaycscockpit'
     extName 'worldpaynotificationaddon'
     extName 'worldpaysampledataaddon'
-    extName 'worldpayoccaddon'
 }
 
 def config = {
@@ -84,7 +83,7 @@ task setup << {
     }
 
     pl.project.addons {
-        names "worldpayoccaddon,acceleratorwebservicesaddon"
+        names "acceleratorwebservicesaddon"
         template "ycommercewebservices"
         storeFronts "ycommercewebservices"
         platform pl

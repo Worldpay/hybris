@@ -19,12 +19,10 @@ import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -125,12 +123,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private PaymentTransactionEntryModel paymentTransactionEntryModelMock;
     @Mock
     private CommerceCheckoutParameter commerceCheckoutParameterMock;
-    @Mock
-    private BigDecimal bigDecimalMock;
-    @Mock
-    private ConfigurationService configurationServiceMock;
-    @Mock
-    private Configuration configurationMock;
 
     @Before
     public void setup() {
@@ -186,13 +178,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         when(commerceCheckoutParameterMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
         when(commerceCheckoutParameterMock.getPaymentProvider()).thenReturn(PAYMENT_PROVIDER);
         when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
-
-        when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(authorisedAndAcceptedAndNotPendingEntryMock));
-        when(authorisedAndAcceptedAndNotPendingEntryMock.getType()).thenReturn(AUTHORIZATION);
-        when(authorisedAndAcceptedAndNotPendingEntryMock.getAmount()).thenReturn(new BigDecimal(50));
-        when(configurationServiceMock.getConfiguration()).thenReturn(configurationMock);
-        when(configurationMock.getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.01);
-
     }
 
     @Test
@@ -303,7 +288,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     public void shouldCreatePendingAuthorizationPaymentTransactionEntry() {
         when(paymentTransactionModelMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
 
-        final PaymentTransactionEntryModel result = testObj.createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, REQUEST_TOKEN, cartModelMock, bigDecimalMock);
+        final PaymentTransactionEntryModel result = testObj.createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, REQUEST_TOKEN, cartModelMock);
 
         verify(result).setType(AUTHORIZATION);
         verify(result).setRequestId(WORLDPAY_ORDER_CODE);
@@ -320,7 +305,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     public void shouldCreateNonPendingAuthorizationPaymentTransactionEntry() {
         when(paymentTransactionModelMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
 
-        final PaymentTransactionEntryModel result = testObj.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, REQUEST_TOKEN, cartModelMock, bigDecimalMock);
+        final PaymentTransactionEntryModel result = testObj.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, REQUEST_TOKEN, cartModelMock);
 
         verify(result).setType(AUTHORIZATION);
         verify(result).setRequestId(WORLDPAY_ORDER_CODE);
@@ -496,49 +481,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
 
         verifyPaymentTransactionEntry(result, SETTLED, Boolean.FALSE);
     }
-
-    @Test
-    public void shouldReturnFalseWrongAuthorizedAmountDiffHigherThanTolerance() {
-        when(orderModelMock.getTotalPrice()).thenReturn(50.02);
-        boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
-
-        assertFalse(result);
-    }
-
-    @Test
-    public void shouldReturnTrueWithCorrectAuthorisedAmountDiffLowerThanTolerance() {
-        when(orderModelMock.getTotalPrice()).thenReturn(50.00);
-        boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
-
-        assertTrue(result);
-    }
-
-    @Test
-    public void shouldReturnTrueWithCorrectAuthorisedAmountDiffEqualToTolerance() {
-        when(orderModelMock.getTotalPrice()).thenReturn(50.01);
-        boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
-
-        assertTrue(result);
-    }
-
-    @Test
-    public void shouldReturnFalseWithZeroToleranceAndDiffAboveZero() {
-        when(configurationMock.getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.00);
-        when(orderModelMock.getTotalPrice()).thenReturn(50.01);
-        boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
-
-        assertFalse(result);
-    }
-
-    @Test
-    public void shouldReturnTrueWithZeroToleranceAndZeroDiff() {
-        when(configurationMock.getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.00);
-        when(orderModelMock.getTotalPrice()).thenReturn(50.00);
-        boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
-
-        assertTrue(result);
-    }
-
 
     protected void verifyPaymentTransactionEntry(final PaymentTransactionEntryModel result, final PaymentTransactionType transactionType, final Boolean pendingFlag) {
         verify(result).setType(transactionType);
