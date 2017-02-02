@@ -36,7 +36,6 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.BaseStoreModel;
 import de.hybris.platform.store.services.BaseStoreService;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,8 +50,6 @@ import java.util.TimeZone;
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
-
-    public static final String QUOTE_DESCRIPTION = "description";
 
     @InjectMocks
     private WorldpayB2BAcceleratorCheckoutFacadeDecorator testObj = new WorldpayB2BAcceleratorCheckoutFacadeDecorator();
@@ -124,8 +121,8 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void placeOrderShouldPlaceOderOnBuyNowWhenAuthorized() throws InvalidCartException {
-        PlaceOrderData placeOrderData = createPlaceOrderData(false, false);
+    public void placeOrderShouldPlaceOrderOnBuyNowWhenAuthorized() throws InvalidCartException {
+        PlaceOrderData placeOrderData = createPlaceOrderData(false);
         PaymentTransactionEntryModel paymentTransactionEntryModelMock = Mockito.mock(PaymentTransactionEntryModel.class);
         PaymentTransactionModel paymentTransactionModelMock = Mockito.mock(PaymentTransactionModel.class);
 
@@ -142,8 +139,8 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     }
 
     @Test(expected = EntityValidationException.class)
-    public void placeOrderShouldNotPlaceOderOnBuyNowWhenNotAuthorized() throws InvalidCartException {
-        PlaceOrderData placeOrderData = createPlaceOrderData(false, false);
+    public void placeOrderShouldNotPlaceOrderOnBuyNowWhenNotAuthorized() throws InvalidCartException {
+        PlaceOrderData placeOrderData = createPlaceOrderData(false);
 
         Mockito.when(cartModelMock.getPaymentType()).thenReturn(CheckoutPaymentType.CARD);
 
@@ -151,32 +148,8 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void placeOrderShouldPlaceOderOnQuoteWhenNotAuthorized() throws InvalidCartException {
-        PlaceOrderData placeOrderData = createPlaceOrderData(false, true);
-
-        mockPayByCard();
-
-        testObj.placeOrder(placeOrderData);
-
-        Mockito.verify(b2BAcceleratorCheckoutFacade, Mockito.times(1)).placeOrder();
-        Mockito.verify(b2BAcceleratorCheckoutFacade, Mockito.times(1)).updateCheckoutCart(cartDataArgumentCaptor.capture());
-        Assert.assertEquals("Expect mocked comment to be set on cart", QUOTE_DESCRIPTION, cartDataArgumentCaptor.getValue().getB2BComment().getComment());
-    }
-
-    @Test(expected = EntityValidationException.class)
-    public void placeOrderShouldFailOnQuoteWhenNoDescription() throws InvalidCartException {
-        PlaceOrderData placeOrderData = createPlaceOrderData(false, true);
-        placeOrderData.setQuoteRequestDescription(null);
-
-        mockPayByCard();
-
-        testObj.placeOrder(placeOrderData);
-
-    }
-
-    @Test
     public void placeOrderShouldNotPlaceOrderOnReplenishment() throws InvalidCartException {
-        PlaceOrderData placeOrderData = createPlaceOrderData(true, false);
+        PlaceOrderData placeOrderData = createPlaceOrderData(true);
 
         mockPayByCard();
         Mockito.when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
@@ -188,7 +161,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
 
     @Test
     public void placeOrderShouldScheduleReplenishment() throws InvalidCartException {
-        PlaceOrderData placeOrderData = createPlaceOrderData(true, false);
+        PlaceOrderData placeOrderData = createPlaceOrderData(true);
 
         mockPayByCard();
         Mockito.when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
@@ -207,16 +180,10 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     }
 
 
-    protected PlaceOrderData createPlaceOrderData(final boolean replenishment, final boolean quote) {
+    protected PlaceOrderData createPlaceOrderData(final boolean replenishment) {
         PlaceOrderData placeOrderData = new PlaceOrderData();
         placeOrderData.setReplenishmentOrder(replenishment);
-        placeOrderData.setNegotiateQuote(quote);
         placeOrderData.setTermsCheck(true);
-
-        if (quote) {
-            Mockito.when(cartDataMock.getQuoteAllowed()).thenReturn(Boolean.TRUE);
-            placeOrderData.setQuoteRequestDescription(QUOTE_DESCRIPTION);
-        }
 
         if (replenishment) {
             placeOrderData.setReplenishmentStartDate(new Date());

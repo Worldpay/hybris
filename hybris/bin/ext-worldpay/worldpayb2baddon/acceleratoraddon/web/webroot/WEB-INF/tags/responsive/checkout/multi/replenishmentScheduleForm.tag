@@ -23,7 +23,6 @@
 		data-place-Order-Form-Replenishment-Recurrence="${fn:escapeXml(placeOrderForm.replenishmentRecurrence)}"
 		data-place-Order-Form-N-Days="${fn:escapeXml(placeOrderForm.nDays)}"
 		data-place-Order-Form-Nth-Day-Of-Month="${fn:escapeXml(placeOrderForm.nthDayOfMonth)}"
-		data-place-Order-Form-Negotiate-Quote="${placeOrderForm.negotiateQuote}"
 		data-place-Order-Form-Replenishment-Order="${placeOrderForm.replenishmentOrder}">
 
 

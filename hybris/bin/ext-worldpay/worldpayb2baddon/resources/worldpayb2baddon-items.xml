@@ -39,9 +39,6 @@
 					</attribute>
 				</attributes>
 			</itemtype>
-			<itemtype code="WorldpayAcceptQuoteAndOrderAction" jaloclass="com.worldpay.jalo.WorldpayAcceptQuoteAndOrderAction"
-					  extends="SimpleCMSAction"  autocreate="true" generate="true">
-			</itemtype>
 		</typegroup>
 	</itemtypes>
 </items>

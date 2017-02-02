@@ -1,78 +1,83 @@
-apply plugin: 'installer-platform-plugin'
-
-def localProps = {
-    customConfig 'local.properties'
-    property 'googleApiKey', ''
-}
-
-def ext = {
-    scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayfulfilment'
-
-    extName 'mcc'
-    extName 'commercesearchbackoffice'
-    extName 'commerceservicesbackoffice'
-    extName 'solrfacetsearchbackoffice'
-    extName 'solrserver'
-    extName 'yacceleratorcockpits'
-    extName 'yacceleratorinitialdata'
-    extName 'yacceleratorfulfilmentprocess'
-    extName 'yacceleratorstorefront'
-    extName 'ycommercewebservices'
-
-    extName 'electronicsstore'
-    extName 'apparelstore'
-
-    extName 'liveeditaddon'
-    extName 'acceleratorwebservicesaddon'
-    extName 'orderselfserviceaddon'
-
-    extName 'customersupportbackoffice'
-    extName 'customerticketingaddon'
-    extName 'commerceorgsamplesaddon'
-
-    extName 'rulebuilderbackoffice'
-    extName 'couponbackoffice'
-    extName 'droolsruleengineservices'
-    extName 'couponfacades'
-    extName 'promotionenginesamplesaddon'
-
-    extName 'cmswebservices'
-    extName 'smarteditwebservices'
-    extName 'permissionswebservices'
-    extName 'smarteditaddon'
-    extName 'cmssmartedit'
-
-    extName 'previewpersonalizationweb'
-    extName 'personalizationcmsweb'
-    extName 'personalizationsmartedit'
-    extName 'personalizationsampledataaddon'
-
-    extName 'textfieldconfiguratortemplatebackoffice'
-    extName 'textfieldconfiguratortemplateaddon'
-    extName 'assistedservicestorefront'
-
-    extName 'assistedserviceatddtests'
-    extName 'promotionengineatddtests'
-    extName 'commercesearchatddtests'
-    extName 'textfieldconfiguratortemplateatddtests'
-
-    extName 'worldpayaddon'
-    extName 'worldpayaddonbackoffice'
-    extName 'worldpayapi'
-    extName 'worldpaycscockpit'
-    extName 'worldpaynotificationaddon'
-    extName 'worldpaysampledataaddon'
-    extName 'worldpayoccaddon'
-}
+// Hybris b2c_acc recipe extended with Worldpay addon
 
 def config = {
-    localProperties localProps
-    extensions ext
+    localProperties {
+        property 'googleApiKey', ''
+    }
+
+    extensions {
+
+        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayfulfilment'
+
+        extName 'mcc'
+        extName 'commercesearchbackoffice'
+        extName 'commerceservicesbackoffice'
+        extName 'solrfacetsearchbackoffice'
+        extName 'solrserver'
+        extName 'yacceleratorcockpits'
+        extName 'yacceleratorinitialdata'
+        extName 'yacceleratorfulfilmentprocess'
+        extName 'yacceleratorstorefront'
+        extName 'ycommercewebservices'
+        extName 'ycommercewebservicestest'
+
+        extName 'electronicsstore'
+        extName 'apparelstore'
+
+        extName 'liveeditaddon'
+        extName 'acceleratorwebservicesaddon'
+        extName 'orderselfserviceaddon'
+
+        extName 'customersupportbackoffice'
+        extName 'customerticketingaddon'
+        extName 'commerceorgsamplesaddon'
+
+        extName 'rulebuilderbackoffice'
+        extName 'couponbackoffice'
+        extName 'droolsruleengineservices'
+        extName 'couponfacades'
+        extName 'promotionenginesamplesaddon'
+
+        extName 'cmswebservices'
+        extName 'smarteditwebservices'
+        extName 'cmssmarteditwebservices'
+        extName 'permissionswebservices'
+        extName 'smarteditaddon'
+        extName 'cmssmartedit'
+
+        extName 'previewpersonalizationweb'
+        extName 'personalizationcmsweb'
+        extName 'personalizationsmartedit'
+        extName 'personalizationsampledataaddon'
+        extName 'personalizationyprofile'
+        extName 'personalizationpromotions'
+        extName 'personalizationpromotionsweb'
+        extName 'personalizationservicesbackoffice'
+        extName 'personalizationpromotionsbackoffice'
+        extName 'personalizationcmsbackoffice'
+
+        extName 'textfieldconfiguratortemplatebackoffice'
+        extName 'textfieldconfiguratortemplateaddon'
+        extName 'assistedservicestorefront'
+
+        extName 'assistedserviceatddtests'
+        extName 'promotionengineatddtests'
+        extName 'commercesearchatddtests'
+        extName 'textfieldconfiguratortemplateatddtests'
+
+        extName 'worldpayaddon'
+        extName 'worldpayaddonbackoffice'
+        extName 'worldpayapi'
+        extName 'worldpaycscockpit'
+        extName 'worldpaynotificationaddon'
+        extName 'worldpaysampledataaddon'
+        extName 'worldpayoccaddon'
+    }
 }
 
 task setup << {
+    apply plugin: 'installer-platform-plugin'
     apply plugin: 'installer-addon-plugin'
-
     def pl = platform(config)
     pl.setup()
 
@@ -91,18 +96,16 @@ task setup << {
     }
 }
 
-task build << {
-    def pl = platform(config)
-    pl.build()
-}
-
 task initialize << {
+    apply plugin: 'installer-platform-plugin'
     def pl = platform(config)
     pl.build()
     pl.initialize()
 }
 
+
 task start << {
+    apply plugin: 'installer-platform-plugin'
     def pl = platform(config)
     pl.start()
 }
