@@ -1,75 +1,98 @@
+// Hybris b2c_acc_oms recipe extended with Worldpay addon
+
 apply plugin: 'installer-platform-plugin'
 
-def localProps = {
-    customConfig 'local.properties'
-    property 'tomcat.generaloptions', '-Xmx4096M -XX:-UseLoopPredicate -XX:MaxPermSize=512M -XX:+HeapDumpOnOutOfMemoryError -ea -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dorg.tanukisoftware.wrapper.WrapperManager.mbean=true -Djava.endorsed.dirs="%CATALINA_HOME%/lib/endorsed" -Dcatalina.base=%CATALINA_BASE% -Dcatalina.home=%CATALINA_HOME% -Dfile.encoding=UTF-8 -Dlog4j.configuration=log4j_init_tomcat.properties -Djava.util.logging.config.file=jdk_logging.properties -Djava.io.tmpdir="${HYBRIS_TEMP_DIR}"'
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 
-    property 'website.electronics.http', 'http://electronics.local:9001/yacceleratorstorefront'
-    property 'website.electronics.https', 'https://electronics.local:9002/yacceleratorstorefront'
-    property 'website.apparel-de.http', 'http://apparel-de.local:9001/yacceleratorstorefront'
-    property 'website.apparel-de.https', 'https://apparel-de.local:9002/yacceleratorstorefront'
-    property 'website.apparel-uk.http', 'http://apparel-uk.local:9001/yacceleratorstorefront'
-    property 'website.apparel-uk.https', 'https://apparel-uk.local:9002/yacceleratorstorefront'
-
-    property 'googleApiKey', ''
+    dependencies {
+    }
 }
 
-def ext = {
-    scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayoms'
-
-    extName 'ordermanagementaddon'
-    extName 'orderselfserviceaddon'
-    extName 'ordermanagementfacade'
-    extName 'ordermanagementwebservices'
-
-    extName 'warehousing'
-    extName 'warehousingbackoffice'
-    extName 'warehousingfacade'
-    extName 'warehousingwebservices'
-
-    extName 'instore'
-
-    extName 'mcc'
-    extName 'backoffice'
-    extName 'commercesearchbackoffice'
-    extName 'commerceservicesbackoffice'
-    extName 'solrserver'
-    extName 'yacceleratorcockpits'
-    extName 'yacceleratorinitialdata'
-    extName 'yacceleratorordermanagement'
-    extName 'yacceleratorstorefront'
-    extName 'yaddon'
-    extName 'ycommercewebservices'
-
-    extName 'electronicsstore'
-    extName 'apparelstore'
-
-    extName 'acceleratorwebservicesaddon'
-
-    extName 'customersupportbackoffice'
-    extName 'customerticketingaddon'
-    extName 'ticketsystembackoffice'
-
-    extName 'rulebuilderbackoffice'
-    extName 'couponbackoffice'
-    extName 'droolsruleengineservices'
-    extName 'couponfacades'
-    extName 'promotionenginesamplesaddon'
-
-    extName 'worldpayaddon'
-    extName 'worldpayaddonbackoffice'
-    extName 'worldpayapi'
-    extName 'worldpaycscockpit'
-    extName 'worldpaynotificationaddon'
-    extName 'worldpaysampledataaddon'
+ext {
+    workDir = "./work"
 }
 
 def config = {
-    localProperties localProps
-    extensions ext
+    localProperties {
+        '# place your custom properties into this file instead of modifying the project.properties'
+        '# all properties in this file have higher priority and will overwrite the platform/project.properties settings.'
+
+        property 'googleApiKey', ''
+
+        property 'mykey' , 'myvalue'
+        property '#hac.webroot' , '/hac'
+
+        '# using higher memory settings (4G heap and 512 permgen) to prevent out of memory issues on tcserver'
+        property 'tomcat.generaloptions' , '-Xmx4096M -XX:-UseLoopPredicate -XX:MaxPermSize=512M -XX:+HeapDumpOnOutOfMemoryError -ea -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dorg.tanukisoftware.wrapper.WrapperManager.mbean=true -Djava.endorsed.dirs="%CATALINA_HOME%/lib/endorsed" -Dcatalina.base=%CATALINA_BASE% -Dcatalina.home=%CATALINA_HOME% -Dfile.encoding=UTF-8 -Dlog4j.configuration=log4j_init_tomcat.properties -Djava.util.logging.config.file=jdk_logging.properties -Djava.io.tmpdir="${HYBRIS_TEMP_DIR}"'
+
+        property 'standalone.javaoptions' , '-Xmx2040M -XX:MaxPermSize=512M -XX:+HeapDumpOnOutOfMemoryError -ea -XX:-UseLoopPredicate'
+
+        property 'website.electronics.http', 'http://electronics.local:9001/yacceleratorstorefront'
+        property 'website.electronics.https', 'https://electronics.local:9002/yacceleratorstorefront'
+        property 'website.apparel-de.http', 'http://apparel-de.local:9001/yacceleratorstorefront'
+        property 'website.apparel-de.https', 'https://apparel-de.local:9002/yacceleratorstorefront'
+        property 'website.apparel-uk.http', 'http://apparel-uk.local:9001/yacceleratorstorefront'
+        property 'website.apparel-uk.https', 'https://apparel-uk.local:9002/yacceleratorstorefront'
+    }
+
+    extensions {
+        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayoms'
+
+        extName 'ordermanagementaddon'
+        extName 'orderselfserviceaddon'
+        extName 'ordermanagementfacade'
+        extName 'ordermanagementwebservices'
+
+        extName 'warehousing'
+        extName 'warehousingbackoffice'
+        extName 'warehousingfacade'
+        extName 'warehousingwebservices'
+
+        extName 'instore'
+
+        extName 'mcc'
+        extName 'backoffice'
+        extName 'commercesearchbackoffice'
+        extName 'commerceservicesbackoffice'
+        extName 'solrserver'
+        extName 'yacceleratorcockpits'
+        extName 'yacceleratorinitialdata'
+        extName 'yacceleratorordermanagement'
+        extName 'yacceleratorstorefront'
+        extName 'yaddon'
+        extName 'ycommercewebservices'
+
+        extName 'electronicsstore'
+        extName 'apparelstore'
+
+        extName 'acceleratorwebservicesaddon'
+
+        extName 'customersupportbackoffice'
+        extName 'customerticketingaddon'
+        extName 'ticketsystembackoffice'
+
+        extName 'rulebuilderbackoffice'
+        extName 'couponbackoffice'
+        extName 'droolsruleengineservices'
+        extName 'couponfacades'
+        extName 'promotionenginesamplesaddon'
+
+        extName 'worldpayaddon'
+        extName 'worldpayaddonbackoffice'
+        extName 'worldpayapi'
+        extName 'worldpaycscockpit'
+        extName 'worldpaynotificationaddon'
+        extName 'worldpaysampledataaddon'
+        extName 'worldpayoccaddon'
+    }
 }
 
 task setup << {
+    apply plugin: 'installer-platform-plugin'
     apply plugin: 'installer-addon-plugin'
 
     def pl = platform(config)
@@ -83,25 +106,21 @@ task setup << {
     }
 
     pl.project.addons {
-        names "acceleratorwebservicesaddon"
+        names "worldpayoccaddon,acceleratorwebservicesaddon"
         template "ycommercewebservices"
         storeFronts "ycommercewebservices"
         platform pl
     }
 }
 
-task build << {
-    def pl = platform(config)
-    pl.build()
-}
-
 task initialize << {
-    def pl = platform(config)
-    pl.build()
-    pl.initialize()
+    def thePlatform = platform(config)
+    thePlatform.build()
+    thePlatform.initialize()
 }
 
 task start << {
-    def pl = platform(config)
-    pl.start()
+    def thePlatform = platform(config)
+    thePlatform.start()
 }
+

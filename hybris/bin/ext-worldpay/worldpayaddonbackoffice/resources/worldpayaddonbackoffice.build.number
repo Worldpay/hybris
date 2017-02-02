@@ -1,9 +1,11 @@
 #Ant properties
-#Thu Dec 15 12:11:45 GMT 2016
-builddate=20161215 1211
+#Wed Feb 01 12:36:11 GMT 2017
+builddate=20170201 1236
 description=worldpayaddonbackoffice
+group.id=de.hybris.platform
+module.name=platform-module
 name=worldpayaddonbackoffice
-releasedate=20161110 1533
+releasedate=20161216 2029
 vendor=hybris
-version=6.2.0.1
-version.api=6.2.0
+version=6.3.0.0-SNAPSHOT
+version.api=6.3.0

@@ -3,7 +3,6 @@
 <%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags"%>
 <%@ taglib prefix="multi-checkout" tagdir="/WEB-INF/tags/responsive/checkout/multi"%>
 <%@ taglib prefix="wp-multi-checkout" tagdir="/WEB-INF/tags/addons/worldpayb2baddon/responsive/checkout/multi" %>
-<%@ taglib prefix="b2b-multi-checkout" tagdir="/WEB-INF/tags/addons/b2bacceleratoraddon/responsive/checkout/multi" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
@@ -39,12 +38,8 @@
                             <button id="scheduleReplenishment" type="button" class="btn btn-default btn-block scheduleReplenishmentButton checkoutSummaryButton" disabled="disabled">
                                 <spring:theme code="checkout.summary.scheduleReplenishment"/>
                             </button>
-                            <button id="requestQuote" type="button" class="btn btn-default btn-block requestQuoteButton checkoutSummaryButton" disabled="disabled">
-                                <spring:theme code="checkout.summary.requestQuote"/>
-                            </button>
 
                             <wp-multi-checkout:replenishmentScheduleForm/>
-                            <b2b-multi-checkout:requestQuote/>
                         </form:form>
                     </div>
 

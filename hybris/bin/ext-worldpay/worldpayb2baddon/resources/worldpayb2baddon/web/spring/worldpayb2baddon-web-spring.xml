@@ -80,13 +80,6 @@
 		<property name="renderer" ref="worldpayCCComponentRenderer"/>
 	</bean>
 
-	<bean id="worldpayAcceptQuoteAndOrderActionRenderer"  parent="genericAddOnCMSComponentRenderer"/>
-
-	<bean id="worldpayAcceptQuoteAndOrderActionRendererMapping" parent="addonCmsComponentRendererMapping" >
-		<property name="typeCode" value="WorldpayAcceptQuoteAndOrderAction" />
-		<property name="renderer" ref="worldpayAcceptQuoteAndOrderActionRenderer" />
-	</bean>
-
 	<!-- Expose /acceleratoraddon/web/webroot/WEB-INF/messages/base.js.properties  resource bundle as javascript variables -->
 	<bean id="defaultWorldpayb2baddonJavaScriptMessageResourceAccessor" parent="abstractJavaScriptMessageResourceAccessor">
 		<property name="addOnName" value="worldpayb2baddon"/>

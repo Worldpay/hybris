@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSE Test Form</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://payments.worldpay.com/resources/cse/js/worldpay-cse-1.0.1.min.js"></script>
+    <script type="text/javascript" >
+        function generateCseToken(publicKey, cvc, cardHolderName, cardNumber, expMonth, expYear) {
+            Worldpay.setPublicKey(publicKey);
+
+            var data = {
+                cvc: cvc,
+                cardHolderName: cardHolderName,
+                cardNumber: cardNumber,
+                expiryMonth: expMonth,
+                expiryYear: expYear
+            };
+            var encryptedData = Worldpay.encrypt(data, this.errorHandler);
+
+            return encryptedData;
+        }
+
+        function  errorHandler(errorCodes) {
+            for (var index in errorCodes) {
+                var errorCode = errorCodes[index].toString();
+                alert(errorCode);
+            }
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>

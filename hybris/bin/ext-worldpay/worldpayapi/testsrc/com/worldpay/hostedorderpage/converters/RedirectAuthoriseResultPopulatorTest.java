@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class RedirectAuthoriseResultPopulatorTest {
     private static final String SEPARATOR = "^";
     private static final String ORDER_KEY = MERCHANT_OWNER + SEPARATOR + MERCHANTCODE + SEPARATOR + ORDER_CODE;
     private static final String STATUS = "AUTHORISED";
+    private static final String PAYMENTAMOUNT = "1000";
 
     @InjectMocks
     private RedirectAuthoriseResultPopulator testObj = new RedirectAuthoriseResultPopulator();
@@ -41,6 +43,7 @@ public class RedirectAuthoriseResultPopulatorTest {
         assertEquals(ORDER_KEY, result.getOrderKey());
         assertEquals(ORDER_CODE, result.getOrderCode());
         assertEquals(STATUS, result.getPaymentStatus());
+        assertEquals(new BigDecimal(10.00), result.getPaymentAmount());
         assertEquals(true, result.getSaveCard());
         assertEquals(false, result.getPending());
     }
@@ -54,6 +57,7 @@ public class RedirectAuthoriseResultPopulatorTest {
         assertEquals(null, result.getOrderKey());
         assertEquals(null, result.getOrderCode());
         assertEquals(null, result.getPaymentStatus());
+        assertEquals(null, result.getPaymentAmount());
     }
 
     @Test
@@ -74,6 +78,7 @@ public class RedirectAuthoriseResultPopulatorTest {
         paymentStatusSourceMap.put("orderKey", ORDER_KEY);
         paymentStatusSourceMap.put("paymentStatus", STATUS);
         paymentStatusSourceMap.put("savePaymentInfo", String.valueOf(TRUE));
+        paymentStatusSourceMap.put("paymentAmount", PAYMENTAMOUNT);
 
         statusSourceMap.put("orderKey", ORDER_KEY);
         statusSourceMap.put("status", STATUS);

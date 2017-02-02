@@ -61,6 +61,5 @@
         <button id="requestQuote" type="button" class="btn btn-default btn-block requestQuoteButton checkoutSummaryButton" disabled="disabled">
             <spring:theme code="checkout.summary.requestQuote"/>
         </button>
-        <b2b-multi-checkout:requestQuote/>
     </form:form>
 </div>

@@ -3,9 +3,9 @@ package com.worldpay.fulfilmentprocess.actions.order;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.order.payment.InvoicePaymentInfoModel;
+import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.processengine.action.AbstractAction;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.HashSet;
@@ -14,15 +14,13 @@ import java.util.Set;
 import static com.worldpay.fulfilmentprocess.actions.order.WorldpayCheckAuthorizeOrderPaymentAction.Transition.NOK;
 import static com.worldpay.fulfilmentprocess.actions.order.WorldpayCheckAuthorizeOrderPaymentAction.Transition.OK;
 import static com.worldpay.fulfilmentprocess.actions.order.WorldpayCheckAuthorizeOrderPaymentAction.Transition.WAIT;
-import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_AUTHORIZED;
-import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_NOT_AUTHORIZED;
-import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_PENDING;
+import static de.hybris.platform.core.enums.OrderStatus.*;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 
 /**
  * Action to check authorization state on order payment
  */
-public class WorldpayCheckAuthorizeOrderPaymentAction extends AbstractAction<OrderProcessModel> {
+public class WorldpayCheckAuthorizeOrderPaymentAction extends WorldpayAbstractOrderAction<OrderProcessModel> {
 
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
 
@@ -44,6 +42,12 @@ public class WorldpayCheckAuthorizeOrderPaymentAction extends AbstractAction<Ord
 
                 if (!worldpayPaymentTransactionService.areAllPaymentTransactionsAcceptedForType(order, AUTHORIZATION)) {
                     setOrderStatus(order, PAYMENT_NOT_AUTHORIZED);
+                    return NOK.toString();
+                }
+
+                if(!worldpayPaymentTransactionService.isAuthorisedAmountCorrect(order)) {
+                    setOrderStatus(order, CHECKED_INVALID);
+                    createOrderHistoryEntry("Order total did not match authorised amount", order);
                     return NOK.toString();
                 }
 
@@ -70,6 +74,11 @@ public class WorldpayCheckAuthorizeOrderPaymentAction extends AbstractAction<Ord
             }
         }
         return waitForAuthorisation;
+    }
+
+    protected void createOrderHistoryEntry(final String description, final OrderModel order) {
+        final OrderHistoryEntryModel entry = createHistoryLog(description, order);
+        modelService.save(entry);
     }
 
     @Required
