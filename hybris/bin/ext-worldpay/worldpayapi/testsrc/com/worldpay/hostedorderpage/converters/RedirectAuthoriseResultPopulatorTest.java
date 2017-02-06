@@ -1,13 +1,18 @@
 package com.worldpay.hostedorderpage.converters;
 
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.payment.WorldpayOrderService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,10 +30,16 @@ public class RedirectAuthoriseResultPopulatorTest {
     private static final String SEPARATOR = "^";
     private static final String ORDER_KEY = MERCHANT_OWNER + SEPARATOR + MERCHANTCODE + SEPARATOR + ORDER_CODE;
     private static final String STATUS = "AUTHORISED";
-    private static final String PAYMENTAMOUNT = "1000";
+    private static final String PAYMENT_AMOUNT = "1000";
+    private static final String PAYMENT_CURRENCY = "GBP";
 
     @InjectMocks
     private RedirectAuthoriseResultPopulator testObj = new RedirectAuthoriseResultPopulator();
+
+    @Mock
+    private WorldpayOrderService worldpayOrderService;
+    @Mock
+    private Amount amountMock;
 
     private final Map<String, String> paymentStatusSourceMap = new HashMap<>();
     private final Map<String, String> statusSourceMap = new HashMap<>();
@@ -38,12 +49,15 @@ public class RedirectAuthoriseResultPopulatorTest {
         populateParametersMap();
         final RedirectAuthoriseResult result = new RedirectAuthoriseResult();
 
+        Mockito.when(worldpayOrderService.createAmount(Currency.getInstance(PAYMENT_CURRENCY), Integer.valueOf(PAYMENT_AMOUNT))).thenReturn(amountMock);
+        Mockito.when(amountMock.getValue()).thenReturn("10");
+
         testObj.populate(paymentStatusSourceMap, result);
 
         assertEquals(ORDER_KEY, result.getOrderKey());
         assertEquals(ORDER_CODE, result.getOrderCode());
         assertEquals(STATUS, result.getPaymentStatus());
-        assertEquals(new BigDecimal(10.00), result.getPaymentAmount());
+        assertEquals(new BigDecimal(10), result.getPaymentAmount());
         assertEquals(true, result.getSaveCard());
         assertEquals(false, result.getPending());
     }
@@ -78,7 +92,8 @@ public class RedirectAuthoriseResultPopulatorTest {
         paymentStatusSourceMap.put("orderKey", ORDER_KEY);
         paymentStatusSourceMap.put("paymentStatus", STATUS);
         paymentStatusSourceMap.put("savePaymentInfo", String.valueOf(TRUE));
-        paymentStatusSourceMap.put("paymentAmount", PAYMENTAMOUNT);
+        paymentStatusSourceMap.put("paymentAmount", PAYMENT_AMOUNT);
+        paymentStatusSourceMap.put("paymentCurrency", PAYMENT_CURRENCY);
 
         statusSourceMap.put("orderKey", ORDER_KEY);
         statusSourceMap.put("status", STATUS);
