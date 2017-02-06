@@ -4,11 +4,7 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.WorldpayUrlService;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.Browser;
-import com.worldpay.service.model.Session;
-import com.worldpay.service.model.Shopper;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
 import com.worldpay.service.model.payment.PaymentType;
@@ -27,6 +23,15 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
 
     private CommonI18NService commonI18NService;
     private WorldpayUrlService worldpayUrlService;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Amount createAmount(final Currency currency, final int amount) {
+        final Double roundedValue = commonI18NService.convertAndRoundCurrency(Math.pow(10, currency.getDefaultFractionDigits()), 1, currency.getDefaultFractionDigits(), amount);
+        return new Amount(String.valueOf(roundedValue), currency.getCurrencyCode(), String.valueOf(currency.getDefaultFractionDigits()));
+    }
 
     /**
      * {@inheritDoc}

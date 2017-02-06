@@ -3,11 +3,7 @@ package com.worldpay.service.payment.impl;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayUrlService;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.Browser;
-import com.worldpay.service.model.Session;
-import com.worldpay.service.model.Shopper;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.AlternativeShopperBankCodePayment;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.TokenRequest;
@@ -166,5 +162,21 @@ public class DefaultWorldpayOrderServiceTest {
         final AlternativeShopperBankCodePayment result = (AlternativeShopperBankCodePayment) testObj.createPayment("notfound", BANK_CODE, null);
 
         assertNull(result);
+    }
+
+    @Test
+    public void shouldFormatYENNoDigits() {
+        Currency currency = Currency.getInstance("JPY");
+        testObj.createAmount(currency, 8500);
+
+        verify(commonI18NServiceMock).convertAndRoundCurrency(Math.pow(10, 0), 1, 0, 8500d);
+    }
+
+    @Test
+    public void shouldFormatGBPTwoDigits() {
+        Currency currency = Currency.getInstance("GBP");
+        testObj.createAmount(currency, 8500);
+
+        verify(commonI18NServiceMock).convertAndRoundCurrency(Math.pow(10, 2), 1, 2, 8500d);
     }
 }

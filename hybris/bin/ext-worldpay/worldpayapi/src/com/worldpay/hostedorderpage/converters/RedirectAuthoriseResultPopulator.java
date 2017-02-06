@@ -1,12 +1,17 @@
 package com.worldpay.hostedorderpage.converters;
 
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.payment.WorldpayOrderService;
 import de.hybris.platform.acceleratorservices.payment.cybersource.converters.populators.response.AbstractResultPopulator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.Currency;
 import java.util.Map;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
@@ -18,10 +23,15 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
  */
 public class RedirectAuthoriseResultPopulator implements Populator<Map<String, String>, RedirectAuthoriseResult> {
 
+    private static final Logger LOG = Logger.getLogger(RedirectAuthoriseResultPopulator.class);
+
     public static final String PAYMENT_STATUS = "paymentStatus";
     public static final String STATUS = "status";
     public static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
     public static final String PAYMENT_AMOUNT = "paymentAmount";
+    public static final String PAYMENT_CURRENCY = "paymentCurrency";
+
+    private WorldpayOrderService worldpayOrderService;
 
     /**
      * Populates the {@link RedirectAuthoriseResult} with the values received in the URL from Worldpay.
@@ -58,11 +68,20 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
     }
 
     private BigDecimal getPaymentAmount (final Map<String, String> source) {
-        if (StringUtils.isNotEmpty(source.get(PAYMENT_AMOUNT))) {
-            BigDecimal divisor = new BigDecimal(100);
-            return (new BigDecimal(source.get(PAYMENT_AMOUNT))).divide(divisor);
+        if (StringUtils.isNotEmpty(source.get(PAYMENT_AMOUNT)) && StringUtils.isNotEmpty(source.get(PAYMENT_CURRENCY))) {
+            try {
+                final Currency currency = Currency.getInstance(source.get(PAYMENT_CURRENCY));
+                Amount amount = worldpayOrderService.createAmount(currency, Integer.valueOf(source.get(PAYMENT_AMOUNT)));
+                return (new BigDecimal(amount.getValue()));
+            } catch (IllegalArgumentException exception) {
+                LOG.error(MessageFormat.format("Received invalid currecny isocode: {0}", source.get(PAYMENT_CURRENCY)), exception);
+                return null;
+            }
         }
-
         return null;
+    }
+
+    public void setWorldpayOrderService(WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
     }
 }
