@@ -137,7 +137,9 @@
     </bean>
 
     <alias name="defaultRedirectAuthoriseResultPopulator" alias="redirectAuthoriseResultPopulator"/>
-    <bean id="defaultRedirectAuthoriseResultPopulator" class="com.worldpay.hostedorderpage.converters.RedirectAuthoriseResultPopulator"/>
+    <bean id="defaultRedirectAuthoriseResultPopulator" class="com.worldpay.hostedorderpage.converters.RedirectAuthoriseResultPopulator">
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+    </bean>
 
     <bean id="abstractWorldpayOrderService" class="com.worldpay.service.payment.impl.AbstractWorldpayOrderService" abstract="true">
         <property name="commonI18NService" ref="commonI18NService"/>

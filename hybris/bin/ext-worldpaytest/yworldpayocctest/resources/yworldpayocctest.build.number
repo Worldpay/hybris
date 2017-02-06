@@ -1,6 +1,6 @@
 #Ant properties
-#Wed Feb 01 12:36:10 GMT 2017
-builddate=20170201 1236
+#Fri Feb 03 14:14:57 GMT 2017
+builddate=20170203 1414
 description=yworldpayocctest
 group.id=de.hybris.platform
 module.name=platform-module

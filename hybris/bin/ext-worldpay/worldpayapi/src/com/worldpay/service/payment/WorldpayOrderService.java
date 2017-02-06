@@ -3,11 +3,7 @@ package com.worldpay.service.payment;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.Browser;
-import com.worldpay.service.model.Session;
-import com.worldpay.service.model.Shopper;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.token.TokenRequest;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
@@ -18,6 +14,15 @@ import java.util.Currency;
  * Exposes utility methods to create objects used in the request creation.
  */
 public interface WorldpayOrderService {
+
+    /**
+     * Creates a Worldpay {@link Amount} object using the  currencyIsoCode and the amount.
+     * @param currency      currency to be used
+     * @param amount        total amount of the order
+     *
+     * @return Amount object
+     */
+    Amount createAmount(final Currency currency, final int amount);
 
     /**
      * Creates a Worldpay {@link Amount} object using the {@link CurrencyModel} and the amount.
