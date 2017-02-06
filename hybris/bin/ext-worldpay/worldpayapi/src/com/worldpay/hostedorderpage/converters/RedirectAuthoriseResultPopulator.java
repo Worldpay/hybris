@@ -4,7 +4,9 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import de.hybris.platform.acceleratorservices.payment.cybersource.converters.populators.response.AbstractResultPopulator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
+import org.apache.commons.lang.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
@@ -19,6 +21,7 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
     public static final String PAYMENT_STATUS = "paymentStatus";
     public static final String STATUS = "status";
     public static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
+    public static final String PAYMENT_AMOUNT = "paymentAmount";
 
     /**
      * Populates the {@link RedirectAuthoriseResult} with the values received in the URL from Worldpay.
@@ -41,6 +44,8 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
         //in case of Credit Card payment - extract paymentStatus, APM payment - extract status parameter
         target.setPaymentStatus(source.get(PAYMENT_STATUS) != null ? source.get(PAYMENT_STATUS) : source.get(STATUS));
         target.setSaveCard(Boolean.valueOf(source.get(SAVE_PAYMENT_INFO)));
+        target.setPaymentAmount(getPaymentAmount(source));
+
     }
 
     protected void setOrderCode(final RedirectAuthoriseResult target, final String orderKey) {
@@ -50,5 +55,14 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
                 target.setOrderCode(orderKeyParts[2]);
             }
         }
+    }
+
+    private BigDecimal getPaymentAmount (final Map<String, String> source) {
+        if (StringUtils.isNotEmpty(source.get(PAYMENT_AMOUNT))) {
+            BigDecimal divisor = new BigDecimal(100);
+            return (new BigDecimal(source.get(PAYMENT_AMOUNT))).divide(divisor);
+        }
+
+        return null;
     }
 }

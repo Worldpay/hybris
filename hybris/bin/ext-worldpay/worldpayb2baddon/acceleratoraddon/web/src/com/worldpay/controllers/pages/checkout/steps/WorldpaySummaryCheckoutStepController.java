@@ -152,7 +152,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
             return enterStep(model, redirectAttributes);
         }
 
-        if (getCheckoutFacade().getCheckoutCart().getPaymentInfo() != null && !placeOrderForm.isReplenishmentOrder() && !placeOrderForm.isNegotiateQuote()) {
+        if (getCheckoutFacade().getCheckoutCart().getPaymentInfo() != null && !placeOrderForm.isReplenishmentOrder()) {
             // Pay by credit card - Place Order Now - authorize payment
             final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, placeOrderForm.getSecurityCode());
             try {
@@ -170,10 +170,8 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final PlaceOrderData placeOrderData = new PlaceOrderData();
         placeOrderData.setNDays(placeOrderForm.getnDays());
         placeOrderData.setNDaysOfWeek(placeOrderForm.getnDaysOfWeek());
-        placeOrderData.setNegotiateQuote(placeOrderForm.isNegotiateQuote());
         placeOrderData.setNthDayOfMonth(placeOrderForm.getNthDayOfMonth());
         placeOrderData.setNWeeks(placeOrderForm.getnWeeks());
-        placeOrderData.setQuoteRequestDescription(placeOrderForm.getQuoteRequestDescription());
         placeOrderData.setReplenishmentOrder(placeOrderForm.isReplenishmentOrder());
         placeOrderData.setReplenishmentRecurrence(placeOrderForm.getReplenishmentRecurrence());
         placeOrderData.setReplenishmentStartDate(placeOrderForm.getReplenishmentStartDate());
@@ -188,7 +186,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
             addErrorMessage(model, e.getLocalizedMessage());
 
             placeOrderForm.setTermsCheck(false);
-            placeOrderForm.setNegotiateQuote(false);
             model.addAttribute(placeOrderForm);
 
             return getErrorView(model);
