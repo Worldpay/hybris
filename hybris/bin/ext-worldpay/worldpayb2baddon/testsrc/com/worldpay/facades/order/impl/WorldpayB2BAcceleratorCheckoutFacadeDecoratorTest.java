@@ -95,9 +95,6 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     @Mock
     private B2BCommentModel b2BCommentModelMock;
 
-    @Captor
-    private ArgumentCaptor<CartData> cartDataArgumentCaptor;
-
     @Before
     public void setUp() throws InvalidCartException {
         CustomerModel customerModelMock = Mockito.mock(CustomerModel.class);

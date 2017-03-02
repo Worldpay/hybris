@@ -20,6 +20,34 @@
     <import resource="classpath:/merchants/merchants.xml"/>
     <import resource="classpath:/fulfilment/worldpayapi-order-actions-spring.xml"/>
 
+    <alias name="worldpayCustomerAccountService" alias="customerAccountService"/>
+    <bean id="worldpayCustomerAccountService"
+          class="com.worldpay.customer.impl.DefaultWorldpayCustomerAccountService">
+        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <property name="worldpayDirectOrderService" ref="worldpayDirectOrderService" />
+        <property name="uiExperienceService" ref="uiExperienceService"/>
+        <property name="userService" ref="userService"/>
+        <property name="paymentService" ref="paymentService"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+        <property name="i18nService" ref="i18nService"/>
+        <property name="passwordEncoderService" ref="passwordEncoderService"/>
+        <property name="secureTokenService" ref="secureTokenService"/>
+        <property name="tokenValiditySeconds" value="1800"/>
+        <property name="customerAccountDao" ref="customerAccountDao"/>
+        <property name="baseSiteService" ref="baseSiteService"/>
+        <property name="baseStoreService" ref="baseStoreService"/>
+        <property name="eventService" ref="eventService"/>
+        <property name="commonI18NService" ref="commonI18NService"/>
+        <property name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
+        <property name="passwordEncoding" value="#{configurationService.configuration.getProperty('default.password.encoding')}"/>
+        <property name="typeService" ref="typeService"/>
+        <property name="customerNameStrategy" ref="defaultCustomerNameStrategy"/>
+        <property name="timeService" ref="timeService"/>
+        <property name="monthsForOrderExpiry"
+                  value="#{configurationService.configuration.getProperty('guest.orderstatuspage.access.expiry.month')}"/>
+    </bean>
+
     <!-- Worldpay Merchants -->
     <alias name="defaultWorldpayMerchantInfoService" alias="worldpayMerchantInfoService"/>
     <bean id="defaultWorldpayMerchantInfoService" class="com.worldpay.merchant.impl.DefaultWorldpayMerchantInfoService">

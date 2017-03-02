@@ -13,6 +13,7 @@ import de.hybris.platform.ticket.enums.CsTicketPriority;
 import de.hybris.platform.ticket.events.model.CsCustomerEventModel;
 import de.hybris.platform.ticket.model.CsTicketModel;
 import de.hybris.platform.ticket.service.TicketBusinessService;
+import de.hybris.platform.ticketsystem.data.CsTicketParameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,9 +53,7 @@ public class DefaultWorldpayOrderModificationNotifierStrategyTest {
     @Mock
     private ModelService modelServiceMock;
     @Captor
-    private ArgumentCaptor<CsTicketModel> csTicketModelArgumentCaptor;
-    @Captor
-    private ArgumentCaptor<CsCustomerEventModel> csCustomerEventModelCaptor;
+    private ArgumentCaptor<CsTicketParameter> CsTicketParameterArgumentCaptor;
     @Mock
     private L10NService l10nService;
 
@@ -75,17 +74,16 @@ public class DefaultWorldpayOrderModificationNotifierStrategyTest {
 
         testObj.notifyThatOrdersHaveNotBeenProcessed(UNPROCESSED_DAYS);
 
-        verify(ticketBusinessServiceMock).createTicket(csTicketModelArgumentCaptor.capture(), csCustomerEventModelCaptor.capture());
+        verify(ticketBusinessServiceMock).createTicket(CsTicketParameterArgumentCaptor.capture());
         verify(orderModificationModelMock).setNotified(true);
         verify(modelServiceMock).save(orderModificationModelMock);
-        final CsTicketModel csTicketModel = csTicketModelArgumentCaptor.getValue();
+        final CsTicketParameter csTicketParameter = CsTicketParameterArgumentCaptor.getValue();
 
-        assertEquals(THERE_ARE_UNPROCESSED_ORDERS, csTicketModel.getHeadline());
-        assertEquals(CsTicketCategory.PROBLEM, csTicketModel.getCategory());
-        assertEquals(CsTicketPriority.HIGH, csTicketModel.getPriority());
+        assertEquals(THERE_ARE_UNPROCESSED_ORDERS, csTicketParameter.getHeadline());
+        assertEquals(CsTicketCategory.PROBLEM, csTicketParameter.getCategory());
+        assertEquals(CsTicketPriority.HIGH, csTicketParameter.getPriority());
 
-        final CsCustomerEventModel csCustomerEventModel = csCustomerEventModelCaptor.getValue();
-        assertTrue(csCustomerEventModel.getText().startsWith(UNPROCESSED_ORDERS));
+        assertTrue(csTicketParameter.getCreationNotes().startsWith(UNPROCESSED_ORDERS));
     }
 
     @Test

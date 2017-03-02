@@ -9,6 +9,7 @@ import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 
 /**
  * Interface that expose methods to authorise payments encrypted with the Worldpay CSE-library using the direct xml integration.
@@ -52,6 +53,16 @@ public interface WorldpayDirectOrderService {
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      */
     void createToken(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
+            throws WorldpayException;
+
+    /**
+     * Builds the deleteTokenRequest.
+     * The request is then sent to Worldpay
+     *
+     * @param merchantInfo               Merchant configuration
+     * @param creditCardPaymentInfoModel    {@link CreditCardPaymentInfoModel} saved payment information needed to be deleted
+     */
+    void deleteToken(final MerchantInfo merchantInfo, CreditCardPaymentInfoModel creditCardPaymentInfoModel)
             throws WorldpayException;
 
     /**

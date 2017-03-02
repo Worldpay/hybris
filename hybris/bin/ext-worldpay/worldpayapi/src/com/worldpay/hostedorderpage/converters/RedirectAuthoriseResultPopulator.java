@@ -72,7 +72,7 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
             try {
                 final Currency currency = Currency.getInstance(source.get(PAYMENT_CURRENCY));
                 Amount amount = worldpayOrderService.createAmount(currency, Integer.valueOf(source.get(PAYMENT_AMOUNT)));
-                return (new BigDecimal(amount.getValue()));
+                return new BigDecimal(amount.getValue());
             } catch (IllegalArgumentException exception) {
                 LOG.error(MessageFormat.format("Received invalid currecny isocode: {0}", source.get(PAYMENT_CURRENCY)), exception);
                 return null;

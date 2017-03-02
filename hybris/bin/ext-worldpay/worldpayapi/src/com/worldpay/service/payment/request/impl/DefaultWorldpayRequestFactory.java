@@ -8,14 +8,7 @@ import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.Address;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.Browser;
-import com.worldpay.service.model.Date;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.Session;
-import com.worldpay.service.model.Shopper;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Cse;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
@@ -26,6 +19,7 @@ import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayTokenEventReferenceCreationStrategy;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
 import com.worldpay.service.request.CreateTokenServiceRequest;
+import com.worldpay.service.request.DeleteTokenServiceRequest;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import com.worldpay.service.response.CreateTokenResponse;
@@ -41,6 +35,9 @@ import org.springframework.beans.factory.annotation.Required;
 
 import static org.joda.time.DateTime.now;
 
+/**
+ * {@inheritDoc}
+ */
 public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
 
     private WorldpayTokenEventReferenceCreationStrategy worldpayTokenEventReferenceCreationStrategy;
@@ -52,7 +49,8 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     private WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy;
 
     protected static final String TOKEN_UPDATED = "Token updated ";
-    protected static final String TOKEN_UPDATE_DATE_FORMAT = "YYYY-MM-dd";
+    protected static final String TOKEN_DELETED = "Token deleted ";
+    protected static final String TOKEN_DATE_FORMAT = "YYYY-MM-dd";
 
     /**
      * {@inheritDoc}
@@ -71,10 +69,17 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return createTokenRequest(worldpayConfig, merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), csePayment, tokenRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @see WorldpayRequestFactory#buildTokenUpdateRequest(MerchantInfo, CSEAdditionalAuthInfo, WorldpayAdditionalInfoData, CreateTokenResponse)
+     * */
     @Override
-    public UpdateTokenServiceRequest buildTokenUpdateRequest(final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CreateTokenResponse createTokenResponse) throws WorldpayConfigurationException {
+    public UpdateTokenServiceRequest buildTokenUpdateRequest(final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                                             final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                             final CreateTokenResponse createTokenResponse) throws WorldpayConfigurationException {
         final WorldpayConfig worldpayConfig = getWorldpayConfigLookupService().lookupConfig();
-        final TokenRequest tokenRequest = getWorldpayOrderService().createTokenRequest(getWorldpayTokenEventReferenceCreationStrategy().createTokenEventReference(), TOKEN_UPDATED + now().toString(TOKEN_UPDATE_DATE_FORMAT));
+        final TokenRequest tokenRequest = getWorldpayOrderService().createTokenRequest(getWorldpayTokenEventReferenceCreationStrategy().createTokenEventReference(), TOKEN_UPDATED + now().toString(TOKEN_DATE_FORMAT));
 
         final String paymentTokenID = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
         final CardDetails cardDetails = new CardDetails();
@@ -82,6 +87,18 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         cardDetails.setExpiryDate(expiryDate);
         cardDetails.setCardHolderName(cseAdditionalAuthInfo.getCardHolderName());
         return createUpdateTokenServiceRequest(merchantInfo, worldpayAdditionalInfoData, worldpayConfig, tokenRequest, paymentTokenID, cardDetails);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see WorldpayRequestFactory#buildTokenDeleteRequest(MerchantInfo, CreditCardPaymentInfoModel)
+     */
+    @Override
+    public DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel) throws WorldpayConfigurationException {
+        final WorldpayConfig worldpayConfig = getWorldpayConfigLookupService().lookupConfig();
+        final TokenRequest tokenRequest = getWorldpayOrderService().createTokenRequest(creditCardPaymentInfoModel.getEventReference(), TOKEN_DELETED + now().toString(TOKEN_DATE_FORMAT));
+        return createDeleteTokenServiceRequest(merchantInfo, worldpayConfig, creditCardPaymentInfoModel, tokenRequest);
     }
 
     /**
@@ -197,6 +214,12 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
                                                                         final WorldpayConfig worldpayConfig, final TokenRequest tokenRequest, final String paymentTokenID,
                                                                         final CardDetails cardDetails) {
         return UpdateTokenServiceRequest.updateTokenRequest(worldpayConfig, merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), paymentTokenID, tokenRequest, cardDetails);
+    }
+
+    protected DeleteTokenServiceRequest createDeleteTokenServiceRequest(final MerchantInfo merchantInfo, final WorldpayConfig worldpayConfig,
+                                                                        final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final TokenRequest tokenRequest) {
+        return DeleteTokenServiceRequest.deleteTokenRequest(worldpayConfig, merchantInfo, creditCardPaymentInfoModel.getAuthenticatedShopperID(),
+                creditCardPaymentInfoModel.getSubscriptionId(), tokenRequest);
     }
 
     protected DirectAuthoriseServiceRequest createDirectAuthoriseRequest(final WorldpayConfig config, final MerchantInfo merchantInfo, final BasicOrderInfo orderInfo,

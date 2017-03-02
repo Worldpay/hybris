@@ -14,6 +14,8 @@
     <extension abstractclassprefix="Generated" classprefix="Worldpaysampledataaddon" description="worldpaysampledataaddon extension" managername="WorldpaysampledataaddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpaysampledataaddon">
         <!-- Needed to ensure loading of accelerator data before adding sample data -->
         <requires-extension name="worldpayapi"/>
+        <!-- Needed to ensure loading of component restrictions date before adding APM components -->
+        <requires-extension name="assistedservicestorefront"/>
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpaysampledataaddonManager" packageroot="com.worldpay"/>
     </extension>
 

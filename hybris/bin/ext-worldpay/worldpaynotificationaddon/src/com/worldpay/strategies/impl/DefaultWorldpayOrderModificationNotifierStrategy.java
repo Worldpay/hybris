@@ -8,9 +8,8 @@ import de.hybris.platform.servicelayer.i18n.L10NService;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.ticket.enums.CsTicketCategory;
 import de.hybris.platform.ticket.enums.CsTicketPriority;
-import de.hybris.platform.ticket.events.model.CsCustomerEventModel;
-import de.hybris.platform.ticket.model.CsTicketModel;
 import de.hybris.platform.ticket.service.TicketBusinessService;
+import de.hybris.platform.ticketsystem.data.CsTicketParameter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -47,10 +46,7 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
             for (final WorldpayOrderModificationModel worldpayOrderModificationModel : unprocessedOrderModifications) {
                 final String worldpayOrderCode = worldpayOrderModificationModel.getWorldpayOrderCode();
                 final String unprocessedOrderMessage = format("{0} for worldpay order: {1}", getL10nService().getLocalizedString(WORLDPAYADDON_ERRORS_UNPROCESSED_ORDERS), worldpayOrderCode);
-                final CsTicketModel newTicket = createTicket();
-                final CsCustomerEventModel newTicketEvent = createEvent(unprocessedOrderMessage);
-
-                getTicketBusinessService().createTicket(newTicket, newTicketEvent);
+                getTicketBusinessService().createTicket(createParameters(unprocessedOrderMessage));
                 worldpayOrderModificationModel.setNotified(true);
                 modelService.save(worldpayOrderModificationModel);
                 LOG.info(unprocessedOrderMessage);
@@ -60,18 +56,13 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
         }
     }
 
-    private CsCustomerEventModel createEvent(String unprocessedOrderMessage) {
-        final CsCustomerEventModel newTicketEvent = new CsCustomerEventModel();
-        newTicketEvent.setText(unprocessedOrderMessage);
-        return newTicketEvent;
-    }
-
-    private CsTicketModel createTicket() {
-        final CsTicketModel newTicket = getModelService().create(CsTicketModel.class);
-        newTicket.setHeadline(getL10nService().getLocalizedString(WORLDPAYADDON_ERRORS_THERE_ARE_UNPROCESSED_ORDERS));
-        newTicket.setCategory(CsTicketCategory.PROBLEM);
-        newTicket.setPriority(CsTicketPriority.HIGH);
-        return newTicket;
+    private CsTicketParameter createParameters(final String creationNotes) {
+        final CsTicketParameter parameters = new CsTicketParameter();
+        parameters.setCreationNotes(creationNotes);
+        parameters.setHeadline(getL10nService().getLocalizedString(WORLDPAYADDON_ERRORS_THERE_ARE_UNPROCESSED_ORDERS));
+        parameters.setCategory(CsTicketCategory.PROBLEM);
+        parameters.setPriority(CsTicketPriority.HIGH);
+        return parameters;
     }
 
     public TicketBusinessService getTicketBusinessService() {
