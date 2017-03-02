@@ -32,6 +32,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
         return paymentService;
     }
 
+    @SuppressWarnings("squid:S2583") // Needed because of false positive caused by java8 semantics
     private OrderStatus createOrderStatus(final Submit submitRequest) {
         boolean shouldCreateToken = false;
         String tokenReason = "tokenReason";

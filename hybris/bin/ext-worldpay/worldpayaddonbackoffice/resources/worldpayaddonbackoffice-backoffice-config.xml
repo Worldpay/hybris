@@ -17,19 +17,80 @@
         xmlns:y="http://www.hybris.com/cockpit/config/hybris"
         xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
 
-    <context component="explorer-tree" merge-by="module">
-        <explorer-tree:explorer-tree>
-            <explorer-tree:navigation-node id="Worldpay">
-                <explorer-tree:type-node code="WorldpayAPMConfiguration" id="worldpay.apm.configuration"/>
-                <explorer-tree:type-node code="WorldpayBankConfiguration" id="worldpay.bank.configuration"/>
-                <explorer-tree:type-node code="WorldpayOrderModification" id="worldpay.order.modifications"/>
-                <explorer-tree:navigation-node id="CronJobs">
-                    <explorer-tree:type-node code="OrderModificationCronJob" id="worldpay.cronjob.orderModification"/>
-                    <explorer-tree:type-node code="NotifyUnprocessedOrderModificationsCronJob" id="worldpay.cronjob.unprocessedordermodification"/>
-                    <explorer-tree:type-node code="CleanUpProcessedOrderModificationsCronJob" id="worldpay.cronjob.cleanupprocessedordermodifications"/>
-                </explorer-tree:navigation-node>
-            </explorer-tree:navigation-node>
-        </explorer-tree:explorer-tree>
+    <context merge-by="type" parent="GenericItem" type="PaymentTransaction" component="cs-editor-area">
+        <editorArea:editorArea>
+            <editorArea:tab name="customersupportbackoffice.tab.general">
+                <editorArea:section name="customersupportbackoffice.section.order.general.properties">
+                    <editorArea:attribute qualifier="riskScore" readonly="false" >
+                        <editorArea:editor-parameter>
+                            <editorArea:name>disableDisplayingDetails</editorArea:name>
+                            <editorArea:value>false</editorArea:value>
+                        </editorArea:editor-parameter>
+                    </editorArea:attribute>
+                    <editorArea:attribute qualifier="info" readonly="false">
+                        <editorArea:editor-parameter>
+                            <editorArea:name>disableDisplayingDetails</editorArea:name>
+                            <editorArea:value>false</editorArea:value>
+                        </editorArea:editor-parameter>
+                    </editorArea:attribute>
+                </editorArea:section>
+                <editorArea:section	name="customersupportbackoffice.section.paymenttransactions.entries">
+                    <editorArea:panel name="customersupport_backoffice_paymentTransactionsEntries_panel">
+                        <editorArea:attribute	editor="com.hybris.cockpitng.editor.extendedmultireferenceeditor" qualifier="entries" readonly="true">
+                            <editorArea:editor-parameter>
+                                <editorArea:name>listConfigContext</editorArea:name>
+                                <editorArea:value>referenceListViewPaymentTransactionEntries
+                                </editorArea:value>
+                            </editorArea:editor-parameter>
+                            <editorArea:editor-parameter>
+                                <editorArea:name>disableDisplayingDetails</editorArea:name>
+                                <editorArea:value>false</editorArea:value>
+                            </editorArea:editor-parameter>
+                            <editorArea:editor-parameter>
+                                <editorArea:name>disableRemoveReference</editorArea:name>
+                                <editorArea:value>true</editorArea:value>
+                            </editorArea:editor-parameter>
+                            <editorArea:editor-parameter>
+                                <editorArea:name>isNestedObjectCreationDisabled</editorArea:name>
+                                <editorArea:value>true</editorArea:value>
+                            </editorArea:editor-parameter>
+                        </editorArea:attribute>
+                    </editorArea:panel>
+                </editorArea:section>
+            </editorArea:tab>
+        </editorArea:editorArea>
+    </context>
+
+    <context type="WorldpayAavResponse" component="base" merge-by="type" principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
+        <y:base>
+            <y:labels>
+                <y:label>aavAddressResultCode + ', ' + aavCardholderNameResultCode + ', ' + aavEmailResultCode + ', ' + aavPostcodeResultCode + ', ' + aavTelephoneResultCode</y:label>
+            </y:labels>
+        </y:base>
+    </context>
+
+    <context type="WorldpayRiskScore" component="base" merge-by="type" principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
+        <y:base>
+            <y:labels>
+                <y:label>'code=' + code + ', value=' + value</y:label>
+            </y:labels>
+        </y:base>
+    </context>
+
+    <context merge-by="type" parent="GenericItem" type="PaymentTransactionEntry" component="referenceListViewPaymentTransactionEntries">
+        <list-view:list-view xmlns:list-view="http://www.hybris.com/cockpitng/component/listView">
+            <list-view:column qualifier="aavResponse.aavAddressResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
+            <list-view:column qualifier="aavResponse.aavCardholderNameResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
+            <list-view:column qualifier="aavResponse.aavEmailResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
+            <list-view:column qualifier="aavResponse.aavPostcodeResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
+            <list-view:column qualifier="aavResponse.aavTelephoneResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
+        </list-view:list-view>
+    </context>
+
+    <context merge-by="type" parent="GenericItem" type="PaymentTransaction" component="referenceListViewPaymentTransactions">
+        <list-view:list-view xmlns:list-view="http://www.hybris.com/cockpitng/component/listView">
+            <list-view:column qualifier="riskScore" />
+        </list-view:list-view>
     </context>
 
     <context type="WorldpayAPMPaymentInfo" component="listview">
@@ -39,34 +100,10 @@
         </list-view:list-view>
     </context>
 
-    <context merge-by="type" parent="GenericItem" type="WorldpayAPMConfiguration" component="listview">
-        <list-view:list-view>
-            <list-view:column qualifier="code"/>
-            <list-view:column qualifier="name"/>
-        </list-view:list-view>
-    </context>
-
-    <context merge-by="type" parent="GenericItem" type="WorldpayBankConfiguration" component="listview">
-        <list-view:list-view>
-            <list-view:column qualifier="code"/>
-            <list-view:column qualifier="name"/>
-            <list-view:column qualifier="apm"/>
-            <list-view:column qualifier="active"/>
-        </list-view:list-view>
-    </context>
-
     <context type="WorldpayAPMPaymentInfo" component="base">
         <y:base>
             <y:labels>
                 <y:label>apmConfiguration.name</y:label>
-            </y:labels>
-        </y:base>
-    </context>
-
-    <context type="WorldpayAPMConfiguration" component="base" merge-by="type" parent="GenericItem">
-        <y:base>
-            <y:labels>
-                <y:label>name</y:label>
             </y:labels>
         </y:base>
     </context>
@@ -87,6 +124,44 @@
         </y:base>
     </context>
 
+    <context component="explorer-tree" merge-by="module">
+        <explorer-tree:explorer-tree>
+            <explorer-tree:navigation-node id="Worldpay">
+                <explorer-tree:type-node code="WorldpayAPMConfiguration" id="worldpay.apm.configuration"/>
+                <explorer-tree:type-node code="WorldpayBankConfiguration" id="worldpay.bank.configuration"/>
+                <explorer-tree:type-node code="WorldpayOrderModification" id="worldpay.order.modifications"/>
+                <explorer-tree:navigation-node id="CronJobs">
+                    <explorer-tree:type-node code="OrderModificationCronJob" id="worldpay.cronjob.orderModification"/>
+                    <explorer-tree:type-node code="NotifyUnprocessedOrderModificationsCronJob" id="worldpay.cronjob.unprocessedordermodification"/>
+                    <explorer-tree:type-node code="CleanUpProcessedOrderModificationsCronJob" id="worldpay.cronjob.cleanupprocessedordermodifications"/>
+                </explorer-tree:navigation-node>
+            </explorer-tree:navigation-node>
+        </explorer-tree:explorer-tree>
+    </context>
+
+    <!-- WorldpayAPMConfiguration -->
+
+    <context merge-by="type" type="WorldpayAPMConfiguration" component="advanced-search">
+        <advanced-search:advanced-search xmlns:advanced-search="http://www.hybris.com/cockpitng/config/advancedsearch">
+            <advanced-search:field-list>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="code" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="name" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="description" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="bank" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="automaticRefunds" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="bankTransferRefunds" selected="false"/>
+            </advanced-search:field-list>
+        </advanced-search:advanced-search>
+    </context>
+
+
+    <context merge-by="type" parent="GenericItem" type="WorldpayAPMConfiguration" component="listview">
+        <list-view:list-view>
+            <list-view:column qualifier="code"/>
+            <list-view:column qualifier="name"/>
+        </list-view:list-view>
+    </context>
+
     <context type="WorldpayAPMConfiguration" component="editor-area" merge-by="type" parent="GenericItem">
         <editorArea:editorArea name="" xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
             <editorArea:essentials xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
@@ -105,4 +180,102 @@
             </editorArea:essentials>
         </editorArea:editorArea>
     </context>
+
+    <context type="WorldpayAPMConfiguration" component="base" merge-by="type" parent="GenericItem">
+        <y:base>
+            <y:labels>
+                <y:label>name</y:label>
+            </y:labels>
+        </y:base>
+    </context>
+
+    <!-- WorldpayAPMConfiguration  end -->
+
+    <!-- WorldpayBankConfiguration -->
+
+    <context merge-by="type" type="WorldpayBankConfiguration" component="advanced-search">
+        <advanced-search:advanced-search xmlns:advanced-search="http://www.hybris.com/cockpitng/config/advancedsearch">
+            <advanced-search:field-list>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="code" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="name" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="active" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="description" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="apm" selected="false"/>
+            </advanced-search:field-list>
+        </advanced-search:advanced-search>
+    </context>
+
+    <context merge-by="type" parent="GenericItem" type="WorldpayBankConfiguration" component="listview">
+        <list-view:list-view>
+            <list-view:column qualifier="code"/>
+            <list-view:column qualifier="name"/>
+            <list-view:column qualifier="apm"/>
+            <list-view:column qualifier="active"/>
+        </list-view:list-view>
+    </context>
+
+    <context type="WorldpayBankConfiguration" component="editor-area" merge-by="type" parent="GenericItem">
+        <editorArea:editorArea name="" xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+            <editorArea:essentials xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+                <editorArea:essentialSection name="hmc.essential">
+                    <editorArea:attribute qualifier="code"/>
+                    <editorArea:attribute qualifier="description"/>
+                    <editorArea:attribute qualifier="name"/>
+                    <editorArea:attribute qualifier="apm"/>
+                    <editorArea:attribute qualifier="active"/>
+                </editorArea:essentialSection>
+            </editorArea:essentials>
+        </editorArea:editorArea>
+    </context>
+
+    <!-- WorldpayBankConfiguration end -->
+
+    <!-- WorldpayOrderModification -->
+
+    <context merge-by="type" type="WorldpayOrderModification" component="advanced-search">
+        <advanced-search:advanced-search xmlns:advanced-search="http://www.hybris.com/cockpitng/config/advancedsearch">
+            <advanced-search:field-list>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="worldpayOrderCode" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="type" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="processed" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="defective" selected="true"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="defectiveCounter" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="defectiveReason" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="code" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="notified" selected="false"/>
+                <advanced-search:field xmlns="http://www.hybris.com/cockpitng/config/advancedsearch" name="orderNotificationMessage" selected="false"/>
+            </advanced-search:field-list>
+        </advanced-search:advanced-search>
+    </context>
+
+    <context merge-by="type" parent="GenericItem" type="WorldpayOrderModification" component="listview">
+        <list-view:list-view>
+            <list-view:column qualifier="worldpayOrderCode"/>
+            <list-view:column qualifier="type"/>
+            <list-view:column qualifier="processed"/>
+            <list-view:column qualifier="defective"/>
+            <list-view:column qualifier="defectiveCounter"/>
+            <list-view:column qualifier="defectiveReason"/>
+        </list-view:list-view>
+    </context>
+
+    <context type="WorldpayOrderModification" component="editor-area" merge-by="type" parent="GenericItem">
+        <editorArea:editorArea name="" xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+            <editorArea:essentials xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea">
+                <editorArea:essentialSection name="hmc.essential">
+                    <editorArea:attribute qualifier="worldpayOrderCode"/>
+                    <editorArea:attribute qualifier="type"/>
+                    <editorArea:attribute qualifier="defectiveReason"/>
+                    <editorArea:attribute qualifier="defectiveCounter"/>
+                    <editorArea:attribute qualifier="processed"/>
+                    <editorArea:attribute qualifier="notified"/>
+                    <editorArea:attribute qualifier="defective"/>
+                    <editorArea:attribute qualifier="orderNotificationMessage"/>
+                </editorArea:essentialSection>
+            </editorArea:essentials>
+        </editorArea:editorArea>
+    </context>
+
+    <!-- WorldpayOrderModification end -->
+
 </config>

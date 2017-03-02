@@ -1,0 +1,18 @@
+#
+# Import Access Rights for Customer Support Backoffice
+#
+
+$START_USERRIGHTS;;;;;;;;;
+Type;UID;MemberOfGroups;Password;Target;read;change;create;remove;change_perm
+UserGroup;customersupportadministratorgroup;;;;;;;;
+;;;;WorldpayAavResponse;+;+;-;-
+;;;;WorldpayRiskScore;+;+;-;-
+
+UserGroup;customersupportmanagergroup;;;;;;;;
+;;;;WorldpayAavResponse;+;+;-;-
+;;;;WorldpayRiskScore;+;+;-;-
+
+UserGroup;customersupportagentgroup;;;;;;;;
+;;;;WorldpayAavResponse;+;+;-;-
+;;;;WorldpayRiskScore;+;+;-;-
+$END_USERRIGHTS;;;;;

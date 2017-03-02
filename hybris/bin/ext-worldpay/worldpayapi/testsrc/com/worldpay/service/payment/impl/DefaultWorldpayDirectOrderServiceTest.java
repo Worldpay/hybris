@@ -12,9 +12,11 @@ import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
 import com.worldpay.service.request.CreateTokenServiceRequest;
+import com.worldpay.service.request.DeleteTokenServiceRequest;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import com.worldpay.service.response.CreateTokenResponse;
+import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
@@ -120,9 +122,13 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Mock
     private CreateTokenServiceRequest createTokenServiceRequestMock;
     @Mock
+    private DeleteTokenServiceRequest deleteTokenServiceRequestMock;
+    @Mock
     private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock, newlyCreatedCreditCardPaymentInfoModel;
     @Mock (answer = RETURNS_DEEP_STUBS)
     private CreateTokenResponse createTokenResponse;
+    @Mock (answer = RETURNS_DEEP_STUBS)
+    private DeleteTokenResponse deleteTokenResponse;
     @Mock
     private WorldpayRequestFactory worldpayRequestFactoryMock;
     @Mock
@@ -228,6 +234,17 @@ public class DefaultWorldpayDirectOrderServiceTest {
         testObj.createToken(merchantInfoMock, cartModelMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
 
         verify(worldpayPaymentInfoServiceMock).createCreditCardPaymentInfo(cartModelMock, createTokenResponse, cseAdditionalAuthInfoMock.getSaveCard());
+    }
+
+    @Test
+    public void shouldDeleteToken() throws WorldpayException {
+        when(worldpayRequestFactoryMock.buildTokenDeleteRequest(merchantInfoMock, creditCardPaymentInfoModelMock)).thenReturn(deleteTokenServiceRequestMock);
+        when(worldpayServiceGatewayMock.deleteToken(deleteTokenServiceRequestMock)).thenReturn(deleteTokenResponse);
+        when(deleteTokenResponse.isError()).thenReturn(false);
+
+        testObj.deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock);
+
+        verify(worldpayServiceGatewayMock, times(1)).deleteToken(any(DeleteTokenServiceRequest.class));
     }
 
     @Test (expected = WorldpayException.class)

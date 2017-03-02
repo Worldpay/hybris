@@ -26,16 +26,16 @@ INSERT_UPDATE Media;code[unique=true];$media;mime[default='image/jpeg'];$content
 INSERT_UPDATE WorldpayCCComponent;uid[unique=true];$contentCV[unique=true];name;$picture[lang=$lang]
 ;creditCardComponent;;"Credit Card";cc-icon
 
-INSERT_UPDATE WorldpayAPMComponent;uid[unique=true];$contentCV[unique=true];name;apmConfiguration(code);$picture[lang=$lang]
-;sofortComponent;;"SOFORT";SOFORT-SSL;sofort-icon
-;payPalComponent;;"PayPal";PAYPAL-EXPRESS;paypal-icon
-;boletoComponent;;"Boleto";BOLETO-SSL;boleto-icon
-;postepayComponent;;"PostePay";POSTEPAY-SSL;postepay-icon
-;poliComponent;;"POLi";POLI-SSL;poli-icon
-;polinzComponent;;"POLi - NZ";POLINZ-SSL;polinz-icon
-;mistercashComponent;;"Mistercash";MISTERCASH-SSL;mistercash-icon
-;nordeaComponent;;"Nordea";BANKLINKNORDEA-SSL;nordea-icon
-;idealComponent;;"iDeal";IDEAL-SSL;ideal-icon
+INSERT_UPDATE WorldpayAPMComponent;uid[unique=true];$contentCV[unique=true];name;apmConfiguration(code);$picture[lang=$lang];restrictions(uid,$contentCV)
+;sofortComponent;;"SOFORT";SOFORT-SSL;sofort-icon;AssistedServiceSessionReversedRestriction
+;payPalComponent;;"PayPal";PAYPAL-EXPRESS;paypal-icon;AssistedServiceSessionReversedRestriction
+;boletoComponent;;"Boleto";BOLETO-SSL;boleto-icon;AssistedServiceSessionReversedRestriction
+;postepayComponent;;"PostePay";POSTEPAY-SSL;postepay-icon;AssistedServiceSessionReversedRestriction
+;poliComponent;;"POLi";POLI-SSL;poli-icon;AssistedServiceSessionReversedRestriction
+;polinzComponent;;"POLi - NZ";POLINZ-SSL;polinz-icon;AssistedServiceSessionReversedRestriction
+;mistercashComponent;;"Mistercash";MISTERCASH-SSL;mistercash-icon;AssistedServiceSessionReversedRestriction
+;nordeaComponent;;"Nordea";BANKLINKNORDEA-SSL;nordea-icon;AssistedServiceSessionReversedRestriction
+;idealComponent;;"iDeal";IDEAL-SSL;ideal-icon;AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];cmsComponents(uid,$contentCV)
 ;;WorldpayPaymentButtonsSlot;creditCardComponent,payPalComponent,sofortComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,nordeaComponent,idealComponent

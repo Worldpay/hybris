@@ -45,8 +45,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory.TOKEN_DELETED;
 import static com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory.TOKEN_UPDATED;
-import static com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory.TOKEN_UPDATE_DATE_FORMAT;
+import static com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory.TOKEN_DATE_FORMAT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.eq;
@@ -250,7 +251,7 @@ public class DefaultWorldpayRequestFactoryTest {
 
     @Test
     public void shouldCreateUpdateTokenRequest() throws WorldpayConfigurationException {
-        when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_UPDATED + DateTime.now().toString(TOKEN_UPDATE_DATE_FORMAT))).thenReturn(tokenRequestMockWithReason);
+        when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_UPDATED + DateTime.now().toString(TOKEN_DATE_FORMAT))).thenReturn(tokenRequestMockWithReason);
 
         when(createTokenResponseMock.getToken().getTokenDetails().getPaymentTokenID()).thenReturn(PAYMENT_TOKEN_ID);
 
@@ -265,6 +266,16 @@ public class DefaultWorldpayRequestFactoryTest {
         assertEquals(CARD_HOLDER_NAME, cardDetails.getCardHolderName());
         assertEquals(EXPIRY_MONTH, cardDetails.getExpiryDate().getMonth());
         assertEquals(EXPIRY_YEAR, cardDetails.getExpiryDate().getYear());
+    }
+
+    @Test
+    public void shouldCreateDeleteTokenRequest() throws WorldpayConfigurationException {
+        when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_DELETED + DateTime.now().toString(TOKEN_DATE_FORMAT))).thenReturn(tokenRequestMockWithReason);
+        when(creditCardPaymentInfoModelMock.getEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
+
+        testObj.buildTokenDeleteRequest(merchantInfoMock, creditCardPaymentInfoModelMock);
+
+        verify(testObj).createDeleteTokenServiceRequest(eq(merchantInfoMock), eq(worldpayConfigMock), eq(creditCardPaymentInfoModelMock), eq(tokenRequestMockWithReason));
     }
 
     @Test

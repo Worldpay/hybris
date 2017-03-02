@@ -9,9 +9,11 @@ import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
 import com.worldpay.service.request.CreateTokenServiceRequest;
+import com.worldpay.service.request.DeleteTokenServiceRequest;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import com.worldpay.service.response.CreateTokenResponse;
+import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
@@ -123,6 +125,22 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
             cartService.saveOrder(cartModel);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see WorldpayDirectOrderService#deleteToken(MerchantInfo, CreditCardPaymentInfoModel)
+     */
+    @Override
+    public void deleteToken(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel)
+            throws WorldpayException {
+        final DeleteTokenServiceRequest deleteTokenServiceRequest = worldpayRequestFactory.buildTokenDeleteRequest(merchantInfo, creditCardPaymentInfoModel);
+        final DeleteTokenResponse deleteTokenResponse = getWorldpayOrderService().getWorldpayServiceGateway().deleteToken(deleteTokenServiceRequest);
+        if (deleteTokenResponse.isError()) {
+            throw new WorldpayException(deleteTokenResponse.getErrorDetail().getMessage());
+        }
+    }
+
 
     protected CreditCardPaymentInfoModel updateOrCreateCreditCard(final CartModel cartModel, final boolean saveCard, final CreateTokenResponse createTokenResponse, final UpdateTokenServiceRequest updateTokenServiceRequest) {
         final Optional<CreditCardPaymentInfoModel> creditCardPaymentInfoModelOptional = getWorldpayPaymentInfoService().updateCreditCardPaymentInfo(cartModel, updateTokenServiceRequest);

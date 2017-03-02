@@ -72,6 +72,7 @@ def config = {
         extName 'worldpaynotificationaddon'
         extName 'worldpaysampledataaddon'
         extName 'worldpayoccaddon'
+        extName 'worldpayhac'
     }
 }
 

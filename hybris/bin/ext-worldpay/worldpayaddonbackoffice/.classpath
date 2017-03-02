@@ -6,6 +6,7 @@
 	<classpathentry exported="false" kind="src" path="/platform" />
 	<classpathentry exported="true" kind="src" path="/platformbackoffice" />
 	<classpathentry exported="true" kind="src" path="/commerceservicesbackoffice" />
+	<classpathentry exported="true" kind="src" path="/customersupportbackoffice" />
 	<classpathentry exported="true" kind="src" path="/backoffice" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />

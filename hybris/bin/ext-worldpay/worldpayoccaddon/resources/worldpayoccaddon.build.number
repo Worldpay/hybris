@@ -1,6 +1,6 @@
 #Ant properties
-#Fri Feb 03 14:14:57 GMT 2017
-builddate=20170203 1414
+#Wed Mar 01 08:34:15 GMT 2017
+builddate=20170301 0834
 description=worldpayoccaddon
 group.id=de.hybris.platform
 module.name=platform-module

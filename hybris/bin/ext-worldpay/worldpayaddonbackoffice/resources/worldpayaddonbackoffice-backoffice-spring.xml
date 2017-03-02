@@ -30,4 +30,9 @@
 		<property name="permissionFacade" ref="permissionFacade"/>
 	</bean>
 
+	<bean id="worldpayNullSafeListCellRenderer" class="com.worldpay.worldpayaddonbackoffice.renderers.WorldpayNullSafeCellRenderer">
+		<property name="nestedAttributeUtils" ref="nestedAttributeUtils" />
+		<property name="defaultListCellRenderer" ref="defaultListCellRenderer" />
+	</bean>
+
 </beans>

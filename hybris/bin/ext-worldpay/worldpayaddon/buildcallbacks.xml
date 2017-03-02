@@ -10,40 +10,40 @@
  Information and shall use it only in accordance with the terms of the
  license agreement you entered into with hybris.
 
-  
+
 --><!--
  All hybris buildcallbacks.xml macrodefinitions:
- 
+
  Build/Documentation
- 
+
 	 before/after ant macro "clean"
 		 <macrodef name="worldpayaddon_before_clean"/>
 		 <macrodef name="worldpayaddon_after_clean"/>
-	 
+
 	 before/after ant macro "build"
 		 <macrodef name="worldpayaddon_before_build"/>
 		 <macrodef name="worldpayaddon_after_build"/>
-		 
+
 	 before/after ant macro "compile_core" - the core module of the extension
 		 <macrodef name="worldpayaddon_before_compile_core">
 		 <macrodef name="worldpayaddon_after_compile_core">
-	 
+
 	 before/after ant macro "compile_web" - the web module of the extension
 		 <macrodef name="worldpayaddon_before_compile_web" />
 		 <macrodef name="worldpayaddon_after_compile_web" />
-	 
+
 	 before/after ant macro "compile_hmc" - the hmc module of the extension
 		 <macrodef name="worldpayaddon_before_compile_hmc" />
 		 <macrodef name="worldpayaddon_after_compile_hmc" />
- 
+
  Preparing extension
- 
-	 will be called in the beginning of the ant call and only once (also when using multiple 
-	 ant targets e.g. ant build yunittest)	
+
+	 will be called in the beginning of the ant call and only once (also when using multiple
+	 ant targets e.g. ant build yunittest)
 		 <macrodef name="worldpayaddon_only_once_prepare"/>
- 
+
  Creating ear module/production
- 
+
 	 before/after ant macro "ear"
 		 <macrodef name="worldpayaddon_before_ear"/>
 		 <macrodef name="worldpayaddon_after_ear"/>
@@ -51,27 +51,27 @@
 	 before/after ant macro "production" - for hybris server only
 		 <macrodef name="worldpayaddon_before_production" />
 		 <macrodef name="worldpayaddon_after_production" />
- 
+
  JUnit Test
- 
-	 before/after ant macro "yunitinit" 
+
+	 before/after ant macro "yunitinit"
 		 <macrodef name="worldpayaddon_before_yunitinit" />
 		 <macrodef name="worldpayaddon_after_yunitinit" />
-	 
+
 	 before/after ant macro "yunit"
 		 <macrodef name="worldpayaddon_before_yunit" />
 		 <macrodef name="worldpayaddon_after_yunit" />
-		 
+
  Distribution package
- 
+
  	 before/after ant macro "dist" - internal target; only for use when platform is available in source code
 		 <macrodef name="worldpayaddon_after_dist"/>
 		 <macrodef name="worldpayaddon_before_dist"/>
-	 
+
 	 before/after ant macro "dist_copy" - internal target; only for use when platform is available in source code
 		 <macrodef name="worldpayaddon_before_dist_copy"/>
 		 <macrodef name="worldpayaddon_after_dist_copy"/>
- 
+
 -->
 <project name="worldpayaddon_buildcallbacks">
 
@@ -121,6 +121,12 @@
                     <build_addon_testsrc addonname="${testclasses.occaddonname}" testsrcpath="${ext.worldpayoccaddon.path}/acceleratoraddon/web/testsrc" />
                 </then>
             </if>
+            <!-- fix hybris backoffice webtest classpath issue -->
+            <copy todir="${ext.worldpayaddonbackoffice.path}/web/webroot/WEB-INF/lib" overwrite="true">
+              <fileset dir="${ext.customersupportbackoffice.path}/resources/backoffice">
+                <include name="**/*.jar"/>
+              </fileset>
+            </copy>
         </sequential>
     </macrodef>
 
@@ -195,6 +201,8 @@
             </if>
             <echo level="info" message="# worldpayaddon - Renaming generated test report"/>
             <move file="${HYBRIS_LOG_DIR}/junit/TESTS-TestSuites.xml" tofile="${HYBRIS_LOG_DIR}/junit/WEBTESTS-TestSuites.xml"/>
+            <delete dir="${ext.worldpayaddonbackoffice.path}/web" />
+      			<echo message="${ext.worldpayaddonbackoffice.path}/web deleted - used during allwebtests" />
         </sequential>
     </macrodef>
 

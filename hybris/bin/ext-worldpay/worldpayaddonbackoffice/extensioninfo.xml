@@ -18,6 +18,7 @@
 
         <requires-extension name="platformbackoffice"/>
         <requires-extension name="commerceservicesbackoffice"/>
+        <requires-extension name="customersupportbackoffice"/>
         <requires-extension name="backoffice"/>
 
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpayaddonbackofficeManager" packageroot="com.worldpay"/>
