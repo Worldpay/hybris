@@ -1,0 +1,95 @@
+package com.worldpay.service.response.transform;
+
+import com.worldpay.exception.WorldpayModelTransformationException;
+import com.worldpay.internal.model.*;
+import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.model.RedirectReference;
+import com.worldpay.service.model.Request3DInfo;
+import com.worldpay.service.model.token.TokenReply;
+import com.worldpay.service.response.DirectAuthoriseServiceResponse;
+import com.worldpay.service.response.ServiceResponse;
+
+import java.util.List;
+
+/**
+ * Specific class for transforming a {@link PaymentService} into a {@link DirectAuthoriseServiceResponse} object
+ */
+public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseTransformer {
+
+    /**
+     * (non-Javadoc)
+     *
+     * @see com.worldpay.service.response.transform.AbstractServiceResponseTransformer#transform(com.worldpay.internal.model.PaymentService)
+     */
+    @Override
+    public ServiceResponse transform(final PaymentService paymentServiceReply) throws WorldpayModelTransformationException {
+        DirectAuthoriseServiceResponse authResponse = new DirectAuthoriseServiceResponse();
+
+        Object responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        if (responseType == null) {
+            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
+        }
+        if (!(responseType instanceof Reply)) {
+            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
+        }
+        Reply intReply = (Reply) responseType;
+        ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
+        if (responseTransformerHelper.checkForError(authResponse, intReply)) {
+            return authResponse;
+        }
+
+        final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
+        if (response instanceof OrderStatus) {
+            final OrderStatus intOrderStatus = (OrderStatus) response;
+            authResponse.setOrderCode(intOrderStatus.getOrderCode());
+
+            final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+            for(Object orderStatusType : intOrderStatusElements) {
+                transformOrderStatus(authResponse, responseTransformerHelper, intOrderStatus, orderStatusType);
+            }
+        } else {
+            throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
+        }
+        return authResponse;
+    }
+
+    private void transformOrderStatus(final DirectAuthoriseServiceResponse authResponse, final ServiceResponseTransformerHelper responseTransformerHelper, final OrderStatus intOrderStatus, final Object orderStatusType) throws WorldpayModelTransformationException {
+        if (orderStatusType == null) {
+            throw new WorldpayModelTransformationException("No order status type returned in Worldpay reply message");
+        }
+        if (orderStatusType instanceof RequestInfo) {
+            final RequestInfo intRequestInfo = (RequestInfo) orderStatusType;
+            final Request3DSecure intRequest3dSecure = intRequestInfo.getRequest3DSecure();
+            final Request3DInfo req3dInfo = build3DInfo(intRequest3dSecure);
+            authResponse.setRequest3DInfo(req3dInfo);
+        } else if (orderStatusType instanceof Reference) {
+            final Reference intReference = (Reference) orderStatusType;
+
+            authResponse.setRedirectReference(new RedirectReference(intReference.getId(),intReference.getvalue()));
+        } else if (orderStatusType instanceof Payment) {
+            final Payment intPayment = (Payment) orderStatusType;
+            final PaymentReply paymentReply = responseTransformerHelper.buildPaymentReply(intPayment);
+
+            authResponse.setPaymentReply(paymentReply);
+        } else {
+            throw new WorldpayModelTransformationException("Order status type returned in Worldpay reply message is not one of the expected types for direct authorise");
+        }
+
+        if (intOrderStatus.getToken() != null) {
+            final TokenReply token = responseTransformerHelper.buildTokenReply(intOrderStatus.getToken());
+            authResponse.setToken(token);
+        }
+
+        if (intOrderStatus.getEchoData() != null) {
+            authResponse.setEchoData(intOrderStatus.getEchoData().getvalue());
+        }
+    }
+
+    private Request3DInfo build3DInfo(Request3DSecure intRequest3dSecure) {
+        Request3DInfo req3dInfo = null;
+        if (intRequest3dSecure != null) {
+            req3dInfo = new Request3DInfo(intRequest3dSecure.getPaRequest(), intRequest3dSecure.getIssuerURL());
+        }
+        return req3dInfo;
+    }
+}

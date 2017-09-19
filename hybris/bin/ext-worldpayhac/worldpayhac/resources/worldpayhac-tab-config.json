@@ -1,9 +1,0 @@
-[ {
-  "basePath" : "/worldpayhac",
-  "mainTabLabel" : "Worldpay",
-  "subTabs" : [ {
-    "path" : "/supportemail/",
-    "label" : "Support Email",
-    "skipPrefix" : false
-  } ]
-} ]
