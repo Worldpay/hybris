@@ -1,0 +1,171 @@
+package com.worldpay.service.model.payment;
+
+import com.worldpay.internal.model.BirthDate;
+import com.worldpay.internal.model.CreditScoring;
+import com.worldpay.service.model.Address;
+import com.worldpay.service.model.Date;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+/**
+ * POJO representation of {@link Payment} type for bank account payments
+ *
+ * @see PaymentBuilder PaymentBuilder for simple static creation methods
+ */
+public class BankAccount extends AbstractPayment {
+
+    private String accountHolderName;
+    private String accountNumber;
+    private String bankName;
+    private String bankLocation;
+    private String bankLocationId;
+    private Date birthDate;
+    private Address address;
+
+    /**
+     * Constructor with full list of fields
+     *
+     * @param paymentType
+     * @param accountHolderName
+     * @param accountNumber
+     * @param bankName
+     * @param bankLocation
+     * @param bankLocationId
+     * @param birthDate
+     * @param address
+     * @see PaymentBuilder PaymentBuilder for simple static creation methods
+     */
+    public BankAccount(PaymentType paymentType, String accountHolderName, String accountNumber, String bankName, String bankLocation, String bankLocationId, Date birthDate, Address address) {
+        this.setPaymentType(paymentType);
+        this.accountHolderName = accountHolderName;
+        this.accountNumber = accountNumber;
+        this.bankName = bankName;
+        this.bankLocation = bankLocation;
+        this.bankLocationId = bankLocationId;
+        this.birthDate = birthDate;
+        this.address = address;
+    }
+
+    @Override
+    public void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        boolean methodInvoked = false;
+        String methodName = method.getName();
+        if (methodName.startsWith("set")) {
+            if (methodName.equals("setAccountHolderName") && accountHolderName != null) {
+                method.invoke(targetObject, accountHolderName);
+                methodInvoked = true;
+            }
+            if (methodName.equals("setBankAccountNr") && accountNumber != null) {
+                method.invoke(targetObject, accountNumber);
+                methodInvoked = true;
+            }
+            if (methodName.equals("setBankName") && bankName != null) {
+                method.invoke(targetObject, bankName);
+                methodInvoked = true;
+            }
+            if (methodName.equals("setBankLocation") && bankLocation != null) {
+                method.invoke(targetObject, bankLocation);
+                methodInvoked = true;
+            }
+            if (methodName.equals("setBankLocationId") && bankLocationId != null) {
+                method.invoke(targetObject, bankLocationId);
+                methodInvoked = true;
+            }
+            if (methodName.equals("setCreditScoring") && birthDate != null && address != null) {
+                CreditScoring intCreditScoring = new CreditScoring();
+                intCreditScoring.setAddress((com.worldpay.internal.model.Address) address.transformToInternalModel());
+                BirthDate intBirthDate = new BirthDate();
+                intBirthDate.setDate((com.worldpay.internal.model.Date) address.transformToInternalModel());
+                intCreditScoring.setBirthDate(intBirthDate);
+                method.invoke(targetObject, intCreditScoring);
+                methodInvoked = true;
+            }
+        }
+
+        if (!methodInvoked) {
+            invokeExtraSetters(method, targetObject);
+        }
+    }
+
+    /**
+     * Method to be used by overriding classes in order to ensure that extra fields that they implement get set when the {@link #transformToInternalModel()} method is
+     * invoked. Default implementation does nothing so just provides the hook for overriding classes
+     *
+     * @param method       Method that can be invoked on the internal model object targetObject
+     * @param targetObject internal model object that we are trying to transform to
+     * @throws IllegalArgumentException  if the method is invoked with incorrect parameters
+     * @throws IllegalAccessException    if the method is not accessible
+     * @throws InvocationTargetException if method cannot be invoked against the supplied target object
+     */
+    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        // Do nothing. This provides a hook for subclasses to add extra functionality
+    }
+
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public void setAccountHolderName(String accountHolderName) {
+        this.accountHolderName = accountHolderName;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getBankLocation() {
+        return bankLocation;
+    }
+
+    public void setBankLocation(String bankLocation) {
+        this.bankLocation = bankLocation;
+    }
+
+    public String getBankLocationId() {
+        return bankLocationId;
+    }
+
+    public void setBankLocationId(String bankLocationId) {
+        this.bankLocationId = bankLocationId;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    /**
+     * (non-Javadoc)
+     *
+     * @see Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "BankAccount [accountHolderName=" + accountHolderName + ", accountNumber=" + accountNumber + ", bankName=" + bankName + ", bankLocation="
+                + bankLocation + ", bankLocationId=" + bankLocationId + ", birthDate=" + birthDate + ", address=" + address + "]";
+    }
+}

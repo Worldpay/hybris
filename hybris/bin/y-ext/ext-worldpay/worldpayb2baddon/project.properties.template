@@ -1,0 +1,35 @@
+# -----------------------------------------------------------------------
+# [y] hybris Platform 
+# 
+# Copyright (c) 2000-2016 hybris AG
+# All rights reserved.
+#  
+# This software is the confidential and proprietary information of hybris 
+# ("Confidential Information"). You shall not disclose such Confidential
+# Information and shall use it only in accordance with the terms of the
+# license agreement you entered into with hybris.
+#
+#  
+# -----------------------------------------------------------------------
+
+# you can put key/value pairs here.
+# Use Config.getParameter(..) to retrieve the values during runtime.
+
+
+# Specifies the location of the spring context file added automatically to the global platform application context.
+worldpayb2baddon.application-context=worldpayb2baddon-spring.xml
+
+yacceleratorstorefront.additionalWebSpringConfigs.worldpayb2baddon=classpath:/worldpayb2baddon/web/spring/worldpayb2baddon-web-spring.xml, classpath:/worldpayb2baddon/web/spring/b2b-multi-step-checkout-spring.xml
+
+storefront.supportedUiExperienceLevels.powertools=DESKTOP
+
+# Payment Service provider.
+payment.service-provider.name=Worldpay
+
+# Set the HOP PCI strategy at this level so that it's consistent across stores
+hop.pci.strategy.enabled=true
+
+worldpayb2baddon.javascript.paths.responsive=/responsive/common/js/worldpayaddon.js;/responsive/common/js/worldpayaddonCSE.js;/responsive/common/js/worldpayaddonRedirect.js
+worldpayb2baddon.css.paths.responsive=/responsive/common/css/worldpayaddon.css
+
+worldpay.addon.prefix=addon:/worldpayb2baddon/

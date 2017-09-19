@@ -68,7 +68,6 @@ def config = {
         extName 'worldpayaddon'
         extName 'worldpayaddonbackoffice'
         extName 'worldpayapi'
-        extName 'worldpaycscockpit'
         extName 'worldpaynotificationaddon'
         extName 'worldpaysampledataaddon'
         extName 'worldpayoccaddon'
