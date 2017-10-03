@@ -10,7 +10,6 @@
 				
 				
 				
-	<classpathentry exported="false" kind="src" path="/platform" />
 	<classpathentry exported="true" kind="lib" path="lib/commons-exec-1.3.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang3-3.3.2.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/ezmorph-1.0.6.jar" />
@@ -38,6 +37,7 @@
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
+	<classpathentry exported="false" kind="src" path="/platform" />
 				
 </classpath>
 				

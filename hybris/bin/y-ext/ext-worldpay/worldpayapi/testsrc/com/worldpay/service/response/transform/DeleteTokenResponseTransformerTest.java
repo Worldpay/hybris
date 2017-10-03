@@ -3,6 +3,7 @@ package com.worldpay.service.response.transform;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
+import com.worldpay.service.model.token.DeleteTokenReply;
 import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.ServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -11,11 +12,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -23,12 +30,12 @@ import static org.mockito.Mockito.when;
 public class DeleteTokenResponseTransformerTest {
 
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
-    private static final String ERROR_CODE = "errorCode";
-    private static final String ERROR_VALUE = "errorValue";
-    private DeleteTokenResponseTransformer testObj = new DeleteTokenResponseTransformer();
 
-    @SuppressWarnings("PMD.MemberScope")
+    @InjectMocks
+    private DeleteTokenResponseTransformer testObj;
+
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
     @Mock
@@ -41,6 +48,12 @@ public class DeleteTokenResponseTransformerTest {
     private DeleteTokenReceived deleteTokenReceivedMock;
     @Mock
     private Error errorMock;
+    @Mock
+    private ServiceResponseTransformerHelper serviceResponseTransformerHelperMock;
+    @Mock
+    private DeleteTokenReply deleteTokenResponseMock;
+    @Captor
+    private ArgumentCaptor<ServiceResponse> deleteTokenResponseArgumentCaptor;
 
     @Before
     public void setUp() {
@@ -52,9 +65,11 @@ public class DeleteTokenResponseTransformerTest {
 
     @Test
     public void shouldTransformPaymentServiceIntoDeleteTokenResponse() throws Exception {
+        when(serviceResponseTransformerHelperMock.buildDeleteTokenReply(any(DeleteTokenReceived.class))).thenReturn(deleteTokenResponseMock);
+
         final DeleteTokenResponse result = (DeleteTokenResponse) testObj.transform(paymentServiceMock);
 
-        assertEquals(PAYMENT_TOKEN_ID, result.getDeleteTokenReply().getPaymentTokenId());
+        assertEquals(deleteTokenResponseMock, result.getDeleteTokenReply());
     }
 
     @Test
@@ -86,15 +101,17 @@ public class DeleteTokenResponseTransformerTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenErrorInResponse() throws Exception {
+    public void shouldReturnDeleteTokenResponseWithErrorDetails() throws Exception {
+        when(serviceResponseTransformerHelperMock.checkForError(any(DeleteTokenResponse.class), eq(replyMock))).thenReturn(true);
+
         when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken())
                 .thenReturn(singletonList(errorMock));
-        when(errorMock.getCode()).thenReturn(ERROR_CODE);
-        when(errorMock.getvalue()).thenReturn(ERROR_VALUE);
 
         final ServiceResponse result = testObj.transform(paymentServiceMock);
 
-        assertEquals(ERROR_CODE, result.getErrorDetail().getCode());
-        assertEquals(ERROR_VALUE, result.getErrorDetail().getMessage());
+        verify(serviceResponseTransformerHelperMock).checkForError(deleteTokenResponseArgumentCaptor.capture(), eq(replyMock));
+
+        assertEquals(result, deleteTokenResponseArgumentCaptor.getValue());
+
     }
 }

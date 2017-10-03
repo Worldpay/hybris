@@ -6,8 +6,6 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.servicelayer.model.ModelService;
@@ -20,9 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -30,9 +26,6 @@ public class DefaultWorldpayCustomerAccountServiceTest {
 
     @InjectMocks
     private DefaultWorldpayCustomerAccountService testSubject = new DefaultWorldpayCustomerAccountService();
-
-    @Mock
-    private UiExperienceService uiExperienceService;
 
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
@@ -54,8 +47,7 @@ public class DefaultWorldpayCustomerAccountServiceTest {
 
     @Before
     public void setup() throws WorldpayConfigurationException {
-        when(uiExperienceService.getUiExperienceLevel()).thenReturn(UiExperienceLevel.DESKTOP);
-        when(worldpayMerchantInfoService.getCurrentSiteMerchant(UiExperienceLevel.DESKTOP)).thenReturn(merchantInfoMock);
+        when(worldpayMerchantInfoService.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(customerModelMock.getPaymentInfos()).thenReturn(Collections.singletonList(creditCardPaymentInfoModelMock));
     }
 

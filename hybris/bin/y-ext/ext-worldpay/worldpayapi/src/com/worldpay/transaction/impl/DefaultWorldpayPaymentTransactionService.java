@@ -31,6 +31,7 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
@@ -39,7 +40,7 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static java.text.MessageFormat.format;
 
 /**
- * Default implementation of PaymentTransaction handling
+ * {@inheritDoc}
  */
 public class DefaultWorldpayPaymentTransactionService implements WorldpayPaymentTransactionService {
 
@@ -56,12 +57,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Checks if the status of all the existing entries {@link PaymentTransactionEntryModel} in the paymentTransaction {@link PaymentTransactionModel} are in status {@link TransactionStatus#ACCEPTED}
-     *
-     * @param order                  The current order {@link OrderModel}
-     * @param paymentTransactionType The payment paymentTransaction type to check {@link PaymentTransactionType}
-     * @return true if all the transactions are {@link TransactionStatus#ACCEPTED}, false otherwise
      */
     @Override
     public boolean areAllPaymentTransactionsAcceptedForType(final OrderModel order, final PaymentTransactionType paymentTransactionType) {
@@ -81,30 +76,14 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Checks if the PaymentTransaction exists and if it is waiting for the asynchronous message in case of payment made using an APM
-     *
-     * @param order he current order {@link OrderModel}
-     * @return true if the transaction is awaiting the notification, false otherwise
      */
     @Override
     public boolean isAnyPaymentTransactionApmOpenForOrder(final OrderModel order) {
-        for (final PaymentTransactionModel paymentTransactionModel : order.getPaymentTransactions()) {
-            if (paymentTransactionModel != null && paymentTransactionModel.getApmOpen()) {
-                return true;
-            }
-        }
-        return false;
+        return order.getPaymentTransactions().stream().filter(Objects::nonNull).anyMatch(PaymentTransactionModel::getApmOpen);
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Checks all the existing paymentTransactionEntries {@link PaymentTransactionEntryModel} in the {@param paymentTransaction} of the type {@param PaymentTransactionType}
-     *
-     * @param paymentTransaction     The current {@link PaymentTransactionModel}
-     * @param paymentTransactionType The payment paymentTransaction type to check {@link PaymentTransactionType}
-     * @return true if one paymentTransactionEntry is pending, false if all the paymentTransactionEntries are not pending.
      */
     @Override
     public boolean isPaymentTransactionPending(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType) {
@@ -122,10 +101,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @param paymentTransaction     The current {@link PaymentTransactionModel}
-     * @param paymentTransactionType The payment paymentTransaction type to check {@link PaymentTransactionType}
-     * @return
      */
     @Override
     public List<PaymentTransactionEntryModel> filterPaymentTransactionEntriesOfType(final PaymentTransactionModel paymentTransaction,
@@ -135,10 +110,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @param paymentTransactionModel The {@link PaymentTransactionModel} to look for pending PaymentTransactionEntries
-     * @param paymentTransactionType  The type {@link PaymentTransactionType} of the transaction to filter
-     * @return
      */
     @Override
     public List<PaymentTransactionEntryModel> getPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
@@ -148,24 +119,17 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @param paymentTransactionModel The {@link PaymentTransactionModel} to look for pending PaymentTransactionEntries
-     * @param paymentTransactionType  The type {@link PaymentTransactionType} of the transaction to filter
-     * @return
      */
     @Override
     public List<PaymentTransactionEntryModel> getNotPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
                                                                                             final PaymentTransactionType paymentTransactionType) {
-        return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream().filter(entry -> !entry.getPending()).collect(Collectors.toList());
+        return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream()
+                .filter(entry -> !entry.getPending())
+                .collect(Collectors.toList());
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @param worldpayOrderCode      The orderCode of the paymentTransaction to check
-     * @param paymentTransactionType The {@link PaymentTransactionType} to find the depending transactions
-     * @param orderModel             The {@link OrderModel} to process the transactions from
-     * @return
      */
     @Override
     public boolean isPreviousTransactionCompleted(final String worldpayOrderCode, final PaymentTransactionType paymentTransactionType, final OrderModel orderModel) {
@@ -184,10 +148,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @param paymentTransaction       The {@link PaymentTransactionModel} to add the new Captured {@link PaymentTransactionType#CAPTURE} paymentTransactionEntry
-     * @param orderNotificationMessage The {@link OrderNotificationMessage} to get the information from
-     * @return
      */
     @Override
     public PaymentTransactionEntryModel createCapturedPaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final OrderNotificationMessage orderNotificationMessage) {
@@ -199,11 +159,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @param paymentTransaction The {@link PaymentTransactionModel} to associate the paymentTransactionEntry to
-     * @param merchantCode       The merchantCode used in the transaction with Worldpay
-     * @param cartModel          The {@link CartModel} to get the amount and currency information from
-     * @return
      */
     @Override
     public PaymentTransactionEntryModel createPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction,
@@ -218,6 +173,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         return transactionEntryModel;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction,
                                                                                          final String merchantCode,
@@ -234,10 +192,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     *
-     * @param apmOpen
-     * @param merchantCode              The merchantCode used in the authorization
-     * @param commerceCheckoutParameter
      */
     @Override
     public PaymentTransactionModel createPaymentTransaction(final boolean apmOpen, final String merchantCode, final CommerceCheckoutParameter commerceCheckoutParameter) {
@@ -258,13 +212,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         return paymentTransactionModel;
     }
 
-
-
     /**
      * {@inheritDoc}
-     *
-     * @param transactionCode The transactionCode to look for associated to a PaymentTransactionModel
-     * @return
      */
     @Override
     public PaymentTransactionModel getPaymentTransactionFromCode(final String transactionCode) {
@@ -278,11 +227,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Sets the pending flag to false, as the orderModificationMessage has been received and processed.
-     *
-     * @param paymentTransactionEntries
-     * @param transactionStatus
      */
     @Override
     public void updateEntriesStatus(final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus) {
@@ -294,6 +238,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         modelService.saveAll(paymentTransactionEntries);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addRiskScore(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
         final RiskScore riskScore = paymentReply.getRiskScore();
@@ -304,6 +251,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addAavFields(final PaymentTransactionEntryModel paymentTransactionEntryModel, final PaymentReply paymentReply) {
         final WorldpayAavResponseModel aavResponse = modelService.create(WorldpayAavResponseModel.class);
@@ -313,6 +263,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         modelService.save(paymentTransactionEntryModel);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateEntriesAmount(final List<PaymentTransactionEntryModel> transactionEntries, final Amount amount) {
         for (final PaymentTransactionEntryModel entry : transactionEntries) {
@@ -325,6 +278,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         modelService.saveAll(transactionEntries);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isAuthorisedAmountCorrect(final OrderModel order) {
         BigDecimal authorisedAmount = BigDecimal.ZERO;
@@ -351,6 +307,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         return new BigDecimal(amount.getValue()).movePointLeft(currency.getDefaultFractionDigits());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PaymentTransactionEntryModel createNotPendingSettledPaymentTransactionEntry(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
         final PaymentTransactionEntryModel transactionEntryModel = modelService.create(PaymentTransactionEntryModel.class);

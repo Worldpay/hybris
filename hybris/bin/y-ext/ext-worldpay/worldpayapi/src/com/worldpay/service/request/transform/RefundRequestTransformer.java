@@ -4,6 +4,8 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link RefundServiceRequest} into a {@link PaymentService} object
@@ -24,22 +26,23 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class RefundRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
+    private ConfigurationService configurationService;
 
     /* (non-Javadoc)
-             * @see ServiceRequestTransformer#transform(ServiceRequest)
-             */
+                 * @see ServiceRequestTransformer#transform(ServiceRequest)
+                 */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the refund is invalid.");
         }
         RefundServiceRequest refundRequest = (RefundServiceRequest) request;
 
         PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
-
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (refundRequest.getAmount() == null) {
             throw new WorldpayModelTransformationException("No amount object to transform on the refund request");
@@ -57,5 +60,10 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

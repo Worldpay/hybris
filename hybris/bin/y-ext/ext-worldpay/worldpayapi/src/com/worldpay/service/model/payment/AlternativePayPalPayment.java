@@ -33,7 +33,7 @@ public class AlternativePayPalPayment extends AlternativePayment {
     protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
-        if (methodName.equals("setFirstInBillingRun") && firstInBillingRun != null) {
+        if ("setFirstInBillingRun".equals(methodName) && firstInBillingRun != null) {
             method.invoke(targetObject, firstInBillingRun);
         }
     }

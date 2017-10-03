@@ -15,15 +15,16 @@ import static com.worldpay.worldpayresponsemock.builders.TokenBuilder.aTokenBuil
  */
 public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDirectAuthoriseResponseBuilder {
 
-    protected static final String AUTHORISED = "AUTHORISED";
-    protected static final String NEW_TOKEN_EVENT = "NEW";
-    protected static final String OBFUSCATED_PAN = "4111********1111";
-    protected static final String VISA_SSL = "VISA-SSL";
+    private static final String AUTHORISED = "AUTHORISED";
+    private static final String NEW_TOKEN_EVENT = "NEW";
+    private static final String OBFUSCATED_PAN = "4111********1111";
+    private static final String VISA_SSL = "VISA-SSL";
 
     /**
      * {@inheritDoc}
      */
-    @Override public PaymentService buildDirectResponse(final PaymentService request) {
+    @Override
+    public PaymentService buildDirectResponse(final PaymentService request) {
         final Submit submitRequest = (Submit) request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
 
         final OrderStatus orderStatus = createOrderStatus(submitRequest);
@@ -57,7 +58,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
             if (requestElement instanceof Order) {
                 Order requestOrder = (Order) requestElement;
                 final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
-                Amount intAmount = (Amount) orderElements.stream().filter(e -> e instanceof Amount).findFirst().get();
+                final Amount intAmount = (Amount) orderElements.stream().filter(Amount.class::isInstance).findFirst().get();
                 final Payment payment = aPaymentBuilder()
                         .withTransactionAmount(intAmount.getValue()).withLastEvent(AUTHORISED).build();
                 orderStatus.setOrderCode(requestOrder.getOrderCode());
@@ -65,12 +66,11 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
                         getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().
                         add(payment);
 
-                Optional<Object> createTokenOptional = orderElements.stream().filter(e -> e instanceof CreateToken).findFirst();
+                Optional<Object> createTokenOptional = orderElements.stream().filter(CreateToken.class::isInstance).findFirst();
                 if (createTokenOptional.isPresent()) {
                     shouldCreateToken = true;
-                    tokenReason = ((CreateToken)createTokenOptional.get()).getTokenReason().getvalue();
+                    tokenReason = ((CreateToken) createTokenOptional.get()).getTokenReason().getvalue();
                 }
-
             }
         }
 

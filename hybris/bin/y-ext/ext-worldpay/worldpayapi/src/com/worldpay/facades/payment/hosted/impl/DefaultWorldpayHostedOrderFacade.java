@@ -14,9 +14,8 @@ import com.worldpay.merchant.strategies.WorldpayOrderInfoStrategy;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
+import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.session.SessionService;
@@ -37,7 +36,6 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     private SessionService sessionService;
     private WorldpayRedirectOrderService worldpayRedirectOrderService;
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    private UiExperienceService uiExperienceService;
     private CartService cartService;
     private WorldpayOrderInfoStrategy worldpayOrderInfoStrategy;
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
@@ -52,14 +50,13 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     @Override
     public PaymentData redirectAuthorise(final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
         final CartModel cart = getCartService().getSessionCart();
-        final UiExperienceLevel uiExperienceLevel = getUiExperienceService().getUiExperienceLevel();
-        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant(uiExperienceLevel);
-        populateAdditionalAuthInfo(additionalAuthInfo, uiExperienceLevel);
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
+        populateAdditionalAuthInfo(additionalAuthInfo);
         return getWorldpayRedirectOrderService().redirectAuthorise(merchantInfo, cart, additionalAuthInfo);
     }
 
-    protected void populateAdditionalAuthInfo(final AdditionalAuthInfo additionalAuthInfo, final UiExperienceLevel uiExperienceLevel) {
-        final WorldpayMerchantConfigData currentSiteMerchant = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData(uiExperienceLevel);
+    protected void populateAdditionalAuthInfo(final AdditionalAuthInfo additionalAuthInfo) {
+        final WorldpayMerchantConfigData currentSiteMerchant = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData();
         worldpayOrderInfoStrategy.populateAdditionalAuthInfo(additionalAuthInfo, currentSiteMerchant);
     }
 
@@ -91,12 +88,12 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     @Override
     public RedirectAuthoriseResult inquiryPaymentStatus() throws WorldpayException {
         final String worldpayOrderCode = cartService.getSessionCart().getWorldpayOrderCode();
-        final UiExperienceLevel uiExperienceLevel = getUiExperienceService().getUiExperienceLevel();
-        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant(uiExperienceLevel);
-        final PaymentReply paymentReply = orderInquiryService.inquireOrder(merchantInfo, worldpayOrderCode);
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
+        final OrderInquiryServiceResponse inquiryResponse = orderInquiryService.inquireOrder(merchantInfo, worldpayOrderCode);
+        final PaymentReply paymentReply = inquiryResponse.getPaymentReply();
         final RedirectAuthoriseResult redirectAuthoriseResult = new RedirectAuthoriseResult();
         redirectAuthoriseResult.setPaymentStatus(paymentReply.getAuthStatus().getCode());
-        final int paymentExponent = Integer.valueOf(paymentReply.getAmount().getExponent());
+        final int paymentExponent = Integer.parseInt(paymentReply.getAmount().getExponent());
         final BigDecimal paymentAmount = new BigDecimal(paymentReply.getAmount().getValue()).movePointLeft(paymentExponent);
         redirectAuthoriseResult.setPaymentAmount(paymentAmount);
         redirectAuthoriseResult.setPending(apmConfigurationLookupService.getAPMConfigurationForCode(paymentReply.getMethodCode()) != null);
@@ -119,15 +116,6 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     @Required
     public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
-    }
-
-    protected UiExperienceService getUiExperienceService() {
-        return uiExperienceService;
-    }
-
-    @Required
-    public void setUiExperienceService(final UiExperienceService uiExperienceService) {
-        this.uiExperienceService = uiExperienceService;
     }
 
     protected CartService getCartService() {

@@ -3,18 +3,28 @@ package com.worldpay.service.response.transform;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
+import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
+import com.worldpay.service.response.ServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @UnitTest
+@RunWith(MockitoJUnitRunner.class)
 public class RedirectAuthoriseResponseTransformerTest {
 
     private static final String ORDER_CODE = "orderCode";
@@ -24,11 +34,17 @@ public class RedirectAuthoriseResponseTransformerTest {
     private static final String ERROR_CODE = "errorCode";
     private static final String ERROR_DETAIL = "errorDetail";
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
-    private RedirectAuthoriseResponseTransformer testObj = new RedirectAuthoriseResponseTransformer();
+    @InjectMocks
+    private RedirectAuthoriseResponseTransformer testObj;
+
+    @Mock
+    private ServiceResponseTransformerHelper serviceResponseTransformerHelperMock;
+    @Mock
+    private TokenReply tokenReplyMock;
 
     @Test
     public void transformShouldReturnARedirectAuthoriseServiceResponse() throws Exception {
@@ -52,14 +68,15 @@ public class RedirectAuthoriseResponseTransformerTest {
         referenceElements.add(reference);
         statusElements.add(intOrderStatus);
 
+        when(serviceResponseTransformerHelperMock.buildTokenReply(token)).thenReturn(tokenReplyMock);
+
         final RedirectAuthoriseServiceResponse result = (RedirectAuthoriseServiceResponse) testObj.transform(paymentServiceReply);
 
         assertEquals(ORDER_CODE, result.getOrderCode());
-        assertEquals(TOKEN_REFERENCE, result.getToken().getTokenEventReference());
+        assertEquals(tokenReplyMock, result.getToken());
         assertEquals(REFERENCE_ID, result.getRedirectReference().getId());
         assertEquals(REFERENCE_VALUE, result.getRedirectReference().getValue());
     }
-
 
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenResponseTypeIsNull() throws WorldpayModelTransformationException {
@@ -96,13 +113,11 @@ public class RedirectAuthoriseResponseTransformerTest {
         replyElements.add(intError);
         responseType.add(reply);
 
+        when(serviceResponseTransformerHelperMock.checkForError(any(ServiceResponse.class), eq(reply))).thenReturn(true);
+
         final RedirectAuthoriseServiceResponse result = (RedirectAuthoriseServiceResponse) testObj.transform(paymentServiceReply);
 
-        assertNull(result.getOrderCode());
-        assertNull(result.getToken());
-        assertNull(result.getRedirectReference());
-        assertEquals(ERROR_DETAIL, result.getErrorDetail().getMessage());
-        assertEquals(ERROR_CODE, result.getErrorDetail().getCode());
+        verify(serviceResponseTransformerHelperMock).checkForError(result, reply);
     }
 
     @Test

@@ -6,8 +6,13 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenUpdate;
 import com.worldpay.service.request.ServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 public class UpdateTokenRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     @Override
     public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
@@ -19,7 +24,7 @@ public class UpdateTokenRequestTransformer implements ServiceRequestTransformer 
 
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(updateTokenRequest.getMerchantInfo().getMerchantCode());
-        paymentService.setVersion(updateTokenRequest.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         final PaymentTokenUpdate updateToken = (PaymentTokenUpdate) updateTokenRequest.getUpdateTokenRequest().transformToInternalModel();
 
@@ -28,5 +33,10 @@ public class UpdateTokenRequestTransformer implements ServiceRequestTransformer 
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
 
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

@@ -1,9 +1,7 @@
 
 package com.worldpay.commands.impl;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.RefundServiceRequest;
@@ -15,7 +13,6 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Currency;
 
@@ -43,15 +40,29 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
     @Override
     public RefundResult perform(final FollowOnRefundRequest request) {
         final String orderCode = request.getRequestId();
-        final BigDecimal amount = request.getTotalAmount();
         final Currency currency = request.getCurrency();
         try {
-            final RefundServiceRequest refundRequest = buildRefundServiceRequest(orderCode, amount, currency, request.getMerchantTransactionCode());
-            return refund(refundRequest);
+            final Amount amount = getWorldpayOrderService().createAmount(currency, request.getTotalAmount().doubleValue());
+            final MerchantInfo merchantInfo = getMerchantInfo(orderCode);
+            final RefundServiceRequest refundServiceRequest = buildRefundRequest(request.getMerchantTransactionCode(), orderCode, amount, merchantInfo);
+            return refund(refundServiceRequest);
         } catch (WorldpayException e) {
             LOG.error(MessageFormat.format("Exception raised while issuing a refundRequest: [{0}]", e.getMessage()), e);
             return createErrorRefundResult();
         }
+    }
+
+    /**
+     * Build the refund service request
+     *
+     * @param refundReference
+     * @param worldpayOrderCode
+     * @param amount
+     * @param merchantInfo
+     * @return RefundServiceRequest object
+     */
+    protected RefundServiceRequest buildRefundRequest(final String refundReference, final String worldpayOrderCode, final Amount amount, final MerchantInfo merchantInfo) {
+        return RefundServiceRequest.createRefundRequest(merchantInfo, worldpayOrderCode, amount, refundReference, Boolean.FALSE);
     }
 
     private RefundResult createErrorRefundResult() {
@@ -68,32 +79,13 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
      * @return RefundResult translated from the service response
      */
     private RefundResult refund(final RefundServiceRequest refundRequest) throws WorldpayException {
-
-        final WorldpayServiceGateway gateway = getWorldpayServiceGatewayInstance();
-        final RefundServiceResponse refundResponse = gateway.refund(refundRequest);
+        final RefundServiceResponse refundResponse = getWorldpayServiceGateway().refund(refundRequest);
         if (refundResponse == null) {
             throw new WorldpayException("Response from worldpay is empty");
         }
         final RefundResult refundResult = refundServiceResponseConverter.convert(refundResponse);
         refundResult.setRequestToken(refundRequest.getMerchantInfo().getMerchantCode());
         return refundResult;
-    }
-
-    /**
-     * Build the refund service request
-     *
-     * @param worldpayOrderCode order code to be used in the service request
-     * @param refundAmount      amount to be captured
-     * @param currency          currency of the transaction
-     * @param returnReference   code of the return request associated to the refund
-     * @return RefundServiceRequest object
-     */
-    protected RefundServiceRequest buildRefundServiceRequest(final String worldpayOrderCode, final BigDecimal refundAmount,
-                                                             final Currency currency, final String returnReference) throws WorldpayException {
-        final WorldpayConfig config = getWorldpayConfigLookupService().lookupConfig();
-        final Amount amount = getWorldpayOrderService().createAmount(currency, refundAmount.doubleValue());
-        final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
-        return RefundServiceRequest.createRefundRequest(config, merchantInfo, worldpayOrderCode, amount, returnReference, Boolean.FALSE);
     }
 
     @Required

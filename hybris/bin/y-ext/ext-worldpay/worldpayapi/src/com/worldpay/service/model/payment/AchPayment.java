@@ -109,7 +109,7 @@ public class AchPayment extends AbstractPayment {
     @SuppressWarnings("unchecked")
     public void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         String methodName = method.getName();
-        if (methodName.equals("getAuthenticationOrDepositOrValidationOrVerification")) {
+        if ("getAuthenticationOrDepositOrValidationOrVerification".equals(methodName)) {
             List<Object> intAchType = (List<Object>) method.invoke(targetObject);
             if (achType.equals(AchType.AUTHENTICATION)) {
                 Authentication intAuth = new Authentication();
@@ -118,7 +118,7 @@ public class AchPayment extends AbstractPayment {
                 intAuth.setAddress((com.worldpay.internal.model.Address) address.transformToInternalModel());
 
                 intAchType.add(intAuth);
-            } else if (achType.equals(AchType.DEPOSIT)) {
+            } else if (AchType.DEPOSIT.equals(achType)) {
                 Deposit intDeposit = new Deposit();
                 intDeposit.setFirstName(firstName);
                 intDeposit.setLastName(lastName);
@@ -127,7 +127,7 @@ public class AchPayment extends AbstractPayment {
                 intDeposit.setAccountNumber(accountNumber);
 
                 intAchType.add(intDeposit);
-            } else if (achType.equals(AchType.VALIDATION)) {
+            } else if (AchType.VALIDATION.equals(achType)) {
                 Validation intValidation = new Validation();
                 intValidation.setFirstName(firstName);
                 intValidation.setLastName(lastName);
@@ -136,7 +136,7 @@ public class AchPayment extends AbstractPayment {
                 intValidation.setAccountNumber(accountNumber);
 
                 intAchType.add(intValidation);
-            } else if (achType.equals(AchType.VERIFICATION)) {
+            } else if (AchType.VERIFICATION.equals(achType)) {
                 Verification intVerification = new Verification();
                 intVerification.setBankAccountType(bankAccountType);
                 intVerification.setRoutingNumber(routingNumber);

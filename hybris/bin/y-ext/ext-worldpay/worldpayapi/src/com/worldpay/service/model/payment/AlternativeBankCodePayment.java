@@ -33,7 +33,7 @@ public class AlternativeBankCodePayment extends AlternativePayment {
     protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
-        if (methodName.equals("setBankCode") && bankCode != null) {
+        if ("setBankCode".equals(methodName) && bankCode != null) {
             method.invoke(targetObject, bankCode);
         }
     }

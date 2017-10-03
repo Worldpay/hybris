@@ -18,27 +18,28 @@ import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction;
 import de.hybris.platform.processengine.helpers.ProcessParameterHelper;
 import de.hybris.platform.processengine.model.BusinessProcessParameterModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayAuthorizePaymentActionTest {
 
     @InjectMocks
-    private WorldpayAuthorizePaymentAction testObj = new WorldpayAuthorizePaymentAction();
+    private WorldpayAuthorizePaymentAction testObj;
 
     @Mock
     private WorldpayB2BDirectOrderFacade worldpayB2BDirectOrderFacade;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    @Mock
-    @SuppressWarnings("PMD.UnusedPrivateField")
-    private ModelService modelService;
 
     @Mock
     private ProcessParameterHelper processParameterHelper;
@@ -54,35 +55,36 @@ public class WorldpayAuthorizePaymentActionTest {
     private MerchantInfo merchantInfo;
     @Mock
     private DirectResponseData directResponseData;
-    @Spy
-    @SuppressWarnings("PMD.UnusedPrivateField")
-    private ImpersonationService impersonationService = new TestImpersonationService();
-
+    @Mock
+    private ModelService modelServiceMock;
+    
     @Before
     public void setUp() throws WorldpayException, InvalidCartException {
-        Mockito.when(processParameterHelper.getProcessParameterByName(processModel, "cart")).thenReturn(clonedCartParameter);
-        Mockito.when(clonedCartParameter.getValue()).thenReturn(clonedCart);
-        Mockito.when(clonedCart.getPaymentInfo()).thenReturn(paymentInfo);
-        Mockito.when(worldpayMerchantInfoService.getReplenishmentMerchant()).thenReturn(merchantInfo);
-        Mockito.when(worldpayB2BDirectOrderFacade.authoriseRecurringPayment(Matchers.eq(clonedCart), Matchers.any(WorldpayAdditionalInfoData.class), Matchers.eq(merchantInfo))).thenReturn(directResponseData);
+        testObj.setImpersonationService(new TestImpersonationService());
+        when(processParameterHelper.getProcessParameterByName(processModel, "cart")).thenReturn(clonedCartParameter);
+        when(clonedCartParameter.getValue()).thenReturn(clonedCart);
+        when(clonedCart.getPaymentInfo()).thenReturn(paymentInfo);
+        when(worldpayMerchantInfoService.getReplenishmentMerchant()).thenReturn(merchantInfo);
+        when(worldpayB2BDirectOrderFacade.authoriseRecurringPayment(Matchers.eq(clonedCart), any(WorldpayAdditionalInfoData.class), Matchers.eq(merchantInfo))).thenReturn(directResponseData);
     }
 
     @Test
     public void executeActionShouldReturnOKWhenAuthorized() {
-        Mockito.when(directResponseData.getTransactionStatus()).thenReturn(TransactionStatus.AUTHORISED);
+        when(directResponseData.getTransactionStatus()).thenReturn(TransactionStatus.AUTHORISED);
 
         AbstractSimpleDecisionAction.Transition transition = testObj.executeAction(processModel);
 
-        Assert.assertEquals(AbstractSimpleDecisionAction.Transition.OK, transition);
+        assertEquals(AbstractSimpleDecisionAction.Transition.OK, transition);
+        verify(modelServiceMock).refresh(clonedCart);
     }
 
     @Test
     public void executeActionShouldReturnNOKWhenNotAuthorized() {
-        Mockito.when(directResponseData.getTransactionStatus()).thenReturn(TransactionStatus.REFUSED);
+        when(directResponseData.getTransactionStatus()).thenReturn(TransactionStatus.REFUSED);
 
         AbstractSimpleDecisionAction.Transition transition = testObj.executeAction(processModel);
 
-        Assert.assertEquals(AbstractSimpleDecisionAction.Transition.NOK, transition);
+        assertEquals(AbstractSimpleDecisionAction.Transition.NOK, transition);
     }
 
     protected class TestImpersonationService implements ImpersonationService {

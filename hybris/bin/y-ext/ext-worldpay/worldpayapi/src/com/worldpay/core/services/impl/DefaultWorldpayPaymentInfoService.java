@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
+import static de.hybris.platform.core.enums.CreditCardType.*;
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
 
 /**
@@ -145,7 +146,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
         creditCardPaymentInfoModel.setWorldpayOrderCode(cartModel.getWorldpayOrderCode());
         creditCardPaymentInfoModel.setUser(cartModel.getUser());
-        creditCardPaymentInfoModel.setType(CreditCardType.TOKEN);
+        creditCardPaymentInfoModel.setType(TOKEN);
         updateCreditCardModel(tokenReply, creditCardPaymentInfoModel, saveCard);
         return creditCardPaymentInfoModel;
     }
@@ -175,7 +176,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     private void updateCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final PaymentReply paymentReply) {
         final String methodCode = paymentReply.getMethodCode();
         final String creditCardTypeValue = getHybrisCCTypeForWPCCType(methodCode);
-        final CreditCardType cardType = (StringUtils.isNotBlank(creditCardTypeValue)) ? enumerationService.getEnumerationValue(CreditCardType.SIMPLE_CLASSNAME, creditCardTypeValue) : CreditCardType.TOKEN;
+        final CreditCardType cardType = StringUtils.isNotBlank(creditCardTypeValue) ? enumerationService.getEnumerationValue(SIMPLE_CLASSNAME, creditCardTypeValue) : TOKEN;
         creditCardPaymentInfoModel.setPaymentType(methodCode);
         creditCardPaymentInfoModel.setType(cardType);
     }

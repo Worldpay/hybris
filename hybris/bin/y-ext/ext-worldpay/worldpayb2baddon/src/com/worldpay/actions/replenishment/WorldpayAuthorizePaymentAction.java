@@ -17,8 +17,7 @@ import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction;
 import de.hybris.platform.processengine.model.BusinessProcessParameterModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Required;
 
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 
@@ -29,11 +28,8 @@ public class WorldpayAuthorizePaymentAction extends AbstractSimpleDecisionAction
 
     private static final Logger LOG = LoggerFactory.getLogger(WorldpayAuthorizePaymentAction.class);
 
-    @Resource
     private ImpersonationService impersonationService;
-    @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
 
     @Override
@@ -44,28 +40,41 @@ public class WorldpayAuthorizePaymentAction extends AbstractSimpleDecisionAction
 
         final ImpersonationContext context = new ImpersonationContext();
         context.setOrder(clonedCart);
-        return impersonationService.executeInContext(context,
-                new ImpersonationService.Executor<Transition, ImpersonationService.Nothing>() {
-                    @Override
-                    public Transition execute() {
-                        if (clonedCart.getPaymentInfo() instanceof CreditCardPaymentInfoModel) {
-                            final WorldpayAdditionalInfoData worldpayAdditionalInfoData = new WorldpayAdditionalInfoData();
-                            DirectResponseData directResponseData = null;
-                            try {
-                                MerchantInfo merchantInfo = worldpayMerchantInfoService.getReplenishmentMerchant();
-                                directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(clonedCart, worldpayAdditionalInfoData, merchantInfo);
-                                if (directResponseData != null && AUTHORISED == directResponseData.getTransactionStatus()) {
-                                    return Transition.OK;
-                                }
-                            } catch (WorldpayException | InvalidCartException e) {
-                                LOG.error("There was an error authorising the transaction", e);
-                            }
-                            clonedCart.setStatus(OrderStatus.B2B_PROCESSING_ERROR);
-                            modelService.save(clonedCart);
-                            return Transition.NOK;
-                        }
-                        return Transition.OK;
+        return impersonationService.executeInContext(context, (ImpersonationService.Executor<Transition, ImpersonationService.Nothing>) () -> {
+                    if (clonedCart.getPaymentInfo() instanceof CreditCardPaymentInfoModel) {
+                        return authoriseRecurringPaymentWithCreditCard(clonedCart);
                     }
+                    return Transition.OK;
                 });
+    }
+
+    private Transition authoriseRecurringPaymentWithCreditCard(final CartModel clonedCart) {
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = new WorldpayAdditionalInfoData();
+        worldpayAdditionalInfoData.setReplenishmentOrder(true);
+        try {
+            final MerchantInfo merchantInfo = worldpayMerchantInfoService.getReplenishmentMerchant();
+            final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(clonedCart, worldpayAdditionalInfoData, merchantInfo);
+            if (directResponseData != null && AUTHORISED == directResponseData.getTransactionStatus()) {
+                return Transition.OK;
+            }
+        } catch (WorldpayException | InvalidCartException e) {
+            LOG.error("There was an error authorising the transaction", e);
+        }
+        clonedCart.setStatus(OrderStatus.B2B_PROCESSING_ERROR);
+        modelService.save(clonedCart);
+        return Transition.NOK;
+    }
+
+    @Required
+    public void setImpersonationService(final ImpersonationService impersonationService) {
+        this.impersonationService = impersonationService;
+    }
+    @Required
+    public void setWorldpayDirectOrderFacade(final WorldpayDirectOrderFacade worldpayDirectOrderFacade) {
+        this.worldpayDirectOrderFacade = worldpayDirectOrderFacade;
+    }
+    @Required
+    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
 }

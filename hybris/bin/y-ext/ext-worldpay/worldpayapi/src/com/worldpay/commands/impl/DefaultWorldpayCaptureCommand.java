@@ -1,15 +1,6 @@
 package com.worldpay.commands.impl;
 
-import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
-
-import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.util.Currency;
-
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.Date;
 import com.worldpay.service.model.MerchantInfo;
@@ -21,6 +12,13 @@ import de.hybris.platform.payment.commands.result.CaptureResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
+
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.Currency;
+
+import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
 
 
 /**
@@ -69,9 +67,7 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
      * @return CaptureResult translated from the service response
      */
     private CaptureResult capture(final CaptureServiceRequest captureRequest) throws WorldpayException {
-
-        final WorldpayServiceGateway gateway = getWorldpayServiceGatewayInstance();
-        final CaptureServiceResponse captureResponse = gateway.capture(captureRequest);
+        final CaptureServiceResponse captureResponse = getWorldpayServiceGateway().capture(captureRequest);
         if (captureResponse == null) {
             throw new WorldpayException("Response from worldpay is empty");
         }
@@ -90,13 +86,11 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
      * @return CaptureServiceRequest object
      */
     private CaptureServiceRequest buildCaptureServiceRequest(final String worldpayOrderCode, final BigDecimal captureAmount, final Currency currency) throws WorldpayException {
-        final WorldpayConfig config = getWorldpayConfigLookupService().lookupConfig();
-
         final Amount amount = getWorldpayOrderService().createAmount(currency, captureAmount.doubleValue());
         final Date date = new Date(new java.util.Date());
 
         final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
-        return CaptureServiceRequest.createCaptureRequest(config, merchantInfo, worldpayOrderCode, amount, date);
+        return CaptureServiceRequest.createCaptureRequest(merchantInfo, worldpayOrderCode, amount, date);
     }
 
     public Converter<CaptureServiceResponse, CaptureResult> getCaptureServiceResponseConverter() {

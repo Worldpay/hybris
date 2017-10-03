@@ -1,14 +1,8 @@
 
 package com.worldpay.commands.impl;
 
-import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
-import static java.text.MessageFormat.format;
-
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.converters.WorldpayVoidServiceResponseConverter;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.CancelServiceRequest;
 import com.worldpay.service.response.CancelServiceResponse;
@@ -18,6 +12,9 @@ import de.hybris.platform.payment.commands.result.VoidResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
 
+import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
+import static java.text.MessageFormat.format;
 
 /**
  * Default worldpay Cancel command.
@@ -53,8 +50,7 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
      * @return VoidResult translated from the service response
      */
     private VoidResult cancel(final CancelServiceRequest cancelServiceRequest) throws WorldpayException {
-        final WorldpayServiceGateway gateway = getWorldpayServiceGatewayInstance();
-        final CancelServiceResponse cancelResponse = gateway.cancel(cancelServiceRequest);
+        final CancelServiceResponse cancelResponse = getWorldpayServiceGateway().cancel(cancelServiceRequest);
         if (cancelResponse == null) {
             throw new WorldpayException("Response from worldpay is empty");
         }
@@ -78,8 +74,7 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
      */
     private CancelServiceRequest buildCancelServiceRequest(final String worldpayOrderCode) throws WorldpayException {
         final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
-        final WorldpayConfig config = getWorldpayConfigLookupService().lookupConfig();
-        return CancelServiceRequest.createCancelRequest(config, merchantInfo, worldpayOrderCode);
+        return CancelServiceRequest.createCancelRequest(merchantInfo, worldpayOrderCode);
     }
 
     public void setVoidServiceResponseConverter(WorldpayVoidServiceResponseConverter voidServiceResponseConverter) {

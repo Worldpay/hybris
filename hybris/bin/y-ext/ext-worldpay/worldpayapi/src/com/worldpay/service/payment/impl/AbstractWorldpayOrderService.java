@@ -1,7 +1,7 @@
 package com.worldpay.service.payment.impl;
 
-import com.worldpay.config.WorldpayConfigLookupService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Address;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
@@ -33,7 +33,6 @@ public abstract class AbstractWorldpayOrderService {
     private ModelService modelService;
     private CommerceCheckoutService commerceCheckoutService;
     private CustomerEmailResolutionService customerEmailResolutionService;
-    private WorldpayConfigLookupService worldpayConfigLookupService;
     private GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy;
 
 
@@ -41,6 +40,7 @@ public abstract class AbstractWorldpayOrderService {
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     private WorldpayOrderService worldpayOrderService;
     private Converter<AddressModel, Address> worldpayAddressConverter;
+    private WorldpayServiceGateway worldpayServiceGateway;
 
     /**
      * Creates a {@link CommerceCheckoutParameter} based on the passed {@link CartModel} and {@link PaymentInfoModel} given
@@ -114,16 +114,6 @@ public abstract class AbstractWorldpayOrderService {
         this.customerEmailResolutionService = customerEmailResolutionService;
     }
 
-    public WorldpayConfigLookupService getWorldpayConfigLookupService() {
-        return worldpayConfigLookupService;
-    }
-
-    @Required
-    public void setWorldpayConfigLookupService(final WorldpayConfigLookupService worldpayConfigLookupService) {
-        this.worldpayConfigLookupService = worldpayConfigLookupService;
-    }
-
-
     public CommonI18NService getCommonI18NService() {
         return commonI18NService;
     }
@@ -176,5 +166,14 @@ public abstract class AbstractWorldpayOrderService {
     @Required
     public void setWorldpayGenerateMerchantTransactionCodeStrategy(final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy) {
         this.worldpayGenerateMerchantTransactionCodeStrategy = worldpayGenerateMerchantTransactionCodeStrategy;
+    }
+
+    public WorldpayServiceGateway getWorldpayServiceGateway() {
+        return worldpayServiceGateway;
+    }
+
+    @Required
+    public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
+        this.worldpayServiceGateway = worldpayServiceGateway;
     }
 }

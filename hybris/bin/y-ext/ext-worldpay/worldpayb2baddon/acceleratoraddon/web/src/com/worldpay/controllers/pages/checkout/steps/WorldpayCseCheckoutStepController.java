@@ -48,8 +48,6 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private UiExperienceService uiExperienceService;
-    @Resource
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
@@ -151,7 +149,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
         model.addAttribute(CSE_PAYMENT_FORM, new CSEPaymentForm());
-        model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData(uiExperienceService.getUiExperienceLevel()).getCsePublicKey());
+        model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
     }
 
     @Override

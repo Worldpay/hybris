@@ -6,6 +6,8 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.Submit;
 import com.worldpay.service.request.AuthoriseServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link AuthoriseServiceRequest} into a {@link PaymentService} object
@@ -51,23 +53,24 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
      *
-     * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(com.worldpay.service.request.ServiceRequest)
+     * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(ServiceRequest)
      */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the authorise is invalid.");
         }
         final AuthoriseServiceRequest authRequest = (AuthoriseServiceRequest) request;
 
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
-
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (authRequest.getOrder() == null) {
             throw new WorldpayModelTransformationException("No order object to transform on the authorise request");
@@ -77,5 +80,10 @@ public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
         submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().add(order);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

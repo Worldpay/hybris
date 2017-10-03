@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
@@ -30,7 +29,6 @@ public class RedirectAuthoriseServiceRequestTest {
     private static final List<PaymentType> includedPaymentMethods = singletonList(ONLINE);
     private static final List<PaymentType> excludedPaymentTypes = singletonList(VISA);
 
-    private static final WorldpayConfig WORLD_PAY_CONFIG = WorldpayTestConfigHelper.getWorldpayTestConfig();
     private static final TokenRequest TOKEN_REQUEST = new TokenRequest("tokenEventReferenceNumber", "tokenReason");
     private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
@@ -41,70 +39,56 @@ public class RedirectAuthoriseServiceRequestTest {
     private static final MerchantInfo merchantInfo = new MerchantInfo("MERCHANT1ECOM", "3l3ph4nt_&_c4st!3");
     private static final BasicOrderInfo basicOrderInfo = new BasicOrderInfo(ORDER_CODE, "Your Order & Order desc", AMOUNT);
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
-
-    @Test
-    public void createRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenWorldpayConfigIsNull() throws WorldpayException {
-        thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(null, merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
-                includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
-    }
 
     @Test
     public void createRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() throws WorldpayException {
         thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(WORLD_PAY_CONFIG, null, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
+        RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(null, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
     }
 
     @Test
     public void createRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenOrderInfoIsNull() throws WorldpayException {
         thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, null, INSTALLATION_ID, ORDER_CONTENT,
+        RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(merchantInfo, null, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
     }
 
     @Test
     public void shouldCreateRedirectAuthoriseRequest() {
-        final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
+        final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
         verifyOrder(request);
         assertEquals(SHOPPER, request.getOrder().getShopper());
     }
 
     @Test
-    public void createTokenAndRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenWorldpayConfigIsNull() throws WorldpayException {
-        thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(null, merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
-                includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
-    }
-
-    @Test
     public void createTokenAndRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() throws WorldpayException {
         thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(WORLD_PAY_CONFIG, null, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
+        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(null, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
     }
 
     @Test
     public void createTokenAndRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenOrderInfoIsNull() throws WorldpayException {
         thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, null, INSTALLATION_ID, ORDER_CONTENT,
+        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, null, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
     }
 
     @Test
     public void createTokenAndRedirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionWhenTokenRequestIsNull() throws WorldpayException {
         thrown.expect(IllegalArgumentException.class);
-        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
+        RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, null);
     }
 
     @Test
     public void shouldCreateRedirectAuthoriseRequestWithTokenRequest() {
-        final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
+        final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, INSTALLATION_ID, ORDER_CONTENT,
                 includedPaymentMethods, excludedPaymentTypes, AUTHENTICATED_SHOPPER, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
 
         verifyOrder(request);
@@ -114,7 +98,6 @@ public class RedirectAuthoriseServiceRequestTest {
 
     private void verifyOrder(final RedirectAuthoriseServiceRequest request) {
         final Order order = request.getOrder();
-        assertEquals(WORLD_PAY_CONFIG, request.getWorldpayConfig());
         assertEquals(ORDER_CODE, request.getOrderCode());
         assertEquals(merchantInfo, request.getMerchantInfo());
         assertNull(order.getPaymentDetails());

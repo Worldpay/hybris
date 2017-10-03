@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!--
-  ~ [y] hybris Platform
-  ~
-  ~ Copyright (c) 2000-2015 hybris AG
-  ~ All rights reserved.
-  ~
-  ~ This software is the confidential and proprietary information of hybris
-  ~ ("Confidential Information"). You shall not disclose such Confidential
-  ~ Information and shall use it only in accordance with the terms of the
-  ~ license agreement you entered into with hybris.
-  -->
 
 <config xmlns="http://www.hybris.com/cockpit/config"
         xmlns:explorer-tree="http://www.hybris.com/cockpitng/config/explorertree"
@@ -19,43 +8,10 @@
 
     <context merge-by="type" parent="GenericItem" type="PaymentTransaction" component="cs-editor-area">
         <editorArea:editorArea>
-            <editorArea:tab name="customersupportbackoffice.tab.general">
+            <editorArea:tab name="customersupportbackoffice.tab.general" >
                 <editorArea:section name="customersupportbackoffice.section.order.general.properties">
-                    <editorArea:attribute qualifier="riskScore" readonly="false" >
-                        <editorArea:editor-parameter>
-                            <editorArea:name>disableDisplayingDetails</editorArea:name>
-                            <editorArea:value>false</editorArea:value>
-                        </editorArea:editor-parameter>
-                    </editorArea:attribute>
-                    <editorArea:attribute qualifier="info" readonly="false">
-                        <editorArea:editor-parameter>
-                            <editorArea:name>disableDisplayingDetails</editorArea:name>
-                            <editorArea:value>false</editorArea:value>
-                        </editorArea:editor-parameter>
-                    </editorArea:attribute>
-                </editorArea:section>
-                <editorArea:section	name="customersupportbackoffice.section.paymenttransactions.entries">
-                    <editorArea:panel name="customersupport_backoffice_paymentTransactionsEntries_panel">
-                        <editorArea:attribute	editor="com.hybris.cockpitng.editor.extendedmultireferenceeditor" qualifier="entries" readonly="true">
-                            <editorArea:editor-parameter>
-                                <editorArea:name>listConfigContext</editorArea:name>
-                                <editorArea:value>referenceListViewPaymentTransactionEntries
-                                </editorArea:value>
-                            </editorArea:editor-parameter>
-                            <editorArea:editor-parameter>
-                                <editorArea:name>disableDisplayingDetails</editorArea:name>
-                                <editorArea:value>false</editorArea:value>
-                            </editorArea:editor-parameter>
-                            <editorArea:editor-parameter>
-                                <editorArea:name>disableRemoveReference</editorArea:name>
-                                <editorArea:value>true</editorArea:value>
-                            </editorArea:editor-parameter>
-                            <editorArea:editor-parameter>
-                                <editorArea:name>isNestedObjectCreationDisabled</editorArea:name>
-                                <editorArea:value>true</editorArea:value>
-                            </editorArea:editor-parameter>
-                        </editorArea:attribute>
-                    </editorArea:panel>
+                    <editorArea:attribute qualifier="riskScore"/>
+                    <editorArea:attribute qualifier="info"/>
                 </editorArea:section>
             </editorArea:tab>
         </editorArea:editorArea>
@@ -72,7 +28,7 @@
     <context type="WorldpayRiskScore" component="base" merge-by="type" principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
         <y:base>
             <y:labels>
-                <y:label>'code=' + code + ', value=' + value</y:label>
+                <y:label>'value=' + value</y:label>
             </y:labels>
         </y:base>
     </context>
@@ -98,6 +54,14 @@
             <list-view:column qualifier="worldpayOrderCode"/>
             <list-view:column qualifier="apmConfiguration.name"/>
         </list-view:list-view>
+    </context>
+
+    <context type="PaymentInfo" component="base">
+        <y:base>
+            <y:labels>
+                <y:label>paymentType != null ? paymentType : "Unknown payment type"</y:label>
+            </y:labels>
+        </y:base>
     </context>
 
     <context type="WorldpayAPMPaymentInfo" component="base">
@@ -153,7 +117,6 @@
             </advanced-search:field-list>
         </advanced-search:advanced-search>
     </context>
-
 
     <context merge-by="type" parent="GenericItem" type="WorldpayAPMConfiguration" component="listview">
         <list-view:list-view>

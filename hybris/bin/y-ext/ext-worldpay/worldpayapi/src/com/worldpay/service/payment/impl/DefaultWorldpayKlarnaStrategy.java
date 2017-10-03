@@ -65,7 +65,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         final double calculatedTotalTaxAmount = orderLines.getLineItems().stream().mapToDouble(LineItem::getTotalTaxAmountValue).sum();
         final double roundedCalculatedTotalTaxAmount = BigDecimal.valueOf(calculatedTotalTaxAmount).setScale(cartModel.getCurrency().getDigits(), RoundingMode.HALF_UP).doubleValue();
 
-        if (totalTax != roundedCalculatedTotalTaxAmount) {
+        if (BigDecimal.valueOf(totalTax).compareTo(BigDecimal.valueOf(roundedCalculatedTotalTaxAmount)) != 0) {
             final double taxRoundingDifference = Math.abs(totalTax - roundedCalculatedTotalTaxAmount);
             final Optional<LineItem> discountLineItemOptional = orderLines.getLineItems().stream()
                     .filter(lineItem1 -> DISCOUNT.equals(lineItem1.getLineItemType()))
@@ -186,7 +186,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
     }
 
     private String convertDoubleToStringFormat(final Integer digits, final double value) {
-        return new BigDecimal(value).movePointRight(digits).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
+        return BigDecimal.valueOf(value).movePointRight(digits).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
     }
 
     @Required

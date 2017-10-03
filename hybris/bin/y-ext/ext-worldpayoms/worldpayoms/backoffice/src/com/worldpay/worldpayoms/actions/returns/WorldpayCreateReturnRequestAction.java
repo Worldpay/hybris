@@ -23,6 +23,9 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+/**
+ * Back Office action for performing Order returns
+ */
 public class WorldpayCreateReturnRequestAction extends AbstractComponentWidgetAdapterAware implements CockpitAction<OrderModel, OrderModel> {
     protected static final String SOCKET_OUT_CONTEXT = "createReturnRequestContext";
 
@@ -56,7 +59,8 @@ public class WorldpayCreateReturnRequestAction extends AbstractComponentWidgetAd
     }
 
     protected boolean isReturnable(final OrderModel order) {
-        return nonNull(order) && nonNull(order.getEntries()) && nonNull(order.getConsignments()) && !order.getConsignments().stream().noneMatch(
+        final boolean nonNullOrder = nonNull(order) && nonNull(order.getEntries()) && nonNull(order.getConsignments());
+        return nonNullOrder && order.getConsignments().stream().anyMatch(
                 consignment -> consignment.getStatus().equals(SHIPPED) || consignment.getStatus().equals(PICKUP_COMPLETE)) && !isEmpty(returnService.getAllReturnableEntries(order));
     }
 

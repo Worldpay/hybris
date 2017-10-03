@@ -1,10 +1,10 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.TokenRequest;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
@@ -16,13 +16,13 @@ import java.util.List;
  */
 public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
 
-    protected RedirectAuthoriseServiceRequest(WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected RedirectAuthoriseServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+        super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the RedirectAuthoriseServiceRequest
-     * @param config                 worldpayConfig to be used in the Worldpay call
+     *
      * @param merch                  merchantInfo to be used in the Worldpay call
      * @param orderInfo              orderInfo to be used in the Worldpay call
      * @param installationId         installationId to be used in the Worldpay call
@@ -35,11 +35,11 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param statementNarrative     statementNarrative to be used in the Worldpay call
      * @return new instance of the RedirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final WorldpayConfig config, final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
+    public static RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
                                                                                  String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper,
                                                                                  final Address shippingAddress, final Address billingAddress, String statementNarrative) {
-        checkParameters("RedirectAuthoriseRequest", config, merch, orderInfo);
-        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(config, merch, orderInfo.getOrderCode());
+        checkParameters("RedirectAuthoriseRequest", merch, orderInfo);
+        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
         final Order reqOrder = createOrder(orderInfo, installationId, orderContent, includedPaymentMethods, excludedPaymentMethods, shopper, shippingAddress, billingAddress, statementNarrative);
         authRequest.setOrder(reqOrder);
         return authRequest;
@@ -47,7 +47,7 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
 
     /**
      * Static convenience method for creating an instance of the RedirectAuthoriseServiceRequest
-     * @param config                 worldpayConfig to be used in the Worldpay call
+     *
      * @param merch                  merchantInfo to be used in the Worldpay call
      * @param orderInfo              orderInfo to be used in the Worldpay call
      * @param installationId         installationId to be used in the Worldpay call
@@ -60,11 +60,11 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param statementNarrative     statementNarrative to be used in the Worldpay call
      * @return new instance of the RedirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static RedirectAuthoriseServiceRequest createTokenAndRedirectAuthoriseRequest(final WorldpayConfig config, final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
+    public static RedirectAuthoriseServiceRequest createTokenAndRedirectAuthoriseRequest(final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
                                                                                          String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper,
                                                                                          final Address shippingAddress, final Address billingAddress, String statementNarrative, final TokenRequest tokenRequest) {
-        checkParameters("TokenAndRedirectAuthoriseRequest", config, merch, orderInfo, tokenRequest);
-        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(config, merch, orderInfo.getOrderCode());
+        checkParameters("TokenAndRedirectAuthoriseRequest", merch, orderInfo, tokenRequest);
+        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
         final Order reqOrder = createOrder(orderInfo, installationId, orderContent, includedPaymentMethods, excludedPaymentMethods, shopper, shippingAddress, billingAddress, statementNarrative);
         reqOrder.setTokenRequest(tokenRequest);
         authRequest.setOrder(reqOrder);
@@ -75,14 +75,14 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
         final Order reqOrder = new Order(orderInfo.getOrderCode(), orderInfo.getDescription(), orderInfo.getAmount());
         reqOrder.setInstallationId(installationId);
         reqOrder.setOrderContent(orderContent);
-        if ((includedPaymentMethods != null && includedPaymentMethods.size() > 0) || (excludedPaymentMethods != null && excludedPaymentMethods.size() > 0)) {
-            final PaymentMethodMask pmm = new PaymentMethodMask();
-            if (includedPaymentMethods != null && includedPaymentMethods.size() > 0) {
-                includedPaymentMethods.forEach(pmm::addInclude);
-            }
-            if (excludedPaymentMethods != null && excludedPaymentMethods.size() > 0) {
-                excludedPaymentMethods.forEach(pmm::addExclude);
-            }
+        final PaymentMethodMask pmm = new PaymentMethodMask();
+        if (CollectionUtils.isNotEmpty(includedPaymentMethods)) {
+            includedPaymentMethods.forEach(pmm::addInclude);
+        }
+        if (CollectionUtils.isNotEmpty(excludedPaymentMethods)) {
+            excludedPaymentMethods.forEach(pmm::addExclude);
+        }
+        if (CollectionUtils.isNotEmpty(includedPaymentMethods) || CollectionUtils.isNotEmpty(excludedPaymentMethods)) {
             reqOrder.setPaymentMethodMask(pmm);
         }
         reqOrder.setShopper(shopper);

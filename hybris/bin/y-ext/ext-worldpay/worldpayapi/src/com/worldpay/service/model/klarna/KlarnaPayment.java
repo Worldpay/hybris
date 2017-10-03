@@ -26,19 +26,19 @@ public class KlarnaPayment extends AbstractPayment {
     public void invokeSetter(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         String methodName = method.getName();
         if (methodName.startsWith("set")) {
-            if (methodName.equals("setPurchaseCountry") && purchaseCountry != null) {
+            if ("setPurchaseCountry".equals(methodName) && purchaseCountry != null) {
                 method.invoke(targetObject, purchaseCountry);
             }
-            if (methodName.equals("setShopperLocale") && shopperLocale != null) {
+            if ("setShopperLocale".equals(methodName) && shopperLocale != null) {
                 method.invoke(targetObject, shopperLocale);
             }
-            if (methodName.equals("setMerchantUrls") && merchantUrls != null) {
+            if ("setMerchantUrls".equals(methodName) && merchantUrls != null) {
                 MerchantUrls intMerchantUrls = new MerchantUrls();
                 intMerchantUrls.setCheckoutURL(merchantUrls.getCheckoutURL());
                 intMerchantUrls.setConfirmationURL(merchantUrls.getConfirmationURL());
                 method.invoke(targetObject, intMerchantUrls);
             }
-            if (methodName.equals("setExtraMerchantData") && extraMerchantData != null) {
+            if ("setExtraMerchantData".equals(methodName) && extraMerchantData != null) {
                 method.invoke(targetObject, extraMerchantData);
             }
         }

@@ -78,50 +78,52 @@ ACC.worldpay = {
             }
         }).done(function (data) {
             $("#wpBillingAddress").html($(data).html());
-            if (typeof callback == 'function') {
-                callback.call();
+            if (typeof callback === 'function') {
+                callback();
             }
         });
     },
 
     populateDeclineCodeTimeout: function () {
-        var waitTimer = ACC.worldpayDeclineMessageWaitTimerSeconds * 1000;
-        setTimeout(function () {
-            populateDeclineCode();
-        }, waitTimer);
-        function populateDeclineCode() {
-            $.ajax({
-                url: ACC.config.encodedContextPath + "/checkout/multi/worldpay/choose-payment-method/getDeclineMessage",
-                type: "GET",
-                success: function (data) {
-                    if (data) {
-                        var row = $('#hop');
-                        var container = row.parent();
+        if (ACC.paymentStatus === "REFUSED") {
+            var waitTimer = ACC.worldpayDeclineMessageWaitTimerSeconds * 1000;
+            setTimeout(function () {
+                populateDeclineCode();
+            }, waitTimer);
+            function populateDeclineCode() {
+                $.ajax({
+                    url: ACC.config.encodedContextPath + "/checkout/multi/worldpay/choose-payment-method/getDeclineMessage",
+                    type: "GET",
+                    success: function (data) {
+                        if (data) {
+                            var row = $('#hop');
+                            var container = row.parent();
 
-                        var declineCodeHTMLContent = "<div class='global-alerts'>" +
-                            "<div class='alert alert-danger alert-dismissable'>" +
-                            "<button class='close' aria-hidden='true' data-dismiss='alert' type='button'>×</button>"
-                            + data +
-                            "</div>";
+                            var declineCodeHTMLContent = "<div class='global-alerts'>" +
+                                "<div class='alert alert-danger alert-dismissable'>" +
+                                "<button class='close' aria-hidden='true' data-dismiss='alert' type='button'>×</button>"
+                                + data +
+                                "</div>";
 
-                        var globalAlerts = container.find(".global-alerts");
-                        if (globalAlerts) {
-                            globalAlerts.last().append(declineCodeHTMLContent);
-                        } else {
-                            container.prepend(declineCodeHTMLContent);
+                            var globalAlerts = container.find(".global-alerts");
+                            if (globalAlerts) {
+                                globalAlerts.last().append(declineCodeHTMLContent);
+                            } else {
+                                container.prepend(declineCodeHTMLContent);
+                            }
                         }
+                    },
+                    error: function (err) {
+                        console.log(err);
                     }
-                },
-                error: function (err) {
-                    console.log(err);
-                }
-            });
+                });
+            }
         }
     },
 
     hideOrShowSaveDetails: function () {
         $(".cms-payment-button").on("change", function () {
-            if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() == "ONLINE") {
+            if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
                 $(".save_payment_details").removeClass("hidden");
             }
             else if (!$(".cms-payment-button").length) {
@@ -145,8 +147,7 @@ ACC.worldpay = {
                     .attr("value", value.bankCode).text(value.bankName));
             });
             $("#bankElement").removeClass("hidden");
-
-            if (callback != null) {
+            if (typeof callback === 'function') {
                 callback();
             }
         });
@@ -158,7 +159,7 @@ ACC.worldpay = {
             this.populateBankListByAPM(selectedAPM.val(), function () {
                 var shopperBankCodeSelectElem = $("#shopperBankCode");
                 var selectedBankCode = shopperBankCodeSelectElem.data("bankcode");
-                if (selectedBankCode != undefined) {
+                if (selectedBankCode !== undefined) {
                     shopperBankCodeSelectElem.val(selectedBankCode);
                 }
             });
@@ -186,9 +187,7 @@ ACC.worldpay = {
         this.bindUseDeliveryAddress();
         this.bindCountrySelector();
         this.bindCreditCardAddressForm();
-        if (ACC.paymentStatus == "REFUSED") {
-            this.populateDeclineCodeTimeout();
-        }
+        this.populateDeclineCodeTimeout();
         this.hideOrShowSaveDetails();
         this.bindBanks();
         this.checkPreviouslySelectedPaymentMethod();

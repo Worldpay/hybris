@@ -6,8 +6,14 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenDelete;
 import com.worldpay.service.request.DeleteTokenServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 public class DeleteTokenRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
+
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null) {
@@ -18,7 +24,7 @@ public class DeleteTokenRequestTransformer implements ServiceRequestTransformer 
 
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(deleteTokenRequest.getMerchantInfo().getMerchantCode());
-        paymentService.setVersion(deleteTokenRequest.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         final PaymentTokenDelete deleteToken = (PaymentTokenDelete) deleteTokenRequest.getDeleteTokenRequest().transformToInternalModel();
 
@@ -27,5 +33,10 @@ public class DeleteTokenRequestTransformer implements ServiceRequestTransformer 
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
 
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

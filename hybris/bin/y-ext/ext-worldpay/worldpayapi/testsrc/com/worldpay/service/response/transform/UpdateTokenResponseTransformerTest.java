@@ -3,6 +3,7 @@ package com.worldpay.service.response.transform;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Error;
 import com.worldpay.internal.model.*;
+import com.worldpay.service.model.token.UpdateTokenReply;
 import com.worldpay.service.response.ServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -11,11 +12,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -25,10 +30,12 @@ public class UpdateTokenResponseTransformerTest {
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
     private static final String ERROR_CODE = "errorCode";
     private static final String ERROR_VALUE = "errorValue";
-    private UpdateTokenResponseTransformer testObj = new UpdateTokenResponseTransformer();
 
-    @SuppressWarnings("PMD.MemberScope")
+    @InjectMocks
+    private UpdateTokenResponseTransformer testObj;
+
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
     @Mock
@@ -41,6 +48,10 @@ public class UpdateTokenResponseTransformerTest {
     private UpdateTokenReceived updateTokenReceivedMock;
     @Mock
     private Error errorMock;
+    @Mock
+    private ServiceResponseTransformerHelper serviceResponseTransformerHelper;
+    @Mock
+    private UpdateTokenReply updateTokenReplyMock;
 
     @Before
     public void setUp() {
@@ -52,6 +63,9 @@ public class UpdateTokenResponseTransformerTest {
 
     @Test
     public void shouldTransformPaymentServiceIntoUpdateTokenResponse() throws Exception {
+        when(serviceResponseTransformerHelper.buildUpdateTokenReply(updateTokenReceivedMock)).thenReturn(updateTokenReplyMock);
+        when(updateTokenReplyMock.getPaymentTokenId()).thenReturn(PAYMENT_TOKEN_ID);
+
         final UpdateTokenResponse result = (UpdateTokenResponse) testObj.transform(paymentServiceMock);
 
         assertEquals(PAYMENT_TOKEN_ID, result.getUpdateTokenReply().getPaymentTokenId());
@@ -92,9 +106,10 @@ public class UpdateTokenResponseTransformerTest {
         when(errorMock.getCode()).thenReturn(ERROR_CODE);
         when(errorMock.getvalue()).thenReturn(ERROR_VALUE);
 
+        when(serviceResponseTransformerHelper.checkForError(any(ServiceResponse.class), eq(replyMock))).thenReturn(true);
+
         final ServiceResponse result = testObj.transform(paymentServiceMock);
 
-        assertEquals(ERROR_CODE, result.getErrorDetail().getCode());
-        assertEquals(ERROR_VALUE, result.getErrorDetail().getMessage());
+        verify(serviceResponseTransformerHelper).checkForError(result, replyMock);
     }
 }

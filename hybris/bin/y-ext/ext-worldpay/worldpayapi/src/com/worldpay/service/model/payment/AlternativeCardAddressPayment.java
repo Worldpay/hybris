@@ -35,7 +35,7 @@ public class AlternativeCardAddressPayment extends AlternativePayment {
     protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
-        if (methodName.equals("setCardAddress") && cardAddress != null) {
+        if ("setCardAddress".equals(methodName) && cardAddress != null) {
             CardAddress intCardAddress = new CardAddress();
             intCardAddress.setAddress((com.worldpay.internal.model.Address) cardAddress.transformToInternalModel());
             method.invoke(targetObject, intCardAddress);

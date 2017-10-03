@@ -3,7 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="eclipsebin/notused"/>
 
-	<classpathentry exported="false" kind="src" path="/platform" />
 	<classpathentry exported="true" kind="src" path="/addonsupport" />
 	<classpathentry exported="true" kind="src" path="/b2bacceleratoraddon" />
 	<classpathentry exported="true" kind="src" path="/worldpayaddoncommons" />
@@ -11,6 +10,7 @@
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
+	<classpathentry exported="false" kind="src" path="/platform" />
 				
 </classpath>
 				

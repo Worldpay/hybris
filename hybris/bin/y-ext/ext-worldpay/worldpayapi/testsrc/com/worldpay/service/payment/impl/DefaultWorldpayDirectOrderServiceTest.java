@@ -68,7 +68,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Spy
     @InjectMocks
-    private DefaultWorldpayDirectOrderService testObj = new DefaultWorldpayDirectOrderService();
+    private DefaultWorldpayDirectOrderService testObj;
 
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
@@ -151,7 +151,6 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(paymentReplyMock.getAmount()).thenReturn(amountMock);
         when(amountMock.getCurrencyCode()).thenReturn("GBP");
         when(amountMock.getValue()).thenReturn("1000");
-        when(worldpayOrderServiceMock.getWorldpayServiceGateway()).thenReturn(worldpayServiceGatewayMock);
         when(worldpayServiceGatewayMock.directAuthorise(directAuthoriseServiceRequestMock)).thenReturn(directAuthoriseServiceResponseMock);
         when(worldpayServiceGatewayMock.updateToken(updateTokenServiceRequestMock)).thenReturn(updateTokenResponseMock);
         when(worldpayOrderServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, sessionMock, browserMock)).thenReturn(shopperMock);

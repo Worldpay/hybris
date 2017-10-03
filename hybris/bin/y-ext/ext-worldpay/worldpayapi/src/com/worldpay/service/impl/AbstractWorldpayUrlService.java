@@ -1,7 +1,6 @@
 package com.worldpay.service.impl;
 
 
-import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.WorldpayUrlService;
 import org.springframework.beans.factory.annotation.Required;
 

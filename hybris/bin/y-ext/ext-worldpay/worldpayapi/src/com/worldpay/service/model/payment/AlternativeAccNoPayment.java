@@ -36,10 +36,10 @@ public class AlternativeAccNoPayment extends AlternativePayment {
     protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
-        if (methodName.equals("setAccountNumber") && getAccountNumber() != null) {
+        if ("setAccountNumber".equals(methodName) && getAccountNumber() != null) {
             method.invoke(targetObject, getAccountNumber());
         }
-        if (methodName.equals("setAccountPassword") && getAccountPassword() != null) {
+        if ("setAccountPassword".equals(methodName) && getAccountPassword() != null) {
             method.invoke(targetObject, getAccountPassword());
         }
     }

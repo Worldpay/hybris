@@ -1,23 +1,15 @@
 package com.worldpay.worldpayresponsemock.facades.impl;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.internal.model.Capture;
-import com.worldpay.internal.model.Modify;
-import com.worldpay.internal.model.Order;
-import com.worldpay.internal.model.OrderModification;
-import com.worldpay.internal.model.PaymentDetails;
-import com.worldpay.internal.model.PaymentMethodMask;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.PaymentTokenCreate;
-import com.worldpay.internal.model.Submit;
-import com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller;
+import com.worldpay.internal.model.*;
+import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.facades.WorldpayMockFacade;
 import com.worldpay.worldpayresponsemock.responses.WorldpayCaptureResponseBuilder;
 import com.worldpay.worldpayresponsemock.responses.WorldpayDirectAuthoriseResponseBuilder;
 import com.worldpay.worldpayresponsemock.responses.WorldpayResponseBuilder;
 import com.worldpay.worldpayresponsemock.responses.WorldpayTokenCreateResponseBuilder;
+import org.springframework.beans.factory.annotation.Required;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -26,35 +18,27 @@ import java.util.List;
  */
 public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
 
-    @Resource
     private WorldpayResponseBuilder worldpayResponseBuilder;
-    @Resource
     private WorldpayCaptureResponseBuilder worldpayCaptureResponseBuilder;
-    @Resource
     private WorldpayDirectAuthoriseResponseBuilder worldpayDirectAuthoriseResponseBuilder;
-    @Resource
     private WorldpayTokenCreateResponseBuilder worldpayTokenCreateResponseBuilder;
+    private PaymentServiceMarshaller paymentServiceMarshaller;
 
     @Override
     public String buildResponse(PaymentService paymentServiceRequest, HttpServletRequest request) throws WorldpayException {
         if (requestContainsCapture(paymentServiceRequest)) {
-            return getPaymentServiceMarshaller().marshal(worldpayCaptureResponseBuilder.buildCaptureResponse(paymentServiceRequest));
+            return paymentServiceMarshaller.marshal(worldpayCaptureResponseBuilder.buildCaptureResponse(paymentServiceRequest));
         }
         if (requestContainsSubmitOrderWithPaymentDetails(paymentServiceRequest)) {
-            return getPaymentServiceMarshaller().marshal(worldpayDirectAuthoriseResponseBuilder.buildDirectResponse(paymentServiceRequest));
+            return paymentServiceMarshaller.marshal(worldpayDirectAuthoriseResponseBuilder.buildDirectResponse(paymentServiceRequest));
         }
         if (requestContainsSubmitOrderWithPaymentMethodMask(paymentServiceRequest)) {
-            return getPaymentServiceMarshaller().marshal(worldpayResponseBuilder.buildRedirectResponse(paymentServiceRequest, request));
+            return paymentServiceMarshaller.marshal(worldpayResponseBuilder.buildRedirectResponse(paymentServiceRequest, request));
         }
         if (requestContainsTokenCreate(paymentServiceRequest)) {
-            return getPaymentServiceMarshaller().marshal(worldpayTokenCreateResponseBuilder.buildTokenResponse(paymentServiceRequest));
+            return paymentServiceMarshaller.marshal(worldpayTokenCreateResponseBuilder.buildTokenResponse(paymentServiceRequest));
         }
         return null;
-    }
-
-
-    protected DefaultPaymentServiceMarshaller getPaymentServiceMarshaller() {
-        return DefaultPaymentServiceMarshaller.getInstance();
     }
 
     protected boolean requestContainsTokenCreate(final PaymentService paymentServiceRequest) {
@@ -73,7 +57,7 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
             final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
             if (possibleOrder instanceof Order) {
                 final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
-                return  orderElements.stream().anyMatch(e -> e instanceof PaymentMethodMask);
+                return orderElements.stream().anyMatch(PaymentMethodMask.class::isInstance);
             }
         }
         return false;
@@ -96,9 +80,34 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
             final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
             if (possibleOrder instanceof Order) {
                 final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
-                return  orderElements.stream().anyMatch(e -> e instanceof PaymentDetails);
+                return orderElements.stream().anyMatch(PaymentDetails.class::isInstance);
             }
         }
         return false;
+    }
+
+    @Required
+    public void setWorldpayResponseBuilder(final WorldpayResponseBuilder worldpayResponseBuilder) {
+        this.worldpayResponseBuilder = worldpayResponseBuilder;
+    }
+
+    @Required
+    public void setWorldpayCaptureResponseBuilder(final WorldpayCaptureResponseBuilder worldpayCaptureResponseBuilder) {
+        this.worldpayCaptureResponseBuilder = worldpayCaptureResponseBuilder;
+    }
+
+    @Required
+    public void setWorldpayDirectAuthoriseResponseBuilder(final WorldpayDirectAuthoriseResponseBuilder worldpayDirectAuthoriseResponseBuilder) {
+        this.worldpayDirectAuthoriseResponseBuilder = worldpayDirectAuthoriseResponseBuilder;
+    }
+
+    @Required
+    public void setWorldpayTokenCreateResponseBuilder(final WorldpayTokenCreateResponseBuilder worldpayTokenCreateResponseBuilder) {
+        this.worldpayTokenCreateResponseBuilder = worldpayTokenCreateResponseBuilder;
+    }
+
+    @Required
+    public void setPaymentServiceMarshaller(final PaymentServiceMarshaller paymentServiceMarshaller) {
+        this.paymentServiceMarshaller = paymentServiceMarshaller;
     }
 }

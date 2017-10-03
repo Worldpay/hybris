@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.MOBILE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -19,31 +18,22 @@ import static org.mockito.Mockito.when;
 public class DefaultWorldpayMerchantConfigDataFacadeTest {
 
     @InjectMocks
-    private DefaultWorldpayMerchantConfigDataFacade testObj = new DefaultWorldpayMerchantConfigDataFacade();
-
+    private DefaultWorldpayMerchantConfigDataFacade testObj;
     @Mock
-    private WorldpayMerchantConfigData mobileMerchantConfigDataMock, customerServiceMerchantConfigDataMock;
+    private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
     @Mock
     private WorldpayMerchantStrategy worldpayMerchantStrategyMock;
 
     @Before
     public void setup() {
-        when(worldpayMerchantStrategyMock.getMerchant(MOBILE)).thenReturn(mobileMerchantConfigDataMock);
-        when(worldpayMerchantStrategyMock.getCustomerServiceMerchant()).thenReturn(customerServiceMerchantConfigDataMock);
+        when(worldpayMerchantStrategyMock.getMerchant()).thenReturn(worldpayMerchantConfigDataMock);
     }
 
     @Test
     public void shouldReturnWebSiteMerchantConfigData() throws Exception {
 
-        final WorldpayMerchantConfigData result = testObj.getCurrentSiteMerchantConfigData(MOBILE);
+        final WorldpayMerchantConfigData result = testObj.getCurrentSiteMerchantConfigData();
 
-        assertEquals(mobileMerchantConfigDataMock, result);
-    }
-    @Test
-    public void shouldReturnCustomerServiceMerchantConfigData() throws Exception {
-
-        final WorldpayMerchantConfigData result = testObj.getCustomerServiceMerchantConfigData();
-
-        assertEquals(customerServiceMerchantConfigDataMock, result);
+        assertEquals(worldpayMerchantConfigDataMock, result);
     }
 }

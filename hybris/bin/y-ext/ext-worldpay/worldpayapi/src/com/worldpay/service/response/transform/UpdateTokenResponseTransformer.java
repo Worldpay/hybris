@@ -22,12 +22,10 @@ public class UpdateTokenResponseTransformer extends AbstractServiceResponseTrans
         }
 
         final Reply intReply = (Reply) responseType;
-        final ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-
         final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
 
         final UpdateTokenResponse updateTokenResponse = new UpdateTokenResponse();
-        if (responseTransformerHelper.checkForError(updateTokenResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(updateTokenResponse, intReply)) {
             return updateTokenResponse;
         }
         if (!(response instanceof Ok)) {
@@ -36,7 +34,7 @@ public class UpdateTokenResponseTransformer extends AbstractServiceResponseTrans
         final Ok okResponse = (Ok) response;
         final Object updateTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceived().get(0);
         if (updateTokenReceived instanceof UpdateTokenReceived) {
-            updateTokenResponse.setUpdateTokenReply(responseTransformerHelper.buildUpdateTokenReply((UpdateTokenReceived) updateTokenReceived));
+            updateTokenResponse.setUpdateTokenReply(getServiceResponseTransformerHelper().buildUpdateTokenReply((UpdateTokenReceived) updateTokenReceived));
         }
         return updateTokenResponse;
     }

@@ -9,18 +9,12 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.service.model.AuthorisedStatus;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.model.Request3DInfo;
+import com.worldpay.service.model.*;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
@@ -37,18 +31,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.worldpay.payment.TransactionStatus.AUTHENTICATION_REQUIRED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.CANCELLED;
-import static com.worldpay.service.model.AuthorisedStatus.REFUNDED;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
+import static com.worldpay.service.model.AuthorisedStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -87,8 +75,6 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     @Mock
     private CartService cartServiceMock;
     @Mock
-    private UiExperienceService uiExperienceServiceMock;
-    @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
@@ -122,8 +108,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
         when(cartModelMock.getUser()).thenReturn(userModelMock);
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant(DESKTOP)).thenReturn(merchantInfoMock);
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(directAuthoriseServiceResponse3dSecureMock.getPaymentReply()).thenReturn(paymentReplyMock);
@@ -140,8 +125,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         final InOrder inOrder = inOrder(acceleratorCheckoutFacadeMock, worldpayDirectOrderServiceMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         inOrder.verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock, MERCHANT_CODE);
         inOrder.verify(acceleratorCheckoutFacadeMock).placeOrder();
         assertEquals(acceleratorCheckoutFacadeMock.placeOrder(), result.getOrderData());
@@ -155,8 +139,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         final DirectResponseData result = testObj.authorise(worldpayAdditionalInfoDataMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         verify(worldpayDirectOrderServiceMock).authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise(any(DirectAuthoriseServiceResponse.class), any(CartModel.class), anyString());
         assertNull(result.getOrderData());
@@ -170,8 +153,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         final DirectResponseData authorise = testObj.authorise(worldpayAdditionalInfoDataMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         verify(worldpayDirectOrderServiceMock).authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise(any(DirectAuthoriseServiceResponse.class), any(CartModel.class), anyString());
         assertEquals(TransactionStatus.CANCELLED, authorise.getTransactionStatus());
@@ -189,7 +171,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
     @Test(expected = WorldpayConfigurationException.class)
     public void authoriseShouldRaiseWorldpayConfigurationExceptionWhenMerchantsAreNotProperlyConfigured() throws WorldpayException, InvalidCartException {
-        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant(DESKTOP)).thenThrow(new WorldpayConfigurationException(EXCEPTION_MESSAGE));
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenThrow(new WorldpayConfigurationException(EXCEPTION_MESSAGE));
 
         testObj.authorise(worldpayAdditionalInfoDataMock);
 
@@ -204,8 +186,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         testObj.authorise(worldpayAdditionalInfoDataMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         verify(worldpayDirectOrderServiceMock).authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise(any(DirectAuthoriseServiceResponse.class), any(CartModel.class), anyString());
     }
@@ -296,8 +277,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         final String result = testObj.authoriseBankTransferRedirect(bankTransferAdditionAuthInfoMock, worldpayAdditionalInfoDataMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
 
         assertEquals(REDIRECT_URL, result);
     }
@@ -310,8 +290,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         testObj.authoriseBankTransferRedirect(bankTransferAdditionAuthInfoMock, worldpayAdditionalInfoDataMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
     }
 
     @Test(expected = WorldpayException.class)
@@ -321,8 +300,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         testObj.authoriseBankTransferRedirect(bankTransferAdditionAuthInfoMock, worldpayAdditionalInfoDataMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
     }
 
     @Test
@@ -334,8 +312,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         verify(worldpayDirectOrderServiceMock).authoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 
         final InOrder inOrder = inOrder(acceleratorCheckoutFacadeMock, worldpayDirectOrderServiceMock);
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         verify(worldpayDirectOrderServiceMock).authoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
         inOrder.verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock, MERCHANT_CODE);
         inOrder.verify(acceleratorCheckoutFacadeMock).placeOrder();
@@ -366,8 +343,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         final String result = testObj.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
 
         assertEquals(KLARNA_CONTENT_DECODED, result);
     }
@@ -380,8 +356,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         testObj.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
     }
 
     @Test(expected = WorldpayException.class)
@@ -391,8 +366,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         testObj.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock);
 
-        verify(uiExperienceServiceMock).getUiExperienceLevel();
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant(DESKTOP);
+        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
     }
 
 }

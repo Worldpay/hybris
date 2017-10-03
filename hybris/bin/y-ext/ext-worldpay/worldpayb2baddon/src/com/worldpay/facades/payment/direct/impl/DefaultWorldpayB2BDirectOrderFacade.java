@@ -25,8 +25,8 @@ public class DefaultWorldpayB2BDirectOrderFacade extends DefaultWorldpayDirectOr
     @Override
     public DirectResponseData authoriseRecurringPayment(final String orderCode,
                                                         final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException {
-        AbstractOrderModel abstractOrderModel = b2BOrderService.getOrderForCode(orderCode);
-        final MerchantInfo merchantInfo = getCurrentMerchantInfo();
+        final AbstractOrderModel abstractOrderModel = b2BOrderService.getOrderForCode(orderCode);
+        final MerchantInfo merchantInfo = getWorldpayMerchantInfoService().getCurrentSiteMerchant();
         return internalAuthoriseRecurringPayment(abstractOrderModel, worldpayAdditionalInfoData, merchantInfo);
     }
 

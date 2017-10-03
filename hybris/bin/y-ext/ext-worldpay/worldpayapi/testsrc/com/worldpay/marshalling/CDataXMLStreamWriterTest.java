@@ -2,8 +2,8 @@ package com.worldpay.marshalling;
 
 import com.worldpay.exception.WorldpayValidationException;
 import com.worldpay.internal.model.*;
+import com.worldpay.service.request.validation.impl.DefaultWorldpayXMLValidator;
 import com.worldpay.service.request.validation.WorldpayXMLValidator;
-import com.worldpay.service.request.validation.WorldpayXMLValidatorImpl;
 import com.worldpay.xml.writer.CDataXMLStreamWriter;
 import org.junit.Test;
 
@@ -76,7 +76,7 @@ public class CDataXMLStreamWriterTest {
         service.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         service.setVersion("1_4");
 
-        final WorldpayXMLValidator validator = new WorldpayXMLValidatorImpl();
+        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
         validator.validate(service);
 
         final XMLOutputFactory xof = XMLOutputFactory.newInstance();

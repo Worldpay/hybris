@@ -41,23 +41,23 @@ public class AlternativePayment extends AbstractPayment {
         boolean methodInvoked = false;
         String methodName = method.getName();
         if (methodName.startsWith("set")) {
-            if (methodName.equals("setShopperCountryCode") && shopperCountryCode != null) {
+            if ("setShopperCountryCode".equals(methodName) && shopperCountryCode != null) {
                 method.invoke(targetObject, shopperCountryCode);
                 methodInvoked = true;
             }
-            if (methodName.equals("setSuccessURL") && successURL != null) {
+            if ("setSuccessURL".equals(methodName) && successURL != null) {
                 method.invoke(targetObject, successURL);
                 methodInvoked = true;
             }
-            if (methodName.equals("setFailureURL") && failureURL != null) {
+            if ("setFailureURL".equals(methodName) && failureURL != null) {
                 method.invoke(targetObject, failureURL);
                 methodInvoked = true;
             }
-            if (methodName.equals("setCancelURL") && cancelURL != null) {
+            if ("setCancelURL".equals(methodName) && cancelURL != null) {
                 method.invoke(targetObject, cancelURL);
                 methodInvoked = true;
             }
-            if (methodName.equals("setPendingURL") && pendingURL != null) {
+            if ("setPendingURL".equals(methodName) && pendingURL != null) {
                 method.invoke(targetObject, pendingURL);
                 methodInvoked = true;
             }

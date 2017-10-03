@@ -122,5 +122,8 @@ public interface WorldpayRequestFactory {
      * @return Built {@link DirectAuthoriseServiceRequest}
      * @throws WorldpayConfigurationException
      */
-    DirectAuthoriseServiceRequest buildDirectAuthoriseKlarnaRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayConfigurationException;
+    DirectAuthoriseServiceRequest buildDirectAuthoriseKlarnaRequest(final MerchantInfo merchantInfo,
+                                                                    final CartModel cartModel,
+                                                                    final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                                    final AdditionalAuthInfo additionalAuthInfo) throws WorldpayConfigurationException;
 }

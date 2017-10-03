@@ -1,9 +1,9 @@
 package com.worldpay.exception;
 
-import com.worldpay.service.mac.MacValidator;
+import com.worldpay.service.mac.impl.DefaultMacValidator;
 
 /**
- * Exception thrown from the {@link MacValidator} if there is a problem validating the mac code
+ * Exception thrown from the {@link DefaultMacValidator} if there is a problem validating the mac code
  */
 public class WorldpayMacValidationException extends WorldpayException {
 

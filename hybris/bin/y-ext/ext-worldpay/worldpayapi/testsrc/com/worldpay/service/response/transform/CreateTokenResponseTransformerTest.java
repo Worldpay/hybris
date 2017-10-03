@@ -3,21 +3,34 @@ package com.worldpay.service.response.transform;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
+import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.ServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @UnitTest
+@RunWith(MockitoJUnitRunner.class)
 public class CreateTokenResponseTransformerTest {
+
+    @Rule
+    @SuppressWarnings("PMD.MemberScope")
+    public ExpectedException thrown = ExpectedException.none();
 
     private static final String AUTHENTICATED_SHOPPER = "authenticatedShopper";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
@@ -36,75 +49,52 @@ public class CreateTokenResponseTransformerTest {
     private static final String ERROR_CODE = "errorCode";
     private static final String ERROR_VALUE = "errorValue";
     private static final String PAYPAL_TOKEN = "paypalToken";
-    
-    private PaymentService paymentServiceReply;
-    private CreateTokenResponseTransformer testObj = new CreateTokenResponseTransformer();
 
-    @SuppressWarnings("PMD.MemberScope")
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    @InjectMocks
+    private CreateTokenResponseTransformer testObj;
 
-    @Before
-    public void setUp() {
-        paymentServiceReply = new PaymentService();
-    }
+    @Mock
+    private PaymentService paymentServiceReplyMock;
+    @Mock
+    private ServiceResponseTransformerHelper serviceResponseTransformerHelperMock;
+    @Mock
+    private TokenReply tokenReplyMock;
 
     @Test
     public void shouldRaiseErrorIfPaymentServiceReplyIsNull() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("No reply message in Worldpay create token response");
         final Reply reply = null;
-        paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
-        testObj.transform(paymentServiceReply);
+        when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
+
+        testObj.transform(paymentServiceReplyMock);
     }
 
     @Test
     public void shouldRaiseErrorIfResponseTypeIsNotReply() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("Reply type from Worldpay not the expected type");
-        paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(new Submit());
-        testObj.transform(paymentServiceReply);
+        when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(new Submit()));
+
+        testObj.transform(paymentServiceReplyMock);
     }
 
     @Test
     public void shouldReturnCreateTokenResponseForCard() throws WorldpayModelTransformationException {
+        when(serviceResponseTransformerHelperMock.buildTokenReply(any(Token.class))).thenReturn(tokenReplyMock);
+
         final CreateTokenResponse result = (CreateTokenResponse) testObj.transform(createServiceReplyCard());
 
-        assertEquals(AUTHENTICATED_SHOPPER, result.getToken().getAuthenticatedShopperID());
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getToken().getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getToken().getTokenReason());
-        assertEquals(TOKEN_EVENT, result.getToken().getTokenDetails().getTokenEvent());
-        assertEquals(TOKEN_ID, result.getToken().getTokenDetails().getPaymentTokenID());
-        assertEquals(DAY_OF_MONTH, result.getToken().getTokenDetails().getPaymentTokenExpiry().getDayOfMonth());
-        assertEquals(MONTH, result.getToken().getTokenDetails().getPaymentTokenExpiry().getMonth());
-        assertEquals(YEAR, result.getToken().getTokenDetails().getPaymentTokenExpiry().getYear());
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getToken().getTokenDetails().getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getToken().getTokenDetails().getTokenReason());
-        assertEquals(MONTH, result.getToken().getPaymentInstrument().getExpiryDate().getMonth());
-        assertEquals(YEAR, result.getToken().getPaymentInstrument().getExpiryDate().getYear());
-        assertEquals(CARD_HOLDER_NAME, result.getToken().getPaymentInstrument().getCardHolderName());
-        assertEquals(CARD_ADDRESS_CITY, result.getToken().getPaymentInstrument().getCardAddress().getCity());
-        assertEquals(OBFUSCATED_PAN, result.getToken().getPaymentInstrument().getCardNumber());
-        assertEquals(CARD_BRAND, result.getToken().getPaymentInstrument().getPaymentType().getMethodCode());
-        assertNull(result.getToken().getPaypalDetails());
+        assertEquals(tokenReplyMock, result.getToken());
     }
 
     @Test
     public void shouldReturnCreateTokenResponseForPaypal() throws WorldpayModelTransformationException {
+        when(serviceResponseTransformerHelperMock.buildTokenReply(any(Token.class))).thenReturn(tokenReplyMock);
+
         final CreateTokenResponse result = (CreateTokenResponse) testObj.transform(createServiceReplyPaypal());
 
-        assertEquals(AUTHENTICATED_SHOPPER, result.getToken().getAuthenticatedShopperID());
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getToken().getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getToken().getTokenReason());
-        assertEquals(TOKEN_EVENT, result.getToken().getTokenDetails().getTokenEvent());
-        assertEquals(TOKEN_ID, result.getToken().getTokenDetails().getPaymentTokenID());
-        assertEquals(DAY_OF_MONTH, result.getToken().getTokenDetails().getPaymentTokenExpiry().getDayOfMonth());
-        assertEquals(MONTH, result.getToken().getTokenDetails().getPaymentTokenExpiry().getMonth());
-        assertEquals(YEAR, result.getToken().getTokenDetails().getPaymentTokenExpiry().getYear());
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getToken().getTokenDetails().getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getToken().getTokenDetails().getTokenReason());
-        assertEquals(PAYPAL_TOKEN, result.getToken().getPaypalDetails());
-        assertNull(result.getToken().getPaymentInstrument());
+        assertEquals(tokenReplyMock, result.getToken());
     }
 
     @Test
@@ -119,10 +109,11 @@ public class CreateTokenResponseTransformerTest {
         responses.add(error);
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
 
+        when(serviceResponseTransformerHelperMock.checkForError(any(ServiceResponse.class), eq(reply))).thenReturn(true);
+
         final ServiceResponse result = testObj.transform(paymentServiceReply);
 
-        assertEquals(ERROR_VALUE, result.getErrorDetail().getMessage());
-        assertEquals(ERROR_CODE, result.getErrorDetail().getCode());
+        verify(serviceResponseTransformerHelperMock).checkForError(result, reply);
     }
 
     private PaymentService createServiceReplyCard() {
@@ -143,8 +134,8 @@ public class CreateTokenResponseTransformerTest {
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(cardDetails);
         tokenResponses.add(paymentInstrument);
 
-        paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
-        return paymentServiceReply;
+        when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
+        return paymentServiceReplyMock;
     }
 
     private PaymentService createServiceReplyPaypal() {
@@ -166,8 +157,8 @@ public class CreateTokenResponseTransformerTest {
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(paypal);
         tokenResponses.add(paymentInstrument);
 
-        paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
-        return paymentServiceReply;
+        when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
+        return paymentServiceReplyMock;
     }
 
     private Token createToken() {

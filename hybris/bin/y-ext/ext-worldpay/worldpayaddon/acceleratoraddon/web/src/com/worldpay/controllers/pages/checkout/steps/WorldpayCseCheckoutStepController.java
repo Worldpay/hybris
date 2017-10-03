@@ -9,7 +9,6 @@ import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
@@ -48,8 +47,6 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     private Validator cseFormValidator;
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
-    private UiExperienceService uiExperienceService;
     @Resource
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
@@ -151,7 +148,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
         model.addAttribute(CSE_PAYMENT_FORM, new CSEPaymentForm());
-        model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData(uiExperienceService.getUiExperienceLevel()).getCsePublicKey());
+        model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
     }
 
     @Override

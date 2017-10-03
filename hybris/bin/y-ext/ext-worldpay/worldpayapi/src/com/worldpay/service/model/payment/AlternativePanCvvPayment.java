@@ -42,13 +42,13 @@ public class AlternativePanCvvPayment extends AlternativePayment {
     protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
-        if (methodName.equals("setPan") && getPan() != null) {
+        if ("setPan".equals(methodName) && getPan() != null) {
             method.invoke(targetObject, getPan());
         }
-        if (methodName.equals("setCvv") && getCvv() != null) {
+        if ("setCvv".equals(methodName) && getCvv() != null) {
             method.invoke(targetObject, getCvv());
         }
-        if (methodName.equals("setExpiryDate") && getExpiryDate() != null) {
+        if ("setExpiryDate".equals(methodName) && getExpiryDate() != null) {
             ExpiryDate intExpiryDate = new ExpiryDate();
             intExpiryDate.setDate((com.worldpay.internal.model.Date) getExpiryDate().transformToInternalModel());
             method.invoke(targetObject, intExpiryDate);

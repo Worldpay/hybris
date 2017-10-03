@@ -21,7 +21,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.Map;
 
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
@@ -43,7 +42,7 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Spy
     @InjectMocks
-    private DefaultWorldpayMerchantInfoService testObj = new DefaultWorldpayMerchantInfoService();
+    private DefaultWorldpayMerchantInfoService testObj ;
     @Mock
     private Map<String, WorldpayMerchantConfigData> worldpayMerchantConfigurationMock;
     @Mock
@@ -69,16 +68,6 @@ public class DefaultWorldpayMerchantInfoServiceTest {
     }
 
     @Test
-    public void shouldCreateMerchantInfoFromCustomerServiceMerchantConfigData() throws WorldpayConfigurationException {
-        when(worldpayMerchantStrategyMock.getCustomerServiceMerchant()).thenReturn(merchantConfigDataMock);
-        doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
-
-        final MerchantInfo result = testObj.getCustomerServicesMerchant();
-
-        assertEquals(merchantInfo, result);
-    }
-
-    @Test
     public void shouldCreateMerchantInfoFromReplenishmentMerchantConfigData() throws WorldpayConfigurationException {
         when(worldpayMerchantStrategyMock.getReplenishmentMerchant()).thenReturn(merchantConfigDataMock);
         doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
@@ -90,10 +79,10 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Test
     public void shouldCreateMerchantInfoFromWebSiteMerchantConfigData() throws WorldpayConfigurationException {
-        when(worldpayMerchantStrategyMock.getMerchant(DESKTOP)).thenReturn(merchantConfigDataMock);
+        when(worldpayMerchantStrategyMock.getMerchant()).thenReturn(merchantConfigDataMock);
         doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
 
-        final MerchantInfo result = testObj.getCurrentSiteMerchant(DESKTOP);
+        final MerchantInfo result = testObj.getCurrentSiteMerchant();
 
         assertEquals(merchantInfo, result);
     }

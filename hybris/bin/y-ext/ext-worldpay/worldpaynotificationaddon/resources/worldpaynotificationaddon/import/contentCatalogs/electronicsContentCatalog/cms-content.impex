@@ -1,3 +1,0 @@
-$contentCatalog=electronicsContentCatalog
-$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$jarResourceCms=jar:com.worldpay.worldpaynotificationaddon.constants.WorldpaynotificationaddonConstants&/worldpaynotificationaddon/import/cockpit/cmscockpit

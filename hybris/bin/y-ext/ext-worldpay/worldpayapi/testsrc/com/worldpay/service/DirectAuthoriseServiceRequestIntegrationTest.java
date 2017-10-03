@@ -1,6 +1,6 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
+import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayCommunicationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayValidationException;
@@ -12,11 +12,13 @@ import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
+import de.hybris.platform.servicelayer.ServicelayerBaseTest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -25,7 +27,7 @@ import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
 import static org.junit.Assert.*;
 
 @IntegrationTest
-public class DirectAuthoriseServiceRequestIntegrationTest {
+public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBaseTest {
 
     private static final String expiryYear;
 
@@ -41,7 +43,6 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     private static final String TOKEN_REASON = "tokenReason";
     private static final String FAKED_PA_RESPONSE = "fakedPaResponse";
 
-    private static final WorldpayConfig WORLD_PAY_CONFIG = WorldpayTestConfigHelper.getWorldpayTestConfig();
     private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
     private static final com.worldpay.service.model.Date EXPIRY_DATE = new com.worldpay.service.model.Date("09", expiryYear);
     private static final Session SESSION = new Session("192.168.1.1", "sessionId1234");
@@ -53,10 +54,11 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     private MerchantInfo merchantInfo;
     private BasicOrderInfo basicOrderInfo;
 
-    private WorldpayServiceGateway testObj = WorldpayServiceGateway.getInstance();
+    @Resource (name = "worldpayServiceGateway")
+    private WorldpayServiceGateway testObj;
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
     @Before
@@ -71,8 +73,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         thrown.expect(WorldpayCommunicationException.class);
         merchantInfo = new MerchantInfo(null, null);
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         testObj.directAuthorise(request);
     }
@@ -83,8 +85,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         merchantInfo = new MerchantInfo(null, null);
         final Token tokenSsl = new Token(TOKEN_EVENT_REFERENCE);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, tokenSsl,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, tokenSsl,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         testObj.directAuthorise(request);
 
@@ -94,8 +96,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     @Test
     public void createDirectAuthoriseRequestShouldRaiseWorldpayValidationExceptionWithMinimumValues() throws WorldpayException {
         thrown.expect(WorldpayValidationException.class);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, null,
-                null, null, null, null, null);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, null,
+                null, null, null, null, null, DynamicInteractionType.ECOMMERCE);
 
         testObj.directAuthorise(request);
     }
@@ -104,8 +106,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     public void createTokenAndDirectAuthoriseRequestShouldRaiseWorldpayValidationExceptionWithMinimumValues() throws WorldpayException {
         thrown.expect(WorldpayValidationException.class);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, null,
-                null, null, null, null, null, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, null,
+                null, null, null, null, null, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         testObj.directAuthorise(request);
     }
@@ -113,8 +115,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     @Test
     public void createDirectAuthoriseRequestShouldReturnAnAuthorisedPaymentReply() throws WorldpayException {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -138,8 +140,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
 
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -160,8 +162,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     @Test
     public void testDirectAuthoriseRefusedWithCardPayment() throws WorldpayException {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "REFUSED", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -185,8 +187,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
 
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -207,8 +209,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     @Test
     public void createDirectAuthoriseRequestShouldReturnReferredPaymentReply() throws WorldpayException {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "REFERRED", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -231,8 +233,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "REFERRED", "123", BILLING_ADDRESS);
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -254,8 +256,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     public void createDirectAuthoriseRequestShouldReturnFraudPaymentReply() throws WorldpayException {
 
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "FRAUD", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -280,8 +282,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
 
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -302,8 +304,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     @Test
     public void createDirectAuthoriseRequestWithERRORMagicValue() throws WorldpayException {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "ERROR", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -322,8 +324,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "J. Shopper" + orderCode, BROWSER, SESSION);
 
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -340,8 +342,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     public void testDirectAuthoriseGoingTo3DUsingHelperMethodAndAdds3DDetails() throws WorldpayException {
 
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "3D", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -370,8 +372,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "3D", "123", BILLING_ADDRESS);
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -398,8 +400,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
     @Test
     public void createDirectAuthoriseRequestWith3DSecureGetsResponseWithRequest3DInfo() throws WorldpayException {
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "3D", "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertNull(requestOrder.getTokenRequest());
@@ -420,7 +422,7 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final String paRequest = request3dInfo.getPaRequest();
         assertNotNull("paRequest cannot be null", paRequest);
 
-        final DirectAuthoriseServiceRequest direct3DAuthoriseRequest = DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo,
+        final DirectAuthoriseServiceRequest direct3DAuthoriseRequest = DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(merchantInfo, basicOrderInfo,
                 SESSION, FAKED_PA_RESPONSE);
 
         final DirectAuthoriseServiceResponse directAuthoriseServiceResponse = testObj.directAuthorise(direct3DAuthoriseRequest);
@@ -438,8 +440,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
 
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final Order requestOrder = request.getOrder();
         assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
@@ -460,8 +462,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final String paRequest = request3dInfo.getPaRequest();
         assertNotNull("paRequest cannot be null", paRequest);
 
-        final DirectAuthoriseServiceRequest direct3DAuthoriseRequest = DirectAuthoriseServiceRequest.createTokenAndDirect3DAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, FAKED_PA_RESPONSE, directAuthorise.getEchoData(), SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest direct3DAuthoriseRequest = DirectAuthoriseServiceRequest.createTokenAndDirect3DAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, FAKED_PA_RESPONSE, directAuthorise.getEchoData(), SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         final DirectAuthoriseServiceResponse directAuthoriseServiceResponse = testObj.directAuthorise(direct3DAuthoriseRequest);
 
@@ -477,8 +479,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
         final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, "JShopper" + orderCode, BROWSER, SESSION);
 
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
 
         assertEquals(TOKEN_REQUEST, request.getOrder().getTokenRequest());
 
@@ -489,8 +491,8 @@ public class DirectAuthoriseServiceRequestIntegrationTest {
 
         orderCode = String.valueOf(new java.util.Date().getTime());
         basicOrderInfo = new BasicOrderInfo(orderCode, "Your Order & Order desc with token", new Amount("1000", "EUR", "2"));
-        final DirectAuthoriseServiceRequest tokenRequest = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(WORLD_PAY_CONFIG, merchantInfo, basicOrderInfo, tokenSsl,
-                SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest tokenRequest = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(merchantInfo, basicOrderInfo, tokenSsl,
+                SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 
         final DirectAuthoriseServiceResponse directAuthoriseExistingToken = testObj.directAuthorise(tokenRequest);
 

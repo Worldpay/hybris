@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The Worldpay Risk Score Fraud Symptom class creates the {@link WorldpayRiskScoreFraudSymptom} symptom with the fraud risk value.
@@ -21,10 +22,10 @@ public class WorldpayRiskScoreFraudSymptom extends AbstractWorldpayOrderFraudSym
         List<PaymentTransactionModel> paymentTransactions = abstractOrderModel.getPaymentTransactions();
         // At this moment only the Authorisation transaction will be in the list of paymentTransactions
         final double scoreLimit = getScoreLimit();
-        paymentTransactions.stream().filter(paymentTransaction -> paymentTransaction != null).forEach(paymentTransaction -> {
+        paymentTransactions.stream().filter(Objects::nonNull).forEach(paymentTransaction -> {
             WorldpayRiskScoreModel riskScore = paymentTransaction.getRiskScore();
-            if(riskScore==null){
-                LOG.warn("We did not get a risk score back, skipping risk check for: "+paymentTransaction);
+            if (riskScore == null) {
+                LOG.warn(MessageFormat.format("We did not get a risk score back, skipping risk check for: {0}", paymentTransaction));
                 return;
             }
             String riskScoreValue = riskScore.getValue();

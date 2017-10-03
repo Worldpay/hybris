@@ -6,8 +6,13 @@ import com.worldpay.internal.model.PaymentTokenCreate;
 import com.worldpay.internal.model.Submit;
 import com.worldpay.service.request.CreateTokenServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 public class CreateTokenRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
@@ -23,12 +28,17 @@ public class CreateTokenRequestTransformer implements ServiceRequestTransformer 
 
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(tokenRequest.getMerchantInfo().getMerchantCode());
-        paymentService.setVersion(tokenRequest.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) tokenRequest.getCardTokenRequest().transformToInternalModel();
         final Submit submit = new Submit();
         submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().add(paymentTokenCreate);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

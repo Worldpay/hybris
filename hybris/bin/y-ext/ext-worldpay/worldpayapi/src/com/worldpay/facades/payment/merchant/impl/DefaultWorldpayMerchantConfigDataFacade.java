@@ -3,7 +3,6 @@ package com.worldpay.facades.payment.merchant.impl;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.strategy.WorldpayMerchantStrategy;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import org.springframework.beans.factory.annotation.Required;
 
 
@@ -18,13 +17,8 @@ public class DefaultWorldpayMerchantConfigDataFacade implements WorldpayMerchant
      * {@inheritDoc}
      */
     @Override
-    public WorldpayMerchantConfigData getCurrentSiteMerchantConfigData(final UiExperienceLevel uiExperienceLevel) {
-        return worldpayMerchantStrategy.getMerchant(uiExperienceLevel);
-    }
-
-    @Override
-    public WorldpayMerchantConfigData getCustomerServiceMerchantConfigData() {
-        return worldpayMerchantStrategy.getCustomerServiceMerchant();
+    public WorldpayMerchantConfigData getCurrentSiteMerchantConfigData() {
+        return worldpayMerchantStrategy.getMerchant();
     }
 
     @Required

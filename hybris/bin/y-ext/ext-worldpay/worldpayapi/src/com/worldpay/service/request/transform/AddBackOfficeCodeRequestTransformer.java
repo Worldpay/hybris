@@ -7,6 +7,8 @@ import com.worldpay.internal.model.OrderModification;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.AddBackOfficeCodeServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link AddBackOfficeCodeServiceRequest} into a {@link PaymentService} object
@@ -25,6 +27,9 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class AddBackOfficeCodeRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
@@ -33,15 +38,14 @@ public class AddBackOfficeCodeRequestTransformer implements ServiceRequestTransf
      */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the add back office code is invalid.");
         }
         AddBackOfficeCodeServiceRequest addBackOfficeCodeRequest = (AddBackOfficeCodeServiceRequest) request;
 
         PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
-
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (addBackOfficeCodeRequest.getBackOfficeCode() == null) {
             throw new WorldpayModelTransformationException("No back office code object to transform on the add back office request");
@@ -55,5 +59,10 @@ public class AddBackOfficeCodeRequestTransformer implements ServiceRequestTransf
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }
