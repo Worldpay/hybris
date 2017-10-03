@@ -4,7 +4,6 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentService;
 
-import javax.xml.bind.JAXBException;
 import java.io.InputStream;
 
 /**
@@ -17,7 +16,7 @@ public interface PaymentServiceMarshaller {
      * @param in
      * @return
      */
-    PaymentService unmarshal(final InputStream in) throws WorldpayModelTransformationException, JAXBException;
+    PaymentService unmarshal(final InputStream in) throws WorldpayModelTransformationException;
 
 
     /**

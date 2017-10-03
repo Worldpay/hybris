@@ -3,8 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="eclipsebin/notused"/>
 
-	<classpathentry exported="false" kind="src" path="/platform" />
-	<classpathentry exported="true" kind="src" path="/addonsupport" />
 	<classpathentry exported="true" kind="src" path="/worldpayapi" />
 	<classpathentry exported="false" kind="lib" path="web/webroot/WEB-INF/lib/jstl-api-1.2.jar" />
 	<classpathentry exported="false" kind="lib" path="web/webroot/WEB-INF/lib/jstl-impl-1.2.jar" />
@@ -15,6 +13,7 @@
 	<classpathentry exported="false" output="eclipsebin/web/classes" kind="src" path="web/testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
+	<classpathentry exported="false" kind="src" path="/platform" />
 				
 </classpath>
 				

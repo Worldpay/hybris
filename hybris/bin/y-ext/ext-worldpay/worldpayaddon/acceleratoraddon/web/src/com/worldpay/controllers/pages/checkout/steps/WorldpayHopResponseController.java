@@ -2,7 +2,6 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.forms.PaymentDetailsForm;
-import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
@@ -50,7 +49,6 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     protected static final String CHECKOUT_PLACE_ORDER_FAILED = "checkout.placeOrder.failed";
     protected static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
     protected static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
-    private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
 
     @Resource
     private Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
@@ -60,7 +58,6 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     private Converter<AbstractOrderModel, OrderData> orderConverter;
     @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
-
     @Resource
     private Set<String> apmErrorResponseStatuses;
 
@@ -226,30 +223,6 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         model.addAttribute(BILLING_ADDRESS_FORM, wpPaymentDetailsForm);
         populateAddressForm(countryIsoCode, useDeliveryAddress, wpPaymentDetailsForm);
         return worldpayAddonEndpointService.getBillingAddressForm();
-    }
-
-    /**
-     * Handles the place order submit from Klarna page
-     *
-     * @param model              the {@link Model} to be used
-     * @param redirectAttributes
-     * @return
-     */
-    @RequestMapping(value = "/klarna/confirmation", method = RequestMethod.GET)
-    @RequireHardLogIn
-    public String doHandleKlarnaConfirmation(final Model model, final RedirectAttributes redirectAttributes) {
-        try {
-            final KlarnaRedirectAuthoriseResult klarnaRedirectAuthoriseResult = getWorldpayPaymentCheckoutFacade().checkKlarnaOrderStatus();
-            getWorldpayHostedOrderFacade().completeRedirectAuthorise(klarnaRedirectAuthoriseResult);
-            getCheckoutFacade().placeOrder();
-            final String decodedHTMLContent = klarnaRedirectAuthoriseResult.getDecodedHTMLContent();
-            model.addAttribute(KLARNA_RESPONSE_PAGE_DATA_PARAM, decodedHTMLContent);
-            return worldpayAddonEndpointService.getKlarnaResponsePage();
-        } catch (WorldpayException | InvalidCartException e) {
-            LOG.error("Failed to place Order", e);
-            GlobalMessages.addErrorMessage(model, CHECKOUT_PLACE_ORDER_FAILED);
-            return doHostedOrderPageError(ERROR.getCode(), redirectAttributes);
-        }
     }
 
     protected RedirectAuthoriseResult extractAuthoriseResultFromRequest(final HttpServletRequest request) {

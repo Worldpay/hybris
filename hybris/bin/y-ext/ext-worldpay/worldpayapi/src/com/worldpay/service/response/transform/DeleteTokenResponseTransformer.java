@@ -22,12 +22,11 @@ public class DeleteTokenResponseTransformer extends AbstractServiceResponseTrans
         }
 
         final Reply intReply = (Reply) responseType;
-        final ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
 
         final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
 
         final DeleteTokenResponse deleteTokenResponse = new DeleteTokenResponse();
-        if (responseTransformerHelper.checkForError(deleteTokenResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(deleteTokenResponse, intReply)) {
             return deleteTokenResponse;
         }
         if (!(response instanceof Ok)) {
@@ -36,7 +35,7 @@ public class DeleteTokenResponseTransformer extends AbstractServiceResponseTrans
         final Ok okResponse = (Ok) response;
         final Object deleteTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceived().get(0);
         if (deleteTokenReceived instanceof DeleteTokenReceived) {
-            deleteTokenResponse.setDeleteTokenResponse(responseTransformerHelper.buildDeleteTokenReply((DeleteTokenReceived) deleteTokenReceived));
+            deleteTokenResponse.setDeleteTokenResponse(getServiceResponseTransformerHelper().buildDeleteTokenReply((DeleteTokenReceived) deleteTokenReceived));
         }
         return deleteTokenResponse;
     }

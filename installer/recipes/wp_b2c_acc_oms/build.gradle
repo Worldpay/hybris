@@ -84,10 +84,17 @@ def config = {
         extName 'promotionenginesamplesaddon'
         extName 'consignmenttrackingaddon'
 
+        extName 'cmswebservices'
+        extName 'smarteditwebservices'
+        extName 'cmssmarteditwebservices'
+        extName 'permissionswebservices'
+        extName 'smarteditaddon'
+        extName 'cmssmartedit'
+
         extName 'worldpayaddon'
         extName 'worldpayaddonbackoffice'
         extName 'worldpayapi'
-        extName 'worldpaynotificationaddon'
+        extName 'worldpaynotifications'
         extName 'worldpaysampledataaddon'
         extName 'worldpayoccaddon'
         extName 'worldpayhac'
@@ -102,7 +109,7 @@ task setup << {
     pl.setup()
 
     pl.project.addons {
-        names "worldpayaddon,worldpaynotificationaddon,worldpaysampledataaddon,promotionenginesamplesaddon,customerticketingaddon,ordermanagementaddon,orderselfserviceaddon,consignmenttrackingaddon"
+        names "worldpayaddon,worldpaysampledataaddon,promotionenginesamplesaddon,customerticketingaddon,ordermanagementaddon,orderselfserviceaddon,consignmenttrackingaddon,smarteditaddon"
         template "yacceleratorstorefront"
         storeFronts "yacceleratorstorefront"
         platform pl

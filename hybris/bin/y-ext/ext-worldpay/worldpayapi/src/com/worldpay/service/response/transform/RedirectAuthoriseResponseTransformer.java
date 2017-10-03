@@ -32,8 +32,7 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
         final Reply intReply = (Reply) responseType;
-        ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-        if (responseTransformerHelper.checkForError(authResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(authResponse, intReply)) {
             return authResponse;
         }
 
@@ -44,7 +43,7 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
         authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
         if (intOrderStatus.getToken() != null) {
-            final TokenReply token = responseTransformerHelper.buildTokenReply(intOrderStatus.getToken());
+            final TokenReply token = getServiceResponseTransformerHelper().buildTokenReply(intOrderStatus.getToken());
             authResponse.setToken(token);
         }
 

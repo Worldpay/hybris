@@ -20,7 +20,7 @@
         <!-- <requires-extension name="cms"/> -->
 
         <requires-extension name="worldpayapi"/>
-        <requires-extension name="worldpaynotificationaddon"/>
+        <requires-extension name="worldpaynotifications"/>
 
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpayfulfilmentManager" packageroot="com.worldpay"/>
 

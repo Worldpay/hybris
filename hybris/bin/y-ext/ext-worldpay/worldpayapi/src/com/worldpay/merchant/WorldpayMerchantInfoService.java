@@ -2,7 +2,6 @@ package com.worldpay.merchant;
 
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.model.MerchantInfo;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 
 /**
@@ -13,11 +12,11 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 public interface WorldpayMerchantInfoService {
 
     /**
-     * Returns the merchant configured to be used when the checkout is done by a Customer Service Agent
+     * Returns the merchant configured to be used depending on the UI experience level.
      * @return
      * @throws WorldpayConfigurationException
      */
-    MerchantInfo getCustomerServicesMerchant() throws WorldpayConfigurationException;
+    MerchantInfo getCurrentSiteMerchant() throws WorldpayConfigurationException;
 
     /**
      * Returns the merchant configured to be used for order replenishment (B2B)
@@ -25,14 +24,6 @@ public interface WorldpayMerchantInfoService {
      * @throws WorldpayConfigurationException
      */
     MerchantInfo getReplenishmentMerchant() throws WorldpayConfigurationException;
-
-    /**
-     * Returns the merchant configured to be used depending on the UI experience level.
-     * @param uiExperienceLevel
-     * @return
-     * @throws WorldpayConfigurationException
-     */
-    MerchantInfo getCurrentSiteMerchant(final UiExperienceLevel uiExperienceLevel) throws WorldpayConfigurationException;
 
     /**
      * Returns the merchantConfiguration for a known merchantCode.

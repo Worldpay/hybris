@@ -10,6 +10,8 @@ import com.worldpay.internal.model.OrderModification;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.CancelServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link CancelServiceRequest} into a {@link PaymentService} object
@@ -28,6 +30,9 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class CancelRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
@@ -36,13 +41,12 @@ public class CancelRequestTransformer implements ServiceRequestTransformer {
      */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the cancelOrRefund is invalid.");
         }
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
-
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         final Modify modify = new Modify();
         final OrderModification orderModification = new OrderModification();
@@ -52,5 +56,10 @@ public class CancelRequestTransformer implements ServiceRequestTransformer {
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

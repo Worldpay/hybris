@@ -103,5 +103,19 @@
         </sequential>
     </macrodef>
 
-
+    <macrodef name="_after_yunitweb">
+        <sequential>
+            <if>
+                <isset property="testclasses.occaddonname"/>
+                <then>
+                    <!-- need to be deleted, if not ycommercewebservices cannot build after -->
+                    <delete dir="${ext.ycommercewebservices.path}/web/testsrc/com/worldpay" />
+                </then>
+            </if>
+            <echo level="info" message="# worldpayaddon - Renaming generated test report"/>
+            <move file="${HYBRIS_LOG_DIR}/junit/TESTS-TestSuites.xml" tofile="${HYBRIS_LOG_DIR}/junit/WEBTESTS-TestSuites.xml"/>
+            <delete dir="${ext.worldpayaddonbackoffice.path}/web" />
+            <echo message="${ext.worldpayaddonbackoffice.path}/web deleted - used during allwebtests" />
+        </sequential>
+    </macrodef>
 </project>

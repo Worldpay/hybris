@@ -1,6 +1,5 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.Order;
 import com.worldpay.service.model.payment.Payment;
@@ -16,11 +15,9 @@ public class AuthoriseServiceRequest extends AbstractServiceRequest {
 
     private Order order;
 
-    protected AuthoriseServiceRequest(final WorldpayConfig config, final MerchantInfo merchantInfo, String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected AuthoriseServiceRequest(final MerchantInfo merchantInfo, String orderCode) {
+        super(merchantInfo, orderCode);
     }
-
-
 
     protected static void checkInstanceOfToken(final Payment payment) {
         if (!(payment instanceof Token)) {

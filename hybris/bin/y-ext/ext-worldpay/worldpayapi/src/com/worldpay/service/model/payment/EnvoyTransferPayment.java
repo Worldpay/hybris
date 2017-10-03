@@ -33,7 +33,7 @@ public class EnvoyTransferPayment extends AbstractPayment {
     public void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
         String methodName = method.getName();
-        if (methodName.startsWith("set") && methodName.equals("setShopperCountryCode") && shopperCountryCode != null) {
+        if (methodName.startsWith("set") && "setShopperCountryCode".equals(methodName) && shopperCountryCode != null) {
             method.invoke(targetObject, shopperCountryCode);
             methodInvoked = true;
         }

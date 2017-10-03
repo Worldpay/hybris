@@ -21,7 +21,9 @@
     <bean id="worldpayResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayResponseBuilder"/>
     <bean id="worldpayDirectAuthoriseResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder"/>
     <bean id="worldpayCaptureResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayCaptureResponseBuilder"/>
-    <bean id="worldpayNotificationResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder"/>
+    <bean id="worldpayNotificationResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder">
+        <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
+    </bean>
     <bean id="worldpayTokenCreateResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder"/>
 
     <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate"/>
@@ -31,7 +33,13 @@
         <property name="configurationService" ref="configurationService"/>
     </bean>
 
-    <bean id="worldpayMockFacade" class="com.worldpay.worldpayresponsemock.facades.impl.DefaultWorldpayMockFacade"/>
+    <bean id="worldpayMockFacade" class="com.worldpay.worldpayresponsemock.facades.impl.DefaultWorldpayMockFacade">
+        <property name="worldpayResponseBuilder" ref="worldpayResponseBuilder"/>
+        <property name="worldpayCaptureResponseBuilder" ref="worldpayCaptureResponseBuilder"/>
+        <property name="worldpayDirectAuthoriseResponseBuilder" ref="worldpayDirectAuthoriseResponseBuilder"/>
+        <property name="worldpayTokenCreateResponseBuilder" ref="worldpayTokenCreateResponseBuilder"/>
+        <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
+    </bean>
 
     <bean id="worldpayResponseMockMerchantInfoService" class="com.worldpay.worldpayresponsemock.merchant.impl.DefaultWorldpayResponseMockMerchantInfoService" parent="worldpayMerchantInfoService"/>
 

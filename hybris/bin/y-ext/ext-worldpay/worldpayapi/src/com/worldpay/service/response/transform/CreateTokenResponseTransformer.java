@@ -23,14 +23,13 @@ public class CreateTokenResponseTransformer extends AbstractServiceResponseTrans
         }
 
         final Reply intReply = (Reply) responseType;
-        final ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
 
         final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
 
-        if (responseTransformerHelper.checkForError(createTokenResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(createTokenResponse, intReply)) {
             return createTokenResponse;
         } else if (response instanceof Token) {
-            createTokenResponse.setToken(responseTransformerHelper.buildTokenReply((Token) response));
+            createTokenResponse.setToken(getServiceResponseTransformerHelper().buildTokenReply((Token) response));
         }
 
         return createTokenResponse;

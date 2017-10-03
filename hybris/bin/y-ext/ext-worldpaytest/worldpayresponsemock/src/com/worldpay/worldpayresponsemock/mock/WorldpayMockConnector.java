@@ -35,7 +35,7 @@ public class WorldpayMockConnector {
 
     protected static final String WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT = "worldpayresponsemock.order.notification.endpoint";
     protected static final String SITE_PARAMETER_NAME = "?site=";
-    protected static final String STOREFRONT_CONTEXT_ROOT = "storefrontContextRoot";
+    protected static final String NOTIFICATION_EXTENSION_CONTEXT_ROOT = "worldpaynotifications.webroot";
     protected static final String SCHEME_SEPARATOR = "://";
     protected static final String PROTOCOL_SEPARATOR = ":";
     protected static final String EXCEPTION_MESSAGE = "Exception sending response using the mocked connector";
@@ -54,7 +54,7 @@ public class WorldpayMockConnector {
      */
     public void sendResponse(ResponseForm responseForm, HttpServletRequest request, String responseXML) throws WorldpayException {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        HttpClient httpClient = null;
+        HttpClient httpClient;
         try {
             httpClient = buildAllowingAllHostNamesHttpClient();
         } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
@@ -89,11 +89,11 @@ public class WorldpayMockConnector {
 
     private String constructEndpoint(final HttpServletRequest request) {
         final String orderNotificationEndpointPostfix = configurationService.getConfiguration().getString(WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT);
-        final String storefrontContextRoot = configurationService.getConfiguration().getString(STOREFRONT_CONTEXT_ROOT);
+        final String notificationExtensionContextRoot = configurationService.getConfiguration().getString(NOTIFICATION_EXTENSION_CONTEXT_ROOT);
         final String serverName = request.getServerName();
         final String scheme = request.getScheme();
         int serverPort = request.getServerPort();
-        return scheme + SCHEME_SEPARATOR + serverName + PROTOCOL_SEPARATOR + serverPort + storefrontContextRoot + orderNotificationEndpointPostfix;
+        return scheme + SCHEME_SEPARATOR + serverName + PROTOCOL_SEPARATOR + serverPort + notificationExtensionContextRoot + orderNotificationEndpointPostfix;
     }
 
     @Required

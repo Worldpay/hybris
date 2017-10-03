@@ -1,19 +1,6 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
-import com.worldpay.internal.model.Amount;
-import com.worldpay.internal.model.CardDetails;
-import com.worldpay.internal.model.CreateToken;
-import com.worldpay.internal.model.Order;
-import com.worldpay.internal.model.OrderStatus;
-import com.worldpay.internal.model.Payment;
-import com.worldpay.internal.model.PaymentInstrument;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.Reply;
-import com.worldpay.internal.model.Shopper;
-import com.worldpay.internal.model.Submit;
-import com.worldpay.internal.model.Token;
-import com.worldpay.internal.model.TokenDetails;
-import com.worldpay.internal.model.TokenReason;
+import com.worldpay.internal.model.*;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +10,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.List;
 
 import static com.worldpay.worldpayresponsemock.builders.AmountBuilder.anAmountBuilder;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder.AUTHORISED;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder.NEW_TOKEN_EVENT;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder.OBFUSCATED_PAN;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder.VISA_SSL;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,13 +26,15 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
     private static final Amount TRANSACTION_AMOUNT = anAmountBuilder().build();
     private static final PaymentService AUTHORISE_REQUEST = buildAuthRequest(false);
     private static final PaymentService AUTHORISE_REQUEST_WITH_TOKEN = buildAuthRequest(true);
-
-
+    private static final String AUTHORISED = "AUTHORISED";
+    private static final String NEW_TOKEN_EVENT = "NEW";
+    private static final String OBFUSCATED_PAN = "4111********1111";
+    private static final String VISA_SSL = "VISA-SSL";
     private static final String WORLDPAY_ORDER_CODE = "orderCode";
     private static final String TOKEN_REASON_VALUE = "tokenReasonValue";
 
     @InjectMocks
-    private DefaultWorldpayDirectAuthoriseResponseBuilder testObj = new DefaultWorldpayDirectAuthoriseResponseBuilder();
+    private DefaultWorldpayDirectAuthoriseResponseBuilder testObj;
 
     @Test
     public void shouldBuildDirectResponseFromPaymentServiceRequest() {
@@ -105,7 +90,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
     private static PaymentService buildAuthRequest(final boolean withToken) {
         final Order order = new Order();
         order.setOrderCode(WORLDPAY_ORDER_CODE);
-        List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
+        final List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
         orderElements.add(TRANSACTION_AMOUNT);
         if (withToken) {
             final CreateToken createToken = new CreateToken();

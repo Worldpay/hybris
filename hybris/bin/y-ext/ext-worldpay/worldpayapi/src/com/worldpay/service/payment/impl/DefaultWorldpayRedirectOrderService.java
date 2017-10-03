@@ -1,6 +1,5 @@
 package com.worldpay.service.payment.impl;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
@@ -68,6 +67,7 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
     private WorldpayTokenEventReferenceCreationStrategy worldpayTokenEventReferenceCreationStrategy;
     private WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy;
+    private MacValidator macValidator;
 
     /**
      * {@inheritDoc}
@@ -77,7 +77,7 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     @Override
     public PaymentData redirectAuthorise(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
         final RedirectAuthoriseServiceRequest request = buildRedirectAuthoriseRequest(merchantInfo, cartModel, additionalAuthInfo);
-        final RedirectAuthoriseServiceResponse redirectAuthorise = getWorldpayOrderService().getWorldpayServiceGateway().redirectAuthorise(request);
+        final RedirectAuthoriseServiceResponse redirectAuthorise = getWorldpayServiceGateway().redirectAuthorise(request);
 
         if (redirectAuthorise == null) {
             throw new WorldpayException("Response from Worldpay is empty");
@@ -144,10 +144,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
         }
     }
 
-    protected MacValidator getMacValidator() {
-        return MacValidator.getInstance();
-    }
-
     /**
      * Build the Redirect Authorise Request from the provided information
      *
@@ -159,7 +155,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     private RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo)
             throws WorldpayConfigurationException {
         final String orderCode = getWorldpayGenerateMerchantTransactionCodeStrategy().generateCode(cartModel);
-        final WorldpayConfig config = getWorldpayConfigLookupService().lookupConfig();
 
         final CurrencyModel currencyModel = cartModel.getCurrency();
         final Amount amount = getWorldpayOrderService().createAmount(currencyModel, cartModel.getTotalPrice());
@@ -177,10 +172,10 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
             final Shopper shopper = getWorldpayOrderService().createAuthenticatedShopper(customerEmail, authenticatedShopperId, null, null);
             final String tokenEventReference = worldpayTokenEventReferenceCreationStrategy.createTokenEventReference();
             final TokenRequest tokenRequest = getWorldpayOrderService().createTokenRequest(tokenEventReference, null);
-            return createRedirectTokenAndAuthoriseRequest(merchantInfo, additionalAuthInfo, shopper, config, orderInfo, includedPTs, null, shippingAddress, billingAddress, tokenRequest);
+            return createRedirectTokenAndAuthoriseRequest(merchantInfo, additionalAuthInfo, shopper, orderInfo, includedPTs, null, shippingAddress, billingAddress, tokenRequest);
         } else {
             final Shopper shopper = getWorldpayOrderService().createShopper(customerEmail, null, null);
-            return createRedirectAuthoriseRequest(merchantInfo, additionalAuthInfo, shopper, config, orderInfo, includedPTs, null, shippingAddress, billingAddress);
+            return createRedirectAuthoriseRequest(merchantInfo, additionalAuthInfo, shopper, orderInfo, includedPTs, null, shippingAddress, billingAddress);
         }
     }
 
@@ -198,23 +193,23 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     }
 
     protected RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final AdditionalAuthInfo additionalAuthInfo,
-                                                                             final Shopper shopper, final WorldpayConfig config,
+                                                                             final Shopper shopper,
                                                                              final BasicOrderInfo orderInfo, final List<PaymentType> includedPaymentTypes,
                                                                              final List<PaymentType> excludedPaymentTypes, final Address shippingAddress,
                                                                              final Address billingAddress) {
         return RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(
-                config, merchantInfo, orderInfo, additionalAuthInfo.getInstallationId(),
+                merchantInfo, orderInfo, additionalAuthInfo.getInstallationId(),
                 additionalAuthInfo.getOrderContent(), includedPaymentTypes,
                 excludedPaymentTypes, shopper, shippingAddress, billingAddress, additionalAuthInfo.getStatementNarrative());
     }
 
     protected RedirectAuthoriseServiceRequest createRedirectTokenAndAuthoriseRequest(final MerchantInfo merchantInfo, final AdditionalAuthInfo additionalAuthInfo,
-                                                                                     final Shopper shopper, final WorldpayConfig worldpayConfig,
+                                                                                     final Shopper shopper,
                                                                                      final BasicOrderInfo basicOrderInfo, final List<PaymentType> includedPaymentTypes,
                                                                                      final List<PaymentType> excludedPaymentTypes, final Address shippingAddress,
                                                                                      final Address billingAddress, final TokenRequest tokenRequest) {
         return RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(
-                worldpayConfig, merchantInfo, basicOrderInfo, additionalAuthInfo.getInstallationId(),
+                merchantInfo, basicOrderInfo, additionalAuthInfo.getInstallationId(),
                 additionalAuthInfo.getOrderContent(), includedPaymentTypes, excludedPaymentTypes,
                 shopper, shippingAddress, billingAddress, additionalAuthInfo.getStatementNarrative(), tokenRequest);
     }
@@ -285,5 +280,14 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     @Required
     public void setWorldpayDeliveryAddressStrategy(final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy) {
         this.worldpayDeliveryAddressStrategy = worldpayDeliveryAddressStrategy;
+    }
+
+    public MacValidator getMacValidator() {
+        return macValidator;
+    }
+
+    @Required
+    public void setMacValidator(final MacValidator macValidator) {
+        this.macValidator = macValidator;
     }
 }

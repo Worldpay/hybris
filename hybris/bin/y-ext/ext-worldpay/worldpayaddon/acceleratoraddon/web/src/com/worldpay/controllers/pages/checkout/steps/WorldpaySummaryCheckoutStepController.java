@@ -8,7 +8,6 @@ import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
@@ -73,8 +72,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private CheckoutFlowFacade checkoutFlowFacade;
     @Resource
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
-    @Resource
-    private UiExperienceService uiExperienceService;
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
@@ -319,7 +316,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private WorldpayAdditionalInfoData getWorldpayAdditionalInfo(final HttpServletRequest request,
                                                                  final String securityCode) {
         final WorldpayAdditionalInfoData info = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        info.setUiExperienceLevel(uiExperienceService.getUiExperienceLevel());
         info.setSecurityCode(securityCode);
         return info;
     }

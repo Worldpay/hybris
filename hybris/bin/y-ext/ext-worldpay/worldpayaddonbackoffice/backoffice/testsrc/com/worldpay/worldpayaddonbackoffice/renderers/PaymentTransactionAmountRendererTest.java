@@ -23,29 +23,27 @@ import org.zkoss.zul.Listcell;
 
 import java.math.BigDecimal;
 
-import static com.worldpay.worldpayaddonbackoffice.renderers.PaymentTransactionAmountRenderer.PAYMENT_TRANSACTION;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PaymentTransactionAmountRendererTest {
 
     private static final String QUALIFIER = "qualifier";
     private static final String DATA_TYPE_CODE = "dataTypeCode";
     private static final String AMOUNT = "amount";
+    private static final String PAYMENT_TRANSACTION = "PaymentTransaction";
 
     @InjectMocks
-    private PaymentTransactionAmountRenderer testObj = new PaymentTransactionAmountRenderer();
+    private PaymentTransactionAmountRenderer testObj;
+
     @Mock
     private WidgetInstanceManager widgetInstanceManagerMock;
     @Mock
     private Listcell listCellMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTransactionModel objectMock;
     @Mock
     private ListColumn columnConfigurationMock;

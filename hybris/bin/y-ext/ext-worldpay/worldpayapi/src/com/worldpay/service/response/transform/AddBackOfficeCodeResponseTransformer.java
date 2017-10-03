@@ -30,8 +30,7 @@ public class AddBackOfficeCodeResponseTransformer extends AbstractServiceRespons
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
         Reply intReply = (Reply) responseType;
-        ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-        if (responseTransformerHelper.checkForError(addBackOfficeCodeResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(addBackOfficeCodeResponse, intReply)) {
             return addBackOfficeCodeResponse;
         }
 

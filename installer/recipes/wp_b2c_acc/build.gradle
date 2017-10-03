@@ -24,7 +24,6 @@ def config = {
         extName 'electronicsstore'
         extName 'apparelstore'
 
-        extName 'liveeditaddon'
         extName 'acceleratorwebservicesaddon'
         extName 'orderselfserviceaddon'
 
@@ -58,17 +57,17 @@ def config = {
 
         extName 'textfieldconfiguratortemplatebackoffice'
         extName 'textfieldconfiguratortemplateaddon'
+        extName 'textfieldconfiguratortemplateatddtests'
         extName 'assistedservicestorefront'
 
         extName 'assistedserviceatddtests'
         extName 'promotionengineatddtests'
         extName 'commercesearchatddtests'
-        extName 'textfieldconfiguratortemplateatddtests'
 
         extName 'worldpayaddon'
         extName 'worldpayaddonbackoffice'
         extName 'worldpayapi'
-        extName 'worldpaynotificationaddon'
+        extName 'worldpaynotifications'
         extName 'worldpaysampledataaddon'
         extName 'worldpayoccaddon'
         extName 'worldpayhac'
@@ -82,7 +81,7 @@ task setup << {
     pl.setup()
 
     pl.project.addons {
-        names "worldpayaddon,worldpaynotificationaddon,worldpaysampledataaddon,liveeditaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon"
+        names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon,smarteditaddon"
         template "yacceleratorstorefront"
         storeFronts "yacceleratorstorefront"
         platform pl

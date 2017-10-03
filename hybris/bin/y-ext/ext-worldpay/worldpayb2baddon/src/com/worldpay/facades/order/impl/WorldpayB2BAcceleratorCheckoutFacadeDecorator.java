@@ -10,19 +10,18 @@ import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.payment.dto.TransactionStatus;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
-import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.i18n.L10NService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.util.Collection;
 import java.util.List;
 
 import static de.hybris.platform.util.localization.Localization.getLocalizedString;
 
 /**
  * A decorator for the DefaultB2BAcceleratorCheckoutFacade in order to modify the placeOrder(PlaceOrderData) method.
- *
  */
 public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcceleratorCheckoutFacade {
 
@@ -45,17 +44,10 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
         final boolean isCardtPaymentType = CheckoutPaymentType.CARD.getCode().equals(getCart().getPaymentType().getCode());
         if (isCardtPaymentType && isPayNowOrder(placeOrderData)) {
             final List<PaymentTransactionModel> transactions = getCart().getPaymentTransactions();
-            boolean authorized = false;
-            for (final PaymentTransactionModel transaction : transactions) {
-                for (final PaymentTransactionEntryModel entry : transaction.getEntries()) {
-                    if (entry.getType().equals(PaymentTransactionType.AUTHORIZATION)
-                            && TransactionStatus.ACCEPTED.name().equals(entry.getTransactionStatus())) {
-                        authorized = true;
-                        break;
-                    }
-                }
-            }
-            if (!authorized) {
+            if (transactions.stream()
+                    .map(PaymentTransactionModel::getEntries)
+                    .flatMap(Collection::stream)
+                    .noneMatch(entry -> PaymentTransactionType.AUTHORIZATION.equals(entry.getType()) && TransactionStatus.ACCEPTED.name().equals(entry.getTransactionStatus()))) {
                 throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_TRANSACTION_NOT_AUTHORIZED));
             }
         }
@@ -94,17 +86,10 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
         return !isReplenishment;
     }
 
-    public L10NService getL10NService() {
-        return l10NService;
-    }
 
     @Required
     public void setL10NService(final L10NService l10NService) {
         this.l10NService = l10NService;
-    }
-
-    public DefaultB2BAcceleratorCheckoutFacade getB2BAcceleratorCheckoutFacade() {
-        return b2BAcceleratorCheckoutFacade;
     }
 
     @Required

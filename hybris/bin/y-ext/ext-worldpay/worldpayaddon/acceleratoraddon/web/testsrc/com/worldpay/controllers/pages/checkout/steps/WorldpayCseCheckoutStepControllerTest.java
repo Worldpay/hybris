@@ -15,7 +15,6 @@ import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.Breadcrumb;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
@@ -28,7 +27,6 @@ import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commercefacades.user.data.CountryData;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import org.junit.Before;
@@ -54,7 +52,6 @@ import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutS
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static com.worldpay.service.model.payment.PaymentType.PAYPAL;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
@@ -77,7 +74,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
     @Spy
     @InjectMocks
-    private WorldpayCseCheckoutStepController testObj = new WorldpayCseCheckoutStepController();
+    private WorldpayCseCheckoutStepController testObj;
 
     @Mock (answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
@@ -91,8 +88,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
     @Mock (name = "cseFormValidator")
     private Validator cseFormValidatorMock;
-    @Mock
-    private UiExperienceService uiExperienceServiceMock;
     @Mock
     private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
     @Mock
@@ -153,13 +148,12 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(httpServletRequestMock.getSession().getId()).thenReturn(SESSION_ID);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(true);
-        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData(any(UiExperienceLevel.class))).thenReturn(worldpayMerchantConfigDataMock);
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL)).thenReturn(contentPageModelMock);
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
         doNothing().when(testObj).resetDeclineCodeOnCart();
         doReturn(false).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
         when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(Collections.singletonList(ccPaymentInfoMock));
         when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);

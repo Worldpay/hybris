@@ -1,6 +1,9 @@
 package com.worldpay.service.model.klarna;
 
-public class KlarnaMerchantUrls {
+import java.io.Serializable;
+
+public class KlarnaMerchantUrls implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String checkoutURL;
     private String confirmationURL;
 

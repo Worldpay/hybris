@@ -4,6 +4,8 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
 import com.worldpay.service.request.CaptureServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link CaptureServiceRequest} into a {@link PaymentService} object
@@ -25,6 +27,9 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class CaptureRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
@@ -33,15 +38,14 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
      */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the capture is invalid.");
         }
         CaptureServiceRequest captureRequest = (CaptureServiceRequest) request;
 
         PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
-
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (captureRequest.getAmount() == null) {
             throw new WorldpayModelTransformationException("No amount object to transform on the capture request");
@@ -58,5 +62,10 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

@@ -6,8 +6,11 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenDelete;
 import com.worldpay.service.request.DeleteTokenServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -19,15 +22,24 @@ import static org.mockito.Mockito.when;
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteTokenRequestTransformerTest {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
     private static final String MERCHANT_CODE = "merchantCode";
-    private static final String VERSION = "version";
+    private static final String VERSION = "1.4";
 
-    private DeleteTokenRequestTransformer testObj = new DeleteTokenRequestTransformer();
+    @InjectMocks
+    private DeleteTokenRequestTransformer testObj;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private DeleteTokenServiceRequest serviceRequestMock;
     @Mock
     private PaymentTokenDelete paymentTokenDeleteMock;
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    private ConfigurationService configurationServiceMock;
+
+    @Before
+    public void setUp() throws Exception {
+        when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(VERSION);
+    }
 
     @Test(expected = WorldpayModelTransformationException.class)
     public void shouldRaiseExceptionWhenServiceRequestIsNull() throws Exception {
@@ -38,7 +50,6 @@ public class DeleteTokenRequestTransformerTest {
     public void shouldReturnPaymentServiceWithPaymentTokenDelete() throws Exception {
         when(serviceRequestMock.getDeleteTokenRequest().transformToInternalModel()).thenReturn(paymentTokenDeleteMock);
         when(serviceRequestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
-        when(serviceRequestMock.getWorldpayConfig().getVersion()).thenReturn(VERSION);
 
         final PaymentService result = testObj.transform(serviceRequestMock);
 

@@ -1,24 +1,9 @@
 package com.worldpay.converters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.worldpay.internal.model.Journal;
-import com.worldpay.internal.model.Notify;
-import com.worldpay.internal.model.OrderStatusEvent;
-import com.worldpay.internal.model.Payment;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.ShopperWebformRefundDetails;
-import com.worldpay.internal.model.Token;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.model.JournalReply;
 import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.model.WebformRefundReply;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.response.transform.ServiceResponseTransformerHelper;
@@ -28,23 +13,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.junit.Assert.*;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class OrderModificationRequestConverterTest {
 
     private static final String ORDER_CODE = "orderCode";
     private static final String MERCHANT_CODE = "merchantCode";
 
-    @Spy
     @InjectMocks
-    private OrderModificationRequestConverter testObj = new OrderModificationRequestConverter();
+    private OrderModificationRequestConverter testObj;
 
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private PaymentService paymentServiceMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private Notify notifyMock;
     @Mock
     private OrderStatusEvent orderStatusEventMock;
@@ -65,12 +53,10 @@ public class OrderModificationRequestConverterTest {
     @Mock
     private ShopperWebformRefundDetails shopperWebformRefundDetailsMock;
     @Mock
-    private com.worldpay.service.model.WebformRefundReply webformRefundReplyMock;
-
+    private WebformRefundReply webformRefundReplyMock;
 
     @Before
-    public void setUp(){
-        doReturn(responseTransformerHelperMock).when(testObj).getServiceResponseTransformerHelper();
+    public void setUp() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0)).thenReturn(notifyMock);
         when(notifyMock.getOrderStatusEventOrReport().get(0)).thenReturn(orderStatusEventMock);
     }

@@ -23,7 +23,7 @@ import java.math.BigDecimal;
  */
 public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
     private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionAmountRenderer.class);
-    protected static final String PAYMENT_TRANSACTION = "PaymentTransaction";
+    private static final String PAYMENT_TRANSACTION = "PaymentTransaction";
 
     private TypeFacade typeFacade;
     private PropertyValueService propertyValueService;
@@ -39,27 +39,27 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
      * @param widgetInstanceManager
      */
     public void render(Listcell listCell, ListColumn columnConfiguration, Object object, DataType dataType, WidgetInstanceManager widgetInstanceManager) {
-        String qualifier = columnConfiguration.getQualifier();
+        final String qualifier = columnConfiguration.getQualifier();
 
         try {
-            DataType paymentTransactionDataType = typeFacade.load(PAYMENT_TRANSACTION);
+            final DataType paymentTransactionDataType = typeFacade.load(PAYMENT_TRANSACTION);
             if (paymentTransactionDataType != null && permissionFacade.canReadProperty(paymentTransactionDataType.getCode(), qualifier)) {
-                Object e = propertyValueService.readValue(object, qualifier);
+                final Object e = propertyValueService.readValue(object, qualifier);
                 if (e == null) {
                     listCell.setLabel(StringUtils.EMPTY);
                 } else {
-                    BigDecimal paymentTransactionAmount = ((BigDecimal) e).setScale(((PaymentTransactionModel) object).getEntries().get(0).getCurrency().getDigits(), BigDecimal.ROUND_HALF_DOWN);
-                    String amount = labelService.getObjectLabel(paymentTransactionAmount);
-                    if (StringUtils.isBlank(amount)) {
-                        amount = e.toString();
-                    }
-
-                    listCell.setLabel(amount);
+                    listCell.setLabel(getPaymentTransactionAmountValue((PaymentTransactionModel) object, e));
                 }
             }
         } catch (TypeNotFoundException e) {
             LOG.error("Could not render row......", e);
         }
+    }
+
+    private String getPaymentTransactionAmountValue(final PaymentTransactionModel object, final Object e) {
+        final BigDecimal paymentTransactionAmount = ((BigDecimal) e).setScale(object.getEntries().get(0).getCurrency().getDigits(), BigDecimal.ROUND_HALF_DOWN);
+        String amount = labelService.getObjectLabel(paymentTransactionAmount);
+        return StringUtils.isBlank(amount) ? e.toString() : amount;
     }
 
     @Required

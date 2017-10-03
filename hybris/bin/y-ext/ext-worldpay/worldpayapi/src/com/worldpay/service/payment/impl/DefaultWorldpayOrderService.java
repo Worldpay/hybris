@@ -2,7 +2,6 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
@@ -114,14 +113,6 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
     public Payment createKlarnaPayment(final String countryCode, final String languageCode, final String extraMerchantData) throws WorldpayConfigurationException {
         final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls(worldpayUrlService.getBaseWebsiteUrlForSite(), worldpayUrlService.getKlarnaConfirmationURL());
         return PaymentBuilder.createKLARNASSL(countryCode, languageCode, merchantUrls, extraMerchantData);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public WorldpayServiceGateway getWorldpayServiceGateway() {
-        return WorldpayServiceGateway.getInstance();
     }
 
     @Required

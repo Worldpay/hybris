@@ -1,6 +1,5 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
 
@@ -14,24 +13,23 @@ public class AuthorisationCodeServiceRequest extends AbstractServiceRequest {
 
     private String authorisationCode;
 
-    protected AuthorisationCodeServiceRequest(WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected AuthorisationCodeServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+        super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the AuthorisationCodeServiceRequest
      *
-     * @param config            worldpayConfig to be used in the Worldpay call
      * @param merch             merchantInfo to be used in the Worldpay call
      * @param orderCode         orderCode to be used in the Worldpay call
      * @param authorisationCode authorisationCode to be used in the Worldpay call
      * @return new instance of the AuthorisationCodeServiceRequest initialised with input parameters
      */
-    public static AuthorisationCodeServiceRequest createAuthorisationCodeRequest(WorldpayConfig config, MerchantInfo merch, String orderCode, String authorisationCode) {
-        if (config == null || merch == null || orderCode == null || authorisationCode == null) {
+    public static AuthorisationCodeServiceRequest createAuthorisationCodeRequest(MerchantInfo merch, String orderCode, String authorisationCode) {
+        if (merch == null || orderCode == null || authorisationCode == null) {
             throw new IllegalArgumentException("WorldpayConfig, MerchantInfo, Order Code and Authorisation Code cannot be null");
         }
-        AuthorisationCodeServiceRequest authorisationCodeRequest = new AuthorisationCodeServiceRequest(config, merch, orderCode);
+        AuthorisationCodeServiceRequest authorisationCodeRequest = new AuthorisationCodeServiceRequest(merch, orderCode);
         authorisationCodeRequest.setAuthorisationCode(authorisationCode);
 
         return authorisationCodeRequest;

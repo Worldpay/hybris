@@ -1,29 +1,10 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.exception.WorldpayValidationException;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.service.http.ServiceReply;
-import com.worldpay.service.http.WorldpayConnector;
-import com.worldpay.service.http.WorldpayConnectorImpl;
 import com.worldpay.service.request.*;
 import com.worldpay.service.request.transform.ServiceRequestTransformer;
-import com.worldpay.service.request.transform.ServiceRequestTransformerFactory;
-import com.worldpay.service.request.validation.WorldpayXMLValidator;
-import com.worldpay.service.request.validation.WorldpayXMLValidatorImpl;
 import com.worldpay.service.response.*;
 import com.worldpay.service.response.transform.ServiceResponseTransformer;
-import com.worldpay.service.response.transform.ServiceResponseTransformerFactory;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.stream.XMLOutputFactory;
-
-import static com.worldpay.config.Environment.EnvironmentRole.PROD;
-import static com.worldpay.util.WorldpayConstants.JAXB_CONTEXT;
-import static java.lang.Boolean.TRUE;
-import static javax.xml.bind.Marshaller.JAXB_FRAGMENT;
 
 /**
  * This class forms the main gateway for users into the Worldpay back-end systems.
@@ -52,26 +33,11 @@ import static javax.xml.bind.Marshaller.JAXB_FRAGMENT;
  * Then validating that this will produce well formed xml against the schema. Sending this xml to Worldpay. Receiving the response xml and building this into
  * an internal model representation of the reply. Finally the internal model is transformed back into a {@link ServiceResponse} to be returned to any implementers</p>
  * <p/>
- * <p>The same framework can be extended by injecting a {@link ServiceRequestTransformer} into the {@link ServiceRequestTransformerFactory}, and a {@link ServiceResponseTransformer}
- * into the {@link ServiceResponseTransformerFactory}. This allows further methods to be added and still use all the underlying framework for transforming, validating, sending
+ * <p>The same framework can be extended by injecting a {@link ServiceRequestTransformer} into the {@code requestTransformerStrategyMap}, and a {@link ServiceResponseTransformer}
+ * into the {@code responseTransformerStrategyMap}. This allows further methods to be added and still use all the underlying framework for transforming, validating, sending
  * and receiving the xml</p>
  */
-@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
-public class WorldpayServiceGateway {
-
-    private static WorldpayServiceGateway singletonObject = null;
-    private ServiceRequestTransformerFactory serviceRequestTransformerFactory = new ServiceRequestTransformerFactory();
-    private ServiceResponseTransformerFactory serviceResponseTransformerFactory = new ServiceResponseTransformerFactory();
-
-    private WorldpayServiceGateway() {
-    }
-
-    public static synchronized WorldpayServiceGateway getInstance() {
-        if (singletonObject == null) {
-            singletonObject = new WorldpayServiceGateway();
-        }
-        return singletonObject;
-    }
+public interface WorldpayServiceGateway {
 
     /**
      * Make an authorisation request when using the direct payment model. The same method is also used for validating the 3D PaResponse if this is needed
@@ -81,9 +47,7 @@ public class WorldpayServiceGateway {
      * @return {@link DirectAuthoriseServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public DirectAuthoriseServiceResponse directAuthorise(final DirectAuthoriseServiceRequest request) throws WorldpayException {
-        return (DirectAuthoriseServiceResponse) service(request);
-    }
+    DirectAuthoriseServiceResponse directAuthorise(DirectAuthoriseServiceRequest request) throws WorldpayException;
 
     /**
      * Make an authorisation request when using the redirect payment model
@@ -93,9 +57,7 @@ public class WorldpayServiceGateway {
      * @return {@link RedirectAuthoriseServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public RedirectAuthoriseServiceResponse redirectAuthorise(final RedirectAuthoriseServiceRequest request) throws WorldpayException {
-        return (RedirectAuthoriseServiceResponse) service(request);
-    }
+    RedirectAuthoriseServiceResponse redirectAuthorise(RedirectAuthoriseServiceRequest request) throws WorldpayException;
 
     /**
      * Create a token in Worldpay
@@ -104,9 +66,7 @@ public class WorldpayServiceGateway {
      * @return {@link CreateTokenResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public CreateTokenResponse createToken(final CreateTokenServiceRequest request) throws WorldpayException {
-        return (CreateTokenResponse) service(request);
-    }
+    CreateTokenResponse createToken(CreateTokenServiceRequest request) throws WorldpayException;
 
     /**
      * Updates a token in Worldpay
@@ -115,9 +75,7 @@ public class WorldpayServiceGateway {
      * @return {@link UpdateTokenResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public UpdateTokenResponse updateToken(final UpdateTokenServiceRequest request) throws WorldpayException {
-        return (UpdateTokenResponse) service(request);
-    }
+    UpdateTokenResponse updateToken(UpdateTokenServiceRequest request) throws WorldpayException;
 
     /**
      * Delete a token in Worldpay
@@ -126,9 +84,7 @@ public class WorldpayServiceGateway {
      * @return {@link DeleteTokenResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public DeleteTokenResponse deleteToken(final DeleteTokenServiceRequest request) throws WorldpayException {
-        return (DeleteTokenResponse) service(request);
-    }
+    DeleteTokenResponse deleteToken(DeleteTokenServiceRequest request) throws WorldpayException;
 
     /**
      * Make a capture request with Worldpay
@@ -137,9 +93,7 @@ public class WorldpayServiceGateway {
      * @return {@link CaptureServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public CaptureServiceResponse capture(final CaptureServiceRequest request) throws WorldpayException {
-        return (CaptureServiceResponse) service(request);
-    }
+    CaptureServiceResponse capture(CaptureServiceRequest request) throws WorldpayException;
 
     /**
      * Make a cancel request with Worldpay. Can only be invoked if the funds have not yet been captured
@@ -148,9 +102,7 @@ public class WorldpayServiceGateway {
      * @return {@link CancelServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public CancelServiceResponse cancel(final CancelServiceRequest request) throws WorldpayException {
-        return (CancelServiceResponse) service(request);
-    }
+    CancelServiceResponse cancel(CancelServiceRequest request) throws WorldpayException;
 
     /**
      * Make a refund request with Worldpay. Can only be invoked if the funds have been captured
@@ -159,9 +111,7 @@ public class WorldpayServiceGateway {
      * @return {@link RefundServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public RefundServiceResponse refund(final RefundServiceRequest request) throws WorldpayException {
-        return (RefundServiceResponse) service(request);
-    }
+    RefundServiceResponse refund(RefundServiceRequest request) throws WorldpayException;
 
     /**
      * Make an add back office code request with Worldpay
@@ -170,9 +120,7 @@ public class WorldpayServiceGateway {
      * @return {@link AddBackOfficeCodeServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public AddBackOfficeCodeServiceResponse addBackOfficeCode(final AddBackOfficeCodeServiceRequest request) throws WorldpayException {
-        return (AddBackOfficeCodeServiceResponse) service(request);
-    }
+    AddBackOfficeCodeServiceResponse addBackOfficeCode(AddBackOfficeCodeServiceRequest request) throws WorldpayException;
 
     /**
      * Make an authorisation code request with Worldpay
@@ -181,9 +129,7 @@ public class WorldpayServiceGateway {
      * @return {@link AuthorisationCodeServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public AuthorisationCodeServiceResponse authorisationCode(final AuthorisationCodeServiceRequest request) throws WorldpayException {
-        return (AuthorisationCodeServiceResponse) service(request);
-    }
+    AuthorisationCodeServiceResponse authorisationCode(AuthorisationCodeServiceRequest request) throws WorldpayException;
 
     /**
      * Make an order inquiry request with Worldpay
@@ -192,54 +138,5 @@ public class WorldpayServiceGateway {
      * @return {@link OrderInquiryServiceResponse} object with the reply details.
      * @throws WorldpayException if there have been issues making the request
      */
-    public OrderInquiryServiceResponse orderInquiry(final AbstractServiceRequest request) throws WorldpayException {
-        return (OrderInquiryServiceResponse) service(request);
-    }
-
-    private ServiceResponse service(final ServiceRequest request) throws WorldpayException {
-        final ServiceRequestTransformerFactory factory = getServiceRequestTransformerFactory();
-        final ServiceRequestTransformer requestTransformer = factory.getServiceRequestTransformer(request);
-        final PaymentService paymentService = requestTransformer.transform(request);
-        final WorldpayConfig worldpayConfig = request.getWorldpayConfig();
-        final String endpoint = worldpayConfig.getEnvironment().getEndpoint();
-        final WorldpayConnector connector = new WorldpayConnectorImpl(endpoint);
-
-        final WorldpayXMLValidator xmlValidator = new WorldpayXMLValidatorImpl();
-        try {
-            if (!worldpayConfig.getEnvironment().getRole().equals(PROD)) {
-                logPaymentServiceXML(paymentService, connector);
-            }
-            xmlValidator.validate(paymentService);
-        } catch (WorldpayValidationException e) {
-            throw new WorldpayValidationException("Error validating XML: " + e.getMessage(), e);
-        }
-
-        final ServiceReply reply = connector.send(paymentService, request.getMerchantInfo(), request.getCookie());
-
-        final ServiceResponseTransformerFactory responseFactory = getServiceResponseTransformerFactory();
-        final ServiceResponseTransformer responseTransformer = responseFactory.getServiceResponseTransformer(request);
-        if (!worldpayConfig.getEnvironment().getRole().equals(PROD)) {
-            logPaymentServiceXML(reply.getPaymentService(), connector);
-        }
-        return responseTransformer.transform(reply);
-    }
-
-    private void logPaymentServiceXML(PaymentService paymentService, WorldpayConnector connector) throws WorldpayValidationException {
-        try {
-            Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-            marshaller.setProperty(JAXB_FRAGMENT, TRUE);
-            XMLOutputFactory xof = XMLOutputFactory.newInstance();
-            connector.logXMLOut(xof, marshaller, paymentService);
-        } catch (final JAXBException jaxbException) {
-            throw new WorldpayValidationException(jaxbException.getMessage(), jaxbException);
-        }
-    }
-
-    public ServiceRequestTransformerFactory getServiceRequestTransformerFactory() {
-        return serviceRequestTransformerFactory;
-    }
-
-    public ServiceResponseTransformerFactory getServiceResponseTransformerFactory() {
-        return serviceResponseTransformerFactory;
-    }
+    OrderInquiryServiceResponse orderInquiry(AbstractServiceRequest request) throws WorldpayException;
 }

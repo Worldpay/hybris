@@ -11,6 +11,7 @@ import java.io.Serializable;
  * This class represents the details that are passed back from a notification message
  */
 public class OrderNotificationMessage implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String orderCode;
     private String merchantCode;

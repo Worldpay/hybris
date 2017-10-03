@@ -27,10 +27,10 @@ public class Token extends AbstractPayment {
     @Override
     public void invokeSetter(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         final String methodName = method.getName();
-        if (methodName.equals("setPaymentTokenID") && paymentTokenID != null) {
+        if ("setPaymentTokenID".equals(methodName) && paymentTokenID != null) {
             method.invoke(targetObject, paymentTokenID);
         }
-        if (methodName.equals("setPaymentInstrument") && paymentInstrument != null) {
+        if ("setPaymentInstrument".equals(methodName) && paymentInstrument != null) {
             final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
             final com.worldpay.internal.model.CardDetails intCardDetails = (com.worldpay.internal.model.CardDetails) paymentInstrument.transformToInternalModel();
             intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(intCardDetails);

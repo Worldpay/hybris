@@ -57,55 +57,55 @@ public class Card extends AbstractPayment {
         boolean methodInvoked = false;
         String methodName = method.getName();
         if (methodName.startsWith("set")) {
-            if (methodName.equals("setCardNumber") && cardNumber != null) {
+            if ("setCardNumber".equals(methodName) && cardNumber != null) {
                 CardNumber intCardNumber = new CardNumber();
                 intCardNumber.setvalue(cardNumber);
                 method.invoke(targetObject, intCardNumber);
                 methodInvoked = true;
             }
-            if (methodName.equals("setCvc") && cvc != null) {
+            if ("setCvc".equals(methodName) && cvc != null) {
                 Cvc intCvc = new Cvc();
                 intCvc.setvalue(cvc);
                 method.invoke(targetObject, intCvc);
                 methodInvoked = true;
             }
-            if (methodName.equals("setExpiryDate") && expiryDate != null) {
+            if ("setExpiryDate".equals(methodName) && expiryDate != null) {
                 ExpiryDate intExpiryDate = new ExpiryDate();
                 intExpiryDate.setDate((com.worldpay.internal.model.Date) expiryDate.transformToInternalModel());
                 method.invoke(targetObject, intExpiryDate);
                 methodInvoked = true;
             }
-            if (methodName.equals("setCardHolderName") && cardHolderName != null) {
+            if ("setCardHolderName".equals(methodName) && cardHolderName != null) {
                 CardHolderName intCardHolderName = new CardHolderName();
                 intCardHolderName.setvalue(cardHolderName);
                 method.invoke(targetObject, intCardHolderName);
                 methodInvoked = true;
             }
-            if (methodName.equals("setCardAddress") && cardAddress != null) {
+            if ("setCardAddress".equals(methodName) && cardAddress != null) {
                 CardAddress intCardAddress = new CardAddress();
                 intCardAddress.setAddress((com.worldpay.internal.model.Address) cardAddress.transformToInternalModel());
                 method.invoke(targetObject, intCardAddress);
                 methodInvoked = true;
             }
-            if (methodName.equals("setBirthDate") && birthDate != null) {
+            if ("setBirthDate".equals(methodName) && birthDate != null) {
                 BirthDate intBirthDate = new BirthDate();
                 intBirthDate.setDate((com.worldpay.internal.model.Date) birthDate.transformToInternalModel());
                 method.invoke(targetObject, intBirthDate);
                 methodInvoked = true;
             }
-            if (methodName.equals("setStartDate") && startDate != null) {
+            if ("setStartDate".equals(methodName) && startDate != null) {
                 StartDate intStartDate = new StartDate();
                 intStartDate.setDate((com.worldpay.internal.model.Date) startDate.transformToInternalModel());
                 method.invoke(targetObject, intStartDate);
                 methodInvoked = true;
             }
-            if (methodName.equals("setIssueNumber") && issueNumber != null) {
+            if ("setIssueNumber".equals(methodName) && issueNumber != null) {
                 IssueNumber intIssueNumber = new IssueNumber();
                 intIssueNumber.setvalue(issueNumber);
                 method.invoke(targetObject, intIssueNumber);
                 methodInvoked = true;
             }
-        } else if (methodName.equals("getIssueNumberOrStartDate") && (issueNumber != null || startDate != null)) {
+        } else if ("getIssueNumberOrStartDate".equals(methodName) && (issueNumber != null || startDate != null)) {
             List<Object> issueNumberOrStartDate = (List<Object>) method.invoke(targetObject);
             if (issueNumber != null) {
                 IssueNumber intIssueNumber = new IssueNumber();

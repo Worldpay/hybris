@@ -7,6 +7,8 @@ import com.worldpay.internal.model.OrderModification;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.AuthorisationCodeServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link AuthorisationCodeServiceRequest} into a {@link PaymentService} object
@@ -25,6 +27,9 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class AuthorisationCodeRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
@@ -33,15 +38,15 @@ public class AuthorisationCodeRequestTransformer implements ServiceRequestTransf
      */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the authorisation code is invalid.");
         }
         AuthorisationCodeServiceRequest authorisationCodeRequest = (AuthorisationCodeServiceRequest) request;
 
         PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
 
         if (authorisationCodeRequest.getAuthorisationCode() == null) {
             throw new WorldpayModelTransformationException("No authorisation code object to transform on the authorisation code request");
@@ -55,5 +60,10 @@ public class AuthorisationCodeRequestTransformer implements ServiceRequestTransf
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

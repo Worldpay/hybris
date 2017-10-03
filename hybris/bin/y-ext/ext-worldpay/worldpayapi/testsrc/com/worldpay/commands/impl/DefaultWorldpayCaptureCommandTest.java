@@ -1,8 +1,5 @@
 package com.worldpay.commands.impl;
 
-import com.worldpay.config.Environment;
-import com.worldpay.config.WorldpayConfig;
-import com.worldpay.config.WorldpayConfigLookupService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
@@ -25,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -35,9 +31,7 @@ import java.util.Locale;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -48,17 +42,13 @@ public class DefaultWorldpayCaptureCommandTest {
     public static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     public static final String VERSION = "1.4";
 
-    @Spy
     @InjectMocks
-    private DefaultWorldpayCaptureCommand testObj = new DefaultWorldpayCaptureCommand();
+    private DefaultWorldpayCaptureCommand testObj;
+
     @Mock
     private CaptureRequest captureRequestMock;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    @Mock
-    private WorldpayConfigLookupService worldpayConfigLookupService;
-    @Mock
-    private WorldpayConfig worldpayConfigMock;
     @Mock
     private MerchantInfo merchantInfoMock;
     @Mock
@@ -77,8 +67,6 @@ public class DefaultWorldpayCaptureCommandTest {
     private WorldpayOrderService worldpayOrderServiceMock;
     @Mock
     private Amount amountMock;
-    @Mock
-    private Environment environmentMock;
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
@@ -88,11 +76,7 @@ public class DefaultWorldpayCaptureCommandTest {
         final Currency currency = Currency.getInstance(Locale.UK);
         when(captureRequestMock.getCurrency()).thenReturn(currency);
         when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(paymentTransactionModelMock);
-        when(worldpayOrderServiceMock.getWorldpayServiceGateway()).thenReturn(worldpayServiceGatewayMock);
         when(worldpayOrderServiceMock.createAmount(currency, Double.valueOf(AMOUNT))).thenReturn(amountMock);
-        when(worldpayConfigLookupService.lookupConfig()).thenReturn(worldpayConfigMock);
-        when(worldpayConfigMock.getVersion()).thenReturn(VERSION);
-        when(worldpayConfigMock.getEnvironment()).thenReturn(environmentMock);
         when(worldpayMerchantInfoService.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(captureResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());

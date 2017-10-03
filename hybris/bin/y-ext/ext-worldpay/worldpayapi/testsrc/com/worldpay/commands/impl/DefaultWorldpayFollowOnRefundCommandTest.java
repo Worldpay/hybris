@@ -1,7 +1,5 @@
 package com.worldpay.commands.impl;
 
-import com.worldpay.config.WorldpayConfig;
-import com.worldpay.config.WorldpayConfigLookupService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
@@ -34,12 +32,10 @@ import static java.util.Locale.UK;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayFollowOnRefundCommandTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
@@ -51,9 +47,8 @@ public class DefaultWorldpayFollowOnRefundCommandTest {
 
     @Spy
     @InjectMocks
-    private DefaultWorldpayFollowOnRefundCommand testObj = new DefaultWorldpayFollowOnRefundCommand();
-    @Mock
-    private WorldpayConfigLookupService worldpayConfigLookupServiceMock;
+    private DefaultWorldpayFollowOnRefundCommand testObj;
+
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
@@ -63,9 +58,7 @@ public class DefaultWorldpayFollowOnRefundCommandTest {
     private WorldpayServiceGateway worldpayServiceGatewayMock;
     @Mock
     private FollowOnRefundRequest followOnRefundRequestMock;
-    @Mock
-    private WorldpayConfig worldpayConfigMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private MerchantInfo merchantInfoMock;
     @Mock
     private RefundServiceResponse refundServiceResponseMock;
@@ -85,11 +78,9 @@ public class DefaultWorldpayFollowOnRefundCommandTest {
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
-        when(worldpayConfigLookupServiceMock.lookupConfig()).thenReturn(worldpayConfigMock);
         when(worldpayMerchantInfoServiceMock.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoMock);
         when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(paymentTransactionModelMock);
 
-        when(worldpayOrderServiceMock.getWorldpayServiceGateway()).thenReturn(worldpayServiceGatewayMock);
         when(worldpayOrderServiceMock.createAmount(currency, amount.doubleValue())).thenReturn(amountMock);
         when(refundServiceResponseMock.getAmount()).thenReturn(amountMock);
         when(amountMock.getValue()).thenReturn(TOTAL_VALUE);
@@ -110,7 +101,7 @@ public class DefaultWorldpayFollowOnRefundCommandTest {
 
         testObj.perform(followOnRefundRequestMock);
 
-        verify(testObj).buildRefundServiceRequest(WORLDPAY_ORDER_CODE, amount, currency, PAYMENT_TRANSACTION_ENTRY_CODE);
+        verify(testObj).buildRefundRequest(PAYMENT_TRANSACTION_ENTRY_CODE, WORLDPAY_ORDER_CODE, amountMock, merchantInfoMock);
         verify(worldpayServiceGatewayMock).refund(any(RefundServiceRequest.class));
         verify(worldpayRefundServiceConverterMock).convert(refundServiceResponseMock);
     }

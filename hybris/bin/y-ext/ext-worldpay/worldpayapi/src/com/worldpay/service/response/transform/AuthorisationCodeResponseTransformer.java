@@ -30,8 +30,7 @@ public class AuthorisationCodeResponseTransformer extends AbstractServiceRespons
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
         Reply intReply = (Reply) responseType;
-        ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-        if (responseTransformerHelper.checkForError(authorisationCodeResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(authorisationCodeResponse, intReply)) {
             return authorisationCodeResponse;
         }
 

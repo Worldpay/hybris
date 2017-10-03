@@ -1,6 +1,5 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
 
@@ -12,22 +11,21 @@ import com.worldpay.service.model.MerchantInfo;
  */
 public class OrderInquiryServiceRequest extends AbstractServiceRequest {
 
-    protected OrderInquiryServiceRequest(WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected OrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+        super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the OrderInquiryServiceRequest
      *
-     * @param config    worldpayConfig to be used in the Worldpay call
      * @param merch     merchantInfo to be used in the Worldpay call
      * @param orderCode orderCode to be used in the Worldpay call
      * @return new instance of the OrderInquiryServiceRequest initialised with input parameters
      */
-    public static OrderInquiryServiceRequest createOrderInquiryRequest(WorldpayConfig config, MerchantInfo merch, String orderCode) {
-        if (config == null || merch == null || orderCode == null) {
+    public static OrderInquiryServiceRequest createOrderInquiryRequest(MerchantInfo merch, String orderCode) {
+        if (merch == null || orderCode == null) {
             throw new IllegalArgumentException("WorldpayConfig, MerchantInfo and Order Code cannot be null");
         }
-        return new OrderInquiryServiceRequest(config, merch, orderCode);
+        return new OrderInquiryServiceRequest(merch, orderCode);
     }
 }

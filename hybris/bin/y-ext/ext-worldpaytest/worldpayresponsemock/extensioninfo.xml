@@ -14,7 +14,7 @@
 --><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
 
     <extension abstractclassprefix="Generated" classprefix="Worldpayresponsemock" managername="WorldpayresponsemockManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayresponsemock">
-        <requires-extension name="addonsupport"/>
+
         <requires-extension name="worldpayapi"/>
         <coremodule generated="true" manager="com.worldpay.worldpayresponsemock.jalo.WorldpayresponsemockManager" packageroot="com.worldpay.worldpayresponsemock"/>
         <webmodule jspcompile="false" webroot="/worldpayresponsemock"/>

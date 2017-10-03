@@ -1,6 +1,5 @@
 package com.worldpay.commands.impl;
 
-import com.worldpay.config.WorldpayConfigLookupService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
@@ -16,19 +15,13 @@ import org.springframework.beans.factory.annotation.Required;
 public class WorldpayCommand {
 
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    private WorldpayConfigLookupService worldpayConfigLookupService;
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     private WorldpayOrderService worldpayOrderService;
-
-    /**
-     * @return A Worldpay service gateway instance {@link WorldpayServiceGateway}.
-     */
-    public WorldpayServiceGateway getWorldpayServiceGatewayInstance() {
-        return worldpayOrderService.getWorldpayServiceGateway();
-    }
+    private WorldpayServiceGateway worldpayServiceGateway;
 
     /**
      * Returns the MerchantInfo {@link MerchantInfo} used in the transaction
+     *
      * @param worldpayOrderCode order code used in the transaction
      * @return The MerchantInfo used in the transaction
      * @throws WorldpayConfigurationException
@@ -57,20 +50,20 @@ public class WorldpayCommand {
     }
 
     @Required
-    public void setWorldpayConfigLookupService(final WorldpayConfigLookupService worldpayConfigLookupService) {
-        this.worldpayConfigLookupService = worldpayConfigLookupService;
-    }
-
-    public WorldpayConfigLookupService getWorldpayConfigLookupService() {
-        return worldpayConfigLookupService;
-    }
-
-    @Required
-    public void setWorldpayOrderService(WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
+    public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
+        this.worldpayServiceGateway = worldpayServiceGateway;
     }
 
     public WorldpayOrderService getWorldpayOrderService() {
         return worldpayOrderService;
+    }
+
+    @Required
+    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
+    }
+
+    public WorldpayServiceGateway getWorldpayServiceGateway() {
+        return worldpayServiceGateway;
     }
 }

@@ -3,7 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="eclipsebin/notused"/>
 
-	<classpathentry exported="false" kind="src" path="/platform" />
 	<classpathentry exported="true" kind="src" path="/platformbackoffice" />
 	<classpathentry exported="true" kind="src" path="/commerceservicesbackoffice" />
 	<classpathentry exported="true" kind="src" path="/customersupportbackoffice" />
@@ -13,6 +12,7 @@
 	<classpathentry exported="true" output="eclipsebin/backoffice/classes" kind="src" path="backoffice/src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
+	<classpathentry exported="false" kind="src" path="/platform" />
 				
 </classpath>
 				

@@ -22,7 +22,7 @@
         <requires-extension name="platformbackoffice"/>
         <requires-extension name="worldpayapi"/>
         <requires-extension name="warehousingbackoffice"/>
-        <requires-extension name="worldpaynotificationaddon"/>
+        <requires-extension name="worldpaynotifications"/>
         <requires-extension name="customersupportbackoffice"/>
 
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpayomsManager" packageroot="com.worldpay"/>

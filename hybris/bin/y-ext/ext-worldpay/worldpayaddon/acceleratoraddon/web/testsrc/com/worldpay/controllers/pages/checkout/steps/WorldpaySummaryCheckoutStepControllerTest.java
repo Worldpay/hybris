@@ -10,7 +10,6 @@ import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
@@ -49,7 +48,6 @@ import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConst
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
 import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
 import static java.util.Collections.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -77,7 +75,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Spy
     @InjectMocks
-    private WorldpaySummaryCheckoutStepController testObj = new WorldpaySummaryCheckoutStepController();
+    private WorldpaySummaryCheckoutStepController testObj;
 
     @Mock
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
@@ -132,8 +130,6 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Mock
     private CartRestorationData cartRestorationDataMock;
     @Mock
-    private UiExperienceService uiExperienceServiceMock;
-    @Mock
     private DirectResponseData directResponseDataMock;
     @Mock
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
@@ -165,7 +161,6 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
         when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
         when(worldpayAddonEndpointService.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
         doNothing().when(testObj).setupAddPaymentPage(modelMock);
     }
@@ -212,7 +207,6 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         final String result = testObj.placeOrder(placeOrderFormMock, modelMock, httpServletRequestMock, redirectAttributesMock);
 
         assertEquals(REDIRECT_VIEW, result);
-        verify(worldpayAdditionalInfoDataMock).setUiExperienceLevel(DESKTOP);
         verify(worldpayAdditionalInfoDataMock).setSecurityCode(SECURITY_CODE);
     }
 

@@ -1,7 +1,5 @@
 package com.worldpay.commands.impl;
 
-import com.worldpay.config.WorldpayConfig;
-import com.worldpay.config.WorldpayConfigLookupService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
@@ -20,15 +18,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -38,9 +31,8 @@ public class DefaultWorldpayVoidCommandTest {
     public static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     public static final String EXCEPTION_MESSAGE = "exceptionMessage";
 
-    @Spy
     @InjectMocks
-    private DefaultWorldpayVoidCommand testObj = new DefaultWorldpayVoidCommand();
+    private DefaultWorldpayVoidCommand testObj;
 
     @Mock
     private Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverterMock;
@@ -53,10 +45,6 @@ public class DefaultWorldpayVoidCommandTest {
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
-    private WorldpayConfigLookupService worldpayConfigLookupServiceMock;
-    @Mock
-    private WorldpayConfig worldpayConfigMock;
-    @Mock
     private MerchantInfo merchantInfoMock;
     @Mock
     private VoidResult voidResultMock;
@@ -67,8 +55,6 @@ public class DefaultWorldpayVoidCommandTest {
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
-        doReturn(worldpayGatewayMock).when(testObj).getWorldpayServiceGatewayInstance();
-        when(worldpayConfigLookupServiceMock.lookupConfig()).thenReturn(worldpayConfigMock);
         when(worldpayMerchantInfoServiceMock.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(voidServiceResponseConverterMock.convert(cancelResponseMock)).thenReturn(voidResultMock);
@@ -87,7 +73,7 @@ public class DefaultWorldpayVoidCommandTest {
     }
 
     @Test
-    public void testPerformShouldReturnAFailingVoidResponseWhenAnExceptionOcurredInvokingTheGateway() throws Exception {
+    public void testPerformShouldReturnAFailingVoidResponseWhenAnExceptionOccurredInvokingTheGateway() throws Exception {
         doThrow(new WorldpayException(EXCEPTION_MESSAGE)).when(worldpayGatewayMock).cancel(any(CancelServiceRequest.class));
 
         testObj.perform(voidRequestMock);

@@ -8,6 +8,8 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link OrderInquiryServiceRequest} into a {@link PaymentService} object
@@ -24,6 +26,9 @@ import com.worldpay.service.request.ServiceRequest;
  * </p>
  */
 public class OrderInquiryRequestTransformer implements ServiceRequestTransformer {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    private ConfigurationService configurationService;
 
     /**
      * (non-Javadoc)
@@ -32,13 +37,12 @@ public class OrderInquiryRequestTransformer implements ServiceRequestTransformer
      */
     @Override
     public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
-        if (request == null || request.getMerchantInfo() == null || request.getWorldpayConfig() == null || request.getOrderCode() == null) {
+        if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the order inquiry is invalid.");
         }
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
-        paymentService.setVersion(request.getWorldpayConfig().getVersion());
-
+        paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         final Inquiry inquiry = new Inquiry();
         buildInquiry(request, inquiry);
@@ -56,5 +60,10 @@ public class OrderInquiryRequestTransformer implements ServiceRequestTransformer
             klarnaConfirmationInquiry.setOrderCode(request.getOrderCode());
             inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrieval().add(klarnaConfirmationInquiry);
         }
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

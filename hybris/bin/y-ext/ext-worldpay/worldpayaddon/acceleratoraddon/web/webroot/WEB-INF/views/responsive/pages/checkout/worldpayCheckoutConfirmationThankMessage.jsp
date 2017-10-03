@@ -43,7 +43,18 @@
 
                     <formElement:formPasswordBox idKey="password" labelKey="guest.pwd" path="pwd" inputCSS="password strength form-control" mandatory="true"/>
                     <formElement:formPasswordBox idKey="guest.checkPwd" labelKey="guest.checkPwd" path="checkPwd" inputCSS="password form-control" mandatory="true"/>
-
+                    <c:if test="${ not empty consentTemplateData }">
+                        <form:hidden path="consentForm.consentTemplateId" value="${consentTemplateData.id}" />
+                        <form:hidden path="consentForm.consentTemplateVersion" value="${consentTemplateData.version}" />
+                        <div class="checkbox">
+                            <label class="control-label uncased">
+                                <form:checkbox path="consentForm.consentGiven" />
+                                <c:out value="${consentTemplateData.description}" />
+                                &nbsp;
+                                <spring:theme code="registration.consent.link" />
+                            </label>
+                        </div>
+                    </c:if>
 
                     <div class="accountActions-bottom">
                         <ycommerce:testId code="guest_Register_button">

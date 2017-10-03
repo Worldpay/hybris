@@ -30,8 +30,7 @@ public class CancelResponseTransformer extends AbstractServiceResponseTransforme
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
         final Reply intReply = (Reply) responseType;
-        final ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-        if (responseTransformerHelper.checkForError(response, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(response, intReply)) {
             return response;
         }
 
