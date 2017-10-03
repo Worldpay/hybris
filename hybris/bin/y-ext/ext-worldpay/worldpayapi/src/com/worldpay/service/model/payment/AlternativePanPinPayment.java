@@ -39,10 +39,10 @@ public class AlternativePanPinPayment extends AlternativePayment {
     protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
-        if (methodName.equals("setPan") && getPan() != null) {
+        if ("setPan".equals(methodName) && getPan() != null) {
             method.invoke(targetObject, getPan());
         }
-        if (methodName.equals("setPin") && getPin() != null) {
+        if ("setPin".equals(methodName) && getPin() != null) {
             method.invoke(targetObject, getPin());
         }
     }

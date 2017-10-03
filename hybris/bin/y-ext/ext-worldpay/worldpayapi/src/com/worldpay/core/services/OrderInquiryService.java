@@ -2,7 +2,6 @@ package com.worldpay.core.services;
 
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 
@@ -36,5 +35,7 @@ public interface OrderInquiryService {
      * @param worldpayOrderCode The Worldpay order code
      * @return
      */
-    PaymentReply inquireOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException;
+    OrderInquiryServiceResponse inquireOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException;
+
+    OrderInquiryServiceResponse inquiryKlarnaOrder(MerchantInfo merchantInfo, String worldpayOrderCode) throws WorldpayException;
 }

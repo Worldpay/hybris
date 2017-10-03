@@ -14,7 +14,6 @@ import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.b2b.services.B2BOrderService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -30,7 +29,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -45,7 +43,7 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
     private static final String PA_RESPONSE = "paResponse";
 
     @InjectMocks
-    private DefaultWorldpayB2BDirectOrderFacade testObj = new DefaultWorldpayB2BDirectOrderFacade();
+    private DefaultWorldpayB2BDirectOrderFacade testObj;
 
     @Mock
     private WorldpayDirectOrderService worldpayDirectOrderServiceMock;
@@ -57,8 +55,6 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
     private MerchantInfo merchantInfoMock;
     @Mock
     private CartService cartServiceMock;
-    @Mock
-    private UiExperienceService uiExperienceServiceMock;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
@@ -92,8 +88,7 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
         when(cartModelMock.getUser()).thenReturn(userModelMock);
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant(DESKTOP)).thenReturn(merchantInfoMock);
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(directAuthoriseServiceResponse3dSecureMock.getRequest3DInfo()).thenReturn(request3DInfoMock);

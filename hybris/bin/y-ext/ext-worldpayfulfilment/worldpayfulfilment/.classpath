@@ -3,13 +3,13 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="eclipsebin/notused"/>
 
-	<classpathentry exported="false" kind="src" path="/platform" />
 	<classpathentry exported="true" kind="src" path="/worldpayapi" />
-	<classpathentry exported="true" kind="src" path="/worldpaynotificationaddon" />
+	<classpathentry exported="true" kind="src" path="/worldpaynotifications" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
+	<classpathentry exported="false" kind="src" path="/platform" />
 				
 </classpath>
 				

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <alias name="defaultWorldpayServiceGateway" alias="worldpayServiceGateway"/>
+    <bean id="defaultWorldpayServiceGateway" class="com.worldpay.service.DefaultWorldpayServiceGateway">
+        <property name="worldpayConnector" ref="worldpayConnector"/>
+        <property name="woldpayXmlValidator" ref="worldpayXMLValidator"/>
+        <property name="responseTransformerStrategyMap" ref="responseTransformerStrategyMap"/>
+        <property name="requestTransformerStrategyMap" ref="requestTransformerStrategyMap"/>
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <alias name="defaultPaymentServiceMarshaller" alias="paymentServiceMarshaller"/>
+    <bean id="defaultPaymentServiceMarshaller"
+          class="com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller"/>
+
+    <alias name="defaultMacValidator" alias="macValidator"/>
+    <bean id="defaultMacValidator" class="com.worldpay.service.mac.impl.DefaultMacValidator"/>
+
+    <alias name="defaultWorldpayXMLValidator" alias="worldpayXMLValidator"/>
+    <bean id="defaultWorldpayXMLValidator" class="com.worldpay.service.request.validation.impl.DefaultWorldpayXMLValidator"/>
+
+    <alias name="defaultServiceResponseTransformerHelper" alias="serviceResponseTransformerHelper"/>
+    <bean id="defaultServiceResponseTransformerHelper"
+          class="com.worldpay.service.response.transform.impl.DefaultServiceResponseTransformerHelper"/>
+
+    <bean id="abstractServiceResponseTransformer"
+          class="com.worldpay.service.response.transform.AbstractServiceResponseTransformer" abstract="true">
+        <property name="serviceResponseTransformerHelper" ref="serviceResponseTransformerHelper"/>
+    </bean>
+
+    <bean id="addBackOfficeCodeResponseTransformer"
+          class="com.worldpay.service.response.transform.AddBackOfficeCodeResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="authorisationCodeResponseTransformer"
+          class="com.worldpay.service.response.transform.AuthorisationCodeResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="captureResponseTransformer" class="com.worldpay.service.response.transform.CaptureResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="createTokenResponseTransformer"
+          class="com.worldpay.service.response.transform.CreateTokenResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="deleteTokenResponseTransformer"
+          class="com.worldpay.service.response.transform.DeleteTokenResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="directAuthoriseResponseTransformer"
+          class="com.worldpay.service.response.transform.DirectAuthoriseResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="redirectAuthoriseResponseTransformer"
+          class="com.worldpay.service.response.transform.RedirectAuthoriseResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="refundResponseTransformer"
+          class="com.worldpay.service.response.transform.RefundResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="updateTokenResponseTransformer"
+          class="com.worldpay.service.response.transform.UpdateTokenResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="cancelResponseTransformer"
+          class="com.worldpay.service.response.transform.CancelResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <bean id="orderInquiryResponseTransformer"
+          class="com.worldpay.service.response.transform.OrderInquiryResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
+    <util:map id="responseTransformerStrategyMap" map-class="java.util.HashMap"
+              key-type="java.lang.String"
+              value-type="com.worldpay.service.response.transform.ServiceResponseTransformer">
+        <entry key="com.worldpay.service.request.DirectAuthoriseServiceRequest" value-ref="directAuthoriseResponseTransformer" />
+        <entry key="com.worldpay.service.request.CreateTokenServiceRequest" value-ref="createTokenResponseTransformer" />
+        <entry key="com.worldpay.service.request.UpdateTokenServiceRequest" value-ref="updateTokenResponseTransformer" />
+        <entry key="com.worldpay.service.request.DeleteTokenServiceRequest" value-ref="deleteTokenResponseTransformer" />
+        <entry key="com.worldpay.service.request.RedirectAuthoriseServiceRequest" value-ref="redirectAuthoriseResponseTransformer" />
+        <entry key="com.worldpay.service.request.CaptureServiceRequest" value-ref="captureResponseTransformer" />
+        <entry key="com.worldpay.service.request.CancelServiceRequest" value-ref="cancelResponseTransformer" />
+        <entry key="com.worldpay.service.request.RefundServiceRequest" value-ref="refundResponseTransformer" />
+        <entry key="com.worldpay.service.request.AddBackOfficeCodeServiceRequest" value-ref="addBackOfficeCodeResponseTransformer" />
+        <entry key="com.worldpay.service.request.AuthorisationCodeServiceRequest" value-ref="authorisationCodeResponseTransformer" />
+        <entry key="com.worldpay.service.request.OrderInquiryServiceRequest" value-ref="orderInquiryResponseTransformer" />
+        <entry key="com.worldpay.service.request.KlarnaOrderInquiryServiceRequest" value-ref="orderInquiryResponseTransformer" />
+    </util:map>
+
+    <bean id="createTokenRequestTransformer"
+          class="com.worldpay.service.request.transform.CreateTokenRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <bean id="updateTokenRequestTransformer"
+          class="com.worldpay.service.request.transform.UpdateTokenRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="deleteTokenRequestTransformer"
+          class="com.worldpay.service.request.transform.DeleteTokenRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="authoriseRequestTransformer"
+          class="com.worldpay.service.request.transform.AuthoriseRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="captureRequestTransformer"
+          class="com.worldpay.service.request.transform.CaptureRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="cancelRequestTransformer"
+          class="com.worldpay.service.request.transform.CancelRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="refundRequestTransformer"
+          class="com.worldpay.service.request.transform.RefundRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="addBackOfficeCodeRequestTransformer"
+          class="com.worldpay.service.request.transform.AddBackOfficeCodeRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="authorisationCodeRequestTransformer"
+          class="com.worldpay.service.request.transform.AuthorisationCodeRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+    <bean id="orderInquiryRequestTransformer"
+          class="com.worldpay.service.request.transform.OrderInquiryRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <util:map id="requestTransformerStrategyMap" map-class="java.util.HashMap"
+              key-type="java.lang.String"
+              value-type="com.worldpay.service.request.transform.ServiceRequestTransformer">
+        <entry key="com.worldpay.service.request.DirectAuthoriseServiceRequest" value-ref="authoriseRequestTransformer" />
+        <entry key="com.worldpay.service.request.CreateTokenServiceRequest" value-ref="createTokenRequestTransformer" />
+        <entry key="com.worldpay.service.request.UpdateTokenServiceRequest" value-ref="updateTokenRequestTransformer" />
+        <entry key="com.worldpay.service.request.DeleteTokenServiceRequest" value-ref="deleteTokenRequestTransformer" />
+        <entry key="com.worldpay.service.request.RedirectAuthoriseServiceRequest" value-ref="authoriseRequestTransformer" />
+        <entry key="com.worldpay.service.request.CaptureServiceRequest" value-ref="captureRequestTransformer" />
+        <entry key="com.worldpay.service.request.CancelServiceRequest" value-ref="cancelRequestTransformer" />
+        <entry key="com.worldpay.service.request.RefundServiceRequest" value-ref="refundRequestTransformer" />
+        <entry key="com.worldpay.service.request.AddBackOfficeCodeServiceRequest" value-ref="addBackOfficeCodeRequestTransformer" />
+        <entry key="com.worldpay.service.request.AuthorisationCodeServiceRequest" value-ref="authorisationCodeRequestTransformer" />
+        <entry key="com.worldpay.service.request.OrderInquiryServiceRequest" value-ref="orderInquiryRequestTransformer" />
+        <entry key="com.worldpay.service.request.KlarnaOrderInquiryServiceRequest" value-ref="orderInquiryRequestTransformer" />
+    </util:map>
+
+    <alias name="defaultWorldpayConnector" alias="worldpayConnector"/>
+    <bean id="defaultWorldpayConnector" class="com.worldpay.service.http.impl.DefaultWorldpayConnector">
+        <property name="configurationService" ref="configurationService"/>
+        <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
+    </bean>
+</beans>

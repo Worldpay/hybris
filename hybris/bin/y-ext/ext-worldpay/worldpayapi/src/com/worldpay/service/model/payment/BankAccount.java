@@ -52,27 +52,27 @@ public class BankAccount extends AbstractPayment {
         boolean methodInvoked = false;
         String methodName = method.getName();
         if (methodName.startsWith("set")) {
-            if (methodName.equals("setAccountHolderName") && accountHolderName != null) {
+            if ("setAccountHolderName".equals(methodName) && accountHolderName != null) {
                 method.invoke(targetObject, accountHolderName);
                 methodInvoked = true;
             }
-            if (methodName.equals("setBankAccountNr") && accountNumber != null) {
+            if ("setBankAccountNr".equals(methodName) && accountNumber != null) {
                 method.invoke(targetObject, accountNumber);
                 methodInvoked = true;
             }
-            if (methodName.equals("setBankName") && bankName != null) {
+            if ("setBankName".equals(methodName) && bankName != null) {
                 method.invoke(targetObject, bankName);
                 methodInvoked = true;
             }
-            if (methodName.equals("setBankLocation") && bankLocation != null) {
+            if ("setBankLocation".equals(methodName) && bankLocation != null) {
                 method.invoke(targetObject, bankLocation);
                 methodInvoked = true;
             }
-            if (methodName.equals("setBankLocationId") && bankLocationId != null) {
+            if ("setBankLocationId".equals(methodName) && bankLocationId != null) {
                 method.invoke(targetObject, bankLocationId);
                 methodInvoked = true;
             }
-            if (methodName.equals("setCreditScoring") && birthDate != null && address != null) {
+            if ("setCreditScoring".equals(methodName) && birthDate != null && address != null) {
                 CreditScoring intCreditScoring = new CreditScoring();
                 intCreditScoring.setAddress((com.worldpay.internal.model.Address) address.transformToInternalModel());
                 BirthDate intBirthDate = new BirthDate();

@@ -12,13 +12,12 @@
 -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
-           http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop.xsd
+
+
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd">
            
@@ -88,15 +87,25 @@
 
 	<!-- REPLENISHMENT PROCESSES -->
 
-	<bean id="replenishmentOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
+	<alias name="defaultWorldpayReplenishmentOrderProcessDefinitionResource" alias="replenishmentOrderProcessDefinitionResource"/>
+	<bean id="defaultWorldpayReplenishmentOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource" >
 		<property name="resource" value="classpath:/worldpayb2baddon/processes/worldpayReplenishmentOrderProcess.xml"/>
 	</bean>
 
-	<bean name="cloneCartAction" class="com.worldpay.actions.replenishment.WorldpayCloneCartAction" parent="abstractAction" >
+	<alias name="defaultWorldpayCloneCartAction" alias="cloneCartAction"/>
+	<bean id="defaultWorldpayCloneCartAction" class="com.worldpay.actions.replenishment.WorldpayCloneCartAction" parent="abstractAction">
 		<property name="keyGenerator" ref="orderCodeGenerator"/>
 		<property name="guidKeyGenerator" ref="guidKeyGenerator"/>
+		<property name="cartService" ref="cartService"/>
+		<property name="typeService" ref="typeService"/>
+		<property name="userService" ref="userService"/>
 	</bean>
 
-	<bean name="authorizePaymentAction" class="com.worldpay.actions.replenishment.WorldpayAuthorizePaymentAction" parent="abstractAction" />
+	<alias name="defaultWorldpayAuthorizePaymentAction" alias="authorizePaymentAction"/>
+	<bean id="defaultWorldpayAuthorizePaymentAction" class="com.worldpay.actions.replenishment.WorldpayAuthorizePaymentAction" parent="abstractAction">
+		<property name="impersonationService" ref="impersonationService"/>
+		<property name="worldpayDirectOrderFacade" ref="worldpayDirectOrderFacade"/>
+		<property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+	</bean>
 	
 </beans>

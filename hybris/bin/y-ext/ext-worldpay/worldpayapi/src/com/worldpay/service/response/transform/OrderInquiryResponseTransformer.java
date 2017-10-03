@@ -29,8 +29,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
         Reply intReply = (Reply) responseType;
-        ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-        if (responseTransformerHelper.checkForError(orderInquiryResponse, intReply)) {
+        if (getServiceResponseTransformerHelper().checkForError(orderInquiryResponse, intReply)) {
             return orderInquiryResponse;
         }
 
@@ -44,7 +43,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
         for (final Object orderStatusElement : orderStatusElements) {
             if (orderStatusElement instanceof Payment) {
                 final Payment intPayment = (Payment) orderStatusElement;
-                final PaymentReply paymentReply = responseTransformerHelper.buildPaymentReply(intPayment);
+                final PaymentReply paymentReply = getServiceResponseTransformerHelper().buildPaymentReply(intPayment);
                 orderInquiryResponse.setPaymentReply(paymentReply);
             } else if (orderStatusElement instanceof Reference) {
                 final Reference intReference = (Reference) orderStatusElement;
@@ -59,7 +58,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
         }
         if (orderStatusType instanceof Payment) {
             Payment intPayment = (Payment) orderStatusType;
-            PaymentReply paymentReply = responseTransformerHelper.buildPaymentReply(intPayment);
+            PaymentReply paymentReply = getServiceResponseTransformerHelper().buildPaymentReply(intPayment);
 
             orderInquiryResponse.setPaymentReply(paymentReply);
         } else {

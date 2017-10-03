@@ -70,7 +70,7 @@ def config = {
         extName 'worldpayaddonbackoffice'
         extName 'worldpayapi'
         extName 'worldpayb2baddon'
-        extName 'worldpaynotificationaddon'
+        extName 'worldpaynotifications'
         extName 'worldpaysampledataaddon'
         extName 'worldpayhac'
     }
@@ -90,7 +90,7 @@ task setup << {
     pl.setup()
 
     pl.project.addons {
-        names "worldpayb2baddon,worldpaynotificationaddon,worldpaysampledataaddon,b2bacceleratoraddon,commerceorgaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,textfieldconfiguratortemplateaddon,smarteditaddon,assistedservicestorefront,customerticketingaddon,liveeditaddon,orderselfserviceaddon"
+        names "worldpayb2baddon,worldpaysampledataaddon,b2bacceleratoraddon,commerceorgaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,textfieldconfiguratortemplateaddon,smarteditaddon,assistedservicestorefront,customerticketingaddon,liveeditaddon,orderselfserviceaddon"
         template "yacceleratorstorefront"
         storeFronts "yb2bacceleratorstorefront"
         platform pl

@@ -1,6 +1,5 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
@@ -17,26 +16,25 @@ public class RefundServiceRequest extends AbstractServiceRequest {
     private String reference;
     private Boolean shopperWebformRefund;
 
-    protected RefundServiceRequest(final WorldpayConfig config, final MerchantInfo merchantInfo, final String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected RefundServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {
+        super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the RefundServiceRequest
      *
-     * @param config    worldpayConfig to be used in the Worldpay call
      * @param merch     merchantInfo to be used in the Worldpay call
      * @param orderCode orderCode to be used in the Worldpay call
      * @param amount    amount to be used in the Worldpay call
      * @return new instance of the RefundServiceRequest initialised with input parameters
      */
-    public static RefundServiceRequest createRefundRequest(final WorldpayConfig config, final MerchantInfo merch,
+    public static RefundServiceRequest createRefundRequest(final MerchantInfo merch,
                                                            final String orderCode, final Amount amount,
                                                            final String reference, final Boolean shopperWebformRefund) {
-        if (config == null || merch == null || orderCode == null || amount == null) {
+        if (merch == null || orderCode == null || amount == null) {
             throw new IllegalArgumentException("WorldpayConfig, MerchantInfo, Order Code and Amount cannot be null");
         }
-        RefundServiceRequest refundRequest = new RefundServiceRequest(config, merch, orderCode);
+        RefundServiceRequest refundRequest = new RefundServiceRequest(merch, orderCode);
         refundRequest.setAmount(amount);
         refundRequest.setReference(reference);
         refundRequest.setShopperWebformRefund(shopperWebformRefund);

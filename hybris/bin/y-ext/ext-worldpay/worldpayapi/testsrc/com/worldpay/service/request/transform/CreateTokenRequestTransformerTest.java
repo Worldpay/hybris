@@ -1,12 +1,10 @@
 package com.worldpay.service.request.transform;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.CSEDATA;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenCreate;
 import com.worldpay.internal.model.Submit;
-import com.worldpay.service.WorldpayTestConfigHelper;
 import com.worldpay.service.model.Address;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.payment.Payment;
@@ -14,17 +12,27 @@ import com.worldpay.service.model.payment.PaymentBuilder;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequest;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @UnitTest
+@RunWith(MockitoJUnitRunner.class)
 public class CreateTokenRequestTransformerTest {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Shopper";
@@ -34,18 +42,25 @@ public class CreateTokenRequestTransformerTest {
     private static final String TOKEN_REASON = "tokenReason";
     private static final String TOKEN_REFERENCE = "tokenReference";
     private static final Address BILLING_ADDRESS = new Address(FIRST_NAME, LAST_NAME, null, null, null, POSTAL_CODE, CITY, GB);
-    private static final WorldpayConfig WORLDPAY_CONFIG = WorldpayTestConfigHelper.getWorldpayTestConfig();
     private static final MerchantInfo MERCHANT_INFO = new MerchantInfo("MERCHANT_CODE", "MERCHANT_PASSWORD");
     private static final String AUTH_SHOPPER_ID = "authShopperID";
     private static final String ENCRYPTED_DATA = "encryptedData";
     private static final Payment PAYMENT = PaymentBuilder.createCSE(ENCRYPTED_DATA, BILLING_ADDRESS);
     private static final TokenRequest TOKEN_REQUEST = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON);
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
-    private CreateTokenRequestTransformer testObj = new CreateTokenRequestTransformer();
+    @InjectMocks
+    private CreateTokenRequestTransformer testObj;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ConfigurationService configurationServiceMock;
+
+    @Before
+    public void setUp() throws Exception {
+        when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn("1.4");
+    }
 
     @Test
     public void transformShouldRaiseErrorWhenRequestIsNull() throws WorldpayModelTransformationException {
@@ -57,7 +72,7 @@ public class CreateTokenRequestTransformerTest {
 
     @Test
     public void transformShouldCreatePaymentServiceRequest() throws WorldpayModelTransformationException {
-        final ServiceRequest serviceRequest = createTokenRequest(WORLDPAY_CONFIG, MERCHANT_INFO, AUTH_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
+        final ServiceRequest serviceRequest = createTokenRequest(MERCHANT_INFO, AUTH_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
         final PaymentService result = testObj.transform(serviceRequest);
 
         final Submit submit = (Submit) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
@@ -65,7 +80,6 @@ public class CreateTokenRequestTransformerTest {
         final CSEDATA cseData = (CSEDATA) paymentTokenCreate.getPaymentInstrumentOrCSEDATA().get(0);
 
         assertEquals(MERCHANT_INFO.getMerchantCode(), result.getMerchantCode());
-        assertEquals(WORLDPAY_CONFIG.getVersion(), result.getVersion());
         assertEquals(AUTH_SHOPPER_ID, paymentTokenCreate.getAuthenticatedShopperID());
         assertEquals(TOKEN_REFERENCE, paymentTokenCreate.getCreateToken().getTokenEventReference());
         assertEquals(TOKEN_REASON, paymentTokenCreate.getCreateToken().getTokenReason().getvalue());

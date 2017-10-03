@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.http.HttpServletRequest;
 
 import static com.worldpay.worldpayresponsemock.mock.WorldpayMockConnector.SITE_PARAMETER_NAME;
-import static com.worldpay.worldpayresponsemock.mock.WorldpayMockConnector.STOREFRONT_CONTEXT_ROOT;
+import static com.worldpay.worldpayresponsemock.mock.WorldpayMockConnector.NOTIFICATION_EXTENSION_CONTEXT_ROOT;
 import static com.worldpay.worldpayresponsemock.mock.WorldpayMockConnector.WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -49,7 +49,7 @@ public class WorldpayMockConnectorTest {
     @Before
     public void setup() {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT)).thenReturn(ENDPOINT_POSTFIX);
-        when(configurationServiceMock.getConfiguration().getString(STOREFRONT_CONTEXT_ROOT)).thenReturn(CONTEXT_ROOT);
+        when(configurationServiceMock.getConfiguration().getString(NOTIFICATION_EXTENSION_CONTEXT_ROOT)).thenReturn(CONTEXT_ROOT);
         when(requestMock.getServerPort()).thenReturn(SERVER_PORT);
         when(requestMock.getServerName()).thenReturn(SERVER_NAME);
         when(requestMock.getScheme()).thenReturn(HTTP_SCHEME);

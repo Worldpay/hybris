@@ -28,7 +28,7 @@ public class WorldpayCaptureRefundAction extends AbstractSimpleDecisionAction<Re
     private RefundAmountCalculationService refundAmountCalculationService;
 
     @Override
-    public Transition executeAction(final ReturnProcessModel process) throws Exception {
+    public Transition executeAction(final ReturnProcessModel process) {
         LOG.debug("Process: " + process.getCode() + " in step " + getClass().getSimpleName());
 
         final ReturnRequestModel returnRequest = process.getReturnRequest();

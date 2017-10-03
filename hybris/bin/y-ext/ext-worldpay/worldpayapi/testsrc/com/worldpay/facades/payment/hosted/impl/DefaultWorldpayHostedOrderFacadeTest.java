@@ -16,8 +16,8 @@ import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
+import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.acceleratorservices.uiexperience.UiExperienceService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.session.SessionService;
@@ -32,10 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 
 import static com.worldpay.facades.payment.hosted.impl.DefaultWorldpayHostedOrderFacade.WORLDPAY_MERCHANT_CODE;
-import static de.hybris.platform.commerceservices.enums.UiExperienceLevel.DESKTOP;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,8 +52,6 @@ public class DefaultWorldpayHostedOrderFacadeTest {
     private WorldpayRedirectOrderService worldpayRedirectOrderServiceMock;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
-    @Mock
-    private UiExperienceService uiExperienceServiceMock;
     @Mock
     private CartService cartServiceMock;
     @Mock
@@ -83,18 +78,20 @@ public class DefaultWorldpayHostedOrderFacadeTest {
     private APMConfigurationLookupService apmConfigurationLookupService;
     @Mock
     private WorldpayAPMConfigurationModel worldpayAPMConfigurationModel;
+    @Mock
+    private OrderInquiryServiceResponse orderInquiryServiceResponseMock;
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
         when(sessionServiceMock.getAttribute(WORLDPAY_MERCHANT_CODE)).thenReturn(MERCHANT_CODE);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
+        when(orderInquiryServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
     }
 
     @Test
     public void shouldDoRedirectAuthorise() throws WorldpayException {
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
-        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant(DESKTOP)).thenReturn(merchantInfoMock);
-        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData(DESKTOP)).thenReturn(worldpayMerchantConfigDataMock);
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
 
         testObj.redirectAuthorise(additionalAuthInfoMock);
 
@@ -126,10 +123,9 @@ public class DefaultWorldpayHostedOrderFacadeTest {
 
     @Test
     public void shouldInquiryPaymentStatusRetrievingOrderCodeFromCartForAPM() throws WorldpayException {
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
-        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant(DESKTOP)).thenReturn(merchantInfoMock);
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderInquiryServiceMock.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(paymentReplyMock);
+        when(orderInquiryServiceMock.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(orderInquiryServiceResponseMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
         when(paymentReplyMock.getAmount().getValue()).thenReturn("12345");
         when(paymentReplyMock.getAmount().getExponent()).thenReturn("2");
@@ -145,10 +141,9 @@ public class DefaultWorldpayHostedOrderFacadeTest {
 
     @Test
     public void shouldInquiryPaymentStatusRetrievingOrderCodeFromCartForNotAPM() throws WorldpayException {
-        when(uiExperienceServiceMock.getUiExperienceLevel()).thenReturn(DESKTOP);
-        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant(DESKTOP)).thenReturn(merchantInfoMock);
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderInquiryServiceMock.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(paymentReplyMock);
+        when(orderInquiryServiceMock.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(orderInquiryServiceResponseMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
         when(paymentReplyMock.getAmount().getValue()).thenReturn("12345");
         when(paymentReplyMock.getAmount().getExponent()).thenReturn("2");

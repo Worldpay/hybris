@@ -20,6 +20,12 @@
         <value>USE</value>
     </enum>
 
+    <enum class="com.worldpay.config.Environment">
+        <value>PROD</value>
+        <value>TEST</value>
+        <value>MOCK</value>
+    </enum>
+
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
@@ -54,8 +60,8 @@
         <property name="securityCode" type="java.lang.String"/>
         <property name="customerEmail" type="java.lang.String"/>
         <property name="authenticatedShopperId" type="java.lang.String"/>
-        <property name="uiExperienceLevel" type="de.hybris.platform.commerceservices.enums.UiExperienceLevel"/>
         <property name="savedCardPayment" type="boolean"/>
+        <property name="replenishmentOrder" type="boolean"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -96,4 +102,13 @@
         <property name="bankCode" type="java.lang.String"/>
         <property name="bankName" type="java.lang.String"/>
     </bean>
+
+    <enum class="com.worldpay.enums.order.DynamicInteractionType">
+        <value>ECOMMERCE</value>
+        <value>MOTO</value>
+        <value>CONT_AUTH</value>
+        <value>PRESENT</value>
+        <value>UNATTENDED</value>
+    </enum>
+
 </beans>

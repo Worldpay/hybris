@@ -32,12 +32,8 @@ payment.service-provider.name=Worldpay
 # Set the HOP PCI strategy at this level so that it's consistent across stores
 hop.pci.strategy.enabled=true
 
-worldpayaddon.javascript.paths.desktop=/desktop/common/js/worldpayaddon.js;/desktop/common/js/worldpayaddonCSE.js;/desktop/common/js/worldpayaddonRedirect.js;/desktop/common/js/worldpayaddonLightbox.js
 worldpayaddon.javascript.paths.responsive=/responsive/common/js/worldpayaddon.js;/responsive/common/js/worldpayaddonCSE.js;/responsive/common/js/worldpayaddonRedirect.js
-worldpayaddon.javascript.paths.mobile=/mobile/common/js/worldpayaddon.js;/mobile/common/js/worldpayaddonCSE.js;/mobile/common/js/worldpayaddonRedirect.js
-worldpayaddon.css.paths.desktop=/desktop/common/css/worldpayaddon.css
 worldpayaddon.css.paths.responsive=/responsive/common/css/worldpayaddon.css
-worldpayaddon.css.paths.mobile=/mobile/common/css/worldpayaddon.css
 
 
 ### Remove the comment below to show the hosted order pre-post debug page (can be done on a per-site basis)

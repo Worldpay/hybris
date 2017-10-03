@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.AuthorisationCodeServiceRequest;
@@ -15,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 public class AuthorisationCodeServiceRequestTest {
 
     private static final String AUTHORISATION_CODE = "AC-1234567890";
-    private static final WorldpayConfig WORLD_PAY_CONFIG = WorldpayTestConfigHelper.getWorldpayTestConfig();
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
     private static final MerchantInfo merchantInfo = new MerchantInfo(MERCHANT_CODE, MERCHANT_PASSWORD);
@@ -29,39 +27,31 @@ public class AuthorisationCodeServiceRequestTest {
     @Test
     public void testAuthorisationCode() throws WorldpayException {
 
-        final AuthorisationCodeServiceRequest request = AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(WORLD_PAY_CONFIG, merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
+        final AuthorisationCodeServiceRequest request = AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
 
         assertEquals(AUTHORISATION_CODE, request.getAuthorisationCode());
-        assertEquals(WORLD_PAY_CONFIG, request.getWorldpayConfig());
         assertEquals(merchantInfo, request.getMerchantInfo());
         assertEquals(ORDER_CODE, request.getOrderCode());
-    }
-
-    @Test
-    public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenWorldpayConfigIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(null, merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
     }
 
     @Test
     public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(WORLD_PAY_CONFIG, null, ORDER_CODE, AUTHORISATION_CODE);
+        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(null, ORDER_CODE, AUTHORISATION_CODE);
     }
 
     @Test
     public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(WORLD_PAY_CONFIG, merchantInfo, null, AUTHORISATION_CODE);
+        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, null, AUTHORISATION_CODE);
     }
 
     @Test
     public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenAuthorizationCodeIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(WORLD_PAY_CONFIG, merchantInfo, ORDER_CODE, null);
+        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, null);
     }
 }

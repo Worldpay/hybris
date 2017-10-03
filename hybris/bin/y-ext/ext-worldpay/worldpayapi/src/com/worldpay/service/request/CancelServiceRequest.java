@@ -1,7 +1,6 @@
 package com.worldpay.service.request;
 
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
 
@@ -13,22 +12,21 @@ import com.worldpay.service.model.MerchantInfo;
  */
 public class CancelServiceRequest extends AbstractServiceRequest {
 
-    protected CancelServiceRequest(WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected CancelServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+        super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the CancelServiceRequest
      *
-     * @param config    worldpayConfig to be used in the Worldpay call
      * @param merch     merchantInfo to be used in the Worldpay call
      * @param orderCode orderCode to be used in the Worldpay call
      * @return new instance of the CancelServiceRequest initialised with input parameters
      */
-    public static CancelServiceRequest createCancelRequest(WorldpayConfig config, MerchantInfo merch, String orderCode) {
-        if (config == null || merch == null || orderCode == null) {
+    public static CancelServiceRequest createCancelRequest(MerchantInfo merch, String orderCode) {
+        if (merch == null || orderCode == null) {
             throw new IllegalArgumentException("WorldpayConfig, MerchantInfo and Order Code cannot be null");
         }
-        return new CancelServiceRequest(config, merch, orderCode);
+        return new CancelServiceRequest(merch, orderCode);
     }
 }

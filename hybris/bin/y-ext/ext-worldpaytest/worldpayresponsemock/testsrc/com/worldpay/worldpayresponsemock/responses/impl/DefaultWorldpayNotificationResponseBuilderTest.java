@@ -1,26 +1,7 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.internal.model.AccountTx;
-import com.worldpay.internal.model.Address;
-import com.worldpay.internal.model.Address1;
-import com.worldpay.internal.model.Address2;
-import com.worldpay.internal.model.Address3;
-import com.worldpay.internal.model.Balance;
-import com.worldpay.internal.model.CardAddress;
-import com.worldpay.internal.model.CardDetails;
-import com.worldpay.internal.model.Date;
-import com.worldpay.internal.model.Derived;
-import com.worldpay.internal.model.Journal;
-import com.worldpay.internal.model.Notify;
-import com.worldpay.internal.model.OrderStatusEvent;
-import com.worldpay.internal.model.Payment;
-import com.worldpay.internal.model.PaymentInstrument;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.PaymentTokenExpiry;
-import com.worldpay.internal.model.Token;
-import com.worldpay.internal.model.TokenDetails;
-import com.worldpay.internal.model.TokenReason;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -28,17 +9,12 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder.REFUND_WEBFORM_ISSUED;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +85,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
     @Spy
     @InjectMocks
-    private DefaultWorldpayNotificationResponseBuilder testObj = new DefaultWorldpayNotificationResponseBuilder();
+    private DefaultWorldpayNotificationResponseBuilder testObj;
 
     @Before
     public void setUp() {
@@ -129,7 +105,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(responseFormMock.getResponseDescription()).thenReturn(RESPONSE_DESCRIPTION);
         when(responseFormMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
-        doReturn(paymentServiceMarshallerMock).when(testObj).getPaymentServiceMarshaller();
     }
 
     @Test

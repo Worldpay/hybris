@@ -7,7 +7,6 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.strategy.WorldpayMerchantStrategy;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.session.SessionExecutionBody;
 import de.hybris.platform.servicelayer.session.SessionService;
@@ -41,33 +40,21 @@ public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoS
      * @throws WorldpayConfigurationException
      */
     @Override
+    public MerchantInfo getCurrentSiteMerchant() throws WorldpayConfigurationException {
+        final WorldpayMerchantConfigData currentSiteMerchantConfigData = worldpayMerchantStrategy.getMerchant();
+        return createMerchantInfo(currentSiteMerchantConfigData);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     * @throws WorldpayConfigurationException
+     */
+    @Override
     public MerchantInfo getReplenishmentMerchant() throws WorldpayConfigurationException {
         final WorldpayMerchantConfigData replensihmentMerchantConfigData = worldpayMerchantStrategy.getReplenishmentMerchant();
         return createMerchantInfo(replensihmentMerchantConfigData);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     * @throws WorldpayConfigurationException
-     */
-    @Override
-    public MerchantInfo getCustomerServicesMerchant() throws WorldpayConfigurationException {
-        final WorldpayMerchantConfigData customerServiceMerchantConfigData = worldpayMerchantStrategy.getCustomerServiceMerchant();
-        return createMerchantInfo(customerServiceMerchantConfigData);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     * @throws WorldpayConfigurationException
-     */
-    @Override
-    public MerchantInfo getCurrentSiteMerchant(final UiExperienceLevel uiExperienceLevel) throws WorldpayConfigurationException {
-        final WorldpayMerchantConfigData currentSiteMerchantConfigData = worldpayMerchantStrategy.getMerchant(uiExperienceLevel);
-        return createMerchantInfo(currentSiteMerchantConfigData);
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
@@ -16,7 +15,6 @@ import static org.junit.Assert.assertFalse;
 @UnitTest
 public class RefundServiceRequestTest {
 
-    private static final WorldpayConfig WORLD_PAY_CONFIG = WorldpayTestConfigHelper.getWorldpayTestConfig();
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
     private static final String ORDER_CODE = "orderCode";
@@ -24,16 +22,15 @@ public class RefundServiceRequestTest {
     private static final Amount AMOUNT = new Amount("100", "EUR", "2");
     private static final String REFERENCE = "reference";
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testRefundFullAmount() throws WorldpayException {
 
-        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(WORLD_PAY_CONFIG, MERCHANT_INFO, ORDER_CODE, AMOUNT, REFERENCE, Boolean.FALSE);
+        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, AMOUNT, REFERENCE, Boolean.FALSE);
 
-        assertEquals(WORLD_PAY_CONFIG, request.getWorldpayConfig());
         assertEquals(AMOUNT, request.getAmount());
         assertEquals(MERCHANT_INFO, request.getMerchantInfo());
         assertEquals(ORDER_CODE, request.getOrderCode());
@@ -42,30 +39,23 @@ public class RefundServiceRequestTest {
     }
 
     @Test
-    public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenWorldpayConfigIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        RefundServiceRequest.createRefundRequest(null, MERCHANT_INFO, ORDER_CODE, AMOUNT, REFERENCE, Boolean.FALSE);
-    }
-
-    @Test
     public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        RefundServiceRequest.createRefundRequest(WORLD_PAY_CONFIG, null, ORDER_CODE, AMOUNT, REFERENCE, Boolean.FALSE);
+        RefundServiceRequest.createRefundRequest(null, ORDER_CODE, AMOUNT, REFERENCE, Boolean.FALSE);
     }
 
     @Test
     public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        RefundServiceRequest.createRefundRequest(WORLD_PAY_CONFIG, MERCHANT_INFO, null, AMOUNT, REFERENCE, Boolean.FALSE);
+        RefundServiceRequest.createRefundRequest(MERCHANT_INFO, null, AMOUNT, REFERENCE, Boolean.FALSE);
     }
 
     @Test
     public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenAmountIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        RefundServiceRequest.createRefundRequest(WORLD_PAY_CONFIG, MERCHANT_INFO, ORDER_CODE, null, REFERENCE, Boolean.FALSE);
+        RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, null, REFERENCE, Boolean.FALSE);
     }
 }

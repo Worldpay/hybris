@@ -1,20 +1,29 @@
 package com.worldpay.core.services.impl;
 
-import com.worldpay.config.WorldpayConfig;
-import com.worldpay.config.WorldpayConfigLookupService;
+import com.evanlennick.retry4j.CallExecutor;
+import com.evanlennick.retry4j.CallResults;
+import com.evanlennick.retry4j.config.RetryConfig;
+import com.evanlennick.retry4j.config.RetryConfigBuilder;
+import com.evanlennick.retry4j.exception.RetriesExhaustedException;
+import com.evanlennick.retry4j.exception.UnexpectedException;
 import com.worldpay.core.services.OrderInquiryService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.request.AbstractServiceRequest;
+import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
+import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
+
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Callable;
 
 import static java.text.MessageFormat.format;
 
@@ -26,11 +35,16 @@ import static java.text.MessageFormat.format;
  * </p>
  */
 public class DefaultOrderInquiryService implements OrderInquiryService {
-
     private static final Logger LOG = Logger.getLogger(DefaultOrderInquiryService.class);
 
-    private WorldpayConfigLookupService worldpayConfigLookupService;
+    private static final String WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES = "worldpayapi.inquiry.max.number.of.retries";
+    private static final int DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE = 3;
+    private static final String WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES = "worldpayapi.inquiry.delay.between.retries";
+    private static final int DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE = 3;
+
     private WorldpayPaymentInfoService worldpayPaymentInfoService;
+    private ConfigurationService configurationService;
+    private WorldpayServiceGateway worldpayServiceGateway;
 
     /**
      * {@inheritDoc}
@@ -41,7 +55,7 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
     public OrderInquiryServiceResponse inquirePaymentTransaction(final MerchantInfo merchantConfig, final PaymentTransactionModel paymentTransactionModel) throws WorldpayException {
         final String orderCode = paymentTransactionModel.getRequestId();
         final OrderInquiryServiceRequest orderInquiryServiceRequest = createOrderInquiryServiceRequest(merchantConfig, orderCode);
-        return getWorldpayServiceGateway().orderInquiry(orderInquiryServiceRequest);
+        return worldpayServiceGateway.orderInquiry(orderInquiryServiceRequest);
     }
 
     /**
@@ -65,28 +79,74 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
     }
 
     @Override
-    public PaymentReply inquireOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException {
+    public OrderInquiryServiceResponse inquireOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException {
         final OrderInquiryServiceRequest orderInquiryServiceRequest = createOrderInquiryServiceRequest(merchantInfo, worldpayOrderCode);
-        final OrderInquiryServiceResponse orderInquiryServiceResponse = getWorldpayServiceGateway().orderInquiry(orderInquiryServiceRequest);
-        return orderInquiryServiceResponse.getPaymentReply();
+        return getOrderInquiryServiceResponse(orderInquiryServiceRequest);
+    }
+
+    @Override
+    public OrderInquiryServiceResponse inquiryKlarnaOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException {
+        final KlarnaOrderInquiryServiceRequest klarnaOrderInquiryServiceRequest = createKlarnaOrderInquiryServiceRequest(merchantInfo, worldpayOrderCode);
+        return getOrderInquiryServiceResponse(klarnaOrderInquiryServiceRequest);
+    }
+
+    private OrderInquiryServiceResponse getOrderInquiryServiceResponse(final AbstractServiceRequest orderInquiryServiceRequest) throws WorldpayException {
+        final Callable<OrderInquiryServiceResponse> callable = getOrderInquiryServiceResponseCallable(orderInquiryServiceRequest);
+        final RetryConfig config = buildRetryConfig();
+
+        try {
+            final CallResults<OrderInquiryServiceResponse> results = executeInquiryCallable(callable, config);
+            return results.getResult();
+        } catch (RetriesExhaustedException | UnexpectedException e) {
+            throw new WorldpayException("Unable to retrieve order status", e);
+        }
+    }
+
+    private Callable<OrderInquiryServiceResponse> getOrderInquiryServiceResponseCallable(final AbstractServiceRequest orderInquiryServiceRequest) {
+        return () -> {
+            final OrderInquiryServiceResponse response = worldpayServiceGateway.orderInquiry(orderInquiryServiceRequest);
+
+            if (response.getErrorDetail() != null) {
+                throw new WorldpayException(response.getErrorDetail().getMessage());
+            }
+
+            return response;
+        };
+    }
+
+    private RetryConfig buildRetryConfig() {
+        return new RetryConfigBuilder()
+                .retryOnSpecificExceptions(WorldpayException.class)
+                .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
+                .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
+                .withFixedBackoff()
+                .build();
+    }
+
+    protected CallResults<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {
+        return new CallExecutor<OrderInquiryServiceResponse>(config).execute(callable);
     }
 
     protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) throws WorldpayConfigurationException {
-        final WorldpayConfig worldpayConfig = worldpayConfigLookupService.lookupConfig();
-        return OrderInquiryServiceRequest.createOrderInquiryRequest(worldpayConfig, merchantInfo, orderCode);
+        return OrderInquiryServiceRequest.createOrderInquiryRequest(merchantInfo, orderCode);
     }
 
-    protected WorldpayServiceGateway getWorldpayServiceGateway() {
-        return WorldpayServiceGateway.getInstance();
-    }
-
-    @Required
-    public void setWorldpayConfigLookupService(final WorldpayConfigLookupService worldpayConfigLookupService) {
-        this.worldpayConfigLookupService = worldpayConfigLookupService;
+    protected KlarnaOrderInquiryServiceRequest createKlarnaOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) throws WorldpayConfigurationException {
+        return KlarnaOrderInquiryServiceRequest.createKlarnaOrderInquiryRequest(merchantInfo, orderCode);
     }
 
     @Required
     public void setWorldpayPaymentInfoService(final WorldpayPaymentInfoService worldpayPaymentInfoService) {
         this.worldpayPaymentInfoService = worldpayPaymentInfoService;
+    }
+
+    @Required
+    public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
+        this.worldpayServiceGateway = worldpayServiceGateway;
+    }
+
+    @Required
+    public void setConfigurationService(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 }

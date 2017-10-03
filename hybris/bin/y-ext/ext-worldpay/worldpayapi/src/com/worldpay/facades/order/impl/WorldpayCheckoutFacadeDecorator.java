@@ -1,7 +1,6 @@
 package com.worldpay.facades.order.impl;
 
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
-import de.hybris.platform.acceleratorservices.enums.CheckoutFlowEnum;
 import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
 import de.hybris.platform.commercefacades.order.data.*;
 import de.hybris.platform.commercefacades.storelocator.data.PointOfServiceData;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Required;
 import java.util.List;
 
 /**
+ * Adds Worldpay functionality by decorating the CheckoutFlowFacade
  */
 public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
 
@@ -67,14 +67,6 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     public boolean hasNoPaymentInfo() {
         final CartData cartData = getCheckoutCart();
         return cartData == null || (cartData.getPaymentInfo() == null && cartData.getWorldpayAPMPaymentInfo() == null);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public CheckoutFlowEnum getCheckoutFlow() {
-        return getCheckoutFlowFacade().getCheckoutFlow();
     }
 
     /**

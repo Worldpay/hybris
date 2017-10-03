@@ -1,14 +1,12 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.model.MerchantInfo;
 
 /**
- * Template implementation of a {@link ServiceRequest} providing {@link WorldpayConfig}, {@link MerchantInfo} and order code
+ * Template implementation of a {@link ServiceRequest} providing {@link MerchantInfo} and order code
  */
 public class AbstractServiceRequest implements ServiceRequest {
 
-    private WorldpayConfig worldpayConfig;
     private MerchantInfo merchantInfo;
     private String orderCode;
     private String cookie;
@@ -16,12 +14,10 @@ public class AbstractServiceRequest implements ServiceRequest {
     /**
      * Default constructor that takes the full list of fields
      *
-     * @param config
      * @param merchantInfo
      * @param orderCode
      */
-    protected AbstractServiceRequest(WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) {
-        this.worldpayConfig = config;
+    protected AbstractServiceRequest(MerchantInfo merchantInfo, String orderCode) {
         this.merchantInfo = merchantInfo;
         this.orderCode = orderCode;
     }
@@ -32,14 +28,6 @@ public class AbstractServiceRequest implements ServiceRequest {
                 throw new IllegalArgumentException("Required parameter to create " + requestType + " cannot be null");
             }
         }
-    }
-
-    public WorldpayConfig getWorldpayConfig() {
-        return worldpayConfig;
-    }
-
-    public void setWorldpayConfig(WorldpayConfig worldpayConfig) {
-        this.worldpayConfig = worldpayConfig;
     }
 
     @Override

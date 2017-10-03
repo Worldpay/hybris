@@ -1,6 +1,5 @@
 package com.worldpay.service.request;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.token.DeleteTokenRequest;
@@ -17,29 +16,26 @@ public class DeleteTokenServiceRequest extends AbstractServiceRequest {
 
     /**
      * Default constructor that takes the full list of fields
-     *
-     * @param config
-     * @param merchantInfo
+     *  @param merchantInfo
      * @param orderCode
      */
-    protected DeleteTokenServiceRequest(WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) {
-        super(config, merchantInfo, orderCode);
+    protected DeleteTokenServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+        super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the DeleteTokenServiceRequest
      *
-     * @param config                 WorldpayConfig to be used in the Worldpay call
      * @param merchantInfo           merchantInfo to be used in the Worldpay call
      * @param authenticatedShopperId unique reference for the customer using the payment method
      * @param paymentTokenId         the payment token id to update
      * @param tokenRequest           contains the information to request a new token
      * @return new instance of the UpdateTokenServiceRequest initialised with input parameters
      */
-    public static DeleteTokenServiceRequest deleteTokenRequest(final WorldpayConfig config, final MerchantInfo merchantInfo, final String authenticatedShopperId, final String paymentTokenId, final TokenRequest tokenRequest) {
-        checkParameters("DeleteTokenServiceRequest", config, merchantInfo);
+    public static DeleteTokenServiceRequest deleteTokenRequest(final MerchantInfo merchantInfo, final String authenticatedShopperId, final String paymentTokenId, final TokenRequest tokenRequest) {
+        checkParameters("DeleteTokenServiceRequest", merchantInfo);
 
-        final DeleteTokenServiceRequest request = new DeleteTokenServiceRequest(config, merchantInfo, null);
+        final DeleteTokenServiceRequest request = new DeleteTokenServiceRequest(merchantInfo, null);
         request.setDeleteTokenRequest(new DeleteTokenRequest(paymentTokenId, authenticatedShopperId, tokenRequest));
         return request;
     }

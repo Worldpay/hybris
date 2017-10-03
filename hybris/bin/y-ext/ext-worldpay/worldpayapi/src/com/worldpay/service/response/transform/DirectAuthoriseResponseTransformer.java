@@ -23,18 +23,18 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
      */
     @Override
     public ServiceResponse transform(final PaymentService paymentServiceReply) throws WorldpayModelTransformationException {
-        DirectAuthoriseServiceResponse authResponse = new DirectAuthoriseServiceResponse();
 
-        Object responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         if (responseType == null) {
             throw new WorldpayModelTransformationException("No reply message in Worldpay response");
         }
         if (!(responseType instanceof Reply)) {
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
-        Reply intReply = (Reply) responseType;
-        ServiceResponseTransformerHelper responseTransformerHelper = ServiceResponseTransformerHelper.getInstance();
-        if (responseTransformerHelper.checkForError(authResponse, intReply)) {
+        final Reply intReply = (Reply) responseType;
+
+        final DirectAuthoriseServiceResponse authResponse = new DirectAuthoriseServiceResponse();
+        if (getServiceResponseTransformerHelper().checkForError(authResponse, intReply)) {
             return authResponse;
         }
 
@@ -44,8 +44,8 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
             authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
             final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
-            for(Object orderStatusType : intOrderStatusElements) {
-                transformOrderStatus(authResponse, responseTransformerHelper, intOrderStatus, orderStatusType);
+            for (Object orderStatusType : intOrderStatusElements) {
+                transformOrderStatus(authResponse, intOrderStatus, orderStatusType);
             }
         } else {
             throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
@@ -53,7 +53,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
         return authResponse;
     }
 
-    private void transformOrderStatus(final DirectAuthoriseServiceResponse authResponse, final ServiceResponseTransformerHelper responseTransformerHelper, final OrderStatus intOrderStatus, final Object orderStatusType) throws WorldpayModelTransformationException {
+    private void transformOrderStatus(final DirectAuthoriseServiceResponse authResponse, final OrderStatus intOrderStatus, final Object orderStatusType) throws WorldpayModelTransformationException {
         if (orderStatusType == null) {
             throw new WorldpayModelTransformationException("No order status type returned in Worldpay reply message");
         }
@@ -65,10 +65,10 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
         } else if (orderStatusType instanceof Reference) {
             final Reference intReference = (Reference) orderStatusType;
 
-            authResponse.setRedirectReference(new RedirectReference(intReference.getId(),intReference.getvalue()));
+            authResponse.setRedirectReference(new RedirectReference(intReference.getId(), intReference.getvalue()));
         } else if (orderStatusType instanceof Payment) {
             final Payment intPayment = (Payment) orderStatusType;
-            final PaymentReply paymentReply = responseTransformerHelper.buildPaymentReply(intPayment);
+            final PaymentReply paymentReply = getServiceResponseTransformerHelper().buildPaymentReply(intPayment);
 
             authResponse.setPaymentReply(paymentReply);
         } else {
@@ -76,7 +76,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
         }
 
         if (intOrderStatus.getToken() != null) {
-            final TokenReply token = responseTransformerHelper.buildTokenReply(intOrderStatus.getToken());
+            final TokenReply token = getServiceResponseTransformerHelper().buildTokenReply(intOrderStatus.getToken());
             authResponse.setToken(token);
         }
 

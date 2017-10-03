@@ -42,7 +42,7 @@ public final class PaymentBuilder {
     private String cardType = CREDIT_CARD;
     private String expiryMonth = String.valueOf(DATE.getMonthOfYear());
     private String expiryYear = String.valueOf(DATE.plusYears(3).getYear());
-    private String cardHolderName = DEFAULT_CARD_HOLDER_NAME;
+    private String cardHolderNameValue = DEFAULT_CARD_HOLDER_NAME;
     private String lastEvent;
     private String paymentMethod = CC;
     private String transactionAmount;
@@ -114,7 +114,7 @@ public final class PaymentBuilder {
      * @return this builder
      */
     public PaymentBuilder withCardHolderName(String cardHolderName) {
-        this.cardHolderName = cardHolderName;
+        this.cardHolderNameValue = cardHolderName;
         return this;
     }
 
@@ -288,7 +288,7 @@ public final class PaymentBuilder {
             payment.setAVSResultCode(avsResultCode);
 
             final CardHolderName cardHolderName = new CardHolderName();
-            cardHolderName.setvalue(this.cardHolderName);
+            cardHolderName.setvalue(this.cardHolderNameValue);
             payment.setCardHolderName(cardHolderName);
 
             payment.setIssuerCountryCode("CH");

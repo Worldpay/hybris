@@ -1,6 +1,6 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
+import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
@@ -35,35 +35,35 @@ public class WPSGTestHelper {
     private static final Shopper SHOPPER = new Shopper(SHOPPER_EMAIL, null, BROWSER, SESSION);
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
 
-    public static DirectAuthoriseServiceResponse directAuthorise(final WorldpayServiceGateway gateway, final WorldpayConfig config, final MerchantInfo merchantInfo, String orderCode) throws WorldpayException {
+    public static DirectAuthoriseServiceResponse directAuthorise(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo, String orderCode) throws WorldpayException {
         final BasicOrderInfo orderInfo = new BasicOrderInfo(orderCode, "Your Order & Order desc", new Amount("100", "EUR", "2"));
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(config, merchantInfo, orderInfo, payment,
-                SHOPPER, SESSION, ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, orderInfo, payment,
+                SHOPPER, SESSION, ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
         return gateway.directAuthorise(request);
     }
 
-    public static CreateTokenResponse createToken(final WorldpayServiceGateway gateway, final WorldpayConfig config, final MerchantInfo merchantInfo,
+    public static CreateTokenResponse createToken(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
                                                   final TokenRequest tokenRequest, final String authenticatedShopperId) throws WorldpayException {
         final Payment payment = PaymentBuilder.createCSE(ENCRYPTED_DATA, ADDRESS);
-        final CreateTokenServiceRequest request = CreateTokenServiceRequest.createTokenRequest(config, merchantInfo, authenticatedShopperId, payment, tokenRequest);
+        final CreateTokenServiceRequest request = CreateTokenServiceRequest.createTokenRequest(merchantInfo, authenticatedShopperId, payment, tokenRequest);
         return gateway.createToken(request);
     }
 
-    public static UpdateTokenResponse updateToken(final WorldpayServiceGateway gateway, final WorldpayConfig config, final MerchantInfo merchantInfo,
+    public static UpdateTokenResponse updateToken(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
                                                   final TokenRequest tokenRequest, final String paymentTokenId, final CardDetails cardDetails, final String authenticatedShopperId) throws WorldpayException {
-        final UpdateTokenServiceRequest request = UpdateTokenServiceRequest.updateTokenRequest(config, merchantInfo, authenticatedShopperId, paymentTokenId, tokenRequest, cardDetails);
+        final UpdateTokenServiceRequest request = UpdateTokenServiceRequest.updateTokenRequest(merchantInfo, authenticatedShopperId, paymentTokenId, tokenRequest, cardDetails);
         return gateway.updateToken(request);
     }
 
-    public static DeleteTokenResponse deleteToken(final WorldpayServiceGateway gateway, final WorldpayConfig config, final MerchantInfo merchantInfo,
+    public static DeleteTokenResponse deleteToken(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
                                                   final TokenRequest tokenRequest, final String paymentTokenId, final String authenticatedShopperId) throws WorldpayException {
-        final DeleteTokenServiceRequest request = DeleteTokenServiceRequest.deleteTokenRequest(config, merchantInfo, authenticatedShopperId, paymentTokenId, tokenRequest);
+        final DeleteTokenServiceRequest request = DeleteTokenServiceRequest.deleteTokenRequest(merchantInfo, authenticatedShopperId, paymentTokenId, tokenRequest);
         return gateway.deleteToken(request);
     }
 
-    public static CaptureServiceResponse capture(WorldpayServiceGateway gateway, WorldpayConfig config, MerchantInfo merchantInfo, String orderCode) throws WorldpayException {
-        final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(config, merchantInfo, orderCode, new Amount("100", "EUR", "2"), null);
+    public static CaptureServiceResponse capture(WorldpayServiceGateway gateway, MerchantInfo merchantInfo, String orderCode) throws WorldpayException {
+        final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(merchantInfo, orderCode, new Amount("100", "EUR", "2"), null);
 
         return gateway.capture(request);
     }

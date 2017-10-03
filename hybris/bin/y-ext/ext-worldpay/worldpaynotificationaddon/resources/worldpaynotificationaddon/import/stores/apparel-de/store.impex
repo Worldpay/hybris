@@ -1,7 +1,0 @@
-$productCatalog=apparelProductCatalog
-$currencies=EUR
-$net=false
-$storeUid=apparel-de
-$defaultCurrency=EUR
-$languages=de
-$defaultLanguage=de

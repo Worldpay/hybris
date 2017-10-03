@@ -1,5 +1,6 @@
 package com.worldpay.service.model;
 
+import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.*;
@@ -29,6 +30,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
     private Session session;
     private String paResponse;
     private OrderLines orderLines;
+    private DynamicInteractionType dynamicInteractionType;
 
     /**
      * Constructor with full list of fields
@@ -110,6 +112,12 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
 
         if(orderLines != null) {
             childElements.add(orderLines.transformToInternalModel());
+        }
+
+        if(dynamicInteractionType != null) {
+            final com.worldpay.internal.model.DynamicInteractionType internalDynamicInteractionType = new com.worldpay.internal.model.DynamicInteractionType();
+            internalDynamicInteractionType.setType(this.dynamicInteractionType.name());
+            childElements.add(internalDynamicInteractionType);
         }
 
         return intOrder;
@@ -225,5 +233,9 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
 
     public void setOrderLines(final OrderLines orderLines) {
         this.orderLines = orderLines;
+    }
+
+    public void setDynamicInteractionType(final DynamicInteractionType dynamicInteractionType) {
+        this.dynamicInteractionType = dynamicInteractionType;
     }
 }

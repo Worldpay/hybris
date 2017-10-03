@@ -69,7 +69,7 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
     }
 
     protected boolean checkIfObjectIsEmptyCollection(Object object) {
-        return object instanceof Collection ? CollectionUtils.isEmpty((Collection)object):false;
+        return object instanceof Collection && CollectionUtils.isEmpty((Collection) object);
     }
 
     @Required

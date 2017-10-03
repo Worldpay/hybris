@@ -1,10 +1,8 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
-import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.service.model.AuthorisedStatus;
@@ -66,9 +64,6 @@ public class WorldpayHopResponseControllerTest {
     private static final String ORDER_CONFIRMATION_PAGE = "redirect:/checkout/orderConfirmation/" + ORDER_GUID;
     private static final String CHOOSE_PAYMENT_REDIRECT_URL = REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=%s";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    private static final String KLARNA_PAGE_REDIRECT = "klarnaContentPage";
-    private static final String KLARNA_CONTENT_PAGE = "decodedContent";
-    private static final String KLARNA_VIEW_DATA = "KLARNA_VIEW_DATA";
 
     @Spy
     @InjectMocks
@@ -116,10 +111,6 @@ public class WorldpayHopResponseControllerTest {
     private Converter<AbstractOrderModel, OrderData> orderConverterMock;
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
-    @Mock
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
-    @Mock
-    private KlarnaRedirectAuthoriseResult klarnaRedirectAuthoriseResponse;
 
     @Before
     public void setUp() {
@@ -353,42 +344,6 @@ public class WorldpayHopResponseControllerTest {
 
         verify(worldpayPaymentTransactionServiceMock).getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE);
         assertEquals(AbstractController.REDIRECT_PREFIX + "/cart", result);
-    }
-
-    @Test
-    public void shouldHandleKlarnaConfirmation() throws WorldpayException, InvalidCartException {
-        when(worldpayPaymentCheckoutFacadeMock.checkKlarnaOrderStatus()).thenReturn(klarnaRedirectAuthoriseResponse);
-        when(klarnaRedirectAuthoriseResponse.getDecodedHTMLContent()).thenReturn(KLARNA_CONTENT_PAGE);
-        when(worldpayAddonEndpointServiceMock.getKlarnaResponsePage()).thenReturn(KLARNA_PAGE_REDIRECT);
-
-        final String result = testObj.doHandleKlarnaConfirmation(modelMock, redirectAttributesMock);
-
-        assertEquals(KLARNA_PAGE_REDIRECT, result);
-        verify(worldpayHostedOrderFacadeMock).completeRedirectAuthorise(klarnaRedirectAuthoriseResponse);
-        verify(modelMock).addAttribute(KLARNA_VIEW_DATA, KLARNA_CONTENT_PAGE);
-        verify(checkoutFacadeMock).placeOrder();
-    }
-
-    @Test
-    public void shouldNotPlaceOrderWhenKlarnaConfirmationIsNotAuthorised() throws WorldpayException, InvalidCartException {
-        when(worldpayPaymentCheckoutFacadeMock.checkKlarnaOrderStatus()).thenThrow(new WorldpayException("Chan chan"));
-
-        final String result = testObj.doHandleKlarnaConfirmation(modelMock, redirectAttributesMock);
-
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
-        verify(modelMock, never()).addAttribute(eq(KLARNA_VIEW_DATA), anyString());
-        verify(checkoutFacadeMock, never()).placeOrder();
-    }
-
-    @Test
-    public void shouldRedirectToErrorPageWhenPlaceOrderFails() throws WorldpayException, InvalidCartException {
-        when(worldpayPaymentCheckoutFacadeMock.checkKlarnaOrderStatus()).thenReturn(klarnaRedirectAuthoriseResponse);
-        when(checkoutFacadeMock.placeOrder()).thenThrow(new InvalidCartException("Chan chan"));
-
-        final String result = testObj.doHandleKlarnaConfirmation(modelMock, redirectAttributesMock);
-
-        verify(modelMock, never()).addAttribute(KLARNA_VIEW_DATA, KLARNA_PAGE_REDIRECT);
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
     }
 
     @Test

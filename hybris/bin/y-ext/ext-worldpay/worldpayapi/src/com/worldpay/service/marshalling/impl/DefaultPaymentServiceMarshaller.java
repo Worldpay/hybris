@@ -19,20 +19,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 
-@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller {
-
-    private static DefaultPaymentServiceMarshaller instance;
-
-    public static synchronized DefaultPaymentServiceMarshaller getInstance() {
-        if (instance == null) {
-            instance = new DefaultPaymentServiceMarshaller();
-        }
-        return instance;
-    }
-
-    private DefaultPaymentServiceMarshaller() {
-    }
 
     /**
      * {@inheritDoc}

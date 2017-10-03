@@ -1,16 +1,7 @@
 package com.worldpay.worldpayresponsemock.facades.impl;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.internal.model.BatchModification;
-import com.worldpay.internal.model.Capture;
-import com.worldpay.internal.model.Modify;
-import com.worldpay.internal.model.Order;
-import com.worldpay.internal.model.OrderModification;
-import com.worldpay.internal.model.PaymentDetails;
-import com.worldpay.internal.model.PaymentMethodMask;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.PaymentTokenCreate;
-import com.worldpay.internal.model.Submit;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.responses.WorldpayCaptureResponseBuilder;
 import com.worldpay.worldpayresponsemock.responses.WorldpayDirectAuthoriseResponseBuilder;
@@ -22,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,11 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayMockFacadeTest {
 
     private static final String XML_RESULT = "RESULT";
@@ -42,9 +31,8 @@ public class DefaultWorldpayMockFacadeTest {
     private static final String REDIRECT_XML = "redirectXML";
     private static final String TOKEN_REPLY_XML = "tokenReplyXML";
 
-    @Spy
     @InjectMocks
-    private DefaultWorldpayMockFacade testObj = new DefaultWorldpayMockFacade();
+    private DefaultWorldpayMockFacade testObj;
 
     @Mock
     private PaymentService paymentServiceMock;
@@ -87,7 +75,6 @@ public class DefaultWorldpayMockFacadeTest {
         when(worldpayCaptureResponseBuilder.buildCaptureResponse(paymentServiceMock)).thenReturn(responsePaymentService);
         when(worldpayResponseBuilder.buildRedirectResponse(paymentServiceMock, httpRequestMock)).thenReturn(responsePaymentService);
         when(worldpayTokenCreateResponseBuilderMock.buildTokenResponse(paymentServiceMock)).thenReturn(responsePaymentService);
-        doReturn(paymentServiceMarshaller).when(testObj).getPaymentServiceMarshaller();
         when(paymentServiceMarshaller.marshal(responsePaymentService)).thenReturn(XML_RESULT);
     }
 

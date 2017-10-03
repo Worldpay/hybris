@@ -2,7 +2,6 @@ package com.worldpay.service.payment;
 
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.token.TokenRequest;
@@ -67,12 +66,6 @@ public interface WorldpayOrderService {
      * @return Basic order information object
      */
     BasicOrderInfo createBasicOrderInfo(final String worldpayOrderCode, final String description, final Amount amount);
-
-
-    /**
-     * @return Gateway to Worldpay
-     */
-    WorldpayServiceGateway getWorldpayServiceGateway();
 
     /**
      * Creates a {@link Shopper} object to be used in the Requests

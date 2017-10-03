@@ -24,7 +24,7 @@ public class DefaultWorldpayMerchantConfigDataServiceTest {
     private static final String MERCHANT_CONFIG_BEAN_NAME = "merchantConfigBeanName";
 
     @InjectMocks
-    private DefaultWorldpayMerchantConfigDataService testObj = new DefaultWorldpayMerchantConfigDataService();
+    private DefaultWorldpayMerchantConfigDataService testObj;
 
     @Mock
     private SiteConfigService siteConfigServiceMock;

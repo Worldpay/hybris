@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import com.worldpay.config.WorldpayConfig;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.TokenRequest;
@@ -26,18 +25,15 @@ public class UpdateTokenServiceRequestTest {
     private TokenRequest tokenRequestMock;
     @Mock
     private MerchantInfo merchantInfoMock;
-    @Mock
-    private WorldpayConfig worldpayConfigMock;
 
     @Test
     public void shouldCreateUpdateTokenServiceRequest(){
-        final UpdateTokenServiceRequest result = UpdateTokenServiceRequest.updateTokenRequest(worldpayConfigMock, merchantInfoMock, AUTHENTICATED_SHOPPER_ID, PAYMENT_TOKEN_ID, tokenRequestMock, cardDetailsMock);
+        final UpdateTokenServiceRequest result = UpdateTokenServiceRequest.updateTokenRequest(merchantInfoMock, AUTHENTICATED_SHOPPER_ID, PAYMENT_TOKEN_ID, tokenRequestMock, cardDetailsMock);
 
         assertEquals(tokenRequestMock, result.getUpdateTokenRequest().getTokenRequest());
         assertEquals(cardDetailsMock, result.getUpdateTokenRequest().getCardDetails());
         assertEquals(AUTHENTICATED_SHOPPER_ID, result.getUpdateTokenRequest().getAuthenticatedShopperID());
         assertEquals(PAYMENT_TOKEN_ID, result.getUpdateTokenRequest().getPaymentTokenId());
-        assertEquals(worldpayConfigMock, result.getWorldpayConfig());
         assertEquals(merchantInfoMock, result.getMerchantInfo());
     }
 }
