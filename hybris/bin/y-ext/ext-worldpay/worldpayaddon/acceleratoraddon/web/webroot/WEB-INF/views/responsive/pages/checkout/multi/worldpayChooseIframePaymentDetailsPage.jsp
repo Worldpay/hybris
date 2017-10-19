@@ -47,6 +47,7 @@
                 $(document).ready(function () {
                     libraryObject = new WPCL.Library();
                     libraryObject.setup(customOptions);
+                    dispatchEvent(new Event('load'));
                     $("#checkoutContentPanel").remove();
                     $(".form-actions").remove();
                 });
