@@ -153,6 +153,7 @@
         <property name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
         <property name="worldpayGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
         <property name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
+        <property name="addressService" ref="addressService"/>
     </bean>
 
     <alias name="defaultWorldpayRedirectOrderService" alias="worldpayRedirectOrderService"/>

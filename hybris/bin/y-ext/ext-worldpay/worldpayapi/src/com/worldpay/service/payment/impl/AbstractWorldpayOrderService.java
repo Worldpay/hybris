@@ -17,6 +17,7 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.user.AddressService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
@@ -34,6 +35,7 @@ public abstract class AbstractWorldpayOrderService {
     private CommerceCheckoutService commerceCheckoutService;
     private CustomerEmailResolutionService customerEmailResolutionService;
     private GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy;
+    private AddressService addressService;
 
 
     private WorldpayPaymentInfoService worldpayPaymentInfoService;
@@ -79,10 +81,9 @@ public abstract class AbstractWorldpayOrderService {
     public AddressModel cloneAndSetBillingAddressFromCart(final CartModel cartModel, final PaymentInfoModel paymentInfoModel) {
         final AddressModel paymentAddress = cartModel.getPaymentAddress();
         validateParameterNotNull(paymentAddress, "Payment Address cannot be null.");
-        final AddressModel clonedAddress = modelService.clone(paymentAddress);
+        final AddressModel clonedAddress = getAddressService().cloneAddressForOwner(paymentAddress, paymentInfoModel);
         clonedAddress.setBillingAddress(true);
         clonedAddress.setShippingAddress(false);
-        clonedAddress.setOwner(paymentInfoModel);
         paymentInfoModel.setBillingAddress(clonedAddress);
         return clonedAddress;
     }
@@ -175,5 +176,14 @@ public abstract class AbstractWorldpayOrderService {
     @Required
     public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
         this.worldpayServiceGateway = worldpayServiceGateway;
+    }
+
+    public AddressService getAddressService() {
+        return addressService;
+    }
+
+    @Required
+    public void setAddressService(AddressService addressService) {
+        this.addressService = addressService;
     }
 }
