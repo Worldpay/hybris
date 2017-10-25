@@ -16,7 +16,7 @@ import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
-import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.user.AddressService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
@@ -30,17 +30,15 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
 public abstract class AbstractWorldpayOrderService {
 
     private CommonI18NService commonI18NService;
-    private ModelService modelService;
     private CommerceCheckoutService commerceCheckoutService;
     private CustomerEmailResolutionService customerEmailResolutionService;
     private GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy;
-
-
     private WorldpayPaymentInfoService worldpayPaymentInfoService;
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     private WorldpayOrderService worldpayOrderService;
     private Converter<AddressModel, Address> worldpayAddressConverter;
     private WorldpayServiceGateway worldpayServiceGateway;
+    private AddressService addressService;
 
     /**
      * Creates a {@link CommerceCheckoutParameter} based on the passed {@link CartModel} and {@link PaymentInfoModel} given
@@ -48,7 +46,6 @@ public abstract class AbstractWorldpayOrderService {
      * @param abstractOrderModel  The abstractOrderModel to base the commerceCheckoutParameter on
      * @param paymentInfoModel    The paymentInfo to base the commerceCheckoutParameter on
      * @param authorisationAmount The authorised amount by the payment provider
-     *
      * @return the created parameters
      */
     public CommerceCheckoutParameter createCommerceCheckoutParameter(final AbstractOrderModel abstractOrderModel, final PaymentInfoModel paymentInfoModel, final BigDecimal authorisationAmount) {
@@ -71,29 +68,19 @@ public abstract class AbstractWorldpayOrderService {
      * Method: public CommerceOrderResult placeOrder(CommerceCheckoutParameter parameter) throws InvalidCartException {...}
      * Logic: if(cartModel.getPaymentInfo() != null && cartModel.getPaymentInfo().getBillingAddress() != null) {...}
      *
-     * @param cartModel holding the source address
+     * @param cartModel        holding the source address
      * @param paymentInfoModel holding the address owner
-     *
      * @return the cloned address model
      */
     public AddressModel cloneAndSetBillingAddressFromCart(final CartModel cartModel, final PaymentInfoModel paymentInfoModel) {
         final AddressModel paymentAddress = cartModel.getPaymentAddress();
         validateParameterNotNull(paymentAddress, "Payment Address cannot be null.");
-        final AddressModel clonedAddress = modelService.clone(paymentAddress);
+        final AddressModel clonedAddress = addressService.cloneAddressForOwner(paymentAddress, paymentInfoModel);
         clonedAddress.setBillingAddress(true);
         clonedAddress.setShippingAddress(false);
         clonedAddress.setOwner(paymentInfoModel);
         paymentInfoModel.setBillingAddress(clonedAddress);
         return clonedAddress;
-    }
-
-    public ModelService getModelService() {
-        return modelService;
-    }
-
-    @Required
-    public void setModelService(final ModelService modelService) {
-        this.modelService = modelService;
     }
 
     public CommerceCheckoutService getCommerceCheckoutService() {
@@ -175,5 +162,10 @@ public abstract class AbstractWorldpayOrderService {
     @Required
     public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
         this.worldpayServiceGateway = worldpayServiceGateway;
+    }
+
+    @Required
+    public void setAddressService(final AddressService addressService) {
+        this.addressService = addressService;
     }
 }
