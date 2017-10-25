@@ -30,8 +30,8 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.session.SessionService;
+import de.hybris.platform.servicelayer.user.AddressService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,8 +72,6 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
-    @Mock
-    private ModelService modelServiceMock;
     @Mock
     private CartService cartServiceMock;
     @Mock
@@ -140,6 +138,8 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private UpdateTokenResponse updateTokenResponseMock;
     @Mock
     private AdditionalAuthInfo additionalAuthInfoMock;
+    @Mock
+    private AddressService addressServiceMock;
 
     @Before
     public void setup() throws WorldpayException {
@@ -156,7 +156,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(worldpayOrderServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, sessionMock, browserMock)).thenReturn(shopperMock);
         when(shopperMock.getSession()).thenReturn(sessionMock);
         when(cartModelMock.getCode()).thenReturn(ORDER_CODE);
-        when(modelServiceMock.clone(paymentAddressModelMock)).thenReturn(deliveryAddressModelMock);
+        when(addressServiceMock.cloneAddressForOwner(paymentAddressModelMock, creditCardPaymentInfoModelMock)).thenReturn(deliveryAddressModelMock);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
         when(worldpayPaymentTransactionServiceMock.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, new BigDecimal("10.00"))).thenReturn(paymentTransactionEntryModelMock);
         when(worldpayAdditionalInfoDataMock.getAuthenticatedShopperId()).thenReturn(AUTHENTICATED_SHOPPER_ID);
@@ -190,7 +190,6 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
         assertEquals(directAuthoriseServiceResponseMock, directAuthoriseServiceResponse);
     }
-
 
     @Test
     public void shouldStoreCookieAndEchoDataInSession() throws Exception {
@@ -333,7 +332,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Test
     public void shouldCompleteAuthoriseWhenComplete3DAuthorise() {
         when(directAuthoriseServiceRequestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
-        when(worldpayPaymentTransactionServiceMock.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, new BigDecimal("10.00"))).thenReturn(paymentTransactionEntryModelMock);
+        when(worldpayPaymentTransactionServiceMock.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, BigDecimal.TEN)).thenReturn(paymentTransactionEntryModelMock);
         when(cartModelMock.getPaymentInfo()).thenReturn(creditCardPaymentInfoModelMock);
 
         testObj.completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponseMock, merchantInfoMock);
