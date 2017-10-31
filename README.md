@@ -26,10 +26,10 @@ The plugin contains several hybris extensions. Take the following steps to inclu
 or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommercewebservices" with your OCC extension if relevant):
 
 - If you are installing the B2C AddOn:
-- ant addoninstall -Daddonnames="worldpayaddon,worldpaynotificationaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+- ant addoninstall -Daddonnames="worldpayaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 - If you are installing the B2B AddOn:
-- ant addoninstall -Daddonnames="worldpayb2caddon,worldpaynotificationaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+- ant addoninstall -Daddonnames="worldpayb2caddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 - If you are installing the OCC AddOn:
 - ant addoninstall -Daddonnames="worldpayoccaddon" -DaddonStorefront.ycommercewebservices="ycommercewebservices"
@@ -49,7 +49,7 @@ or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommerceweb
 
 Except for setting up your hosts file, the Worldpay AddOn will work initally without any external setup needed.
 
-The AddOn's are independent and can be installed on separate server instances. For example, the worldpaynotificationaddon AddOn can be running on server instances dedicated for listening to Worldpay Order Modification messages.
+The AddOn's are independent and can be installed on separate server instances.
 
 ## Installing the Plugin into hybris with OMS functionality
 
