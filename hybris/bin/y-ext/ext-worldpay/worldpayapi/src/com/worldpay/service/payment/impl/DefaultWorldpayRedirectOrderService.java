@@ -1,7 +1,6 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
@@ -47,19 +46,20 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayOrderService.class);
 
-    protected static final String KEY_MAC = "mac";
-    protected static final String ORDER_KEY = "orderKey";
-    protected static final String KEY_COUNTRY = "country";
-    protected static final String KEY_LANGUAGE = "language";
-    protected static final String KEY_ERROR_URL = "errorURL";
-    protected static final String KEY_CANCEL_URL = "cancelURL";
-    protected static final String KEY_SUCCESS_URL = "successURL";
-    protected static final String KEY_PENDING_URL = "pendingURL";
-    protected static final String KEY_FAILURE_URL = "failureURL";
-    protected static final String PAYMENT_STATUS = "paymentStatus";
-    protected static final String KEY_PAYMENT_AMOUNT = "paymentAmount";
-    protected static final String KEY_PAYMENT_CURRENCY = "paymentCurrency";
-    protected static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
+    private static final String KEY_MAC = "mac";
+    private static final String KEY_MAC2 = "mac2";
+    private static final String ORDER_KEY = "orderKey";
+    private static final String KEY_COUNTRY = "country";
+    private static final String KEY_LANGUAGE = "language";
+    private static final String KEY_ERROR_URL = "errorURL";
+    private static final String KEY_CANCEL_URL = "cancelURL";
+    private static final String KEY_SUCCESS_URL = "successURL";
+    private static final String KEY_PENDING_URL = "pendingURL";
+    private static final String KEY_FAILURE_URL = "failureURL";
+    private static final String PAYMENT_STATUS = "paymentStatus";
+    private static final String KEY_PAYMENT_AMOUNT = "paymentAmount";
+    private static final String KEY_PAYMENT_CURRENCY = "paymentCurrency";
+    private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
 
     private SessionService sessionService;
     private WorldpayURIService worldpayURIService;
@@ -123,7 +123,8 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
 
         final String paymentStatus = resultMap.get(PAYMENT_STATUS);
         if (shouldValidateMac(merchantInfo, paymentStatus)) {
-            final String mac = resultMap.get(KEY_MAC);
+            final String mac2 = resultMap.getOrDefault(KEY_MAC2, "");
+            final String mac = resultMap.getOrDefault(KEY_MAC, mac2);
             final String paymentAmount = resultMap.get(KEY_PAYMENT_AMOUNT);
             final String paymentCurrency = resultMap.get(KEY_PAYMENT_CURRENCY);
             return validateResponse(merchantInfo, orderKey, mac, paymentAmount, paymentCurrency, paymentStatus);
@@ -152,8 +153,7 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
      * @param additionalAuthInfo The {@link AdditionalAuthInfo} to use in the communication with Worldpay
      * @return RedirectAuthoriseServiceRequest object
      */
-    private RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo)
-            throws WorldpayConfigurationException {
+    private RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo) {
         final String orderCode = getWorldpayGenerateMerchantTransactionCodeStrategy().generateCode(cartModel);
 
         final CurrencyModel currencyModel = cartModel.getCurrency();
@@ -214,7 +214,7 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
                 shopper, shippingAddress, billingAddress, additionalAuthInfo.getStatementNarrative(), tokenRequest);
     }
 
-    private PaymentData buildPaymentData(final String redirectReferenceUrl, final Map<String, String> params) throws WorldpayException {
+    private PaymentData buildPaymentData(final String redirectReferenceUrl, final Map<String, String> params) {
         final PaymentData data = new PaymentData();
         data.setPostUrl(redirectReferenceUrl);
         data.setParameters(params);

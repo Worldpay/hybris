@@ -1,11 +1,11 @@
 package com.worldpay.transaction.impl;
 
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
-import com.worldpay.internal.model.RiskScore;
 import com.worldpay.model.WorldpayAavResponseModel;
 import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.model.RiskScore;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.transaction.EntryCodeStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;

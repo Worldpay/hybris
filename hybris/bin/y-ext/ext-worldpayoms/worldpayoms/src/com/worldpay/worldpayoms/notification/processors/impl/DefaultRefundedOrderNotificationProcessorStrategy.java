@@ -23,11 +23,13 @@ public class DefaultRefundedOrderNotificationProcessorStrategy implements OrderN
     }
 
     private void setMatchingEntryAsNotPending(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
-        paymentTransactionModel.getEntries().stream().filter(entry -> entry.getCode().equals(orderNotificationMessage.getPaymentReply().getRefundReference())).forEach(entry -> {
-            entry.setPending(false);
-            entry.setTransactionStatus(ACCEPTED.name());
-            modelService.save(entry);
-        });
+        paymentTransactionModel.getEntries().stream()
+                .filter(entry -> entry.getCode().equals(orderNotificationMessage.getPaymentReply().getRefundReference()))
+                .forEach(entry -> {
+                    entry.setPending(false);
+                    entry.setTransactionStatus(ACCEPTED.name());
+                    modelService.save(entry);
+                });
     }
 
     @Required

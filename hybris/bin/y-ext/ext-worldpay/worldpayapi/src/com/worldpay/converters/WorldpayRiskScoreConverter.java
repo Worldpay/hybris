@@ -1,9 +1,8 @@
 package com.worldpay.converters;
 
-import com.worldpay.internal.model.RiskScore;
 import com.worldpay.model.WorldpayRiskScoreModel;
+import com.worldpay.service.model.RiskScore;
 import de.hybris.platform.converters.impl.AbstractConverter;
-import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -18,10 +17,9 @@ public class WorldpayRiskScoreConverter extends AbstractConverter<RiskScore, Wor
      * Creates a {@link WorldpayRiskScoreModel} with the information from the {@link RiskScore}. Handles RMM and RiskGuardian(tm) RiskScores.
      * @param riskScore the {@link RiskScore} received from Worldpay
      * @return a created {@link WorldpayRiskScoreModel} with the information received.
-     * @throws ConversionException
      */
     @Override
-    public WorldpayRiskScoreModel convert(final RiskScore riskScore) throws ConversionException {
+    public WorldpayRiskScoreModel convert(final RiskScore riskScore) {
         final WorldpayRiskScoreModel worldpayRiskScoreModel = modelService.create(WorldpayRiskScoreModel.class);
         populate(riskScore,worldpayRiskScoreModel);
         return worldpayRiskScoreModel;

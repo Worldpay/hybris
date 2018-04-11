@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.Set;
 
@@ -61,13 +60,13 @@ public class OrderModificationController {
             if (shouldProcessModificationMessage(orderNotificationMessage.getJournalReply().getJournalType().getCode())) {
                 eventService.publishEvent(new OrderModificationEvent(orderNotificationMessage));
             }
-        } catch (WorldpayModelTransformationException | JAXBException | IOException e) {
+        } catch (WorldpayModelTransformationException | IOException e) {
             LOG.error("Notification message transformation error", e);
         }
         return WORLDPAY_RESPONSE_OK_VIEW;
     }
 
-    private OrderNotificationMessage createOrderModificationMessageFromRequest(HttpServletRequest request) throws WorldpayModelTransformationException, IOException, JAXBException {
+    private OrderNotificationMessage createOrderModificationMessageFromRequest(HttpServletRequest request) throws WorldpayModelTransformationException, IOException {
         final PaymentService paymentService = paymentServiceMarshaller.unmarshal(request.getInputStream());
         return orderModificationRequestConverter.convert(paymentService);
     }

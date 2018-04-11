@@ -1,5 +1,6 @@
 package com.worldpay.worldpayresponsemock.mock;
 
+import com.worldpay.exception.WorldpayException;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
@@ -53,19 +54,18 @@ public class WorldpayMockConnectorTest {
         when(requestMock.getServerPort()).thenReturn(SERVER_PORT);
         when(requestMock.getServerName()).thenReturn(SERVER_NAME);
         when(requestMock.getScheme()).thenReturn(HTTP_SCHEME);
-        when(responseFormMock.getSiteId()).thenReturn(SITEID);
     }
 
     @Test
-    public void sendResponseShouldPostNotificationMessageToStorefront() throws Exception {
+    public void sendResponseShouldPostNotificationMessageToStorefront() throws WorldpayException {
 
         testObj.sendResponse(responseFormMock, requestMock, SOME_RESPONSE);
 
-        verify(worldpayRestTemplateMock).postForObject(NOTIFICATION_ENDPOINT_URL + SITE_PARAMETER_NAME + SITEID, SOME_RESPONSE, String.class);
+        verify(worldpayRestTemplateMock).postForObject(NOTIFICATION_ENDPOINT_URL, SOME_RESPONSE, String.class);
     }
 
     @Test
-    public void getAllAnswersShouldPopulateModelWithDefaultSiteIdAndNotPost() throws Exception {
+    public void getAllAnswersShouldPopulateModelWithDefaultSiteIdAndNotPost() throws WorldpayException {
         testObj.sendResponse(responseFormMock, requestMock, "");
 
         verify(worldpayRestTemplateMock, never()).postForObject(NOTIFICATION_ENDPOINT_URL + SITE_PARAMETER_NAME + SITEID, SOME_RESPONSE, String.class);

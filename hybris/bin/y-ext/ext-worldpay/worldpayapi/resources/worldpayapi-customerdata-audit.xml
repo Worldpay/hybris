@@ -1,0 +1,13 @@
+<audit-report-config name="PersonalDataReport">
+    <given-root-type>User</given-root-type>
+    <types>
+        <type code="PaymentInfo" displayName="PaymentInfo" mode="append">
+            <atomic-attributes>
+                <atomic-attribute qualifier="worldpayOrderCode" displayName="worldpayOrderCode"/>
+                <atomic-attribute qualifier="paymentType" displayName="paymentType"/>
+                <atomic-attribute qualifier="authenticatedShopperID" displayName="authenticatedShopperID"/>
+                <atomic-attribute qualifier="expiryDate" displayName="expiryDate"/>
+            </atomic-attributes>
+        </type>
+    </types>
+</audit-report-config>

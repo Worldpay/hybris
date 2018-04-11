@@ -32,7 +32,7 @@ public class UpdateTokenRequestTest {
     private com.worldpay.internal.model.CardDetails intCardDetailsMock;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         testObj = new UpdateTokenRequest(PAYMENT_TOKEN_ID, AUTHENTICATED_SHOPPER_ID, cardDetailsMock, tokenRequestMock);
         when(cardDetailsMock.transformToInternalModel()).thenReturn(intCardDetailsMock);
         when(tokenRequestMock.getTokenReason()).thenReturn(TOKEN_REASON);

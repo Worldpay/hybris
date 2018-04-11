@@ -5,6 +5,8 @@ import com.worldpay.service.model.Date;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -31,7 +33,8 @@ public class CardDetailsTest {
         cardDetails.setCardHolderName(CARD_HOLDER_NAME);
         cardDetails.setCvcNumber(CVC_NUMBER);
         cardDetails.setCardNumber(CARD_NUMBER);
-        cardDetails.setExpiryDate(new Date("02", "2020"));
+        final Date expiryDate = new Date(LocalDateTime.now().plusYears(2));
+        cardDetails.setExpiryDate(expiryDate);
 
         final com.worldpay.internal.model.CardDetails result = (com.worldpay.internal.model.CardDetails) cardDetails.transformToInternalModel();
 
@@ -42,8 +45,8 @@ public class CardDetailsTest {
         assertEquals(CARD_HOLDER_NAME, result.getCardHolderName().getvalue());
         assertEquals(CVC_NUMBER, result.getCvc().getvalue());
         assertEquals(CARD_NUMBER, result.getDerived().getObfuscatedPAN());
-        assertEquals("02", result.getExpiryDate().getDate().getMonth());
-        assertEquals("2020", result.getExpiryDate().getDate().getYear());
+        assertEquals(expiryDate.getMonth(), result.getExpiryDate().getDate().getMonth());
+        assertEquals(expiryDate.getYear(), result.getExpiryDate().getDate().getYear());
     }
 
     @Test

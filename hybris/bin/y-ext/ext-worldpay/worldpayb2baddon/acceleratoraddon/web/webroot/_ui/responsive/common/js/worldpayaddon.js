@@ -1,5 +1,15 @@
 ACC.worldpay = {
 
+    _autoload:[
+        "bindUseDeliveryAddress",
+        "bindCountrySelector",
+        "bindCreditCardAddressForm",
+        "populateDeclineCodeTimeout",
+        "hideOrShowSaveDetails",
+        "bindBanks",
+        "checkPreviouslySelectedPaymentMethod"
+    ],
+
     spinner: $("<img src='" + ACC.config.commonResourcePath + "/images/spinner.gif' />"),
 
     bindCountrySelector: function () {
@@ -78,44 +88,47 @@ ACC.worldpay = {
             }
         }).done(function (data) {
             $("#wpBillingAddress").html($(data).html());
-            if (typeof callback == 'function') {
+            if (typeof callback === 'function') {
                 callback.call();
             }
         });
     },
 
     populateDeclineCodeTimeout: function () {
-        var waitTimer = ACC.worldpayDeclineMessageWaitTimerSeconds * 1000;
-        setTimeout(function () {
-            populateDeclineCode();
-        }, waitTimer);
-        function populateDeclineCode() {
-            $.ajax({
-                url: ACC.config.encodedContextPath + "/checkout/multi/worldpay/choose-payment-method/getDeclineMessage",
-                type: "GET",
-                success: function (data) {
-                    if (data) {
-                        var row = $('#hop');
-                        var container = row.parent();
+        if (ACC.paymentStatus === "REFUSED") {
+            var waitTimer = ACC.worldpayDeclineMessageWaitTimerSeconds * 1000;
+            setTimeout(function () {
+                populateDeclineCode();
+            }, waitTimer);
 
-                        var declineCodeHTMLContent = "<div class='global-alerts'>" +
-                            "<div class='alert alert-danger alert-dismissable'>" +
-                            "<button class='close' aria-hidden='true' data-dismiss='alert' type='button'>×</button>"
-                            + data +
-                            "</div>";
+            function populateDeclineCode() {
+                $.ajax({
+                    url: ACC.config.encodedContextPath + "/checkout/multi/worldpay/choose-payment-method/getDeclineMessage",
+                    type: "GET",
+                    success: function (data) {
+                        if (data) {
+                            var row = $('#hop');
+                            var container = row.parent();
 
-                        var globalAlerts = container.find(".global-alerts");
-                        if (globalAlerts) {
-                            globalAlerts.last().append(declineCodeHTMLContent);
-                        } else {
-                            container.prepend(declineCodeHTMLContent);
+                            var declineCodeHTMLContent = "<div class='global-alerts'>" +
+                                "<div class='alert alert-danger alert-dismissable'>" +
+                                "<button class='close' aria-hidden='true' data-dismiss='alert' type='button'>×</button>"
+                                + data +
+                                "</div>";
+
+                            var globalAlerts = container.find(".global-alerts");
+                            if (globalAlerts) {
+                                globalAlerts.last().append(declineCodeHTMLContent);
+                            } else {
+                                container.prepend(declineCodeHTMLContent);
+                            }
                         }
+                    },
+                    error: function (err) {
+                        console.log(err);
                     }
-                },
-                error: function (err) {
-                    console.log(err);
-                }
-            });
+                });
+            }
         }
     },
 
@@ -146,8 +159,8 @@ ACC.worldpay = {
             });
             $("#bankElement").removeClass("hidden");
 
-            if (callback !== null) {
-                callback();
+            if (typeof callback === 'function') {
+                callback.call();
             }
         });
     },
@@ -180,21 +193,5 @@ ACC.worldpay = {
                 $("#bankElement").addClass("hidden");
             }
         });
-    },
-
-    initForm: function () {
-        this.bindUseDeliveryAddress();
-        this.bindCountrySelector();
-        this.bindCreditCardAddressForm();
-        if (ACC.paymentStatus === "REFUSED") {
-            this.populateDeclineCodeTimeout();
-        }
-        this.hideOrShowSaveDetails();
-        this.bindBanks();
-        this.checkPreviouslySelectedPaymentMethod();
     }
 };
-
-$(document).ready(function () {
-    ACC.worldpay.initForm();
-});

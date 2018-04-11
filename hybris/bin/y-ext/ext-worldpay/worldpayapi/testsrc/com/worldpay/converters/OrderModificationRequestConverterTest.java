@@ -62,7 +62,7 @@ public class OrderModificationRequestConverterTest {
     }
 
     @Test
-    public void convertShouldConvertXMLMessageIntoOrderModificationMessage() throws Exception {
+    public void convertShouldConvertXMLMessageIntoOrderModificationMessage() {
         when(responseTransformerHelperMock.buildPaymentReply(paymentMock)).thenReturn(paymentReplyMock);
         when(responseTransformerHelperMock.buildJournalReply(journalMock)).thenReturn(journalReplyMock);
         when(orderStatusEventMock.getPayment()).thenReturn(paymentMock);
@@ -82,7 +82,7 @@ public class OrderModificationRequestConverterTest {
     }
 
     @Test
-    public void convertShouldConvertXMLMessageIntoOrderModificationMessageWithoutToken() throws Exception {
+    public void convertShouldConvertXMLMessageIntoOrderModificationMessageWithoutToken() {
         when(responseTransformerHelperMock.buildPaymentReply(paymentMock)).thenReturn(paymentReplyMock);
         when(responseTransformerHelperMock.buildJournalReply(journalMock)).thenReturn(journalReplyMock);
         when(orderStatusEventMock.getPayment()).thenReturn(paymentMock);

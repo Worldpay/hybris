@@ -73,7 +73,7 @@ public class WorldpayCaptureRefundAction extends AbstractSimpleDecisionAction<Re
      */
     protected void setReturnRequestStatus(final ReturnRequestModel returnRequest, final ReturnStatus status) {
         returnRequest.setStatus(status);
-        returnRequest.getReturnEntries().stream().forEach(entry -> {
+        returnRequest.getReturnEntries().forEach(entry -> {
             entry.setStatus(status);
             getModelService().save(entry);
         });

@@ -1,7 +1,3 @@
-/*
- * Forked from ycommercewebservicestest
- */
-
 package com.worldpay.test.groovy.webservicetests.v2.spock
 
 import groovyx.net.http.HttpResponseDecorator
@@ -18,7 +14,6 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
     protected static final String CUSTOMER_PASSWORD = '1234'
     protected static final String CUSTOMER_PASSWORD_STRONG = 'PAss1234!'
     protected static final String CUSTOMER_TITLE_CODE = 'dr'
-    protected static final String CUSTOMER_TITLE = 'Dr.'
     protected static final String CUSTOMER_FIRST_NAME = 'Sven'
     protected static final String CUSTOMER_LAST_NAME = 'Haiges'
     protected static final String CUSTOMER_ADDRESS_LINE1 = 'Nymphenburger Str. 86 - Maillingerstrasse'
@@ -27,14 +22,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
     protected static final String CUSTOMER_ADDRESS_TOWN = 'Muenchen'
     protected static final String CUSTOMER_ADDRESS_COUNTRY_ISO_CODE = 'DE'
 
-    protected static final String CUSTOMER_MANAGER_USERNAME = 'customermanager'
-    protected static final String CUSTOMER_MANAGER_PASSWORD = '1234'
-
-    protected static final String FIELD_SET_LEVEL_BASIC = "BASIC"
-    protected static final String FIELD_SET_LEVEL_DEFAULT = "DEFAULT"
     protected static final String FIELD_SET_LEVEL_FULL = "FULL"
-
-    protected static final HEADER_TOTAL_COUNT = "X-Total-Count"
 
     /**
      * This method registers customer without any kind of authorization beforehand.

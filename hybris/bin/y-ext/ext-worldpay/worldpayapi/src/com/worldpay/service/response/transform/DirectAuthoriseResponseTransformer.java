@@ -43,7 +43,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
             final OrderStatus intOrderStatus = (OrderStatus) response;
             authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
-            final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+            final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
             for (Object orderStatusType : intOrderStatusElements) {
                 transformOrderStatus(authResponse, intOrderStatus, orderStatusType);
             }

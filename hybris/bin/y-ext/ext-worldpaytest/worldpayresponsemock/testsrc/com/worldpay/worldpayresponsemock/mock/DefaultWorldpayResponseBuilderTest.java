@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayResponseBuilderTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
@@ -42,7 +42,7 @@ public class DefaultWorldpayResponseBuilderTest {
     private PaymentService paymentServiceMock;
     @Mock
     private Submit submitMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Order orderMock;
     @Mock
     private HttpServletRequest request;
@@ -66,7 +66,8 @@ public class DefaultWorldpayResponseBuilderTest {
                     if (replyElement instanceof OrderStatus) {
                         final OrderStatus orderStatus = (OrderStatus) replyElement;
                         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
-                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();                        assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
+                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+                        assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
                         for (Object orderStatusElement : orderStatusElements) {
                             if (orderStatusElement instanceof Reference) {
                                 Reference reference = (Reference) orderStatusElement;

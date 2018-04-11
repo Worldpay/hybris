@@ -8,16 +8,14 @@ import com.worldpay.service.http.WorldpayConnector;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.util.WorldpayConstants;
-import com.worldpay.xml.writer.CDataXMLStreamWriter;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.apache.commons.io.output.XmlStreamWriter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
+import reactor.util.CollectionUtils;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -44,13 +42,13 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
 
     @Override
     public ServiceReply send(final PaymentService paymentService, final MerchantInfo merchantInfo, final String cookie) throws WorldpayCommunicationException, WorldpayModelTransformationException {
-        URLConnection connection = sendXML(paymentService, merchantInfo, cookie);
+        final URLConnection connection = sendXML(paymentService, merchantInfo, cookie);
         return receiveXML(connection);
     }
 
     private ServiceReply receiveXML(final URLConnection connection) throws WorldpayCommunicationException, WorldpayModelTransformationException {
-        ServiceReply response = new ServiceReply();
-        try (InputStream in = connection.getInputStream()) {
+        final ServiceReply response = new ServiceReply();
+        try (final InputStream in = connection.getInputStream()) {
             setCookiesOnResponse(connection, response);
             response.setPaymentService(paymentServiceMarshaller.unmarshal(in));
         } catch (IOException e) {
@@ -61,7 +59,7 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
 
     private void setCookiesOnResponse(final URLConnection connection, final ServiceReply response) {
         List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
-        if (cookies != null && !cookies.isEmpty()) {
+        if (!CollectionUtils.isEmpty(cookies)) {
             String cookie = cookies.get(0);
             response.setCookie(cookie);
         }
@@ -70,7 +68,7 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     private URLConnection sendXML(final PaymentService paymentService,
                                   final MerchantInfo merchantInfo,
                                   final String cookie) throws WorldpayCommunicationException, WorldpayModelTransformationException {
-        URLConnection con;
+        final URLConnection con;
         try {
             final String environment = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT);
             final String endpoint = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENDPOINT + "." + environment);
@@ -80,25 +78,22 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
 
             con.setDoOutput(true);
             con.setUseCaches(false);
-            byte[] loginPassword = (merchantInfo.getMerchantCode() + ":" + merchantInfo.getMerchantPassword()).getBytes("UTF-8");
+            byte[] loginPassword = (merchantInfo.getMerchantCode() + ":" + merchantInfo.getMerchantPassword()).getBytes(StandardCharsets.UTF_8);
             con.setRequestProperty("Authorization", "Basic " + new String(Base64.getEncoder().encode(loginPassword), StandardCharsets.UTF_8));
             con.setRequestProperty("Host", url.getHost());
 
             if (con instanceof HttpURLConnection) {
-                HttpURLConnection httpCon = (HttpURLConnection) con;
+                final HttpURLConnection httpCon = (HttpURLConnection) con;
                 httpCon.setRequestMethod("POST");
                 if (cookie != null) {
                     httpCon.setRequestProperty("Cookie", cookie);
                 }
             }
-
-            XMLOutputFactory xof = XMLOutputFactory.newInstance();
-            XMLStreamWriter streamWriter = xof.createXMLStreamWriter(con.getOutputStream(), "UTF-8");
-            try (CDataXMLStreamWriter cdataStreamWriter = new CDataXMLStreamWriter(streamWriter)) {
-                Marshaller marshaller = WorldpayConstants.JAXB_CONTEXT.createMarshaller();
+            try (final XmlStreamWriter streamWriter = new XmlStreamWriter(con.getOutputStream(), StandardCharsets.UTF_8.name())) {
+                final Marshaller marshaller = WorldpayConstants.JAXB_CONTEXT.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                cdataStreamWriter.writeDTD(WorldpayConstants.XML_HEADER);
-                marshaller.marshal(paymentService, cdataStreamWriter);
+                streamWriter.write(WorldpayConstants.XML_HEADER);
+                marshaller.marshal(paymentService, streamWriter);
             }
         } catch (MalformedURLException e) {
             throw new WorldpayCommunicationException("Worldpay URL is incorrect", e);
@@ -106,17 +101,15 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
             throw new WorldpayCommunicationException("Unable to initiate communication with Worldpay", e);
         } catch (JAXBException e) {
             throw new WorldpayModelTransformationException("XML context or marshalling failure while sending message to Worldpay", e);
-        } catch (XMLStreamException e) {
-            throw new WorldpayCommunicationException("Exception generating XML stream while sending message to Worldpay", e);
         }
         return con;
     }
 
     @Override
-    public void logXMLOut(XMLOutputFactory xof, Marshaller marshaller, PaymentService paymentService) {
+    public void logXMLOut(final Marshaller marshaller, final PaymentService paymentService) {
         try {
             LOG.info("*** XML OUT ***");
-            StringWriter stringWriter = new StringWriter();
+            final StringWriter stringWriter = new StringWriter();
             marshaller.marshal(paymentService, stringWriter);
             LOG.info(stringWriter.toString());
             LOG.info("*** XML OUT END ***");

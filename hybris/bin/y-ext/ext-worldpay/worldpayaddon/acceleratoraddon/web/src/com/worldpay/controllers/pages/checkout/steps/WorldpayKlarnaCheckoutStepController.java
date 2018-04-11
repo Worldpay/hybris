@@ -31,7 +31,7 @@ public class WorldpayKlarnaCheckoutStepController extends AbstractController {
     private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
     private static final String CHECKOUT_PLACE_ORDER_FAILED = "checkout.placeOrder.failed";
     private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
-    protected static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = REDIRECT_PREFIX + "/checkout/multi/worldpay/choose-payment-method";
+    private static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = REDIRECT_PREFIX + "/checkout/multi/worldpay/choose-payment-method";
 
     @Resource
     private WorldpayKlarnaPaymentCheckoutFacade worldpayKlarnaPaymentCheckoutFacade;

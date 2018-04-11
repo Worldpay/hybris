@@ -5,7 +5,7 @@ import com.worldpay.service.model.ErrorDetail;
 /**
  * Template implementation of a {@link ServiceResponse} providing order code and {@link ErrorDetail}
  */
-public class AbstractServiceResponse implements ServiceResponse {
+public abstract class AbstractServiceResponse implements ServiceResponse {
 
     private String orderCode;
     private ErrorDetail errorDetail;

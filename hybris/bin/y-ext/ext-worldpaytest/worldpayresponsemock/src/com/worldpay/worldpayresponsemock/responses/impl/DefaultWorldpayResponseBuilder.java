@@ -38,7 +38,7 @@ public class DefaultWorldpayResponseBuilder implements WorldpayResponseBuilder {
         reference.setId(DateTime.now().toString());
         reference.setvalue(buildStoreFrontHopResponseEndpoint(httpServletRequest));
         orderStatus.
-                getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().
+                getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().
                 add(reference);
         reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().add(orderStatus);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);

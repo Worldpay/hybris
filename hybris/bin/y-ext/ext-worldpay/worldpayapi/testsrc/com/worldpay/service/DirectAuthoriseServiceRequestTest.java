@@ -1,7 +1,6 @@
 package com.worldpay.service;
 
 import com.worldpay.enums.order.DynamicInteractionType;
-import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
 import com.worldpay.service.model.payment.Payment;
@@ -15,8 +14,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
@@ -25,7 +23,6 @@ import static org.junit.Assert.*;
 @UnitTest
 public class DirectAuthoriseServiceRequestTest {
 
-    private static final String expiryYear;
     private static final String TOKEN_ID = "tokenId";
     private static final String ECHO_DATA = "echoData";
     private static final String MERCHANT1ECOM = "MERCHANT1ECOM";
@@ -38,12 +35,6 @@ public class DirectAuthoriseServiceRequestTest {
     private static final String LINE_ITEM_REFERENCE_ID = "id";
     private static final String LINE_ITEM_REFERENCE_VALUE = "value";
 
-    static {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.YEAR, 1);
-        expiryYear = new SimpleDateFormat("YYYY").format(cal.getTime());
-    }
-
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
     private static final String TOKEN_REASON = "tokenReason";
@@ -54,7 +45,7 @@ public class DirectAuthoriseServiceRequestTest {
     private static final TokenRequest TOKEN_REQUEST = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
     private static final String COUNTRY_CODE = "GB";
     private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", COUNTRY_CODE);
-    private static final com.worldpay.service.model.Date EXPIRY_DATE = new com.worldpay.service.model.Date("09", expiryYear);
+    private static final com.worldpay.service.model.Date EXPIRY_DATE = new com.worldpay.service.model.Date(LocalDateTime.now().plusYears(1));
     private static final Session SESSION = new Session("192.168.1.1", "sessionId1234");
     private static final Browser BROWSER = new Browser("text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)", "0");
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", COUNTRY_CODE);
@@ -76,21 +67,21 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void createTokenAndDirectAuthoriseRequestWillRaiseIllegalArgumentExceptionWhenParametersAreNull() throws WorldpayException {
+    public void createTokenAndDirectAuthoriseRequestWillRaiseIllegalArgumentExceptionWhenParametersAreNull() {
         thrown.expect(IllegalArgumentException.class);
 
         DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, null, null, null, null, null, null, null, null, DynamicInteractionType.ECOMMERCE);
     }
 
     @Test
-    public void createDirectAuthoriseRequestWillRaiseIllegalArgumentExceptionWhenParametersAreNull() throws WorldpayException {
+    public void createDirectAuthoriseRequestWillRaiseIllegalArgumentExceptionWhenParametersAreNull() {
         thrown.expect(IllegalArgumentException.class);
 
         DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, null, null, null, null, null, null, null, DynamicInteractionType.ECOMMERCE);
     }
 
     @Test
-    public void createDirectAuthoriseRequestShouldNotRequestTokenAndHaveAllTheInformation() throws WorldpayException {
+    public void createDirectAuthoriseRequestShouldNotRequestTokenAndHaveAllTheInformation() {
         payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
                 SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
@@ -104,7 +95,7 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void createDirectAuthoriseRequestShouldRequestTokenAndHaveAllTheInformation() throws WorldpayException {
+    public void createDirectAuthoriseRequestShouldRequestTokenAndHaveAllTheInformation() {
         payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
                 SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
@@ -118,7 +109,7 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void shouldContainOrderLinesForKlarnaDirectAuthorize() throws WorldpayException {
+    public void shouldContainOrderLinesForKlarnaDirectAuthorize() {
         final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls("checkoutURL", "confirmationURL");
         payment = PaymentBuilder.createKLARNASSL(COUNTRY_CODE, SHOPPER_LOCALE, merchantUrls, EXTRA_MERCHANT_DATA);
 
@@ -144,7 +135,7 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void createTokenisedDirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionIfPaymentIsNotToken() throws WorldpayException {
+    public void createTokenisedDirectAuthoriseRequestShouldRaiseIllegalArgumentExceptionIfPaymentIsNotToken() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Payment type needs to be a type of Token");
 
@@ -194,7 +185,7 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void shouldRaiseIllegalArgumentExceptionIfPaymentIsNotToken() throws WorldpayException {
+    public void shouldRaiseIllegalArgumentExceptionIfPaymentIsNotToken() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Payment type needs to be a type of Token");
 

@@ -7,6 +7,10 @@ import com.worldpay.internal.model.Token;
 import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.ServiceResponse;
 
+/**
+ * Transformer/Converter class that transforms a CreateTokenResponseTransformer (XML model) into a ServiceResponse (abstraction)
+ * to be handled in an easier way.
+ */
 public class CreateTokenResponseTransformer extends AbstractServiceResponseTransformer {
 
     @Override

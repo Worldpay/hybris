@@ -1,5 +1,9 @@
 ACC.worldpayRedirect = {
 
+    _autoload: [
+        "bindSubmitBillingAddressForm"
+    ],
+
     bindSubmitBillingAddressForm: function () {
         $(".submit_worldpayHopForm").click(
             function (event) {
@@ -10,9 +14,5 @@ ACC.worldpayRedirect = {
                 $("#worldpayBillingAddressForm").submit();
             }
         );
-    },
-
-    initForm: function () {
-        this.bindSubmitBillingAddressForm();
     }
 };

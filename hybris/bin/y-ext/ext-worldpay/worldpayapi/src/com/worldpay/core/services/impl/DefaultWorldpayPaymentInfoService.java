@@ -7,6 +7,7 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.Date;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.payment.Card;
+import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -34,7 +35,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
-import static de.hybris.platform.core.enums.CreditCardType.*;
+import static de.hybris.platform.core.enums.CreditCardType.CARD;
+import static de.hybris.platform.core.enums.CreditCardType.SIMPLE_CLASSNAME;
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
 
 /**
@@ -120,10 +122,10 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     /**
      * {@inheritDoc}
      *
-     * @see WorldpayPaymentInfoService#createCreditCardPaymentInfo(CartModel, CreateTokenResponse, boolean)
+     * @see WorldpayPaymentInfoService#createCreditCardPaymentInfo(CartModel, CreateTokenResponse, boolean, String)
      */
     @Override
-    public CreditCardPaymentInfoModel createCreditCardPaymentInfo(final CartModel cartModel, final CreateTokenResponse createTokenResponse, final boolean saveCard) {
+    public CreditCardPaymentInfoModel createCreditCardPaymentInfo(final CartModel cartModel, final CreateTokenResponse createTokenResponse, final boolean saveCard, final String merchantId) {
         validateParameterNotNull(cartModel, "CartModel cannot be null");
         validateParameterNotNull(createTokenResponse, "Token response cannot be null");
 
@@ -146,9 +148,25 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
         creditCardPaymentInfoModel.setWorldpayOrderCode(cartModel.getWorldpayOrderCode());
         creditCardPaymentInfoModel.setUser(cartModel.getUser());
-        creditCardPaymentInfoModel.setType(TOKEN);
-        updateCreditCardModel(tokenReply, creditCardPaymentInfoModel, saveCard);
+        creditCardPaymentInfoModel.setMerchantId(merchantId);
+        setPaymentTypeAndCreditCardType(creditCardPaymentInfoModel, tokenReply);
+        updateCreditCardModel(creditCardPaymentInfoModel, tokenReply, saveCard);
         return creditCardPaymentInfoModel;
+    }
+
+    protected void setPaymentTypeAndCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final TokenReply tokenReply) {
+        if (tokenReply.getPaymentInstrument() != null && tokenReply.getPaymentInstrument().getPaymentType() != null) {
+            doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, tokenReply.getPaymentInstrument().getPaymentType().getMethodCode());
+        } else {
+            doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, PaymentType.CARD_SSL.getMethodCode());
+        }
+    }
+
+    private void doSetCreditCardTypeAndPaymentType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final String methodCode) {
+        final String creditCardTypeValue = getHybrisCCTypeForWPCCType(methodCode);
+        final CreditCardType cardType = StringUtils.isNotBlank(creditCardTypeValue) ? enumerationService.getEnumerationValue(SIMPLE_CLASSNAME, creditCardTypeValue) : CARD;
+        creditCardPaymentInfoModel.setPaymentType(methodCode);
+        creditCardPaymentInfoModel.setType(cardType);
     }
 
     @Override
@@ -174,11 +192,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     }
 
     private void updateCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final PaymentReply paymentReply) {
-        final String methodCode = paymentReply.getMethodCode();
-        final String creditCardTypeValue = getHybrisCCTypeForWPCCType(methodCode);
-        final CreditCardType cardType = StringUtils.isNotBlank(creditCardTypeValue) ? enumerationService.getEnumerationValue(SIMPLE_CLASSNAME, creditCardTypeValue) : TOKEN;
-        creditCardPaymentInfoModel.setPaymentType(methodCode);
-        creditCardPaymentInfoModel.setType(cardType);
+        doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, paymentReply.getMethodCode());
     }
 
     protected PaymentInfoModel getPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
@@ -271,7 +285,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
                                                                                     final PaymentReply paymentReply) {
         final CreditCardPaymentInfoModel creditCardPaymentInfoModel = modelService.clone(paymentTransactionModel.getInfo(), CreditCardPaymentInfoModel.class);
         updateCreditCardType(creditCardPaymentInfoModel, paymentReply);
-        return updateCreditCardModel(tokenReply, creditCardPaymentInfoModel, true);
+        return updateCreditCardModel(creditCardPaymentInfoModel, tokenReply, true);
     }
 
     private void attachPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final PaymentInfoModel paymentInfoModel) {
@@ -280,7 +294,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         modelService.saveAll(orderModel, paymentTransactionModel);
     }
 
-    private CreditCardPaymentInfoModel updateCreditCardModel(final TokenReply tokenReply, final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final boolean saveCard) {
+    private CreditCardPaymentInfoModel updateCreditCardModel(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final TokenReply tokenReply, final boolean saveCard) {
         creditCardPaymentInfoModel.setSubscriptionId(tokenReply.getTokenDetails().getPaymentTokenID());
 
         final Card card = tokenReply.getPaymentInstrument();
@@ -313,8 +327,6 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     private PaymentInfoModel updatePaymentInfo(final AbstractOrderModel cartModel, final PaymentInfoModel paymentInfoModel) {
         paymentInfoModel.setWorldpayOrderCode(cartModel.getWorldpayOrderCode());
-        paymentInfoModel.setPaymentAmount(cartModel.getTotalPrice());
-        paymentInfoModel.setPaymentCurrency(cartModel.getCurrency());
         modelService.save(paymentInfoModel);
         return paymentInfoModel;
     }

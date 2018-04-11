@@ -3,7 +3,6 @@ package com.worldpay.service.payment;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.MerchantInfo;
@@ -123,5 +122,7 @@ public interface WorldpayDirectOrderService {
      * @param additionalAuthInfo
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
-    DirectAuthoriseServiceResponse authoriseKlarna(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException;
+    DirectAuthoriseServiceResponse authoriseKlarna(final MerchantInfo merchantInfo, final CartModel cartModel,
+                                                   final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                   final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException;
 }

@@ -17,6 +17,10 @@ import static com.hybris.cockpitng.actions.ActionResult.SUCCESS;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 import static java.util.Objects.nonNull;
 
+
+/**
+ * Handles the behaviour of the "com.worldpay.worldpayoms.actions.order.cancelorderaction" action definition.
+ */
 public class WorldpayCancelOrderAction extends AbstractComponentWidgetAdapterAware implements CockpitAction<OrderModel, OrderModel> {
     protected static final String SOCKET_OUT_CONTEXT = "cancelOrderContext";
 
@@ -54,6 +58,6 @@ public class WorldpayCancelOrderAction extends AbstractComponentWidgetAdapterAwa
     @Override
     public ActionResult<OrderModel> perform(ActionContext<OrderModel> actionContext) {
         this.sendOutput(SOCKET_OUT_CONTEXT, actionContext.getData());
-        return new ActionResult(SUCCESS);
+        return new ActionResult<>(SUCCESS);
     }
 }

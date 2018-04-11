@@ -44,11 +44,11 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
 
     private static final Logger LOG = Logger.getLogger(WorldpayHopResponseController.class);
 
-    protected static final String REDIRECT_URL_ADD_DELIVERY_ADDRESS = REDIRECT_PREFIX + "/checkout/multi/delivery-address/add";
-    protected static final String REDIRECT_URL_CHOOSE_DELIVERY_METHOD = REDIRECT_PREFIX + "/checkout/multi/delivery-method/choose";
-    protected static final String CHECKOUT_PLACE_ORDER_FAILED = "checkout.placeOrder.failed";
-    protected static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
-    protected static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
+    private static final String REDIRECT_URL_ADD_DELIVERY_ADDRESS = REDIRECT_PREFIX + "/checkout/multi/delivery-address/add";
+    private static final String REDIRECT_URL_CHOOSE_DELIVERY_METHOD = REDIRECT_PREFIX + "/checkout/multi/delivery-method/choose";
+    private static final String CHECKOUT_PLACE_ORDER_FAILED = "checkout.placeOrder.failed";
+    private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
+    private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
     @Resource
     private Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;

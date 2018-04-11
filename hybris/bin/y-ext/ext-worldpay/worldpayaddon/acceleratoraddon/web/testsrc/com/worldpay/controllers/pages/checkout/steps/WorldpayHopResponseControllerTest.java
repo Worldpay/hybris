@@ -64,6 +64,9 @@ public class WorldpayHopResponseControllerTest {
     private static final String ORDER_CONFIRMATION_PAGE = "redirect:/checkout/orderConfirmation/" + ORDER_GUID;
     private static final String CHOOSE_PAYMENT_REDIRECT_URL = REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=%s";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
+    private static final String REDIRECT_URL_ADD_DELIVERY_ADDRESS = REDIRECT_PREFIX + "/checkout/multi/delivery-address/add";
+    private static final String REDIRECT_URL_CHOOSE_DELIVERY_METHOD = REDIRECT_PREFIX + "/checkout/multi/delivery-method/choose";
+    private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
     @Spy
     @InjectMocks
@@ -127,7 +130,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandleHopResponseREFUSEDShouldRedirectToChoosePaymentMethod() throws Exception {
+    public void doHandleHopResponseREFUSEDShouldRedirectToChoosePaymentMethod() throws InvalidCartException {
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(REFUSED.name());
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -139,7 +142,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandleHopResponseAUTHORISEDShouldCompleteRedirectAndPlaceOrderWhenResponseIsValid() throws Exception {
+    public void doHandleHopResponseAUTHORISEDShouldCompleteRedirectAndPlaceOrderWhenResponseIsValid() throws InvalidCartException {
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AUTHORISED.name());
 
@@ -151,7 +154,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandleHopResponseShouldNOTCompleteRedirectAndNOTPlaceOrderWhenResponseIsNotValid() throws Exception {
+    public void doHandleHopResponseShouldNOTCompleteRedirectAndNOTPlaceOrderWhenResponseIsNotValid() throws InvalidCartException {
         when(worldpayHostedOrderFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(false);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -163,7 +166,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandleHopResponseNotAUTHORISEDShouldNotCompleteRedirectAndNotPlaceOrderWhenResponseIsValid() throws Exception {
+    public void doHandleHopResponseNotAUTHORISEDShouldNotCompleteRedirectAndNotPlaceOrderWhenResponseIsValid() throws InvalidCartException {
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(REFUSED.name());
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -175,7 +178,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandlePendingHopResponseOPENShouldCompleteRedirectForAPMAndPlaceOrderWhenResponseIsValid() throws Exception {
+    public void doHandlePendingHopResponseOPENShouldCompleteRedirectForAPMAndPlaceOrderWhenResponseIsValid() throws InvalidCartException {
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(OPEN.getCode());
 
@@ -188,7 +191,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandlePendingHopResponseNotOPENShouldNotCompleteRedirectForAPMAndNotPlaceOrderWhenResponseIsValid() throws Exception {
+    public void doHandlePendingHopResponseNotOPENShouldNotCompleteRedirectForAPMAndNotPlaceOrderWhenResponseIsValid() throws InvalidCartException {
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(ERROR.getCode());
 
         final String result = testObj.doHandlePendingHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -200,7 +203,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandlePendingHopResponseNotERRORShouldNOTCompleteRedirectForAPMAndNotPlaceOrderWhenResponseIsNotValid() throws Exception {
+    public void doHandlePendingHopResponseNotERRORShouldNOTCompleteRedirectForAPMAndNotPlaceOrderWhenResponseIsNotValid() throws InvalidCartException {
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(ERROR.getCode());
 
         final String result = testObj.doHandlePendingHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -212,7 +215,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandlePendingHopResponseRaisesExceptionWhenPlacingOrderAndPaymentStatusSet() throws Exception {
+    public void doHandlePendingHopResponseRaisesExceptionWhenPlacingOrderAndPaymentStatusSet() throws InvalidCartException {
         when(checkoutFacadeMock.placeOrder()).thenThrow(new InvalidCartException(EXCEPTION_MESSAGE));
 
         final String result = testObj.doHandlePendingHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -223,7 +226,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandleBankTransferHopResponseShouldCompleteRedirectAndPlaceOrder() throws Exception {
+    public void doHandleBankTransferHopResponseShouldCompleteRedirectAndPlaceOrder() throws InvalidCartException {
         when(redirectAuthoriseResultConverterMock.convert(anyMapOf(String.class, String.class))).thenReturn(redirectAuthoriseResultMock);
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
@@ -236,7 +239,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHandleBankTransferHopFailureShouldRedirectToPaymentPageWithErrorMessage() throws Exception {
+    public void doHandleBankTransferHopFailureShouldRedirectToPaymentPageWithErrorMessage() {
         when(redirectAuthoriseResultConverterMock.convert(anyMapOf(String.class, String.class))).thenReturn(redirectAuthoriseResultMock);
 
         final String result = testObj.doHandleBankTransferHopFailure(mockHttpServletRequest, redirectAttributesMock);
@@ -279,7 +282,7 @@ public class WorldpayHopResponseControllerTest {
     }
 
     @Test
-    public void doHostedOrderPageErrorShouldRedirectToChoosePaymentMethod() throws Exception {
+    public void doHostedOrderPageErrorShouldRedirectToChoosePaymentMethod() {
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(EXPIRED.getCode());
 
         final String result = testObj.doHostedOrderPageError(EXPIRED.getCode(), redirectAttributesMock);

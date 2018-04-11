@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayOrderInfoStrategyTest {
 
-    private static final String INSTALLATION_ID = "1043270";
+    private static final String INSTALLATION_ID = "1048564";
     private static final String STATEMENT_NARRATIVE_TEXT = "STATEMENT NARRATIVE TEXT";
     private static final String ORDER_CONTENT = "orderContent";
 

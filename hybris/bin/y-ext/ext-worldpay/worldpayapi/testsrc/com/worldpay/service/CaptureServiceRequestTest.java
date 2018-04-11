@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.CaptureServiceRequest;
@@ -9,7 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,9 +27,9 @@ public class CaptureServiceRequestTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testCaptureFullAmount() throws WorldpayException {
+    public void testCaptureFullAmount() {
 
-        final com.worldpay.service.model.Date date = new com.worldpay.service.model.Date(new Date());
+        final com.worldpay.service.model.Date date = new com.worldpay.service.model.Date(LocalDateTime.now());
         final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(MERCHANT_INFO, ORDER_CODE, AMOUNT, date);
 
         assertEquals(MERCHANT_INFO, request.getMerchantInfo());

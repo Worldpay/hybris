@@ -23,9 +23,11 @@ public class RefundServiceRequest extends AbstractServiceRequest {
     /**
      * Static convenience method for creating an instance of the RefundServiceRequest
      *
-     * @param merch     merchantInfo to be used in the Worldpay call
-     * @param orderCode orderCode to be used in the Worldpay call
-     * @param amount    amount to be used in the Worldpay call
+     * @param merch                merchantInfo to be used in the Worldpay call
+     * @param orderCode            orderCode to be used in the Worldpay call
+     * @param amount               amount to be used in the Worldpay call
+     * @param reference            token event reference
+     * @param shopperWebformRefund flag that marks if this is a refund for webrefund
      * @return new instance of the RefundServiceRequest initialised with input parameters
      */
     public static RefundServiceRequest createRefundRequest(final MerchantInfo merch,

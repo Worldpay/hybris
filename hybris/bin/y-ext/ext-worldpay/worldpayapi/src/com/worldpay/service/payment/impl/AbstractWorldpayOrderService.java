@@ -17,6 +17,7 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.user.AddressService;
+import de.hybris.platform.servicelayer.user.AddressService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;

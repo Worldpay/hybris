@@ -16,8 +16,9 @@
     <bean id="defaultPaymentServiceMarshaller"
           class="com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller"/>
 
-    <alias name="defaultMacValidator" alias="macValidator"/>
-    <bean id="defaultMacValidator" class="com.worldpay.service.mac.impl.DefaultMacValidator"/>
+    <alias name="md5MacValidator" alias="macValidator"/>
+    <bean id="md5MacValidator" class="com.worldpay.service.mac.impl.MD5MacValidator"/>
+    <bean id="hmac256MacValidator" class="com.worldpay.service.mac.impl.HMAC256MacValidator"/>
 
     <alias name="defaultWorldpayXMLValidator" alias="worldpayXMLValidator"/>
     <bean id="defaultWorldpayXMLValidator" class="com.worldpay.service.request.validation.impl.DefaultWorldpayXMLValidator"/>

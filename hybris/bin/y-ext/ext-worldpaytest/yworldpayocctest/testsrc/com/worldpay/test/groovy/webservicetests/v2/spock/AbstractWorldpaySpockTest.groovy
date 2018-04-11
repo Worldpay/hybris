@@ -32,7 +32,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         return [customer, info, cart]
     }
 
-    protected registerCustomerWithTrustedClient(RESTClient client, format, basePathWithSite=getBasePathWithSite()) {
+    protected registerCustomerWithTrustedClient(RESTClient client, format, basePathWithSite = getBasePathWithSite()) {
         authorizeTrustedClient(client)
         def customer = registerCustomer(client, format, basePathWithSite)
         return customer
@@ -40,7 +40,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
 
     protected addProductToCart(RESTClient client, customer, cartId, productId, format = JSON) {
         HttpResponseDecorator response = client.post(
-                path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId +  '/entries',
+                path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/entries',
                 body: [
                         'code': productId
                 ],
@@ -122,11 +122,11 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         browser.go "file://" + (String) config.HTML_PATH + "/cseTest.html"
 
         cseToken = browser.js.generateCseToken("1#10001#c745fe13416ffc5f9283f47f7b18e58a55a1e152d873cf7e31cd87e04dda905570b53bd6996c54d2f90a7ade6e65ba45853617472b1ad78d02f0bd9183af22d8dd6002a7857d0c4f5c102bd29864ae9b5b2caf3ef22932a7b2c6f00f819f6ac92905d9662d0905526f0a99160e49dd613b07212fb9429535a28b54a087fc3541a8fc214e46a07ebacab0f5b6a60331cd66168548c097c716df09332d95faf3d9717107a5db5ce553406688a368d6d44f79eb4c3366068e7c4dbe1f1987ef6ac54bc4e1195021ceac831141553986db5a5b8206abc0e0b36ed4adf31ae692829057dbb0c99270825335405e816f40fe3a3051c323695e52bf97fccda813c45a31",
-                    cvc,
-                    cardHolderName,
-                    cardNumber,
-                    expiryMonth,
-                    expiryYear)
+                cvc,
+                cardHolderName,
+                cardNumber,
+                expiryMonth,
+                expiryYear)
 
         browser.close()
 
@@ -186,7 +186,6 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
 
         return paRes
     }
-
 
 
 }

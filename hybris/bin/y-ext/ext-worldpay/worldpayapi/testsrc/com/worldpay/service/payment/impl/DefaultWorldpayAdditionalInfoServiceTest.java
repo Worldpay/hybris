@@ -12,11 +12,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.apache.http.HttpHeaders.ACCEPT;
+import static org.apache.http.HttpHeaders.USER_AGENT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayAdditionalInfoServiceTest {
 
     private static final String SESSION_ID = "sessionId";
@@ -25,9 +27,9 @@ public class DefaultWorldpayAdditionalInfoServiceTest {
     private static final String USER_AGENT_VALUE = "userAgentValue";
 
     @InjectMocks
-    private DefaultWorldpayAdditionalInfoService testObj = new DefaultWorldpayAdditionalInfoService();
+    private DefaultWorldpayAdditionalInfoService testObj;
 
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
 
     @Mock
@@ -53,7 +55,7 @@ public class DefaultWorldpayAdditionalInfoServiceTest {
 
     @Test
     public void createWorldpayAdditionalInfoDataShouldSetAcceptHeaderFromHttpRequest() {
-        when(httpServletRequestMock.getHeader(DefaultWorldpayAdditionalInfoService.ACCEPT)).thenReturn(ACCEPT_HEADER_VALUE);
+        when(httpServletRequestMock.getHeader(ACCEPT)).thenReturn(ACCEPT_HEADER_VALUE);
 
         final WorldpayAdditionalInfoData result = testObj.createWorldpayAdditionalInfoData(httpServletRequestMock);
 
@@ -62,7 +64,7 @@ public class DefaultWorldpayAdditionalInfoServiceTest {
 
     @Test
     public void createWorldpayAdditionalInfoDataShouldSetUserAgentFromHttpRequest() {
-        when(httpServletRequestMock.getHeader(DefaultWorldpayAdditionalInfoService.USER_AGENT)).thenReturn(USER_AGENT_VALUE);
+        when(httpServletRequestMock.getHeader(USER_AGENT)).thenReturn(USER_AGENT_VALUE);
 
         final WorldpayAdditionalInfoData result = testObj.createWorldpayAdditionalInfoData(httpServletRequestMock);
 

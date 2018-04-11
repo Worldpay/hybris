@@ -26,10 +26,19 @@
             <value code="PAYMENT_PENDING"/>
         </enumtype>
         <enumtype code="PaymentTransactionType" autocreate="false" generate="false">
-            <value code="SETTLED" />
+            <value code="SETTLED"/>
         </enumtype>
         <enumtype code="CreditCardType" autocreate="false" generate="false">
             <value code="jcb"/>
+            <value code="uatp"/>
+            <value code="ge_capital"/>
+            <value code="discover"/>
+            <value code="dankort"/>
+            <value code="cartebleue"/>
+            <value code="cb"/>
+            <value code="aurore"/>
+            <value code="airplus"/>
+            <value code="card"/>
             <value code="token"/>
         </enumtype>
     </enumtypes>
@@ -54,7 +63,7 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayCurrencyRange" autocreate="true" generate="true" jaloclass="com.worldpay.jalo.WorldpayCurrencyRange">
+        <itemtype code="WorldpayCurrencyRange" jaloclass="com.worldpay.jalo.WorldpayCurrencyRange">
             <deployment table="WorldpayCurrencyRange" typecode="19021"/>
             <attributes>
                 <attribute qualifier="currency" type="Currency">
@@ -91,28 +100,24 @@
                     <persistence type="dynamic" attributeHandler="worldpayPaymentInfoIsApmHandler"/>
                     <modifiers write="false" read="true" search="true" optional="false"/>
                 </attribute>
-                <attribute qualifier="paymentType" autocreate="true" type="java.lang.String">
-                    <modifiers read="true" write="true" search="true" optional="true"/>
-                    <persistence type="property"/>
-                </attribute>
-                <attribute qualifier="paymentAmount" autocreate="true" type="java.lang.Double">
-                    <modifiers read="true" write="true" search="true" optional="true"/>
-                    <persistence type="property"/>
-                </attribute>
-                <attribute qualifier="paymentCurrency" autocreate="true" type="Currency">
+                <attribute qualifier="paymentType" type="java.lang.String">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
                 <!-- Token related information -->
-                <attribute qualifier="authenticatedShopperID" autocreate="true" type="java.lang.String">
+                <attribute qualifier="authenticatedShopperID" type="java.lang.String">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
-                <attribute qualifier="eventReference" autocreate="true" type="java.lang.String">
+                <attribute qualifier="eventReference" type="java.lang.String">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
-                <attribute qualifier="expiryDate" autocreate="true" type="java.util.Date">
+                <attribute qualifier="expiryDate" type="java.util.Date">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="merchantId" type="java.lang.String">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
@@ -301,7 +306,8 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayAPMConfiguration" autocreate="true" generate="true" jaloclass="com.worldpay.jalo.WorldpayAPMConfiguration">
+        <itemtype code="WorldpayAPMConfiguration" autocreate="true" generate="true"
+                  jaloclass="com.worldpay.jalo.WorldpayAPMConfiguration">
             <deployment table="WorldpayAPMConfiguration" typecode="19020"/>
             <attributes>
                 <attribute qualifier="code" type="java.lang.String">
@@ -364,7 +370,8 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayBankConfiguration" autocreate="true" generate="true" jaloclass="com.worldpay.jalo.WorldpayBankConfiguration">
+        <itemtype code="WorldpayBankConfiguration" autocreate="true" generate="true"
+                  jaloclass="com.worldpay.jalo.WorldpayBankConfiguration">
             <deployment table="WorldpayBankConfig" typecode="19023"/>
             <attributes>
                 <attribute qualifier="code" type="java.lang.String">

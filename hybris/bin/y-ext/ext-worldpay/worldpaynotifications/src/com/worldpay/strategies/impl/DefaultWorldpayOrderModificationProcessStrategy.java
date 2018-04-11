@@ -194,7 +194,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
 
     protected boolean notificationIsValid(OrderNotificationMessage notificationMessage, AbstractOrderModel orderModel) {
         final TokenReply tokenReply = notificationMessage.getTokenReply();
-        return tokenReply != null && authenticatedShopperIdMatches(orderModel, tokenReply.getAuthenticatedShopperID()) || tokenReply == null;
+        return (tokenReply != null && authenticatedShopperIdMatches(orderModel, tokenReply.getAuthenticatedShopperID())) || tokenReply == null;
     }
 
     protected boolean authenticatedShopperIdMatches(final AbstractOrderModel orderModel, final String tokenAuthenticatedShopperId) {

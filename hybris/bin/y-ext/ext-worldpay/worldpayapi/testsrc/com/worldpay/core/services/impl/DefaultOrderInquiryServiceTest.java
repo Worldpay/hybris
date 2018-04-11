@@ -3,16 +3,15 @@ package com.worldpay.core.services.impl;
 import com.evanlennick.retry4j.config.RetryConfig;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.*;
-import com.worldpay.service.request.AbstractServiceRequest;
+import com.worldpay.service.model.ErrorDetail;
+import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.commerceservices.enums.UiExperienceLevel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
@@ -27,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
 import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.assertThat;

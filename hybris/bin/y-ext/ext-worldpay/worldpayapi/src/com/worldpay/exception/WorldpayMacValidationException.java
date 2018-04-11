@@ -1,9 +1,9 @@
 package com.worldpay.exception;
 
-import com.worldpay.service.mac.impl.DefaultMacValidator;
+import com.worldpay.service.mac.impl.MD5MacValidator;
 
 /**
- * Exception thrown from the {@link DefaultMacValidator} if there is a problem validating the mac code
+ * Exception thrown from the {@link MD5MacValidator} if there is a problem validating the mac code
  */
 public class WorldpayMacValidationException extends WorldpayException {
 

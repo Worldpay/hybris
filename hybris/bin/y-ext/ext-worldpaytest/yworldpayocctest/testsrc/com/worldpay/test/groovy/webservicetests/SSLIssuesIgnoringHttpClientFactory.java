@@ -1,6 +1,3 @@
-/*
- * Forked from ycommercewebservicestest
- */
 package com.worldpay.test.groovy.webservicetests;
 
 import org.apache.http.client.HttpClient;

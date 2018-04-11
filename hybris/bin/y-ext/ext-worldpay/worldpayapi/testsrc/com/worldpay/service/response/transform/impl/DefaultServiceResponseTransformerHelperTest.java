@@ -17,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
@@ -91,6 +92,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     private static final String REASON = "Reason";
     private static final String AUTHORISATION_ID_BY = "AuthorisationIdBy";
     private static final String AUTHORISATION_ID = "authorisationId";
+    private static final String RISK_SCORE_VALUE = "riskScoreValue";
 
     private DefaultServiceResponseTransformerHelper testObj = new DefaultServiceResponseTransformerHelper();
 
@@ -118,7 +120,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     }
 
     @Test
-    public void testBuildPaymentReply() throws Exception {
+    public void testBuildPaymentReply() {
         final Payment payment = new Payment();
         final PaymentMethodDetail paymentMethodDetail = new PaymentMethodDetail();
         paymentMethodDetail.setCard(createCard());
@@ -127,7 +129,6 @@ public class DefaultServiceResponseTransformerHelperTest {
         createBalance();
         createIso8583ReturnCode();
         createRiskScore();
-        createCardHolderName();
         createAavAddressResultCode();
         createAavCardholderNameResultCode();
         createAavEmailResultCode();
@@ -164,7 +165,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(AuthorisedStatus.getAuthorisedStatus(LAST_EVENT), paymentReply.getAuthStatus());
         assertEquals(CVC_RESULT_CODE_DESCRIPTION, paymentReply.getCvcResultDescription());
         assertEquals(ISO8583_RETURN_CODE_CODE, paymentReply.getReturnCode());
-        assertEquals(riskScore, paymentReply.getRiskScore());
+        assertThat(paymentReply.getRiskScore().getValue()).isEqualTo(RISK_SCORE_VALUE);
         assertEquals(AAV_ADDRESS_RESULT_CODE_DESCRIPTION, paymentReply.getAavAddressResultCode());
         assertEquals(AAV_CARDHOLDER_NAME_RESULT_CODE_DESCRIPTION, paymentReply.getAavCardholderNameResultCode());
         assertEquals(AAV_EMAIL_RESULT_CODE_DESCRIPTION, paymentReply.getAavEmailResultCode());
@@ -220,7 +221,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -262,6 +263,174 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         assertEquals(ERROR_CODE, tokenReply.getError().getCode());
         assertEquals(ERROR_MESSAGE, tokenReply.getError().getMessage());
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithCartebleueVisa() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("VISA", "CARTEBLEUE"));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARTE_BLEUE);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithCarteBancaireMasterCard() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("ECMC", "CB"));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARTE_BANCAIRE);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithVisa() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("VISA", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.VISA);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithAirplus() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("AIRPLUS", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.AIRPLUS);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithAMEX() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("AMEX", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.AMERICAN_EXPRESS);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithDankort() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("DANKORT", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DANKORT);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithDiners() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("DINERS", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DINERS);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithDiscover() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("DISCOVER", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DISCOVER);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithJCB() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("JCB", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.JCB);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithMaestro() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("MAESTRO", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MAESTRO);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithUATP() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("UATP", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.UATP);
+    }
+
+    @Test
+    public void shouldBuildTokenReplyWithUnknownBrand() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("MONZO", null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL);
     }
 
     @Test
@@ -542,9 +711,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(PAYMENT_TOKEN_ID, result.getPaymentTokenId());
     }
 
-    private CardDetails createCardDetails() {
+    private CardDetails createCardDetails(final String cartBrand, final String cardSubBrand) {
         final CardDetails cardDetails = new CardDetails();
-        cardDetails.setDerived(createDerived());
+        cardDetails.setDerived(createDerived(cartBrand, cardSubBrand));
         cardDetails.setExpiryDate(createExpiryDate());
         cardDetails.setCardHolderName(cardHolderName);
         cardDetails.setCardAddress(createCardAddress());
@@ -592,7 +761,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     private CardDetails createCardDetailsWithoutAddress() {
         final CardDetails cardDetails = new CardDetails();
-        cardDetails.setDerived(createDerived());
+        cardDetails.setDerived(createDerived("VISA", null));
         cardDetails.setExpiryDate(createExpiryDate());
         cardDetails.setCardHolderName(cardHolderName);
         cardDetails.setCvc(createCVC());
@@ -601,7 +770,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     private CardDetails createCardDetailsWithoutExpiryDate() {
         final CardDetails cardDetails = new CardDetails();
-        cardDetails.setDerived(createDerived());
+        cardDetails.setDerived(createDerived("VISA", null));
         cardDetails.setCardHolderName(cardHolderName);
         cardDetails.setCvc(createCVC());
         cardDetails.setCardAddress(createCardAddress());
@@ -618,7 +787,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     private CardDetails createCardDetailsWithoutCardHolderName() {
         final CardDetails cardDetails = new CardDetails();
-        cardDetails.setDerived(createDerived());
+        cardDetails.setDerived(createDerived("VISA", null));
         cardDetails.setExpiryDate(createExpiryDate());
         cardDetails.setCvc(createCVC());
         cardDetails.setCardAddress(createCardAddress());
@@ -637,8 +806,10 @@ public class DefaultServiceResponseTransformerHelperTest {
         return expiryDate;
     }
 
-    private Derived createDerived() {
+    private Derived createDerived(final String cardBrand, final String cardCoBrand) {
         final Derived derived = new Derived();
+        derived.setCardBrand(cardBrand);
+        derived.setCardCoBrand(cardCoBrand);
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(ISSUER_COUNTRY_CODE);
         derived.setObfuscatedPAN(CARD_NUMBER);
@@ -693,13 +864,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         aavTelephoneResultCode.getDescription().add(AAV_TELEPHONE_RESULT_CODE_DESCRIPTION);
     }
 
-    private void createCardHolderName() {
-        cardHolderName = new CardHolderName();
-        cardHolderName.setvalue(CARD_HOLDER_NAME);
-    }
-
     private void createRiskScore() {
         riskScore = new RiskScore();
+        riskScore.setValue(RISK_SCORE_VALUE);
     }
 
     private void createIso8583ReturnCode() {

@@ -10,25 +10,16 @@ import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.*;
 import com.worldpay.service.response.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
+import java.time.LocalDateTime;
 
 public class WPSGTestHelper {
 
     private static final String ENCRYPTED_DATA = "eyJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMjU2R0NNIiwia2lkIjoiMSIsImNvbS53b3JsZHBheS5hcGlWZXJzaW9uIjoiMS4wIiwiY29tLndvcmxkcGF5LmxpYlZlcnNpb24iOiIxLjAuMCIsImNvbS53b3JsZHBheS5jaGFubmVsIjoiamF2YXNjcmlwdCJ9.pnEzzJrmecQeLxHx3y2uUm_eLxED_W0VRVNPnTQUTwN9eNuEVkcFbIWhDh1IfPstYqoljPoQ_TsQ99ixIH9DNU-Q6rmfnNe70C1qXYVUIp64__E0VcN-e6kDlTobz4JhJybOSWlWra0KjckKPaH1YegI6NMgQhNO-O19UUn0NV_zGcI8AQzeympkC4aLWNQbzeGdtnqjF5RWFbNucr_c6uCubeC3-r4ndtkSaQ2JCEhxonR-J7fa3xBSQSFAUZfP3DFGT53_FGDuzjA4i83mh028DDgtO0X3wcH5pa4uhDybTLW9GdKQie3kMv7drfNcpykUfT4Nzziz1zKRmdcqHw.PapnHYpZX1GRVfCT.qV87L9evHyG_xiB7iPaSC69Etir_rLLOV4T-TBIni4qniHfrxOIaUX8NpIKKYNfbW3oRd17erT44iv2Si6G5LoLihdxF1jqVbPMxTyY0qwbSYZgn134658JjlZ70chYmlMBPyp4O4AyhbU_IRJyWv63uZJok.mzc7jo8aTAxZQYuAvB59sA";
-    private static String expiryYear;
-
-    static {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.YEAR, 1);
-        expiryYear = new SimpleDateFormat("YYYY").format(cal.getTime());
-    }
 
     private static final String STATEMENT_NARRATIVE = "STATEMENT NARRATIVE TEXT";
     private static final String SHOPPER_EMAIL = "jshopper@myprovider.com";
 
-    private static final Date EXPIRY_DATE = new Date("09", expiryYear);
+    private static final Date EXPIRY_DATE = new com.worldpay.service.model.Date(LocalDateTime.now().plusYears(1));
     private static final Session SESSION = new Session("192.168.1.1", "sessionId1234");
     private static final Browser BROWSER = new Browser("text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)", "0");
     private static final Address ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");

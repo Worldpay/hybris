@@ -31,9 +31,6 @@
     <!-- Worldpay Merchants -->
     <alias name="defaultWorldpayMerchantInfoService" alias="worldpayMerchantInfoService"/>
     <bean id="defaultWorldpayMerchantInfoService" class="com.worldpay.merchant.impl.DefaultWorldpayMerchantInfoService">
-        <property name="worldpayMerchantConfigDataService" ref="worldpayMerchantConfigDataService"/>
-        <property name="sessionService" ref="sessionService"/>
-        <property name="baseSiteService" ref="baseSiteService"/>
         <property name="worldpayMerchantStrategy" ref="worldpayMerchantStrategy"/>
     </bean>
 
@@ -490,7 +487,6 @@
     <bean id="defaultWorldpayAuthorisationResultService" class="com.worldpay.service.impl.DefaultWorldpayAuthorisationResultService"/>
 
     <!-- Interceptors -->
-    <!-- Generic code generator-->
     <bean id="worldpayTxDataCodeGenerator" class="de.hybris.platform.servicelayer.keygenerator.impl.PersistentKeyGenerator">
         <property name="key" value="worldpay_payment"/>
         <property name="digits" value="8"/>
@@ -503,6 +499,11 @@
         <property name="fieldName" value="code"/>
     </bean>
 
+    <bean id="worldpayPaymentInfoRemoveInterceptor" class="com.worldpay.interceptors.WorldpayPaymentInfoRemoveInterceptor">
+        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <property name="worldpayDirectOrderService" ref="worldpayDirectOrderService"/>
+    </bean>
+
     <!--Interceptor Mapping-->
     <bean id="worldpayAavResponseInterceptorMapping" class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
         <property name="interceptor" ref="worldpayItemCodePrepareInterceptor"/>
@@ -512,7 +513,11 @@
         <property name="interceptor" ref="worldpayItemCodePrepareInterceptor"/>
         <property name="typeCode" value="WorldpayRiskScore"/>
     </bean>
-    <!-- Interceptors -->
+    <bean id="worldpayPaymentInfoRemoveInterceptorMapping" class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
+        <property name="interceptor" ref="worldpayPaymentInfoRemoveInterceptor"/>
+        <property name="typeCode" value="PaymentInfo"/>
+    </bean>
+
 
     <util:map id="paymentTransactionTypeMap" map-class="java.util.HashMap"
               key-type="com.worldpay.service.model.AuthorisedStatus" value-type="de.hybris.platform.payment.enums.PaymentTransactionType">

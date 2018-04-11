@@ -1,14 +1,11 @@
 package com.worldpay.test.groovy.webservicetests.v2.spock.users
 
-import com.worldpay.test.groovy.webservicetests.config.TestConfigFactory
 import com.worldpay.test.groovy.webservicetests.v2.spock.AbstractWorldpaySpockTest
 import de.hybris.bootstrap.annotations.ManualTest
 import groovyx.net.http.HttpResponseDecorator
 import spock.lang.Unroll
 
-import static groovyx.net.http.ContentType.JSON
-import static groovyx.net.http.ContentType.URLENC
-import static groovyx.net.http.ContentType.XML
+import static groovyx.net.http.ContentType.*
 import static org.apache.http.HttpStatus.SC_OK
 
 @ManualTest

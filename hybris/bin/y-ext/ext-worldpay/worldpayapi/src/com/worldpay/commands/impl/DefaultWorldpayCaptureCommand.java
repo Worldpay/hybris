@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Currency;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
@@ -87,7 +88,7 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
      */
     private CaptureServiceRequest buildCaptureServiceRequest(final String worldpayOrderCode, final BigDecimal captureAmount, final Currency currency) throws WorldpayException {
         final Amount amount = getWorldpayOrderService().createAmount(currency, captureAmount.doubleValue());
-        final Date date = new Date(new java.util.Date());
+        final Date date = new Date(LocalDateTime.now());
 
         final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
         return CaptureServiceRequest.createCaptureRequest(merchantInfo, worldpayOrderCode, amount, date);

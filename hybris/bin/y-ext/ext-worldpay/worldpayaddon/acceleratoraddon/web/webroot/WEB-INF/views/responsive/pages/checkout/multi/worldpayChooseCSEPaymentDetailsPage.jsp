@@ -12,13 +12,6 @@
 
 <c:url value="${currentStepUrl}" var="choosePaymentMethodUrl"/>
 <template:page pageTitle="${pageTitle}" hideHeaderLinks="true">
-    <jsp:attribute name="pageScripts">
-        <script>
-            $(document).ready(function () {
-                ACC.worldpayCSE.initForm();
-            });
-        </script>
-    </jsp:attribute>
 
     <jsp:body>
         <div class="row">
@@ -48,7 +41,7 @@
                                     <form:form id="worldpayBillingAddressForm" commandName="paymentDetailsForm" method="post"
                                                action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
-                                        <wp-multi-checkout:paymentButtons/>
+                                        <wp-multi-checkout:paymentButtons cse="true"/>
                                         <wp-multi-checkout:bankSelect/>
                                         <wp-multi-checkout:billingAddress/>
                                         <div class="form-additionals">

@@ -33,7 +33,7 @@ public class DefaultWorldpayOrderModificationCleanUpStrategy implements Worldpay
     @Override
     public void doCleanUp(int days) {
         List<WorldpayOrderModificationModel> processedOrderModificationsBeforeDate = getOrderModificationDao().findProcessedOrderModificationsBeforeDate(WorldpayUtil.createDateInPast(days));
-        processedOrderModificationsBeforeDate.stream().forEach(orderModificationModel -> {
+        processedOrderModificationsBeforeDate.forEach(orderModificationModel -> {
             LOG.info(MessageFormat.format("Deleting Order Modification Model with Worldpay Order code: {0}", orderModificationModel.getWorldpayOrderCode()));
             getModelService().remove(orderModificationModel);
         });

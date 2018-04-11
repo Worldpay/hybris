@@ -55,8 +55,10 @@ public class WorldpayConfiguredFlowsAppender implements WorldpaySupportEmailAppe
 
     private List<CatalogVersionModel> filterOnlineContentCatalogs(final CMSSiteModel site) {
         final List<ContentCatalogModel> contentCatalogs = site.getContentCatalogs();
-        return contentCatalogs.stream().filter(
-                contentCatalog -> contentCatalog.getVersion().equalsIgnoreCase(ONLINE_FLAG)).map(ContentCatalogModel::getActiveCatalogVersion).collect(toList());
+        return contentCatalogs.stream()
+                .filter(contentCatalog -> contentCatalog.getVersion().equalsIgnoreCase(ONLINE_FLAG))
+                .map(ContentCatalogModel::getActiveCatalogVersion)
+                .collect(toList());
     }
 
     @Required

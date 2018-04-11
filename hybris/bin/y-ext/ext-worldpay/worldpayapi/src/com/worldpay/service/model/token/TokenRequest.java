@@ -1,6 +1,5 @@
 package com.worldpay.service.model.token;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.CreateToken;
 import com.worldpay.internal.model.TokenReason;
@@ -19,7 +18,7 @@ public class TokenRequest implements InternalModelTransformer, Serializable {
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
+    public InternalModelObject transformToInternalModel() {
         final CreateToken intCreateToken = new CreateToken();
         if (tokenReason != null) {
             final TokenReason intTokenReason = new TokenReason();

@@ -1,6 +1,5 @@
 package com.worldpay.service.model;
 
-import com.worldpay.internal.model.RiskScore;
 import com.worldpay.service.model.payment.Card;
 
 import java.io.Serializable;

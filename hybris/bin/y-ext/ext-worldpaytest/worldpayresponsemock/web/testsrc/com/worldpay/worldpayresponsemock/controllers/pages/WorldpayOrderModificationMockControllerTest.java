@@ -101,11 +101,10 @@ public class WorldpayOrderModificationMockControllerTest {
         when(requestMock.getScheme()).thenReturn(HTTP_SCHEME);
         when(requestMock.getServerPort()).thenReturn(SERVER_PORT);
         when(requestMock.getServerName()).thenReturn(SERVER_NAME);
-        when(responseFormMock.getSiteId()).thenReturn(SITEID);
         when(site1Mock.getUid()).thenReturn(SITE_1);
         when(site2Mock.getUid()).thenReturn(SITE_2);
         merchantSet = newHashSet(MERCHANT_1, MERCHANT_2);
-        when(worldpayMerchantMockServiceMock.getAllMerchantCodes(startsWith("site"))).thenReturn(merchantSet);
+        when(worldpayMerchantMockServiceMock.getAllMerchantCodes()).thenReturn(merchantSet);
         final List<BaseSiteModel> availableSites = Arrays.asList(site1Mock, site2Mock);
         when(baseSiteServiceMock.getAllBaseSites()).thenReturn(availableSites);
         when(apmConfigurationLookupServiceMock.getAllApmPaymentTypeCodes()).thenReturn(new HashSet<>(Arrays.asList(APM_1, APM_2)));
@@ -135,7 +134,6 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(responseFormMock).setResponseDescription(RESPONSE_DESCRIPTION);
         verify(modelMock).put(eq(PAYMENT_METHOD_APMS), anySetOf(String.class));
         verify(modelMock).put(XML_RESPONSE, PRETTY_XML);
-        verify(modelMock).put(AVAILABLE_SITES, Arrays.asList(SITE_1, SITE_2));
         verify(modelMock).put(RESPONSE_CODES, isoResponseCodesMock);
         verify(modelMock).put(TEST_CREDIT_CARDS, worldpayCreditCardsMock);
         verify(modelMock).put(PAYMENT_METHODS, worldpayPaymentMethodsMock);
@@ -150,12 +148,11 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(apmConfigurationLookupServiceMock).getAllApmPaymentTypeCodes();
         verify(modelMock).put(eq(PAYMENT_METHOD_APMS), anySetOf(String.class));
         verify(modelMock, never()).put(eq(XML_RESPONSE), anyString());
-        verify(modelMock).put(AVAILABLE_SITES, Arrays.asList(SITE_1, SITE_2));
         verify(modelMock).put(RESPONSE_CODES, isoResponseCodesMock);
         verify(modelMock).put(TEST_CREDIT_CARDS, worldpayCreditCardsMock);
         verify(modelMock).put(PAYMENT_METHODS, worldpayPaymentMethodsMock);
         verify(modelMock).put(POSSIBLE_EVENTS, possibleEventsMock);
-        verify(worldpayMerchantMockServiceMock).getAllMerchantCodes(SITE_1);
+        verify(worldpayMerchantMockServiceMock).getAllMerchantCodes();
         verify(modelMock).put(MERCHANTS, merchantSet);
     }
 
@@ -184,9 +181,9 @@ public class WorldpayOrderModificationMockControllerTest {
 
     @Test
     public void getAllMerchantsForSiteShouldReturnAListOfMerchants() {
-        final Set<String> merchantsBySite = testObj.getMerchantsBySite(SITE_1);
+        final Set<String> merchantsBySite = testObj.getMerchants();
 
-        verify(worldpayMerchantMockServiceMock).getAllMerchantCodes(SITE_1);
+        verify(worldpayMerchantMockServiceMock).getAllMerchantCodes();
         assertTrue(merchantsBySite.contains(MERCHANT_1));
         assertTrue(merchantsBySite.contains(MERCHANT_2));
     }

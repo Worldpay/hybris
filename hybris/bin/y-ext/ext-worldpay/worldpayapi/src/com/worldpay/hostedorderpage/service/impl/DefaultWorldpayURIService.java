@@ -25,7 +25,7 @@ public class DefaultWorldpayURIService implements WorldpayURIService {
      */
     @Override
     public void extractUrlParamsToMap(final String redirectReferenceUrl, final Map<String, String> params) throws WorldpayException {
-        extractParametersFromUrl(redirectReferenceUrl).stream().forEach(nameValuePair -> params.put(nameValuePair.getName(), nameValuePair.getValue()));
+        extractParametersFromUrl(redirectReferenceUrl).forEach(nameValuePair -> params.put(nameValuePair.getName(), nameValuePair.getValue()));
     }
 
     protected List<NameValuePair> extractParametersFromUrl(final String redirectUrl) throws WorldpayException {
