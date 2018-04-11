@@ -47,7 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService.*;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.StringUtils.EMPTY;
@@ -71,7 +70,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String CUSTOMER_EMAIL = "customerEmail";
     private static final String MERCHANT_CODE = "merchantCode";
-    private static final String MAC_VALUE = "mac";
     private static final String AUTHORISED = "AUTHORISED";
     private static final String COUNTRY_CODE = "countryCode";
     private static final String FULL_SUCCESS_URL = "fullSuccessUrl";
@@ -79,9 +77,24 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private static final String FULL_FAILURE_URL = "fullFailureUrl";
     private static final String FULL_CANCEL_URL = "fullCancelUrl";
     private static final String FULL_ERROR_URL = "fullErrorUrl";
-    private static final String WORLD_PAY_MERCHANT_CODE = "worldpayMerchantCode";
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
+
+
+    private static final String KEY_MAC = "mac";
+    private static final String KEY_MAC2 = "mac2";
+    private static final String ORDER_KEY = "orderKey";
+    private static final String KEY_COUNTRY = "country";
+    private static final String KEY_LANGUAGE = "language";
+    private static final String KEY_ERROR_URL = "errorURL";
+    private static final String KEY_CANCEL_URL = "cancelURL";
+    private static final String KEY_SUCCESS_URL = "successURL";
+    private static final String KEY_PENDING_URL = "pendingURL";
+    private static final String KEY_FAILURE_URL = "failureURL";
+    private static final String PAYMENT_STATUS = "paymentStatus";
+    private static final String KEY_PAYMENT_AMOUNT = "paymentAmount";
+    private static final String KEY_PAYMENT_CURRENCY = "paymentCurrency";
+    private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
 
     @Spy
     @InjectMocks
@@ -254,7 +267,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testRedirectAuthoriseNotUseShippingAsBilling() throws Exception {
+    public void testRedirectAuthoriseNotUseShippingAsBilling() throws WorldpayException {
         when(additionalAuthInfoMock.getUsingShippingAsBilling()).thenReturn(FALSE);
         when(worldpayOrderServiceMock.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, null, null)).thenReturn(authenticatedShopperMock);
         when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, null)).thenReturn(tokenRequestMock);
@@ -272,7 +285,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         assertEquals(FULL_ERROR_URL, result.getParameters().get(KEY_ERROR_URL));
 
         verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMapOf(String.class, String.class));
-        verify(sessionServiceMock).setAttribute(WORLD_PAY_MERCHANT_CODE, MERCHANT_CODE);
+        verify(sessionServiceMock).setAttribute(WORLDPAY_MERCHANT_CODE, MERCHANT_CODE);
     }
 
     @Test
@@ -294,11 +307,11 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         assertEquals(FULL_CANCEL_URL, result.getParameters().get(KEY_CANCEL_URL));
 
         verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMapOf(String.class, String.class));
-        verify(sessionServiceMock).setAttribute(WORLD_PAY_MERCHANT_CODE, MERCHANT_CODE);
+        verify(sessionServiceMock).setAttribute(WORLDPAY_MERCHANT_CODE, MERCHANT_CODE);
     }
 
     @Test
-    public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToTrue() throws Exception {
+    public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToTrue() {
         when(redirectAuthoriseResultMock.getSaveCard()).thenReturn(true);
         setUpRedirectAuthoriseResultMock(AUTHORISED);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
@@ -312,7 +325,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToFalse() throws Exception {
+    public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToFalse() {
         setUpRedirectAuthoriseResultMock(AUTHORISED);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
 
@@ -325,7 +338,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testCheckResponseIsValidWhenNotUsingMacValidation() throws Exception {
+    public void testCheckResponseIsValidWhenNotUsingMacValidation() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(false);
 
         final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createWorldpayResponseWithOrderKeyOnly());
@@ -334,7 +347,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testCheckResponseIsValidWhenRedirectResponseStatusIsOPEN() throws Exception {
+    public void testCheckResponseIsValidWhenRedirectResponseStatusIsOPEN() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
 
         final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createWorldpayResponseWithOrderKeyOnly());
@@ -343,10 +356,10 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testCheckResponseIsValidWhenUsingMacValidationAndRedirectResultStatusIsAUTHORISED() throws Exception {
+    public void testCheckResponseIsValidWhenUsingMacValidationAndRedirectResultStatusIsAUTHORISED() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
 
-        doReturn(true).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, MAC_VALUE, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
+        doReturn(true).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
 
         final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createFullWorldpayResponse());
 
@@ -354,11 +367,11 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testCheckResponseIsNotValidWhenUsingMacValidationAndRedirectResultStatusIsAUTHORISED() throws Exception {
+    public void testCheckResponseIsNotValidWhenUsingMacValidationAndRedirectResultStatusIsAUTHORISED() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
         setUpRedirectAuthoriseResultMock(AUTHORISED);
 
-        doReturn(false).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, MAC_VALUE, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
+        doReturn(false).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
 
         final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createFullWorldpayResponse());
 
@@ -366,7 +379,31 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     @Test
-    public void testCheckResponseIsNotValidWhenNoOrderKeyPresent() throws Exception {
+    public void testCheckResponseIsValidWhenUsingMacValidationWithMac2ParameterAndRedirectResultStatusIsAUTHORISED() {
+        when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
+        setUpRedirectAuthoriseResultMock(AUTHORISED);
+
+        doReturn(true).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC2, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
+
+        final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createFullWorldpayResponseWithMac2());
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testCheckResponseIsNotValidWhenUsingMacValidationWithMac2ParameterAndRedirectResultStatusIsAUTHORISED() {
+        when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
+        setUpRedirectAuthoriseResultMock(AUTHORISED);
+
+        doReturn(false).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC2, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
+
+        final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createFullWorldpayResponseWithMac2());
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void testCheckResponseIsNotValidWhenNoOrderKeyPresent() {
         final boolean result = testObj.validateRedirectResponse(merchantInfoMock, createWorldpayResponseWithNoOrderKey());
 
         assertFalse(result);
@@ -376,7 +413,17 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         final Map<String, String> worldpayResponse = new HashMap<>();
         worldpayResponse.put(PAYMENT_STATUS, AUTHORISED);
         worldpayResponse.put(ORDER_KEY, ORDER_KEY);
-        worldpayResponse.put(KEY_MAC, MAC_VALUE);
+        worldpayResponse.put(KEY_MAC, KEY_MAC);
+        worldpayResponse.put(KEY_PAYMENT_AMOUNT, String.valueOf(PAYMENT_AMOUNT));
+        worldpayResponse.put(KEY_PAYMENT_CURRENCY, GBP);
+        return worldpayResponse;
+    }
+
+    private Map<String, String> createFullWorldpayResponseWithMac2() {
+        final Map<String, String> worldpayResponse = new HashMap<>();
+        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED);
+        worldpayResponse.put(ORDER_KEY, ORDER_KEY);
+        worldpayResponse.put(KEY_MAC2, KEY_MAC2);
         worldpayResponse.put(KEY_PAYMENT_AMOUNT, String.valueOf(PAYMENT_AMOUNT));
         worldpayResponse.put(KEY_PAYMENT_CURRENCY, GBP);
         return worldpayResponse;
@@ -385,7 +432,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private Map<String, String> createWorldpayResponseWithNoOrderKey() {
         final Map<String, String> worldpayResponse = new HashMap<>();
         worldpayResponse.put(PAYMENT_STATUS, AUTHORISED);
-        worldpayResponse.put(KEY_MAC, MAC_VALUE);
+        worldpayResponse.put(KEY_MAC, KEY_MAC);
         worldpayResponse.put(KEY_PAYMENT_AMOUNT, String.valueOf(PAYMENT_AMOUNT));
         worldpayResponse.put(KEY_PAYMENT_CURRENCY, GBP);
         return worldpayResponse;

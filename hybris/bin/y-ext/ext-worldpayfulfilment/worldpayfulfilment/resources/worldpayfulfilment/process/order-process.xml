@@ -104,8 +104,13 @@
 	</wait>
 
 	<action id="isProcessCompleted" bean="subprocessesCompletedAction">
-		<transition name="OK" to="sendOrderCompletedNotification"/>
+		<transition name="OK" to="setOrderExpirationTime"/>
 		<transition name="NOK" to="waitForWarehouseSubprocessEnd"/>
+	</action>
+
+	<action id="setOrderExpirationTime" bean="setOrderExpirationTimeAction">
+		<transition name="OK" to="sendOrderCompletedNotification"/>
+		<transition name="NOK" to="error"/>
 	</action>
 
 	<action id="sendOrderCompletedNotification" bean="sendOrderCompletedNotificationAction">

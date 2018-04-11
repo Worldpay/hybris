@@ -12,7 +12,7 @@ import de.hybris.platform.servicelayer.ServicelayerBaseTest;
 import org.junit.Test;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
@@ -36,7 +36,7 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
         final String authenticatedShopperId = UUID.randomUUID().toString();
         final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
         final String paymentTokenId = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
-        final CardDetails cardDetails = createCardDetails();
+        final CardDetails cardDetails = createCardDetailsWithExpirationDate6YearsFromNow();
         final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateToken(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
 
         assertNotNull("updateTokenResponse is null!", updateTokenResponse);
@@ -46,14 +46,10 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
         assertFalse("tokenId is empty", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId().length() == 0);
     }
 
-    private CardDetails createCardDetails() {
+    private CardDetails createCardDetailsWithExpirationDate6YearsFromNow() {
         final CardDetails cardDetails = new CardDetails();
 
-        final Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.YEAR, 6);
-        final Date expiryDate = new Date(calendar);
-
-        cardDetails.setExpiryDate(expiryDate);
+        cardDetails.setExpiryDate(new Date(LocalDateTime.now().plusYears(6)));
         cardDetails.setCardHolderName("new name");
         return cardDetails;
     }

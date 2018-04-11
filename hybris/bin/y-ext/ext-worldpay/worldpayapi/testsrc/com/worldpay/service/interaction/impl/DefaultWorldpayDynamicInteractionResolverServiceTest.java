@@ -28,33 +28,34 @@ public class DefaultWorldpayDynamicInteractionResolverServiceTest {
     private AssistedServiceSession assistedServiceSessionMock;
     @Mock
     private UserModel userModelMock;
+    @Mock
+    private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
 
     @Test
     public void resolveIterationTypeForEcommerce() {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = new WorldpayAdditionalInfoData();
-        final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoData);
+        final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock);
 
         assertThat(result).isEqualTo(DynamicInteractionType.ECOMMERCE);
     }
 
     @Test
     public void resolveIterationTypeForMOTO() {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = new WorldpayAdditionalInfoData();
         when(assistedServiceServiceMock.getAsmSession()).thenReturn(assistedServiceSessionMock);
         when(assistedServiceSessionMock.getAgent()).thenReturn(userModelMock);
 
-        final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoData);
+        final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock);
 
         assertThat(result).isEqualTo(DynamicInteractionType.MOTO);
     }
 
     @Test
-    public void resolveIterationTypeForReplenishment() {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = new WorldpayAdditionalInfoData();
-        worldpayAdditionalInfoData.setReplenishmentOrder(true);
-        final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoData);
+    public void resolveIterationTypeForContAuth() {
+        when(worldpayAdditionalInfoDataMock.isReplenishmentOrder()).thenReturn(true);
+        when(assistedServiceServiceMock.getAsmSession()).thenReturn(assistedServiceSessionMock);
+        when(assistedServiceSessionMock.getAgent()).thenReturn(userModelMock);
+
+        final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock);
 
         assertThat(result).isEqualTo(DynamicInteractionType.CONT_AUTH);
     }
-
 }

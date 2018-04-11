@@ -1,11 +1,9 @@
 #Ant properties
-#Wed Oct 25 17:13:06 BST 2017
-builddate=20171025 1713
+#Wed Apr 11 13:18:11 BST 2018
+builddate=20180411 1318
 description=worldpayaddon
-group.id=de.hybris.platform
-module.name=platform-module
 name=worldpayaddon
-releasedate=20170803 1321
+releasedate=20180226 0914
 vendor=hybris
-version=6.5.0.0
-version.api=6.5.0
+version=6.6.0.2
+version.api=6.6.0

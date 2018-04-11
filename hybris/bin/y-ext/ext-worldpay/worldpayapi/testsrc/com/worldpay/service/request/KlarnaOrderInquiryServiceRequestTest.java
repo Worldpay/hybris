@@ -1,6 +1,5 @@
 package com.worldpay.service.request;
 
-import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.MerchantInfo;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Rule;
@@ -22,7 +21,7 @@ public class KlarnaOrderInquiryServiceRequestTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testOrderInquiry() throws WorldpayException {
+    public void testOrderInquiry() {
 
         final KlarnaOrderInquiryServiceRequest request = KlarnaOrderInquiryServiceRequest.createKlarnaOrderInquiryRequest(MERCHANT_INFO, ORDER_CODE);
 

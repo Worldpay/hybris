@@ -39,8 +39,8 @@ import static com.worldpay.enums.token.TokenEvent.CONFLICT;
  */
 public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderService implements WorldpayDirectOrderService {
 
-    protected static final String THREE_D_SECURE_ECHO_DATA_PARAM = "3DSecureEchoData";
-    protected static final String THREE_D_SECURE_COOKIE_PARAM = "3DSecureCookie";
+    private static final String THREE_D_SECURE_ECHO_DATA_PARAM = "3DSecureEchoData";
+    private static final String THREE_D_SECURE_COOKIE_PARAM = "3DSecureCookie";
 
     private SessionService sessionService;
     private CartService cartService;
@@ -127,9 +127,10 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
             if (updateTokenResponse.isError()) {
                 throw new WorldpayException(updateTokenResponse.getErrorDetail().getMessage());
             }
-            creditCardPaymentInfoModel = updateOrCreateCreditCard(cartModel, cseAdditionalAuthInfo.getSaveCard(), createTokenResponse, updateTokenServiceRequest);
+            creditCardPaymentInfoModel = getWorldpayPaymentInfoService().updateCreditCardPaymentInfo(cartModel, updateTokenServiceRequest).orElseGet(() ->
+                    getWorldpayPaymentInfoService().createCreditCardPaymentInfo(cartModel, createTokenResponse, cseAdditionalAuthInfo.getSaveCard(), merchantInfo.getMerchantCode()));
         } else {
-            creditCardPaymentInfoModel = getWorldpayPaymentInfoService().createCreditCardPaymentInfo(cartModel, createTokenResponse, cseAdditionalAuthInfo.getSaveCard());
+            creditCardPaymentInfoModel = getWorldpayPaymentInfoService().createCreditCardPaymentInfo(cartModel, createTokenResponse, cseAdditionalAuthInfo.getSaveCard(), merchantInfo.getMerchantCode());
         }
         if (creditCardPaymentInfoModel != null) {
             cartModel.setPaymentInfo(creditCardPaymentInfoModel);
@@ -150,13 +151,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         if (deleteTokenResponse.isError()) {
             throw new WorldpayException(deleteTokenResponse.getErrorDetail().getMessage());
         }
-    }
-
-    protected CreditCardPaymentInfoModel updateOrCreateCreditCard(final CartModel cartModel, final boolean saveCard,
-                                                                  final CreateTokenResponse createTokenResponse,
-                                                                  final UpdateTokenServiceRequest updateTokenServiceRequest) {
-        return getWorldpayPaymentInfoService().updateCreditCardPaymentInfo(cartModel, updateTokenServiceRequest)
-                .orElseGet(() -> getWorldpayPaymentInfoService().createCreditCardPaymentInfo(cartModel, createTokenResponse, saveCard));
     }
 
     protected boolean createTokenRepliesWithConflict(final CreateTokenResponse createTokenResponse) {
@@ -206,10 +200,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
                 abstractOrderModel,
                 authorisationAmount);
         getWorldpayPaymentTransactionService().addAavFields(transactionEntry, serviceResponse.getPaymentReply());
-
-        if (paymentInfoModel instanceof CreditCardPaymentInfoModel) {
-            getWorldpayPaymentInfoService().setCreditCardType((CreditCardPaymentInfoModel) paymentInfoModel, serviceResponse.getPaymentReply());
-        }
         getWorldpayPaymentInfoService().updateAndAttachPaymentInfoModel(paymentTransaction, abstractOrderModel, paymentInfoModel);
     }
 

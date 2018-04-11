@@ -28,7 +28,7 @@
     <context type="WorldpayRiskScore" component="base" merge-by="type" principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
         <y:base>
             <y:labels>
-                <y:label>'value=' + value</y:label>
+                <y:label>'value=' + value + ' finalScore=' + finalScore</y:label>
             </y:labels>
         </y:base>
     </context>

@@ -61,7 +61,7 @@ public class RedirectAuthoriseResponseTransformerTest {
         final Token token = new Token();
         token.setTokenEventReference(TOKEN_REFERENCE);
         intOrderStatus.setToken(token);
-        final List<Object> referenceElements = intOrderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> referenceElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final Reference reference = new Reference();
         reference.setId(REFERENCE_ID);
         reference.setvalue(REFERENCE_VALUE);
@@ -144,7 +144,7 @@ public class RedirectAuthoriseResponseTransformerTest {
         final Reply reply = new Reply();
         final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
-        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         orderStatusElements.add(new BankAccount());
         replyElements.add(orderStatus);
         responseType.add(reply);

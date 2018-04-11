@@ -1,6 +1,6 @@
 package com.worldpay.converters;
 
-import com.worldpay.internal.model.RiskScore;
+import com.worldpay.service.model.RiskScore;
 import com.worldpay.model.WorldpayRiskScoreModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.model.ModelService;
@@ -27,6 +27,7 @@ public class WorldpayRiskScoreConverterTest {
     private static final String TRISK = "13.5";
     private static final String TSCORE = "19.19";
     private static final String VALUE = "value";
+
     @InjectMocks
     private WorldpayRiskScoreConverter testObj;
 

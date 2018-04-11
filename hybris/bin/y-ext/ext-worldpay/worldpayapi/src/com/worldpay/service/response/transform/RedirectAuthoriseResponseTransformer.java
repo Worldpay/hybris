@@ -47,7 +47,7 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
             authResponse.setToken(token);
         }
 
-        final Object orderStatusType = intOrderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
+        final Object orderStatusType = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
         if (orderStatusType instanceof Reference) {
             Reference intReference = (Reference) orderStatusType;
 

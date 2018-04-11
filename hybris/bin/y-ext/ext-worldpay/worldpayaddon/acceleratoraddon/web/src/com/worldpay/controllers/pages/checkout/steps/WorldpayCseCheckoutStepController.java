@@ -32,7 +32,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  * Web controller to handle a CSE checkout step
  */
 @Controller
-@RequestMapping (value = "/checkout/multi/worldpay/cse")
+@RequestMapping(value = "/checkout/multi/worldpay/cse")
 public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
     private static final Logger LOGGER = Logger.getLogger(WorldpayCseCheckoutStepController.class);
@@ -59,7 +59,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping (value = {"/cse-data", "/place-order"}, method = GET)
+    @RequestMapping(value = {"/cse-data", "/place-order"}, method = GET)
     @RequireHardLogIn
     public String getCseDataPage(final Model model) throws CMSItemNotFoundException {
         if (getCheckoutFacade().hasCheckoutCart()) {
@@ -80,7 +80,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return The view to redirect to.
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping (value = "/add-payment-address", method = POST)
+    @RequestMapping(value = "/add-payment-address", method = POST)
     @RequireHardLogIn
     public String addPaymentAddress(final Model model, @Valid final PaymentDetailsForm paymentDetailsForm, final BindingResult bindingResult, final RedirectAttributes redirectAttrs)
             throws CMSItemNotFoundException {
@@ -112,7 +112,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping (value = "/place-order", method = POST)
+    @RequestMapping(value = "/place-order", method = POST)
     @RequireHardLogIn
     public String addCseData(final HttpServletRequest request, final Model model, @Valid final CSEPaymentForm csePaymentForm, final BindingResult bindingResult)
             throws CMSItemNotFoundException {

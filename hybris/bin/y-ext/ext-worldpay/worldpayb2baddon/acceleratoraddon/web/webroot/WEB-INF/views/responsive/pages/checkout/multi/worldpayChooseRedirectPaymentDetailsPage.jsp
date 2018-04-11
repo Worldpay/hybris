@@ -11,15 +11,6 @@
 
 <c:url value="${currentStepUrl}" var="choosePaymentMethodUrl"/>
 <template:page pageTitle="${pageTitle}" hideHeaderLinks="true">
-
-    <jsp:attribute name="pageScripts">
-        <script>
-            $(document).ready(function () {
-                ACC.worldpayRedirect.initForm();
-            });
-        </script>
-    </jsp:attribute>
-
     <jsp:body>
         <div id="hop" class="row">
             <div class="col-sm-6">
@@ -47,7 +38,7 @@
                                     <form:form id="worldpayBillingAddressForm" commandName="paymentDetailsForm" method="post"
                                                action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
-                                        <wp-multi-checkout:paymentButtons/>
+                                        <wp-multi-checkout:paymentButtons cse="false"/>
                                         <div class="save_payment_details hidden">
                                             <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
                                                 <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>

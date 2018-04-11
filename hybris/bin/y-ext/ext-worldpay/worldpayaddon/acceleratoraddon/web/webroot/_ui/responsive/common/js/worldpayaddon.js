@@ -1,5 +1,15 @@
 ACC.worldpay = {
 
+    _autoload:[
+        "bindUseDeliveryAddress",
+        "bindCountrySelector",
+        "bindCreditCardAddressForm",
+        "populateDeclineCodeTimeout",
+        "hideOrShowSaveDetails",
+        "bindBanks",
+        "checkPreviouslySelectedPaymentMethod"
+    ],
+
     spinner: $("<img src='" + ACC.config.commonResourcePath + "/images/spinner.gif' />"),
 
     bindCountrySelector: function () {
@@ -134,6 +144,9 @@ ACC.worldpay = {
                 $(".save_payment_details").addClass("hidden");
             }
         });
+        if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
+            $(".save_payment_details").removeClass("hidden");
+        }
     },
 
     populateBankListByAPM: function (selectedAPM, callback) {
@@ -181,19 +194,5 @@ ACC.worldpay = {
                 $("#bankElement").addClass("hidden");
             }
         });
-    },
-
-    initForm: function () {
-        this.bindUseDeliveryAddress();
-        this.bindCountrySelector();
-        this.bindCreditCardAddressForm();
-        this.populateDeclineCodeTimeout();
-        this.hideOrShowSaveDetails();
-        this.bindBanks();
-        this.checkPreviouslySelectedPaymentMethod();
     }
 };
-
-$(document).ready(function () {
-    ACC.worldpay.initForm();
-});

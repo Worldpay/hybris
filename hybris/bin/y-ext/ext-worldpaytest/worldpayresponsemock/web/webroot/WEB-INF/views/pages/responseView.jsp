@@ -143,12 +143,6 @@
             <span>Worldpay order code:</span>
             <form:input path="worldpayOrderCode"/>
         </form:label>
-        <form:label path="siteId">
-            <span>Site:</span>
-            <form:select path="siteId">
-                <form:options items="${availableSites}"/>
-            </form:select>
-        </form:label>
         <form:label path="merchantCode">
             <span>Merchant Code:</span>
             <form:select path="merchantCode">
@@ -486,7 +480,7 @@
         }
     });
 
-    $("#journalType").change(function() {
+    $("#journalType").change(function () {
         var journalType = $("#journalType").val();
         if (journalType === "REFUND_WEBFORM_ISSUED") {
             $("#shopperWebformRefundDetails").removeClass("hide");
@@ -494,19 +488,6 @@
             $("#shopperWebformRefundDetails").addClass("hide");
         }
     })
-
-
-
-    $("#siteId").change(function () {
-        $.getJSON("/worldpayresponsemock/merchants/" + $("#siteId").val(), function (response) {
-            $("#merchantCode").empty();
-            $.each(response, function (key, value) {
-                $("#merchantCode").append($("<option></option>")
-                        .attr("value", value).text(value));
-            });
-
-        });
-    });
 </script>
 
 </body>

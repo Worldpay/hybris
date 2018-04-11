@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Required;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.stream.XMLOutputFactory;
 import java.util.Map;
 
 import static com.worldpay.config.Environment.PROD;
@@ -131,7 +130,7 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
         try {
             logPaymentServiceXML(paymentService);
             woldpayXmlValidator.validate(paymentService);
-        } catch (WorldpayValidationException e) {
+        } catch (final WorldpayValidationException e) {
             throw new WorldpayValidationException("Error validating XML: " + e.getMessage(), e);
         }
 
@@ -146,10 +145,9 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
         final String environment = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT);
         if (PROD != Environment.valueOf(environment)) {
             try {
-                Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
+                final Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
                 marshaller.setProperty(JAXB_FRAGMENT, TRUE);
-                XMLOutputFactory xof = XMLOutputFactory.newInstance();
-                worldpayConnector.logXMLOut(xof, marshaller, paymentService);
+                worldpayConnector.logXMLOut(marshaller, paymentService);
             } catch (final JAXBException jaxbException) {
                 throw new WorldpayValidationException(jaxbException.getMessage(), jaxbException);
             }

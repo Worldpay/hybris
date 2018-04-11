@@ -39,7 +39,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
         }
         orderInquiryResponse.setOrderCode(intOrderStatus.getOrderCode());
 
-        final List<Object> orderStatusElements = intOrderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         for (final Object orderStatusElement : orderStatusElements) {
             if (orderStatusElement instanceof Payment) {
                 final Payment intPayment = (Payment) orderStatusElement;

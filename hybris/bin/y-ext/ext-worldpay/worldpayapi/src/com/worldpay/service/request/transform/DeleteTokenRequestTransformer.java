@@ -9,6 +9,10 @@ import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.springframework.beans.factory.annotation.Required;
 
+/**
+ * Transformer/Converter class that transforms a DeleteTokenRequestTransformer (abstraction) into a PaymentService (XML model)
+ * to be sent as an XML file to Worldpay
+ */
 public class DeleteTokenRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 

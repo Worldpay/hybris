@@ -36,8 +36,8 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @return new instance of the RedirectAuthoriseServiceRequest initialised with input parameters
      */
     public static RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
-                                                                                 String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper,
-                                                                                 final Address shippingAddress, final Address billingAddress, String statementNarrative) {
+                                                                                 final String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper,
+                                                                                 final Address shippingAddress, final Address billingAddress, final String statementNarrative) {
         checkParameters("RedirectAuthoriseRequest", merch, orderInfo);
         final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
         final Order reqOrder = createOrder(orderInfo, installationId, orderContent, includedPaymentMethods, excludedPaymentMethods, shopper, shippingAddress, billingAddress, statementNarrative);
@@ -58,6 +58,7 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param shippingAddress        shippingAddress to be used in the Worldpay call
      * @param billingAddress         billingAddress to be used in the Worldpay call
      * @param statementNarrative     statementNarrative to be used in the Worldpay call
+     * @param tokenRequest           requests Worldpay to create a token with the details provided during HOP
      * @return new instance of the RedirectAuthoriseServiceRequest initialised with input parameters
      */
     public static RedirectAuthoriseServiceRequest createTokenAndRedirectAuthoriseRequest(final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,

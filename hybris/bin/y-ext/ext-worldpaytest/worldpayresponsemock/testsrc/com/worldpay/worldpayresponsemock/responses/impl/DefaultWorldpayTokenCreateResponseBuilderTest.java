@@ -49,7 +49,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
     private PaymentTokenCreate paymentTokenCreateMock;
 
     @Test
-    public void buildTokenResponse() throws Exception {
+    public void buildTokenResponse() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(Collections.singletonList(submitMock));
         when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate()).thenReturn(Collections.singletonList(paymentTokenCreateMock));
         when(paymentTokenCreateMock.getAuthenticatedShopperID()).thenReturn(AUTHENTICATED_SHOPPER_ID);

@@ -1,5 +1,12 @@
 ACC.worldpayCSE = {
 
+    _autoload: [
+        "bindSubmitBillingAddressForm",
+        "populateErrorCodeMap",
+        "bindSubmitCseForm",
+        "bindPaymentButtons"
+    ],
+
     errorCodeMap: {},
 
     encryptCardDetails: function () {
@@ -20,18 +27,20 @@ ACC.worldpayCSE = {
     },
 
     bindPaymentButtons: function () {
-        var paymentButtonsSlot = $(".cms-payment-button");
-        if (paymentButtonsSlot.length && paymentButtonsSlot.children().length > 0) {
-            paymentButtonsSlot.on("change", function () {
-                if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
-                    $(".terms").addClass("hidden");
-                }
-                else {
-                    $(".terms").removeClass("hidden");
-                }
-            });
-        } else if (paymentButtonsSlot.length) {
-            $(".terms").addClass("hidden");
+        if ($(".cse").length) {
+            var paymentButtonsSlot = $(".cms-payment-button");
+            if (paymentButtonsSlot.length && paymentButtonsSlot.children().length > 0) {
+                paymentButtonsSlot.on("change", function () {
+                    if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
+                        $(".terms").addClass("hidden");
+                    }
+                    else {
+                        $(".terms").removeClass("hidden");
+                    }
+                });
+            } else if (paymentButtonsSlot.length) {
+                $(".terms").addClass("hidden");
+            }
         }
     },
 
@@ -108,12 +117,5 @@ ACC.worldpayCSE = {
         this.errorCodeMap["306"] = "error-exp-date";
         this.errorCodeMap["401"] = "error-nameOnCard";
         this.errorCodeMap["402"] = "error-nameOnCard";
-    },
-
-    initForm: function () {
-        this.bindSubmitBillingAddressForm();
-        this.populateErrorCodeMap();
-        this.bindSubmitCseForm();
-        this.bindPaymentButtons();
     }
 };

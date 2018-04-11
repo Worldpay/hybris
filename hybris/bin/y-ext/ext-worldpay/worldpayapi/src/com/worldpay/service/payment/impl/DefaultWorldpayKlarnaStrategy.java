@@ -155,7 +155,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         final double shippingTaxAmount = totalDeliveryCost > 0 ? calculateVATAmount(totalDeliveryCost, taxRate, digits) : 0;
         final double calculatedTotalTax = calculatedEntriesTaxAmount + shippingTaxAmount - calculatedDiscountTaxAmount;
         double taxAmountDifference = cartModel.getTotalTax() - calculatedTotalTax;
-        return taxAmountDifference > 0 ? calculatedDiscountTaxAmount - taxAmountDifference : calculatedDiscountTaxAmount;
+        return (taxAmountDifference > 0) ? (calculatedDiscountTaxAmount - taxAmountDifference) : calculatedDiscountTaxAmount;
     }
 
     private double calculateVATAmount(final double amount, final double taxRate, final Integer digits) {
@@ -175,7 +175,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
     }
 
     private double prorateRelativeGlobalDiscount(final AbstractOrderEntryModel entry, final double amount) {
-        if (entry.getOrder().getGlobalDiscountValues().stream().filter(gv -> !gv.isAbsolute()).count() > 0) {
+        if (entry.getOrder().getGlobalDiscountValues().stream().anyMatch(gv -> !gv.isAbsolute())) {
             final double discountValue = entry.getOrder().getGlobalDiscountValues().stream().filter(dv -> !dv.isAbsolute()).mapToDouble(DiscountValue::getValue).sum();
             final Integer digits = entry.getOrder().getCurrency().getDigits();
             final double proratedAmount = BigDecimal.valueOf(amount).multiply(BigDecimal.valueOf(100 - discountValue).divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP)).setScale(digits, BigDecimal.ROUND_HALF_UP).doubleValue();

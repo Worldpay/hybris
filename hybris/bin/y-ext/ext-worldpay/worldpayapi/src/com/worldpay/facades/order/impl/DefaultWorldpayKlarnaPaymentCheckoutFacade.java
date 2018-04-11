@@ -2,15 +2,12 @@ package com.worldpay.facades.order.impl;
 
 import com.worldpay.core.services.OrderInquiryService;
 import com.worldpay.core.services.impl.DefaultOrderInquiryService;
-import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayKlarnaPaymentCheckoutFacade;
 import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.core.model.order.CartModel;

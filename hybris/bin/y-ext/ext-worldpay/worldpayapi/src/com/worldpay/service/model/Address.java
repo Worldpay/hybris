@@ -3,6 +3,7 @@ package com.worldpay.service.model;
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.*;
 import com.worldpay.service.request.transform.InternalModelTransformer;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -113,7 +114,7 @@ public class Address implements InternalModelTransformer, Serializable {
         if (countryCode != null) {
             intAddress.setCountryCode(countryCode);
         }
-        if (telephoneNumber != null) {
+        if (StringUtils.isNotBlank(telephoneNumber)) {
             intAddress.setTelephoneNumber(telephoneNumber);
         }
 

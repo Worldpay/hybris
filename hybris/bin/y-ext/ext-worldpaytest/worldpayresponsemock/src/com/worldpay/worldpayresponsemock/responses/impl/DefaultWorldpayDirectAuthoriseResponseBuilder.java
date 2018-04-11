@@ -63,7 +63,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
                         .withTransactionAmount(intAmount.getValue()).withLastEvent(AUTHORISED).build();
                 orderStatus.setOrderCode(requestOrder.getOrderCode());
                 orderStatus.
-                        getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().
+                        getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().
                         add(payment);
 
                 Optional<Object> createTokenOptional = orderElements.stream().filter(CreateToken.class::isInstance).findFirst();

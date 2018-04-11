@@ -127,11 +127,11 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         return new CallExecutor<OrderInquiryServiceResponse>(config).execute(callable);
     }
 
-    protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) throws WorldpayConfigurationException {
+    protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) {
         return OrderInquiryServiceRequest.createOrderInquiryRequest(merchantInfo, orderCode);
     }
 
-    protected KlarnaOrderInquiryServiceRequest createKlarnaOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) throws WorldpayConfigurationException {
+    protected KlarnaOrderInquiryServiceRequest createKlarnaOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) {
         return KlarnaOrderInquiryServiceRequest.createKlarnaOrderInquiryRequest(merchantInfo, orderCode);
     }
 

@@ -4,9 +4,12 @@ import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.validation.AbstractCheckoutStepValidator;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.validation.ValidationResults;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
+import org.apache.log4j.Logger;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public class WorldpayCheckoutStepValidator extends AbstractCheckoutStepValidator {
+
+    private static final Logger LOG = Logger.getLogger(WorldpayCheckoutStepValidator.class);
 
     /**
      * {@inheritDoc}

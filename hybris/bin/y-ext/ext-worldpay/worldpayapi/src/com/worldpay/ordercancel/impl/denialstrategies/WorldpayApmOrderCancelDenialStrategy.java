@@ -16,13 +16,13 @@ import java.util.List;
 import static java.text.MessageFormat.format;
 
 /**
+ * Strategy that avoids an order cancellation when has been paid with an APM or the payment method is still unknown.
  */
 public class WorldpayApmOrderCancelDenialStrategy extends AbstractCancelDenialStrategy implements OrderCancelDenialStrategy {
 
     private static final Logger LOG = Logger.getLogger(WorldpayApmOrderCancelDenialStrategy.class);
 
     /**
-     *
      * @param orderCancelConfigModel
      * @param orderModel
      * @param principalModel

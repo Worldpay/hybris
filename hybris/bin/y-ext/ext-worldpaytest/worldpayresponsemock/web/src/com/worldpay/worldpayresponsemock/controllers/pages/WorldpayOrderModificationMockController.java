@@ -7,12 +7,8 @@ import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import com.worldpay.worldpayresponsemock.merchant.WorldpayResponseMockMerchantInfoService;
 import com.worldpay.worldpayresponsemock.mock.WorldpayMockConnector;
 import com.worldpay.worldpayresponsemock.responses.WorldpayNotificationResponseBuilder;
-import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
-import de.hybris.platform.site.BaseSiteService;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,12 +16,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.util.Calendar.*;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -48,7 +42,6 @@ public class WorldpayOrderModificationMockController {
     protected static final String DEFAULT_CURRENCY_CODE = "GBP";
     protected static final String DEFAULT_RISK_SCORE = "1.00";
     protected static final String DEFAULT_TRANSACTION_AMOUNT = "9985";
-    protected static final String AVAILABLE_SITES = "availableSites";
     protected static final String RESPONSE_CODES = "responseCodes";
     protected static final String TEST_CREDIT_CARDS = "testCreditCards";
     protected static final String PAYMENT_METHODS = "paymentMethods";
@@ -94,9 +87,6 @@ public class WorldpayOrderModificationMockController {
     private WorldpayResponseMockMerchantInfoService worldpayResponseMockMerchantInfoService;
 
     @Resource
-    private BaseSiteService baseSiteService;
-
-    @Resource
     private Set<String> possibleEvents;
 
     @Resource
@@ -107,12 +97,13 @@ public class WorldpayOrderModificationMockController {
 
     /**
      * Get form for mocked order modifications
+     *
      * @param model
      * @return
      */
-    @RequestMapping (value = "/responses", method = GET)
+    @RequestMapping(value = "/responses", method = GET)
     public ModelAndView getAllAnswers(ModelMap model) {
-        populateModel(model, null);
+        populateModel(model);
         return new ModelAndView(WorldpayResponseMockControllerConstants.Pages.Views.RESPONSES, "responseForm", getResponseForm());
     }
 
@@ -154,13 +145,14 @@ public class WorldpayOrderModificationMockController {
 
     /**
      * Post the mocked order modification into hybris
+     *
      * @param responseForm
      * @param model
      * @param request
      * @return
      * @throws WorldpayException
      */
-    @RequestMapping (value = "/sendSelectedResponse", method = POST)
+    @RequestMapping(value = "/sendSelectedResponse", method = POST)
     public String sendResponse(final ResponseForm responseForm, ModelMap model, final HttpServletRequest request) throws WorldpayException {
         responseForm.setResponseDescription(ISO8583ResponseCodes.get(responseForm.getResponseCode()));
         responseForm.setTestCreditCard(maskCreditCardNumber(responseForm.getTestCreditCard()));
@@ -168,20 +160,20 @@ public class WorldpayOrderModificationMockController {
         final String responseXML = worldpayNotificationResponseBuilder.buildResponse(responseForm);
 
         model.put(XML_RESPONSE, worldpayNotificationResponseBuilder.prettifyXml(responseXML));
-        populateModel(model, responseForm.getSiteId());
+        populateModel(model);
         worldpayMockConnector.sendResponse(responseForm, request, responseXML);
         return WorldpayResponseMockControllerConstants.Pages.Views.RESPONSES;
     }
 
     /**
-     * Get merchants for a given site
-     * @param siteUid
+     * Get all configured merchants
+     *
      * @return
      */
-    @RequestMapping (value = "/merchants/{siteUid}", method = GET)
+    @RequestMapping(value = "/merchants", method = GET)
     @ResponseBody
-    public Set<String> getMerchantsBySite(@PathVariable String siteUid) {
-        return worldpayResponseMockMerchantInfoService.getAllMerchantCodes(siteUid);
+    public Set<String> getMerchants() {
+        return worldpayResponseMockMerchantInfoService.getAllMerchantCodes();
     }
 
     protected String maskCreditCardNumber(final String creditCardNumber) {
@@ -193,27 +185,16 @@ public class WorldpayOrderModificationMockController {
         return creditCardNumber.substring(0, START_INDEX) + mask + creditCardNumber.substring(len - END_INDEX, len);
     }
 
-    private void populateModel(final ModelMap model, final String siteId) {
+    private void populateModel(final ModelMap model) {
         final Set<String> allApmPaymentTypeCodes = apmConfigurationLookupService.getAllApmPaymentTypeCodes();
         // For testing non configured APMs. Could be adjusted for a Non-configured APM in your system.
         allApmPaymentTypeCodes.add("EKONTO-SSL");
         model.put(PAYMENT_METHOD_APMS, allApmPaymentTypeCodes);
-        final List<String> availableSites = getAvailableSiteUids();
-        model.put(AVAILABLE_SITES, availableSites);
         model.put(RESPONSE_CODES, ISO8583ResponseCodes);
         model.put(TEST_CREDIT_CARDS, worldpayCreditCards);
         model.put(PAYMENT_METHODS, worldpayPaymentMethods);
         model.put(POSSIBLE_EVENTS, possibleEvents);
         model.put(TOKEN_EVENTS, tokenEvents);
-        final String defaultSiteUid = availableSites.get(0);
-        model.put(MERCHANTS, worldpayResponseMockMerchantInfoService.getAllMerchantCodes(determineSiteUid(siteId, defaultSiteUid)));
-    }
-
-    private String determineSiteUid(final String siteId, final String defaultSiteUid) {
-        return StringUtils.isNotBlank(siteId) && !defaultSiteUid.equalsIgnoreCase(siteId) ? siteId : defaultSiteUid;
-    }
-
-    private List<String> getAvailableSiteUids() {
-        return baseSiteService.getAllBaseSites().stream().map(BaseSiteModel::getUid).collect(Collectors.toList());
+        model.put(MERCHANTS, worldpayResponseMockMerchantInfoService.getAllMerchantCodes());
     }
 }

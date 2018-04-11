@@ -1,7 +1,3 @@
-/*
- * Forked from ycommercewebservicestest
- */
-
 package com.worldpay.test.groovy.webservicetests.v2.spock
 
 import com.worldpay.test.groovy.webservicetests.SSLIssuesIgnoringHttpClientFactory
@@ -19,16 +15,16 @@ import static org.apache.http.HttpStatus.SC_OK
 
 abstract class AbstractSpockTest extends Specification {
 
-    private static String LOG4J_PROPERTIES_CLASS_PATH = "yworldpayocctest/log4j.properties";
-    private static String COMMONS_LOGGING_LOGGER_ATTRIBUTE_NAME = "org.apache.commons.logging.Log";
-    private static String COMMONS_LOGGING_LOGGER_ATTRIBUTE_VALUE = "org.apache.commons.logging.impl.Log4JLogger";
+    private static String LOG4J_PROPERTIES_CLASS_PATH = "yworldpayocctest/log4j.properties"
+    private static String COMMONS_LOGGING_LOGGER_ATTRIBUTE_NAME = "org.apache.commons.logging.Log"
+    private static String COMMONS_LOGGING_LOGGER_ATTRIBUTE_VALUE = "org.apache.commons.logging.impl.Log4JLogger"
 
     protected RESTClient restClient
     protected
-    static ConfigObject config = TestConfigFactory.createConfig("v2", "/yworldpayocctest/groovytests-property-file.groovy");
+    static ConfigObject config = TestConfigFactory.createConfig("v2", "/yworldpayocctest/groovytests-property-file.groovy")
 
     static {
-        initializeLogging();
+        initializeLogging()
     }
 
     /**
@@ -40,10 +36,10 @@ abstract class AbstractSpockTest extends Specification {
     def synchronized static initializeLogging() {
         if (LogFactory.factories == null || LogFactory.factories.isEmpty()) {
             //configure only if logging hasn't been configured yet
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            LogFactory.getFactory().setAttribute(COMMONS_LOGGING_LOGGER_ATTRIBUTE_NAME, COMMONS_LOGGING_LOGGER_ATTRIBUTE_VALUE);
-            URL url = loader.getResource(LOG4J_PROPERTIES_CLASS_PATH);
-            PropertyConfigurator.configure(url);
+            ClassLoader loader = Thread.currentThread().getContextClassLoader()
+            LogFactory.getFactory().setAttribute(COMMONS_LOGGING_LOGGER_ATTRIBUTE_NAME, COMMONS_LOGGING_LOGGER_ATTRIBUTE_VALUE)
+            URL url = loader.getResource(LOG4J_PROPERTIES_CLASS_PATH)
+            PropertyConfigurator.configure(url)
         }
     }
 
@@ -93,11 +89,11 @@ abstract class AbstractSpockTest extends Specification {
 
 
     protected RESTClient createRestClient(uri = config.DEFAULT_HTTPS_URI) {
-        def restClient = new RESTClient(uri);
+        def restClient = new RESTClient(uri)
 
         // makes sure we can access the services even without a valid SSL certificate
-        HttpClient httpClient = SSLIssuesIgnoringHttpClientFactory.createHttpClient();
-        restClient.setClient(httpClient);
+        HttpClient httpClient = SSLIssuesIgnoringHttpClientFactory.createHttpClient()
+        restClient.setClient(httpClient)
 
         // makes sure an exception is not thrown and that the response is parsed
         restClient.handler.failure = restClient.handler.success
@@ -105,7 +101,7 @@ abstract class AbstractSpockTest extends Specification {
         // used to record the requests in jmeter
         //client.setProxy('localhost', 8080, null)
 
-        return restClient;
+        return restClient
     }
 
     protected void addAuthorization(RESTClient client, token) {

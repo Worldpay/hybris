@@ -53,11 +53,6 @@
                 });
             </script>
         </c:if>
-        <script>
-            $(document).ready(function () {
-                ACC.worldpayRedirect.initForm();
-            });
-        </script>
     </jsp:attribute>
 
     <jsp:body>
@@ -78,7 +73,9 @@
                                             <c:if test="${not empty paymentInfos}">
                                                 <div class="form-group">
                                                     <c:if test="${not empty paymentInfos}">
-                                                        <button type="button" class="btn btn-default btn-block js-saved-payments"><spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useSavedCard"/></button>
+                                                        <button type="button" class="btn btn-default btn-block js-saved-payments">
+                                                            <spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useSavedCard"/>
+                                                        </button>
                                                     </c:if>
                                                 </div>
                                                 <wp-multi-checkout:savedPaymentInfos/>
@@ -88,7 +85,7 @@
                                             <form:form id="worldpayBillingAddressForm" commandName="paymentDetailsForm" method="post"
                                                        action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
-                                                <wp-multi-checkout:paymentButtons/>
+                                                <wp-multi-checkout:paymentButtons cse="false"/>
                                                 <wp-multi-checkout:bankSelect/>
 
                                                 <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">

@@ -69,13 +69,13 @@ public interface WorldpayPaymentInfoService {
      * @param cartModel           the session cart
      * @param createTokenResponse the {@link CreateTokenResponse} from Worldpay
      * @param saveCard            the flag to display card in user account
+     * @param merchantId          the merchant id for the payment info
      * @return
      */
-    CreditCardPaymentInfoModel createCreditCardPaymentInfo(final CartModel cartModel, final CreateTokenResponse createTokenResponse, final boolean saveCard);
+    CreditCardPaymentInfoModel createCreditCardPaymentInfo(final CartModel cartModel, final CreateTokenResponse createTokenResponse, final boolean saveCard, final String merchantId);
 
     /**
      * Converts and sets the {@link CreditCardType} on the {@link CreditCardPaymentInfoModel} based on the methodCode of the {@link PaymentReply}
-     *
      * @param creditCardPaymentInfoModel The {@link CreditCardPaymentInfoModel} to be updated
      * @param paymentReply               The paymentReply to get the methodCode from. This methodCode will be converted based on configurations and mappings in Hybris.
      */

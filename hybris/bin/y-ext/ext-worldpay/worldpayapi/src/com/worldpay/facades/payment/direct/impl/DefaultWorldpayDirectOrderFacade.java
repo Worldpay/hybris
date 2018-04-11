@@ -47,6 +47,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
 
     private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
     private WorldpayDirectOrderService worldpayDirectOrderService;
+
     private CartService cartService;
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
     private AcceleratorCheckoutFacade acceleratorCheckoutFacade;
@@ -313,5 +314,9 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     @Required
     public void setAcceleratorCheckoutFacade(AcceleratorCheckoutFacade acceleratorCheckoutFacade) {
         this.acceleratorCheckoutFacade = acceleratorCheckoutFacade;
+    }
+
+    public CartService getCartService() {
+        return cartService;
     }
 }

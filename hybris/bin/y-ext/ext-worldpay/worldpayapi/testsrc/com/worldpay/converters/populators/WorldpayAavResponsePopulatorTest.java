@@ -24,7 +24,7 @@ public class WorldpayAavResponsePopulatorTest {
     private static final String AAV_TELEPHONE_RESULT_CODE = "aavTelephoneResultCode";
 
     @InjectMocks
-    private WorldpayAavResponsePopulator testObj = new WorldpayAavResponsePopulator();
+    private WorldpayAavResponsePopulator testObj;
 
     @Mock
     private PaymentReply paymentReplyMock;

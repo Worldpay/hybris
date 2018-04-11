@@ -4,7 +4,7 @@ import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.model.RedirectReference;
 
 /**
- * Class to do the validation of a mac code.
+ * Class to validate of a mac code.
  * <p/>
  * <p>Ensures that the redirect url being provided by Worldpay and that is returned in the {@link RedirectReference} has not been tampered with after being
  * sent out by Worldpay and before being received. The mac is a digest of the other information in the url and so can be validated by using the same
@@ -14,6 +14,10 @@ public interface MacValidator {
 
     /**
      * Validate the mac code returned in the response url is valid for the rest of the details that have been returned.
+     * <p>
+     * There are 2 algorithms for Mac Validation:
+     * <p>
+     * HMAC256 and MD5
      *
      * @param orderKey      OrderKey parameter returned in url
      * @param worldpayMac   Worldpay Mac code returned in url

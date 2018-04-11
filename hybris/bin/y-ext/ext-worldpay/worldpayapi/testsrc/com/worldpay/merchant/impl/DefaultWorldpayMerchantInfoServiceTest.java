@@ -2,13 +2,10 @@ package com.worldpay.merchant.impl;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.merchant.WorldpayMerchantConfigDataService;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.strategy.WorldpayMerchantStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.session.SessionExecutionBody;
-import de.hybris.platform.servicelayer.session.SessionService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,15 +15,12 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,21 +32,14 @@ public class DefaultWorldpayMerchantInfoServiceTest {
     private static final String MERCHANT_CODE = "merchantCode";
     private static final String MAC_SECRET = "macSecret";
     private static final String MERCHANT_PASSWORD = "password";
-    private static final String SITE_UID = "siteUid";
 
     @Spy
     @InjectMocks
     private DefaultWorldpayMerchantInfoService testObj ;
     @Mock
-    private Map<String, WorldpayMerchantConfigData> worldpayMerchantConfigurationMock;
-    @Mock
-    private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
-    @Mock
-    private WorldpayMerchantConfigDataService worldpayMerchantConfigDataServiceMock;
+    private WorldpayMerchantConfigData worldpayMerchantConfigDataMock, anotherWorldpayMerchantConfigDataMock;
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTransactionModel paymentTransactionMock;
-    @Mock
-    private SessionService sessionServiceMock;
     @Mock
     private WorldpayMerchantStrategy worldpayMerchantStrategyMock;
     @Mock
@@ -62,13 +49,13 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Before
     public void setUp() {
-        when(worldpayMerchantConfigurationMock.get(anyString())).thenReturn(worldpayMerchantConfigDataMock);
-        when(worldpayMerchantConfigurationMock.values()).thenReturn(Collections.singletonList(worldpayMerchantConfigDataMock));
-        when(worldpayMerchantConfigDataServiceMock.getMerchantConfiguration()).thenReturn(worldpayMerchantConfigurationMock);
+        when(worldpayMerchantConfigDataMock.getCode()).thenReturn(KNOWN_MERCHANT_CODE);
+        when(anotherWorldpayMerchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
+        testObj.setConfiguredMerchants(Arrays.asList(worldpayMerchantConfigDataMock, anotherWorldpayMerchantConfigDataMock));
     }
 
     @Test
-    public void shouldCreateMerchantInfoFromReplenishmentMerchantConfigData() throws WorldpayConfigurationException {
+    public void shouldCreateMerchantInfoFromReplenishmentMerchantConfigData() {
         when(worldpayMerchantStrategyMock.getReplenishmentMerchant()).thenReturn(merchantConfigDataMock);
         doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
 
@@ -78,7 +65,7 @@ public class DefaultWorldpayMerchantInfoServiceTest {
     }
 
     @Test
-    public void shouldCreateMerchantInfoFromWebSiteMerchantConfigData() throws WorldpayConfigurationException {
+    public void shouldCreateMerchantInfoFromWebSiteMerchantConfigData() {
         when(worldpayMerchantStrategyMock.getMerchant()).thenReturn(merchantConfigDataMock);
         doReturn(merchantInfo).when(testObj).createMerchantInfo(merchantConfigDataMock);
 
@@ -89,34 +76,27 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Test
     public void getMerchantConfigShouldReturnAlreadyKnownMerchantCode() throws WorldpayConfigurationException {
-        when(worldpayMerchantConfigDataMock.getCode()).thenReturn(KNOWN_MERCHANT_CODE);
-
         final MerchantInfo result = testObj.getMerchantInfoByCode(KNOWN_MERCHANT_CODE);
 
-        // Comparison in the stream and creation of the MerchantInfo object
-        verify(worldpayMerchantConfigDataMock, times(2)).getCode();
         assertEquals(KNOWN_MERCHANT_CODE, result.getMerchantCode());
-        verify(worldpayMerchantConfigDataServiceMock).getMerchantConfiguration();
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test (expected = WorldpayConfigurationException.class)
     public void getKnownMerchantShouldReturnExceptionWhenMerchantIsNotFound() throws WorldpayConfigurationException {
-        testObj.getMerchantInfoByCode(KNOWN_MERCHANT_CODE);
-        verify(worldpayMerchantConfigDataServiceMock).getMerchantConfiguration();
+        testObj.getMerchantInfoByCode("mumbo jumbo");
     }
 
     @Test
-    public void testGetMerchantInfoFromTransaction() throws Exception {
-        when(paymentTransactionMock.getOrder().getSite().getUid()).thenReturn(SITE_UID);
+    public void testGetMerchantInfoFromTransaction() throws WorldpayConfigurationException {
         when(paymentTransactionMock.getRequestToken()).thenReturn(MERCHANT_CODE);
 
-        testObj.getMerchantInfoFromTransaction(paymentTransactionMock);
+        final MerchantInfo result = testObj.getMerchantInfoFromTransaction(paymentTransactionMock);
 
-        verify(sessionServiceMock).executeInLocalView(any(SessionExecutionBody.class));
+        assertEquals(MERCHANT_CODE, result.getMerchantCode());
     }
 
     @Test
-    public void shouldCreateMerchantInfoUsingMacValidation() throws WorldpayConfigurationException {
+    public void shouldCreateMerchantInfoUsingMacValidation() {
         when(merchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
         when(merchantConfigDataMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
         when(merchantConfigDataMock.getMacSecret()).thenReturn(MAC_SECRET);
@@ -131,7 +111,7 @@ public class DefaultWorldpayMerchantInfoServiceTest {
     }
 
     @Test
-    public void shouldCreateMerchantInfoNotUsingMacValidation() throws WorldpayConfigurationException {
+    public void shouldCreateMerchantInfoNotUsingMacValidation() {
         when(merchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
         when(merchantConfigDataMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
         when(merchantConfigDataMock.getMacSecret()).thenReturn(MAC_SECRET);

@@ -41,6 +41,7 @@ public class DirectAuthoriseResponseTransformerTest {
 
     @InjectMocks
     private DirectAuthoriseResponseTransformer testObj;
+
     @Mock
     private ServiceResponseTransformerHelper serviceResponseTransformerHelperMock;
     @Captor
@@ -58,7 +59,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
-        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final RequestInfo requestInfo = new RequestInfo();
         requestInfo.setRequest3DSecure(new Request3DSecure());
         orderStatusType.add(requestInfo);
@@ -92,7 +93,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
-        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final Payment payment = new Payment();
         orderStatusType.add(payment);
 
@@ -126,7 +127,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
-        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final Reference reference = new Reference();
         reference.setId(REFERENCE_ID);
         orderStatusType.add(reference);
@@ -161,7 +162,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
-        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final Payment payment = new Payment();
         orderStatusType.add(payment);
         final Reference reference = new Reference();
@@ -204,7 +205,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
-        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final BankAccount bankAccount = new BankAccount();
         orderStatusType.add(bankAccount);
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
@@ -239,7 +240,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
-        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         orderStatusType.add(null);
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
 

@@ -11,7 +11,6 @@ public class ResponseForm implements java.io.Serializable {
     private String currentMonth;
     private String riskValue;
     private String cardYear;
-    private String siteId;
     private String cardMonth;
     private String currentDay;
     private String currentYear;
@@ -112,116 +111,108 @@ public class ResponseForm implements java.io.Serializable {
         this.refundId = refundId;
     }
 
-    public void setTransactionAmount(final String transactionAmount) {
-        this.transactionAmount = transactionAmount;
-    }
-
     public String getTransactionAmount() {
         return transactionAmount;
     }
 
-    public void setCurrencyCode(final String currencyCode) {
-        this.currencyCode = currencyCode;
+    public void setTransactionAmount(final String transactionAmount) {
+        this.transactionAmount = transactionAmount;
     }
 
     public String getCurrencyCode() {
         return currencyCode;
     }
 
-    public void setCardHolderName(final String cardHolderName) {
-        this.cardHolderName = cardHolderName;
+    public void setCurrencyCode(final String currencyCode) {
+        this.currencyCode = currencyCode;
     }
 
     public String getCardHolderName() {
         return cardHolderName;
     }
 
-    public void setWorldpayOrderCode(final String worldpayOrderCode) {
-        this.worldpayOrderCode = worldpayOrderCode;
+    public void setCardHolderName(final String cardHolderName) {
+        this.cardHolderName = cardHolderName;
     }
 
     public String getWorldpayOrderCode() {
         return worldpayOrderCode;
     }
 
-    public void setExponent(final Integer exponent) {
-        this.exponent = exponent;
+    public void setWorldpayOrderCode(final String worldpayOrderCode) {
+        this.worldpayOrderCode = worldpayOrderCode;
     }
 
     public Integer getExponent() {
         return exponent;
     }
 
-    public void setCurrentMonth(final String currentMonth) {
-        this.currentMonth = currentMonth;
+    public void setExponent(final Integer exponent) {
+        this.exponent = exponent;
     }
 
     public String getCurrentMonth() {
         return currentMonth;
     }
 
-    public void setRiskValue(final String riskValue) {
-        this.riskValue = riskValue;
+    public void setCurrentMonth(final String currentMonth) {
+        this.currentMonth = currentMonth;
     }
 
     public String getRiskValue() {
         return riskValue;
     }
 
-    public void setCardYear(final String cardYear) {
-        this.cardYear = cardYear;
+    public void setRiskValue(final String riskValue) {
+        this.riskValue = riskValue;
     }
 
     public String getCardYear() {
         return cardYear;
     }
 
-    public void setSiteId(final String siteId) {
-        this.siteId = siteId;
-    }
-
-    public String getSiteId() {
-        return siteId;
-    }
-
-    public void setCardMonth(final String cardMonth) {
-        this.cardMonth = cardMonth;
+    public void setCardYear(final String cardYear) {
+        this.cardYear = cardYear;
     }
 
     public String getCardMonth() {
         return cardMonth;
     }
 
-    public void setCurrentDay(final String currentDay) {
-        this.currentDay = currentDay;
+    public void setCardMonth(final String cardMonth) {
+        this.cardMonth = cardMonth;
     }
 
     public String getCurrentDay() {
         return currentDay;
     }
 
-    public void setCurrentYear(final String currentYear) {
-        this.currentYear = currentYear;
+    public void setCurrentDay(final String currentDay) {
+        this.currentDay = currentDay;
     }
 
     public String getCurrentYear() {
         return currentYear;
     }
 
-    public void setResponseType(final String responseType) {
-        this.responseType = responseType;
+    public void setCurrentYear(final String currentYear) {
+        this.currentYear = currentYear;
     }
 
     public String getResponseType() {
         return responseType;
     }
 
-    public void setMerchantCode(final String merchantCode) {
-        this.merchantCode = merchantCode;
+    public void setResponseType(final String responseType) {
+        this.responseType = responseType;
     }
 
     public String getMerchantCode() {
         return merchantCode;
+    }
+
+    public void setMerchantCode(final String merchantCode) {
+        this.merchantCode = merchantCode;
     }
 
     public Integer getResponseCode() {

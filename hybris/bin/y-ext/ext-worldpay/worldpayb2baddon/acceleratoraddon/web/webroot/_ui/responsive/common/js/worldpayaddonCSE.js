@@ -1,5 +1,12 @@
 ACC.worldpayCSE = {
 
+    _autoload: [
+        "bindSubmitBillingAddressForm",
+        "populateErrorCodeMap",
+        "bindSubmitCseForm",
+        "bindPaymentButtons"
+    ],
+
     errorCodeMap: {},
 
     encryptCardDetails: function () {
@@ -100,12 +107,5 @@ ACC.worldpayCSE = {
         this.errorCodeMap["306"] = "error-exp-date";
         this.errorCodeMap["401"] = "error-nameOnCard";
         this.errorCodeMap["402"] = "error-nameOnCard";
-    },
-
-    initForm: function () {
-        this.bindSubmitBillingAddressForm();
-        this.populateErrorCodeMap();
-        this.bindSubmitCseForm();
-        this.bindPaymentButtons();
     }
 };

@@ -6,7 +6,6 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.model.MerchantInfo;
 
 import javax.xml.bind.Marshaller;
-import javax.xml.stream.XMLOutputFactory;
 
 /**
  * Interface template for the connector required to send the xml {@link PaymentService} to Worldpay.
@@ -26,5 +25,5 @@ public interface WorldpayConnector {
      */
     ServiceReply send(PaymentService paymentService, MerchantInfo merchantInfo, String cookie) throws WorldpayCommunicationException, WorldpayModelTransformationException;
 
-    void logXMLOut(XMLOutputFactory xof, Marshaller marshaller, PaymentService paymentService);
+    void logXMLOut(Marshaller marshaller, PaymentService paymentService);
 }

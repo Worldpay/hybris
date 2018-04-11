@@ -4,6 +4,7 @@ import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 /**
@@ -19,33 +20,17 @@ public class Date implements InternalModelTransformer, Serializable {
     private String second;
 
     /**
-     * Constructor that takes a standard java Calendar object and turns it into a date pojo
+     * Constructor that takes a standard java util LocalDateTime object and turns it into a date pojo
      *
-     * @param calendar
+     * @param localDateTime
      */
-    public Date(Calendar calendar) {
-        this.dayOfMonth = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-        this.month = String.valueOf(calendar.get(Calendar.MONTH) + 1);
-        this.year = String.valueOf(calendar.get(Calendar.YEAR));
-        this.hour = String.valueOf(calendar.get(Calendar.HOUR));
-        this.minute = String.valueOf(calendar.get(Calendar.MINUTE));
-        this.second = String.valueOf(calendar.get(Calendar.SECOND));
-    }
-
-    /**
-     * Constructor that takes a standard java Date object and turns it into a date pojo
-     *
-     * @param date
-     */
-    public Date(java.util.Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        this.dayOfMonth = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
-        this.month = String.valueOf(cal.get(Calendar.MONTH) + 1);   // YPAY-56
-        this.year = String.valueOf(cal.get(Calendar.YEAR));
-        this.hour = String.valueOf(cal.get(Calendar.HOUR));
-        this.minute = String.valueOf(cal.get(Calendar.MINUTE));
-        this.second = String.valueOf(cal.get(Calendar.SECOND));
+    public Date(LocalDateTime localDateTime) {
+        this.dayOfMonth = String.valueOf(localDateTime.getDayOfMonth());
+        this.month = String.valueOf(localDateTime.getMonth().getValue());
+        this.year = String.valueOf(localDateTime.getYear());
+        this.hour = String.valueOf(localDateTime.getHour());
+        this.minute = String.valueOf(localDateTime.getMinute());
+        this.second = String.valueOf(localDateTime.getSecond());
     }
 
     /**

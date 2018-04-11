@@ -8,6 +8,10 @@ import com.worldpay.internal.model.Reply;
 import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.ServiceResponse;
 
+/**
+ * Transformer/Converter class that transforms a DeleteTokenResponseTransformer (XML model) into a ServiceResponse (abstraction)
+ * to be handled in an easier way.
+ */
 public class DeleteTokenResponseTransformer extends AbstractServiceResponseTransformer {
 
     @Override

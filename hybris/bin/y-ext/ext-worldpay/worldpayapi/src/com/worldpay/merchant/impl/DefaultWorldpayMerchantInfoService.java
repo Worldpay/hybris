@@ -2,22 +2,17 @@ package com.worldpay.merchant.impl;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.merchant.WorldpayMerchantConfigDataService;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.strategy.WorldpayMerchantStrategy;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.session.SessionExecutionBody;
-import de.hybris.platform.servicelayer.session.SessionService;
-import de.hybris.platform.site.BaseSiteService;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContextAware;
 
 import java.text.MessageFormat;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 
 /**
  * This implementation of {@link WorldpayMerchantInfoService} uses looks the configured map of merchants configured in Spring
@@ -26,33 +21,25 @@ import java.util.Optional;
  */
 public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoService {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayMerchantInfoService.class);
-
-    private WorldpayMerchantConfigDataService worldpayMerchantConfigDataService;
-    private SessionService sessionService;
-    private BaseSiteService baseSiteService;
     private WorldpayMerchantStrategy worldpayMerchantStrategy;
+
+    @Autowired
+    private List<WorldpayMerchantConfigData> configuredMerchants;
 
     /**
      * {@inheritDoc}
-     *
-     * @return
-     * @throws WorldpayConfigurationException
      */
     @Override
-    public MerchantInfo getCurrentSiteMerchant() throws WorldpayConfigurationException {
+    public MerchantInfo getCurrentSiteMerchant() {
         final WorldpayMerchantConfigData currentSiteMerchantConfigData = worldpayMerchantStrategy.getMerchant();
         return createMerchantInfo(currentSiteMerchantConfigData);
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return
-     * @throws WorldpayConfigurationException
      */
     @Override
-    public MerchantInfo getReplenishmentMerchant() throws WorldpayConfigurationException {
+    public MerchantInfo getReplenishmentMerchant() {
         final WorldpayMerchantConfigData replensihmentMerchantConfigData = worldpayMerchantStrategy.getReplenishmentMerchant();
         return createMerchantInfo(replensihmentMerchantConfigData);
     }
@@ -61,12 +48,14 @@ public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoS
      * {@inheritDoc}
      *
      * @return
-     * @throws WorldpayConfigurationException
      */
     @Override
     public MerchantInfo getMerchantInfoByCode(final String merchantCode) throws WorldpayConfigurationException {
-        final Map<String, WorldpayMerchantConfigData> merchantConfiguration = worldpayMerchantConfigDataService.getMerchantConfiguration();
-        return getMerchantConfigDataForCode(merchantConfiguration, merchantCode);
+        final WorldpayMerchantConfigData worldpayMerchantConfigData = configuredMerchants.stream()
+                .filter(config -> config.getCode().equals(merchantCode))
+                .findAny()
+                .orElseThrow(() -> new WorldpayConfigurationException(MessageFormat.format("No merchant configuration found for merchant code {0}", merchantCode)));
+        return createMerchantInfo(worldpayMerchantConfigData);
     }
 
     /**
@@ -74,21 +63,11 @@ public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoS
      */
     @Override
     public MerchantInfo getMerchantInfoFromTransaction(final PaymentTransactionModel paymentTransactionModel) throws WorldpayConfigurationException {
-        return sessionService.executeInLocalView(new SessionExecutionBody() {
-            @Override
-            public Object execute() {
-                try {
-                    baseSiteService.setCurrentBaseSite(paymentTransactionModel.getOrder().getSite().getUid(), false);
-                    return getMerchantInfoByCode(paymentTransactionModel.getRequestToken());
-                } catch (WorldpayConfigurationException e) {
-                    LOG.error(MessageFormat.format("Missing merchant configuration: [{0}]", e.getMessage()), e);
-                }
-                return null;
-            }
-        });
+        return getMerchantInfoByCode(paymentTransactionModel.getRequestToken());
+
     }
 
-    protected MerchantInfo createMerchantInfo(final WorldpayMerchantConfigData worldpayMerchantConfigData) throws WorldpayConfigurationException {
+    protected MerchantInfo createMerchantInfo(final WorldpayMerchantConfigData worldpayMerchantConfigData) {
         final MerchantInfo merchantInfo = new MerchantInfo(worldpayMerchantConfigData.getCode(), worldpayMerchantConfigData.getPassword());
         if (worldpayMerchantConfigData.getMacValidation()) {
             merchantInfo.setUsingMacValidation(true);
@@ -97,44 +76,16 @@ public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoS
         return merchantInfo;
     }
 
-    private MerchantInfo getMerchantConfigDataForCode(final Map<String, WorldpayMerchantConfigData> merchantConfiguration, final String merchantCode) throws WorldpayConfigurationException {
-        final Optional<WorldpayMerchantConfigData> worldpayMerchantConfigDataOptional =
-                merchantConfiguration.values().stream().filter(merchantConfig -> merchantCode.equals(merchantConfig.getCode())).findFirst();
-        if (worldpayMerchantConfigDataOptional.isPresent()) {
-            return createMerchantInfo(worldpayMerchantConfigDataOptional.get());
-        }
-        throw new IllegalArgumentException("Could not find a WorldpayMerchantConfigData from: " + merchantCode);
-    }
-
-    @Required
-    public void setWorldpayMerchantConfigDataService(WorldpayMerchantConfigDataService worldpayMerchantConfigDataService) {
-        this.worldpayMerchantConfigDataService = worldpayMerchantConfigDataService;
-    }
-
-    @Required
-    public void setSessionService(SessionService sessionService) {
-        this.sessionService = sessionService;
-    }
-
-    @Required
-    public void setBaseSiteService(BaseSiteService baseSiteService) {
-        this.baseSiteService = baseSiteService;
-    }
-
-    public WorldpayMerchantConfigDataService getWorldpayMerchantConfigDataService() {
-        return worldpayMerchantConfigDataService;
-    }
-
-    public SessionService getSessionService() {
-        return sessionService;
-    }
-
-    public BaseSiteService getBaseSiteService() {
-        return baseSiteService;
-    }
-
     @Required
     public void setWorldpayMerchantStrategy(final WorldpayMerchantStrategy worldpayMerchantStrategy) {
         this.worldpayMerchantStrategy = worldpayMerchantStrategy;
+    }
+
+    public void setConfiguredMerchants(final List<WorldpayMerchantConfigData> configuredMerchants) {
+        this.configuredMerchants = configuredMerchants;
+    }
+
+    public List<WorldpayMerchantConfigData> getConfiguredMerchants() {
+        return configuredMerchants;
     }
 }

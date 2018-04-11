@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Required;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.apache.http.HttpHeaders.ACCEPT;
+import static org.apache.http.HttpHeaders.USER_AGENT;
+
 /**
  * {@inheritDoc}
  */
 public class DefaultWorldpayAdditionalInfoService implements WorldpayAdditionalInfoService {
-
-    protected static final String ACCEPT = "Accept";
-    protected static final String USER_AGENT = "User-Agent";
 
     private WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy;
 

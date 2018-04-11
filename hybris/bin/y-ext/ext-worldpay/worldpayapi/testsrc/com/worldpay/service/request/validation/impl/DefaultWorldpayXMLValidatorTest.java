@@ -24,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
@@ -53,7 +54,7 @@ public class DefaultWorldpayXMLValidatorTest {
     private Address shippingAddress;
     private Address billingAddress;
     private Address cardAddress;
-    
+
     @InjectMocks
     private AuthoriseRequestTransformer testObj;
 
@@ -125,7 +126,7 @@ public class DefaultWorldpayXMLValidatorTest {
 
     @Test
     public void testValidateVISASSL() throws WorldpayModelTransformationException, WorldpayValidationException {
-        final Date date = new Date(new java.util.Date());
+        final Date date = new Date(LocalDateTime.now());
         final Card visaSsl = PaymentBuilder.createVISASSL("4111111111111111", date, "Mr J Shopper", "123", cardAddress);
         final AuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, visaSsl,
                 SHOPPER, null, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, DynamicInteractionType.ECOMMERCE);

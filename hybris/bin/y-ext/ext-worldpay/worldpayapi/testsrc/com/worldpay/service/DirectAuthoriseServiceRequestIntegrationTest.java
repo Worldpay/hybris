@@ -19,8 +19,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 
 import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
 import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
@@ -29,14 +28,6 @@ import static org.junit.Assert.*;
 @IntegrationTest
 public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBaseTest {
 
-    private static final String expiryYear;
-
-    static {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.YEAR, 1);
-        expiryYear = new SimpleDateFormat("YYYY").format(cal.getTime());
-    }
-
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
     private static final String SHOPPER_EMAIL = "jshopper@myprovider.com";
     private static final String STATEMENT_NARRATIVE = "STATEMENT NARRATIVE TEXT";
@@ -44,7 +35,7 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
     private static final String FAKED_PA_RESPONSE = "fakedPaResponse";
 
     private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
-    private static final com.worldpay.service.model.Date EXPIRY_DATE = new com.worldpay.service.model.Date("09", expiryYear);
+    private static final com.worldpay.service.model.Date EXPIRY_DATE = new com.worldpay.service.model.Date(LocalDateTime.now().plusYears(1));
     private static final Session SESSION = new Session("192.168.1.1", "sessionId1234");
     private static final Browser BROWSER = new Browser("text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)", "0");
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
@@ -54,7 +45,7 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
     private MerchantInfo merchantInfo;
     private BasicOrderInfo basicOrderInfo;
 
-    @Resource (name = "worldpayServiceGateway")
+    @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway testObj;
 
     @Rule

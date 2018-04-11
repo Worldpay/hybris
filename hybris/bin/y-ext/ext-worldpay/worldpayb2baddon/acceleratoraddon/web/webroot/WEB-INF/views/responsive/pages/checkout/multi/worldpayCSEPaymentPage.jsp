@@ -13,7 +13,6 @@
         <script type="text/javascript" src="https://payments.worldpay.com/resources/cse/js/worldpay-cse-1.0.1.min.js"></script>
         <script>
             $(document).ready(function () {
-                ACC.worldpayCSE.initForm();
                 $("#worldpayBillingAddressForm").attr("data-worldpay", "payment-form");
                 Worldpay.setPublicKey("${csePublicKey}");
             });

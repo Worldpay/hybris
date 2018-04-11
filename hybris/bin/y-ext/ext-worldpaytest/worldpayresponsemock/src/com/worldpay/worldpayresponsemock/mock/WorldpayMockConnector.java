@@ -63,7 +63,7 @@ public class WorldpayMockConnector {
         }
         factory.setHttpClient(httpClient);
         worldpayRestTemplate.setRequestFactory(factory);
-        worldpayRestTemplate.postForObject(constructEndpoint(request) + SITE_PARAMETER_NAME + responseForm.getSiteId(), responseXML, String.class);
+        worldpayRestTemplate.postForObject(constructEndpoint(request), responseXML, String.class);
     }
 
     protected HttpClient buildAllowingAllHostNamesHttpClient() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
