@@ -81,10 +81,10 @@ The plugin is supplied as a zip file with several hybris extensions inside. Take
 or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommercewebservices" with your OCC extension if relevant):
 
 - If you are installing the B2C AddOn:
-- ant addoninstall -Daddonnames="worldpayaddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+- ant addoninstall -Daddonnames="worldpayaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 - If you are installing the B2B AddOn:
-- ant addoninstall -Daddonnames="worldpayb2baddon,worldpaynotificationaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
+- ant addoninstall -Daddonnames="worldpayb2baddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
 
 - If you are installing the OCC AddOn:
 - ant addoninstall -Daddonnames="worldpayoccaddon" -DaddonStorefront.ycommercewebservices="ycommercewebservices"
