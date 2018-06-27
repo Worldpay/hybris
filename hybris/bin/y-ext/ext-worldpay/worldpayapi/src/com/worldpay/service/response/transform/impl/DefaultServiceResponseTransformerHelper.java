@@ -1,5 +1,6 @@
 package com.worldpay.service.response.transform.impl;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
 import com.worldpay.service.model.*;
@@ -70,7 +71,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
         final Amount amount = transformAmount(intAmount);
         paymentReply.setAmount(amount);
-        paymentReply.setAuthStatus(AuthorisedStatus.getAuthorisedStatus(intPayment.getLastEvent()));
+        paymentReply.setAuthStatus(AuthorisedStatus.valueOf(intPayment.getLastEvent()));
         CVCResultCode intCvcResultCode = intPayment.getCVCResultCode();
         if (intCvcResultCode != null) {
             String cvcResultDescription = intCvcResultCode.getDescription().get(0);
@@ -353,7 +354,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     @Override
     public JournalReply buildJournalReply(Journal intJournal) {
         JournalReply journalReply = new JournalReply();
-        journalReply.setJournalType(AuthorisedStatus.getAuthorisedStatus(intJournal.getJournalType()));
+        journalReply.setJournalType(AuthorisedStatus.valueOf(intJournal.getJournalType()));
         populateBookingDate(intJournal, journalReply);
         populateAccountTransactions(intJournal, journalReply);
         return journalReply;
@@ -378,8 +379,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             com.worldpay.internal.model.Amount amount = accountTx.getAmount();
 
             if (amount != null) {
-                accountTransaction.setAmount(
-                        transformAmount(amount));
+                accountTransaction.setAmount(transformAmount(amount));
             }
 
             journalReply.addAccountTransaction(accountTransaction);

@@ -2,7 +2,7 @@ package com.worldpay.worldpaynotifications.listener;
 
 import com.worldpay.core.event.OrderModificationEvent;
 import com.worldpay.core.services.WorldpayCartService;
-import com.worldpay.service.model.AuthorisedStatus;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
@@ -15,12 +15,13 @@ import org.springframework.beans.factory.annotation.Required;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 
 /**
  * Listener for order modifications events - the event is publish when received from Worldpay
- * @see OrderModificationController
  *
+ * @see OrderModificationController
+ * <p>
  * The listener save the order notification message for later processing
  */
 public class WorldpayOrderModificationListener extends AbstractEventListener<OrderModificationEvent> {

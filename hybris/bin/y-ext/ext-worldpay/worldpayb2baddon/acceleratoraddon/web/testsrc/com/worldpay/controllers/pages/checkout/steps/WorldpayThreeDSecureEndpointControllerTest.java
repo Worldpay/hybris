@@ -71,7 +71,7 @@ public class WorldpayThreeDSecureEndpointControllerTest {
     private CheckoutFacade checkoutFacade;
 
     @Before
-    public void setup() throws InvalidCartException, WorldpayException {
+    public void setUp() throws InvalidCartException, WorldpayException {
         checkoutFacade = mock(CheckoutFacade.class);
         when(testObj.getB2BCheckoutFacade()).thenReturn(checkoutFacade);
         when(threeDSecureFormMock.getPaRes()).thenReturn(PA_RESPONSE);

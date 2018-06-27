@@ -33,7 +33,7 @@ public class DefaultOrderModificationDaoIntegrationTest extends ServicelayerTran
     private FlexibleSearchService flexibleSearchService;
 
     @Before
-    public void setup() {
+    public void setUp() {
         testObj.setFlexibleSearchService(flexibleSearchService);
 
         final WorldpayOrderModificationModel worldpayOrderModificationAuth = modelService.create(WorldpayOrderModificationModel.class);

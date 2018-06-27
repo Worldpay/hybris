@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class APMAvailabilityCurrencyStrategyTest {
 
     @InjectMocks
-    private APMAvailabilityCurrencyStrategy testObj = new APMAvailabilityCurrencyStrategy();
+    private APMAvailabilityCurrencyStrategy testObj;
 
     @Mock
     private WorldpayAPMConfigurationModel apmConfigurationMock;

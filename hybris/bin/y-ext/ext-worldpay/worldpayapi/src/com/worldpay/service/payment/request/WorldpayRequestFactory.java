@@ -31,7 +31,7 @@ public interface WorldpayRequestFactory {
      * @return Built {@link CreateTokenServiceRequest}
      * @throws WorldpayConfigurationException
      */
-    CreateTokenServiceRequest buildTokenRequest(MerchantInfo merchantInfo, CartModel cartModel, CSEAdditionalAuthInfo cseAdditionalAuthInfo, WorldpayAdditionalInfoData worldpayAdditionalInfoData)
+    CreateTokenServiceRequest buildTokenRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
             throws WorldpayConfigurationException;
 
     /**

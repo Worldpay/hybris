@@ -1,11 +1,11 @@
 package com.worldpay.facades.payment.direct.impl;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.Request3DInfo;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayB2BDirectOrderFacadeTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
@@ -74,12 +74,12 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
     @Mock
     private B2BOrderService b2BOrderServiceMock;
 
-    @SuppressWarnings ("PMD")
+    @SuppressWarnings("PMD")
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws WorldpayException {
         when(worldpayDirectOrderServiceMock.authoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceResponseMock);
         when(worldpayDirectOrderServiceMock.authoriseRecurringPayment(merchantInfoMock, orderModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceResponseMock);
         when(worldpayDirectOrderServiceMock.authorise3DSecure(merchantInfoMock, WORLDPAY_ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE)).thenReturn(directAuthoriseServiceResponse3dSecureMock);
@@ -99,9 +99,11 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
     }
 
     @Test
-    public void authoriseRecurringPaymentShouldNotPlaceOrder() throws Exception {
+    public void authoriseRecurringPaymentShouldNotPlaceOrder() throws WorldpayException, InvalidCartException {
         final DirectResponseData result = testObj.authoriseRecurringPayment(worldpayAdditionalInfoDataMock);
+
         verify(acceleratorCheckoutFacadeMock, never()).placeOrder();
+
         assertEquals(TransactionStatus.AUTHORISED, result.getTransactionStatus());
     }
 

@@ -60,7 +60,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     private OrderHistoryEntryModel orderHistoryEntryMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         when(processMock.getOrder()).thenReturn(orderModelMock);
         when(orderModelMock.getPaymentTransactions()).thenReturn(Collections.singletonList(paymentTransactionMock));
     }

@@ -161,7 +161,7 @@ public class WorldpayOrderModificationMockController {
 
         model.put(XML_RESPONSE, worldpayNotificationResponseBuilder.prettifyXml(responseXML));
         populateModel(model);
-        worldpayMockConnector.sendResponse(responseForm, request, responseXML);
+        worldpayMockConnector.sendResponse(request, responseXML);
         return WorldpayResponseMockControllerConstants.Pages.Views.RESPONSES;
     }
 

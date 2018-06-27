@@ -1,5 +1,6 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.worldpay.service.model.AuthorisedStatus.*;
+import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static java.text.MessageFormat.format;
 
 /**
@@ -59,14 +60,14 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
-    private Set<String> apmErrorResponseStatuses;
+    private Set<AuthorisedStatus> apmErrorResponseStatuses;
 
     /**
      * Handles a successful HOP response
      *
-     * @param request            the {@HttpServletRequest} coming from worldpay
-     * @param model              the {@Model} to be used
-     * @param redirectAttributes the {@RedirectAttributes} to be used
+     * @param request            the {@link HttpServletRequest} coming from worldpay
+     * @param model              the {@link Model} to be used
+     * @param redirectAttributes the {@link RedirectAttributes} to be used
      * @return
      */
     @RequestMapping(value = "/hop-response", method = RequestMethod.GET)
@@ -83,7 +84,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
                 return processResponse(model, redirectAttributes, redirectAuthoriseResult, redirectAuthoriseResult.getPaymentStatus());
             } catch (WorldpayException e) {
                 LOG.error("Error inquiring order in Worldpay", e);
-                return doHostedOrderPageError(ERROR.getCode(), redirectAttributes);
+                return doHostedOrderPageError(ERROR.name(), redirectAttributes);
             }
         }
 
@@ -93,16 +94,16 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
             }
             return processResponse(model, redirectAttributes, response, response.getPaymentStatus());
         }
-        return doHostedOrderPageError(ERROR.getCode(), redirectAttributes);
+        return doHostedOrderPageError(ERROR.name(), redirectAttributes);
     }
 
-    private String processResponse(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response, final String paymentStatus) {
-        if (AUTHORISED.getCode().equals(paymentStatus)) {
+    private String processResponse(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response, final AuthorisedStatus paymentStatus) {
+        if (AUTHORISED.equals(paymentStatus)) {
             getWorldpayHostedOrderFacade().completeRedirectAuthorise(response);
             return placeOrderAndRedirect(model, redirectAttributes);
         } else {
-            LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-response). Received {0}", paymentStatus));
-            return doHostedOrderPageError(paymentStatus, redirectAttributes);
+            LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-response). Received {0}", paymentStatus.name()));
+            return doHostedOrderPageError(paymentStatus.name(), redirectAttributes);
         }
     }
 
@@ -124,7 +125,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     @RequireHardLogIn
     public String doHandlePendingHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
-        String paymentStatus = ERROR.getCode();
+        AuthorisedStatus paymentStatus = AuthorisedStatus.ERROR;
         if (getWorldpayHostedOrderFacade().validateRedirectResponse(requestParameterMap)) {
             final RedirectAuthoriseResult authoriseResult = extractAuthoriseResultFromRequest(request);
             authoriseResult.setPending(true);
@@ -133,18 +134,18 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
                 getWorldpayHostedOrderFacade().completeRedirectAuthorise(authoriseResult);
                 return placeOrderAndRedirect(model, redirectAttributes);
             } else {
-                LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-pending). Received {0}", paymentStatus));
+                LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-pending). Received {0}", paymentStatus.name()));
             }
         }
-        return doHostedOrderPageError(paymentStatus, redirectAttributes);
+        return doHostedOrderPageError(paymentStatus.name(), redirectAttributes);
     }
 
     /**
      * Handles the non-failing responses from the bank transfer payment methods.
      *
      * @param request            the {@link HttpServletRequest} coming from Worldpay/Bank
-     * @param model              the {@Model } to be used
-     * @param redirectAttributes the {@RedirectAttributes} to be used
+     * @param model              the {@link Model } to be used
+     * @param redirectAttributes the {@link RedirectAttributes} to be used
      * @return
      */
     @RequestMapping(value = "bank-transfer/hop-response", method = RequestMethod.GET)
@@ -169,7 +170,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         LOG.info(format("Failed to complete bank transfer for selected payment method. request params {0}", requestParameterMap));
 
-        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, REFUSED.getCode());
+        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, REFUSED.name());
         return REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
     }
 
@@ -183,7 +184,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     @RequestMapping(value = "/error", method = RequestMethod.GET)
     @RequireHardLogIn
     public String doHostedOrderPageError(@RequestParam(value = "paymentStatus", required = false) final String paymentStatus, final RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : ERROR.getCode());
+        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : AuthorisedStatus.ERROR.name());
         return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + paymentStatus;
     }
 
@@ -237,7 +238,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         } catch (final InvalidCartException e) {
             LOG.error("Failed to place Order", e);
             GlobalMessages.addErrorMessage(model, CHECKOUT_PLACE_ORDER_FAILED);
-            return doHostedOrderPageError(ERROR.getCode(), redirectAttributes);
+            return doHostedOrderPageError(ERROR.name(), redirectAttributes);
         }
         return redirectToOrderConfirmationPage(orderData);
     }

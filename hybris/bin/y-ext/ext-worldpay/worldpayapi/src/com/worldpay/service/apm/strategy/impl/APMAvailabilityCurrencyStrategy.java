@@ -2,13 +2,14 @@ package com.worldpay.service.apm.strategy.impl;
 
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.strategy.APMAvailabilityStrategy;
+import de.hybris.platform.core.model.c2l.C2LItemModel;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.core.model.order.CartModel;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
  * {@see APMAvailabilityStrategy}
- *
+ * <p>
  * Strategy that checks the availability of an APM based on the currencies defined in an {@link WorldpayAPMConfigurationModel}
  */
 public class APMAvailabilityCurrencyStrategy implements APMAvailabilityStrategy {
@@ -34,15 +35,10 @@ public class APMAvailabilityCurrencyStrategy implements APMAvailabilityStrategy 
             return true;
         }
 
-        // rule 2. available if the cart currency matches at least one apmConfiguration currency
         final String cartCurrencyIso = cartModel.getCurrency().getIsocode();
-        for (final CurrencyModel currencyModel : apmConfiguration.getCurrencies()) {
-            if (cartCurrencyIso.equals(currencyModel.getIsocode())) {
-                return true;
-            }
-        }
-
-        // rule 3. if at least one currency in apmConfiguration and cart was not matched return false
-        return false;
+        // rule 2. available if the cart currency matches at least one apmConfiguration currency
+        return apmConfiguration.getCurrencies().stream()
+                .map(C2LItemModel::getIsocode)
+                .anyMatch(cartCurrencyIso::equals);
     }
 }

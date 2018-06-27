@@ -33,7 +33,6 @@ import java.util.Currency;
 
 import static com.worldpay.enums.token.TokenEvent.CONFLICT;
 
-
 /**
  * Default implementation of {@link WorldpayDirectOrderService}
  */
@@ -48,8 +47,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     /**
      * {@inheritDoc}
-     *
-     * @see WorldpayDirectOrderService#authorise(MerchantInfo, CartModel, WorldpayAdditionalInfoData)
      */
     @Override
     public DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
@@ -106,8 +103,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     /**
      * {@inheritDoc}
-     *
-     * @see WorldpayDirectOrderService#createToken(MerchantInfo, CartModel, CSEAdditionalAuthInfo, WorldpayAdditionalInfoData)
      */
     @Override
     public void createToken(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
@@ -140,8 +135,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     /**
      * {@inheritDoc}
-     *
-     * @see WorldpayDirectOrderService#deleteToken(MerchantInfo, CreditCardPaymentInfoModel)
      */
     @Override
     public void deleteToken(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel)
@@ -159,8 +152,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     /**
      * {@inheritDoc}DefaultWorldpayOrderService.java
-     *
-     * @see WorldpayDirectOrderService#authorise3DSecure(MerchantInfo, String, WorldpayAdditionalInfoData, String)
      */
     @Override
     public DirectAuthoriseServiceResponse authorise3DSecure(final MerchantInfo merchantInfo, final String worldpayOrderCode, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
@@ -174,8 +165,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     /**
      * {@inheritDoc}
-     *
-     * @see WorldpayDirectOrderService#completeAuthorise(DirectAuthoriseServiceResponse, AbstractOrderModel, String)
      */
     @Override
     public void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode) {
@@ -205,8 +194,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     /**
      * {@inheritDoc}
-     *
-     * @see WorldpayDirectOrderService#completeAuthorise3DSecure(AbstractOrderModel, DirectAuthoriseServiceResponse, MerchantInfo)
      */
     @Override
     public void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse, final MerchantInfo merchantInfo) {

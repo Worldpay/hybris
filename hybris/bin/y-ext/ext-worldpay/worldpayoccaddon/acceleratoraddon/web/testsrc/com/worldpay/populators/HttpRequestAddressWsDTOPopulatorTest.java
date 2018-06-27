@@ -2,7 +2,6 @@ package com.worldpay.populators;
 
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
-import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO;
@@ -89,5 +88,4 @@ public class HttpRequestAddressWsDTOPopulatorTest {
         Assert.assertEquals(COUNTRY, addressWsDTO.getCountry().getIsocode());
         Assert.assertEquals(REGION, addressWsDTO.getRegion().getIsocode());
     }
-
 }

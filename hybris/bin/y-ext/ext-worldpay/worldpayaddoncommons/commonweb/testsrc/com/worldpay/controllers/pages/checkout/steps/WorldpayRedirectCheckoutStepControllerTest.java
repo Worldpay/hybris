@@ -54,7 +54,7 @@ public class WorldpayRedirectCheckoutStepControllerTest {
     private AddressForm addressFormMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         doNothing().when(testObj).resetDeclineCodeOnCart();
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         doReturn(false).when(testObj).addGlobalErrors(modelMock, bindingResultMock);

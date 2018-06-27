@@ -51,12 +51,12 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
         final List<Object> requestElements = submitRequest.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate();
         for (Object requestElement : requestElements) {
             if (requestElement instanceof Shopper) {
-                Shopper shopper = (Shopper) requestElement;
+                final Shopper shopper = (Shopper) requestElement;
                 authenticatedShopperId = shopper.getAuthenticatedShopperID();
             }
 
             if (requestElement instanceof Order) {
-                Order requestOrder = (Order) requestElement;
+                final Order requestOrder = (Order) requestElement;
                 final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
                 final Amount intAmount = (Amount) orderElements.stream().filter(Amount.class::isInstance).findFirst().get();
                 final Payment payment = aPaymentBuilder()
@@ -66,7 +66,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
                         getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().
                         add(payment);
 
-                Optional<Object> createTokenOptional = orderElements.stream().filter(CreateToken.class::isInstance).findFirst();
+                final Optional<Object> createTokenOptional = orderElements.stream().filter(CreateToken.class::isInstance).findFirst();
                 if (createTokenOptional.isPresent()) {
                     shouldCreateToken = true;
                     tokenReason = ((CreateToken) createTokenOptional.get()).getTokenReason().getvalue();
@@ -76,10 +76,18 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
 
         if (shouldCreateToken) {
             final Address addressForCardDetails = anAddressBuilder().build();
-            final Token token = aTokenBuilder().withTokenEvent(NEW_TOKEN_EVENT).withCardBrand(VISA_SSL)
-                    .withCardSubBrand("CREDIT").withIssuerCountryCode("GB").withObfuscatedPAN(OBFUSCATED_PAN)
-                    .withCardHolderName("TEST_NAME").withCardAddress(addressForCardDetails).withAuthenticatedShopperId(authenticatedShopperId)
-                    .withTokenDetailsTokenReason(tokenReason).withTokenReason(tokenReason).build();
+            final Token token = aTokenBuilder()
+                    .withTokenEvent(NEW_TOKEN_EVENT)
+                    .withCardBrand(VISA_SSL)
+                    .withCardSubBrand("CREDIT")
+                    .withIssuerCountryCode("GB")
+                    .withObfuscatedPAN(OBFUSCATED_PAN)
+                    .withCardHolderName("TEST_NAME")
+                    .withCardAddress(addressForCardDetails)
+                    .withAuthenticatedShopperId(authenticatedShopperId)
+                    .withTokenDetailsTokenReason(tokenReason)
+                    .withTokenReason(tokenReason)
+                    .build();
 
             orderStatus.setToken(token);
         }

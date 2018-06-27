@@ -1264,22 +1264,25 @@ public class PaymentBuilder {
     }
 
     /**
-     * Create a token
+     * Creates a token with details
+     *
      * @param subscriptionId Subscription id from Worldpay
-     * @param cvc cvc code of the payment method used
+     * @param cvc            cvc code of the payment method used
+     * @param merchantToken  if true, the token will have "merchant" scope, otherwise, will be "shopper" scope.
      * @return Token object
      */
-    public static Token createToken(final String subscriptionId, final String cvc) {
+    public static Token createToken(final String subscriptionId, final String cvc, final boolean merchantToken) {
         if (cvc != null) {
-            CardDetails cardDetails = new CardDetails();
+            final CardDetails cardDetails = new CardDetails();
             cardDetails.setCvcNumber(cvc);
-            return new Token(subscriptionId, cardDetails);
+            return new Token(subscriptionId, cardDetails, merchantToken);
         }
-        return new Token(subscriptionId);
+        return new Token(subscriptionId, merchantToken);
     }
 
     /**
      * Creates a Klarna payment type
+     *
      * @param purchaseCountry
      * @param shopperLocale
      * @param merchantUrls

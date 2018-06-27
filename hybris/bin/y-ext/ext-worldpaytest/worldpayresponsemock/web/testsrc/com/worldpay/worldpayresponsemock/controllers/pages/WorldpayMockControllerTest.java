@@ -42,7 +42,7 @@ public class WorldpayMockControllerTest {
     private PaymentService paymentServiceMock;
 
     @Before
-    public void setup() throws JAXBException {
+    public void setUp() throws JAXBException {
         doReturn(unMarshallerMock).when(testObj).createUnmarshaller();
     }
 

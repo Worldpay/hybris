@@ -5,14 +5,7 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
-import com.worldpay.service.model.Address;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.Browser;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.Session;
-import com.worldpay.service.model.Shopper;
-import com.worldpay.service.model.payment.PaymentBuilder;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
@@ -79,7 +72,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
         if (response == null) {
             throw new WorldpayException("Response from worldpay is empty");
         }
-        AuthorizationResult result = worldpayAuthorizationResultConverter.convert(response);
+        final AuthorizationResult result = worldpayAuthorizationResultConverter.convert(response);
         addAuthorizationResultInfo(subscriptionAuthorizationRequest, merchantCode, result);
         setTotalAmountWhenTransactionIsAccepted(response, result);
         return result;
@@ -101,7 +94,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
 
     protected void addAuthorizationResultInfo(final SubscriptionAuthorizationRequest subscriptionAuthorizationRequest,
                                               final String merchantCode, final AuthorizationResult result) {
-        String merchantTransactionCode = subscriptionAuthorizationRequest.getMerchantTransactionCode();
+        final String merchantTransactionCode = subscriptionAuthorizationRequest.getMerchantTransactionCode();
         result.setMerchantTransactionCode(merchantTransactionCode);
         result.setRequestId(merchantTransactionCode);
         result.setRequestToken(merchantCode);
@@ -116,7 +109,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
 
     private DirectAuthoriseServiceRequest buildWorldpayRequest(final SubscriptionAuthorizationRequest subscriptionAuthorizationRequest,
                                                                final WorldpayAdditionalInfoData additionalInfo,
-                                                               final MerchantInfo merchantInfo) throws WorldpayException {
+                                                               final MerchantInfo merchantInfo) {
         final String worldpayOrderCode = subscriptionAuthorizationRequest.getMerchantTransactionCode();
         final Amount amount = getWorldpayOrderService().createAmount(subscriptionAuthorizationRequest.getCurrency(), subscriptionAuthorizationRequest.getTotalAmount().doubleValue());
         final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(worldpayOrderCode, worldpayOrderCode, amount);
@@ -125,13 +118,10 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
         final String customerEmail = additionalInfo.getCustomerEmail();
         final String authenticatedShopperId = additionalInfo.getAuthenticatedShopperId();
         final Shopper shopper = getWorldpayOrderService().createAuthenticatedShopper(customerEmail, authenticatedShopperId, session, browser);
-        final Token token = createToken(subscriptionAuthorizationRequest.getSubscriptionID(), additionalInfo.getSecurityCode());
+        final Token token = getWorldpayOrderService().createToken(subscriptionAuthorizationRequest.getSubscriptionID(), additionalInfo.getSecurityCode());
         final Address shippingAddress = worldpayBillingInfoAddressConverter.convert(subscriptionAuthorizationRequest.getShippingInfo());
         final DynamicInteractionType dynamicInteractionType = worldpayDynamicInteractionResolverService.resolveInteractionTypeForDirectIntegration(additionalInfo);
         return createTokenisedDirectAuthoriseRequest(merchantInfo, orderInfo, shopper, token, shippingAddress, dynamicInteractionType);
-    }
-    protected Token createToken(final String subscriptionId, final String securityCode) {
-        return PaymentBuilder.createToken(subscriptionId, securityCode);
     }
 
     protected DirectAuthoriseServiceRequest createTokenisedDirectAuthoriseRequest(final MerchantInfo merchantInfo,

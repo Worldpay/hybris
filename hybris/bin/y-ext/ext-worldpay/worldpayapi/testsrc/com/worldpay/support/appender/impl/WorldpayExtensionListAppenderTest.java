@@ -12,13 +12,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayExtensionListAppenderTest {
 
     private static final String EXTENSION_1 = "extension1";
@@ -32,9 +31,9 @@ public class WorldpayExtensionListAppenderTest {
     private Tenant tenantMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void testAppendContent() {
         doReturn(Arrays.asList(EXTENSION_1, EXTENSION_2)).when(testObj).getTenantSpecificExtensionNames();
-        final List<String> extensionNames = asList(EXTENSION_1, EXTENSION_2);
+        final List<String> extensionNames = Arrays.asList(EXTENSION_1, EXTENSION_2);
         when(tenantMock.getTenantSpecificExtensionNames()).thenReturn(extensionNames);
 
         final String result = testObj.appendContent();

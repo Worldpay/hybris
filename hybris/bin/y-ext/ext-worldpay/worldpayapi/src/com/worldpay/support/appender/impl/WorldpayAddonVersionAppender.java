@@ -12,7 +12,7 @@ import static java.text.MessageFormat.format;
  */
 public class WorldpayAddonVersionAppender implements WorldpaySupportEmailAppender {
 
-    protected static final String WORLDPAY_ADDON_VERSION_KEY = "worldpay.addon.version";
+    private static final String WORLDPAY_ADDON_VERSION_KEY = "worldpay.addon.version";
     private ConfigurationService configurationService;
 
     /**

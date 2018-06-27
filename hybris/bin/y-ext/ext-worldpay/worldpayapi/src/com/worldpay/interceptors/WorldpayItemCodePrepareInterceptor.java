@@ -3,7 +3,6 @@ package com.worldpay.interceptors;
 import de.hybris.platform.core.model.ItemModel;
 import de.hybris.platform.core.model.type.ComposedTypeModel;
 import de.hybris.platform.servicelayer.interceptor.InterceptorContext;
-import de.hybris.platform.servicelayer.interceptor.InterceptorException;
 import de.hybris.platform.servicelayer.interceptor.PrepareInterceptor;
 import de.hybris.platform.servicelayer.keygenerator.KeyGenerator;
 import de.hybris.platform.servicelayer.model.ModelService;
@@ -26,10 +25,9 @@ public class WorldpayItemCodePrepareInterceptor implements PrepareInterceptor<It
      *
      * @param itemModel                 Item model to be saved
      * @param interceptorContext        Interceptor context
-     * @throws InterceptorException
      */
     @Override
-    public void onPrepare(final ItemModel itemModel, final InterceptorContext interceptorContext) throws InterceptorException {
+    public void onPrepare(final ItemModel itemModel, final InterceptorContext interceptorContext) {
 
         final ComposedTypeModel type = typeService.getComposedTypeForCode(itemModel.getItemtype());
         if (typeService.hasAttribute(type, fieldName)) {

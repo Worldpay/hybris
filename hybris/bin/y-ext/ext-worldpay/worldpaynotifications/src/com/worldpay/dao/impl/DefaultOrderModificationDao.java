@@ -59,7 +59,7 @@ public class DefaultOrderModificationDao extends AbstractItemDao implements Orde
             "select {" + PK + "}\n" +
                     "from {" + _TYPECODE + "}\n" +
                     "WHERE {" + WorldpayOrderModificationModel.WORLDPAYORDERCODE + "} = ?" + WORLDPAY_ORDER_CODE + "\n" +
-                    "AND {" + WorldpayOrderModificationModel.TYPE + "} = ?" + MODIFICATION_TYPE + "\n" +
+                    "AND {" + TYPE + "} = ?" + MODIFICATION_TYPE + "\n" +
                     "AND {" + WorldpayOrderModificationModel.DEFECTIVEREASON + "} = ?" + DEFECTIVE_REASON + "\n" +
                     "AND {" + WorldpayOrderModificationModel.CODE + "} != ?" + MODIFICATION_CODE;
 

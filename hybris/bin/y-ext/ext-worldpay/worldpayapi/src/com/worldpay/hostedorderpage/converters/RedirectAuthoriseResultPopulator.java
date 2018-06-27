@@ -1,5 +1,6 @@
 package com.worldpay.hostedorderpage.converters;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.payment.WorldpayOrderService;
@@ -16,7 +17,6 @@ import java.util.Map;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
 
-
 /**
  * Implementation of {@link AbstractResultPopulator} to convert a map of String objects to a
  * {@link RedirectAuthoriseResult}
@@ -25,16 +25,17 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
 
     private static final Logger LOG = Logger.getLogger(RedirectAuthoriseResultPopulator.class);
 
-    public static final String PAYMENT_STATUS = "paymentStatus";
-    public static final String STATUS = "status";
-    public static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
-    public static final String PAYMENT_AMOUNT = "paymentAmount";
-    public static final String PAYMENT_CURRENCY = "paymentCurrency";
+    private static final String PAYMENT_STATUS = "paymentStatus";
+    private static final String STATUS = "status";
+    private static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
+    private static final String PAYMENT_AMOUNT = "paymentAmount";
+    private static final String PAYMENT_CURRENCY = "paymentCurrency";
 
     private WorldpayOrderService worldpayOrderService;
 
     /**
      * Populates the {@link RedirectAuthoriseResult} with the values received in the URL from Worldpay.
+     *
      * @param source the source object
      * @param target the target to fill
      * @throws ConversionException
@@ -52,9 +53,17 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
         setOrderCode(target, orderKey);
         target.setPending(false);
         //in case of Credit Card payment - extract paymentStatus, APM payment - extract status parameter
-        target.setPaymentStatus(source.get(PAYMENT_STATUS) != null ? source.get(PAYMENT_STATUS) : source.get(STATUS));
+        setPaymentStatus(source, target);
         target.setSaveCard(Boolean.valueOf(source.get(SAVE_PAYMENT_INFO)));
         target.setPaymentAmount(getPaymentAmount(source));
+    }
+
+    private void setPaymentStatus(final Map<String, String> source, final RedirectAuthoriseResult target) {
+        if (source.get(STATUS) != null) {
+            target.setPaymentStatus(AuthorisedStatus.valueOf(source.get(STATUS)));
+        } else if (source.get(PAYMENT_STATUS) != null) {
+            target.setPaymentStatus(AuthorisedStatus.valueOf(source.get(PAYMENT_STATUS)));
+        }
     }
 
     protected void setOrderCode(final RedirectAuthoriseResult target, final String orderKey) {
@@ -66,14 +75,14 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
         }
     }
 
-    private BigDecimal getPaymentAmount (final Map<String, String> source) {
+    private BigDecimal getPaymentAmount(final Map<String, String> source) {
         if (StringUtils.isNotEmpty(source.get(PAYMENT_AMOUNT)) && StringUtils.isNotEmpty(source.get(PAYMENT_CURRENCY))) {
             try {
                 final Currency currency = Currency.getInstance(source.get(PAYMENT_CURRENCY));
                 Amount amount = worldpayOrderService.createAmount(currency, Integer.valueOf(source.get(PAYMENT_AMOUNT)));
                 return new BigDecimal(amount.getValue());
             } catch (IllegalArgumentException exception) {
-                LOG.error(MessageFormat.format("Received invalid currecny isocode: {0}", source.get(PAYMENT_CURRENCY)), exception);
+                LOG.error(MessageFormat.format("Received invalid currency isoCode: [{0}]", source.get(PAYMENT_CURRENCY)), exception);
                 return null;
             }
         }

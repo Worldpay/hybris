@@ -19,12 +19,8 @@ public class DefaultAPMAvailabilityService implements APMAvailabilityService {
      */
     @Override
     public boolean isAvailable(final WorldpayAPMConfigurationModel apmConfiguration, final CartModel cartModel) {
-        for (final APMAvailabilityStrategy apmAvailabilityStrategy : apmAvailabilityStrategyList) {
-            if (!apmAvailabilityStrategy.isAvailable(apmConfiguration, cartModel)) {
-                return false;
-            }
-        }
-        return true;
+        return apmAvailabilityStrategyList.stream()
+                .allMatch(apmAvailabilityStrategy -> apmAvailabilityStrategy.isAvailable(apmConfiguration, cartModel));
     }
 
     public void setApmAvailabilityStrategyList(final List<APMAvailabilityStrategy> apmAvailabilityStrategyList) {

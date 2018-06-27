@@ -1,6 +1,8 @@
 package com.worldpay.service.model;
 
-public class RiskScore {
+import java.io.Serializable;
+
+public class RiskScore implements Serializable {
     private String value;
     private String provider;
     private String id;

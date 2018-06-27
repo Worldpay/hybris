@@ -9,7 +9,6 @@ import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Tran
 import de.hybris.platform.returns.model.ReturnProcessModel;
 import de.hybris.platform.returns.model.ReturnRequestModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import de.hybris.platform.returns.model.ReturnRequestModel;
 import de.hybris.platform.warehousing.returns.service.RefundAmountCalculationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +28,10 @@ import static java.util.Collections.singletonList;
 import static org.jgroups.util.Util.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayCaptureRefundActionTest {
 
     private static final BigDecimal CUSTOM_REFUND_AMOUNT = new BigDecimal(19);
@@ -45,7 +42,7 @@ public class WorldpayCaptureRefundActionTest {
 
     @Mock
     private ReturnProcessModel returnProcessModelMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private ReturnRequestModel returnRequestMock;
     @Mock
     private ModelService modelServiceMock;
@@ -59,12 +56,12 @@ public class WorldpayCaptureRefundActionTest {
     private RefundAmountCalculationService refundAmountCalculationServiceMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(returnProcessModelMock.getReturnRequest()).thenReturn(returnRequestMock);
     }
 
     @Test
-    public void shouldReturnNOKWhenThereAreNoTransactions() throws Exception {
+    public void shouldReturnNOKWhenThereAreNoTransactions() {
         when(returnRequestMock.getOrder().getPaymentTransactions()).thenReturn(emptyList());
 
         final Transition transition = testObj.executeAction(returnProcessModelMock);
@@ -75,7 +72,7 @@ public class WorldpayCaptureRefundActionTest {
     }
 
     @Test
-    public void shouldReturnOKWhenRefundFollowOnIsSuccessfulWithCustomRefundAmount() throws Exception {
+    public void shouldReturnOKWhenRefundFollowOnIsSuccessfulWithCustomRefundAmount() {
         when(returnRequestMock.getOrder().getPaymentTransactions()).thenReturn(singletonList(paymentTransactionMock));
         when(refundAmountCalculationServiceMock.getCustomRefundAmount(returnRequestMock)).thenReturn(CUSTOM_REFUND_AMOUNT);
         when(paymentServiceMock.refundFollowOn(paymentTransactionMock, CUSTOM_REFUND_AMOUNT)).thenReturn(paymentTransactionEntryMock);
@@ -89,7 +86,7 @@ public class WorldpayCaptureRefundActionTest {
     }
 
     @Test
-    public void shouldReturnOKWhenRefundFollowOnIsSuccessfulWithOriginalAmount() throws Exception {
+    public void shouldReturnOKWhenRefundFollowOnIsSuccessfulWithOriginalAmount() {
         when(returnRequestMock.getOrder().getPaymentTransactions()).thenReturn(singletonList(paymentTransactionMock));
         when(refundAmountCalculationServiceMock.getCustomRefundAmount(returnRequestMock)).thenReturn(null);
         when(refundAmountCalculationServiceMock.getOriginalRefundAmount(returnRequestMock)).thenReturn(ORIGINAL_REFUND_AMOUNT);
@@ -104,7 +101,7 @@ public class WorldpayCaptureRefundActionTest {
     }
 
     @Test
-    public void shouldReturnNOKWhenRefundFollowOnFails() throws Exception {
+    public void shouldReturnNOKWhenRefundFollowOnFails() {
         when(returnRequestMock.getOrder().getPaymentTransactions()).thenReturn(singletonList(paymentTransactionMock));
         when(refundAmountCalculationServiceMock.getCustomRefundAmount(returnRequestMock)).thenReturn(null);
         when(refundAmountCalculationServiceMock.getOriginalRefundAmount(returnRequestMock)).thenReturn(ORIGINAL_REFUND_AMOUNT);

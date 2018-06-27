@@ -9,6 +9,7 @@ import com.worldpay.strategies.WorldpayOrderModificationRefundProcessStrategy;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import com.worldpay.util.OrderModificationSerialiser;
+import com.worldpay.worldpaynotifications.enums.DefectiveReason;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.enums.OrderStatus;
@@ -32,30 +33,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Set;
 
-import static com.worldpay.worldpaynotifications.enums.DefectiveReason.INVALID_AUTHENTICATED_SHOPPER_ID;
-import static com.worldpay.worldpaynotifications.enums.DefectiveReason.NO_PAYMENT_TRANSACTION_MATCHED;
-import static com.worldpay.worldpaynotifications.enums.DefectiveReason.PROCESSING_ERROR;
+import static com.worldpay.worldpaynotifications.enums.DefectiveReason.*;
 import static de.hybris.platform.core.enums.OrderStatus.CANCELLED;
 import static de.hybris.platform.core.enums.OrderStatus.FRAUD_CHECKED;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.CANCEL;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
     private static final int DEFECTIVE_COUNT = 2;
@@ -91,7 +81,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     private CartModel cartModelMock;
     @Mock
     private OrderNotificationService orderNotificationServiceMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderNotificationMessage orderNotificationMessageMock;
     @Mock
     private OrderModificationSerialiser orderModificationSerialiserMock;
@@ -111,7 +101,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     private WorldpayOrderModificationRefundProcessStrategy worldpayOrderModificationRefundProcessStrategyMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
         when(nonTriggeringOrderStatusesMock.contains(CANCELLED)).thenReturn(true);
         when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(CAPTURE)).thenReturn(singletonList(orderModificationModelMock));
@@ -331,6 +321,25 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         verify(orderModificationModelMock).setDefective(Boolean.TRUE);
         verify(orderModificationModelMock).setDefectiveReason(INVALID_AUTHENTICATED_SHOPPER_ID);
         verify(orderModificationModelMock).setDefectiveCounter(DEFECTIVE_COUNT + 1);
+    }
+
+    @Test
+    public void notificationShouldNotBeMarkedAsDefectiveWhenTokenReplyDoesNotContainAuthenticatedShopperIdAsOrderWasMadeUsingAMerchantToken() {
+        when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
+
+        when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
+        when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
+        when(orderModificationDaoMock.findExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingOrderModificationModelMock));
+        when(tokenReplyMock.getAuthenticatedShopperID()).thenReturn(null);
+
+        testObj.processOrderModificationMessages(AUTHORIZATION);
+
+        verify(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));
+        verify(businessProcessServiceMock).triggerEvent(anyString());
+        verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
+        verify(orderModificationModelMock).setDefective(Boolean.FALSE);
+        verify(orderModificationModelMock, never()).setDefectiveReason(any(DefectiveReason.class));
+        verify(orderModificationModelMock, never()).setDefectiveCounter(anyInt());
     }
 
     @Test

@@ -63,12 +63,12 @@ import static org.mockito.Mockito.when;
 @RunWith (MockitoJUnitRunner.class)
 public class DefaultWorldpayPaymentTransactionServiceTest {
 
-    private static final String TRANSACTION_STATUS = "transactionStatus";
     private static final String REQUEST_ID = "requestId";
     private static final String REQUEST_TOKEN = "requestToken";
     private static final String MERCHANT_CODE = "merchantCode";
     private static final String PAYMENT_PROVIDER = "paymentProvider";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
+    private static final String TRANSACTION_STATUS = "transactionStatus";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String TRANSACTION_ENTRY_CODE = "transactionEntryCode";
 
@@ -133,7 +133,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private Configuration configurationMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         paymentTransactionDependency.put(CAPTURE, AUTHORIZATION);
         paymentTransactionDependency.put(SETTLED, CAPTURE);
         testObj.setPaymentTransactionDependency(paymentTransactionDependency);

@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -38,7 +39,7 @@ public class WorldpayRiskScoreConverterTest {
     private ModelService modelServiceMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(modelServiceMock.create(WorldpayRiskScoreModel.class)).thenReturn(new WorldpayRiskScoreModel());
         when(riskScoreMock.getFinalScore()).thenReturn(FINAL_SCORE);
         when(riskScoreMock.getExtendedResponse()).thenReturn(EXTENDED_RESPONSE);
@@ -75,9 +76,9 @@ public class WorldpayRiskScoreConverterTest {
 
         final WorldpayRiskScoreModel result = testObj.convert(riskScoreMock);
 
-        assertEquals(null, result.getFinalScore());
-        assertEquals(null, result.getRgid());
-        assertEquals(null, result.getTRisk());
-        assertEquals(null, result.getTScore());
+        assertNull(result.getFinalScore());
+        assertNull(result.getRgid());
+        assertNull(result.getTRisk());
+        assertNull(result.getTScore());
     }
 }

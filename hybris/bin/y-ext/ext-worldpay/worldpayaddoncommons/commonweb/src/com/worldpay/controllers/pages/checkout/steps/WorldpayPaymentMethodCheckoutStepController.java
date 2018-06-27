@@ -23,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
@@ -84,7 +83,7 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     @Override
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         model.addAttribute("metaRobots", "noindex,nofollow");
-        model.addAttribute("hasNoPaymentInfo", Boolean.valueOf(getCheckoutFlowFacade().hasNoPaymentInfo()));
+        model.addAttribute("hasNoPaymentInfo", getCheckoutFlowFacade().hasNoPaymentInfo());
         prepareDataForPage(model);
         model.addAttribute(BREADCRUMBS_KEY, getResourceBreadcrumbBuilder().getBreadcrumbs(CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB));
         final ContentPageModel contentPage = getContentPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL);
@@ -135,7 +134,7 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
         model.addAttribute(HOSTED_ORDER_PAGE_DATA, hostedOrderPageData);
 
         final boolean hopDebugMode = getSiteConfigService().getBoolean(HOP_DEBUG_MODE_CONFIG, false);
-        model.addAttribute(HOP_DEBUG_MODE_PARAM, Boolean.valueOf(hopDebugMode));
+        model.addAttribute(HOP_DEBUG_MODE_PARAM, hopDebugMode);
     }
 
     @Override

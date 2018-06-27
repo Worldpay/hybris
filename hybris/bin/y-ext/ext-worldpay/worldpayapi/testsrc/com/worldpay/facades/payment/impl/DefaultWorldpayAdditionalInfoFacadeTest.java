@@ -11,11 +11,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayAdditionalInfoFacadeTest {
 
     @Mock
@@ -26,7 +26,7 @@ public class DefaultWorldpayAdditionalInfoFacadeTest {
     private WorldpayAdditionalInfoService worldpayAdditionalDataService;
 
     @InjectMocks
-    private DefaultWorldpayAdditionalInfoFacade testObj = new DefaultWorldpayAdditionalInfoFacade();
+    private DefaultWorldpayAdditionalInfoFacade testObj;
 
     @Test
     public void shouldCreateWorldpayAdditionalInfoDataFromRequest() {

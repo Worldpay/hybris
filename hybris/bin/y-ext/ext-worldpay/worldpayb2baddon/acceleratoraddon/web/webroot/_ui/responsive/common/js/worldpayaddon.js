@@ -75,7 +75,7 @@ ACC.worldpay = {
                 'useDeliveryAddress': false
             };
             ACC.worldpay.displayCreditCardAddressForm(options);
-        })
+        });
     },
 
     displayCreditCardAddressForm: function (options, callback) {

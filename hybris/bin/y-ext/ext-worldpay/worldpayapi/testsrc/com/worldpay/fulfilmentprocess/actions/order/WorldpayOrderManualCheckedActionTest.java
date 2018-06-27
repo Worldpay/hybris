@@ -27,11 +27,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayOrderManualCheckedActionTest {
 
     @InjectMocks
-    private WorldpayOrderManualCheckedAction testObj = new WorldpayOrderManualCheckedAction();
+    private WorldpayOrderManualCheckedAction testObj;
 
     @Mock
     private OrderProcessModel orderProcessModelMock;
@@ -45,7 +45,7 @@ public class WorldpayOrderManualCheckedActionTest {
     private TimeService timeServiceMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(timeServiceMock.getCurrentTime()).thenReturn(DateTime.now().toDate());
@@ -82,8 +82,8 @@ public class WorldpayOrderManualCheckedActionTest {
 
         final String result = testObj.execute(orderProcessModelMock);
 
-        verify(modelServiceMock,never()).save(any(OrderHistoryEntryModel.class));
-        verify(orderModelMock,never()).setStatus(any(OrderStatus.class));
+        verify(modelServiceMock, never()).save(any(OrderHistoryEntryModel.class));
+        verify(orderModelMock, never()).setStatus(any(OrderStatus.class));
         assertEquals(UNDEFINED.toString(), result);
     }
 }

@@ -63,7 +63,7 @@ public class PaymentTransactionAmountRendererTest {
     private LabelService labelServiceMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         when(columnConfigurationMock.getQualifier()).thenReturn(QUALIFIER);
         when(dataTypeMock.getCode()).thenReturn(DATA_TYPE_CODE);
         when(typeFacadeMock.load(PAYMENT_TRANSACTION)).thenReturn(dataTypeMock);

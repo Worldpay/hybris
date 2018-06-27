@@ -156,7 +156,7 @@
     </bean>
 
     <util:map id="journalTypeToNotificationProcessorStrategyMap"
-              key-type="com.worldpay.service.model.AuthorisedStatus"
+              key-type="com.worldpay.enums.order.AuthorisedStatus"
               value-type="com.worldpay.notification.processors.OrderNotificationProcessorStrategy">
         <entry key="AUTHORISED" value-ref="authorisedOrderNotificationProcessorStrategy"/>
         <entry key="CAPTURED" value-ref="capturedOrderNotificationProcessorStrategy"/>

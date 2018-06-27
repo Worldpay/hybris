@@ -12,7 +12,6 @@ import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCh
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
-import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.PlaceOrderForm;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
@@ -20,12 +19,10 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.CartRestorationData;
 import de.hybris.platform.commercefacades.order.data.OrderEntryData;
 import de.hybris.platform.commercefacades.product.data.ProductData;
-import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.order.InvalidCartException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,8 +39,6 @@ import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.G
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
 import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
 import static java.text.MessageFormat.format;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * Web controller to handle a summary in a checkout step
@@ -75,20 +70,18 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private MessageSource messageSource;
-    @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * {@inheritDoc}
      */
-    @RequestMapping (value = "/view", method = GET)
+    @RequestMapping (value = "/view", method = RequestMethod.GET)
     @RequireHardLogIn
     @Override
     @PreValidateCheckoutStep (checkoutStep = SUMMARY)
     public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
-        if (isNotEmpty(cartData.getEntries())) {
+        if (CollectionUtils.isNotEmpty(cartData.getEntries())) {
             for (final OrderEntryData entry : cartData.getEntries()) {
                 final String productCode = entry.getProduct().getCode();
                 final ProductData product = getProductFacade().getProductForCodeAndOptions(productCode, Arrays.asList(BASIC, PRICE));
@@ -151,7 +144,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
             final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(worldpayAdditionalInfoData);
             return handleDirectResponse(model, directResponseData);
         } catch (InvalidCartException | WorldpayException e) {
-            GlobalMessages.addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
+            addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
             LOGGER.error("There was an error authorising the transaction", e);
             return getErrorView(model);
         }
@@ -160,10 +153,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected String getErrorView(final Model model) throws CMSItemNotFoundException {
         setupAddPaymentPage(model);
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
-    }
-
-    protected String getLocalisedDeclineMessage(final int returnCode) {
-        return messageSource.getMessage(CHECKOUT_MULTI_WORLD_PAY_DECLINED_MESSAGE + returnCode, null, getI18nService().getCurrentLocale());
     }
 
     /**
@@ -178,16 +167,13 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final String subscriptionId = cartData.getPaymentInfo().getSubscriptionId();
         final String securityCode = placeOrderForm.getSecurityCode();
 
-        if (hasSubscriptionId(subscriptionId, securityCode, model) ||
-                haveNoDeliveryAddress(model) ||
-                haveNoDeliveryMethod(model) ||
-                haveNoPaymentMethod(model) ||
-                haveNoTermsAccepted(placeOrderForm, model) ||
-                hasTaxCalculation(cartData, model) ||
-                hasCalculateFlag(cartData, model)) {
-            return false;
-        }
-        return true;
+        return !hasSubscriptionId(subscriptionId, securityCode, model) &&
+                !haveNoDeliveryAddress(model) &&
+                !haveNoDeliveryMethod(model) &&
+                !haveNoPaymentMethod(model) &&
+                !haveNoTermsAccepted(placeOrderForm, model) &&
+                !hasTaxCalculation(cartData, model) &&
+                !hasCalculateFlag(cartData, model);
     }
 
     private boolean hasSubscriptionId(String subscriptionId, String securityCode, Model model){
@@ -256,12 +242,11 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
      * @param redirectModel     the {@RedirectAttributes} to be used
      * @return
      * @throws CMSItemNotFoundException
-     * @throws CommerceCartModificationException
      */
     @RequestMapping (value = "/express", method = RequestMethod.GET)
     @RequireHardLogIn
     public String performExpressCheckout(final Model model, final RedirectAttributes redirectModel)
-            throws CMSItemNotFoundException, CommerceCartModificationException {
+            throws CMSItemNotFoundException {
         if (getSessionService().getAttribute(WebConstants.CART_RESTORATION) != null
                 && CollectionUtils.isNotEmpty(((CartRestorationData) getSessionService().getAttribute(WebConstants.CART_RESTORATION))
                 .getModifications())) {

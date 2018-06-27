@@ -1,5 +1,6 @@
 package com.worldpay.service;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayCommunicationException;
 import com.worldpay.exception.WorldpayException;
@@ -21,8 +22,8 @@ import org.junit.rules.ExpectedException;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static org.junit.Assert.*;
 
 @IntegrationTest
@@ -74,7 +75,7 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
     public void createDirectAuthorisedWithTokenRequestWithoutMerchantShouldRaiseWorldpayCommunicationException() throws WorldpayException {
         thrown.expect(WorldpayCommunicationException.class);
         merchantInfo = new MerchantInfo(null, null);
-        final Token tokenSsl = new Token(TOKEN_EVENT_REFERENCE);
+        final Token tokenSsl = new Token(TOKEN_EVENT_REFERENCE, false);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + orderCode, TOKEN_REASON);
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, tokenSsl,
                 SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
@@ -478,7 +479,7 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final DirectAuthoriseServiceResponse directAuthoriseServiceResponse = testObj.directAuthorise(request);
 
         final String paymentTokenID = directAuthoriseServiceResponse.getToken().getTokenDetails().getPaymentTokenID();
-        final Token tokenSsl = new Token(paymentTokenID);
+        final Token tokenSsl = new Token(paymentTokenID, false);
 
         orderCode = String.valueOf(new java.util.Date().getTime());
         basicOrderInfo = new BasicOrderInfo(orderCode, "Your Order & Order desc with token", new Amount("1000", "EUR", "2"));

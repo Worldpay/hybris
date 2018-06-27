@@ -11,10 +11,18 @@ public class TokenRequest implements InternalModelTransformer, Serializable {
 
     private String tokenEventReference;
     private String tokenReason;
+    private boolean merchantToken;
 
     public TokenRequest(final String tokenEventReference, final String tokenReason) {
         this.tokenEventReference = tokenEventReference;
         this.tokenReason = tokenReason;
+        this.merchantToken = false;
+    }
+
+    public TokenRequest(final String tokenEventReference, final String tokenReason, final boolean merchantToken) {
+        this.tokenEventReference = tokenEventReference;
+        this.tokenReason = tokenReason;
+        this.merchantToken = merchantToken;
     }
 
     @Override
@@ -26,7 +34,9 @@ public class TokenRequest implements InternalModelTransformer, Serializable {
             intCreateToken.setTokenReason(intTokenReason);
         }
         intCreateToken.setTokenEventReference(tokenEventReference);
-
+        if (merchantToken) {
+            intCreateToken.setTokenScope("merchant");
+        }
         return intCreateToken;
     }
 
@@ -44,5 +54,13 @@ public class TokenRequest implements InternalModelTransformer, Serializable {
 
     public void setTokenReason(final String tokenReason) {
         this.tokenReason = tokenReason;
+    }
+
+    public boolean isMerchantToken() {
+        return merchantToken;
+    }
+
+    public void setMerchantToken(final boolean merchantToken) {
+        this.merchantToken = merchantToken;
     }
 }

@@ -14,19 +14,25 @@ public class UpdateTokenRequest implements InternalModelTransformer, Serializabl
     private String authenticatedShopperID;
     private CardDetails cardDetails;
     private TokenRequest tokenRequest;
+    private boolean merchantToken;
 
-    public UpdateTokenRequest(final String paymentTokenId, final String authenticatedShopperID, final CardDetails cardDetails, final TokenRequest tokenRequest) {
+    public UpdateTokenRequest(final String paymentTokenId, final String authenticatedShopperID, final CardDetails cardDetails, final TokenRequest tokenRequest, final boolean merchantToken) {
         this.paymentTokenId = paymentTokenId;
         this.authenticatedShopperID = authenticatedShopperID;
         this.cardDetails = cardDetails;
         this.tokenRequest = tokenRequest;
+        this.merchantToken = merchantToken;
     }
 
     @Override
     public InternalModelObject transformToInternalModel() {
         final PaymentTokenUpdate intPaymentTokenUpdate = new PaymentTokenUpdate();
-
-        intPaymentTokenUpdate.setAuthenticatedShopperID(authenticatedShopperID);
+        if (merchantToken) {
+            intPaymentTokenUpdate.setTokenScope("merchant");
+            intPaymentTokenUpdate.setAuthenticatedShopperID(null);
+        } else {
+            intPaymentTokenUpdate.setAuthenticatedShopperID(authenticatedShopperID);
+        }
         intPaymentTokenUpdate.setPaymentTokenID(paymentTokenId);
         intPaymentTokenUpdate.setTokenEventReference(tokenRequest.getTokenEventReference());
 
@@ -71,5 +77,13 @@ public class UpdateTokenRequest implements InternalModelTransformer, Serializabl
 
     public CardDetails getCardDetails() {
         return cardDetails;
+    }
+
+    public boolean isMerchantToken() {
+        return merchantToken;
+    }
+
+    public void setMerchantToken(final boolean merchantToken) {
+        this.merchantToken = merchantToken;
     }
 }

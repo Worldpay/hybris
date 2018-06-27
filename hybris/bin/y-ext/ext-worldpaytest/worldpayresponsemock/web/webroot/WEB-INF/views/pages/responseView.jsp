@@ -55,7 +55,7 @@
             float: left;
         }
 
-        label span:first-of-type {
+        label span :first-of-type {
             padding: 2px 10px 2px 0;
         }
 
@@ -63,6 +63,9 @@
         label select {
             margin: 0;
             font-weight: normal;
+        }
+        legend {
+            float: left;
         }
 
         .btn {
@@ -138,7 +141,7 @@
 <form:form action="sendSelectedResponse" commandName="responseForm" method="POST">
     <h3>Worldpay Response Mock - Developer's only</h3>
     <fieldset>
-        <label>General</label>
+        <legend>General</legend>
         <form:label path="worldpayOrderCode">
             <span>Worldpay order code:</span>
             <form:input path="worldpayOrderCode"/>
@@ -159,9 +162,9 @@
     </fieldset>
 
     <fieldset id="sharedFields">
-        <label>Common</label>
+        <legend>Common</legend>
         <form:label path="transactionAmount">
-            <span>Transaction Amount:<div title="The amount should be without decimal point" class="glyphicon glyphicon-info-sign"></div></span>
+            <span>Transaction Amount: <span title="The amount should be without decimal point" class="glyphicon glyphicon-info-sign"></span></span>
             <form:input path="transactionAmount"/>
         </form:label>
         <form:label path="currencyCode">
@@ -195,7 +198,7 @@
     </fieldset>
 
     <fieldset>
-        <label>Risk</label>
+        <legend>Risk</legend>
         <label for="selectRiskScore">
             <span>Risk Score</span>
             <form:select path="selectedRiskScore" id="selectRiskScore">
@@ -222,7 +225,7 @@
     </fieldset>
 
     <fieldset>
-        <label>Token</label>
+        <legend>Token</legend>
         <label for="selectToken">
             <span>Select Token</span>
             <form:select path="selectToken" id="selectToken">
@@ -232,7 +235,11 @@
         </label>
 
         <fieldset id="Token" class="hide">
-            <label>Token information</label>
+            <legend>Token information</legend>
+            <form:label path="merchantToken">
+                <span>Merchant token:</span>
+                <form:checkbox path="merchantToken"/>
+            </form:label>
             <form:label path="authenticatedShopperId">
                 <span>Authenticated Shopper ID:</span>
                 <form:input path="authenticatedShopperId"/>

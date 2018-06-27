@@ -1,8 +1,8 @@
 package com.worldpay.service.response.transform.impl;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.WebformRefundReply;
 import com.worldpay.service.model.payment.PaymentType;
@@ -162,7 +162,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(CARD_HOLDER_NAME, paymentReply.getCardDetails().getCardHolderName());
         assertEquals(CARD_NUMBER, paymentReply.getCardDetails().getCardNumber());
         assertEquals(PaymentType.VISA, paymentReply.getCardDetails().getPaymentType());
-        assertEquals(AuthorisedStatus.getAuthorisedStatus(LAST_EVENT), paymentReply.getAuthStatus());
+        assertEquals(AuthorisedStatus.AUTHORISED, paymentReply.getAuthStatus());
         assertEquals(CVC_RESULT_CODE_DESCRIPTION, paymentReply.getCvcResultDescription());
         assertEquals(ISO8583_RETURN_CODE_CODE, paymentReply.getReturnCode());
         assertThat(paymentReply.getRiskScore().getValue()).isEqualTo(RISK_SCORE_VALUE);

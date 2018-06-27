@@ -1,8 +1,8 @@
 package com.worldpay.core.services.impl;
 
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
@@ -17,30 +17,30 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultOrderNotificationServiceTest {
 
     private static final String ORDER_CODE = "orderCode";
 
     @InjectMocks
-    private DefaultOrderNotificationService testObj = new DefaultOrderNotificationService();
+    private DefaultOrderNotificationService testObj;
 
     @Mock
     private WorldpayPaymentTransactionDao worldpayPaymentTransactionDaoMock;
     @Mock
     private OrderNotificationProcessorStrategy orderNotificationProcessorStrategyMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderNotificationMessage orderNotificationMessageMock;
     @Mock
     private PaymentTransactionModel paymentTransactionModelMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         final Map<AuthorisedStatus, OrderNotificationProcessorStrategy> journalTypeToNotificationProcessorMap = new HashMap<>();
         journalTypeToNotificationProcessorMap.put(AUTHORISED, orderNotificationProcessorStrategyMock);
         testObj.setJournalTypeToNotificationProcessorStrategyMap(journalTypeToNotificationProcessorMap);

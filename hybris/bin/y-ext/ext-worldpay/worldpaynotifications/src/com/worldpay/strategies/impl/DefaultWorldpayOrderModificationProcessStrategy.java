@@ -82,7 +82,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
             if (AUTHORIZATION.equals(paymentTransactionType)) {
                 markAsProcessedIfEntryIsNotPending(paymentTransactionType, orderModificationModel, paymentTransactionModel);
             }
-            AbstractOrderModel abstractOrderModel = paymentTransactionModel.getOrder();
+            final AbstractOrderModel abstractOrderModel = paymentTransactionModel.getOrder();
             if (abstractOrderModel instanceof OrderModel) {
                 success = processOrderModificationNotification(paymentTransactionType, orderModificationModel, worldpayOrderCode, (OrderModel) abstractOrderModel);
             } else if (abstractOrderModel instanceof CartModel) {
@@ -150,8 +150,10 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
         }
     }
 
-    protected void processNotification(final PaymentTransactionType paymentTransactionTypeFromCronJob, final WorldpayOrderModificationModel orderModificationModel,
-                                       final OrderModel orderModel, final OrderNotificationMessage notificationMessage) {
+    protected void processNotification(final PaymentTransactionType paymentTransactionTypeFromCronJob,
+                                       final WorldpayOrderModificationModel orderModificationModel,
+                                       final OrderModel orderModel,
+                                       final OrderNotificationMessage notificationMessage) {
         PaymentTransactionType paymentTransactionType = paymentTransactionTypeFromCronJob;
         if (CANCEL.equals(paymentTransactionTypeFromCronJob)) {
             // Rejected payments expect the order to be in a waitFor_AUTHORIZATION state
@@ -192,16 +194,16 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
         return modification.getDefectiveCounter() == null ? 0 : modification.getDefectiveCounter();
     }
 
-    protected boolean notificationIsValid(OrderNotificationMessage notificationMessage, AbstractOrderModel orderModel) {
+    protected boolean notificationIsValid(final OrderNotificationMessage notificationMessage, final AbstractOrderModel orderModel) {
         final TokenReply tokenReply = notificationMessage.getTokenReply();
         return (tokenReply != null && authenticatedShopperIdMatches(orderModel, tokenReply.getAuthenticatedShopperID())) || tokenReply == null;
     }
 
     protected boolean authenticatedShopperIdMatches(final AbstractOrderModel orderModel, final String tokenAuthenticatedShopperId) {
-        return tokenAuthenticatedShopperId.equals(worldpayAuthenticatedShopperIdStrategy.getAuthenticatedShopperId(orderModel.getUser()));
+        return tokenAuthenticatedShopperId == null || tokenAuthenticatedShopperId.equals(worldpayAuthenticatedShopperIdStrategy.getAuthenticatedShopperId(orderModel.getUser()));
     }
 
-    protected void processOrderModification(WorldpayOrderModificationModel orderModificationModel, OrderNotificationMessage notificationMessage) {
+    protected void processOrderModification(final WorldpayOrderModificationModel orderModificationModel, final OrderNotificationMessage notificationMessage) {
         orderNotificationService.processOrderNotificationMessage(notificationMessage);
         setNonDefectiveAndProcessed(orderModificationModel);
     }

@@ -12,10 +12,13 @@ public class WorldpayConstants {
 
     private static final Logger LOG = Logger.getLogger(WorldpayConstants.class);
 
+    private WorldpayConstants() {
+    }
+
     /**
      * Package location holding the internal model objects
      */
-    public static final String WORLDPAY_MODEL_PACKAGE = "com.worldpay.internal.model";
+    private static final String WORLDPAY_MODEL_PACKAGE = "com.worldpay.internal.model";
 
     /**
      * Initialised JAXB context
@@ -26,7 +29,6 @@ public class WorldpayConstants {
      * Location of the xsd file for validating xml
      */
     public static final String XSD_LOCATION = "/schema/paymentService_v1.xsd";
-
 
     /**
      * Constant xml header to be added to all outgoing messages to Worldpay

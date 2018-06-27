@@ -14,12 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Resource;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,7 +40,7 @@ public class DefaultOrderModificationSerialiserIntegrationTest extends Servicela
     private String orderCode;
 
     @Before
-    public void setup() throws JAXBException, WorldpayModelTransformationException {
+    public void setUp() throws WorldpayModelTransformationException {
         orderCode = String.valueOf(System.currentTimeMillis());
         final PaymentService paymentService = paymentServiceMarshaller.unmarshal(new ByteArrayInputStream(getXMLMessage().getBytes(StandardCharsets.UTF_8)));
         final OrderNotificationMessage orderNotificationMessage = orderNotificationRequestToMessageConverter.convert(paymentService);
@@ -49,7 +48,7 @@ public class DefaultOrderModificationSerialiserIntegrationTest extends Servicela
     }
 
     @Test
-    public void testSerialise() throws Exception {
+    public void testSerialise() {
         final List<WorldpayOrderModificationModel> unprocessedOrderModificationsByType = orderModificationDao.findUnprocessedOrderModificationsByType(AUTHORIZATION);
         assertEquals(1, unprocessedOrderModificationsByType.size());
         assertTrue(unprocessedOrderModificationsByType.get(0).getOrderNotificationMessage().contains(orderCode));

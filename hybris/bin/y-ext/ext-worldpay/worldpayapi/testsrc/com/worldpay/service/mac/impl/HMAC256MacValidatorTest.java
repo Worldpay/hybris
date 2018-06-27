@@ -1,20 +1,19 @@
 package com.worldpay.service.mac.impl;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @UnitTest
 public class HMAC256MacValidatorTest {
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
     private final HMAC256MacValidator testObj = new HMAC256MacValidator();
@@ -22,14 +21,14 @@ public class HMAC256MacValidatorTest {
     @Test
     public void testSha256Valid() throws WorldpayMacValidationException {
 
-        final boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "856ff737b2987f21513b91992818d983ce9fed97847b15756c56493a23090415", "1400", "GBP", "AUTHORISED", "@p-p1epie");
+        final boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "856ff737b2987f21513b91992818d983ce9fed97847b15756c56493a23090415", "1400", "GBP", AuthorisedStatus.AUTHORISED, "@p-p1epie");
         assertTrue("Mac validation code correct", result);
     }
 
     @Test
     public void testSha256Invalid() throws WorldpayMacValidationException {
 
-        final boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "856ff737b2987f21513b91992818d983ce9fed97847b15756c56493a23090416", "1400", "GBP", "AUTHORISED", "@p-p1epie");
+        final boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "856ff737b2987f21513b91992818d983ce9fed97847b15756c56493a23090416", "1400", "GBP", AuthorisedStatus.AUTHORISED, "@p-p1epie");
         assertFalse("Mac validation code incorrect", result);
     }
 

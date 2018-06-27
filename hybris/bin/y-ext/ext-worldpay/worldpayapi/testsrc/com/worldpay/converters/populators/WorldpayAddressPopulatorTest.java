@@ -36,7 +36,7 @@ public class WorldpayAddressPopulatorTest {
     private AddressModel sourceMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(sourceMock.getLine1()).thenReturn(LINE_1);
         when(sourceMock.getLine2()).thenReturn(LINE_2);
         when(sourceMock.getTown()).thenReturn(TOWN);

@@ -27,7 +27,6 @@ import static com.worldpay.worldpayresponsemock.controllers.pages.WorldpayOrderM
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 
@@ -92,7 +91,7 @@ public class WorldpayOrderModificationMockControllerTest {
     private Set<String> merchantSet;
 
     @Before
-    public void setup() throws WorldpayException {
+    public void setUp() throws WorldpayException {
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(isoResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
         when(responseFormMock.getTestCreditCard()).thenReturn(CREDIT_CARD_NUMBER);
@@ -129,7 +128,7 @@ public class WorldpayOrderModificationMockControllerTest {
         final String result = testObj.sendResponse(responseFormMock, modelMock, requestMock);
 
         assertEquals(RESPONSES, result);
-        verify(worldpayMockConnectorMock).sendResponse(responseFormMock, requestMock, SOME_RESPONSE);
+        verify(worldpayMockConnectorMock).sendResponse(requestMock, SOME_RESPONSE);
         verify(apmConfigurationLookupServiceMock).getAllApmPaymentTypeCodes();
         verify(responseFormMock).setResponseDescription(RESPONSE_DESCRIPTION);
         verify(modelMock).put(eq(PAYMENT_METHOD_APMS), anySetOf(String.class));

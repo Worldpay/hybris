@@ -36,7 +36,7 @@ public class WorldpayOrderStatusDisplayDynamicAttributeHandlerTest {
     private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         final Map<String, String> statusDisplayMap = new HashMap<>();
         statusDisplayMap.put(APM_OPEN, APM_OPEN_VALUE);
         testObj.setStatusDisplayMap(statusDisplayMap);

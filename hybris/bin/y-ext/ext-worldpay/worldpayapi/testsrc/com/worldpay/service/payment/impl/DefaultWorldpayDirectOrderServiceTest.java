@@ -44,7 +44,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
@@ -143,7 +143,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private AddressService addressServiceMock;
 
     @Before
-    public void setup() throws WorldpayException {
+    public void setUp() throws WorldpayException {
         doReturn(commerceCheckoutParameterMock).when(testObj).createCommerceCheckoutParameter(cartModelMock, creditCardPaymentInfoModelMock, BigDecimal.TEN.setScale(2, BigDecimal.ROUND_CEILING));
         when(cartModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
         when(cseAdditionalAuthInfoMock.getStatementNarrative()).thenReturn(STATEMENT_NARRATIVE);

@@ -10,6 +10,7 @@ import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.returns.ReturnService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
 import javax.annotation.Resource;
 
@@ -21,7 +22,6 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Back Office action for performing Order returns
@@ -61,7 +61,7 @@ public class WorldpayCreateReturnRequestAction extends AbstractComponentWidgetAd
     protected boolean isReturnable(final OrderModel order) {
         final boolean nonNullOrder = nonNull(order) && nonNull(order.getEntries()) && nonNull(order.getConsignments());
         return nonNullOrder && order.getConsignments().stream().anyMatch(
-                consignment -> consignment.getStatus().equals(SHIPPED) || consignment.getStatus().equals(PICKUP_COMPLETE)) && !isEmpty(returnService.getAllReturnableEntries(order));
+                consignment -> consignment.getStatus().equals(SHIPPED) || consignment.getStatus().equals(PICKUP_COMPLETE)) && !MapUtils.isEmpty(returnService.getAllReturnableEntries(order));
     }
 
     protected boolean isRefundable(final OrderModel orderModel) {

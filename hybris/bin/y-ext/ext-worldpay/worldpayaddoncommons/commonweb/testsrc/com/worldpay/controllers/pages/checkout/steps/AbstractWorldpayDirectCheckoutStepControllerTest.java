@@ -3,7 +3,6 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.payment.TransactionStatus;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.service.WorldpayUrlService;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -25,14 +24,14 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AbstractWorldpayDirectCheckoutStepControllerTest {
 
     private static final String SECURE_TERM_URL = "termUrl";
     private static final String ORDER_CODE = "orderCode";
     private static final String RETURN_CODE = "A12";
     private static final String LOCALISED_DECLINE_MESSAGE = "localisedDeclineMessage";
-    private static final String ERROR = "error";
+    private static final String ERROR_VIEW = "error";
     private static final String AUTOSUBMIT_3DSECURE = "AutoSubmit3DSecure";
 
     @Spy
@@ -54,7 +53,7 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @Before
-    public void setup() {
+    public void setUp() {
         doReturn(LOCALISED_DECLINE_MESSAGE).when(testObj).getLocalisedDeclineMessage(RETURN_CODE);
         when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
         when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
@@ -89,22 +88,22 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
 
         final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock);
 
-        assertEquals(ERROR, result);
+        assertEquals(ERROR_VIEW, result);
     }
 
     @Test
     public void shouldRedirectToErrorIfResponseIsNotAuthorisedOrAuthRequired() throws CMSItemNotFoundException, WorldpayConfigurationException {
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR);
+        when(directResponseDataMock.getTransactionStatus()).thenReturn(ERROR);
 
         final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock);
 
-        assertEquals(ERROR, result);
+        assertEquals(ERROR_VIEW, result);
     }
 
     public class TestAbstractWorldpayDirectCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
         @Override
-        protected String getErrorView(final Model model) throws CMSItemNotFoundException {
-            return ERROR;
+        protected String getErrorView(final Model model) {
+            return ERROR_VIEW;
         }
     }
 }

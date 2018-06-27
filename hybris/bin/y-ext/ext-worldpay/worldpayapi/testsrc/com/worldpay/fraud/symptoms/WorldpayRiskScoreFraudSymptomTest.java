@@ -18,26 +18,27 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayRiskScoreFraudSymptomTest {
 
-    public static final String CONFIGURED_LIMIT = "40";
+    private static final String CONFIGURED_LIMIT = "40";
 
     @InjectMocks
-    private WorldpayRiskScoreFraudSymptom testObj = new WorldpayRiskScoreFraudSymptom();
+    private WorldpayRiskScoreFraudSymptom testObj;
+
     @Mock
     private OrderModel orderModelMock;
     @Mock
     private PaymentTransactionModel worldpayPaymentAuthoriseTransactionModelMock;
     @Mock
     private WorldpayRiskScoreModel worldpayRiskScoreModelMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
 
     private final Double configuredLimitValue = Double.valueOf(CONFIGURED_LIMIT);
@@ -57,9 +58,9 @@ public class WorldpayRiskScoreFraudSymptomTest {
         final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(StringUtils.EMPTY);
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(positiveRiskScoreValue, fraudServiceResponse.getScore());
-        assertEquals(positiveRiskScoreValue, fraudServiceResponse.getSymptoms().get(0).getScore());
-        assertEquals(positiveRiskScoreValue, testObj.getIncrement());
+        assertEquals(positiveRiskScoreValue, fraudServiceResponse.getScore(), 0.0);
+        assertEquals(positiveRiskScoreValue, fraudServiceResponse.getSymptoms().get(0).getScore(), 0.0);
+        assertEquals(positiveRiskScoreValue, testObj.getIncrement(), 0.0);
         verify(worldpayRiskScoreModelMock).getValue();
     }
 
@@ -74,7 +75,7 @@ public class WorldpayRiskScoreFraudSymptomTest {
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0D, fraudServiceResponse.getScore());
+        assertEquals(0D, fraudServiceResponse.getScore(), 0.0);
         assertEquals(Collections.emptyList(), fraudServiceResponse.getSymptoms());
         verify(worldpayRiskScoreModelMock).getValue();
     }
@@ -88,7 +89,7 @@ public class WorldpayRiskScoreFraudSymptomTest {
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0D, fraudServiceResponse.getScore());
+        assertEquals(0D, fraudServiceResponse.getScore(), 0.0);
         assertEquals(Collections.emptyList(), fraudServiceResponse.getSymptoms());
         verify(worldpayRiskScoreModelMock).getValue();
     }
@@ -102,7 +103,7 @@ public class WorldpayRiskScoreFraudSymptomTest {
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0D, fraudServiceResponse.getScore());
+        assertEquals(0D, fraudServiceResponse.getScore(), 0.0);
         assertEquals(Collections.emptyList(), fraudServiceResponse.getSymptoms());
         verify(worldpayRiskScoreModelMock).getValue();
     }
@@ -115,6 +116,6 @@ public class WorldpayRiskScoreFraudSymptomTest {
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0d, fraudServiceResponse.getScore());
+        assertEquals(0d, fraudServiceResponse.getScore(), 0.0);
     }
 }

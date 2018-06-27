@@ -23,8 +23,8 @@ public class KlarnaPayment extends AbstractPayment {
     }
 
     @Override
-    public void invokeSetter(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        String methodName = method.getName();
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
+        final String methodName = method.getName();
         if (methodName.startsWith("set")) {
             if ("setPurchaseCountry".equals(methodName) && purchaseCountry != null) {
                 method.invoke(targetObject, purchaseCountry);

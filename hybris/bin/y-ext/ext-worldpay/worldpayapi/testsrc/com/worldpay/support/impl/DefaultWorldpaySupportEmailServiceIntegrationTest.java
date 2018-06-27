@@ -32,7 +32,7 @@ public class DefaultWorldpaySupportEmailServiceIntegrationTest extends Servicela
     private ConfigurationService configurationService;
 
     @Before
-    public void setup() {
+    public void setUp() {
         configurationService.getConfiguration().addProperty("worldpay.addon.version", "testCommitId");
     }
 

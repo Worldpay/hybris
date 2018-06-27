@@ -41,6 +41,7 @@ public final class TokenBuilder {
 
     /**
      * Factory method to create a builder
+     *
      * @return an Token builder object
      */
     public static TokenBuilder aTokenBuilder() {
@@ -49,30 +50,33 @@ public final class TokenBuilder {
 
     /**
      * Build with this given value
+     *
      * @param authenticatedShopperId
      * @return this builder
      */
-    public TokenBuilder withAuthenticatedShopperId(String authenticatedShopperId) {
+    public TokenBuilder withAuthenticatedShopperId(final String authenticatedShopperId) {
         this.authenticatedShopperId = authenticatedShopperId;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param tokenReasonValue
      * @return this builder
      */
-    public TokenBuilder withTokenReason(String tokenReasonValue) {
+    public TokenBuilder withTokenReason(final String tokenReasonValue) {
         this.tokenReasonValue = tokenReasonValue;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param cardAddress
      * @return this builder
      */
-    public TokenBuilder withCardAddress(Address cardAddress) {
+    public TokenBuilder withCardAddress(final Address cardAddress) {
         this.cardAddress = cardAddress;
         return this;
     }
@@ -80,32 +84,35 @@ public final class TokenBuilder {
 
     /**
      * Build with these given values
+     *
      * @param day
      * @param month
      * @param year
      * @return this builder
      */
-    public TokenBuilder withTokenExpiryDate(String day, String month, String year) {
+    public TokenBuilder withTokenExpiryDate(final String day, final String month, final String year) {
         tokenExpiryDate = buildDate(day, month, year);
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param tokenId
      * @return this builder
      */
-    public TokenBuilder withTokenId(String tokenId) {
+    public TokenBuilder withTokenId(final String tokenId) {
         this.tokenId = tokenId;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param tokenReasonForTokenDetails
      * @return this builder
      */
-    public TokenBuilder withTokenDetailsTokenReason(String tokenReasonForTokenDetails) {
+    public TokenBuilder withTokenDetailsTokenReason(final String tokenReasonForTokenDetails) {
         this.tokenReasonForTokenDetails = tokenReasonForTokenDetails;
         return this;
     }
@@ -113,91 +120,100 @@ public final class TokenBuilder {
 
     /**
      * Build with this given value
+     *
      * @param tokenDetailsTokenEventReference
      * @return this builder
      */
-    public TokenBuilder withTokenDetailsTokenEventReference(String tokenDetailsTokenEventReference) {
+    public TokenBuilder withTokenDetailsTokenEventReference(final String tokenDetailsTokenEventReference) {
         this.tokenDetailsTokenEventReference = tokenDetailsTokenEventReference;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param tokenEvent
      * @return this builder
      */
-    public TokenBuilder withTokenEvent(String tokenEvent) {
+    public TokenBuilder withTokenEvent(final String tokenEvent) {
         this.tokenEvent = tokenEvent;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param tokenEventReference
      * @return this builder
      */
-    public TokenBuilder withTokenEventReference(String tokenEventReference) {
+    public TokenBuilder withTokenEventReference(final String tokenEventReference) {
         this.tokenEventReference = tokenEventReference;
         return this;
     }
 
     /**
      * Build with these given values
+     *
      * @param month
      * @param year
      * @return this builder
      */
-    public TokenBuilder withCardExpiryDate(String month, String year) {
+    public TokenBuilder withCardExpiryDate(final String month, final String year) {
         cardExpiryDate = buildDate(null, month, year);
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param cardHolderName
      * @return this builder
      */
-    public TokenBuilder withCardHolderName(String cardHolderName) {
+    public TokenBuilder withCardHolderName(final String cardHolderName) {
         this.cardHolderNameValue = cardHolderName;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param obfuscatedPAN
      * @return this builder
      */
-    public TokenBuilder withObfuscatedPAN(String obfuscatedPAN) {
+    public TokenBuilder withObfuscatedPAN(final String obfuscatedPAN) {
         this.obfuscatedPAN = obfuscatedPAN;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param cardBrand
      * @return this builder
      */
-    public TokenBuilder withCardBrand(String cardBrand) {
+    public TokenBuilder withCardBrand(final String cardBrand) {
         this.cardBrand = cardBrand;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param cardSubBrand
      * @return this builder
      */
-    public TokenBuilder withCardSubBrand(String cardSubBrand) {
+    public TokenBuilder withCardSubBrand(final String cardSubBrand) {
         this.cardSubBrand = cardSubBrand;
         return this;
     }
 
     /**
      * Build with this given value
+     *
      * @param issuerCountryCode
      * @return this builder
      */
-    public TokenBuilder withIssuerCountryCode(String issuerCountryCode) {
+    public TokenBuilder withIssuerCountryCode(final String issuerCountryCode) {
         this.issuerCountryCode = issuerCountryCode;
         return this;
     }
@@ -205,12 +221,11 @@ public final class TokenBuilder {
 
     /**
      * Build the Token object based on the builders internal state
+     *
      * @return the internal Address model
      */
     public Token build() {
-        notNull(authenticatedShopperId, "A token must contain an authenticated shopper Id");
-
-        Token token = new Token();
+        final Token token = new Token();
 
         final TokenDetails tokenDetails = new TokenDetails();
         final TokenReason tokenDetailsReason = new TokenReason();
@@ -272,8 +287,8 @@ public final class TokenBuilder {
         return token;
     }
 
-    private Date buildDate(String day, String month, String year) {
-        Date date = new Date();
+    private Date buildDate(final String day, final String month, final String year) {
+        final Date date = new Date();
         date.setDayOfMonth(day);
         date.setMonth(month);
         date.setYear(year);

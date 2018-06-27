@@ -27,7 +27,7 @@ public abstract class AbstractPayment implements Payment, Serializable {
             }
 
             return instance;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new WorldpayModelTransformationException("Exception while attempting to transform Card", e);
         }
     }
@@ -40,11 +40,10 @@ public abstract class AbstractPayment implements Payment, Serializable {
      *
      * @param method       Method that can be invoked on the internal model object targetObject
      * @param targetObject internal model object that we are trying to transform to
-     * @throws IllegalArgumentException  if the method is invoked with incorrect parameters
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    public abstract void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException;
+    public abstract void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException;
 
     @Override
     public PaymentType getPaymentType() {

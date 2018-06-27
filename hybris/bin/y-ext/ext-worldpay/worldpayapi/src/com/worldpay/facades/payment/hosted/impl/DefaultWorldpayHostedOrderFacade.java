@@ -92,7 +92,7 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
         final OrderInquiryServiceResponse inquiryResponse = orderInquiryService.inquireOrder(merchantInfo, worldpayOrderCode);
         final PaymentReply paymentReply = inquiryResponse.getPaymentReply();
         final RedirectAuthoriseResult redirectAuthoriseResult = new RedirectAuthoriseResult();
-        redirectAuthoriseResult.setPaymentStatus(paymentReply.getAuthStatus().getCode());
+        redirectAuthoriseResult.setPaymentStatus(paymentReply.getAuthStatus());
         final int paymentExponent = Integer.parseInt(paymentReply.getAmount().getExponent());
         final BigDecimal paymentAmount = new BigDecimal(paymentReply.getAmount().getValue()).movePointLeft(paymentExponent);
         redirectAuthoriseResult.setPaymentAmount(paymentAmount);

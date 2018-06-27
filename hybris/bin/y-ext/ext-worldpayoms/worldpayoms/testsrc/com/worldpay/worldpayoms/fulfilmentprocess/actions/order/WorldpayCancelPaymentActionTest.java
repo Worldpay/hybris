@@ -1,15 +1,5 @@
 package com.worldpay.worldpayoms.fulfilmentprocess.actions.order;
 
-import static com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction.Transition.NOK;
-import static com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction.Transition.OK;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -25,6 +15,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction.Transition.NOK;
+import static com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction.Transition.OK;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -51,13 +49,13 @@ public class WorldpayCancelPaymentActionTest {
     @Before
     public void setUp() {
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
-        when(orderModelMock.getPaymentTransactions()).thenReturn(Collections.singletonList(paymentTransactionModelMock));
-        when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(Collections.singletonList(paymentTransactionEntryModelMock));
+        when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(paymentTransactionModelMock));
+        when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(singletonList(paymentTransactionEntryModelMock));
         when(paymentServiceMock.cancel(paymentTransactionEntryModelMock)).thenReturn(cancellationPaymentTransactionEntryModelMock);
     }
 
     @Test
-    public void testExecuteShouldReturnOKWhenCancelIsSuccessful() throws Exception {
+    public void testExecuteShouldReturnOKWhenCancelIsSuccessful() {
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatusDetails()).thenReturn(TransactionStatusDetails.SUCCESFULL.name());
 
@@ -67,7 +65,7 @@ public class WorldpayCancelPaymentActionTest {
     }
 
     @Test
-    public void testExecuteShouldReturnNOKWhenCancelIsNotSuccessful() throws Exception {
+    public void testExecuteShouldReturnNOKWhenCancelIsNotSuccessful() {
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR.name());
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatusDetails()).thenReturn(TransactionStatusDetails.COMMUNICATION_PROBLEM.name());
 
@@ -77,7 +75,7 @@ public class WorldpayCancelPaymentActionTest {
     }
 
     @Test
-    public void testExecuteShouldReturnNOKWhenOrderHasNoTransactions() throws Exception {
+    public void testExecuteShouldReturnNOKWhenOrderHasNoTransactions() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(emptyList());
 
         final String result = testObj.execute(orderProcessModelMock);
@@ -87,7 +85,7 @@ public class WorldpayCancelPaymentActionTest {
 
 
     @Test
-    public void testExecuteShouldReturnNOKWhenOrderNullTransaction() throws Exception {
+    public void testExecuteShouldReturnNOKWhenOrderNullTransaction() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(null));
 
         final String result = testObj.execute(orderProcessModelMock);
@@ -96,7 +94,7 @@ public class WorldpayCancelPaymentActionTest {
     }
 
     @Test
-    public void testExecuteShouldReturnNOKWhenOrderHasNoTransactionEntries() throws Exception {
+    public void testExecuteShouldReturnNOKWhenOrderHasNoTransactionEntries() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(emptyList());
 
         final String result = testObj.execute(orderProcessModelMock);
@@ -105,7 +103,7 @@ public class WorldpayCancelPaymentActionTest {
     }
 
     @Test
-    public void testExecuteShouldReturnNOKWhenOrderHasNullTransactionEntry() throws Exception {
+    public void testExecuteShouldReturnNOKWhenOrderHasNullTransactionEntry() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(singletonList(null));
 
         final String result = testObj.execute(orderProcessModelMock);

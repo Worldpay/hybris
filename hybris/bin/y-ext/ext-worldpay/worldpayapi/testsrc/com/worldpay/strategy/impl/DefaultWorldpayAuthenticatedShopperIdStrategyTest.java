@@ -23,7 +23,7 @@ public class DefaultWorldpayAuthenticatedShopperIdStrategyTest {
     private static final String ORIGINAL_UID = "originalUid";
 
     @InjectMocks
-    private DefaultWorldpayAuthenticatedShopperIdStrategy testObj = new DefaultWorldpayAuthenticatedShopperIdStrategy();
+    private DefaultWorldpayAuthenticatedShopperIdStrategy testObj;
 
     @Mock
     private CustomerModel customerModelMock;
@@ -31,8 +31,8 @@ public class DefaultWorldpayAuthenticatedShopperIdStrategyTest {
     @Mock
     private UserModel userModelMock;
 
-    @SuppressWarnings("PMD")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
