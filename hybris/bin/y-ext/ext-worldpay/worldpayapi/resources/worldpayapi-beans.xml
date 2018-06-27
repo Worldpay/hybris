@@ -26,31 +26,59 @@
         <value>MOCK</value>
     </enum>
 
+    <enum class="com.worldpay.enums.order.DynamicInteractionType">
+        <value>ECOMMERCE</value>
+        <value>MOTO</value>
+        <value>CONT_AUTH</value>
+        <value>PRESENT</value>
+        <value>UNATTENDED</value>
+    </enum>
+
+    <enum class="com.worldpay.enums.order.AuthorisedStatus">
+        <value>SIGNED_FORM_RECEIVED</value>
+        <value>SENT_FOR_AUTHORISATION</value>
+        <value>AUTHORISED</value>
+        <value>REFUSED</value>
+        <value>ERROR</value>
+        <value>CANCELLED</value>
+        <value>EXPIRED</value>
+        <value>CAPTURED</value>
+        <value>SENT_FOR_REFUND</value>
+        <value>SETTLED</value>
+        <value>CHARGED_BACK</value>
+        <value>REFUNDED</value>
+        <value>OPEN</value>
+        <value>REFUND_WEBFORM_ISSUED</value>
+        <value>SHOPPER_REDIRECTED</value>
+        <value>FAILURE</value>
+    </enum>
+
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
         </property>
     </bean>
 
-	<bean class="com.worldpay.hostedorderpage.data.RedirectAuthoriseResult">
-		<property name="orderKey" type="java.lang.String"/>
-		<property name="orderCode" type="java.lang.String"/>
-		<property name="paymentStatus" type="java.lang.String"/>
-		<property name="pending" type="java.lang.Boolean"/>
-		<property name="saveCard" type="java.lang.Boolean"/>
+    <bean class="com.worldpay.hostedorderpage.data.RedirectAuthoriseResult">
+        <property name="orderKey" type="java.lang.String"/>
+        <property name="orderCode" type="java.lang.String"/>
+        <property name="paymentStatus" type="com.worldpay.enums.order.AuthorisedStatus"/>
+        <property name="pending" type="java.lang.Boolean"/>
+        <property name="saveCard" type="java.lang.Boolean"/>
         <property name="paymentAmount" type="java.math.BigDecimal"/>
-	</bean>
+    </bean>
 
     <bean class="com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult"
           extends="com.worldpay.hostedorderpage.data.RedirectAuthoriseResult">
         <property name="decodedHTMLContent" type="java.lang.String"/>
     </bean>
-    
-    <bean class="com.worldpay.order.data.WorldpayCCPaymentInfoData" extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
+
+    <bean class="com.worldpay.order.data.WorldpayCCPaymentInfoData"
+          extends="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
         <property name="debugMode" type="boolean"/>
         <property name="additionalInfo" type="com.worldpay.order.data.WorldpayAdditionalInfoData"/>
     </bean>
-    
+
     <bean class="com.worldpay.order.data.WorldpayAdditionalInfoData">
         <property name="sessionId" type="java.lang.String"/>
         <property name="customerIPAddress" type="java.lang.String"/>
@@ -103,12 +131,5 @@
         <property name="bankName" type="java.lang.String"/>
     </bean>
 
-    <enum class="com.worldpay.enums.order.DynamicInteractionType">
-        <value>ECOMMERCE</value>
-        <value>MOTO</value>
-        <value>CONT_AUTH</value>
-        <value>PRESENT</value>
-        <value>UNATTENDED</value>
-    </enum>
 
 </beans>

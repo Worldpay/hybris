@@ -32,7 +32,7 @@ public class WorldpayAavResponsePopulatorTest {
     private WorldpayAavResponseModel worldpayAavResponseModel;
 
     @Before
-    public void setup() {
+    public void setUp() {
         worldpayAavResponseModel = new WorldpayAavResponseModel();
         when(paymentReplyMock.getAavAddressResultCode()).thenReturn(AAV_ADDRESS_RESULT_CODE);
         when(paymentReplyMock.getAavCardholderNameResultCode()).thenReturn(AAV_CARDHOLDER_NAME_RESULT_CODE);

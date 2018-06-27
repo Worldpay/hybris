@@ -43,11 +43,13 @@ import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaym
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SAVE_PAYMENT_INFO;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SHOPPER_BANK_CODE;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.*;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -123,7 +125,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private AdditionalAuthInfo additionalAuthInfoMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() throws Exception {
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), anyString());
 
         when(cmsPageServiceMock.getPageForLabelOrId(anyString())).thenReturn(contentPageModelMock);
@@ -180,7 +182,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testEnterStepRedirectToHopPageIfNotBankTransferPayment() throws CMSItemNotFoundException, WorldpayException {
+    public void testEnterStepRedirectToHopPageIfNotBankTransferPayment() throws CMSItemNotFoundException {
         doReturn(false).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_VALUE);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_VALUE);
 
@@ -197,7 +199,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
 
-        assertEquals(WorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD, result);
+        assertEquals(REDIRECT_URL_CHOOSE_PAYMENT_METHOD, result);
     }
 
     @Test

@@ -23,9 +23,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequest;
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForMerchantToken;
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +48,8 @@ public class CreateTokenRequestTransformerTest {
     private static final String AUTH_SHOPPER_ID = "authShopperID";
     private static final String ENCRYPTED_DATA = "encryptedData";
     private static final Payment PAYMENT = PaymentBuilder.createCSE(ENCRYPTED_DATA, BILLING_ADDRESS);
-    private static final TokenRequest TOKEN_REQUEST = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON);
+    private static final TokenRequest TOKEN_REQUEST_SHOPPER = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON);
+    private static final TokenRequest TOKEN_REQUEST_MERCHANT = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON, true);
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -71,8 +74,8 @@ public class CreateTokenRequestTransformerTest {
     }
 
     @Test
-    public void transformShouldCreatePaymentServiceRequest() throws WorldpayModelTransformationException {
-        final ServiceRequest serviceRequest = createTokenRequest(MERCHANT_INFO, AUTH_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
+    public void transformShouldCreatePaymentServiceRequestUsingShopperToken() throws WorldpayModelTransformationException {
+        final ServiceRequest serviceRequest = createTokenRequestForShopperToken(MERCHANT_INFO, AUTH_SHOPPER_ID, PAYMENT, TOKEN_REQUEST_SHOPPER);
         final PaymentService result = testObj.transform(serviceRequest);
 
         final Submit submit = (Submit) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
@@ -85,5 +88,24 @@ public class CreateTokenRequestTransformerTest {
         assertEquals(TOKEN_REASON, paymentTokenCreate.getCreateToken().getTokenReason().getvalue());
         assertEquals(ENCRYPTED_DATA, cseData.getEncryptedData());
         assertThat(BILLING_ADDRESS.transformToInternalModel(), samePropertyValuesAs(cseData.getCardAddress().getAddress()));
+        assertEquals("shopper", paymentTokenCreate.getCreateToken().getTokenScope());
+    }
+
+    @Test
+    public void transformShouldCreatePaymentServiceRequestUsingMerchantToken() throws WorldpayModelTransformationException {
+        final ServiceRequest serviceRequest = createTokenRequestForMerchantToken(MERCHANT_INFO, PAYMENT, TOKEN_REQUEST_MERCHANT);
+        final PaymentService result = testObj.transform(serviceRequest);
+
+        final Submit submit = (Submit) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+        final CSEDATA cseData = (CSEDATA) paymentTokenCreate.getPaymentInstrumentOrCSEDATA().get(0);
+
+        assertEquals(MERCHANT_INFO.getMerchantCode(), result.getMerchantCode());
+        assertNull(paymentTokenCreate.getAuthenticatedShopperID());
+        assertEquals(TOKEN_REFERENCE, paymentTokenCreate.getCreateToken().getTokenEventReference());
+        assertEquals(TOKEN_REASON, paymentTokenCreate.getCreateToken().getTokenReason().getvalue());
+        assertEquals(ENCRYPTED_DATA, cseData.getEncryptedData());
+        assertThat(BILLING_ADDRESS.transformToInternalModel(), samePropertyValuesAs(cseData.getCardAddress().getAddress()));
+        assertEquals("merchant", paymentTokenCreate.getCreateToken().getTokenScope());
     }
 }

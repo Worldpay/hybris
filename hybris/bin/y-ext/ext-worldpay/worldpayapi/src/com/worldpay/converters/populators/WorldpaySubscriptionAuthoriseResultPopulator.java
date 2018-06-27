@@ -1,8 +1,8 @@
 package com.worldpay.converters.populators;
 
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.ErrorDetail;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;

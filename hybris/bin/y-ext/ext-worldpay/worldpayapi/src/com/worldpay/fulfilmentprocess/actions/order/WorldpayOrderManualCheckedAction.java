@@ -46,7 +46,7 @@ public class WorldpayOrderManualCheckedAction extends WorldpayAbstractOrderActio
             final OrderHistoryEntryModel historyLog = createHistoryLog(
                     "Order Manually checked by CSA - Fraud = " + order.getFraudulent(), order);
             modelService.save(historyLog);
-            if (order.getFraudulent().booleanValue()) {
+            if (order.getFraudulent()) {
                 setOrderStatus(order, OrderStatus.SUSPENDED);
                 return Transition.NOK.toString();
             }

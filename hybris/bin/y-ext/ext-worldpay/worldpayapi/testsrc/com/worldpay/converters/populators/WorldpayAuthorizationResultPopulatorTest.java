@@ -1,7 +1,6 @@
 package com.worldpay.converters.populators;
 
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.ErrorDetail;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
@@ -14,9 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.ERROR;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +67,7 @@ public class WorldpayAuthorizationResultPopulatorTest {
 
     @Test
     public void populateShouldSetErrorAndUGeneralSystemErrorWhenDirectAuthoriseServiceResponseError() {
-        when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.ERROR);
+        when(paymentReplyMock.getAuthStatus()).thenReturn(ERROR);
 
         final AuthorizationResult result = new AuthorizationResult();
         testObj.populate(directAuthoriseServiceResponseMock, result);

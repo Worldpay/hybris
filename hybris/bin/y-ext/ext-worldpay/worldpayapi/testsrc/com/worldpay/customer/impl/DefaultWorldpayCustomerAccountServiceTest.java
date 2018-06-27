@@ -46,7 +46,7 @@ public class DefaultWorldpayCustomerAccountServiceTest {
     private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock;
 
     @Before
-    public void setup() throws WorldpayConfigurationException {
+    public void setUp() throws WorldpayConfigurationException {
         when(worldpayMerchantInfoService.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(customerModelMock.getPaymentInfos()).thenReturn(Collections.singletonList(creditCardPaymentInfoModelMock));
     }

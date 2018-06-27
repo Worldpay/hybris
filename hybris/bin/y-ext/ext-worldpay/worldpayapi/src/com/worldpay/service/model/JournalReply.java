@@ -1,5 +1,7 @@
 package com.worldpay.service.model;
 
+import com.worldpay.enums.order.AuthorisedStatus;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,6 @@ public class JournalReply implements Serializable {
      */
     @Override
     public String toString() {
-        return "JournalReply [journalType=" + journalType + ", bookingDate=" + bookingDate + ", accountTransactions=" + accountTransactions + "]";
+        return "JournalReply [journalType=" + journalType.name() + ", bookingDate=" + bookingDate + ", accountTransactions=" + accountTransactions + "]";
     }
 }

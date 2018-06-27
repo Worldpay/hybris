@@ -12,13 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.ERROR;
-import static com.worldpay.service.model.AuthorisedStatus.FAILURE;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.GENERAL_SYSTEM_ERROR;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.REVIEW_NEEDED;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.UNKNOWN_CODE;
+import static com.worldpay.enums.order.AuthorisedStatus.*;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +25,7 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
     private static final String ORDER_CODE = "orderCode";
 
     @InjectMocks
-    private DefaultWorldpayAuthorisationResultService testObj = new DefaultWorldpayAuthorisationResultService();
+    private DefaultWorldpayAuthorisationResultService testObj;
 
     @Mock
     private AbstractResult abstractResultMock;
@@ -42,7 +37,7 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
     private RedirectReference redirectReferenceMock;
 
     @Test
-    public void testSetAuthoriseResultAsError() throws Exception {
+    public void testSetAuthoriseResultAsError() {
         testObj.setAuthoriseResultAsError(abstractResultMock);
 
         verify(abstractResultMock).setTransactionStatus(TransactionStatus.ERROR);
@@ -50,7 +45,7 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
     }
 
     @Test
-    public void testSetAuthoriseResultERROR() throws Exception {
+    public void testSetAuthoriseResultERROR() {
         testObj.setAuthoriseResultByTransactionStatus(abstractResultMock, ERROR, ORDER_CODE);
 
         verify(abstractResultMock).setTransactionStatus(TransactionStatus.ERROR);
@@ -58,7 +53,7 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
     }
 
     @Test
-    public void testSetAuthoriseResultAUTHORISED() throws Exception {
+    public void testSetAuthoriseResultAUTHORISED() {
         testObj.setAuthoriseResultByTransactionStatus(abstractResultMock, AUTHORISED, ORDER_CODE);
 
         verify(abstractResultMock).setTransactionStatus(TransactionStatus.ACCEPTED);
@@ -66,7 +61,7 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
     }
 
     @Test
-    public void testSetAuthoriseResultOTHER() throws Exception {
+    public void testSetAuthoriseResultOTHER() {
         testObj.setAuthoriseResultByTransactionStatus(abstractResultMock, FAILURE, ORDER_CODE);
 
         verify(abstractResultMock).setTransactionStatus(TransactionStatus.REJECTED);
@@ -74,7 +69,7 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
     }
 
     @Test
-    public void testSetAuthorizeResultForAPM() throws Exception {
+    public void testSetAuthorizeResultForAPM() {
         when(directAuthoriseServiceResponseMock.getRedirectReference()).thenReturn(redirectReferenceMock);
         when(redirectReferenceMock.getValue()).thenReturn(REDIRECT_REFERENCE);
 

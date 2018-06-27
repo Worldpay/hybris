@@ -1,13 +1,6 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
-import com.worldpay.internal.model.Amount;
-import com.worldpay.internal.model.Capture;
-import com.worldpay.internal.model.CaptureReceived;
-import com.worldpay.internal.model.Modify;
-import com.worldpay.internal.model.Ok;
-import com.worldpay.internal.model.OrderModification;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.Reply;
+import com.worldpay.internal.model.*;
 import com.worldpay.worldpayresponsemock.responses.WorldpayCaptureResponseBuilder;
 
 /**
@@ -26,7 +19,7 @@ public class DefaultWorldpayCaptureResponseBuilder implements WorldpayCaptureRes
         final Capture captureRequest = (Capture) orderModification.
                 getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefund().get(0);
 
-        CaptureReceived capture = getCaptureReceived(orderModification.getOrderCode(), captureRequest.getAmount());
+        final CaptureReceived capture = getCaptureReceived(orderModification.getOrderCode(), captureRequest.getAmount());
 
         final Ok ok = new Ok();
         ok.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceived().add(capture);

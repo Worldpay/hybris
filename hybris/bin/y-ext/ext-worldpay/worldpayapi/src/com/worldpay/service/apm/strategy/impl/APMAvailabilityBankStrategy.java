@@ -5,6 +5,7 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.model.WorldpayBankConfigurationModel;
 import com.worldpay.service.apm.strategy.APMAvailabilityStrategy;
 import de.hybris.platform.core.model.order.CartModel;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
@@ -28,8 +29,7 @@ public class APMAvailabilityBankStrategy implements APMAvailabilityStrategy {
         if (!apmConfiguration.getBank()) {
             return true;
         } else {
-            final List<WorldpayBankConfigurationModel> activeBankConfigurationsForCode = worldpayBankConfigurationLookupService.getActiveBankConfigurationsForCode(apmConfiguration.getCode());
-            return !activeBankConfigurationsForCode.isEmpty();
+            return CollectionUtils.isNotEmpty(worldpayBankConfigurationLookupService.getActiveBankConfigurationsForCode(apmConfiguration.getCode()));
         }
     }
 

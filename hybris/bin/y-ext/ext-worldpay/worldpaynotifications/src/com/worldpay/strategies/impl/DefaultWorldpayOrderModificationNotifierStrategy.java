@@ -26,8 +26,8 @@ import static java.text.MessageFormat.format;
  */
 public class DefaultWorldpayOrderModificationNotifierStrategy implements WorldpayOrderModificationNotifierStrategy {
 
-    public static final String WORLDPAYADDON_ERRORS_UNPROCESSED_ORDERS = "worldpaynotifications.errors.unprocessed.orders";
-    public static final String WORLDPAYADDON_ERRORS_THERE_ARE_UNPROCESSED_ORDERS = "worldpaynotifications.errors.there.are.unprocessed.orders";
+    private static final String WORLDPAYNOTIFICATIONS_ERRORS_UNPROCESSED_ORDERS = "worldpaynotifications.errors.unprocessed.orders";
+    private static final String WORLDPAYNOTIFICATIONS_ERRORS_THERE_ARE_UNPROCESSED_ORDERS = "worldpaynotifications.errors.there.are.unprocessed.orders";
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayOrderModificationNotifierStrategy.class);
 
@@ -48,7 +48,7 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
         if (!unprocessedOrderModifications.isEmpty()) {
             for (final WorldpayOrderModificationModel worldpayOrderModificationModel : unprocessedOrderModifications) {
                 final String worldpayOrderCode = worldpayOrderModificationModel.getWorldpayOrderCode();
-                final String unprocessedOrderMessage = format("{0} for worldpay order: {1}", getL10nService().getLocalizedString(WORLDPAYADDON_ERRORS_UNPROCESSED_ORDERS), worldpayOrderCode);
+                final String unprocessedOrderMessage = format("{0} for worldpay order: {1}", getL10nService().getLocalizedString(WORLDPAYNOTIFICATIONS_ERRORS_UNPROCESSED_ORDERS), worldpayOrderCode);
                 getTicketBusinessService().createTicket(createParameters(unprocessedOrderMessage));
                 worldpayOrderModificationModel.setNotified(true);
                 modelService.save(worldpayOrderModificationModel);
@@ -62,7 +62,7 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
     private CsTicketParameter createParameters(final String creationNotes) {
         final CsTicketParameter parameters = new CsTicketParameter();
         parameters.setCreationNotes(creationNotes);
-        parameters.setHeadline(getL10nService().getLocalizedString(WORLDPAYADDON_ERRORS_THERE_ARE_UNPROCESSED_ORDERS));
+        parameters.setHeadline(getL10nService().getLocalizedString(WORLDPAYNOTIFICATIONS_ERRORS_THERE_ARE_UNPROCESSED_ORDERS));
         parameters.setCategory(CsTicketCategory.PROBLEM);
         parameters.setPriority(CsTicketPriority.HIGH);
         return parameters;

@@ -25,7 +25,7 @@ public class DefaultWorldpayMerchantConfigDataFacadeTest {
     private WorldpayMerchantStrategy worldpayMerchantStrategyMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(worldpayMerchantStrategyMock.getMerchant()).thenReturn(worldpayMerchantConfigDataMock);
     }
 

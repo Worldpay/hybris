@@ -74,7 +74,7 @@ public class WorldpayCreateReturnRequestActionTest {
     private ConsignmentModel consignmentModelMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         doNothing().when(testObj).sendOutput(anyString(),anyString());
         when(actionContextMock.getData()).thenReturn(orderModelMock);
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(paymentTransactionModelMock));
@@ -213,14 +213,14 @@ public class WorldpayCreateReturnRequestActionTest {
     }
 
     @Test
-    public void getConfirmationMessageShouldReturnLabel() throws Exception {
+    public void getConfirmationMessageShouldReturnLabel() {
         final String result = testObj.getConfirmationMessage(actionContextMock);
 
         assertNull(result);
     }
 
     @Test
-    public void needsConfirmationShouldReturnTrueIfModified() throws Exception {
+    public void needsConfirmationShouldReturnTrueIfModified() {
         final boolean result = testObj.needsConfirmation(actionContextMock);
 
         assertFalse(result);

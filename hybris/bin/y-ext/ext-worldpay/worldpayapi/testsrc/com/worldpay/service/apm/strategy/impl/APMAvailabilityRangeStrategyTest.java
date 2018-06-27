@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class APMAvailabilityRangeStrategyTest {
 
     @InjectMocks
-    private APMAvailabilityRangeStrategy testObj = new APMAvailabilityRangeStrategy();
+    private APMAvailabilityRangeStrategy testObj;
 
     @Mock
     private WorldpayAPMConfigurationModel apmConfigurationMock;
@@ -36,7 +36,7 @@ public class APMAvailabilityRangeStrategyTest {
     private WorldpayCurrencyRangeModel worldpayCurrencyRangeModelUkMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         final HashSet<WorldpayCurrencyRangeModel> worldpayCurrencyRangeModels = new HashSet<>();
         worldpayCurrencyRangeModels.add(worldpayCurrencyRangeModelUkMock);
 
@@ -63,7 +63,6 @@ public class APMAvailabilityRangeStrategyTest {
 
         assertTrue(result);
     }
-
 
     @Test
     public void isAvailableReturnsTrueIfApmConfigHasRangesButAreNotInTheCartCurrency() {

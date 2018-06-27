@@ -4,7 +4,11 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
+import com.worldpay.service.model.token.CardDetails;
+import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.service.request.CreateTokenServiceRequest;
+import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 
 import java.util.Currency;
@@ -89,9 +93,21 @@ public interface WorldpayOrderService {
     /**
      * @param tokenEventReference unique identifier for the token transaction
      * @param tokenReason         refers to the seller so they can be tracked to the site/web.
-     * @return Shopper object with an authenticatedShopperID
+     * @return Shopper object with an authenticatedShopperID and the assigned scope.
      */
     TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason);
+
+    /**
+     * Creates a CreateTokenServiceRequest. If merchant token is enabled, authenticatedShopperId is ignored and the create token request uses a null.
+     *
+     * @param merchantInfo
+     * @param authenticatedShopperId
+     * @param csePayment
+     * @param tokenRequest
+     * @return {@link CreateTokenServiceRequest}
+     */
+    CreateTokenServiceRequest createTokenServiceRequest(final MerchantInfo merchantInfo, final String authenticatedShopperId,
+                                                        final Payment csePayment, final TokenRequest tokenRequest);
 
     /**
      * Creates a payment element to be used in bank transfers
@@ -112,4 +128,25 @@ public interface WorldpayOrderService {
      */
     Payment createKlarnaPayment(final String countryCode, final String languageCode, final String extraMerchantData) throws WorldpayConfigurationException;
 
+    /**
+     * Creates token
+     * @param subscriptionId
+     * @param securityCode
+     * @return Token object
+     */
+    Token createToken(final String subscriptionId, final String securityCode);
+
+    /**
+     * Creates an UpdateTokenServiceRequest with merchant or shopper scope depending on the site configuration
+     *
+     * @param merchantInfo
+     * @param worldpayAdditionalInfoData
+     * @param tokenRequest
+     * @param paymentTokenID
+     * @param cardDetails
+     * @return
+     */
+    UpdateTokenServiceRequest createUpdateTokenServiceRequest(final MerchantInfo merchantInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                              final TokenRequest tokenRequest, final String paymentTokenID,
+                                                              final CardDetails cardDetails);
 }

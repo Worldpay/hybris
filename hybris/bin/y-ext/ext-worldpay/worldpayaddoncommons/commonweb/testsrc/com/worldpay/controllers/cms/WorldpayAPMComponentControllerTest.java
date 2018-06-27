@@ -41,7 +41,7 @@ public class WorldpayAPMComponentControllerTest {
     private APMAvailabilityFacade apmAvailabilityFacadeMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         doNothing().when(testObj).invokeSuperFillModel(requestMock, modelMock, componentMock);
         doNothing().when(testObj).invokeSuperFillModel(requestMock, modelMock, worldpayAPMComponentMock);
     }

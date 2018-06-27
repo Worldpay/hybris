@@ -1,5 +1,6 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
@@ -33,10 +34,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayResponseControllerTest {
 
-    private static final String STATUS_ERROR = "ERROR";
     private static final String COUNTRY_ISO_CODE = "GB";
     private static final String FIRST_NAME = "firstName";
     private static final String LAST_NAME = "lastName";
@@ -67,7 +67,7 @@ public class WorldpayResponseControllerTest {
     @Mock
     private Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverterMock;
     @Mock
-    private Set<String> apmErrorResponseStatusesMock;
+    private Set<AuthorisedStatus> apmErrorResponseStatusesMock;
     @Mock
     private CartData cartDataMock;
     @Mock
@@ -80,14 +80,14 @@ public class WorldpayResponseControllerTest {
     private ArgumentCaptor<PaymentDetailsForm> paymentDetailsFormArgumentCaptor;
     @Mock
     private OrderModel orderModelMock;
-    @Mock (name = "orderConverter")
+    @Mock(name = "orderConverter")
     private Converter<AbstractOrderModel, OrderData> orderConverterMock;
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     @Before
     public void setUp() {
-        when(apmErrorResponseStatusesMock.contains(STATUS_ERROR)).thenReturn(true);
+        when(apmErrorResponseStatusesMock.contains(AuthorisedStatus.ERROR)).thenReturn(true);
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(Boolean.TRUE);
         when(orderDataMock.getGuid()).thenReturn(ORDER_GUID);
         when(redirectAuthoriseResultConverterMock.convert(anyMapOf(String.class, String.class))).thenReturn(redirectAuthoriseResultMock);

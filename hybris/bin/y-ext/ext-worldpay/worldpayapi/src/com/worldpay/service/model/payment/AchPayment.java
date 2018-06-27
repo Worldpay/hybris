@@ -107,7 +107,7 @@ public class AchPayment extends AbstractPayment {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
         String methodName = method.getName();
         if ("getAuthenticationOrDepositOrValidationOrVerification".equals(methodName)) {
             List<Object> intAchType = (List<Object>) method.invoke(targetObject);

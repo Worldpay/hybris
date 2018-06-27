@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class DefaultAPMConfigurationLookupService implements APMConfigurationLookupService {
 
-    private static final org.apache.log4j.Logger LOG = Logger.getLogger(DefaultAPMConfigurationLookupService.class);
+    private static final Logger LOG = Logger.getLogger(DefaultAPMConfigurationLookupService.class);
 
     private WorldpayAPMConfigurationDao worldpayAPMConfigurationDao;
 

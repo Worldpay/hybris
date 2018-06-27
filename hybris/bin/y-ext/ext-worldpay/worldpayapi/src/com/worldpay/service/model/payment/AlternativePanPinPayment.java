@@ -36,7 +36,7 @@ public class AlternativePanPinPayment extends AlternativePayment {
     }
 
     @Override
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         String methodName = method.getName();
         if ("setPan".equals(methodName) && getPan() != null) {

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
@@ -11,7 +12,6 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.Request3DInfo;
@@ -30,7 +30,9 @@ import org.springframework.beans.factory.annotation.Required;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static com.worldpay.service.model.AuthorisedStatus.*;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.CANCELLED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static java.text.MessageFormat.format;
 
 /**

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayNotificationResponseBuilderTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
@@ -320,6 +320,22 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
         assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID());
         assertEquals(TOKEN_EVENT_REFERENCE_VALUE, token.getTokenEventReference());
+    }
+
+    @Test
+    public void shouldCreateAndPopulateTokenWithoutAuthenticatedShopperIdAndMerchantScope() throws WorldpayException {
+        when(responseFormMock.getSelectToken()).thenReturn(TOKEN);
+        when(responseFormMock.getAuthenticatedShopperId()).thenReturn("WeDontWantThisValue");
+        when(responseFormMock.isMerchantToken()).thenReturn(true);
+
+        testObj.buildResponse(responseFormMock);
+
+        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
+        final PaymentService paymentService = paymentServiceCaptor.getValue();
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final Token token = orderStatusEvent.getToken();
+        assertEquals(null, token.getAuthenticatedShopperID());
     }
 
     @Test

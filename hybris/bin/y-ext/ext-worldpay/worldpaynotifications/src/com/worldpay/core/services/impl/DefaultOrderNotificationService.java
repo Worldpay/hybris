@@ -2,8 +2,8 @@ package com.worldpay.core.services.impl;
 
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.OrderNotificationService;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import org.apache.log4j.Logger;
@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Map;
 
-import static java.lang.String.format;
+import static java.text.MessageFormat.format;
 
 /**
  * Default implementation of {@link OrderNotificationService}
@@ -33,7 +33,7 @@ public class DefaultOrderNotificationService implements OrderNotificationService
             orderNotificationProcessorStrategy.processNotificationMessage(paymentTransactionModel, orderNotificationMessage);
         } else {
             LOG.warn(format("Could not find notification processor for journal type code [{0}]. " +
-                    "It's either an unsupported journal type or there is a configuration problem.", journalTypeCode.getCode()));
+                    "It's either an unsupported journal type or there is a configuration problem.", journalTypeCode.name()));
         }
     }
 

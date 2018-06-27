@@ -35,7 +35,8 @@ import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.joda.time.DateTime.now;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * {@inheritDoc}
@@ -54,20 +55,19 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
 
     protected static final String TOKEN_UPDATED = "Token updated ";
     protected static final String TOKEN_DELETED = "Token deleted ";
-    protected static final String TOKEN_DATE_FORMAT = "YYYY-MM-dd";
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public CreateTokenServiceRequest buildTokenRequest(MerchantInfo merchantInfo, CartModel cartModel, CSEAdditionalAuthInfo cseAdditionalAuthInfo,
-                                                       WorldpayAdditionalInfoData worldpayAdditionalInfoData) {
+    public CreateTokenServiceRequest buildTokenRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                                       final WorldpayAdditionalInfoData worldpayAdditionalInfoData) {
 
         final Address billingAddress = getBillingAddress(cartModel, cseAdditionalAuthInfo);
         final String tokenEventReference = getWorldpayTokenEventReferenceCreationStrategy().createTokenEventReference();
         final TokenRequest tokenRequest = worldpayOrderService.createTokenRequest(tokenEventReference, null);
         final Cse csePayment = createCsePayment(cseAdditionalAuthInfo, billingAddress);
-        return createTokenRequest(merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), csePayment, tokenRequest);
+        return worldpayOrderService.createTokenServiceRequest(merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), csePayment, tokenRequest);
     }
 
     /**
@@ -77,16 +77,15 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     public UpdateTokenServiceRequest buildTokenUpdateRequest(final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
                                                              final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                              final CreateTokenResponse createTokenResponse) {
-        final TokenRequest tokenRequest = worldpayOrderService.createTokenRequest(
-                getWorldpayTokenEventReferenceCreationStrategy().createTokenEventReference(),
-                TOKEN_UPDATED + now().toString(TOKEN_DATE_FORMAT));
+        final String tokenReason = TOKEN_UPDATED + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
+        final TokenRequest tokenRequest = worldpayOrderService.createTokenRequest(getWorldpayTokenEventReferenceCreationStrategy().createTokenEventReference(), tokenReason);
 
         final String paymentTokenID = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
         final CardDetails cardDetails = new CardDetails();
         final Date expiryDate = new Date(cseAdditionalAuthInfo.getExpiryMonth(), cseAdditionalAuthInfo.getExpiryYear());
         cardDetails.setExpiryDate(expiryDate);
         cardDetails.setCardHolderName(cseAdditionalAuthInfo.getCardHolderName());
-        return createUpdateTokenServiceRequest(merchantInfo, worldpayAdditionalInfoData,
+        return worldpayOrderService.createUpdateTokenServiceRequest(merchantInfo, worldpayAdditionalInfoData,
                 tokenRequest, paymentTokenID, cardDetails);
     }
 
@@ -95,7 +94,8 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
      */
     @Override
     public DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel) {
-        final TokenRequest tokenRequest = worldpayOrderService.createTokenRequest(creditCardPaymentInfoModel.getEventReference(), TOKEN_DELETED + now().toString(TOKEN_DATE_FORMAT));
+        final String tokenReason = TOKEN_DELETED + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
+        final TokenRequest tokenRequest = worldpayOrderService.createTokenRequest(creditCardPaymentInfoModel.getEventReference(), tokenReason);
         return createDeleteTokenServiceRequest(merchantInfo, creditCardPaymentInfoModel, tokenRequest);
     }
 
@@ -108,7 +108,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final Amount amount = worldpayOrderService.createAmount(cartModel.getCurrency(), cartModel.getTotalPrice());
         final BasicOrderInfo orderInfo = worldpayOrderService.createBasicOrderInfo(orderCode, orderCode, amount);
 
-        final Token token = createToken(((CreditCardPaymentInfoModel) cartModel.getPaymentInfo()).getSubscriptionId(), worldpayAdditionalInfoData.getSecurityCode());
+        final Token token = worldpayOrderService.createToken(((CreditCardPaymentInfoModel) cartModel.getPaymentInfo()).getSubscriptionId(), worldpayAdditionalInfoData.getSecurityCode());
 
         final CustomerModel customerModel = (CustomerModel) cartModel.getUser();
 
@@ -186,7 +186,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final String authenticatedShopperId = worldpayAdditionalInfoData.getAuthenticatedShopperId();
         final String customerEmail = customerEmailResolutionService.getEmailForCustomer((CustomerModel) abstractOrderModel.getUser());
         final Shopper shopper = worldpayOrderService.createAuthenticatedShopper(customerEmail, authenticatedShopperId, session, browser);
-        final Token token = createToken(((CreditCardPaymentInfoModel) abstractOrderModel.getPaymentInfo()).getSubscriptionId(), worldpayAdditionalInfoData.getSecurityCode());
+        final Token token = worldpayOrderService.createToken(((CreditCardPaymentInfoModel) abstractOrderModel.getPaymentInfo()).getSubscriptionId(), worldpayAdditionalInfoData.getSecurityCode());
         final Address shippingAddress = worldpayAddressConverter.convert(worldpayDeliveryAddressStrategy.getDeliveryAddress(abstractOrderModel));
         final DynamicInteractionType dynamicInteractionType = worldpayDynamicInteractionResolverService.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoData);
         return createTokenisedDirectAuthoriseRequest(merchantInfo, orderInfo, token, shopper, shippingAddress, dynamicInteractionType);
@@ -233,12 +233,6 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return null;
     }
 
-    protected UpdateTokenServiceRequest createUpdateTokenServiceRequest(final MerchantInfo merchantInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                                        final TokenRequest tokenRequest, final String paymentTokenID,
-                                                                        final CardDetails cardDetails) {
-        return UpdateTokenServiceRequest.updateTokenRequest(merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), paymentTokenID, tokenRequest, cardDetails);
-    }
-
     protected DeleteTokenServiceRequest createDeleteTokenServiceRequest(final MerchantInfo merchantInfo,
                                                                         final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final TokenRequest tokenRequest) {
         return DeleteTokenServiceRequest.deleteTokenRequest(merchantInfo, creditCardPaymentInfoModel.getAuthenticatedShopperID(),
@@ -255,9 +249,6 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return DirectAuthoriseServiceRequest.createKlarnaDirectAuthoriseRequest(merchantInfo, orderInfo, payment, shopper, shopper.getSession(), shippingAddress, billingAddress, statementNarrative, orderLines, dynamicInteractionType);
     }
 
-    protected Token createToken(final String subscriptionId, final String securityCode) {
-        return PaymentBuilder.createToken(subscriptionId, securityCode);
-    }
 
     protected Cse createCsePayment(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final Address billingAddress) {
         return PaymentBuilder.createCSE(cseAdditionalAuthInfo.getEncryptedData(), billingAddress);
@@ -271,11 +262,6 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     protected DirectAuthoriseServiceRequest createTokenisedDirectAuthoriseRequest(final MerchantInfo merchantInfo,
                                                                                   final BasicOrderInfo basicOrderInfo, final Token token, final Shopper shopper, final Address shippingAddress, final DynamicInteractionType dynamicInteractionType) {
         return DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(merchantInfo, basicOrderInfo, token, shopper, shippingAddress, null, dynamicInteractionType);
-    }
-
-    protected CreateTokenServiceRequest createTokenRequest(final MerchantInfo merchantInfo, final String authenticatedShopperId,
-                                                           final Payment csePayment, final TokenRequest tokenRequest) {
-        return CreateTokenServiceRequest.createTokenRequest(merchantInfo, authenticatedShopperId, csePayment, tokenRequest);
     }
 
     private WorldpayTokenEventReferenceCreationStrategy getWorldpayTokenEventReferenceCreationStrategy() {

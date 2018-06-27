@@ -74,37 +74,42 @@ def config = {
     }
 }
 
-task setup << {
-    apply plugin: 'installer-platform-plugin'
-    apply plugin: 'installer-addon-plugin'
-    def pl = platform(config)
-    pl.setup()
+task setup {
+    doLast {
+        apply plugin: 'installer-platform-plugin'
+        apply plugin: 'installer-addon-plugin'
+        def pl = platform(config)
+        pl.setup()
 
-    pl.project.addons {
-        names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon,smarteditaddon"
-        template "yacceleratorstorefront"
-        storeFronts "yacceleratorstorefront"
-        platform pl
-    }
+        pl.project.addons {
+            names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon,smarteditaddon"
+            template "yacceleratorstorefront"
+            storeFronts "yacceleratorstorefront"
+            platform pl
+        }
 
-    pl.project.addons {
-        names "worldpayoccaddon,acceleratorwebservicesaddon"
-        template "ycommercewebservices"
-        storeFronts "ycommercewebservices"
-        platform pl
+        pl.project.addons {
+            names "worldpayoccaddon,acceleratorwebservicesaddon"
+            template "ycommercewebservices"
+            storeFronts "ycommercewebservices"
+            platform pl
+        }
     }
 }
 
-task initialize << {
-    apply plugin: 'installer-platform-plugin'
-    def pl = platform(config)
-    pl.build()
-    pl.initialize()
+task initialize {
+    doLast {
+        apply plugin: 'installer-platform-plugin'
+        def pl = platform(config)
+        pl.build()
+        pl.initialize()
+    }
 }
 
-
-task start << {
-    apply plugin: 'installer-platform-plugin'
-    def pl = platform(config)
-    pl.start()
+task start {
+    doLast {
+        apply plugin: 'installer-platform-plugin'
+        def pl = platform(config)
+        pl.start()
+    }
 }

@@ -1,7 +1,7 @@
 package com.worldpay.service;
 
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
-import com.worldpay.service.model.AuthorisedStatus;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.payment.commands.result.AbstractResult;
 

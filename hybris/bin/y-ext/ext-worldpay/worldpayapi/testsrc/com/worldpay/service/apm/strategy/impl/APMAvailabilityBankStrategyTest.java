@@ -18,12 +18,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class APMAvailabilityBankStrategyTest {
 
-    public static final String APM_CODE = "apmCode";
+    private static final String APM_CODE = "apmCode";
+
     @InjectMocks
-    private APMAvailabilityBankStrategy testObj = new APMAvailabilityBankStrategy();
+    private APMAvailabilityBankStrategy testObj;
     @Mock
     private WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupServiceMock;
 
@@ -35,7 +36,7 @@ public class APMAvailabilityBankStrategyTest {
     private WorldpayBankConfigurationModel worldpayBankConfigurationModel;
 
     @Test
-    public void testIsAvailableWhenAPMIsBankAndThereAreBanksConfigured() throws Exception {
+    public void testIsAvailableWhenAPMIsBankAndThereAreBanksConfigured() {
         when(apmConfigurationMock.getBank()).thenReturn(Boolean.TRUE);
         when(apmConfigurationMock.getCode()).thenReturn(APM_CODE);
         when(worldpayBankConfigurationLookupServiceMock.getActiveBankConfigurationsForCode(APM_CODE)).thenReturn(Collections.singletonList(worldpayBankConfigurationModel));
@@ -46,7 +47,7 @@ public class APMAvailabilityBankStrategyTest {
     }
 
     @Test
-    public void testIsAvailableWhenAPMIsBankAndThereAreNoBanksConfigured() throws Exception {
+    public void testIsAvailableWhenAPMIsBankAndThereAreNoBanksConfigured() {
         when(apmConfigurationMock.getBank()).thenReturn(Boolean.TRUE);
         when(apmConfigurationMock.getCode()).thenReturn(APM_CODE);
         when(worldpayBankConfigurationLookupServiceMock.getActiveBankConfigurationsForCode(APM_CODE)).thenReturn(Collections.emptyList());
@@ -57,7 +58,7 @@ public class APMAvailabilityBankStrategyTest {
     }
 
     @Test
-    public void testIsAvailableWhenAPMIsNotBank() throws Exception {
+    public void testIsAvailableWhenAPMIsNotBank() {
         when(apmConfigurationMock.getBank()).thenReturn(Boolean.FALSE);
 
         final boolean result = testObj.isAvailable(apmConfigurationMock, cartModelMock);

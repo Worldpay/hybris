@@ -15,8 +15,8 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 @IntegrationTest
 public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTest {
@@ -31,19 +31,35 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
     private WorldpayServiceGateway gateway;
 
     @Test
-    public void testUpdateTokenWithoutOrder() throws WorldpayException {
+    public void testUpdateTokenWithoutOrderWithShopperScope() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
         final String authenticatedShopperId = UUID.randomUUID().toString();
         final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
         final String paymentTokenId = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
         final CardDetails cardDetails = createCardDetailsWithExpirationDate6YearsFromNow();
-        final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateToken(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
+        final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithShopperScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
 
         assertNotNull("updateTokenResponse is null!", updateTokenResponse);
         assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());
         assertNotNull("updateTokenResponse.getUpdateTokenReply is null!", updateTokenResponse.getUpdateTokenReply());
-        assertFalse("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId() == null);
-        assertFalse("tokenId is empty", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId().length() == 0);
+        assertNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
+        assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
+    }
+
+    @Test
+    public void testUpdateTokenWithoutOrderWithMerchantScope() throws WorldpayException {
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
+        final String authenticatedShopperId = UUID.randomUUID().toString();
+        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
+        final String paymentTokenId = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
+        final CardDetails cardDetails = createCardDetailsWithExpirationDate6YearsFromNow();
+        final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithMerchantScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
+
+        assertNotNull("updateTokenResponse is null!", updateTokenResponse);
+        assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());
+        assertNotNull("updateTokenResponse.getUpdateTokenReply is null!", updateTokenResponse.getUpdateTokenReply());
+        assertNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
+        assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
     }
 
     private CardDetails createCardDetailsWithExpirationDate6YearsFromNow() {

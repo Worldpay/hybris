@@ -3,6 +3,7 @@ package com.worldpay.facades.payment.direct.impl;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
@@ -29,9 +30,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.worldpay.enums.order.AuthorisedStatus.CANCELLED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUNDED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.payment.TransactionStatus.AUTHENTICATION_REQUIRED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
@@ -129,7 +132,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         inOrder.verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock, MERCHANT_CODE);
         inOrder.verify(acceleratorCheckoutFacadeMock).placeOrder();
         assertEquals(acceleratorCheckoutFacadeMock.placeOrder(), result.getOrderData());
-        assertEquals(TransactionStatus.AUTHORISED, result.getTransactionStatus());
+        assertEquals(AUTHORISED, result.getTransactionStatus());
     }
 
     @Test
@@ -220,7 +223,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
     @Test
     public void shouldReturnDirectResponseDataWithRefusedStatusWhenAuthorise3DSecureIsRefused() throws WorldpayException, InvalidCartException {
-        when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.REFUSED);
+        when(paymentReplyMock.getAuthStatus()).thenReturn(REFUSED);
         when(paymentReplyMock.getReturnCode()).thenReturn(RETURN_CODE);
 
         final DirectResponseData result = testObj.authorise3DSecure(PA_RESPONSE, worldpayAdditionalInfoDataMock);
@@ -317,7 +320,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         inOrder.verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock, MERCHANT_CODE);
         inOrder.verify(acceleratorCheckoutFacadeMock).placeOrder();
         assertEquals(acceleratorCheckoutFacadeMock.placeOrder(), result.getOrderData());
-        assertEquals(TransactionStatus.AUTHORISED, result.getTransactionStatus());
+        assertEquals(AUTHORISED, result.getTransactionStatus());
     }
 
     @Test

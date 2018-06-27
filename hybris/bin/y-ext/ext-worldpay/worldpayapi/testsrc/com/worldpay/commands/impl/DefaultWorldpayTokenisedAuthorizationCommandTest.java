@@ -1,5 +1,6 @@
 package com.worldpay.commands.impl;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
@@ -29,7 +30,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import static com.worldpay.commands.impl.DefaultWorldpayTokenisedAuthorizationCommand.UNKNOWN_MERCHANT_CODE;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.GENERAL_SYSTEM_ERROR;
 import static org.junit.Assert.assertEquals;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayTokenisedAuthorizationCommandTest {
 
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
@@ -57,9 +57,9 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     @InjectMocks
     private DefaultWorldpayTokenisedAuthorizationCommand testObj;
 
-    @Mock (name = "worldpayAuthorizationResultConverter")
+    @Mock(name = "worldpayAuthorizationResultConverter")
     private Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverterMock;
-    @Mock (name = "worldpayBillingInfoAddressConverter")
+    @Mock(name = "worldpayBillingInfoAddressConverter")
     private Converter<BillingInfo, Address> worldpayBillingInfoAddressConverterMock;
 
     @Mock
@@ -72,7 +72,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     private MerchantInfo merchantInfoMock;
     @Mock
     private WorldpayServiceGateway worldpayGatewayMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DirectAuthoriseServiceResponse directAuthoriseServiceResponseMock;
     @Captor
     private ArgumentCaptor<DirectAuthoriseServiceRequest> directAuthoriseServiceRequestCaptor;
@@ -100,7 +100,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
         when(worldpayAuthorizationResultConverterMock.convert(directAuthoriseServiceResponseMock)).thenReturn(authorizationResultMock);
         mockSubscriptionAuthorizationRequest();
         mockAdditionalInfo();
-        doReturn(tokenMock).when(testObj).createToken(PAYMENT_TOKEN_ID, SECURITY_CODE);
+        when(worldpayOrderServiceMock.createToken(PAYMENT_TOKEN_ID, SECURITY_CODE)).thenReturn(tokenMock);
         when(worldpayOrderServiceMock.createAmount(CURRENCY, subscriptionAuthorizationRequestMock.getTotalAmount().doubleValue())).thenReturn(amountMock);
         when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), anyString(), eq(amountMock))).thenReturn(basicOrderInfoMock);
         when(worldpayOrderServiceMock.createAuthenticatedShopper(eq(CUSTOMER_EMAIL), eq(AUTHENTICATED_SHOPPER_ID), any(Session.class), any(Browser.class))).thenReturn(shopperMock);
@@ -160,7 +160,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     public void performShouldReturnAuthorizationResultWhenResponseIsNotErrorAndNotAuthorised() throws WorldpayException {
         when(worldpayGatewayMock.directAuthorise(directAuthoriseServiceRequestCaptor.capture())).thenReturn(directAuthoriseServiceResponseMock);
         when(directAuthoriseServiceResponseMock.getPaymentReply().getAmount().getValue()).thenReturn(PAYMENT_REPLY_AMOUNT);
-        when(directAuthoriseServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(REFUSED);
+        when(directAuthoriseServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.REFUSED);
         when(authorizationResultMock.getCurrency()).thenReturn(CURRENCY);
 
         testObj.perform(subscriptionAuthorizationRequestMock);

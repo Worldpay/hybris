@@ -38,14 +38,14 @@ public class WorldpayNullSafeCellRendererTest {
     private DataType dataTypeMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setUp() {
         when(columnConfigurationMock.getQualifier()).thenReturn(QUALIFIER);
 
         testObj.setNestedAttributeUtils(new NestedAttributeUtils());
     }
 
     @Test
-    public void shouldNotRenderOnNullAavResponse() throws Exception {
+    public void shouldNotRenderOnNullAavResponse() {
         PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
 
         testObj.render(listCellMock, columnConfigurationMock, paymentTransactionEntryModel, dataTypeMock, widgetInstanceManagerMock);
@@ -54,7 +54,7 @@ public class WorldpayNullSafeCellRendererTest {
     }
 
     @Test
-    public void shouldNotRenderOnNullAavAddressResultCode() throws Exception {
+    public void shouldNotRenderOnNullAavAddressResultCode() {
         PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
         WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
         paymentTransactionEntryModel.setAavResponse(worldpayAavResponseModel);
@@ -65,7 +65,7 @@ public class WorldpayNullSafeCellRendererTest {
     }
 
     @Test
-    public void shouldRenderOnNonNullAavAddressResultCode() throws Exception {
+    public void shouldRenderOnNonNullAavAddressResultCode() {
         PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
         WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
         worldpayAavResponseModel.setAavAddressResultCode("B");

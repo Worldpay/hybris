@@ -88,7 +88,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     private PaymentInfoModel paymentInfoModelMock;
 
     @Before
-    public void setup() throws CommerceCartModificationException {
+    public void setUp() throws CommerceCartModificationException {
         when(addressConverterMock.convert(sourceMock)).thenReturn(addressDataMock);
         when(checkoutFlowFacadeMock.hasCheckoutCart()).thenReturn(true);
         when(cartFacadeMock.hasSessionCart()).thenReturn(true);

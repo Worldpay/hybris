@@ -2,14 +2,12 @@ package com.worldpay.strategies.impl;
 
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.basecommerce.enums.ReturnStatus;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.returns.model.ReturnProcessModel;
 import de.hybris.platform.returns.model.ReturnRequestModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import de.hybris.platform.returns.model.ReturnRequestModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,10 +25,7 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOL
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -83,7 +78,7 @@ public class DefaultWorldpayomsOrderModificationRefundProcessStrategyTest {
     public void shouldMarkReturnRequestAsRefunded() {
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 
-        verify(returnRequestMock1).setStatus(ReturnStatus.PAYMENT_REVERSED);
+        verify(returnRequestMock1).setStatus(PAYMENT_REVERSED);
         verify(modelServiceMock).save(returnRequestMock1);
     }
 

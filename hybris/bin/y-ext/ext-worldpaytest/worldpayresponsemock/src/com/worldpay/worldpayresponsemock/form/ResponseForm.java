@@ -62,53 +62,14 @@ public class ResponseForm implements java.io.Serializable {
     private String webformURL;
     private String refundId;
     private String reference;
+    private boolean merchantToken;
 
-    public String getWebformId() {
-        return webformId;
+    public String getSelectedPaymentMethod() {
+        return selectedPaymentMethod;
     }
 
-    public void setWebformId(String webformId) {
-        this.webformId = webformId;
-    }
-
-    public String getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public String getWebformStatus() {
-        return webformStatus;
-    }
-
-    public void setWebformStatus(String webformStatus) {
-        this.webformStatus = webformStatus;
-    }
-
-    public String getRefundReason() {
-        return refundReason;
-    }
-
-    public void setRefundReason(String refundReason) {
-        this.refundReason = refundReason;
-    }
-
-    public String getWebformURL() {
-        return webformURL;
-    }
-
-    public void setWebformURL(String webformURL) {
-        this.webformURL = webformURL;
-    }
-
-    public String getRefundId() {
-        return refundId;
-    }
-
-    public void setRefundId(String refundId) {
-        this.refundId = refundId;
+    public void setSelectedPaymentMethod(final String selectedPaymentMethod) {
+        this.selectedPaymentMethod = selectedPaymentMethod;
     }
 
     public String getTransactionAmount() {
@@ -219,7 +180,7 @@ public class ResponseForm implements java.io.Serializable {
         return responseCode;
     }
 
-    public void setResponseCode(Integer responseCode) {
+    public void setResponseCode(final Integer responseCode) {
         this.responseCode = responseCode;
     }
 
@@ -227,7 +188,7 @@ public class ResponseForm implements java.io.Serializable {
         return responseDescription;
     }
 
-    public void setResponseDescription(String responseDescription) {
+    public void setResponseDescription(final String responseDescription) {
         this.responseDescription = responseDescription;
     }
 
@@ -235,24 +196,32 @@ public class ResponseForm implements java.io.Serializable {
         return testCreditCard;
     }
 
-    public void setTestCreditCard(String testCreditCard) {
+    public void setTestCreditCard(final String testCreditCard) {
         this.testCreditCard = testCreditCard;
+    }
+
+    public String getCcPaymentType() {
+        return ccPaymentType;
+    }
+
+    public void setCcPaymentType(final String ccPaymentType) {
+        this.ccPaymentType = ccPaymentType;
+    }
+
+    public String getApmPaymentType() {
+        return apmPaymentType;
+    }
+
+    public void setApmPaymentType(final String apmPaymentType) {
+        this.apmPaymentType = apmPaymentType;
     }
 
     public String getFinalScore() {
         return finalScore;
     }
 
-    public void setFinalScore(String finalScore) {
+    public void setFinalScore(final String finalScore) {
         this.finalScore = finalScore;
-    }
-
-    public String getSelectedPaymentMethod() {
-        return selectedPaymentMethod;
-    }
-
-    public void setSelectedPaymentMethod(String selectedPaymentMethod) {
-        this.selectedPaymentMethod = selectedPaymentMethod;
     }
 
     public String getLastEvent() {
@@ -267,7 +236,7 @@ public class ResponseForm implements java.io.Serializable {
         return selectedRiskScore;
     }
 
-    public void setSelectedRiskScore(String selectedRiskScore) {
+    public void setSelectedRiskScore(final String selectedRiskScore) {
         this.selectedRiskScore = selectedRiskScore;
     }
 
@@ -279,27 +248,11 @@ public class ResponseForm implements java.io.Serializable {
         this.journalType = journalType;
     }
 
-    public String getApmPaymentType() {
-        return apmPaymentType;
-    }
-
-    public void setApmPaymentType(String apmPaymentType) {
-        this.apmPaymentType = apmPaymentType;
-    }
-
-    public String getCcPaymentType() {
-        return ccPaymentType;
-    }
-
-    public void setCcPaymentType(String ccPaymentType) {
-        this.ccPaymentType = ccPaymentType;
-    }
-
     public String getAavAddress() {
         return aavAddress;
     }
 
-    public void setAavAddress(String aavAddress) {
+    public void setAavAddress(final String aavAddress) {
         this.aavAddress = aavAddress;
     }
 
@@ -307,7 +260,7 @@ public class ResponseForm implements java.io.Serializable {
         return aavCardholderName;
     }
 
-    public void setAavCardholderName(String aavCardholderName) {
+    public void setAavCardholderName(final String aavCardholderName) {
         this.aavCardholderName = aavCardholderName;
     }
 
@@ -315,7 +268,7 @@ public class ResponseForm implements java.io.Serializable {
         return aavEmail;
     }
 
-    public void setAavEmail(String aavEmail) {
+    public void setAavEmail(final String aavEmail) {
         this.aavEmail = aavEmail;
     }
 
@@ -323,7 +276,7 @@ public class ResponseForm implements java.io.Serializable {
         return aavPostcode;
     }
 
-    public void setAavPostcode(String aavPostcode) {
+    public void setAavPostcode(final String aavPostcode) {
         this.aavPostcode = aavPostcode;
     }
 
@@ -331,7 +284,7 @@ public class ResponseForm implements java.io.Serializable {
         return aavTelephone;
     }
 
-    public void setAavTelephone(String aavTelephone) {
+    public void setAavTelephone(final String aavTelephone) {
         this.aavTelephone = aavTelephone;
     }
 
@@ -531,8 +484,56 @@ public class ResponseForm implements java.io.Serializable {
         return selectToken;
     }
 
-    public void setSelectToken(String selectToken) {
+    public void setSelectToken(final String selectToken) {
         this.selectToken = selectToken;
+    }
+
+    public String getWebformId() {
+        return webformId;
+    }
+
+    public void setWebformId(final String webformId) {
+        this.webformId = webformId;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(final String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public String getWebformStatus() {
+        return webformStatus;
+    }
+
+    public void setWebformStatus(final String webformStatus) {
+        this.webformStatus = webformStatus;
+    }
+
+    public String getRefundReason() {
+        return refundReason;
+    }
+
+    public void setRefundReason(final String refundReason) {
+        this.refundReason = refundReason;
+    }
+
+    public String getWebformURL() {
+        return webformURL;
+    }
+
+    public void setWebformURL(final String webformURL) {
+        this.webformURL = webformURL;
+    }
+
+    public String getRefundId() {
+        return refundId;
+    }
+
+    public void setRefundId(final String refundId) {
+        this.refundId = refundId;
     }
 
     public String getReference() {
@@ -541,5 +542,13 @@ public class ResponseForm implements java.io.Serializable {
 
     public void setReference(final String reference) {
         this.reference = reference;
+    }
+
+    public boolean isMerchantToken() {
+        return merchantToken;
+    }
+
+    public void setMerchantToken(final boolean merchantToken) {
+        this.merchantToken = merchantToken;
     }
 }

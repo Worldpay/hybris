@@ -13,24 +13,38 @@ public class TokenRequestTest {
 
     private static final String TOKEN_REASON = "tokenReason";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
+    private static final String SHOPPER = "shopper";
 
     @Test
-    public void shouldTransformToInternalCreateToken() throws WorldpayModelTransformationException {
-        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
+    public void shouldTransformToInternalCreateTokenWithScopeMerchant() throws WorldpayModelTransformationException {
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON, true);
 
         final CreateToken result = (CreateToken) tokenRequest.transformToInternalModel();
 
         assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
         assertEquals(TOKEN_REASON, result.getTokenReason().getvalue());
+        assertEquals("merchant", result.getTokenScope());
+    }
+
+    @Test
+    public void shouldTransformToInternalCreateTokenWithScopeShopper() throws WorldpayModelTransformationException {
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON, false);
+
+        final CreateToken result = (CreateToken) tokenRequest.transformToInternalModel();
+
+        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
+        assertEquals(TOKEN_REASON, result.getTokenReason().getvalue());
+        assertEquals(SHOPPER, result.getTokenScope());
     }
 
     @Test
     public void shouldTransformToInternalCreateTokenWithoutTokenReason() throws WorldpayModelTransformationException {
-        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, null);
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, null, false);
 
         final CreateToken result = (CreateToken) tokenRequest.transformToInternalModel();
 
         assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
         assertNull(result.getTokenReason());
+        assertEquals(SHOPPER, result.getTokenScope());
     }
 }

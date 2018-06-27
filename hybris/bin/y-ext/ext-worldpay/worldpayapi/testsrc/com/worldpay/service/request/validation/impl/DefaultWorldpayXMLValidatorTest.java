@@ -87,10 +87,24 @@ public class DefaultWorldpayXMLValidatorTest {
     }
 
     @Test
-    public void testValidateXMLWithCreateToken() throws WorldpayValidationException, WorldpayModelTransformationException {
+    public void testValidateXMLWithCreateTokenWithShopperScope() throws WorldpayValidationException, WorldpayModelTransformationException {
         final List<PaymentType> includedPTs = singletonList(ONLINE);
         final Shopper shopper = new Shopper(EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
-        final TokenRequest tokenRequest = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON);
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON, false);
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
+                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, tokenRequest);
+
+        final PaymentService paymentService = testObj.transform(request);
+
+        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
+        validator.validate(paymentService);
+    }
+
+    @Test
+    public void testValidateXMLWithCreateTokenWithMerchantScope() throws WorldpayValidationException, WorldpayModelTransformationException {
+        final List<PaymentType> includedPTs = singletonList(ONLINE);
+        final Shopper shopper = new Shopper(EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON, true);
         final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
                 includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, tokenRequest);
 

@@ -37,7 +37,7 @@ public class AlternativePayment extends AbstractPayment {
     }
 
     @Override
-    public void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
         String methodName = method.getName();
         if (methodName.startsWith("set")) {
@@ -78,7 +78,7 @@ public class AlternativePayment extends AbstractPayment {
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
         // Do nothing. This provides a hook for subclasses to add extra functionality
     }
 

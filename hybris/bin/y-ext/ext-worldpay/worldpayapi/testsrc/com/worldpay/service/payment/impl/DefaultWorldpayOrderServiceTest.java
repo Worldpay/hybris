@@ -7,8 +7,11 @@ import com.worldpay.service.model.*;
 import com.worldpay.service.model.klarna.KlarnaPayment;
 import com.worldpay.service.model.payment.AlternativeShopperBankCodePayment;
 import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import org.junit.Test;
@@ -19,8 +22,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Currency;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +51,7 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String COUNTRY_CODE = "countryCode";
     private static final String LANGUAGE_CODE = "languageCode";
     private static final String EXTRA_DATA = "extraData";
+    private static final String WORLDPAY_MERCHANT_TOKEN_ENABLED = "worldpay.merchant.token.enabled";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -56,6 +60,9 @@ public class DefaultWorldpayOrderServiceTest {
     private CommonI18NService commonI18NServiceMock;
     @Mock
     private WorldpayUrlService worldpayUrlServiceMock;
+    @Mock
+    private SiteConfigService siteConfigServiceMock;
+
     @Mock
     private CurrencyModel currencyModelMock;
     @Mock
@@ -66,24 +73,35 @@ public class DefaultWorldpayOrderServiceTest {
     private Amount amountMock;
     @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
-
+    @Mock
+    private MerchantInfo merchantInfoMock;
+    @Mock
+    private TokenRequest tokenRequestMock;
+    @Mock
+    private CardDetails cardDetailsMock;
 
     @Test
     public void shouldFormatValue() {
         final Currency currency = Currency.getInstance(GBP);
+        when(commonI18NServiceMock.convertAndRoundCurrency(1, Math.pow(10, currency.getDefaultFractionDigits()), 0, AMOUNT)).thenReturn(1930d);
 
-        testObj.createAmount(currency, AMOUNT);
+        final Amount result = testObj.createAmount(currency, AMOUNT);
 
-        verify(commonI18NServiceMock).convertAndRoundCurrency(1, Math.pow(10, currency.getDefaultFractionDigits()), 0, AMOUNT);
+        assertThat(result.getCurrencyCode()).isEqualToIgnoringCase("GBP");
+        assertThat(result.getExponent()).isEqualToIgnoringCase("2");
+        assertThat(result.getValue()).isEqualToIgnoringCase("1930");
     }
 
     @Test
     public void shouldFormatTotal() {
         when(currencyModelMock.getIsocode()).thenReturn(GBP);
+        when(commonI18NServiceMock.convertAndRoundCurrency(1, Math.pow(10, 2), 0, AMOUNT)).thenReturn(1930d);
 
-        testObj.createAmount(currencyModelMock, AMOUNT);
+        final Amount result = testObj.createAmount(currencyModelMock, AMOUNT);
 
-        verify(commonI18NServiceMock).convertAndRoundCurrency(1, Math.pow(10, 2), 0, AMOUNT);
+        assertThat(result.getCurrencyCode()).isEqualToIgnoringCase("GBP");
+        assertThat(result.getExponent()).isEqualToIgnoringCase("2");
+        assertThat(result.getValue()).isEqualToIgnoringCase("1930");
     }
 
     @Test
@@ -129,8 +147,11 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateShopperWithAuthenticatedShopperID() {
+    public void shouldCreateShopperWithAuthenticatedShopperIDWhenMerchantTokenIsDisabled() {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
+
         final Shopper result = testObj.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, sessionMock, browserMock);
+
         assertEquals(CUSTOMER_EMAIL, result.getShopperEmailAddress());
         assertEquals(sessionMock, result.getSession());
         assertEquals(browserMock, result.getBrowser());
@@ -138,17 +159,59 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateTokenRequest() {
-        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getTokenReason());
+    public void shouldCreateShopperWithAuthenticatedShopperIDWhenMerchantTokenIsEnabled() {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
+
+        final Shopper result = testObj.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, sessionMock, browserMock);
+
+        assertEquals(CUSTOMER_EMAIL, result.getShopperEmailAddress());
+        assertEquals(sessionMock, result.getSession());
+        assertEquals(browserMock, result.getBrowser());
+        assertNull(result.getAuthenticatedShopperID());
     }
 
     @Test
-    public void shouldCreateTokenRequestWithoutTokenReason() {
+    public void shouldCreateTokenRequestWithMerchantScope() {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
+
+        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
+
+        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
+        assertEquals(TOKEN_REASON, result.getTokenReason());
+        assertTrue(result.isMerchantToken());
+    }
+
+    @Test
+    public void shouldCreateTokenRequestWithoutTokenReasonWithMerchantScope() {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
+
         final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, null);
+
         assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
         assertEquals(null, result.getTokenReason());
+        assertTrue(result.isMerchantToken());
+    }
+
+    @Test
+    public void shouldCreateTokenRequestWithShopperScope() {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
+
+        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
+
+        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
+        assertEquals(TOKEN_REASON, result.getTokenReason());
+        assertThat(result.isMerchantToken()).isFalse();
+    }
+
+    @Test
+    public void shouldCreateTokenRequestWithoutTokenReasonWithShopperScope() {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
+
+        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, null);
+
+        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
+        assertEquals(null, result.getTokenReason());
+        assertThat(result.isMerchantToken()).isFalse();
     }
 
     @Test
@@ -168,12 +231,13 @@ public class DefaultWorldpayOrderServiceTest {
 
         final AlternativeShopperBankCodePayment result = (AlternativeShopperBankCodePayment) testObj.createBankPayment("notfound", BANK_CODE);
 
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     @Test
     public void shouldFormatYENNoDigits() {
-        Currency currency = Currency.getInstance("JPY");
+        final Currency currency = Currency.getInstance("JPY");
+
         testObj.createAmount(currency, 8500);
 
         verify(commonI18NServiceMock).convertAndRoundCurrency(Math.pow(10, 0), 1, 0, 8500d);
@@ -181,7 +245,8 @@ public class DefaultWorldpayOrderServiceTest {
 
     @Test
     public void shouldFormatGBPTwoDigits() {
-        Currency currency = Currency.getInstance("GBP");
+        final Currency currency = Currency.getInstance("GBP");
+
         testObj.createAmount(currency, 8500);
 
         verify(commonI18NServiceMock).convertAndRoundCurrency(Math.pow(10, 2), 1, 2, 8500d);
@@ -200,5 +265,23 @@ public class DefaultWorldpayOrderServiceTest {
         assertEquals(KLARNA_CHECKOUT_URL, result.getMerchantUrls().getCheckoutURL());
         assertEquals(KLARNA_CONFIRMATION_URL, result.getMerchantUrls().getConfirmationURL());
         assertEquals(EXTRA_DATA, result.getExtraMerchantData());
+    }
+
+    @Test
+    public void shouldCreateUpdateTokenServiceRequestWithShopperScope() throws Exception {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
+
+        final UpdateTokenServiceRequest result = testObj.createUpdateTokenServiceRequest(merchantInfoMock, worldpayAdditionalInfoDataMock, tokenRequestMock, "paymentTokenId", cardDetailsMock);
+
+        assertThat(result.getUpdateTokenRequest().isMerchantToken()).isFalse();
+    }
+
+    @Test
+    public void shouldCreateUpdateTokenServiceRequestWithMerchantScope() throws Exception {
+        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
+
+        final UpdateTokenServiceRequest result = testObj.createUpdateTokenServiceRequest(merchantInfoMock, worldpayAdditionalInfoDataMock, tokenRequestMock, "paymentTokenId", cardDetailsMock);
+
+        assertThat(result.getUpdateTokenRequest().isMerchantToken()).isTrue();
     }
 }

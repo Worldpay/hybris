@@ -3,6 +3,7 @@ package com.worldpay.service.apm.strategy.impl;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.strategy.APMAvailabilityStrategy;
 import com.worldpay.strategy.WorldpayDeliveryAddressStrategy;
+import de.hybris.platform.core.model.c2l.C2LItemModel;
 import de.hybris.platform.core.model.c2l.CountryModel;
 import de.hybris.platform.core.model.order.CartModel;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,15 +41,11 @@ public class APMAvailabilityCountryStrategy implements APMAvailabilityStrategy {
         }
 
         // rule 2. available if the shipping address country matches at least one apmConfiguration country
-        final String shippingCountryIsoCode = worldpayDeliveryAddressStrategy.getDeliveryAddress(cartModel).getCountry().getIsocode();
-        for (final CountryModel countryModel : apmConfiguration.getCountries()) {
-            if (shippingCountryIsoCode.equals(countryModel.getIsocode())) {
-                return true;
-            }
-        }
-
         // rule 3. if at least one country in apmConfiguration and billing address was not matched return false
-        return false;
+        final String shippingCountryIsoCode = worldpayDeliveryAddressStrategy.getDeliveryAddress(cartModel).getCountry().getIsocode();
+        return apmConfiguration.getCountries().stream()
+                .map(C2LItemModel::getIsocode)
+                .anyMatch(shippingCountryIsoCode::equals);
     }
 
     @Required

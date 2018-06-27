@@ -12,21 +12,22 @@ import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-@Controller
-@RequestMapping (value = "/worldpay")
 /**
  * Controller for Bank configurations related to APMs for Bank Transfer
  */
+@Controller
+@RequestMapping(value = "/worldpay")
 public class WorldpayBankController {
 
     @Resource
     private WorldpayBankConfigurationFacade worldpayBankConfigurationFacade;
 
-    @ResponseBody
-    @RequestMapping (value = "/{apm}/banks", method = GET)
+
     /**
      * Returns the list of banks configured for the {@param apm}
      */
+    @ResponseBody
+    @RequestMapping(value = "/{apm}/banks", method = GET)
     public List<BankConfigurationData> getBanksForAPM(@PathVariable String apm) {
         return worldpayBankConfigurationFacade.getBankConfigurationForAPMCode(apm);
     }

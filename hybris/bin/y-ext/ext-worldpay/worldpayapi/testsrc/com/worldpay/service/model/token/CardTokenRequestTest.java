@@ -21,43 +21,39 @@ public class CardTokenRequestTest {
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
     private static final Cse PAYMENT = PaymentBuilder.createCSE("encryptedData", BILLING_ADDRESS);
 
-    private CardTokenRequest testObj;
-
     @Test
     public void paymentTokenCreateShouldContainAnAuthenticatedShopperIdIfProvided() throws WorldpayModelTransformationException {
-        testObj = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, TOKEN_REQUEST, PAYMENT);
-        final PaymentTokenCreate result = (PaymentTokenCreate) testObj.transformToInternalModel();
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, TOKEN_REQUEST, PAYMENT);
+        final PaymentTokenCreate result = (PaymentTokenCreate) cardTokenRequest.transformToInternalModel();
         assertEquals(AUTHENTICATED_SHOPPER_ID, result.getAuthenticatedShopperID());
     }
 
     @Test
     public void paymentTokenCreateShouldNotContainAnAuthenticatedShopperIdIfNotProvided() throws WorldpayModelTransformationException {
-        final String authenticatedShopperId = null;
-        testObj = new CardTokenRequest(authenticatedShopperId, TOKEN_REQUEST, PAYMENT);
-        final PaymentTokenCreate result = (PaymentTokenCreate) testObj.transformToInternalModel();
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest(null, TOKEN_REQUEST, PAYMENT);
+        final PaymentTokenCreate result = (PaymentTokenCreate) cardTokenRequest.transformToInternalModel();
         assertNull(result.getAuthenticatedShopperID());
     }
 
     @Test
     public void paymentTokenCreateShouldContainTokenRequestIfProvided() throws WorldpayModelTransformationException {
-        testObj = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, TOKEN_REQUEST, PAYMENT);
-        final PaymentTokenCreate result = (PaymentTokenCreate) testObj.transformToInternalModel();
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, TOKEN_REQUEST, PAYMENT);
+        final PaymentTokenCreate result = (PaymentTokenCreate) cardTokenRequest.transformToInternalModel();
         assertEquals(TOKEN_REASON, result.getCreateToken().getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, result.getCreateToken().getTokenEventReference());
     }
 
     @Test
     public void paymentTokenCreateShouldNotContainTokenRequestIfNotProvided() throws WorldpayModelTransformationException {
-        TokenRequest tokenRequest = null;
-        testObj = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, tokenRequest, PAYMENT);
-        final PaymentTokenCreate result = (PaymentTokenCreate) testObj.transformToInternalModel();
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, null, PAYMENT);
+        final PaymentTokenCreate result = (PaymentTokenCreate) cardTokenRequest.transformToInternalModel();
         assertNull(result.getCreateToken());
     }
 
     @Test
     public void paymentTokenCreateShouldContainPayment() throws WorldpayModelTransformationException {
-        testObj = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, TOKEN_REQUEST, PAYMENT);
-        final PaymentTokenCreate result = (PaymentTokenCreate) testObj.transformToInternalModel();
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest(AUTHENTICATED_SHOPPER_ID, TOKEN_REQUEST, PAYMENT);
+        final PaymentTokenCreate result = (PaymentTokenCreate) cardTokenRequest.transformToInternalModel();
         final CSEDATA csePayment = (CSEDATA) result.getPaymentInstrumentOrCSEDATA().get(0);
         final com.worldpay.internal.model.Address address = csePayment.getCardAddress().getAddress();
 
@@ -77,6 +73,4 @@ public class CardTokenRequestTest {
         assertEquals(BILLING_ADDRESS.getCity(), address.getCity());
         assertEquals(BILLING_ADDRESS.getCountryCode(), address.getCountryCode());
     }
-
-
 }

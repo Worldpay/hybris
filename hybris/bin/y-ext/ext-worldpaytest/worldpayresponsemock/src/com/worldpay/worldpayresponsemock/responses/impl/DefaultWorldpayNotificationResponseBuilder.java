@@ -146,20 +146,35 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
     }
 
     protected Token createToken(final ResponseForm responseForm) {
-        return aTokenBuilder().withAuthenticatedShopperId(responseForm.getAuthenticatedShopperId())
+        return aTokenBuilder()
+                .withAuthenticatedShopperId(responseForm.isMerchantToken() ? null : responseForm.getAuthenticatedShopperId())
                 .withTokenExpiryDate(responseForm.getTokenExpiryDay(), responseForm.getTokenExpiryMonth(), responseForm.getTokenExpiryYear())
-                .withTokenDetailsTokenReason(responseForm.getTokenDetailsReason()).withTokenId(responseForm.getPaymentTokenId())
-                .withTokenDetailsTokenEventReference(responseForm.getTokenDetailsEventReference()).withTokenEvent(responseForm.getTokenEvent())
-                .withTokenReason(responseForm.getTokenReason()).withTokenEventReference(responseForm.getTokenEventReference()).withCardBrand(responseForm.getCardBrand())
-                .withCardSubBrand(responseForm.getCardSubBrand()).withIssuerCountryCode(responseForm.getIssuerCountry()).withObfuscatedPAN(responseForm.getObfuscatedPAN())
-                .withCardExpiryDate(responseForm.getCardExpiryMonth(), responseForm.getCardExpiryYear()).withCardHolderName(responseForm.getCardHolderName())
-                .withCardAddress(createAddressForCardDetails(responseForm)).build();
+                .withTokenDetailsTokenReason(responseForm.getTokenDetailsReason())
+                .withTokenId(responseForm.getPaymentTokenId())
+                .withTokenDetailsTokenEventReference(responseForm.getTokenDetailsEventReference())
+                .withTokenEvent(responseForm.getTokenEvent())
+                .withTokenReason(responseForm.getTokenReason())
+                .withTokenEventReference(responseForm.getTokenEventReference())
+                .withCardBrand(responseForm.getCardBrand())
+                .withCardSubBrand(responseForm.getCardSubBrand())
+                .withIssuerCountryCode(responseForm.getIssuerCountry())
+                .withObfuscatedPAN(responseForm.getObfuscatedPAN())
+                .withCardExpiryDate(responseForm.getCardExpiryMonth(), responseForm.getCardExpiryYear())
+                .withCardHolderName(responseForm.getCardHolderName())
+                .withCardAddress(createAddressForCardDetails(responseForm))
+                .build();
     }
 
     private Address createAddressForCardDetails(final ResponseForm responseForm) {
-        return anAddressBuilder().withAddress1(responseForm.getAddress1()).withAddress2(responseForm.getAddress2())
-                .withAddress3(responseForm.getAddress3()).withLastName(responseForm.getLastName()).withCity(responseForm.getCity())
-                .withPostalCode(responseForm.getPostalCode()).withCountryCode(responseForm.getCountryCode()).build();
+        return anAddressBuilder()
+                .withAddress1(responseForm.getAddress1())
+                .withAddress2(responseForm.getAddress2())
+                .withAddress3(responseForm.getAddress3())
+                .withLastName(responseForm.getLastName())
+                .withCity(responseForm.getCity())
+                .withPostalCode(responseForm.getPostalCode())
+                .withCountryCode(responseForm.getCountryCode())
+                .build();
     }
 
     private ISO8583ReturnCode generateReturnCode(final ResponseForm responseForm) {

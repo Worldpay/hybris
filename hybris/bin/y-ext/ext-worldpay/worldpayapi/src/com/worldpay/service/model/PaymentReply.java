@@ -1,5 +1,6 @@
 package com.worldpay.service.model;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.model.payment.Card;
 
 import java.io.Serializable;

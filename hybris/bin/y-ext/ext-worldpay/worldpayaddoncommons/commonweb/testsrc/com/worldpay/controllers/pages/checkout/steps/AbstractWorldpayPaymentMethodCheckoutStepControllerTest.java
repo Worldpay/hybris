@@ -8,6 +8,7 @@ import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
+import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.Breadcrumb;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
@@ -39,16 +40,15 @@ import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaym
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController.CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
-import static java.util.Collections.EMPTY_LIST;
 import static java.util.Collections.emptyList;
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     private static final String HAS_NO_PAYMENT_INFO = "hasNoPaymentInfo";
@@ -82,11 +82,11 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private CartFacade cartFacadeMock;
     @Mock
     private PageTitleResolver pageTitleResolverMock;
-    @Mock (name = "checkoutFlowGroupMap")
+    @Mock(name = "checkoutFlowGroupMap")
     private Map<String, CheckoutGroup> checkoutFlowGroupMapMock;
     @Mock
     private Map<String, CheckoutStep> checkoutStepMapMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private CheckoutGroup checkoutGroupMock;
     @Mock
     private CheckoutStep checkoutStepMock;
@@ -97,7 +97,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     private List<CountryData> billingCountries = emptyList();
     private List<CardTypeData> supportedCardTypes = emptyList();
-    private List breadcrumbs = EMPTY_LIST;
+    private List<Breadcrumb> breadcrumbs = Collections.emptyList();
     private List<CountryData> deliveryCountries = Collections.emptyList();
     private Model model = new ExtendedModelMap();
 
@@ -114,7 +114,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldPopulateModelWithBillingCountries() throws CommerceCartModificationException, CMSItemNotFoundException {
+    public void shouldPopulateModelWithBillingCountries() {
         when(checkoutFacadeMock.getBillingCountries()).thenReturn(billingCountries);
 
         final Collection<CountryData> result = testObj.getBillingCountries();
@@ -208,7 +208,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     private class TestWorldpayPaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
         @Override
-        public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException, CommerceCartModificationException {
+        public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
             setupAddPaymentPage(model);
             return null;
         }
@@ -225,6 +225,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
         @Override
         protected void setUpMetaDataForContentPage(final Model model, final ContentPageModel contentPage) {
+            // Empty on purpose
         }
     }
 }

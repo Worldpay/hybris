@@ -20,7 +20,7 @@ public class Cse extends AbstractPayment {
     }
 
     @Override
-    public void invokeSetter(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         String methodName = method.getName();
         if ("setEncryptedData".equals(methodName) && encryptedData != null) {
             method.invoke(targetObject, encryptedData);

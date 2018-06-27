@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
@@ -23,26 +24,22 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultAPMAvailabilityServiceTest {
 
-    @Mock
-    private APMAvailabilityStrategy apmAvailabilityStrategy1ReturnsTrueMock;
-    @Mock
-    private APMAvailabilityStrategy apmAvailabilityStrategy2ReturnsTrueMock;
-    @Mock
-    private APMAvailabilityStrategy apmAvailabilityStrategyReturnsFalseMock;
     @InjectMocks
-    private DefaultAPMAvailabilityService testObj = new DefaultAPMAvailabilityService();
+    private DefaultAPMAvailabilityService testObj;
+
+    @Mock
+    private APMAvailabilityStrategy apmAvailabilityStrategy1ReturnsTrueMock, apmAvailabilityStrategy2ReturnsTrueMock, apmAvailabilityStrategyReturnsFalseMock;
     @Mock
     private WorldpayAPMConfigurationModel worldpayAPMConfigurationModelMock;
     @Mock
     private CartModel cartModelMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(apmAvailabilityStrategy1ReturnsTrueMock.isAvailable(worldpayAPMConfigurationModelMock, cartModelMock)).thenReturn(true);
         when(apmAvailabilityStrategy2ReturnsTrueMock.isAvailable(worldpayAPMConfigurationModelMock, cartModelMock)).thenReturn(true);
         when(apmAvailabilityStrategyReturnsFalseMock.isAvailable(worldpayAPMConfigurationModelMock, cartModelMock)).thenReturn(false);
     }
-
 
     @Test
     public void isAvailableReturnsTrueIfAllStrategiesReturnTrue() {
@@ -61,9 +58,9 @@ public class DefaultAPMAvailabilityServiceTest {
 
         assertFalse(result);
 
-        Mockito.verify(apmAvailabilityStrategy1ReturnsTrueMock).isAvailable(worldpayAPMConfigurationModelMock, cartModelMock);
-        Mockito.verify(apmAvailabilityStrategyReturnsFalseMock).isAvailable(worldpayAPMConfigurationModelMock, cartModelMock);
-        Mockito.verify(apmAvailabilityStrategy2ReturnsTrueMock, never()).isAvailable(worldpayAPMConfigurationModelMock, cartModelMock);
+        verify(apmAvailabilityStrategy1ReturnsTrueMock).isAvailable(worldpayAPMConfigurationModelMock, cartModelMock);
+        verify(apmAvailabilityStrategyReturnsFalseMock).isAvailable(worldpayAPMConfigurationModelMock, cartModelMock);
+        verify(apmAvailabilityStrategy2ReturnsTrueMock, never()).isAvailable(worldpayAPMConfigurationModelMock, cartModelMock);
     }
 
 }

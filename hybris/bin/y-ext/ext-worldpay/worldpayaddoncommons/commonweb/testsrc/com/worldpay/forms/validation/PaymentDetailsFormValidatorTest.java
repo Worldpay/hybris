@@ -51,7 +51,7 @@ public class PaymentDetailsFormValidatorTest {
 
     @Spy
     @InjectMocks
-    private PaymentDetailsFormValidator testObj = new PaymentDetailsFormValidator();
+    private PaymentDetailsFormValidator testObj;
 
     @Mock
     private PaymentDetailsForm paymentDetailsFormMock;
@@ -75,7 +75,7 @@ public class PaymentDetailsFormValidatorTest {
     private CartData checkoutCartMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         doNothing().when(testObj).validateField(any(Errors.class), anyString(), anyString());
         doNothing().when(testObj).validateField(any(Errors.class), anyString(), anyString(), anyString());
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);

@@ -8,7 +8,6 @@ import com.evanlennick.retry4j.exception.RetriesExhaustedException;
 import com.evanlennick.retry4j.exception.UnexpectedException;
 import com.worldpay.core.services.OrderInquiryService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
-import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;

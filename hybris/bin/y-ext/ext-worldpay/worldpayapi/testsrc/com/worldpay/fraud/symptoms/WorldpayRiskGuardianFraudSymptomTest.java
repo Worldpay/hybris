@@ -18,27 +18,26 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
-import static junit.framework.Assert.assertEquals;
-import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayRiskGuardianFraudSymptomTest {
 
-    public static final String CONFIGURED_LIMIT = "40";
+    private static final String CONFIGURED_LIMIT = "40";
 
     @InjectMocks
-    private WorldpayRiskGuardianFraudSymptom testObj = new WorldpayRiskGuardianFraudSymptom();
+    private WorldpayRiskGuardianFraudSymptom testObj;
     @Mock
     private OrderModel orderModelMock;
     @Mock
     private PaymentTransactionModel worldpayPaymentAuthoriseTransactionModelMock;
     @Mock
     private WorldpayRiskScoreModel worldpayRiskScoreModelMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
 
     private final Double configuredLimitValue = Double.valueOf(CONFIGURED_LIMIT);
@@ -49,49 +48,49 @@ public class WorldpayRiskGuardianFraudSymptomTest {
     }
 
     @Test
-    public void recognizeSymptomShouldReturnAPositiveFraudServiceResponseWhenRiskGuardianInPaymentTransactionHasScoreHigherThanConfiguredLimit() throws Exception {
+    public void recognizeSymptomShouldReturnAPositiveFraudServiceResponseWhenRiskGuardianInPaymentTransactionHasScoreHigherThanConfiguredLimit() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(worldpayPaymentAuthoriseTransactionModelMock));
         when(worldpayPaymentAuthoriseTransactionModelMock.getRiskScore()).thenReturn(worldpayRiskScoreModelMock);
         final double positiveFinalScore = configuredLimitValue + 10;
         when(worldpayRiskScoreModelMock.getFinalScore()).thenReturn(positiveFinalScore);
 
-        final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(EMPTY);
+        final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(StringUtils.EMPTY);
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(positiveFinalScore, fraudServiceResponse.getScore());
-        assertEquals(positiveFinalScore, fraudServiceResponse.getSymptoms().get(0).getScore());
-        assertEquals(positiveFinalScore, testObj.getIncrement());
+        assertEquals(positiveFinalScore, fraudServiceResponse.getScore(), 0.0);
+        assertEquals(positiveFinalScore, fraudServiceResponse.getSymptoms().get(0).getScore(), 0.0);
+        assertEquals(positiveFinalScore, testObj.getIncrement(), 0.0);
         verify(worldpayRiskScoreModelMock).getFinalScore();
     }
 
     @Test
-    public void recognizeSymptomShouldReturnTheSameFraudServiceResponseWhenRiskScoreIsRiskGuardianAndScoreIsLowerThanConfiguredLimit() throws Exception {
+    public void recognizeSymptomShouldReturnTheSameFraudServiceResponseWhenRiskScoreIsRiskGuardianAndScoreIsLowerThanConfiguredLimit() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(worldpayPaymentAuthoriseTransactionModelMock));
         when(worldpayPaymentAuthoriseTransactionModelMock.getRiskScore()).thenReturn(worldpayRiskScoreModelMock);
         final double negativeFinalScore = configuredLimitValue - 10;
         when(worldpayRiskScoreModelMock.getFinalScore()).thenReturn(negativeFinalScore);
 
-        final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(EMPTY);
+        final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(StringUtils.EMPTY);
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0D, fraudServiceResponse.getScore());
+        assertEquals(0D, fraudServiceResponse.getScore(), 0.0);
         assertEquals(Collections.emptyList(), fraudServiceResponse.getSymptoms());
         verify(worldpayRiskScoreModelMock).getFinalScore();
     }
 
     @Test
-    public void recognizeSymptomShouldReturnTheSameFraudServiceResponseWhenFinalScoreIsNull() throws Exception {
+    public void recognizeSymptomShouldReturnTheSameFraudServiceResponseWhenFinalScoreIsNull() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(worldpayPaymentAuthoriseTransactionModelMock));
         when(worldpayPaymentAuthoriseTransactionModelMock.getRiskScore()).thenReturn(worldpayRiskScoreModelMock);
         when(worldpayRiskScoreModelMock.getFinalScore()).thenReturn(null);
 
-        final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(EMPTY);
+        final FraudServiceResponse fraudServiceResponse = new FraudServiceResponse(StringUtils.EMPTY);
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0D, fraudServiceResponse.getScore());
+        assertEquals(0D, fraudServiceResponse.getScore(), 0.0);
         assertEquals(Collections.emptyList(), fraudServiceResponse.getSymptoms());
         verify(worldpayRiskScoreModelMock).getFinalScore();
     }
@@ -104,6 +103,6 @@ public class WorldpayRiskGuardianFraudSymptomTest {
 
         testObj.recognizeSymptom(fraudServiceResponse, orderModelMock);
 
-        assertEquals(0d, fraudServiceResponse.getScore());
+        assertEquals(0d, fraudServiceResponse.getScore(), 0.0);
     }
 }

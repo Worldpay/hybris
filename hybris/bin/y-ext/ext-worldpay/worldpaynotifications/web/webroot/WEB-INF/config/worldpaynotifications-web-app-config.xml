@@ -59,7 +59,7 @@
 	 the extensions resources/ directory.
 	 -->
 
-    <util:set id="processableJournalTypeCodes" value-type="java.lang.String">
+    <util:set id="processableJournalTypeCodes" value-type="com.worldpay.enums.order.AuthorisedStatus">
         <value>AUTHORISED</value>
         <value>CAPTURED</value>
         <value>REFUSED</value>

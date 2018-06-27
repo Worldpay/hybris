@@ -1,12 +1,12 @@
 package com.worldpay.facades.order.impl;
 
 import com.worldpay.core.services.OrderInquiryService;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
@@ -22,13 +22,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest

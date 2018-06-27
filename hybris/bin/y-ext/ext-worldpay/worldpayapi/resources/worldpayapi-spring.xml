@@ -415,6 +415,7 @@
     <bean id="defaultWorldpayOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayOrderService">
         <property name="commonI18NService" ref="commonI18NService"/>
         <property name="worldpayUrlService" ref="bankTransferWorldpayUrlService"/>
+        <property name="siteConfigService" ref="siteConfigService"/>
     </bean>
 
     <alias name="defaultWorldpayKlarnaStrategy" alias="worldpayKlarnaStrategy"/>
@@ -518,9 +519,8 @@
         <property name="typeCode" value="PaymentInfo"/>
     </bean>
 
-
     <util:map id="paymentTransactionTypeMap" map-class="java.util.HashMap"
-              key-type="com.worldpay.service.model.AuthorisedStatus" value-type="de.hybris.platform.payment.enums.PaymentTransactionType">
+              key-type="com.worldpay.enums.order.AuthorisedStatus" value-type="de.hybris.platform.payment.enums.PaymentTransactionType">
         <entry key="AUTHORISED" value="AUTHORIZATION"/>
         <entry key="CAPTURED" value="CAPTURE"/>
         <entry key="REFUSED" value="CANCEL"/>

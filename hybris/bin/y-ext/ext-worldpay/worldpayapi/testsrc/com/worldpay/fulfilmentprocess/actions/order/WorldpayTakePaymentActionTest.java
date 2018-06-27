@@ -58,7 +58,7 @@ public class WorldpayTakePaymentActionTest {
     private PaymentInfoModel paymentInfoMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(processMock.getOrder()).thenReturn(orderMock);
         when(orderMock.getPaymentTransactions()).thenReturn(Collections.singletonList(paymentTransactionMock));
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).thenReturn(Collections.singletonList(paymentTransactionEntryModelMock));

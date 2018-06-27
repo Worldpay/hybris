@@ -1,5 +1,6 @@
 package com.worldpay.service.mac;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.model.RedirectReference;
 
@@ -28,5 +29,5 @@ public interface MacValidator {
      * @return true or false depending whether the mac code is valid or not
      * @throws WorldpayMacValidationException if there has been an issue trying to validate the mac code
      */
-    boolean validateResponse(String orderKey, String worldpayMac, String paymentAmount, String currency, String status, String macSecret) throws WorldpayMacValidationException;
+    boolean validateResponse(final String orderKey, final String worldpayMac, final String paymentAmount, final String currency, final AuthorisedStatus status, final String macSecret) throws WorldpayMacValidationException;
 }

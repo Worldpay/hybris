@@ -2,6 +2,7 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.AdditionalAuthInfo;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.hostedorderpage.service.WorldpayURIService;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.StringUtils.EMPTY;
@@ -70,7 +72,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String CUSTOMER_EMAIL = "customerEmail";
     private static final String MERCHANT_CODE = "merchantCode";
-    private static final String AUTHORISED = "AUTHORISED";
     private static final String COUNTRY_CODE = "countryCode";
     private static final String FULL_SUCCESS_URL = "fullSuccessUrl";
     private static final String FULL_PENDING_URL = "fullPendingUrl";
@@ -411,7 +412,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
     private Map<String, String> createFullWorldpayResponse() {
         final Map<String, String> worldpayResponse = new HashMap<>();
-        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED);
+        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED.name());
         worldpayResponse.put(ORDER_KEY, ORDER_KEY);
         worldpayResponse.put(KEY_MAC, KEY_MAC);
         worldpayResponse.put(KEY_PAYMENT_AMOUNT, String.valueOf(PAYMENT_AMOUNT));
@@ -421,7 +422,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
     private Map<String, String> createFullWorldpayResponseWithMac2() {
         final Map<String, String> worldpayResponse = new HashMap<>();
-        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED);
+        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED.name());
         worldpayResponse.put(ORDER_KEY, ORDER_KEY);
         worldpayResponse.put(KEY_MAC2, KEY_MAC2);
         worldpayResponse.put(KEY_PAYMENT_AMOUNT, String.valueOf(PAYMENT_AMOUNT));
@@ -431,7 +432,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
     private Map<String, String> createWorldpayResponseWithNoOrderKey() {
         final Map<String, String> worldpayResponse = new HashMap<>();
-        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED);
+        worldpayResponse.put(PAYMENT_STATUS, AUTHORISED.name());
         worldpayResponse.put(KEY_MAC, KEY_MAC);
         worldpayResponse.put(KEY_PAYMENT_AMOUNT, String.valueOf(PAYMENT_AMOUNT));
         worldpayResponse.put(KEY_PAYMENT_CURRENCY, GBP);
@@ -444,7 +445,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         return worldpayResponse;
     }
 
-    private void setUpRedirectAuthoriseResultMock(final String paymentStatus) {
+    private void setUpRedirectAuthoriseResultMock(final AuthorisedStatus paymentStatus) {
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(paymentStatus);
         when(redirectAuthoriseResultMock.getOrderKey()).thenReturn(ORDER_KEY);

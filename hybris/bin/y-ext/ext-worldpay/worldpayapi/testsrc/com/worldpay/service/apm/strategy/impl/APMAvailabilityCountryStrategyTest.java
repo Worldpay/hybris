@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 public class APMAvailabilityCountryStrategyTest {
 
     @InjectMocks
-    private APMAvailabilityCountryStrategy testObj = new APMAvailabilityCountryStrategy();
+    private APMAvailabilityCountryStrategy testObj;
 
     @Mock
     private WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategyMock;

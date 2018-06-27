@@ -38,7 +38,7 @@ public class OrderModificationProcessorJobPerformableTest {
     private Set<PaymentTransactionType> paymentTransactionTypes = new HashSet<>();
     
     @Before
-    public void setup() {
+    public void setUp() {
         paymentTransactionTypes.add(AUTHORIZATION);
         paymentTransactionTypes.add(CAPTURE);
         paymentTransactionTypes.add(CANCEL);

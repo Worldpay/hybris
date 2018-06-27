@@ -1,5 +1,6 @@
 package com.worldpay.service.mac.impl;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.mac.MacValidator;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -12,21 +13,21 @@ import static org.junit.Assert.*;
 @UnitTest
 public class MD5MacValidatorTest {
 
-    @SuppressWarnings("PMD.MemberScope")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
     private MacValidator testObj = new MD5MacValidator();
 
     @Test
     public void testValidateResponse() throws WorldpayMacValidationException {
-        boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "25eefe952a6bbd09fe1c2c09bca4fa09", "1400", "GBP", "AUTHORISED", "@p-plepie");
+        boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "25eefe952a6bbd09fe1c2c09bca4fa09", "1400", "GBP", AuthorisedStatus.AUTHORISED, "@p-plepie");
         assertTrue("Mac validation code correct", result);
     }
 
     @Test
     public void testValidateResponseInvalid() throws WorldpayMacValidationException {
-        boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "25eefe952a6bbd09fe1c2c09bca4fa08", "1400", "GBP", "AUTHORISED", "@p-plepie");
+        boolean result = testObj.validateResponse("MYADMINCODE^MYMERCHANT^T0211010", "25eefe952a6bbd09fe1c2c09bca4fa08", "1400", "GBP", AuthorisedStatus.AUTHORISED, "@p-plepie");
         assertFalse("Mac validation code incorrect", result);
     }
 
@@ -41,6 +42,7 @@ public class MD5MacValidatorTest {
     @Test
     public void testValidateResponseInvalidPartialNulls() throws WorldpayMacValidationException {
         boolean result = testObj.validateResponse(null, "25eefe952a6bbd09fe1c2c09bca4fa08", null, null, null, null);
+
         assertFalse("Mac validation code correct", result);
     }
 }

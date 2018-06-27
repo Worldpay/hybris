@@ -2,7 +2,6 @@ package com.worldpay.converters.populators;
 
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.ErrorDetail;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.RedirectReference;
@@ -15,9 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.service.model.AuthorisedStatus.ERROR;
-import static com.worldpay.service.model.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +29,7 @@ public class WorldpaySubscriptionAuthoriseResultPopulatorTest {
     private static final String ERROR_MESSAGE = "errorMessage";
 
     @InjectMocks
-    private WorldpaySubscriptionAuthoriseResultPopulator testObj = new WorldpaySubscriptionAuthoriseResultPopulator();
+    private WorldpaySubscriptionAuthoriseResultPopulator testObj;
 
     @Mock
     private WorldpayAuthorisationResultService worldpayAuthorisationResultServiceMock;
@@ -62,7 +61,7 @@ public class WorldpaySubscriptionAuthoriseResultPopulatorTest {
 
     @Test
     public void populateShouldSetRejectedAndUnknownCodeWhenDirectAuthoriseServiceResponseNotAuthorised() {
-        when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.REFUSED);
+        when(paymentReplyMock.getAuthStatus()).thenReturn(REFUSED);
 
         final WorldpaySubscriptionAuthorizeResult result = new WorldpaySubscriptionAuthorizeResult();
         testObj.populate(directAuthoriseServiceResponseMock, result);
@@ -72,7 +71,7 @@ public class WorldpaySubscriptionAuthoriseResultPopulatorTest {
 
     @Test
     public void populateShouldSetErrorAndGeneralSystemErrorWhenDirectAuthoriseServiceResponseError() {
-        when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.ERROR);
+        when(paymentReplyMock.getAuthStatus()).thenReturn(ERROR);
 
         final WorldpaySubscriptionAuthorizeResult result = new WorldpaySubscriptionAuthorizeResult();
         testObj.populate(directAuthoriseServiceResponseMock, result);

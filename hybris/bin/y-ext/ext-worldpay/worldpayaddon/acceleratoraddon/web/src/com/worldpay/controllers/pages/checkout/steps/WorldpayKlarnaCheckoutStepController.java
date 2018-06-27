@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 
-import static com.worldpay.service.model.AuthorisedStatus.ERROR;
+import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
 
 /**
  * Web controller to handle Klarna APM
@@ -39,7 +39,7 @@ public class WorldpayKlarnaCheckoutStepController extends AbstractController {
     private WorldpayHostedOrderFacade worldpayHostedOrderFacade;
     @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
-    @Resource (name = "worldpayCheckoutFacade")
+    @Resource(name = "worldpayCheckoutFacade")
     private AcceleratorCheckoutFacade checkoutFacade;
 
     /**
@@ -62,12 +62,12 @@ public class WorldpayKlarnaCheckoutStepController extends AbstractController {
         } catch (WorldpayException | InvalidCartException e) {
             LOG.error("Failed to place Order", e);
             GlobalMessages.addErrorMessage(model, CHECKOUT_PLACE_ORDER_FAILED);
-            return doHostedOrderPageError(ERROR.getCode(), redirectAttributes);
+            return doHostedOrderPageError(ERROR.name(), redirectAttributes);
         }
     }
 
     private String doHostedOrderPageError(final String paymentStatus, final RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : ERROR.getCode());
+        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : ERROR.name());
         return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + paymentStatus;
     }
 

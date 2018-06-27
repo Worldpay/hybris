@@ -1,8 +1,8 @@
 package com.worldpay.service.impl;
 
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.service.model.RedirectReference;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.payment.commands.result.AbstractResult;
@@ -10,13 +10,8 @@ import de.hybris.platform.payment.dto.TransactionStatus;
 import de.hybris.platform.payment.dto.TransactionStatusDetails;
 import org.apache.log4j.Logger;
 
-import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
-import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
-import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.GENERAL_SYSTEM_ERROR;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.REVIEW_NEEDED;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.UNKNOWN_CODE;
+import static de.hybris.platform.payment.dto.TransactionStatus.*;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.*;
 
 /**
  * Default implementation of {@link WorldpayAuthorisationResultService}

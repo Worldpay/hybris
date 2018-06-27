@@ -22,17 +22,34 @@ public class CreateTokenServiceRequest extends AbstractServiceRequest {
 
     /**
      * Static convenience method for creating an instance of the CreateTokenServiceRequest
-     * @param merchantInfo              merchantInfo to be used in the Worldpay call
-     * @param authenticatedShopperId    unique reference for the customer using the payment method
-     * @param payment                   payment to be used in the Worldpay call
-     * @param tokenRequest              contains the information to request a new token
+     *
+     * @param merchantInfo           merchantInfo to be used in the Worldpay call
+     * @param authenticatedShopperId unique reference for the customer using the payment method
+     * @param payment                payment to be used in the Worldpay call
+     * @param tokenRequest           contains the information to request a new token
      * @return new instance of the CreateTokenServiceRequest initialised with input parameters
      */
-    public static CreateTokenServiceRequest createTokenRequest(final MerchantInfo merchantInfo, final String authenticatedShopperId, final Payment payment, final TokenRequest tokenRequest) {
+    public static CreateTokenServiceRequest createTokenRequestForShopperToken(final MerchantInfo merchantInfo, final String authenticatedShopperId, final Payment payment, final TokenRequest tokenRequest) {
         checkParameters("CreateTokenServiceRequest", merchantInfo, payment);
 
         final CreateTokenServiceRequest request = new CreateTokenServiceRequest(merchantInfo, null);
         request.setCardTokenRequest(new CardTokenRequest(authenticatedShopperId, tokenRequest, payment));
+        return request;
+    }
+
+    /**
+     * Static convenience method for creating an instance of the CreateTokenServiceRequest
+     *
+     * @param merchantInfo merchantInfo to be used in the Worldpay call
+     * @param payment      payment to be used in the Worldpay call
+     * @param tokenRequest contains the information to request a new token
+     * @return new instance of the CreateTokenServiceRequest initialised with input parameters
+     */
+    public static CreateTokenServiceRequest createTokenRequestForMerchantToken(final MerchantInfo merchantInfo, final Payment payment, final TokenRequest tokenRequest) {
+        checkParameters("CreateTokenServiceRequest", merchantInfo, payment);
+
+        final CreateTokenServiceRequest request = new CreateTokenServiceRequest(merchantInfo, null);
+        request.setCardTokenRequest(new CardTokenRequest(tokenRequest, payment));
         return request;
     }
 

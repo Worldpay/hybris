@@ -1,6 +1,7 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.data.AdditionalAuthInfo;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
@@ -34,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.worldpay.service.model.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
 import static java.util.Collections.singletonList;
 
@@ -71,8 +72,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
 
     /**
      * {@inheritDoc}
-     *
-     * @see WorldpayRedirectOrderService#redirectAuthorise
      */
     @Override
     public PaymentData redirectAuthorise(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
@@ -95,7 +94,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     }
 
     /**
-     * @see WorldpayRedirectOrderService#completeRedirectAuthorise
      * {@inheritDoc}
      */
     @Override
@@ -111,7 +109,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     }
 
     /**
-     * @see WorldpayRedirectOrderService#validateRedirectResponse
      * {@inheritDoc}
      */
     @Override
@@ -127,16 +124,16 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
             final String mac = resultMap.getOrDefault(KEY_MAC, mac2);
             final String paymentAmount = resultMap.get(KEY_PAYMENT_AMOUNT);
             final String paymentCurrency = resultMap.get(KEY_PAYMENT_CURRENCY);
-            return validateResponse(merchantInfo, orderKey, mac, paymentAmount, paymentCurrency, paymentStatus);
+            return validateResponse(merchantInfo, orderKey, mac, paymentAmount, paymentCurrency, AuthorisedStatus.valueOf(paymentStatus));
         }
         return true;
     }
 
     protected boolean shouldValidateMac(final MerchantInfo merchantInfo, final String paymentStatus) {
-        return merchantInfo.isUsingMacValidation() && AUTHORISED.getCode().equalsIgnoreCase(paymentStatus);
+        return merchantInfo.isUsingMacValidation() && AUTHORISED.name().equalsIgnoreCase(paymentStatus);
     }
 
-    protected boolean validateResponse(final MerchantInfo merchantInfo, final String orderKey, final String mac, final String paymentAmount, final String paymentCurrency, final String paymentStatus) {
+    protected boolean validateResponse(final MerchantInfo merchantInfo, final String orderKey, final String mac, final String paymentAmount, final String paymentCurrency, final AuthorisedStatus paymentStatus) {
         try {
             return getMacValidator().validateResponse(orderKey, mac, paymentAmount, paymentCurrency, paymentStatus, merchantInfo.getMacSecret());
         } catch (WorldpayMacValidationException e) {

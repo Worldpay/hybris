@@ -18,17 +18,19 @@ import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.Optional;
 
 public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller {
 
     /**
      * {@inheritDoc}
+     *
      * @param in
      * @return
      */
     @Override
     public PaymentService unmarshal(InputStream in) throws WorldpayModelTransformationException {
-        SAXSource source = getSAXSourceFromInputStream(in);
+        final SAXSource source = getSAXSourceFromInputStream(in);
 
         try {
             final Object unmarshalledObject = getUnmarshaller().unmarshal(source);
@@ -44,6 +46,7 @@ public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller
 
     /**
      * {@inheritDoc}
+     *
      * @param paymentService
      * @return
      */
@@ -88,9 +91,7 @@ public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller
     }
 
     private void validate(PaymentService paymentService) throws WorldpayValidationException {
-        final Object notifyType = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (notifyType == null) {
-            throw new WorldpayValidationException("No notification target in Worldpay target");
-        }
+        Optional.ofNullable(paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0))
+                .orElseThrow(() -> new WorldpayValidationException("No notification target in Worldpay target"));
     }
 }

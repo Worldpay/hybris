@@ -2,7 +2,6 @@ package com.worldpay.worldpayresponsemock.mock;
 
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
@@ -21,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
-
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -33,26 +31,25 @@ import static org.apache.http.conn.socket.PlainConnectionSocketFactory.getSocket
  */
 public class WorldpayMockConnector {
 
-    protected static final String WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT = "worldpayresponsemock.order.notification.endpoint";
-    protected static final String SITE_PARAMETER_NAME = "?site=";
-    protected static final String NOTIFICATION_EXTENSION_CONTEXT_ROOT = "worldpaynotifications.webroot";
-    protected static final String SCHEME_SEPARATOR = "://";
-    protected static final String PROTOCOL_SEPARATOR = ":";
-    protected static final String EXCEPTION_MESSAGE = "Exception sending response using the mocked connector";
-
     private static final Logger LOG = Logger.getLogger(WorldpayMockConnector.class);
+
+    private static final String WORLDPAYRESPONSEMOCK_ORDER_NOTIFICATION_ENDPOINT = "worldpayresponsemock.order.notification.endpoint";
+    private static final String NOTIFICATION_EXTENSION_CONTEXT_ROOT = "worldpaynotifications.webroot";
+    private static final String SCHEME_SEPARATOR = "://";
+    private static final String PROTOCOL_SEPARATOR = ":";
+    private static final String EXCEPTION_MESSAGE = "Exception sending response using the mocked connector";
 
     private RestTemplate worldpayRestTemplate;
     private ConfigurationService configurationService;
 
     /**
      * Send the response
-     * @param responseForm
+     *
      * @param request
      * @param responseXML
      * @throws WorldpayException
      */
-    public void sendResponse(ResponseForm responseForm, HttpServletRequest request, String responseXML) throws WorldpayException {
+    public void sendResponse(final HttpServletRequest request, final String responseXML) throws WorldpayException {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         HttpClient httpClient;
         try {

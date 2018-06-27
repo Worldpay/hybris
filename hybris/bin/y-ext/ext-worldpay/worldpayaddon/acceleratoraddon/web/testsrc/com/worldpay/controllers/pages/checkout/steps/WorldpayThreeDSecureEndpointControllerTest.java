@@ -66,7 +66,7 @@ public class WorldpayThreeDSecureEndpointControllerTest {
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
 
     @Before
-    public void setup() throws InvalidCartException, WorldpayException {
+    public void setUp() throws InvalidCartException, WorldpayException {
         when(threeDSecureFormMock.getPaRes()).thenReturn(PA_RESPONSE);
         when(threeDSecureFormMock.getMD()).thenReturn(WORLDPAY_ORDER_CODE);
         when(worldpayDirectOrderFacadeMock.authorise3DSecure(PA_RESPONSE, worldpayAdditionalInfoDataMock)).thenReturn(directResponseDataMock);

@@ -148,7 +148,7 @@ public class DirectAuthoriseServiceRequestTest {
 
     @Test
     public void createTokenisedDirectAuthoriseRequestShouldCreateAnOrderRequestWithToken() {
-        payment = new Token(TOKEN_ID);
+        payment = new Token(TOKEN_ID, false);
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
                 SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
 

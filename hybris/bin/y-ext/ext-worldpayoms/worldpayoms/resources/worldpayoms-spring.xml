@@ -53,14 +53,14 @@
     <!-- Journal Type Strategies -->
     <bean id="worldpayRefundedStrategyMapMergeDirective" depends-on="journalTypeToNotificationProcessorStrategyMap" parent="mapMergeDirective">
         <property name="key">
-            <value type="com.worldpay.service.model.AuthorisedStatus">REFUNDED</value>
+            <value type="com.worldpay.enums.order.AuthorisedStatus">REFUNDED</value>
         </property>
         <property name="value" ref="refundedOrderNotificationProcessorStrategy"/>
     </bean>
 
     <bean id="worldpayRefundFollowOnMapMergeDirective" depends-on="paymentTransactionTypeMap" parent="mapMergeDirective">
         <property name="key">
-            <value type="com.worldpay.service.model.AuthorisedStatus">REFUNDED</value>
+            <value type="com.worldpay.enums.order.AuthorisedStatus">REFUNDED</value>
         </property>
         <property name="value" ref="refundFollowOnPaymentTransactionType"/>
     </bean>
@@ -85,21 +85,21 @@
 
     <bean id="worldpayJournalTypeSettledProcessorStrategyMapMergeDirective" depends-on="journalTypeToNotificationProcessorStrategyMap" parent="mapMergeDirective">
         <property name="key">
-            <value type="com.worldpay.service.model.AuthorisedStatus">SETTLED</value>
+            <value type="com.worldpay.enums.order.AuthorisedStatus">SETTLED</value>
         </property>
         <property name="value" ref="settledOrderNotificationProcessorStrategy"/>
     </bean>
 
     <bean id="worldpayPaymentTransactionTypeSettledMapMergeDirective" depends-on="paymentTransactionTypeMap" parent="mapMergeDirective">
         <property name="key">
-            <value type="com.worldpay.service.model.AuthorisedStatus">SETTLED</value>
+            <value type="com.worldpay.enums.order.AuthorisedStatus">SETTLED</value>
         </property>
         <property name="value" ref="settledPaymentTransactionType"/>
     </bean>
 
     <bean id="worldpayPaymentTransactionTypeRefundWebformIssuedMapMergeDirective" depends-on="paymentTransactionTypeMap" parent="mapMergeDirective">
         <property name="key">
-            <value type="com.worldpay.service.model.AuthorisedStatus">REFUND_WEBFORM_ISSUED</value>
+            <value type="com.worldpay.enums.order.AuthorisedStatus">REFUND_WEBFORM_ISSUED</value>
         </property>
         <property name="value" ref="refundFollowOnPaymentTransactionType"/>
     </bean>

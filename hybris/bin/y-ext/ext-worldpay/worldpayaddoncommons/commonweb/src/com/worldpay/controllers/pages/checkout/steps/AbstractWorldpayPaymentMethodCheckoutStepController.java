@@ -20,14 +20,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static java.util.Calendar.YEAR;
 
 @Controller
 @RequestMapping (value = "/checkout/multi/payment-method")
@@ -46,7 +44,7 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     protected static final String PAYMENT_METHOD_PARAM = "paymentMethod";
     protected static final String WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL = "worldpayPaymentAndBillingCheckoutStep";
     protected static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
-    protected static final int MONTHS_IN_A_YEAR_BASED_ON_0 = 11;
+    protected static final int PLUS_YEARS = 11;
     protected static final String REQUEST = "request";
 
     @Resource
@@ -89,9 +87,9 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     @ModelAttribute ("expiryYears")
     public List<SelectOption> getExpiryYears() {
         final List<SelectOption> expiryYears = new ArrayList<>();
-        final Calendar calender = new GregorianCalendar();
+        final LocalDate localDate = LocalDate.now();
 
-        for (int i = calender.get(YEAR); i < (calender.get(YEAR) + MONTHS_IN_A_YEAR_BASED_ON_0); i++) {
+        for (int i = localDate.getYear(); i < (localDate.getYear() + PLUS_YEARS); i++) {
             expiryYears.add(new SelectOption(String.valueOf(i), String.valueOf(i)));
         }
 

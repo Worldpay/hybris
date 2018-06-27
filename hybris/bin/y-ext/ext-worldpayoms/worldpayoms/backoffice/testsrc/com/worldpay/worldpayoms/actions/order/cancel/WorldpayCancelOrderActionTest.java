@@ -67,7 +67,7 @@ public class WorldpayCancelOrderActionTest {
     private CancelDecision cancelDecisionMock;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(userServiceMock.getCurrentUser()).thenReturn(userModelMock);
         when(orderCancelServiceMock.isCancelPossible(orderModelMock, userModelMock, true, true)).thenReturn(cancelDecisionMock);
         when(cancelDecisionMock.isAllowed()).thenReturn(true);

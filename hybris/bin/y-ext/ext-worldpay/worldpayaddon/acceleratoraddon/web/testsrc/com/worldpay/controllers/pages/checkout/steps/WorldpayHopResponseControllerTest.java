@@ -1,11 +1,11 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.WorldpayAddonEndpointService;
-import com.worldpay.service.model.AuthorisedStatus;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
@@ -35,8 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.*;
-import static com.worldpay.service.model.AuthorisedStatus.*;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.REDIRECT_PREFIX;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayHopResponseController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
+import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
@@ -48,7 +49,6 @@ import static org.mockito.Mockito.*;
 public class WorldpayHopResponseControllerTest {
 
     private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
-    private static final String STATUS_ERROR = "ERROR";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final String ORDER_CODE = "orderCode";
     private static final String ORDER_CONF_PREFIX = "redirect:" + "/checkout/orderConfirmation/";
@@ -87,7 +87,7 @@ public class WorldpayHopResponseControllerTest {
     @Mock
     private Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverterMock;
     @Mock
-    private Set<String> apmErrorResponseStatusesMock;
+    private Set<AuthorisedStatus> apmErrorResponseStatusesMock;
     @Mock
     private RedirectAttributes redirectAttributesMock;
     @Mock
@@ -117,7 +117,7 @@ public class WorldpayHopResponseControllerTest {
 
     @Before
     public void setUp() {
-        when(apmErrorResponseStatusesMock.contains(STATUS_ERROR)).thenReturn(true);
+        when(apmErrorResponseStatusesMock.contains(AuthorisedStatus.ERROR)).thenReturn(true);
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(Boolean.TRUE);
         when(orderDataMock.getGuid()).thenReturn(ORDER_GUID);
         when(redirectAuthoriseResultConverterMock.convert(anyMapOf(String.class, String.class))).thenReturn(redirectAuthoriseResultMock);
@@ -126,12 +126,12 @@ public class WorldpayHopResponseControllerTest {
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(worldpayHostedOrderFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn("hostedOrderPostPage");
-        mockHttpServletRequest.setParameter(PAYMENT_STATUS_PARAMETER_NAME, AuthorisedStatus.ERROR.getCode());
+        mockHttpServletRequest.setParameter(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
     }
 
     @Test
     public void doHandleHopResponseREFUSEDShouldRedirectToChoosePaymentMethod() throws InvalidCartException {
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(REFUSED.name());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(REFUSED);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
@@ -144,7 +144,7 @@ public class WorldpayHopResponseControllerTest {
     @Test
     public void doHandleHopResponseAUTHORISEDShouldCompleteRedirectAndPlaceOrderWhenResponseIsValid() throws InvalidCartException {
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AUTHORISED.name());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
@@ -162,25 +162,25 @@ public class WorldpayHopResponseControllerTest {
         verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
         verify(checkoutFacadeMock, never()).placeOrder();
         verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
     }
 
     @Test
     public void doHandleHopResponseNotAUTHORISEDShouldNotCompleteRedirectAndNotPlaceOrderWhenResponseIsValid() throws InvalidCartException {
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(REFUSED.name());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(REFUSED);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
         verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
         verify(checkoutFacadeMock, never()).placeOrder();
         verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, REFUSED.name());
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, REFUSED.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, REFUSED.name()), result);
     }
 
     @Test
     public void doHandlePendingHopResponseOPENShouldCompleteRedirectForAPMAndPlaceOrderWhenResponseIsValid() throws InvalidCartException {
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(OPEN.getCode());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AuthorisedStatus.OPEN);
 
         final String result = testObj.doHandlePendingHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
@@ -192,26 +192,26 @@ public class WorldpayHopResponseControllerTest {
 
     @Test
     public void doHandlePendingHopResponseNotOPENShouldNotCompleteRedirectForAPMAndNotPlaceOrderWhenResponseIsValid() throws InvalidCartException {
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(ERROR.getCode());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AuthorisedStatus.ERROR);
 
         final String result = testObj.doHandlePendingHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
         verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
         verify(checkoutFacadeMock, never()).placeOrder();
         verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
     }
 
     @Test
     public void doHandlePendingHopResponseNotERRORShouldNOTCompleteRedirectForAPMAndNotPlaceOrderWhenResponseIsNotValid() throws InvalidCartException {
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(ERROR.getCode());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(ERROR);
 
         final String result = testObj.doHandlePendingHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
         verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
         verify(checkoutFacadeMock, never()).placeOrder();
         verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
     }
 
     @Test
@@ -222,7 +222,7 @@ public class WorldpayHopResponseControllerTest {
 
         verify(worldpayHostedOrderFacadeMock).completeRedirectAuthorise(redirectAuthoriseResultMock);
         verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
     }
 
     @Test
@@ -244,7 +244,7 @@ public class WorldpayHopResponseControllerTest {
 
         final String result = testObj.doHandleBankTransferHopFailure(mockHttpServletRequest, redirectAttributesMock);
 
-        verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, AuthorisedStatus.REFUSED.name());
+        verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, REFUSED.name());
         assertEquals(REDIRECT_URL_CHOOSE_PAYMENT_METHOD, result);
     }
 
@@ -283,9 +283,9 @@ public class WorldpayHopResponseControllerTest {
 
     @Test
     public void doHostedOrderPageErrorShouldRedirectToChoosePaymentMethod() {
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(EXPIRED.getCode());
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AuthorisedStatus.EXPIRED);
 
-        final String result = testObj.doHostedOrderPageError(EXPIRED.getCode(), redirectAttributesMock);
+        final String result = testObj.doHostedOrderPageError(EXPIRED.name(), redirectAttributesMock);
 
         verify(redirectAttributesMock).addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, AuthorisedStatus.EXPIRED.name());
         assertEquals(REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + AuthorisedStatus.EXPIRED.name(), result);
@@ -355,7 +355,7 @@ public class WorldpayHopResponseControllerTest {
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(null);
         when(worldpayHostedOrderFacadeMock.inquiryPaymentStatus()).thenReturn(redirectAuthoriseResultFromInquiryMock);
-        when(redirectAuthoriseResultFromInquiryMock.getPaymentStatus()).thenReturn(AUTHORISED.getCode());
+        when(redirectAuthoriseResultFromInquiryMock.getPaymentStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
@@ -370,13 +370,13 @@ public class WorldpayHopResponseControllerTest {
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(null);
         when(worldpayHostedOrderFacadeMock.inquiryPaymentStatus()).thenReturn(redirectAuthoriseResultFromInquiryMock);
-        when(redirectAuthoriseResultFromInquiryMock.getPaymentStatus()).thenReturn(ERROR.getCode());
+        when(redirectAuthoriseResultFromInquiryMock.getPaymentStatus()).thenReturn(AuthorisedStatus.ERROR);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
         verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultFromInquiryMock);
         verify(checkoutFacadeMock, never()).placeOrder();
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
     }
 
     @Test
@@ -403,7 +403,7 @@ public class WorldpayHopResponseControllerTest {
 
         verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
         verify(checkoutFacadeMock, never()).placeOrder();
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.getCode()), result);
+        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
 
     }
 }

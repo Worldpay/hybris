@@ -21,6 +21,11 @@ public class CardTokenRequest implements InternalModelTransformer, Serializable 
         this.payment = payment;
     }
 
+    public CardTokenRequest(final TokenRequest tokenRequest, final Payment payment) {
+        this.tokenRequest = tokenRequest;
+        this.payment = payment;
+    }
+
     @Override
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
         final PaymentTokenCreate paymentTokenCreate = new PaymentTokenCreate();

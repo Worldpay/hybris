@@ -87,16 +87,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
      */
     @Override
     public boolean isPaymentTransactionPending(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType) {
-        boolean isPending = false;
-        // A payment paymentTransaction is valid when all of the entries of the requested PaymentTransactionType are not pending
-        for (PaymentTransactionEntryModel paymentTransactionEntry : paymentTransaction.getEntries()) {
-            if (paymentTransactionType.equals(paymentTransactionEntry.getType()) && paymentTransactionEntry.getPending()) {
-                // returns true if it find any one is in a pending state
-                isPending = true;
-                break;
-            }
-        }
-        return isPending;
+        return paymentTransaction.getEntries().stream()
+                .anyMatch(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()) && paymentTransactionEntry.getPending());
     }
 
     /**
@@ -105,7 +97,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public List<PaymentTransactionEntryModel> filterPaymentTransactionEntriesOfType(final PaymentTransactionModel paymentTransaction,
                                                                                     final PaymentTransactionType paymentTransactionType) {
-        return paymentTransaction.getEntries().stream().filter(entry -> entry.getType().equals(paymentTransactionType)).collect(Collectors.toList());
+        return paymentTransaction.getEntries().stream()
+                .filter(entry -> entry.getType().equals(paymentTransactionType))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -114,7 +108,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public List<PaymentTransactionEntryModel> getPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
                                                                                          final PaymentTransactionType paymentTransactionType) {
-        return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream().filter(PaymentTransactionEntryModel::getPending).collect(Collectors.toList());
+        return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream()
+                .filter(PaymentTransactionEntryModel::getPending)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -299,7 +295,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
         double tolerance = configurationService.getConfiguration().getDouble("worldpayapi.authoriseamount.validation.tolerance");
 
-        return !(Math.abs(order.getTotalPrice() - authorisedAmount.doubleValue()) > tolerance);
+        return Math.abs(order.getTotalPrice() - authorisedAmount.doubleValue()) <= tolerance;
     }
 
     protected BigDecimal convertAmount(final Amount amount) {

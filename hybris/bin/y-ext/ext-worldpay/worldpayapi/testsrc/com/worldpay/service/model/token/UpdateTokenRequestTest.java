@@ -9,8 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -33,14 +32,30 @@ public class UpdateTokenRequestTest {
 
     @Before
     public void setUp() {
-        testObj = new UpdateTokenRequest(PAYMENT_TOKEN_ID, AUTHENTICATED_SHOPPER_ID, cardDetailsMock, tokenRequestMock);
         when(cardDetailsMock.transformToInternalModel()).thenReturn(intCardDetailsMock);
         when(tokenRequestMock.getTokenReason()).thenReturn(TOKEN_REASON);
         when(tokenRequestMock.getTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
     }
 
     @Test
-    public void shouldTransformToAPaymentTokenUpdate() {
+    public void shouldTransformToAPaymentTokenUpdateWithMerchantScope() {
+        testObj = new UpdateTokenRequest(PAYMENT_TOKEN_ID, AUTHENTICATED_SHOPPER_ID, cardDetailsMock, tokenRequestMock, true);
+
+        final InternalModelObject result = testObj.transformToInternalModel();
+
+        assertTrue(result instanceof PaymentTokenUpdate);
+        final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) result;
+        assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID());
+        assertNull(paymentTokenUpdate.getAuthenticatedShopperID());
+        assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0));
+        assertEquals(TOKEN_REASON, paymentTokenUpdate.getTokenReason().getvalue());
+        assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenUpdate.getTokenEventReference());
+        assertEquals("merchant", paymentTokenUpdate.getTokenScope());
+    }
+
+    @Test
+    public void shouldTransformToAPaymentTokenUpdateWithShopperScope() {
+        testObj = new UpdateTokenRequest(PAYMENT_TOKEN_ID, AUTHENTICATED_SHOPPER_ID, cardDetailsMock, tokenRequestMock, false);
 
         final InternalModelObject result = testObj.transformToInternalModel();
 
@@ -51,5 +66,6 @@ public class UpdateTokenRequestTest {
         assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0));
         assertEquals(TOKEN_REASON, paymentTokenUpdate.getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenUpdate.getTokenEventReference());
+        assertEquals("shopper", paymentTokenUpdate.getTokenScope());
     }
 }

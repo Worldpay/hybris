@@ -1,10 +1,10 @@
 package com.worldpay.hostedorderpage.converters;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.payment.WorldpayOrderService;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static java.lang.Boolean.TRUE;
 import static org.junit.Assert.assertEquals;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class RedirectAuthoriseResultPopulatorTest {
 
     private static final String ORDER_CODE = "00002000-1431098192721";
@@ -35,7 +35,7 @@ public class RedirectAuthoriseResultPopulatorTest {
     private static final String PAYMENT_CURRENCY = "GBP";
 
     @InjectMocks
-    private RedirectAuthoriseResultPopulator testObj = new RedirectAuthoriseResultPopulator();
+    private RedirectAuthoriseResultPopulator testObj;
 
     @Mock
     private WorldpayOrderService worldpayOrderService;
@@ -57,7 +57,7 @@ public class RedirectAuthoriseResultPopulatorTest {
 
         assertEquals(ORDER_KEY, result.getOrderKey());
         assertEquals(ORDER_CODE, result.getOrderCode());
-        assertEquals(STATUS, result.getPaymentStatus());
+        assertEquals(AuthorisedStatus.AUTHORISED, result.getPaymentStatus());
         assertEquals(new BigDecimal(10), result.getPaymentAmount());
         assertEquals(true, result.getSaveCard());
         assertEquals(false, result.getPending());
@@ -72,7 +72,7 @@ public class RedirectAuthoriseResultPopulatorTest {
 
         testObj.populate(paymentStatusSourceMap, result);
 
-        Assert.assertEquals(null, result.getPaymentAmount());
+        assertEquals(null, result.getPaymentAmount());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class RedirectAuthoriseResultPopulatorTest {
 
         assertEquals(ORDER_KEY, result.getOrderKey());
         assertEquals(ORDER_CODE, result.getOrderCode());
-        assertEquals(STATUS, result.getPaymentStatus());
+        assertEquals(AuthorisedStatus.AUTHORISED, result.getPaymentStatus());
         assertEquals(false, result.getSaveCard());
         assertEquals(false, result.getPending());
     }
@@ -104,7 +104,7 @@ public class RedirectAuthoriseResultPopulatorTest {
     protected void populateParametersMap() {
         paymentStatusSourceMap.put("orderKey", ORDER_KEY);
         paymentStatusSourceMap.put("paymentStatus", STATUS);
-        paymentStatusSourceMap.put("savePaymentInfo", String.valueOf(TRUE));
+        paymentStatusSourceMap.put("savePaymentInfo", Boolean.TRUE.toString());
         paymentStatusSourceMap.put("paymentAmount", PAYMENT_AMOUNT);
         paymentStatusSourceMap.put("paymentCurrency", PAYMENT_CURRENCY);
 

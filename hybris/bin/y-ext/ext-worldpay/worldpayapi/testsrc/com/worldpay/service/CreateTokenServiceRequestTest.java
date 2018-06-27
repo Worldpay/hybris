@@ -11,8 +11,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequest;
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForMerchantToken;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 @UnitTest
 public class CreateTokenServiceRequestTest {
@@ -31,26 +33,51 @@ public class CreateTokenServiceRequestTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void createTokenRequestWillRaiseIllegalArgumentExceptionWhenMerchantIsNull() {
+    public void createTokenRequestForShopperWillRaiseIllegalArgumentExceptionWhenMerchantIsNull() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
         final MerchantInfo merchant = null;
-        createTokenRequest(merchant, AUTHENTICATED_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
+        createTokenRequestForShopperToken(merchant, AUTHENTICATED_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
     }
 
     @Test
-    public void createTokenRequestWillRaiseIllegalArgumentExceptionWhenPaymentIsNull() {
+    public void createTokenRequestForShopperWillRaiseIllegalArgumentExceptionWhenPaymentIsNull() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
         final Payment payment = null;
-        createTokenRequest(MERCHANT_INFO, AUTHENTICATED_SHOPPER_ID, payment, TOKEN_REQUEST);
+        createTokenRequestForShopperToken(MERCHANT_INFO, AUTHENTICATED_SHOPPER_ID, payment, TOKEN_REQUEST);
     }
 
     @Test
-    public void createTokenRequestShouldBuildRequest() {
-        final CreateTokenServiceRequest result = createTokenRequest(MERCHANT_INFO, AUTHENTICATED_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
+    public void createTokenRequestForShopperShouldBuildRequest() {
+        final CreateTokenServiceRequest result = createTokenRequestForShopperToken(MERCHANT_INFO, AUTHENTICATED_SHOPPER_ID, PAYMENT, TOKEN_REQUEST);
         assertEquals(MERCHANT_INFO, result.getMerchantInfo());
         assertEquals(AUTHENTICATED_SHOPPER_ID, result.getCardTokenRequest().getAuthenticatedShopperId());
+        assertEquals(PAYMENT, result.getCardTokenRequest().getPayment());
+        assertEquals(TOKEN_REQUEST, result.getCardTokenRequest().getTokenRequest());
+    }
+
+    @Test
+    public void createTokenRequestForMerchantWillRaiseIllegalArgumentExceptionWhenMerchantIsNull() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
+        final MerchantInfo merchant = null;
+        createTokenRequestForMerchantToken(merchant, PAYMENT, TOKEN_REQUEST);
+    }
+
+    @Test
+    public void createTokenRequestForMerchantWillRaiseIllegalArgumentExceptionWhenPaymentIsNull() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
+        final Payment payment = null;
+        createTokenRequestForMerchantToken(MERCHANT_INFO, payment, TOKEN_REQUEST);
+    }
+
+    @Test
+    public void createTokenRequestForMerchantShouldBuildRequest() {
+        final CreateTokenServiceRequest result = createTokenRequestForMerchantToken(MERCHANT_INFO, PAYMENT, TOKEN_REQUEST);
+        assertEquals(MERCHANT_INFO, result.getMerchantInfo());
+        assertNull(result.getCardTokenRequest().getAuthenticatedShopperId());
         assertEquals(PAYMENT, result.getCardTokenRequest().getPayment());
         assertEquals(TOKEN_REQUEST, result.getCardTokenRequest().getTokenRequest());
     }

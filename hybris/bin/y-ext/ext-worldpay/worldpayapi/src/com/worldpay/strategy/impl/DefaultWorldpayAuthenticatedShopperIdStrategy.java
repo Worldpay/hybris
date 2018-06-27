@@ -17,11 +17,11 @@ public class DefaultWorldpayAuthenticatedShopperIdStrategy implements WorldpayAu
      * {@inheritDoc}
      */
     @Override
-    public String getAuthenticatedShopperId(UserModel userModel) {
+    public String getAuthenticatedShopperId(final UserModel userModel) {
         Preconditions.checkNotNull(userModel, "The user is null");
         if (userModel instanceof CustomerModel) {
             final String customerID = ((CustomerModel) userModel).getCustomerID();
-            return StringUtils.isNotBlank(customerID) ? customerID : ((CustomerModel) userModel).getOriginalUid();
+            return StringUtils.defaultIfBlank(customerID, ((CustomerModel) userModel).getOriginalUid());
         }
         throw new IllegalArgumentException(format("The user {0} is not of type Customer.", userModel));
     }
