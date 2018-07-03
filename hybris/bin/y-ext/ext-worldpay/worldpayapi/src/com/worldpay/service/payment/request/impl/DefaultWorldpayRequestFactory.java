@@ -95,7 +95,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     @Override
     public DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel) {
         final String tokenReason = TOKEN_DELETED + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
-        final TokenRequest tokenRequest = worldpayOrderService.createTokenRequest(creditCardPaymentInfoModel.getEventReference(), tokenReason);
+        final TokenRequest tokenRequest = worldpayOrderService.createTokenRequestForDeletion(creditCardPaymentInfoModel.getEventReference(), tokenReason, creditCardPaymentInfoModel.getAuthenticatedShopperID());
         return createDeleteTokenServiceRequest(merchantInfo, creditCardPaymentInfoModel, tokenRequest);
     }
 
