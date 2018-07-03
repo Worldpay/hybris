@@ -16,6 +16,7 @@ import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Currency;
@@ -102,9 +103,23 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
         return new Shopper(customerEmail, authenticatedShopperID, browser, session);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason) {
         if (isMerchantTokenEnabled()) {
+            return createMerchantTokenRequest(tokenEventReference, tokenReason);
+        }
+        return createShopperTokenRequest(tokenEventReference, tokenReason);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TokenRequest createTokenRequestForDeletion(final String tokenEventReference, final String tokenReason, final String authenticatedShopperId) {
+        if (StringUtils.isBlank(authenticatedShopperId)) {
             return createMerchantTokenRequest(tokenEventReference, tokenReason);
         }
         return createShopperTokenRequest(tokenEventReference, tokenReason);

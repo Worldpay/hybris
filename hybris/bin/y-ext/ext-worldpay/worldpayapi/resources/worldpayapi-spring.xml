@@ -187,7 +187,7 @@
     <bean id="abstractWorldpayUrlService" class="com.worldpay.service.impl.AbstractWorldpayUrlService" abstract="true">
         <property name="successPath" value="/checkout/multi/worldpay/hop-response"/>
         <property name="pendingPath" value="/checkout/multi/worldpay/hop-pending"/>
-        <property name="failurePath" value="/checkout/multi/worldpay/hop-response"/>
+        <property name="failurePath" value="/checkout/multi/worldpay/error"/>
         <property name="errorPath" value="/checkout/multi/worldpay/error"/>
         <property name="cancelPath" value="/checkout/multi/worldpay/hop-cancel"/>
         <property name="threeDSecureTermPath" value="/checkout/multi/worldpay/3dsecure/sop/response"/>

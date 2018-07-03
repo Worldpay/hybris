@@ -35,7 +35,21 @@ public class DeleteTokenRequestTest {
     }
 
     @Test
-    public void shouldTransformToAPaymentTokenDelete() {
+    public void shouldTransformToAPaymentTokenDeleteWithShopperScope() {
+        final InternalModelObject result = testObj.transformToInternalModel();
+
+        assertTrue(result instanceof PaymentTokenDelete);
+        final PaymentTokenDelete paymentTokenDelete = (PaymentTokenDelete) result;
+        assertEquals(PAYMENT_TOKEN_ID, paymentTokenDelete.getPaymentTokenID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenDelete.getAuthenticatedShopperID());
+        assertEquals(TOKEN_REASON, paymentTokenDelete.getTokenReason().getvalue());
+        assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenDelete.getTokenEventReference());
+        assertEquals("shopper", paymentTokenDelete.getTokenScope());
+    }
+
+    @Test
+    public void shouldTransformToAPaymentTokenDeleteWithMerchantScope() {
+        when(tokenRequestMock.isMerchantToken()).thenReturn(true);
 
         final InternalModelObject result = testObj.transformToInternalModel();
 
@@ -45,5 +59,6 @@ public class DeleteTokenRequestTest {
         assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenDelete.getAuthenticatedShopperID());
         assertEquals(TOKEN_REASON, paymentTokenDelete.getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenDelete.getTokenEventReference());
+        assertEquals("merchant", paymentTokenDelete.getTokenScope());
     }
 }

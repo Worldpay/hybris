@@ -91,11 +91,23 @@ public interface WorldpayOrderService {
     Shopper createAuthenticatedShopper(final String customerEmail, final String authenticatedShopperID, final Session session, final Browser browser);
 
     /**
+     * Creates a tokenRequest object with scope merchant or shopper depending on the configured property
+     *
      * @param tokenEventReference unique identifier for the token transaction
      * @param tokenReason         refers to the seller so they can be tracked to the site/web.
-     * @return Shopper object with an authenticatedShopperID and the assigned scope.
+     * @return Token Request with the appropiate scope
      */
     TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason);
+
+    /**
+     * Creates a tokenRequest object for token deletion with scope merchant or shopper depending on the authenticatedShopperId being null or not.
+     *
+     * @param tokenEventReference
+     * @param tokenReason
+     * @param authenticatedShopperId
+     * @return
+     */
+    TokenRequest createTokenRequestForDeletion(final String tokenEventReference, final String tokenReason, final String authenticatedShopperId);
 
     /**
      * Creates a CreateTokenServiceRequest. If merchant token is enabled, authenticatedShopperId is ignored and the create token request uses a null.
@@ -130,6 +142,7 @@ public interface WorldpayOrderService {
 
     /**
      * Creates token
+     *
      * @param subscriptionId
      * @param securityCode
      * @return Token object
