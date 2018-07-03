@@ -284,4 +284,16 @@ public class DefaultWorldpayOrderServiceTest {
 
         assertThat(result.getUpdateTokenRequest().isMerchantToken()).isTrue();
     }
+
+    @Test
+    public void shouldCreateTokenForDeletionWithMerchantScope() throws Exception {
+        final TokenRequest result = testObj.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_REASON, null);
+        assertThat(result.isMerchantToken()).isTrue();
+    }
+
+    @Test
+    public void shouldCreateTokenForDeletionWithShopperScope() throws Exception {
+        final TokenRequest result = testObj.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_REASON, AUTHENTICATED_SHOPPER_ID);
+        assertThat(result.isMerchantToken()).isFalse();
+    }
 }

@@ -287,10 +287,11 @@ public class DefaultWorldpayRequestFactoryTest {
 
     @Test
     public void shouldCreateDeleteTokenRequest() {
-        when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_DELETED + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))).
+        when(worldpayOrderServiceMock.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_DELETED + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE), AUTHENTICATED_SHOPPER_ID)).
                 thenReturn(tokenRequestMockWithReason);
         when(creditCardPaymentInfoModelMock.getEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
-
+        when(creditCardPaymentInfoModelMock.getAuthenticatedShopperID()).thenReturn(AUTHENTICATED_SHOPPER_ID);
+        
         testObj.buildTokenDeleteRequest(merchantInfoMock, creditCardPaymentInfoModelMock);
 
         verify(testObj).createDeleteTokenServiceRequest(eq(merchantInfoMock), eq(creditCardPaymentInfoModelMock), eq(tokenRequestMockWithReason));

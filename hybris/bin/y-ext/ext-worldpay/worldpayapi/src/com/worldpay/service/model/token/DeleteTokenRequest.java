@@ -22,7 +22,9 @@ public class DeleteTokenRequest implements InternalModelTransformer, Serializabl
     @Override
     public InternalModelObject transformToInternalModel() {
         final PaymentTokenDelete intPaymentTokenDelete = new PaymentTokenDelete();
-
+        if (tokenRequest.isMerchantToken()) {
+            intPaymentTokenDelete.setTokenScope("merchant");
+        }
         intPaymentTokenDelete.setAuthenticatedShopperID(authenticatedShopperID);
         intPaymentTokenDelete.setPaymentTokenID(paymentTokenID);
         intPaymentTokenDelete.setTokenEventReference(tokenRequest.getTokenEventReference());
