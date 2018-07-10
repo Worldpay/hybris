@@ -211,7 +211,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
-        tokenDetail.setPaymentTokenID(PAYMENT_TOKEN_ID);
+        final PaymentTokenID paymentTokenID = new PaymentTokenID();
+        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetail.setTokenEvent(TOKEN_EVENT);
@@ -450,7 +452,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
-        tokenDetail.setPaymentTokenID(PAYMENT_TOKEN_ID);
+        final PaymentTokenID paymentTokenID = new PaymentTokenID();
+        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetail.setTokenEvent(TOKEN_EVENT);
@@ -522,7 +526,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
-        tokenDetail.setPaymentTokenID(PAYMENT_TOKEN_ID);
+        final PaymentTokenID paymentTokenID = new PaymentTokenID();
+        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetail.setTokenEvent(TOKEN_EVENT);
@@ -580,7 +586,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
-        tokenDetail.setPaymentTokenID(PAYMENT_TOKEN_ID);
+        final PaymentTokenID paymentTokenID = new PaymentTokenID();
+        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetail.setTokenEvent(TOKEN_EVENT);
@@ -647,7 +655,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
-        tokenDetail.setPaymentTokenID(PAYMENT_TOKEN_ID);
+        final PaymentTokenID paymentTokenID = new PaymentTokenID();
+        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetail.setTokenEvent(TOKEN_EVENT);

@@ -42,7 +42,7 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
         assertNotNull("updateTokenResponse is null!", updateTokenResponse);
         assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());
         assertNotNull("updateTokenResponse.getUpdateTokenReply is null!", updateTokenResponse.getUpdateTokenReply());
-        assertNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
+        assertNotNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
         assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
     }
 
@@ -58,7 +58,7 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
         assertNotNull("updateTokenResponse is null!", updateTokenResponse);
         assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());
         assertNotNull("updateTokenResponse.getUpdateTokenReply is null!", updateTokenResponse.getUpdateTokenReply());
-        assertNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
+        assertNotNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
         assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
     }
 

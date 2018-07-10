@@ -6,10 +6,12 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-
-<spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl"/>
-<spring:url value="/checkout/multi/termsAndConditions" var="getTermsAndConditionsUrl"/>
 <%@ taglib prefix="ycommerce" uri="http://hybris.com/tld/ycommercetags" %>
+
+<spring:htmlEscape defaultHtmlEscape="true" />
+
+<spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl" htmlEscape="false"/>
+<spring:url value="/checkout/multi/termsAndConditions" var="getTermsAndConditionsUrl" htmlEscape="false"/>
 
 <template:page pageTitle="${pageTitle}" hideHeaderLinks="true">
 
@@ -60,6 +62,4 @@
             </cms:pageSlot>
         </div>
     </div>
-
-
 </template:page>

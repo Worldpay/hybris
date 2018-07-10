@@ -6,22 +6,23 @@
 <%@ attribute name="showTaxEstimate" required="false" type="java.lang.Boolean" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="theme" tagdir="/WEB-INF/tags/shared/theme" %>
-<%@ taglib prefix="format" tagdir="/WEB-INF/tags/shared/format" %>
 <%@ taglib prefix="ycommerce" uri="http://hybris.com/tld/ycommercetags" %>
 <%@ taglib prefix="multi-checkout" tagdir="/WEB-INF/tags/responsive/checkout/multi" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="wp-multi-checkout" tagdir="/WEB-INF/tags/addons/worldpayaddon/responsive/checkout/multi" %>
+<%@ taglib prefix="order" tagdir="/WEB-INF/tags/responsive/order" %>
 
-<spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl"/>
-<spring:url value="/checkout/multi/termsAndConditions" var="getTermsAndConditionsUrl"/>
+<spring:htmlEscape defaultHtmlEscape="true" />
 
-<div class="checkout-headline hidden-xs">
-    <spring:theme code="checkout.multi.order.summary" text="Order Summary"/>
+<spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl" htmlEscape="false"/>
+<spring:url value="/checkout/multi/termsAndConditions" var="getTermsAndConditionsUrl" htmlEscape="false"/>
+
+<div class="checkout-summary-headline hidden-xs">
+    <spring:theme code="checkout.multi.order.summary" />
 </div>
 <div class="checkout-order-summary">
     <ycommerce:testId code="orderSummary">
@@ -30,6 +31,8 @@
         <c:forEach items="${cartData.pickupOrderGroups}" var="groupData" varStatus="status">
             <multi-checkout:pickupCartItems cartData="${cartData}" groupData="${groupData}" showHead="true"/>
         </c:forEach>
+
+        <order:appliedVouchers order="${cartData}" />
 
         <multi-checkout:paymentInfo cartData="${cartData}" paymentInfo="${cartData.paymentInfo}" showPaymentInfo="${showPaymentInfo}"/>
 
@@ -44,7 +47,7 @@
         <wp-multi-checkout:termsAndConditions/>
 
         <button id="placeOrder" type="submit" class="btn btn-primary btn-place-order btn-block worldpayPlaceOrderWithSecurityCode">
-            <spring:theme code="checkout.summary.placeOrder" text="Place Order"/>
+            <spring:theme code="checkout.summary.placeOrder" />
         </button>
     </form:form>
 </div>

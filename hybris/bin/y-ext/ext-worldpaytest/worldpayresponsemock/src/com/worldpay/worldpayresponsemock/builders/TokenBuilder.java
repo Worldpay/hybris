@@ -5,7 +5,6 @@ import com.worldpay.internal.model.*;
 import org.joda.time.DateTime;
 
 import static com.worldpay.worldpayresponsemock.builders.AddressBuilder.anAddressBuilder;
-import static org.springframework.util.Assert.notNull;
 
 /**
  * Builder for the internal Token model generated from the Worldpay DTD
@@ -235,7 +234,10 @@ public final class TokenBuilder {
         if (tokenId == null) {
             tokenId = String.valueOf(DateTime.now().getMillis());
         }
-        tokenDetails.setPaymentTokenID(tokenId);
+        final PaymentTokenID paymentTokenId = new PaymentTokenID();
+        paymentTokenId.setvalue(tokenId);
+
+        tokenDetails.setPaymentTokenID(paymentTokenId);
         tokenDetails.setTokenEvent(tokenEvent);
         tokenDetails.setTokenEventReference(tokenDetailsTokenEventReference);
 

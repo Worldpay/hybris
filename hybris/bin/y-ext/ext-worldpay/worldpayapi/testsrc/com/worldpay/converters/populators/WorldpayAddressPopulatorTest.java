@@ -22,15 +22,15 @@ public class WorldpayAddressPopulatorTest {
     @InjectMocks
     private WorldpayAddressPopulator testObject;
 
-    public static final String LINE_1 = "line1";
-    public static final String LINE_2 = "line2";
-    public static final String TOWN = "town";
-    public static final String COUNTRY_ISO_CODE = "countryIsoCode";
-    public static final String FIRSTNAME = "firstname";
-    public static final String LASTNAME = "lastname";
-    public static final String POSTALCODE = "postalcode";
-    public static final String TELEPHONE = "telephone";
-    public static final String STATE = "state";
+    private static final String LINE_1 = "line1";
+    private static final String LINE_2 = "line2";
+    private static final String TOWN = "town";
+    private static final String COUNTRY_ISO_CODE = "countryIsoCode";
+    private static final String FIRSTNAME = "firstname";
+    private static final String LASTNAME = "lastname";
+    private static final String POSTALCODE = "postalcode";
+    private static final String TELEPHONE = "telephone";
+    private static final String STATE = "state";
 
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private AddressModel sourceMock;

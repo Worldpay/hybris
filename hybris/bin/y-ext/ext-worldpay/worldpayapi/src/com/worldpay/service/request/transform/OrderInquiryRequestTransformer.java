@@ -54,11 +54,11 @@ public class OrderInquiryRequestTransformer implements ServiceRequestTransformer
         if (request instanceof OrderInquiryServiceRequest) {
             final OrderInquiry orderInquiry = new OrderInquiry();
             orderInquiry.setOrderCode(request.getOrderCode());
-            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrieval().add(orderInquiry);
+            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiry().add(orderInquiry);
         } else if (request instanceof KlarnaOrderInquiryServiceRequest) {
             final KlarnaConfirmationInquiry klarnaConfirmationInquiry = new KlarnaConfirmationInquiry();
             klarnaConfirmationInquiry.setOrderCode(request.getOrderCode());
-            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrieval().add(klarnaConfirmationInquiry);
+            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiry().add(klarnaConfirmationInquiry);
         }
     }
 

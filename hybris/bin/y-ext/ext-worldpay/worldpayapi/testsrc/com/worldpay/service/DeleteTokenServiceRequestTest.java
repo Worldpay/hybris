@@ -28,8 +28,8 @@ public class DeleteTokenServiceRequestTest {
         final DeleteTokenServiceRequest result = DeleteTokenServiceRequest.deleteTokenRequest(merchantInfoMock, AUTHENTICATED_SHOPPER_ID, PAYMENT_TOKEN_ID, tokenRequestMock);
 
         assertEquals(tokenRequestMock, result.getDeleteTokenRequest().getTokenRequest());
-        assertEquals(AUTHENTICATED_SHOPPER_ID, result.getDeleteTokenRequest().getAuthenticatedShopperID());
-        assertEquals(PAYMENT_TOKEN_ID, result.getDeleteTokenRequest().getPaymentTokenID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID, result.getDeleteTokenRequest().getAuthenticatedShopperId());
+        assertEquals(PAYMENT_TOKEN_ID, result.getDeleteTokenRequest().getPaymentTokenId());
         assertEquals(merchantInfoMock, result.getMerchantInfo());
     }
 }

@@ -36,7 +36,7 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
             return authResponse;
         }
 
-        final OrderStatus intOrderStatus = (OrderStatus) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
+        final OrderStatus intOrderStatus = (OrderStatus) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
         if (intOrderStatus == null) {
             throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
         }

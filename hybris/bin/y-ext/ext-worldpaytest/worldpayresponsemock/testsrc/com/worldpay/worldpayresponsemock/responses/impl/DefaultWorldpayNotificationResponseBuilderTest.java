@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder.REFUND_WEBFORM_ISSUED;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -75,6 +74,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String AUTHENTICATED_SHOPPER_ID_VALUE = "authenticatedShopperIdValue";
     private static final String TOKEN_EVENT_REFERENCE_VALUE = "tokenEventReferenceValue";
     private static final String TOKEN_REASON_VALUE = "tokenReasonValue";
+    private static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
 
     @Mock
     private ResponseForm responseFormMock;
@@ -278,7 +278,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EXPIRY_MONTH_VALUE, paymentTokenExpiry.getDate().getMonth());
                 assertEquals(TOKEN_EXPIRY_YEAR_VALUE, paymentTokenExpiry.getDate().getYear());
 
-                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID());
+                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getvalue());
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {

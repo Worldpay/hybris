@@ -7,7 +7,7 @@ import com.worldpay.internal.model.Amount;
  */
 public final class AmountBuilder {
 
-    public static final String DEBIT_CREDIT_INDICATOR = "debit";
+    private static final String DEBIT_CREDIT_INDICATOR = "debit";
     private String transactionAmount = "100";
     private String exponent = "2";
     private String currencyCode = "USD";

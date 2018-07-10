@@ -42,7 +42,6 @@ public class DefaultWorldpayXMLValidatorTest {
     private static final String SUCCESS_URL = "http://successURL.com";
     private static final String CANCEL_URL = "http://cancelURL.com";
     private static final String PENDING_URL = "http://pendingURL.com";
-    private static final String FAILURE_URL = "http://failureURL.com";
     private static final String TOKEN_REFERENCE = "tokenReference";
     private static final String TOKEN_REASON = "tokenReason";
 
@@ -62,6 +61,7 @@ public class DefaultWorldpayXMLValidatorTest {
     private ConfigurationService configurationServiceMock;
 
     private static final String ORDER_CONTENT = "orderContent";
+    private static final WorldpayXMLValidator VALIDATOR = new DefaultWorldpayXMLValidator();
 
     @Before
     public void setUp() {
@@ -82,8 +82,7 @@ public class DefaultWorldpayXMLValidatorTest {
 
         final PaymentService paymentService = testObj.transform(request);
 
-        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
-        validator.validate(paymentService);
+        VALIDATOR.validate(paymentService);
     }
 
     @Test
@@ -96,8 +95,7 @@ public class DefaultWorldpayXMLValidatorTest {
 
         final PaymentService paymentService = testObj.transform(request);
 
-        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
-        validator.validate(paymentService);
+        VALIDATOR.validate(paymentService);
     }
 
     @Test
@@ -110,20 +108,7 @@ public class DefaultWorldpayXMLValidatorTest {
 
         final PaymentService paymentService = testObj.transform(request);
 
-        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
-        validator.validate(paymentService);
-    }
-
-    @Test
-    public void testValidateVMESSL() throws WorldpayValidationException, WorldpayModelTransformationException {
-        final AlternativePayment vmeSsl = PaymentBuilder.createVMESSL(SUCCESS_URL, FAILURE_URL, CANCEL_URL, cardAddress);
-        final AuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, vmeSsl,
-                SHOPPER, null, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, DynamicInteractionType.ECOMMERCE);
-
-        final PaymentService paymentService = testObj.transform(request);
-
-        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
-        validator.validate(paymentService);
+        VALIDATOR.validate(paymentService);
     }
 
     @Test
@@ -134,8 +119,7 @@ public class DefaultWorldpayXMLValidatorTest {
 
         final PaymentService paymentService = testObj.transform(request);
 
-        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
-        validator.validate(paymentService);
+        VALIDATOR.validate(paymentService);
     }
 
     @Test
@@ -147,7 +131,6 @@ public class DefaultWorldpayXMLValidatorTest {
 
         final PaymentService paymentService = testObj.transform(request);
 
-        final WorldpayXMLValidator validator = new DefaultWorldpayXMLValidator();
-        validator.validate(paymentService);
+        VALIDATOR.validate(paymentService);
     }
 }

@@ -8,16 +8,12 @@ import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
-import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
 import de.hybris.platform.commercefacades.order.data.OrderData;
-import de.hybris.platform.commercefacades.user.data.AddressData;
-import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -222,7 +218,9 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
 
         final PaymentDetailsForm wpPaymentDetailsForm = new PaymentDetailsForm();
         model.addAttribute(BILLING_ADDRESS_FORM, wpPaymentDetailsForm);
-        populateAddressForm(countryIsoCode, useDeliveryAddress, wpPaymentDetailsForm);
+        if (useDeliveryAddress) {
+            populateAddressForm(countryIsoCode, wpPaymentDetailsForm);
+        }
         return worldpayAddonEndpointService.getBillingAddressForm();
     }
 
@@ -257,24 +255,4 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         return map;
     }
 
-    protected void populateAddressForm(final String countryIsoCode, final boolean useDeliveryAddress, final PaymentDetailsForm paymentDetailsForm) {
-        if (useDeliveryAddress) {
-            final AddressData deliveryAddress = getCheckoutFacade().getCheckoutCart().getDeliveryAddress();
-            final AddressForm addressForm = new AddressForm();
-
-            final RegionData region = deliveryAddress.getRegion();
-            if (region != null && !StringUtils.isEmpty(region.getIsocode())) {
-                addressForm.setRegionIso(region.getIsocode());
-            }
-            addressForm.setFirstName(deliveryAddress.getFirstName());
-            addressForm.setLastName(deliveryAddress.getLastName());
-            addressForm.setLine1(deliveryAddress.getLine1());
-            addressForm.setLine2(deliveryAddress.getLine2());
-            addressForm.setTownCity(deliveryAddress.getTown());
-            addressForm.setPostcode(deliveryAddress.getPostalCode());
-            addressForm.setCountryIso(countryIsoCode);
-            addressForm.setPhone(deliveryAddress.getPhone());
-            paymentDetailsForm.setBillingAddress(addressForm);
-        }
-    }
 }

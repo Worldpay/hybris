@@ -331,4 +331,24 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     public MessageSource getThemeSource() {
         return themeSource;
     }
+
+    protected void populateAddressForm(final String countryIsoCode, final PaymentDetailsForm paymentDetailsForm) {
+        final AddressData deliveryAddress = getCheckoutFacade().getCheckoutCart().getDeliveryAddress();
+        final AddressForm addressForm = new AddressForm();
+
+        final RegionData region = deliveryAddress.getRegion();
+        if (region != null && !StringUtils.isEmpty(region.getIsocode())) {
+            addressForm.setRegionIso(region.getIsocode());
+        }
+        addressForm.setTitleCode(deliveryAddress.getTitleCode());
+        addressForm.setFirstName(deliveryAddress.getFirstName());
+        addressForm.setLastName(deliveryAddress.getLastName());
+        addressForm.setLine1(deliveryAddress.getLine1());
+        addressForm.setLine2(deliveryAddress.getLine2());
+        addressForm.setTownCity(deliveryAddress.getTown());
+        addressForm.setPostcode(deliveryAddress.getPostalCode());
+        addressForm.setCountryIso(countryIsoCode);
+        addressForm.setPhone(deliveryAddress.getPhone());
+        paymentDetailsForm.setBillingAddress(addressForm);
+    }
 }

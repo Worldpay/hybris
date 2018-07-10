@@ -21,13 +21,21 @@
   		<property name="name" value="labels"/>
   	</bean>
 
-
-	<alias name="worldpayPaymentTransactionAmountRenderer" alias="paymentTransactionAmountRenderer"/>
-	<bean id="worldpayPaymentTransactionAmountRenderer" class="com.worldpay.worldpayaddonbackoffice.renderers.PaymentTransactionAmountRenderer">
+	<bean id="abstractAmountRenderer" abstract="true">
 		<property name="typeFacade" ref="typeFacade"/>
 		<property name="propertyValueService" ref="propertyValueService"/>
 		<property name="labelService" ref="labelService"/>
 		<property name="permissionFacade" ref="permissionFacade"/>
+	</bean>
+
+	<alias name="worldpayPaymentTransactionAmountRenderer" alias="paymentTransactionAmountRenderer"/>
+	<bean id="worldpayPaymentTransactionAmountRenderer" parent="abstractAmountRenderer"
+		  class="com.worldpay.worldpayaddonbackoffice.renderers.PaymentTransactionAmountRenderer">
+	</bean>
+
+	<alias name="worldpayPaymentTransactionEntryAmountRenderer" alias="paymentTransactionEntryAmountRenderer"/>
+	<bean id="worldpayPaymentTransactionEntryAmountRenderer" parent="abstractAmountRenderer"
+		  class="com.worldpay.worldpayaddonbackoffice.renderers.PaymentTransactionEntryAmountRenderer">
 	</bean>
 
 	<bean id="worldpayNullSafeListCellRenderer" class="com.worldpay.worldpayaddonbackoffice.renderers.WorldpayNullSafeCellRenderer">

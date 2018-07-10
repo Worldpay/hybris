@@ -4,6 +4,6 @@
 
 <c:if test="${not empty country}">
     <form:form commandName="wpBillingAddressForm">
-        <wp-address:billingAddressFormElements regions="${regions}" country="${country}" />
+        <wp-address:billingAddressFormElements regions="${regions}" country="${country}" tabindex="12"/>
     </form:form>
 </c:if>

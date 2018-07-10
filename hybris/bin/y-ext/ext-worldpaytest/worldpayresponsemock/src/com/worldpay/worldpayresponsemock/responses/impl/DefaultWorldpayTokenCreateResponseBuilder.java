@@ -1,20 +1,7 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
 import com.worldpay.enums.token.TokenEvent;
-import com.worldpay.internal.model.CardDetails;
-import com.worldpay.internal.model.CardHolderName;
-import com.worldpay.internal.model.Date;
-import com.worldpay.internal.model.Derived;
-import com.worldpay.internal.model.ExpiryDate;
-import com.worldpay.internal.model.PaymentInstrument;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.PaymentTokenCreate;
-import com.worldpay.internal.model.PaymentTokenExpiry;
-import com.worldpay.internal.model.Reply;
-import com.worldpay.internal.model.Submit;
-import com.worldpay.internal.model.Token;
-import com.worldpay.internal.model.TokenDetails;
-import com.worldpay.internal.model.TokenReason;
+import com.worldpay.internal.model.*;
 import org.joda.time.DateTime;
 
 import java.util.UUID;
@@ -59,7 +46,10 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue("Reason for token");
         tokenDetails.setTokenReason(tokenReason);
-        tokenDetails.setPaymentTokenID(UUID.randomUUID().toString());
+
+        final PaymentTokenID paymentTokenId = new PaymentTokenID();
+        paymentTokenId.setvalue(UUID.randomUUID().toString());
+        tokenDetails.setPaymentTokenID(paymentTokenId);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(tokenDetails);
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final CardDetails cardDetails = new CardDetails();
@@ -80,7 +70,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
 
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(cardDetails);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(paymentInstrument);
-        reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().add(token);
+        reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().add(token);
         response.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
 
         return response;

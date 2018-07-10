@@ -53,6 +53,7 @@ public class WorldpayHopResponseControllerTest {
     private static final String ORDER_CODE = "orderCode";
     private static final String ORDER_CONF_PREFIX = "redirect:" + "/checkout/orderConfirmation/";
     private static final String COUNTRY_ISO_CODE = "GB";
+    private static final String TITLE = "title";
     private static final String FIRST_NAME = "firstName";
     private static final String LAST_NAME = "lastName";
     private static final String LINE_1 = "line1";
@@ -252,6 +253,7 @@ public class WorldpayHopResponseControllerTest {
     public void shouldPopulateBillingAddressWithShippingAddress() {
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(deliveryAddressMock.getTitleCode()).thenReturn(TITLE);
         when(deliveryAddressMock.getFirstName()).thenReturn(FIRST_NAME);
         when(deliveryAddressMock.getLastName()).thenReturn(LAST_NAME);
         when(deliveryAddressMock.getLine1()).thenReturn(LINE_1);
@@ -279,6 +281,7 @@ public class WorldpayHopResponseControllerTest {
         assertEquals(POSTAL_CODE, paymentDetailsForm.getBillingAddress().getPostcode());
         assertEquals(COUNTRY_ISO_CODE, paymentDetailsForm.getBillingAddress().getCountryIso());
         assertEquals(PHONE_NUMBER, paymentDetailsForm.getBillingAddress().getPhone());
+        assertEquals(TITLE, paymentDetailsForm.getBillingAddress().getTitleCode());
     }
 
     @Test

@@ -29,7 +29,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
 
     private static final Logger LOG = Logger.getLogger(WorldpayNotificationResponseBuilder.class);
 
-    protected static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
+    private static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
     private static final String IN_PROCESS_AUTHORISED = "IN_PROCESS_AUTHORISED";
     private static final String TOKEN = "Token";
 

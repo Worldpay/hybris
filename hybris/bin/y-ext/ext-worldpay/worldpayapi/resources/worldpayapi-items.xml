@@ -85,6 +85,7 @@
                 <attribute qualifier="isApm" type="java.lang.Boolean">
                     <persistence type="dynamic" attributeHandler="worldpayPaymentInfoIsApmHandler"/>
                     <modifiers write="false" read="true" search="true" optional="false"/>
+                    <defaultvalue>Boolean.FALSE</defaultvalue>
                 </attribute>
                 <attribute qualifier="paymentType" type="java.lang.String">
                     <modifiers read="true" write="true" search="true" optional="true"/>
@@ -395,7 +396,7 @@
                     <attribute qualifier="debug" type="boolean">
                         <modifiers optional="false"/>
                         <persistence type="property"/>
-                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <defaultvalue>Boolean.FALSE</defaultvalue>
                     </attribute>
                 </attributes>
             </itemtype>

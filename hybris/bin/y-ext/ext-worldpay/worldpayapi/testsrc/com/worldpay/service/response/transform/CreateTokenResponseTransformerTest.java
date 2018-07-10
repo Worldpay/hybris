@@ -102,7 +102,7 @@ public class CreateTokenResponseTransformerTest {
 
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
         final Error error = new Error();
         error.setCode(ERROR_CODE);
         error.setvalue(ERROR_VALUE);
@@ -118,7 +118,7 @@ public class CreateTokenResponseTransformerTest {
 
     private PaymentService createServiceReplyCard() {
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
         final Date date = createExpiryDate();
         final Token token = createToken();
 
@@ -140,7 +140,7 @@ public class CreateTokenResponseTransformerTest {
 
     private PaymentService createServiceReplyPaypal() {
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
         final Date date = createExpiryDate();
         final Token token = createToken();
 
@@ -171,7 +171,9 @@ public class CreateTokenResponseTransformerTest {
     private TokenDetails createTokenDetails(Date date) {
         final TokenDetails tokenDetails = new TokenDetails();
         tokenDetails.setTokenEvent(TOKEN_EVENT);
-        tokenDetails.setPaymentTokenID(TOKEN_ID);
+        final PaymentTokenID paymentTokenID = new PaymentTokenID();
+        paymentTokenID.setvalue(TOKEN_ID);
+        tokenDetails.setPaymentTokenID(paymentTokenID);
         tokenDetails.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetails.setTokenReason(createTokenReason());
         final PaymentTokenExpiry paymentTokenExpiry = new PaymentTokenExpiry();

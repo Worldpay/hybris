@@ -40,7 +40,7 @@ public class DeleteTokenRequestTest {
 
         assertTrue(result instanceof PaymentTokenDelete);
         final PaymentTokenDelete paymentTokenDelete = (PaymentTokenDelete) result;
-        assertEquals(PAYMENT_TOKEN_ID, paymentTokenDelete.getPaymentTokenID());
+        assertEquals(PAYMENT_TOKEN_ID, paymentTokenDelete.getPaymentTokenID().getvalue());
         assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenDelete.getAuthenticatedShopperID());
         assertEquals(TOKEN_REASON, paymentTokenDelete.getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenDelete.getTokenEventReference());
@@ -55,7 +55,7 @@ public class DeleteTokenRequestTest {
 
         assertTrue(result instanceof PaymentTokenDelete);
         final PaymentTokenDelete paymentTokenDelete = (PaymentTokenDelete) result;
-        assertEquals(PAYMENT_TOKEN_ID, paymentTokenDelete.getPaymentTokenID());
+        assertEquals(PAYMENT_TOKEN_ID, paymentTokenDelete.getPaymentTokenID().getvalue());
         assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenDelete.getAuthenticatedShopperID());
         assertEquals(TOKEN_REASON, paymentTokenDelete.getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenDelete.getTokenEventReference());

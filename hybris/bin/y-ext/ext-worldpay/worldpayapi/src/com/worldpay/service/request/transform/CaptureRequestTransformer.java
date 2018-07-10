@@ -37,28 +37,28 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
      * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(com.worldpay.service.request.ServiceRequest)
      */
     @Override
-    public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
+    public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the capture is invalid.");
         }
-        CaptureServiceRequest captureRequest = (CaptureServiceRequest) request;
+        final CaptureServiceRequest captureRequest = (CaptureServiceRequest) request;
 
-        PaymentService paymentService = new PaymentService();
+        final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
         paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (captureRequest.getAmount() == null) {
             throw new WorldpayModelTransformationException("No amount object to transform on the capture request");
         }
-        Modify modify = new Modify();
-        OrderModification orderModification = new OrderModification();
+        final Modify modify = new Modify();
+        final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(request.getOrderCode());
-        Capture capture = new Capture();
+        final Capture capture = new Capture();
         capture.setAmount((Amount) captureRequest.getAmount().transformToInternalModel());
         if (captureRequest.getDate() != null) {
             capture.setDate((Date) captureRequest.getDate().transformToInternalModel());
         }
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefund().add(capture);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetry().add(capture);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

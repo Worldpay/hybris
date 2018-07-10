@@ -33,7 +33,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
             return orderInquiryResponse;
         }
 
-        OrderStatus intOrderStatus = (OrderStatus) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
+        final OrderStatus intOrderStatus = (OrderStatus) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
         if (intOrderStatus == null) {
             throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
         }
@@ -52,13 +52,13 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
                 orderInquiryResponse.setReference(reference);
             }
         }
-        Object orderStatusType = orderStatusElements.get(0);
+        final Object orderStatusType = orderStatusElements.get(0);
         if (orderStatusType == null) {
             throw new WorldpayModelTransformationException("No order status type returned in Worldpay reply message");
         }
         if (orderStatusType instanceof Payment) {
-            Payment intPayment = (Payment) orderStatusType;
-            PaymentReply paymentReply = getServiceResponseTransformerHelper().buildPaymentReply(intPayment);
+            final Payment intPayment = (Payment) orderStatusType;
+            final PaymentReply paymentReply = getServiceResponseTransformerHelper().buildPaymentReply(intPayment);
 
             orderInquiryResponse.setPaymentReply(paymentReply);
         } else {

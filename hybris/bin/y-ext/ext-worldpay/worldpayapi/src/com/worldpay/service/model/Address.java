@@ -46,7 +46,7 @@ public class Address implements InternalModelTransformer, Serializable {
      * @param city
      * @param countryCode
      */
-    public Address(String firstName, String lastName, String address1, String address2, String address3, String postalCode, String city, String countryCode) {
+    public Address(final String firstName, final String lastName, final String address1, final String address2, final String address3, final String postalCode, final String city, final String countryCode) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address1 = address1;
@@ -59,7 +59,7 @@ public class Address implements InternalModelTransformer, Serializable {
 
     @Override
     public InternalModelObject transformToInternalModel() {
-        com.worldpay.internal.model.Address intAddress = new com.worldpay.internal.model.Address();
+        final com.worldpay.internal.model.Address intAddress = new com.worldpay.internal.model.Address();
         if (firstName != null) {
             intAddress.setFirstName(firstName);
         }
@@ -68,37 +68,37 @@ public class Address implements InternalModelTransformer, Serializable {
         }
         List<Object> addressDetails = intAddress.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3();
         if (street != null) {
-            Street intStreet = new Street();
+            final Street intStreet = new Street();
             intStreet.setvalue(street);
             addressDetails.add(intStreet);
         }
         if (houseName != null) {
-            HouseName intHouseName = new HouseName();
+            final HouseName intHouseName = new HouseName();
             intHouseName.setvalue(houseName);
             addressDetails.add(intHouseName);
         }
         if (houseNumber != null) {
-            HouseNumber intHouseNumber = new HouseNumber();
+            final HouseNumber intHouseNumber = new HouseNumber();
             intHouseNumber.setvalue(houseNumber);
             addressDetails.add(intHouseNumber);
         }
         if (houseNumberExtension != null) {
-            HouseNumberExtension intHouseNumberExt = new HouseNumberExtension();
+            final HouseNumberExtension intHouseNumberExt = new HouseNumberExtension();
             intHouseNumberExt.setvalue(houseNumberExtension);
             addressDetails.add(intHouseNumberExt);
         }
         if (address1 != null) {
-            Address1 intAddress1 = new Address1();
+            final Address1 intAddress1 = new Address1();
             intAddress1.setvalue(address1);
             addressDetails.add(intAddress1);
         }
         if (address2 != null) {
-            Address2 intAddress2 = new Address2();
+            final Address2 intAddress2 = new Address2();
             intAddress2.setvalue(address2);
             addressDetails.add(intAddress2);
         }
         if (address3 != null) {
-            Address3 intAddress3 = new Address3();
+            final Address3 intAddress3 = new Address3();
             intAddress3.setvalue(address3);
             addressDetails.add(intAddress3);
         }
@@ -125,7 +125,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -133,7 +133,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -141,7 +141,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return street;
     }
 
-    public void setStreet(String street) {
+    public void setStreet(final String street) {
         this.street = street;
     }
 
@@ -149,7 +149,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return houseName;
     }
 
-    public void setHouseName(String houseName) {
+    public void setHouseName(final String houseName) {
         this.houseName = houseName;
     }
 
@@ -157,7 +157,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return houseNumberExtension;
     }
 
-    public void setHouseNumberExtension(String houseNumberExtension) {
+    public void setHouseNumberExtension(final String houseNumberExtension) {
         this.houseNumberExtension = houseNumberExtension;
     }
 
@@ -165,7 +165,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return address1;
     }
 
-    public void setAddress1(String address1) {
+    public void setAddress1(final String address1) {
         this.address1 = address1;
     }
 
@@ -173,7 +173,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return address2;
     }
 
-    public void setAddress2(String address2) {
+    public void setAddress2(final String address2) {
         this.address2 = address2;
     }
 
@@ -181,7 +181,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return address3;
     }
 
-    public void setAddress3(String address3) {
+    public void setAddress3(final String address3) {
         this.address3 = address3;
     }
 
@@ -189,7 +189,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return postalCode;
     }
 
-    public void setPostalCode(String postalCode) {
+    public void setPostalCode(final String postalCode) {
         this.postalCode = postalCode;
     }
 
@@ -197,7 +197,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return city;
     }
 
-    public void setCity(String city) {
+    public void setCity(final String city) {
         this.city = city;
     }
 
@@ -205,7 +205,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(final String state) {
         this.state = state;
     }
 
@@ -213,7 +213,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return countryCode;
     }
 
-    public void setCountryCode(String countryCode) {
+    public void setCountryCode(final String countryCode) {
         this.countryCode = countryCode;
     }
 
@@ -221,7 +221,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return telephoneNumber;
     }
 
-    public void setTelephoneNumber(String telephoneNumber) {
+    public void setTelephoneNumber(final String telephoneNumber) {
         this.telephoneNumber = telephoneNumber;
     }
 
@@ -229,7 +229,7 @@ public class Address implements InternalModelTransformer, Serializable {
         return houseNumber;
     }
 
-    public void setHouseNumber(String houseNumber) {
+    public void setHouseNumber(final String houseNumber) {
         this.houseNumber = houseNumber;
     }
 

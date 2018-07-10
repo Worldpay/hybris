@@ -28,7 +28,7 @@ public class CreateTokenResponseTransformer extends AbstractServiceResponseTrans
 
         final Reply intReply = (Reply) responseType;
 
-        final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
+        final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
 
         if (getServiceResponseTransformerHelper().checkForError(createTokenResponse, intReply)) {
             return createTokenResponse;

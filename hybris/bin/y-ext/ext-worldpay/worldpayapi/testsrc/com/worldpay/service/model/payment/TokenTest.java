@@ -1,14 +1,18 @@
 package com.worldpay.service.model.payment;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
+import com.worldpay.internal.model.PaymentInstrument;
+import com.worldpay.internal.model.PaymentTokenID;
 import com.worldpay.internal.model.TOKENSSL;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.Token;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 @UnitTest
 public class TokenTest {
@@ -24,9 +28,11 @@ public class TokenTest {
 
         final TOKENSSL result = (TOKENSSL) token.transformToInternalModel();
 
-        assertEquals(PAYMENT_TOKEN_ID, result.getPaymentTokenID());
+        final List<Object> tokenElements = result.getPaymentTokenIDOrPaymentInstrumentOrCvcOrSession();
+        assertThat(tokenElements).hasSize(1);
+        assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
+        assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertEquals(MERCHANT, result.getTokenScope());
-        assertNull(result.getPaymentInstrument());
     }
 
     @Test
@@ -35,9 +41,11 @@ public class TokenTest {
 
         final TOKENSSL result = (TOKENSSL) token.transformToInternalModel();
 
-        assertEquals(PAYMENT_TOKEN_ID, result.getPaymentTokenID());
+        final List<Object> tokenElements = result.getPaymentTokenIDOrPaymentInstrumentOrCvcOrSession();
+        assertThat(tokenElements).hasSize(1);
+        assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
+        assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertEquals(SHOPPER, result.getTokenScope());
-        assertNull(result.getPaymentInstrument());
     }
 
     @Test
@@ -49,9 +57,13 @@ public class TokenTest {
 
         final TOKENSSL result = (TOKENSSL) token.transformToInternalModel();
 
-        assertEquals(PAYMENT_TOKEN_ID, result.getPaymentTokenID());
+        final List<Object> tokenElements = result.getPaymentTokenIDOrPaymentInstrumentOrCvcOrSession();
+        assertThat(tokenElements).hasSize(2);
+        assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
+        assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
+        assertThat(tokenElements.get(1)).isInstanceOf(PaymentInstrument.class);
+        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertEquals(MERCHANT, result.getTokenScope());
-        assertEquals(CARD_NUMBER, ((com.worldpay.internal.model.CardDetails) result.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0)).getDerived().getObfuscatedPAN());
     }
 
     @Test
@@ -63,8 +75,12 @@ public class TokenTest {
 
         final TOKENSSL result = (TOKENSSL) token.transformToInternalModel();
 
-        assertEquals(PAYMENT_TOKEN_ID, result.getPaymentTokenID());
+        final List<Object> tokenElements = result.getPaymentTokenIDOrPaymentInstrumentOrCvcOrSession();
+        assertThat(tokenElements).hasSize(2);
+        assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
+        assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
+        assertThat(tokenElements.get(1)).isInstanceOf(PaymentInstrument.class);
+        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertEquals(SHOPPER, result.getTokenScope());
-        assertEquals(CARD_NUMBER, ((com.worldpay.internal.model.CardDetails) result.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0)).getDerived().getObfuscatedPAN());
     }
 }
