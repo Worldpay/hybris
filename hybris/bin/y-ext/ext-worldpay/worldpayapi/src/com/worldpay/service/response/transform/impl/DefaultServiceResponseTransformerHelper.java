@@ -29,7 +29,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
      */
     @Override
     public boolean checkForError(ServiceResponse response, Reply reply) {
-        final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
+        final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
         if (replyType instanceof com.worldpay.internal.model.Error) {
             final com.worldpay.internal.model.Error intError = (com.worldpay.internal.model.Error) replyType;
             final ErrorDetail errorDtl = buildErrorDetail(intError);
@@ -173,7 +173,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         tokenDetails.setTokenEventReference(tokenInformationField.getTokenEventReference());
         tokenDetails.setTokenEvent(tokenInformationField.getTokenEvent());
         tokenDetails.setPaymentTokenExpiry(transformDate(tokenInformationField.getPaymentTokenExpiry().getDate()));
-        tokenDetails.setPaymentTokenID(tokenInformationField.getPaymentTokenID());
+        tokenDetails.setPaymentTokenID(tokenInformationField.getPaymentTokenID().getvalue());
         tokenDetails.setReportingTokenID(tokenInformationField.getReportingTokenID());
         if (tokenInformationField.getReportingTokenExpiry() != null) {
             tokenDetails.setReportingTokenExpiry(transformDate(tokenInformationField.getReportingTokenExpiry().getDate()));

@@ -2,6 +2,7 @@ package com.worldpay.service.model.token;
 
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.PaymentTokenDelete;
+import com.worldpay.internal.model.PaymentTokenID;
 import com.worldpay.internal.model.TokenReason;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
@@ -9,14 +10,14 @@ import java.io.Serializable;
 
 public class DeleteTokenRequest implements InternalModelTransformer, Serializable {
 
-    private String authenticatedShopperID;
-    private String paymentTokenID;
+    private String authenticatedShopperId;
+    private String paymentTokenId;
     private TokenRequest tokenRequest;
 
-    public DeleteTokenRequest(final String paymentTokenID, final String authenticatedShopperID, final TokenRequest tokenRequest) {
-        this.authenticatedShopperID = authenticatedShopperID;
+    public DeleteTokenRequest(final String paymentTokenId, final String authenticatedShopperId, final TokenRequest tokenRequest) {
+        this.authenticatedShopperId = authenticatedShopperId;
         this.tokenRequest = tokenRequest;
-        this.paymentTokenID = paymentTokenID;
+        this.paymentTokenId = paymentTokenId;
     }
 
     @Override
@@ -25,8 +26,11 @@ public class DeleteTokenRequest implements InternalModelTransformer, Serializabl
         if (tokenRequest.isMerchantToken()) {
             intPaymentTokenDelete.setTokenScope("merchant");
         }
-        intPaymentTokenDelete.setAuthenticatedShopperID(authenticatedShopperID);
-        intPaymentTokenDelete.setPaymentTokenID(paymentTokenID);
+        intPaymentTokenDelete.setAuthenticatedShopperID(authenticatedShopperId);
+
+        final PaymentTokenID paymentTokenIDWrapper = new PaymentTokenID();
+        paymentTokenIDWrapper.setvalue(paymentTokenId);
+        intPaymentTokenDelete.setPaymentTokenID(paymentTokenIDWrapper);
         intPaymentTokenDelete.setTokenEventReference(tokenRequest.getTokenEventReference());
 
         final TokenReason tokenReason = new TokenReason();
@@ -36,12 +40,12 @@ public class DeleteTokenRequest implements InternalModelTransformer, Serializabl
         return intPaymentTokenDelete;
     }
 
-    public String getAuthenticatedShopperID() {
-        return authenticatedShopperID;
+    public String getAuthenticatedShopperId() {
+        return authenticatedShopperId;
     }
 
-    public void setAuthenticatedShopperID(final String authenticatedShopperID) {
-        this.authenticatedShopperID = authenticatedShopperID;
+    public void setAuthenticatedShopperId(final String authenticatedShopperId) {
+        this.authenticatedShopperId = authenticatedShopperId;
     }
 
     public TokenRequest getTokenRequest() {
@@ -52,12 +56,12 @@ public class DeleteTokenRequest implements InternalModelTransformer, Serializabl
         this.tokenRequest = tokenRequest;
     }
 
-    public String getPaymentTokenID() {
-        return paymentTokenID;
+    public String getPaymentTokenId() {
+        return paymentTokenId;
     }
 
-    public void setPaymentTokenID(final String paymentTokenID) {
-        this.paymentTokenID = paymentTokenID;
+    public void setPaymentTokenId(final String paymentTokenId) {
+        this.paymentTokenId = paymentTokenId;
     }
 
 }

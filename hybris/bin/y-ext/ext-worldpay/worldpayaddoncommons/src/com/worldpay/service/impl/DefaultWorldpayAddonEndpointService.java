@@ -19,9 +19,7 @@ public class DefaultWorldpayAddonEndpointService implements WorldpayAddonEndpoin
     protected static final String AUTOSUBMIT3DSECURE = "pages/checkout/multi/autoSubmit3DSecure";
 
     protected static final String BILLINGADDRESSFORM = "fragments/checkout/worldpayBillingAddressForm";
-    protected static final String BILLINGADDRESSINPAYMENTFORM = "fragments/checkout/worldpayBillingAddressInPaymentForm";
 
-    protected static final String GLOBALERRORSFRAGMENT = "fragments/common/globalMessages";
     private static final String KLARNA_RESPONSE_PAGE = "pages/klarna/klarnaResponseContentPage";
 
     @Resource
@@ -50,16 +48,6 @@ public class DefaultWorldpayAddonEndpointService implements WorldpayAddonEndpoin
     @Override
     public String getBillingAddressForm() {
         return getEndpoint(BILLINGADDRESSFORM);
-    }
-
-    @Override
-    public String getBillingAddressInPaymentForm() {
-        return getEndpoint(BILLINGADDRESSFORM);
-    }
-
-    @Override
-    public String getGlobalErrorsFragment() {
-        return getEndpoint(GLOBALERRORSFRAGMENT);
     }
 
     protected String getEndpoint(final String path) {

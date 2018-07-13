@@ -9,7 +9,7 @@ import com.hybris.cockpitng.dataaccess.services.PropertyValueService;
 import com.hybris.cockpitng.engine.WidgetInstanceManager;
 import com.hybris.cockpitng.labels.LabelService;
 import com.hybris.cockpitng.widgets.common.WidgetComponentRenderer;
-import de.hybris.platform.payment.model.PaymentTransactionModel;
+import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -21,11 +21,11 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 /**
- * Backoffice amount render for PaymentTransaction
+ * Backoffice amount render for PaymentTransactionEntry
  */
-public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
-    private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionAmountRenderer.class);
-    private static final String PAYMENT_TRANSACTION = "PaymentTransaction";
+public class PaymentTransactionEntryAmountRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
+    private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionEntryAmountRenderer.class);
+    private static final String PAYMENT_TRANSACTION_ENTRY = "PaymentTransactionEntry";
 
     private TypeFacade typeFacade;
     private PropertyValueService propertyValueService;
@@ -45,13 +45,13 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
         final String qualifier = columnConfiguration.getQualifier();
 
         try {
-            final DataType paymentTransactionDataType = typeFacade.load(PAYMENT_TRANSACTION);
-            if (paymentTransactionDataType != null && permissionFacade.canReadProperty(paymentTransactionDataType.getCode(), qualifier)) {
+            final DataType paymentTransactionEntryDataType = typeFacade.load(PAYMENT_TRANSACTION_ENTRY);
+            if (paymentTransactionEntryDataType != null && permissionFacade.canReadProperty(paymentTransactionEntryDataType.getCode(), qualifier)) {
                 final Object amount = propertyValueService.readValue(object, qualifier);
                 if (amount == null) {
                     listCell.setLabel(EMPTY);
                 } else {
-                    listCell.setLabel(getPaymentTransactionAmountValue((PaymentTransactionModel) object, amount));
+                    listCell.setLabel(getPaymentTransactionEntryAmountValue((PaymentTransactionEntryModel) object, amount));
                 }
             }
         } catch (final TypeNotFoundException e) {
@@ -59,8 +59,8 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
         }
     }
 
-    private String getPaymentTransactionAmountValue(final PaymentTransactionModel object, final Object amount) {
-        final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getEntries().get(0).getCurrency().getDigits(), BigDecimal.ROUND_HALF_DOWN);
+    private String getPaymentTransactionEntryAmountValue(final PaymentTransactionEntryModel object, final Object amount) {
+        final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getCurrency().getDigits(), BigDecimal.ROUND_HALF_DOWN);
         final String amountValue = labelService.getObjectLabel(paymentTransactionAmount);
         return defaultIfBlank(amountValue, amount.toString());
     }

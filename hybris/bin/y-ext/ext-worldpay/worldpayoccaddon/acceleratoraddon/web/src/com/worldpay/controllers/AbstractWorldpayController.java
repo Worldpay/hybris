@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.apache.http.HttpHeaders.USER_AGENT;
 

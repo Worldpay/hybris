@@ -5,6 +5,7 @@ import de.hybris.bootstrap.annotations.ManualTest
 import spock.lang.Unroll
 
 import static groovyx.net.http.ContentType.*
+import static java.time.LocalDate.now
 import static org.apache.http.HttpStatus.SC_CREATED
 
 @ManualTest
@@ -41,7 +42,8 @@ class AddPaymentInfoTest extends AbstractWorldpaySpockTest {
         def cart = createCart(restClient, customer, responseFormat)
 
         and: "Obtained encrypted credit card token"
-        String cseToken = getCseToken("123", "Sven Johnson", "4111111111111111", "04", "2018")
+        def year = String.valueOf(now().plusYears(2).getYear())
+        String cseToken = getCseToken("123", "Sven Johnson", "4111111111111111", "04", year)
 
         if (postBody instanceof String) {
             postBody = postBody.replace("CSE_TOKEN", cseToken)

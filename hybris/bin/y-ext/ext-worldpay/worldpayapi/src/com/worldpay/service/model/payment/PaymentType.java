@@ -34,7 +34,6 @@ public enum PaymentType implements Serializable {
     JCB("JCB-SSL", JCBSSL.class),
     AURORE("AURORE-SSL", AURORESSL.class),
     GE_CAPITAL("GECAPITAL-SSL", GECAPITALSSL.class),
-    VME("VME-SSL", VMESSL.class),
     PERMANENT_SIGNED_DD_NL_FAX("PERMANENT_SIGNED_DD_NL-FAX", PERMANENTSIGNEDDDNLFAX.class), // TODO: Create creator method
     SINGLE_UNSIGNED_DD_NL("SINGLE_UNSIGNED_DD_NL-SSL", SINGLEUNSIGNEDDDNLSSL.class), // TODO: Create creator method
     SINGLE_UNSIGNED_DD_ES("SINGLE_UNSIGNED_DD_ES-SSL", SINGLEUNSIGNEDDDESSSL.class), // TODO: Create creator method

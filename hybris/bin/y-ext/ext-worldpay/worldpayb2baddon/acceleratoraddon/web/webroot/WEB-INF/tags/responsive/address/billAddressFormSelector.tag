@@ -22,10 +22,11 @@
                                skipBlankMessageKey="address.selectCountry"
                                items="${countries}"
                                itemValue="isocode"
+                               tabindex="${tabindex}"
                                selectCSSClass="form-control" />
 </div>
 <div id="wpBillingAddress" class="billingAddress i18nAddressForm">
     <c:if test="${not empty paymentDetailsForm.billingAddress.countryIso}">
-        <wp-address:billingAddressFormElements regions="${regions}" country="${paymentDetailsForm.billingAddress.countryIso}"/>
+        <wp-address:billingAddressFormElements regions="${regions}" country="${paymentDetailsForm.billingAddress.countryIso}" tabindex="${tabindex + 1}"/>
     </c:if>
 </div>

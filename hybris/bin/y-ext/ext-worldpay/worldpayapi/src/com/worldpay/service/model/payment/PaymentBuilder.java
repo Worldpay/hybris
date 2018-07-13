@@ -22,7 +22,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Cse object
      */
-    public static Cse createCSE(String encryptedData, Address cardAddress) {
+    public static Cse createCSE(final String encryptedData, final Address cardAddress) {
         return new Cse(encryptedData, cardAddress);
     }
 
@@ -36,7 +36,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createVISASSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createVISASSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.VISA, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -50,7 +50,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createECMCSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createECMCSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.MASTERCARD, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -64,7 +64,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createBHSSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createBHSSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.BHS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -78,7 +78,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createIKEASSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createIKEASSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.IKEA, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -92,7 +92,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createAMEXSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createAMEXSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.AMERICAN_EXPRESS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -106,7 +106,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createDINERSSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createDINERSSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.DINERS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -120,7 +120,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createCBSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createCBSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.CARTE_BANCAIRE, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -134,7 +134,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createAIRPLUSSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createAIRPLUSSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.AIRPLUS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -148,7 +148,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createUATPSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createUATPSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.UATP, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -162,7 +162,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createCARTEBLEUESSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createCARTEBLEUESSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.CARTE_BLEUE, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -178,7 +178,7 @@ public class PaymentBuilder {
      * @param startDate
      * @return Card object
      */
-    public static Card createSOLOGBSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress, String issueNumber, Date startDate) {
+    public static Card createSOLOGBSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final String issueNumber, final Date startDate) {
         return new Card(PaymentType.SOLO, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber);
     }
 
@@ -193,7 +193,7 @@ public class PaymentBuilder {
      * @param startDate
      * @return Card object
      */
-    public static Card createLASERSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress, Date startDate) {
+    public static Card createLASERSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final Date startDate) {
         return new Card(PaymentType.LASER_CARD, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, null);
     }
 
@@ -207,7 +207,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createDANKORTSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createDANKORTSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.DANKORT, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -221,7 +221,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createDISCOVERSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createDISCOVERSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.DISCOVER, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -235,7 +235,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createJCBSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createJCBSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.JCB, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -249,7 +249,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createAURORESSL(String cardNumber, Date birthDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createAURORESSL(final String cardNumber, final Date birthDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.AURORE, cardNumber, cvc, null, cardHolderName, cardAddress, birthDate, null, null);
     }
 
@@ -263,7 +263,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createGECAPITALSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createGECAPITALSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.GE_CAPITAL, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -279,7 +279,7 @@ public class PaymentBuilder {
      * @param startDate
      * @return Card object
      */
-    public static Card createMAESTROSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress, String issueNumber, Date startDate) {
+    public static Card createMAESTROSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final String issueNumber, final Date startDate) {
         return new Card(PaymentType.MAESTRO, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber);
     }
 
@@ -295,7 +295,7 @@ public class PaymentBuilder {
      * @param startDate
      * @return Card object
      */
-    public static Card createSWITCHSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress, String issueNumber, Date startDate) {
+    public static Card createSWITCHSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final String issueNumber, final Date startDate) {
         return new Card(PaymentType.SWITCH, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber);
     }
 
@@ -309,7 +309,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createNCPB2BSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createNCPB2BSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.NCPB2B, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -323,7 +323,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createNCPSEASONSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createNCPSEASONSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.NCPSEASON, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -337,7 +337,7 @@ public class PaymentBuilder {
      * @param cardAddress
      * @return Card object
      */
-    public static Card createCARDSSL(String cardNumber, Date expiryDate, String cardHolderName, String cvc, Address cardAddress) {
+    public static Card createCARDSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
         return new Card(PaymentType.CARD_SSL, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
     }
 
@@ -355,7 +355,7 @@ public class PaymentBuilder {
      * @param address
      * @return BankAccount object
      */
-    public static BankAccount createELVSSL(String accountHolderName, String accountNumber, String bankName, String bankLocation, String bankLocationId, Date birthDate, Address address) {
+    public static BankAccount createELVSSL(final String accountHolderName, final String accountNumber, final String bankName, final String bankLocation, final String bankLocationId, final Date birthDate, final Address address) {
         return new BankAccount(PaymentType.ELV, accountHolderName, accountNumber, bankName, bankLocation, bankLocationId, birthDate, address);
     }
 
@@ -379,7 +379,7 @@ public class PaymentBuilder {
      * @param cancelURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPAYPALEXPRESS(String firstInBillingRun, String successURL, String failureURL, String cancelURL) {
+    public static AlternativePayment createPAYPALEXPRESS(final String firstInBillingRun, final String successURL, final String failureURL, final String cancelURL) {
         return new AlternativePayPalPayment(PaymentType.PAYPAL, null, successURL, failureURL, cancelURL, null, firstInBillingRun);
     }
 
@@ -392,7 +392,7 @@ public class PaymentBuilder {
      * @param cancelURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createGIROPAYSSL(String bankCode, String successURL, String failureURL, String cancelURL) {
+    public static AlternativePayment createGIROPAYSSL(final String bankCode, final String successURL, final String failureURL, final String cancelURL) {
         return new AlternativeBankCodePayment(PaymentType.GIROPAY, null, successURL, failureURL, cancelURL, null, bankCode);
     }
 
@@ -405,7 +405,7 @@ public class PaymentBuilder {
      * @param cancelURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createIDEALSSL(String shopperBankCode, String successURL, String failureURL, String cancelURL) {
+    public static AlternativePayment createIDEALSSL(final String shopperBankCode, final String successURL, final String failureURL, final String cancelURL) {
         return new AlternativeShopperBankCodePayment(PaymentType.IDEAL, null, successURL, failureURL, cancelURL, null, shopperBankCode);
     }
 
@@ -421,7 +421,7 @@ public class PaymentBuilder {
      * @param accountNumber
      * @return AchPayment object
      */
-    public static AchPayment createACHSSL(AchType achType, String firstName, String lastName, Address address, String bankAccountType, String routingNumber, String accountNumber) {
+    public static AchPayment createACHSSL(final AchType achType, final String firstName, final String lastName, final Address address, final String bankAccountType, final String routingNumber, final String accountNumber) {
         return new AchPayment(PaymentType.ACH, achType, firstName, lastName, address, bankAccountType, routingNumber, accountNumber);
     }
 
@@ -434,7 +434,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createABAQOOSSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createABAQOOSSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.ABAQOOS, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -447,7 +447,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createALIPAYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createALIPAYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.ALIPAY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -460,7 +460,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createALIPAYMOBILESSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createALIPAYMOBILESSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.ALIPAY_MOBILE, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -473,7 +473,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createBALOTOSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createBALOTOSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.BALOTO, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -486,7 +486,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createBANKLINKNORDEASSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createBANKLINKNORDEASSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.BANKLINK_NORDEA, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -499,7 +499,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createBILLINGPARTNERSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createBILLINGPARTNERSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.BILLINGPARTNER, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -512,7 +512,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createCASHUSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createCASHUSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.CASHU, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -525,7 +525,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createDINEROMAIL7ELEVENSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createDINEROMAIL7ELEVENSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.DINEROMAIL_7ELEVEN, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -538,7 +538,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createDINEROMAILOXXOSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createDINEROMAILOXXOSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.DINEROMAIL_OXXO, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -551,7 +551,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createEKONTOSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createEKONTOSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.EKONTO, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -564,7 +564,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createEPAYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createEPAYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.EPAY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -577,7 +577,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createEUTELLERSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createEUTELLERSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.EUTELLER, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -590,7 +590,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createEWIREDKSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createEWIREDKSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.EWIREDK, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -603,7 +603,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createEWIRENOSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createEWIRENOSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.EWIRENO, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -616,7 +616,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createEWIRESESSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createEWIRESESSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.EWIRESE, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -629,7 +629,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createHALCASHSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createHALCASHSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.HALCASH, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -642,7 +642,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createINSTADEBITSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createINSTADEBITSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.INSTADEBIT, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -655,7 +655,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createLOBANETARSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createLOBANETARSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.LOBANET_AR, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -668,7 +668,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createLOBANETBRSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createLOBANETBRSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.LOBANET_BR, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -681,7 +681,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createLOBANETCLSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createLOBANETCLSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.LOBANET_CL, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -694,7 +694,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createLOBANETMXSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createLOBANETMXSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.LOBANET_MX, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -707,7 +707,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createLOBANETPESSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createLOBANETPESSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.LOBANET_PE, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -720,7 +720,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createLOBANETUYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createLOBANETUYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.LOBANET_UY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -733,7 +733,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createMISTERCASHSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createMISTERCASHSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.MISTERCASH, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -746,7 +746,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createMULTIBANCOSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createMULTIBANCOSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.MULTIBANCO, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -759,7 +759,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createNEOSURFSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createNEOSURFSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.NEOSURF, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -772,7 +772,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPAGASSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPAGASSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.PAGA, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -785,7 +785,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPAGAVERVESSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPAGAVERVESSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.PAGA_VERVE, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -798,7 +798,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPAYSAFECARDSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPAYSAFECARDSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.PAYSAFECARD, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -811,7 +811,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPAYUSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPAYUSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.PAYU, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -824,7 +824,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPLUSPAYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPLUSPAYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.PLUSPAY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -837,7 +837,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPOLISSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPOLISSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.POLI, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -850,7 +850,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPOLINZSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPOLINZSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.POLINZ, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -863,7 +863,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPOSTEPAYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPOSTEPAYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.POSTEPAY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -876,7 +876,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createPRZELEWYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createPRZELEWYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.PRZELEWY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -889,7 +889,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createQIWISSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createQIWISSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.QIWI, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -902,7 +902,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createSIDSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createSIDSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.SID, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -915,7 +915,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createSKRILLSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createSKRILLSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.SKRILL, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -928,7 +928,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createSOFORTSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createSOFORTSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.SOFORT, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -941,7 +941,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createSPOROPAYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createSPOROPAYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.SPOROPAY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -957,7 +957,7 @@ public class PaymentBuilder {
      * @param expiryDate
      * @return AlternativePayment object
      */
-    public static AlternativePayment createSWIFFSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL, String pan, String cvv, Date expiryDate) {
+    public static AlternativePayment createSWIFFSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL, final String pan, final String cvv, final Date expiryDate) {
         return new AlternativePanCvvPayment(PaymentType.SWIFF, shopperCountryCode, successURL, null, cancelURL, pendingURL, pan, cvv, expiryDate);
     }
 
@@ -970,7 +970,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createTELEINGRESOSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createTELEINGRESOSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.TELEINGRESO, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -983,7 +983,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createTICKETSURFSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createTICKETSURFSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.TICKETSURF, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -996,7 +996,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createTRUSTPAYCZSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createTRUSTPAYCZSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.TRUSTPAY_CZ, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -1009,7 +1009,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createTRUSTPAYEESSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createTRUSTPAYEESSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.TRUSTPAY_EE, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -1022,7 +1022,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createTRUSTPAYSKSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createTRUSTPAYSKSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.TRUSTPAY_SK, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -1035,7 +1035,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createWEBMONEYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createWEBMONEYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.WEBMONEY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -1048,7 +1048,7 @@ public class PaymentBuilder {
      * @param pendingURL
      * @return AlternativePayment object
      */
-    public static AlternativePayment createYANDEXMONEYSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL) {
+    public static AlternativePayment createYANDEXMONEYSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
         return new AlternativePayment(PaymentType.YANDEXMONEY, shopperCountryCode, successURL, null, cancelURL, pendingURL);
     }
 
@@ -1064,32 +1064,18 @@ public class PaymentBuilder {
      * @param expiryDate
      * @return AlternativePayment object
      */
-    public static AlternativePayment createASTROPAYCARDSSL(String shopperCountryCode, String successURL, String cancelURL, String pendingURL, String pan, String cvv, Date expiryDate) {
+    public static AlternativePayment createASTROPAYCARDSSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL, final String pan, final String cvv, final Date expiryDate) {
         return new AlternativePanCvvPayment(PaymentType.ASTROPAYCARD, shopperCountryCode, successURL, null, cancelURL, pendingURL, pan, cvv, expiryDate);
     }
 
-    /**
-     * Create a VME Card alternative payment
-     *
-     * @param successURL
-     * @param failureURL
-     * @param cancelURL
-     * @param cardAddress
-     * @return AlternativePayment object
-     */
-    public static AlternativePayment createVMESSL(String successURL, String failureURL, String cancelURL, Address cardAddress) {
-        return new AlternativeCardAddressPayment(PaymentType.VME, null, successURL, failureURL, cancelURL, null, cardAddress);
-    }
-
     // Envoy Transfer Payments
-
     /**
      * Create an AUD envoy transfer payment
      *
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERAUDBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERAUDBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_AUD, shopperCountryCode);
     }
 
@@ -1099,7 +1085,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERCADBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERCADBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_CAD, shopperCountryCode);
     }
 
@@ -1109,7 +1095,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERCHFBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERCHFBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_CHF, shopperCountryCode);
     }
 
@@ -1119,7 +1105,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERCZKBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERCZKBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_CZK, shopperCountryCode);
     }
 
@@ -1129,7 +1115,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERDKKBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERDKKBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_DKK, shopperCountryCode);
     }
 
@@ -1139,7 +1125,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFEREURBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFEREURBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_EUR, shopperCountryCode);
     }
 
@@ -1149,7 +1135,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERGBPBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERGBPBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_GBP, shopperCountryCode);
     }
 
@@ -1159,7 +1145,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERHKDBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERHKDBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_HKD, shopperCountryCode);
     }
 
@@ -1169,7 +1155,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERHUFBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERHUFBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_HUF, shopperCountryCode);
     }
 
@@ -1179,7 +1165,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERJPYBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERJPYBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_JPY, shopperCountryCode);
     }
 
@@ -1189,7 +1175,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERNOKBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERNOKBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_NOK, shopperCountryCode);
     }
 
@@ -1199,7 +1185,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERNZDBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERNZDBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_NZD, shopperCountryCode);
     }
 
@@ -1209,7 +1195,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERPLNBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERPLNBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_PLN, shopperCountryCode);
     }
 
@@ -1219,7 +1205,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERSEKBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERSEKBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_SEK, shopperCountryCode);
     }
 
@@ -1229,7 +1215,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERSGDBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERSGDBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_SGD, shopperCountryCode);
     }
 
@@ -1239,7 +1225,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERTHBBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERTHBBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_THB, shopperCountryCode);
     }
 
@@ -1249,7 +1235,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERUSDBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERUSDBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_USD, shopperCountryCode);
     }
 
@@ -1259,7 +1245,7 @@ public class PaymentBuilder {
      * @param shopperCountryCode
      * @return EnvoyTransferPayment object
      */
-    public static EnvoyTransferPayment createENVOYTRANSFERZARBANK(String shopperCountryCode) {
+    public static EnvoyTransferPayment createENVOYTRANSFERZARBANK(final String shopperCountryCode) {
         return new EnvoyTransferPayment(PaymentType.ENVOY_TRANSFER_ZAR, shopperCountryCode);
     }
 

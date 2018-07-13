@@ -4,10 +4,12 @@ import geb.Browser
 import groovy.json.JsonSlurper
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
+import org.openqa.selenium.UnhandledAlertException
 import org.openqa.selenium.firefox.FirefoxDriver
 
 import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.ContentType.URLENC
+import static java.time.LocalDate.now
 import static org.apache.http.HttpStatus.SC_CREATED
 import static org.apache.http.HttpStatus.SC_OK
 
@@ -24,7 +26,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         setDeliveryMode(client, customer, cart.code, 'standard-gross')
 
         def expiryMonth = "04"
-        def expiryYear = "2018"
+        def expiryYear = String.valueOf(now().plusYears(2).getYear())
         def cseToken = getCseToken("123", accountHolderName, "4111111111111111", expiryMonth, expiryYear)
         def paymentBody = getPaymentBody(accountHolderName, "Sven", "Johnson", cseToken, expiryMonth, expiryYear)
         def info = createWorldpayPaymentInfo(client, customer, cart.code, paymentBody, format)
@@ -128,7 +130,12 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
                 expiryMonth,
                 expiryYear)
 
-        browser.close()
+        try {
+            browser.close()
+        }
+        catch (UnhandledAlertException e) {
+
+        }
 
         return cseToken
     }
@@ -180,10 +187,14 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         // On the worldpay 3D simulator we select the given authorisationResponse and click the button
         browser.getPage().$(org.openqa.selenium.By.className("lefty")).click()
 
-        // We are now on a mock endpoint in the worldpayresponcemock extension which collect the Pa response
+        // We are now on a mock endpoint in the worldpayresponsemock extension which collect the Pa response
         def paRes = browser.getPage().$(org.openqa.selenium.By.className("PaRes")).value()
-        browser.close()
+        try {
+            browser.close()
+        }
+        catch (UnhandledAlertException e) {
 
+        }
         return paRes
     }
 

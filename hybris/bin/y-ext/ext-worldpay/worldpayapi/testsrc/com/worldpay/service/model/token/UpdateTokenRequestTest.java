@@ -45,7 +45,7 @@ public class UpdateTokenRequestTest {
 
         assertTrue(result instanceof PaymentTokenUpdate);
         final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) result;
-        assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID());
+        assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID().getvalue());
         assertNull(paymentTokenUpdate.getAuthenticatedShopperID());
         assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0));
         assertEquals(TOKEN_REASON, paymentTokenUpdate.getTokenReason().getvalue());
@@ -61,7 +61,7 @@ public class UpdateTokenRequestTest {
 
         assertTrue(result instanceof PaymentTokenUpdate);
         final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) result;
-        assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID());
+        assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID().getvalue());
         assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenUpdate.getAuthenticatedShopperID());
         assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0));
         assertEquals(TOKEN_REASON, paymentTokenUpdate.getTokenReason().getvalue());

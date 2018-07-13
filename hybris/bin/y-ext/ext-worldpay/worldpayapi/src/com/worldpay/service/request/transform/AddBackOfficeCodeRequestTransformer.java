@@ -37,25 +37,25 @@ public class AddBackOfficeCodeRequestTransformer implements ServiceRequestTransf
      * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(com.worldpay.service.request.ServiceRequest)
      */
     @Override
-    public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
+    public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the add back office code is invalid.");
         }
-        AddBackOfficeCodeServiceRequest addBackOfficeCodeRequest = (AddBackOfficeCodeServiceRequest) request;
+        final AddBackOfficeCodeServiceRequest addBackOfficeCodeRequest = (AddBackOfficeCodeServiceRequest) request;
 
-        PaymentService paymentService = new PaymentService();
+        final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
         paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (addBackOfficeCodeRequest.getBackOfficeCode() == null) {
             throw new WorldpayModelTransformationException("No back office code object to transform on the add back office request");
         }
-        Modify modify = new Modify();
-        OrderModification orderModification = new OrderModification();
+        final Modify modify = new Modify();
+        final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(request.getOrderCode());
-        AddBackOfficeCode addBackOfficeCode = new AddBackOfficeCode();
+        final AddBackOfficeCode addBackOfficeCode = new AddBackOfficeCode();
         addBackOfficeCode.setBackOfficeCode(addBackOfficeCodeRequest.getBackOfficeCode());
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefund().add(addBackOfficeCode);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetry().add(addBackOfficeCode);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

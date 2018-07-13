@@ -36,18 +36,6 @@ public interface WorldpayAddonEndpointService {
     String getBillingAddressForm();
 
     /**
-     * Returns the endpoint for BillingAddressInPaymentForm
-     * @return
-     */
-    String getBillingAddressInPaymentForm();
-
-    /**
-     * Returns the endpoint for GlobalErrorsFragment
-     * @return
-     */
-    String getGlobalErrorsFragment();
-
-    /**
      * Returns the endpoint for KlarnaResponsePage
      * @return
      */

@@ -67,7 +67,7 @@ public class WorldpayMockConnector {
         final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 
         final SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (x509Certificates, authType) -> true).build();
-        httpClientBuilder.setSslcontext(sslContext);
+        httpClientBuilder.setSSLContext(sslContext);
 
         final SSLConnectionSocketFactory sslConnectionFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
         httpClientBuilder.setSSLSocketFactory(sslConnectionFactory);

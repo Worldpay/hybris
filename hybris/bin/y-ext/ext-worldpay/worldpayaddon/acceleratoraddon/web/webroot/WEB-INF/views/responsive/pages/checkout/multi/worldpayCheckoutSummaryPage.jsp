@@ -5,19 +5,18 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="ycommerce" uri="http://hybris.com/tld/ycommercetags" %>
 
 <spring:htmlEscape defaultHtmlEscape="true" />
 
-<spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl"/>
+<spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl" htmlEscape="false"/>
 
 <template:page pageTitle="${pageTitle}" hideHeaderLinks="true">
     <div class="row">
         <div class="col-sm-6">
             <div class="checkout-headline">
                 <span class="glyphicon glyphicon-lock"></span>
-                <spring:theme code="checkout.multi.secure.checkout" text="Secure Checkout"/>
+                <spring:theme code="checkout.multi.secure.checkout" />
             </div>
             <multi-checkout:checkoutSteps checkoutSteps="${checkoutSteps}" progressBarId="${progressBarId}">
                 <ycommerce:testId code="checkoutStepFour">
@@ -30,7 +29,7 @@
                         <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm">
                             <wp-multi-checkout:securityCode/>
                             <wp-multi-checkout:termsAndConditions/>
-                            <button type="submit" id="placeOrder" class="btn btn-primary btn-place-order btn-block worldpayPlaceOrderWithSecurityCode">
+                            <button id="placeOrder" type="submit" class="btn btn-primary btn-place-order btn-block worldpayPlaceOrderWithSecurityCode">
                                 <spring:theme code="checkout.summary.placeOrder" text="Place Order"/>
                             </button>
                         </form:form>

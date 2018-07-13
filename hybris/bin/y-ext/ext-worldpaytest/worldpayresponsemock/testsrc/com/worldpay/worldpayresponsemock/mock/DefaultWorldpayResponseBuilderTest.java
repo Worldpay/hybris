@@ -34,9 +34,9 @@ public class DefaultWorldpayResponseBuilderTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    @Spy
+
     @InjectMocks
-    private DefaultWorldpayResponseBuilder testObj = new DefaultWorldpayResponseBuilder();
+    private DefaultWorldpayResponseBuilder testObj  ;
 
     @Mock
     private PaymentService paymentServiceMock;
@@ -60,7 +60,7 @@ public class DefaultWorldpayResponseBuilderTest {
         for (Object paymentServiceElement : paymentServiceElements) {
             if (paymentServiceElement instanceof Reply) {
                 final Reply reply = (Reply) paymentServiceElement;
-                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken();
+                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
                 assertThat(replyElements, hasItems(instanceOf(OrderStatus.class)));
                 for (Object replyElement : replyElements) {
                     if (replyElement instanceof OrderStatus) {

@@ -2,6 +2,7 @@ package com.worldpay.service.model.token;
 
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.PaymentInstrument;
+import com.worldpay.internal.model.PaymentTokenID;
 import com.worldpay.internal.model.PaymentTokenUpdate;
 import com.worldpay.internal.model.TokenReason;
 import com.worldpay.service.request.transform.InternalModelTransformer;
@@ -33,7 +34,10 @@ public class UpdateTokenRequest implements InternalModelTransformer, Serializabl
         } else {
             intPaymentTokenUpdate.setAuthenticatedShopperID(authenticatedShopperID);
         }
-        intPaymentTokenUpdate.setPaymentTokenID(paymentTokenId);
+
+        final PaymentTokenID paymentTokenIDWrapper = new PaymentTokenID();
+        paymentTokenIDWrapper.setvalue(paymentTokenId);
+        intPaymentTokenUpdate.setPaymentTokenID(paymentTokenIDWrapper);
         intPaymentTokenUpdate.setTokenEventReference(tokenRequest.getTokenEventReference());
 
         final PaymentInstrument intPaymentInstrument = new PaymentInstrument();

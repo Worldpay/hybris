@@ -40,7 +40,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
 
     @InjectMocks
-    private DefaultWorldpayTokenCreateResponseBuilder testObj = new DefaultWorldpayTokenCreateResponseBuilder();
+    private DefaultWorldpayTokenCreateResponseBuilder testObj;
     @Mock
     private PaymentService paymentServiceMock;
     @Mock
@@ -58,7 +58,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         final PaymentService result = testObj.buildTokenResponse(paymentServiceMock);
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final Token token = (Token) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrPaymentOptionOrToken().get(0);
+        final Token token = (Token) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
 
         TokenDetails tokenDetails = null;
         PaymentInstrument paymentInstrument = null;
@@ -82,7 +82,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         assertEquals(OBFUSCATED_PAN, derived.getObfuscatedPAN());
         assertEquals(DateTime.now().monthOfYear().getAsString(), expiryDate.getMonth());
         assertEquals(DateTime.now().plusYears(5).year().getAsString(), expiryDate.getYear());
-        assertFalse(StringUtils.isEmpty(tokenDetails.getPaymentTokenID()));
+        assertFalse(StringUtils.isEmpty(tokenDetails.getPaymentTokenID().getvalue()));
         assertEquals(TokenEvent.NEW.name(), tokenDetails.getTokenEvent());
         assertEquals(CC_OWNER, cardDetails.getCardHolderName().getvalue());
     }

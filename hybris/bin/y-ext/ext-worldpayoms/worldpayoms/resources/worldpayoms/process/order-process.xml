@@ -64,7 +64,9 @@
         <case event="OrderActionEvent">
             <choice id="consignmentProcessEnded" then="verifyOrderCompletion"/>
             <choice id="cancelOrder" then="processOrderCancellation"/>
+            <choice id="cancelled" then="success"/>
             <choice id="reSource" then="sourceOrder"/>
+            <choice id="putOnHold" then="putOrderOnHold"/>
         </case>
     </wait>
 
@@ -83,6 +85,10 @@
         <transition name="OK" to="postTaxes"/>
         <transition name="WAIT" to="waitForOrderAction"/>
         <transition name="CANCELLED" to="success"/>
+    </action>
+
+    <action id="putOrderOnHold" bean="putOrderOnHoldAction">
+        <transition name="OK" to="waitForOrderAction"/>
     </action>
 
     <!-- Tax and Payment -->

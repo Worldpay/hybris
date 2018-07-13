@@ -76,6 +76,10 @@
     </action>
 
     <action id="inventoryUpdateAction" bean="inventoryUpdateAction">
+        <transition name="OK" to="completeReturnAction"/>
+    </action>
+
+    <action id="completeReturnAction" bean="completeReturnAction">
         <transition name="OK" to="success"/>
     </action>
 

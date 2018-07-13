@@ -37,13 +37,13 @@ public class AuthorisationCodeRequestTransformer implements ServiceRequestTransf
      * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(com.worldpay.service.request.ServiceRequest)
      */
     @Override
-    public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
+    public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the authorisation code is invalid.");
         }
-        AuthorisationCodeServiceRequest authorisationCodeRequest = (AuthorisationCodeServiceRequest) request;
+        final AuthorisationCodeServiceRequest authorisationCodeRequest = (AuthorisationCodeServiceRequest) request;
 
-        PaymentService paymentService = new PaymentService();
+        final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
         paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
@@ -51,12 +51,12 @@ public class AuthorisationCodeRequestTransformer implements ServiceRequestTransf
         if (authorisationCodeRequest.getAuthorisationCode() == null) {
             throw new WorldpayModelTransformationException("No authorisation code object to transform on the authorisation code request");
         }
-        Modify modify = new Modify();
-        OrderModification orderModification = new OrderModification();
+        final Modify modify = new Modify();
+        final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(request.getOrderCode());
-        Authorise authorise = new Authorise();
+        final Authorise authorise = new Authorise();
         authorise.setAuthorisationCode(authorisationCodeRequest.getAuthorisationCode());
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefund().add(authorise);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetry().add(authorise);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

@@ -1,7 +1,5 @@
 package com.worldpay.service.impl;
 
-import com.worldpay.service.WorldpayAddonEndpointService;
-import com.worldpay.service.impl.DefaultWorldpayAddonEndpointService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.configuration.Configuration;
@@ -18,9 +16,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayAddonEndpointServiceTest {
 
-    public static final String ADDON_PREFIX = "myAddonPrefix";
+    private static final String ADDON_PREFIX = "myAddonPrefix";
+    private static final String WORLDPAY_ADDON_PREFIX = "worldpay.addon.prefix";
+    private static final String UNDEFINED_PREFIX = "undefined";
+    private static final String AUTOSUBMIT3DSECURE = "pages/checkout/multi/autoSubmit3DSecure";
+
     @InjectMocks
-    private WorldpayAddonEndpointService testObj = new DefaultWorldpayAddonEndpointService();
+    private DefaultWorldpayAddonEndpointService testObj;
+
     @Mock
     private ConfigurationService configurationService;
     @Mock
@@ -29,10 +32,10 @@ public class DefaultWorldpayAddonEndpointServiceTest {
     @Test
     public void shouldReturnPathPrefixedByAddon() throws Exception {
         when(configurationService.getConfiguration()).thenReturn(configuration);
-        when(configuration.getString(DefaultWorldpayAddonEndpointService.WORLDPAY_ADDON_PREFIX, DefaultWorldpayAddonEndpointService.UNDEFINED_PREFIX)).thenReturn(ADDON_PREFIX);
+        when(configuration.getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX)).thenReturn(ADDON_PREFIX);
 
         final String endpoint = testObj.getAutoSubmit3DSecure();
 
-        assertEquals("The endpoint must be prefixed by the addon prefix", ADDON_PREFIX + DefaultWorldpayAddonEndpointService.AUTOSUBMIT3DSECURE, endpoint);
+        assertEquals("The endpoint must be prefixed by the addon prefix", ADDON_PREFIX + AUTOSUBMIT3DSECURE, endpoint);
     }
 }

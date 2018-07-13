@@ -34,29 +34,29 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
                  * @see ServiceRequestTransformer#transform(ServiceRequest)
                  */
     @Override
-    public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
+    public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the refund is invalid.");
         }
-        RefundServiceRequest refundRequest = (RefundServiceRequest) request;
+        final RefundServiceRequest refundRequest = (RefundServiceRequest) request;
 
-        PaymentService paymentService = new PaymentService();
+        final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantInfo().getMerchantCode());
         paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
         if (refundRequest.getAmount() == null) {
             throw new WorldpayModelTransformationException("No amount object to transform on the refund request");
         }
-        Modify modify = new Modify();
-        OrderModification orderModification = new OrderModification();
+        final Modify modify = new Modify();
+        final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(request.getOrderCode());
-        Refund refund = new Refund();
+        final Refund refund = new Refund();
         refund.setReference(refundRequest.getReference());
         if (refundRequest.getShopperWebformRefund()) {
             refund.setShopperWebformRefund(Boolean.TRUE.toString());
         }
         refund.setAmount((Amount) refundRequest.getAmount().transformToInternalModel());
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefund().add(refund);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetry().add(refund);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
