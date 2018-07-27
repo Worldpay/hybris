@@ -10,14 +10,14 @@ ACC.worldpayCSE = {
     errorCodeMap: {},
 
     encryptCardDetails: function () {
-        var data = {
+        const data = {
             cvc: $("#cvc").val(),
             cardHolderName: $("#nameOnCard").val(),
             cardNumber: $("#number").val(),
             expiryMonth: $("#exp-month").val(),
             expiryYear: $("#exp-year").val()
         };
-        var encryptedData = Worldpay.encrypt(data, this.errorHandler);
+        const encryptedData = Worldpay.encrypt(data, ACC.worldpayCSE.errorHandler);
         if (encryptedData) {
             $("#encryptedData").val(encryptedData);
             return true;
@@ -28,7 +28,7 @@ ACC.worldpayCSE = {
 
     bindPaymentButtons: function () {
         if ($(".cse").length) {
-            var paymentButtonsSlot = $(".cms-payment-button");
+            const paymentButtonsSlot = $(".cms-payment-button");
             if (paymentButtonsSlot.length && paymentButtonsSlot.children().length > 0) {
                 paymentButtonsSlot.on("change", function () {
                     if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
@@ -45,8 +45,8 @@ ACC.worldpayCSE = {
     },
 
     errorHandler: function (errorCodes) {
-        for (var index in errorCodes) {
-            var errorCode = errorCodes[index].toString();
+        for (let index in errorCodes) {
+            const errorCode = errorCodes[index].toString();
             ACC.worldpayCSE.showError($("#" + ACC.worldpayCSE.errorCodeMap[errorCode]), errorCode);
         }
     },
@@ -64,7 +64,7 @@ ACC.worldpayCSE = {
     },
 
     clearCSEErrorFields: function () {
-        this.hideError($('div[id^="error-"]'));
+        ACC.worldpayCSE.hideError($('div[id^="error-"]'));
     },
 
     bindSubmitBillingAddressForm: function () {
@@ -83,12 +83,12 @@ ACC.worldpayCSE = {
         $(".submit_cseDetails").click(
             function (event) {
                 event.preventDefault();
-                var container = $(".checkout-headline").parent();
+                const container = $(".checkout-headline").parent();
                 container.find(".global-alerts").remove();
 
                 ACC.worldpayCSE.clearCSEErrorFields();
 
-                var submit = ACC.worldpayCSE.encryptCardDetails();
+                const submit = ACC.worldpayCSE.encryptCardDetails();
                 if (!$("#Terms1").is(':checked')) {
                     container.prepend(
                         "<div class='global-alerts'>" +
@@ -105,17 +105,17 @@ ACC.worldpayCSE = {
     },
 
     populateErrorCodeMap: function () {
-        this.errorCodeMap["101"] = "error-number";
-        this.errorCodeMap["102"] = "error-number";
-        this.errorCodeMap["103"] = "error-number";
-        this.errorCodeMap["201"] = "error-cvc";
-        this.errorCodeMap["301"] = "error-exp-date";
-        this.errorCodeMap["302"] = "error-exp-date";
-        this.errorCodeMap["303"] = "error-exp-date";
-        this.errorCodeMap["304"] = "error-exp-date";
-        this.errorCodeMap["305"] = "error-exp-date";
-        this.errorCodeMap["306"] = "error-exp-date";
-        this.errorCodeMap["401"] = "error-nameOnCard";
-        this.errorCodeMap["402"] = "error-nameOnCard";
+        ACC.worldpayCSE.errorCodeMap["101"] = "error-number";
+        ACC.worldpayCSE.errorCodeMap["102"] = "error-number";
+        ACC.worldpayCSE.errorCodeMap["103"] = "error-number";
+        ACC.worldpayCSE.errorCodeMap["201"] = "error-cvc";
+        ACC.worldpayCSE.errorCodeMap["301"] = "error-exp-date";
+        ACC.worldpayCSE.errorCodeMap["302"] = "error-exp-date";
+        ACC.worldpayCSE.errorCodeMap["303"] = "error-exp-date";
+        ACC.worldpayCSE.errorCodeMap["304"] = "error-exp-date";
+        ACC.worldpayCSE.errorCodeMap["305"] = "error-exp-date";
+        ACC.worldpayCSE.errorCodeMap["306"] = "error-exp-date";
+        ACC.worldpayCSE.errorCodeMap["401"] = "error-nameOnCard";
+        ACC.worldpayCSE.errorCodeMap["402"] = "error-nameOnCard";
     }
 };

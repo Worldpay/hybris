@@ -24,15 +24,15 @@ public class AlternativePayPalPayment extends AlternativePayment {
      * @param firstInBillingRun
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AlternativePayPalPayment(PaymentType paymentType, String shopperCountryCode, String successURL, String failureURL, String cancelURL, String pendingURL, String firstInBillingRun) {
+    public AlternativePayPalPayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, final String pendingURL, final String firstInBillingRun) {
         super(paymentType, shopperCountryCode, successURL, failureURL, cancelURL, pendingURL);
         this.firstInBillingRun = firstInBillingRun;
     }
 
     @Override
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if ("setFirstInBillingRun".equals(methodName) && firstInBillingRun != null) {
             method.invoke(targetObject, firstInBillingRun);
         }
@@ -42,7 +42,7 @@ public class AlternativePayPalPayment extends AlternativePayment {
         return firstInBillingRun;
     }
 
-    public void setFirstInBillingRun(String firstInBillingRun) {
+    public void setFirstInBillingRun(final String firstInBillingRun) {
         this.firstInBillingRun = firstInBillingRun;
     }
 

@@ -1,7 +1,5 @@
 package com.worldpay.worldpayoms.notification.processors.impl;
 
-import static org.mockito.Mockito.verify;
-
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -17,12 +15,14 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
+import static org.mockito.Mockito.verify;
+
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpaySettledOrderNotificationProcessorStrategyTest {
 
     @InjectMocks
-    private DefaultWorldpaySettledOrderNotificationProcessorStrategy testObj = new DefaultWorldpaySettledOrderNotificationProcessorStrategy();
+    private DefaultWorldpaySettledOrderNotificationProcessorStrategy testObj;
 
     @Mock
     private OrderNotificationMessage orderNotificationMessageMock;
@@ -46,7 +46,7 @@ public class DefaultWorldpaySettledOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldCreateASettledPaymentTransactionEntry() throws Exception {
+    public void shouldCreateASettledPaymentTransactionEntry() {
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
 

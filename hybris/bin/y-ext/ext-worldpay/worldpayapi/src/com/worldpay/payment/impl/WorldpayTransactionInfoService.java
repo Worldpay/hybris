@@ -25,11 +25,11 @@ public class WorldpayTransactionInfoService extends DefaultTransactionInfoServic
         return transactionStatus.equalsIgnoreCase(TransactionStatus.ACCEPTED.name());
     }
 
-    protected Boolean isEntryPending(PaymentTransactionEntryModel entry) {
+    protected Boolean isEntryPending(final PaymentTransactionEntryModel entry) {
         return entry.getType() == PaymentTransactionType.AUTHORIZATION ? Boolean.FALSE : entry.getPending();
     }
 
-    protected String extractTransactionStatusFromEntry(PaymentTransactionEntryModel entry) {
+    protected String extractTransactionStatusFromEntry(final PaymentTransactionEntryModel entry) {
         return entry.getTransactionStatus() != null ? entry.getTransactionStatus().trim() : "";
     }
 }

@@ -30,7 +30,7 @@ public class CreateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
     public void testCreateTokenWithoutOrder() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
         final String authenticatedShopperId = UUID.randomUUID().toString();
-        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
+        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createShopperToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
 
         assertNotNull("createTokenResponse is null!", createTokenResponse);
         assertFalse("Errors returned from authorisation code request", createTokenResponse.isError());

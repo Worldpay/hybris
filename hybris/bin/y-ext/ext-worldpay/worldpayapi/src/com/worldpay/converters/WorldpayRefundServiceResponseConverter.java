@@ -19,7 +19,7 @@ public class WorldpayRefundServiceResponseConverter extends WorldpayAbstractServ
         final String currencyCode = amount.getCurrencyCode();
         final Currency currency = Currency.getInstance(currencyCode);
         refundResult.setCurrency(currency);
-        refundResult.setTotalAmount(getTotalAmount(amount.getValue(), currency));
+        refundResult.setTotalAmount(getTotalAmount(amount));
         refundResult.setRequestId(refundServiceResponse.getOrderCode());
         refundResult.setRequestTime(new java.util.Date());
         refundResult.setTransactionStatus(TransactionStatus.ACCEPTED);

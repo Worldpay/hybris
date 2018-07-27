@@ -47,7 +47,7 @@ import static java.text.MessageFormat.format;
 @RequestMapping (value = "/checkout/multi/worldpay/summary")
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
-    private static final Logger LOGGER = Logger.getLogger(WorldpayPaymentMethodCheckoutStepController.class);
+    private static final Logger LOGGER = Logger.getLogger(WorldpaySummaryCheckoutStepController.class);
 
     protected static final String SUMMARY = "summary";
     protected static final String CART_SUFFIX = "/cart";
@@ -136,20 +136,21 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, placeOrderForm.getSecurityCode());
 
-        return handleRespone(model, worldpayAdditionalInfoData);
+        return handleResponse(model, worldpayAdditionalInfoData);
     }
 
-    private String handleRespone(Model model, WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws CMSItemNotFoundException {
+    protected String handleResponse(final Model model, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws CMSItemNotFoundException {
         try {
             final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(worldpayAdditionalInfoData);
             return handleDirectResponse(model, directResponseData);
-        } catch (InvalidCartException | WorldpayException e) {
+        } catch (final InvalidCartException | WorldpayException e) {
             addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
             LOGGER.error("There was an error authorising the transaction", e);
             return getErrorView(model);
         }
     }
 
+    @Override
     protected String getErrorView(final Model model) throws CMSItemNotFoundException {
         setupAddPaymentPage(model);
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
@@ -162,7 +163,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
      * @param model          A spring Model
      * @return True if the order form is invalid and false if everything is valid.
      */
-    protected boolean isOrderFormValid(PlaceOrderForm placeOrderForm, Model model) {
+    protected boolean isOrderFormValid(final PlaceOrderForm placeOrderForm, final Model model) {
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
         final String subscriptionId = cartData.getPaymentInfo().getSubscriptionId();
         final String securityCode = placeOrderForm.getSecurityCode();
@@ -176,7 +177,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
                 !hasCalculateFlag(cartData, model);
     }
 
-    private boolean hasSubscriptionId(String subscriptionId, String securityCode, Model model){
+    private boolean hasSubscriptionId(final String subscriptionId, final String securityCode, final Model model){
         if (subscriptionId != null && StringUtils.isBlank(securityCode)) {
             addErrorMessage(model, "checkout.paymentMethod.noSecurityCode");
             return true;
@@ -184,7 +185,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return false;
     }
 
-    private boolean haveNoDeliveryAddress(Model model){
+    private boolean haveNoDeliveryAddress(final Model model){
         if (getCheckoutFlowFacade().hasNoDeliveryAddress()) {
             addErrorMessage(model, "checkout.deliveryAddress.notSelected");
             return true;
@@ -192,7 +193,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return false;
     }
 
-    private boolean haveNoDeliveryMethod(Model model){
+    private boolean haveNoDeliveryMethod(final Model model){
         if (getCheckoutFlowFacade().hasNoDeliveryMode()) {
             addErrorMessage(model, "checkout.deliveryMethod.notSelected");
             return true;
@@ -200,7 +201,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return false;
     }
 
-    private boolean haveNoPaymentMethod(Model model){
+    private boolean haveNoPaymentMethod(final Model model){
         if (getCheckoutFlowFacade().hasNoPaymentInfo()) {
             addErrorMessage(model, "checkout.paymentMethod.notSelected");
             return true;
@@ -208,7 +209,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return false;
     }
 
-    private boolean haveNoTermsAccepted(PlaceOrderForm placeOrderForm, Model model){
+    private boolean haveNoTermsAccepted(final PlaceOrderForm placeOrderForm, final Model model){
         if (!placeOrderForm.isTermsCheck()) {
             addErrorMessage(model, "checkout.error.terms.not.accepted");
             return true;
@@ -216,7 +217,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return false;
     }
 
-    private boolean hasTaxCalculation(CartData cartData, Model model){
+    private boolean hasTaxCalculation(final CartData cartData, final Model model){
         if (!getCheckoutFacade().containsTaxValues()) {
             LOGGER.error(format(
                     "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can't continue",
@@ -227,7 +228,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return false;
     }
 
-    private boolean hasCalculateFlag(CartData cartData, Model model){
+    private boolean hasCalculateFlag(final CartData cartData, final Model model){
         if (!cartData.isCalculated()) {
             LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can't continue", cartData.getCode()));
             addErrorMessage(model, "checkout.error.cart.notcalculated");
@@ -294,6 +295,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return getCheckoutStep().nextStep();
     }
 
+    @Override
     protected CheckoutStep getCheckoutStep() {
         return getCheckoutStep(SUMMARY);
     }

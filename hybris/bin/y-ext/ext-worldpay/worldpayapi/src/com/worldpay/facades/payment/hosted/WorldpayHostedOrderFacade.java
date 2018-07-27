@@ -30,7 +30,7 @@ public interface WorldpayHostedOrderFacade {
      *
      * @param redirectParameters The resultMap of parameters returned from Worldpay redirect
      */
-    void completeRedirectAuthorise(RedirectAuthoriseResult redirectParameters);
+    void completeRedirectAuthorise(final RedirectAuthoriseResult redirectParameters);
 
     /**
      * Checks that the response is authentic and sent from Worldpay
@@ -38,7 +38,7 @@ public interface WorldpayHostedOrderFacade {
      * @param worldpayResponse
      * @return
      */
-    boolean validateRedirectResponse(Map<String, String> worldpayResponse);
+    boolean validateRedirectResponse(final Map<String, String> worldpayResponse);
 
     /**
      * Inquiries the payment status of an order in Worldpay

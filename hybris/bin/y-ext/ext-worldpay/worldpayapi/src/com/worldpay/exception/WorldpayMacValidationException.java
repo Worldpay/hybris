@@ -15,7 +15,7 @@ public class WorldpayMacValidationException extends WorldpayException {
      * @param message
      * @param throwable
      */
-    public WorldpayMacValidationException(String message, Throwable throwable) {
+    public WorldpayMacValidationException(final String message, final Throwable throwable) {
         super(message, throwable);
     }
 
@@ -24,7 +24,7 @@ public class WorldpayMacValidationException extends WorldpayException {
      *
      * @param message
      */
-    public WorldpayMacValidationException(String message) {
+    public WorldpayMacValidationException(final String message) {
         super(message);
     }
 }

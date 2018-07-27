@@ -20,7 +20,7 @@ public class WorldpayCaptureServiceResponseConverter extends WorldpayAbstractSer
         final Currency currency = Currency.getInstance(currencyCode);
 
         captureResult.setCurrency(currency);
-        captureResult.setTotalAmount(getTotalAmount(amount.getValue(), currency));
+        captureResult.setTotalAmount(getTotalAmount(amount));
         captureResult.setRequestId(captureServiceResponse.getOrderCode());
         captureResult.setRequestTime(new java.util.Date());
         captureResult.setTransactionStatus(TransactionStatus.ACCEPTED);

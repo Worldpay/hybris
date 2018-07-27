@@ -19,15 +19,15 @@ public abstract class AbstractPayment implements Payment, Serializable {
     @Override
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
         try {
-            Class<?> modelClass = paymentType.getModelClass();
-            InternalModelObject instance = (InternalModelObject) modelClass.newInstance();
-            Method[] declaredMethods = modelClass.getDeclaredMethods();
-            for (Method method : declaredMethods) {
+            final Class<?> modelClass = paymentType.getModelClass();
+            final InternalModelObject instance = (InternalModelObject) modelClass.newInstance();
+            final Method[] declaredMethods = modelClass.getDeclaredMethods();
+            for (final Method method : declaredMethods) {
                 invokeSetter(method, instance);
             }
 
             return instance;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new WorldpayModelTransformationException("Exception while attempting to transform Card", e);
         }
     }
@@ -43,7 +43,7 @@ public abstract class AbstractPayment implements Payment, Serializable {
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    public abstract void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException;
+    public abstract void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException;
 
     @Override
     public PaymentType getPaymentType() {
@@ -51,7 +51,7 @@ public abstract class AbstractPayment implements Payment, Serializable {
     }
 
     @Override
-    public void setPaymentType(PaymentType paymentType) {
+    public void setPaymentType(final PaymentType paymentType) {
         this.paymentType = paymentType;
     }
 }

@@ -77,6 +77,14 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     public void setPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final OrderNotificationMessage orderNotificationMessage) {
         final PaymentInfoModel paymentInfo = getPaymentInfoModel(paymentTransactionModel, orderNotificationMessage);
         attachPaymentInfoModel(paymentTransactionModel, orderModel, paymentInfo);
+        removePaymentInfoWhenCreatingNewOneFromNotification(orderModel);
+    }
+
+    protected void removePaymentInfoWhenCreatingNewOneFromNotification(final AbstractOrderModel orderModel) {
+        orderModel.getUser().getPaymentInfos().stream()
+                .filter(paymentInfoModel -> paymentInfoModel.getWorldpayOrderCode().equals(orderModel.getWorldpayOrderCode()))
+                .filter(paymentInfoModel -> paymentInfoModel.getClass().equals(PaymentInfoModel.class))
+                .findAny().ifPresent(modelService::remove);
     }
 
     /**
@@ -370,7 +378,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     }
 
     @Required
-    public void setConfigurationService(ConfigurationService configurationService) {
+    public void setConfigurationService(final ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
 }

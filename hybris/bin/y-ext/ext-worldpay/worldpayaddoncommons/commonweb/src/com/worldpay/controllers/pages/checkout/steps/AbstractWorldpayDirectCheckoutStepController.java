@@ -13,11 +13,13 @@ import javax.annotation.Resource;
 import static com.worldpay.payment.TransactionStatus.*;
 
 public abstract class AbstractWorldpayDirectCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
-    protected static final String TERM_URL_PARAM_NAME = "termURL";
-    protected static final String PA_REQUEST_PARAM_NAME = "paRequest";
-    protected static final String ISSUER_URL_PARAM_NAME = "issuerURL";
-    protected static final String MERCHANT_DATA_PARAM_NAME = "merchantData";
+
     protected static final String CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID = "checkout.error.paymentethod.formentry.invalid";
+
+    private static final String TERM_URL_PARAM_NAME = "termURL";
+    private static final String PA_REQUEST_PARAM_NAME = "paRequest";
+    private static final String ISSUER_URL_PARAM_NAME = "issuerURL";
+    private static final String MERCHANT_DATA_PARAM_NAME = "merchantData";
 
     @Resource
     private WorldpayUrlService worldpayUrlService;

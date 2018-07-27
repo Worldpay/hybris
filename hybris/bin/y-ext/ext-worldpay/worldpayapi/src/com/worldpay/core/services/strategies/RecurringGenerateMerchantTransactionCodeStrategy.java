@@ -10,9 +10,10 @@ public interface RecurringGenerateMerchantTransactionCodeStrategy extends Genera
 
     /**
      * Generates a unique id for a {@link de.hybris.platform.payment.model.PaymentTransactionModel}
+     *
      * @param abstractOrderModel An order
      * @return A unique identifier
      */
-    String generateCode(AbstractOrderModel abstractOrderModel);
+    String generateCode(final AbstractOrderModel abstractOrderModel);
 
 }

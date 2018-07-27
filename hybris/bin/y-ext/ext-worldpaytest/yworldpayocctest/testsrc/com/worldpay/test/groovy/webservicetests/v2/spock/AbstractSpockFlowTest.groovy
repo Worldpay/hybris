@@ -3,15 +3,14 @@ package com.worldpay.test.groovy.webservicetests.v2.spock
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
 
-import static groovyx.net.http.ContentType.JSON
-import static groovyx.net.http.ContentType.URLENC
 import static org.apache.http.HttpStatus.SC_CREATED
 import static org.apache.http.HttpStatus.SC_OK
+import static org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED
+import static org.apache.http.entity.ContentType.APPLICATION_JSON
 
 abstract class AbstractSpockFlowTest extends AbstractSpockTest {
 
     protected static final String CUSTOMER_USERNAME = 'democustomer'
-    protected static final String CUSTOMER_PASSWORD = '1234'
     protected static final String CUSTOMER_PASSWORD_STRONG = 'PAss1234!'
     protected static final String CUSTOMER_TITLE_CODE = 'dr'
     protected static final String CUSTOMER_FIRST_NAME = 'Sven'
@@ -30,7 +29,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      * @param format format to be used, defaults to JSON, does not need to be provided
      * @return map containing id and password of registered user to be used later on
      */
-    def registerCustomer(RESTClient client, format = JSON, basePathWithSite = getBasePathWithSite()) {
+    def registerCustomer(RESTClient client, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         def username = System.currentTimeMillis() + '@sven.de'
         def password = CUSTOMER_PASSWORD_STRONG
 
@@ -44,7 +43,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
                         'lastName' : CUSTOMER_LAST_NAME
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
@@ -61,10 +60,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      * @param client REST client to use
      * @param format Data format to be used, defaults to JSON, does not need to be provided
      */
-    def registerCustomer(customer, RESTClient client, format = JSON, basePathWithSite = getBasePathWithSite()) {
-        def username = System.currentTimeMillis() + '@sven.de'
-        def password = CUSTOMER_PASSWORD
-
+    def registerCustomer(customer, RESTClient client, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
                 path: basePathWithSite + '/users',
                 body: [
@@ -77,7 +73,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
                         'language' : customer.language
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
@@ -92,7 +88,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      * @param format Data format to be used, defaults to JSON, does not need to be provided
      * @return
      */
-    def createAddress(RESTClient client, user, format = JSON, basePathWithSite = getBasePathWithSite()) {
+    def createAddress(RESTClient client, user, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
                 path: basePathWithSite + '/users/' + user.id + '/addresses',
                 body: [
@@ -107,7 +103,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
                         'fields'         : FIELD_SET_LEVEL_FULL
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
@@ -147,7 +143,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
                 path: basePathWithSite + '/users/' + customer.id + '/carts',
                 query: ['fields': FIELD_SET_LEVEL_FULL],
                 contentType: format,
-                requestContentType: URLENC), {
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data

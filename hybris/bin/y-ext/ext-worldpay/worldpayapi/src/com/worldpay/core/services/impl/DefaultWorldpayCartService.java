@@ -3,13 +3,13 @@ package com.worldpay.core.services.impl;
 import com.worldpay.core.dao.WorldpayCartDao;
 import com.worldpay.core.services.WorldpayCartService;
 import de.hybris.platform.core.model.order.CartModel;
-import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.commons.collections.CollectionUtils;
+import de.hybris.platform.order.CartService;
+import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
+import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.text.MessageFormat;
-import java.util.List;
 
 /**
  * {@inheritDoc}
@@ -18,39 +18,49 @@ public class DefaultWorldpayCartService implements WorldpayCartService {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayCartService.class);
     private WorldpayCartDao worldpayCartDao;
-    private ModelService modelService;
+    private CartService cartService;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetDeclineCodeAndShopperBankOnCart(final String shopperBankCode) {
+        if (cartService.hasSessionCart()) {
+            final CartModel cart = cartService.getSessionCart();
+            cart.setShopperBankCode(shopperBankCode);
+            cart.setWorldpayDeclineCode("0");
+            cartService.saveOrder(cart);
+        }
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void setWorldpayDeclineCodeOnCart(String worldpayOrderCode, String declineCode) {
-
-        final List<CartModel> cartsByWorldpayOrderCode = findCartsByWorldpayOrderCode(worldpayOrderCode);
-
-        if (CollectionUtils.isEmpty(cartsByWorldpayOrderCode)) {
-            LOG.error(MessageFormat.format("No carts found for worldpayOrderCode {0}", worldpayOrderCode));
-        } else if (cartsByWorldpayOrderCode.size() > 1) {
-            LOG.error(MessageFormat.format("Found more than one cart for worldpayOrderCode = {0}", worldpayOrderCode));
-        } else {
-            final CartModel cartModel = cartsByWorldpayOrderCode.get(0);
-            cartModel.setWorldpayDeclineCode(declineCode);
-            modelService.save(cartModel);
+        try {
+            final CartModel cart = findCartByWorldpayOrderCode(worldpayOrderCode);
+            cart.setWorldpayDeclineCode(declineCode);
+            cartService.saveOrder(cart);
+        } catch (final ModelNotFoundException e) {
+            LOG.error(MessageFormat.format("No carts found for worldpayOrderCode {0}", worldpayOrderCode), e);
+        } catch (final AmbiguousIdentifierException e) {
+            LOG.error(MessageFormat.format("Found more than one cart for worldpayOrderCode = {0}", worldpayOrderCode), e);
         }
     }
 
     @Override
-    public List<CartModel> findCartsByWorldpayOrderCode(String worldpayOrderCode) {
-        return worldpayCartDao.findCartsByWorldpayOrderCode(worldpayOrderCode);
+    public CartModel findCartByWorldpayOrderCode(final String worldpayOrderCode) {
+        return worldpayCartDao.findCartByWorldpayOrderCode(worldpayOrderCode);
     }
 
     @Required
-    public void setWorldpayCartDao(WorldpayCartDao worldpayCartDao) {
+    public void setWorldpayCartDao(final WorldpayCartDao worldpayCartDao) {
         this.worldpayCartDao = worldpayCartDao;
     }
 
     @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
+    public void setCartService(final CartService cartService) {
+        this.cartService = cartService;
     }
 }

@@ -98,7 +98,7 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
 
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         model.addAttribute("metaRobots", "noindex,nofollow");
-        model.addAttribute("hasNoPaymentInfo", Boolean.valueOf(getCheckoutFlowFacade().hasNoPaymentInfo()));
+        model.addAttribute("hasNoPaymentInfo", getCheckoutFlowFacade().hasNoPaymentInfo());
         prepareDataForPage(model);
         model.addAttribute(WebConstants.BREADCRUMBS_KEY,
                 getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.paymentMethod.breadcrumb"));

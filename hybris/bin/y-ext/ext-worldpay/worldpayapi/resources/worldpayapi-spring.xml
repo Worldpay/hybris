@@ -187,7 +187,7 @@
     <bean id="abstractWorldpayUrlService" class="com.worldpay.service.impl.AbstractWorldpayUrlService" abstract="true">
         <property name="successPath" value="/checkout/multi/worldpay/hop-response"/>
         <property name="pendingPath" value="/checkout/multi/worldpay/hop-pending"/>
-        <property name="failurePath" value="/checkout/multi/worldpay/hop-response"/>
+        <property name="failurePath" value="/checkout/multi/worldpay/error"/>
         <property name="errorPath" value="/checkout/multi/worldpay/error"/>
         <property name="cancelPath" value="/checkout/multi/worldpay/hop-cancel"/>
         <property name="threeDSecureTermPath" value="/checkout/multi/worldpay/3dsecure/sop/response"/>
@@ -256,7 +256,9 @@
         <property name="modelService" ref="modelService"/>
     </bean>
 
-    <bean id="worldpayAbstractServiceResponseConverter" class="com.worldpay.converters.WorldpayAbstractServiceResponseConverter" abstract="true" parent="abstractPopulatingConverter"/>
+    <bean id="worldpayAbstractServiceResponseConverter" class="com.worldpay.converters.WorldpayAbstractServiceResponseConverter" abstract="true" parent="abstractPopulatingConverter">
+        <property name="worldpayOrderService" ref="defaultWorldpayOrderService"/>
+    </bean>
 
     <alias name="worldpayVoidServiceResponseConverter" alias="voidServiceResponseConverter"/>
     <bean id="worldpayVoidServiceResponseConverter" class="com.worldpay.converters.WorldpayVoidServiceResponseConverter" parent="abstractPopulatingConverter">
@@ -301,6 +303,8 @@
         <property name="worldpayRiskScoreConverter" ref="worldpayRiskScoreConverter"/>
         <property name="worldpayAavResponsePopulator" ref="worldpayAavResponsePopulator"/>
         <property name="configurationService" ref="configurationService"/>
+        <property name="worldpayBankConfigurationService" ref="worldpayBankConfigurationLookupService"/>
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <bean id="worldpayAavResponsePopulator" class="com.worldpay.converters.populators.WorldpayAavResponsePopulator"/>
@@ -328,7 +332,6 @@
     </bean>
 
     <bean id="worldpayAPMConfigurationDao" class="com.worldpay.core.dao.WorldpayAPMConfigurationDao"/>
-    <bean id="worldpayBankConfigurationDao" class="com.worldpay.core.dao.WorldpayBankConfigurationDao"/>
     <bean id="worldpayEntryCodeStrategy" class="com.worldpay.transaction.impl.WorldpayEntryCodeStrategyImpl"/>
 
     <alias alias="worldpayCartDao" name="defaultWorldpayCartDao"/>
@@ -340,7 +343,7 @@
     <alias alias="worldpayCartService" name="defaultWorldpayCartService"/>
     <bean id="defaultWorldpayCartService" class="com.worldpay.core.services.impl.DefaultWorldpayCartService">
         <property name="worldpayCartDao" ref="worldpayCartDao"/>
-        <property name="modelService" ref="modelService"/>
+        <property name="cartService" ref="cartService"/>
     </bean>
 
     <alias alias="worldpayHybrisOrderDao" name="defaultWorldpayHybrisOrderDao"/>
@@ -362,8 +365,13 @@
 
     <alias alias="worldpayBankConfigurationLookupService" name="defaultWorldpayBankConfigurationLookupService"/>
     <bean id="defaultWorldpayBankConfigurationLookupService" class="com.worldpay.core.services.impl.DefaultWorldpayBankConfigurationLookupService">
-        <property name="worldpayBankConfigurationDao" ref="worldpayBankConfigurationDao"/>
         <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+        <property name="worldpayBankConfigurationGenericDao" ref="worldpayBankConfigurationGenericDao"/>
+    </bean>
+
+    <bean name="worldpayBankConfigurationGenericDao"
+          class="de.hybris.platform.servicelayer.internal.dao.DefaultGenericDao">
+        <constructor-arg value="WorldpayBankConfiguration"/>
     </bean>
 
 
@@ -609,6 +617,7 @@
         <property name="cartService" ref="cartService"/>
         <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
         <property name="orderInquiryService" ref="orderInquiryService"/>
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias name="worldpayCheckoutFacadeDecorator" alias="worldpayCheckoutFacade"/>
@@ -634,6 +643,7 @@
         <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
         <property name="orderInquiryService" ref="orderInquiryService"/>
         <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias name="defaultWorldpayBankConfigurationFacade" alias="worldpayBankConfigurationFacade"/>
@@ -646,6 +656,12 @@
     <alias name="defaultWorldpayAdditionalInfoFacade" alias="worldpayAdditionalInfoFacade"/>
     <bean id="defaultWorldpayAdditionalInfoFacade" class="com.worldpay.facades.payment.impl.DefaultWorldpayAdditionalInfoFacade">
         <property name="worldpayAdditionalInfoService" ref="worldpayAdditionalInfoService"/>
+    </bean>
+
+    <alias name="defaultWorldpayCartFacade" alias="worldpayCartFacade"/>
+    <bean id="defaultWorldpayCartFacade" class="com.worldpay.facades.impl.DefaultWorldpayCartFacade">
+        <property name="worldpayCartService" ref="worldpayCartService"/>
+        <property name="cartService" ref="cartService"/>
     </bean>
 
     <alias name="defaultWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>

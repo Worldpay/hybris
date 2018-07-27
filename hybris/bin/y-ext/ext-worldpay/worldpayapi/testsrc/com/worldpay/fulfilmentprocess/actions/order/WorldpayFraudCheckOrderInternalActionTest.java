@@ -1,6 +1,5 @@
 package com.worldpay.fulfilmentprocess.actions.order;
 
-import com.worldpay.fulfilmentprocess.actions.order.WorldpayAbstractFraudCheckAction.Transition;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.basecommerce.enums.FraudStatus;
 import de.hybris.platform.core.enums.OrderStatus;
@@ -29,23 +28,23 @@ import java.util.Set;
 import static de.hybris.platform.basecommerce.enums.FraudStatus.CHECK;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Matchers.endsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayFraudCheckOrderInternalActionTest {
 
-    protected static final String PROVIDER_NAME = "providerName";
-    protected static final String FRAUD_REPORT_CODE = "fraudReportCode";
-    protected static final String OK_STRING = "OK";
-    protected static final String DESCRIPTION = "description";
+    private static final String PROVIDER_NAME = "providerName";
+    private static final String FRAUD_REPORT_CODE = "fraudReportCode";
+    private static final String OK_STRING = "OK";
+    private static final String DESCRIPTION = "description";
 
     @Spy
     @InjectMocks
-    private WorldpayFraudCheckOrderInternalAction testObj = new WorldpayFraudCheckOrderInternalAction();
+    private WorldpayFraudCheckOrderInternalAction testObj;
     @Mock
     private FraudServiceResponse fraudServiceResponseMock;
     @Mock
@@ -80,7 +79,7 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateFraudReport() throws Exception {
+    public void testCreateFraudReport() {
         when(fraudServiceResponseMock.getSymptoms()).thenReturn(Collections.singletonList(fraudSymptomMock));
 
         testObj.createFraudReport(PROVIDER_NAME, fraudServiceResponseMock, orderModelMock, CHECK);
@@ -96,7 +95,7 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateHistoryLog() throws Exception {
+    public void testCreateHistoryLog() {
         testObj.createHistoryLog(PROVIDER_NAME, orderModelMock, CHECK, FRAUD_REPORT_CODE);
 
         verify(orderHistoryEntryModelMock).setTimestamp(timeServiceMock.getCurrentTime());
@@ -105,7 +104,7 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateHistoryLogOkStatus() throws Exception {
+    public void testCreateHistoryLogOkStatus() {
         testObj.createHistoryLog(PROVIDER_NAME, orderModelMock, FraudStatus.OK, FRAUD_REPORT_CODE);
 
         verify(orderHistoryEntryModelMock).setTimestamp(timeServiceMock.getCurrentTime());
@@ -114,7 +113,7 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateHistoryLogEntryModel() throws Exception {
+    public void testCreateHistoryLogEntryModel() {
         testObj.createHistoryLog(DESCRIPTION, orderModelMock);
 
         verify(orderHistoryEntryModelMock).setDescription(DESCRIPTION);
@@ -123,28 +122,28 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testExecuteActionShouldReturnTransactionOK() throws Exception {
+    public void testExecuteActionShouldReturnTransactionOK() {
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(fraudServiceMock.recognizeOrderSymptoms(PROVIDER_NAME, orderModelMock)).thenReturn(fraudServiceResponseMock);
         when(fraudServiceResponseMock.getSymptoms()).thenReturn(Collections.emptyList());
 
-        final Transition result = testObj.executeAction(orderProcessModelMock);
+        final String result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(result, Transition.OK);
+        assertThat(result).isEqualTo("OK");
         verify(orderModelMock).setFraudulent(FALSE);
         verify(orderModelMock).setPotentiallyFraudulent(FALSE);
         verify(orderModelMock).setStatus(OrderStatus.FRAUD_CHECKED);
     }
 
     @Test
-    public void testExecuteActionShouldReturnTransactionFraud() throws Exception {
+    public void testExecuteActionShouldReturnTransactionFraud() {
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(fraudServiceMock.recognizeOrderSymptoms(PROVIDER_NAME, orderModelMock)).thenReturn(fraudServiceResponseMock);
         when(fraudServiceResponseMock.getSymptoms()).thenReturn(Collections.singletonList(fraudSymptomMock));
 
-        final Transition result = testObj.executeAction(orderProcessModelMock);
+        final String result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(result, Transition.POTENTIAL);
+        assertThat(result).isEqualTo("POTENTIAL");
         verify(testObj).createFraudReport(PROVIDER_NAME, fraudServiceResponseMock, orderModelMock, CHECK);
         verify(orderModelMock).setFraudulent(FALSE);
         verify(orderModelMock).setPotentiallyFraudulent(TRUE);

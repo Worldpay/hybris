@@ -8,6 +8,7 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -59,6 +60,8 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
     private CartService cartService;
     @Mock
     private OrderInquiryService orderInquiryServiceMock;
+    @Mock
+    private WorldpayOrderService worldpayOrderServiceMock;
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -70,6 +73,7 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
         when(cartService.getSessionCart()).thenReturn(cartModelMock);
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderInquiryServiceMock.inquiryKlarnaOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(orderInquiryServiceResponseMock);
+        when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(BigDecimal.valueOf(10.51));
     }
 
     @Test
@@ -78,8 +82,6 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
         when(orderInquiryServiceResponseMock.getReference().getValue()).thenReturn(KLARNA_CONTENT_ENCODED);
         when(orderInquiryServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
         when(orderInquiryServiceResponseMock.getPaymentReply().getAmount()).thenReturn(amountMock);
-        when(orderInquiryServiceResponseMock.getPaymentReply().getAmount().getExponent()).thenReturn("2");
-        when(amountMock.getValue()).thenReturn("1051");
 
         final KlarnaRedirectAuthoriseResult result = testObj.checkKlarnaOrderStatus();
 
@@ -94,8 +96,6 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
         when(worldpayServiceGatewayMock.orderInquiry(klarnaOrderInquiryServiceRequestMock)).thenReturn(orderInquiryServiceResponseMock);
         when(orderInquiryServiceResponseMock.getReference().getValue()).thenReturn(KLARNA_CONTENT_ENCODED);
         when(orderInquiryServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.SHOPPER_REDIRECTED);
-        when(orderInquiryServiceResponseMock.getPaymentReply().getAmount().getValue()).thenReturn("1850");
-        when(orderInquiryServiceResponseMock.getPaymentReply().getAmount().getExponent()).thenReturn("2");
 
         final KlarnaRedirectAuthoriseResult result = testObj.checkKlarnaOrderStatus();
 

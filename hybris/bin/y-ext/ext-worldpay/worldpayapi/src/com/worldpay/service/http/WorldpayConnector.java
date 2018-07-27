@@ -1,11 +1,10 @@
 package com.worldpay.service.http;
 
 import com.worldpay.exception.WorldpayCommunicationException;
+import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.model.MerchantInfo;
-
-import javax.xml.bind.Marshaller;
 
 /**
  * Interface template for the connector required to send the xml {@link PaymentService} to Worldpay.
@@ -23,7 +22,12 @@ public interface WorldpayConnector {
      * @throws WorldpayCommunicationException       if there have been issues connecting with Worldpay
      * @throws WorldpayModelTransformationException if there have been issues transforming the xml to send, or received from Worldpay
      */
-    ServiceReply send(PaymentService paymentService, MerchantInfo merchantInfo, String cookie) throws WorldpayCommunicationException, WorldpayModelTransformationException;
+    ServiceReply send(final PaymentService paymentService, final MerchantInfo merchantInfo, final String cookie) throws WorldpayException;
 
-    void logXMLOut(Marshaller marshaller, PaymentService paymentService);
+    /**
+     * Logs the given paymentService as an XML using the given marshaller.
+     *
+     * @param paymentService
+     */
+    void logXMLOut(final PaymentService paymentService);
 }

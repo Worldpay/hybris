@@ -14,7 +14,7 @@ public class ServiceReply {
         return paymentService;
     }
 
-    public void setPaymentService(PaymentService paymentService) {
+    public void setPaymentService(final PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
@@ -22,7 +22,7 @@ public class ServiceReply {
         return cookie;
     }
 
-    public void setCookie(String cookie) {
+    public void setCookie(final String cookie) {
         this.cookie = cookie;
     }
 }

@@ -18,17 +18,17 @@ public class WorldpayRiskGuardianFraudSymptom extends AbstractWorldpayOrderFraud
     private static final Logger LOG = Logger.getLogger(WorldpayRiskGuardianFraudSymptom.class);
 
     @Override
-    public FraudServiceResponse recognizeSymptom(FraudServiceResponse fraudServiceResponse, AbstractOrderModel abstractOrderModel) {
-        List<PaymentTransactionModel> paymentTransactions = abstractOrderModel.getPaymentTransactions();
+    public FraudServiceResponse recognizeSymptom(final FraudServiceResponse fraudServiceResponse, final AbstractOrderModel abstractOrderModel) {
+        final List<PaymentTransactionModel> paymentTransactions = abstractOrderModel.getPaymentTransactions();
         // At this moment only the Authorisation transaction will be in the list of paymentTransactions
         final double scoreLimit = getScoreLimit();
         paymentTransactions.stream().filter(Objects::nonNull).forEach(paymentTransaction -> {
-            WorldpayRiskScoreModel riskScore = paymentTransaction.getRiskScore();
+            final WorldpayRiskScoreModel riskScore = paymentTransaction.getRiskScore();
             if (riskScore == null) {
                 LOG.warn(MessageFormat.format("We did not get a risk score back, skipping risk check for: {0}", paymentTransaction));
                 return;
             }
-            Double finalScore = riskScore.getFinalScore();
+            final Double finalScore = riskScore.getFinalScore();
             // we only use the Risk Guardian data if finalScore is set - see WorldpayRiskScoreFraudSymptom
             if (finalScore != null && Double.compare(finalScore, scoreLimit) > 0) {
                 setIncrement(finalScore);

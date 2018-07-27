@@ -6,7 +6,7 @@
 <body>
 <form name="threeDResponse">
     <input class="PaRes" type="hidden" name="PaRes" value="${paRes}"/>
-    <input clase="MD" type="hidden" name="MD" value="${merchantData}"/>
+    <input class="MD" type="hidden" name="MD" value="${merchantData}"/>
 </form>
 </body>
 </html>

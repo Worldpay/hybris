@@ -40,7 +40,7 @@ public class WorldpayAbstractOrderPopulator implements Populator<AbstractOrderMo
     }
 
     @Required
-    public void setAddressConverter(Converter<AddressModel, AddressData> addressConverter) {
+    public void setAddressConverter(final Converter<AddressModel, AddressData> addressConverter) {
         this.addressConverter = addressConverter;
     }
 }

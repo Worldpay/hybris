@@ -9,8 +9,10 @@
 		<enumtype code="DefectiveReason">
 			<value code="NOT_APPLICABLE"/>
 			<value code="INVALID_AUTHENTICATED_SHOPPER_ID"/>
-			<value code="NO_PAYMENT_TRANSACTION_MATCHED"/>
+			<value code="NO_PAYMENT_TRANSACTION_MATCHED"><description>Deprecated in favour of NO_WORLDPAY_CODE_MATCHED</description></value>
 			<value code="PROCESSING_ERROR"/>
+			<value code="NO_WORLDPAY_CODE_MATCHED"/>
+			<value code="ERROR_PLACING_ORDER"/>
 		</enumtype>
 	</enumtypes>
 	<itemtypes>

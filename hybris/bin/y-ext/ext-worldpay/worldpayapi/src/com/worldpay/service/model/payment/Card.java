@@ -38,8 +38,8 @@ public class Card extends AbstractPayment {
      * @param issueNumber
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public Card(PaymentType paymentType, String cardNumber, String cvc, Date expiryDate, String cardHolderName, Address cardAddress,
-                Date birthDate, Date startDate, String issueNumber) {
+    public Card(final PaymentType paymentType, final String cardNumber, final String cvc, final Date expiryDate, final String cardHolderName, final Address cardAddress,
+                final Date birthDate, final Date startDate, final String issueNumber) {
         this.setPaymentType(paymentType);
         this.cardNumber = cardNumber;
         this.cvc = cvc;
@@ -53,67 +53,67 @@ public class Card extends AbstractPayment {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if (methodName.startsWith("set")) {
             if ("setCardNumber".equals(methodName) && cardNumber != null) {
-                CardNumber intCardNumber = new CardNumber();
+                final CardNumber intCardNumber = new CardNumber();
                 intCardNumber.setvalue(cardNumber);
                 method.invoke(targetObject, intCardNumber);
                 methodInvoked = true;
             }
             if ("setCvc".equals(methodName) && cvc != null) {
-                Cvc intCvc = new Cvc();
+                final Cvc intCvc = new Cvc();
                 intCvc.setvalue(cvc);
                 method.invoke(targetObject, intCvc);
                 methodInvoked = true;
             }
             if ("setExpiryDate".equals(methodName) && expiryDate != null) {
-                ExpiryDate intExpiryDate = new ExpiryDate();
+                final ExpiryDate intExpiryDate = new ExpiryDate();
                 intExpiryDate.setDate((com.worldpay.internal.model.Date) expiryDate.transformToInternalModel());
                 method.invoke(targetObject, intExpiryDate);
                 methodInvoked = true;
             }
             if ("setCardHolderName".equals(methodName) && cardHolderName != null) {
-                CardHolderName intCardHolderName = new CardHolderName();
+                final CardHolderName intCardHolderName = new CardHolderName();
                 intCardHolderName.setvalue(cardHolderName);
                 method.invoke(targetObject, intCardHolderName);
                 methodInvoked = true;
             }
             if ("setCardAddress".equals(methodName) && cardAddress != null) {
-                CardAddress intCardAddress = new CardAddress();
+                final CardAddress intCardAddress = new CardAddress();
                 intCardAddress.setAddress((com.worldpay.internal.model.Address) cardAddress.transformToInternalModel());
                 method.invoke(targetObject, intCardAddress);
                 methodInvoked = true;
             }
             if ("setBirthDate".equals(methodName) && birthDate != null) {
-                BirthDate intBirthDate = new BirthDate();
+                final BirthDate intBirthDate = new BirthDate();
                 intBirthDate.setDate((com.worldpay.internal.model.Date) birthDate.transformToInternalModel());
                 method.invoke(targetObject, intBirthDate);
                 methodInvoked = true;
             }
             if ("setStartDate".equals(methodName) && startDate != null) {
-                StartDate intStartDate = new StartDate();
+                final StartDate intStartDate = new StartDate();
                 intStartDate.setDate((com.worldpay.internal.model.Date) startDate.transformToInternalModel());
                 method.invoke(targetObject, intStartDate);
                 methodInvoked = true;
             }
             if ("setIssueNumber".equals(methodName) && issueNumber != null) {
-                IssueNumber intIssueNumber = new IssueNumber();
+                final IssueNumber intIssueNumber = new IssueNumber();
                 intIssueNumber.setvalue(issueNumber);
                 method.invoke(targetObject, intIssueNumber);
                 methodInvoked = true;
             }
         } else if ("getIssueNumberOrStartDate".equals(methodName) && (issueNumber != null || startDate != null)) {
-            List<Object> issueNumberOrStartDate = (List<Object>) method.invoke(targetObject);
+            final List<Object> issueNumberOrStartDate = (List<Object>) method.invoke(targetObject);
             if (issueNumber != null) {
-                IssueNumber intIssueNumber = new IssueNumber();
+                final IssueNumber intIssueNumber = new IssueNumber();
                 intIssueNumber.setvalue(issueNumber);
                 issueNumberOrStartDate.add(intIssueNumber);
             }
             if (startDate != null) {
-                StartDate intStartDate = new StartDate();
+                final StartDate intStartDate = new StartDate();
                 intStartDate.setDate((com.worldpay.internal.model.Date) startDate.transformToInternalModel());
                 issueNumberOrStartDate.add(intStartDate);
             }
@@ -135,7 +135,7 @@ public class Card extends AbstractPayment {
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         // Do nothing. This provides a hook for subclasses to add extra functionality
     }
 
@@ -143,7 +143,7 @@ public class Card extends AbstractPayment {
         return cardNumber;
     }
 
-    public void setCardNumber(String cardNumber) {
+    public void setCardNumber(final String cardNumber) {
         this.cardNumber = cardNumber;
     }
 
@@ -151,7 +151,7 @@ public class Card extends AbstractPayment {
         return cvc;
     }
 
-    public void setCvc(String cvc) {
+    public void setCvc(final String cvc) {
         this.cvc = cvc;
     }
 
@@ -159,7 +159,7 @@ public class Card extends AbstractPayment {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(final Date expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -167,7 +167,7 @@ public class Card extends AbstractPayment {
         return cardHolderName;
     }
 
-    public void setCardHolderName(String cardHolderName) {
+    public void setCardHolderName(final String cardHolderName) {
         this.cardHolderName = cardHolderName;
     }
 
@@ -175,7 +175,7 @@ public class Card extends AbstractPayment {
         return cardAddress;
     }
 
-    public void setCardAddress(Address cardAddress) {
+    public void setCardAddress(final Address cardAddress) {
         this.cardAddress = cardAddress;
     }
 
@@ -183,7 +183,7 @@ public class Card extends AbstractPayment {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(final Date birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -191,7 +191,7 @@ public class Card extends AbstractPayment {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(final Date startDate) {
         this.startDate = startDate;
     }
 
@@ -199,7 +199,7 @@ public class Card extends AbstractPayment {
         return issueNumber;
     }
 
-    public void setIssueNumber(String issueNumber) {
+    public void setIssueNumber(final String issueNumber) {
         this.issueNumber = issueNumber;
     }
 

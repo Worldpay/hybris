@@ -12,7 +12,6 @@ import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,10 +22,12 @@ import java.util.Set;
  */
 public abstract class WorldpayAbstractFraudCheckAction<T extends OrderProcessModel> extends WorldpayAbstractOrderAction<T> {
 
-    public static final String FRAUD_CHECK_TEXT_OK = "Fraud check [{0}]: OK";
-    public static final String FRAUD_CHECK_TEXT_NOK = "Fraud check [{0}]: {1}. Check the fraud report : {2}";
+    private static final String FRAUD_CHECK_TEXT_OK = "Fraud check [{0}]: OK";
+    private static final String FRAUD_CHECK_TEXT_NOK = "Fraud check [{0}]: {1}. Check the fraud report : {2}";
+    protected static final String OK = "OK";
+    protected static final String POTENTIAL = "POTENTIAL";
 
-    protected FraudReportModel createFraudReport(String providerName, FraudServiceResponse response, OrderModel order, FraudStatus status) {
+    protected FraudReportModel createFraudReport(final String providerName, final FraudServiceResponse response, final OrderModel order, final FraudStatus status) {
         final FraudReportModel fraudReport = this.modelService.create(FraudReportModel.class);
         fraudReport.setOrder(order);
         fraudReport.setStatus(status);
@@ -53,7 +54,7 @@ public abstract class WorldpayAbstractFraudCheckAction<T extends OrderProcessMod
         return fraudReport;
     }
 
-    protected OrderHistoryEntryModel createHistoryLog(String providerName, OrderModel order, FraudStatus status, String code) {
+    protected OrderHistoryEntryModel createHistoryLog(final String providerName, final OrderModel order, final FraudStatus status, final String code) {
         String description;
         if (status.equals(FraudStatus.OK)) {
             description = MessageFormat.format(FRAUD_CHECK_TEXT_OK, providerName);
@@ -66,39 +67,20 @@ public abstract class WorldpayAbstractFraudCheckAction<T extends OrderProcessMod
 
     @Override
     public Set<String> getTransitions() {
-        return WorldpayAbstractFraudCheckAction.Transition.getStringValues();
+        return createTransitions(OK, POTENTIAL);
     }
 
     @Override
-    public final String execute(T process) throws WorldpayException {
-        return this.executeAction(process).toString();
+    public final String execute(final T process) throws WorldpayException {
+        return this.executeAction(process);
     }
 
     /**
-     *
      * @param var1
      * @return
      * @throws WorldpayException
      */
-    public abstract WorldpayAbstractFraudCheckAction.Transition executeAction(T var1) throws WorldpayException;
+    public abstract String executeAction(T var1) throws WorldpayException;
 
-    /**
-     * Possible return values
-     */
-    public enum Transition {
-        OK,
-        POTENTIAL;
 
-        Transition() {
-        }
-
-        public static Set<String> getStringValues() {
-            final Set<String> response = new HashSet<>();
-            final WorldpayAbstractFraudCheckAction.Transition[] transitionsArray = values();
-            for (final Transition transition : transitionsArray) {
-                response.add(transition.toString());
-            }
-            return response;
-        }
-    }
 }

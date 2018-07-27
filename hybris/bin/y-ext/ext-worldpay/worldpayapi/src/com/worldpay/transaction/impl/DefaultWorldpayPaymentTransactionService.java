@@ -1,12 +1,15 @@
 package com.worldpay.transaction.impl;
 
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
+import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
 import com.worldpay.model.WorldpayAavResponseModel;
+import com.worldpay.model.WorldpayBankConfigurationModel;
 import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.RiskScore;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.transaction.EntryCodeStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
@@ -28,7 +31,6 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,6 +56,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     private WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
     private Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter;
     private Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator;
+    private WorldpayOrderService worldpayOrderService;
+    private WorldpayBankConfigurationLookupService worldpayBankConfigurationService;
 
     /**
      * {@inheritDoc}
@@ -193,7 +197,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public PaymentTransactionModel createPaymentTransaction(final boolean apmOpen, final String merchantCode, final CommerceCheckoutParameter commerceCheckoutParameter) {
         final PaymentTransactionModel paymentTransactionModel = modelService.create(PaymentTransactionModel.class);
         final AbstractOrderModel abstractOrderModel = commerceCheckoutParameter.getCart() == null ? commerceCheckoutParameter.getOrder() : commerceCheckoutParameter.getCart();
-        String worldpayOrderCode = abstractOrderModel.getWorldpayOrderCode();
+        final String worldpayOrderCode = abstractOrderModel.getWorldpayOrderCode();
         paymentTransactionModel.setCode(worldpayOrderCode);
         paymentTransactionModel.setRequestId(worldpayOrderCode);
         paymentTransactionModel.setRequestToken(merchantCode);
@@ -203,7 +207,11 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         paymentTransactionModel.setInfo(commerceCheckoutParameter.getPaymentInfo());
         paymentTransactionModel.setApmOpen(apmOpen);
         paymentTransactionModel.setPlannedAmount(commerceCheckoutParameter.getAuthorizationAmount());
-
+        if (abstractOrderModel instanceof CartModel) {
+            final String shopperBankCode = ((CartModel) abstractOrderModel).getShopperBankCode();
+            final WorldpayBankConfigurationModel activeBankConfigurationsForCode = worldpayBankConfigurationService.getBankConfigurationForBankCode(shopperBankCode);
+            paymentTransactionModel.setWorldpayBank(activeBankConfigurationsForCode);
+        }
         modelService.save(paymentTransactionModel);
         return paymentTransactionModel;
     }
@@ -265,7 +273,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public void updateEntriesAmount(final List<PaymentTransactionEntryModel> transactionEntries, final Amount amount) {
         for (final PaymentTransactionEntryModel entry : transactionEntries) {
-            final BigDecimal amountValue = convertAmount(amount);
+            final BigDecimal amountValue = worldpayOrderService.convertAmount(amount);
             checkAmountChanges(entry, amountValue);
             entry.setAmount(amountValue);
             entry.setCurrency(commonI18NService.getCurrency(amount.getCurrencyCode()));
@@ -298,11 +306,6 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         return Math.abs(order.getTotalPrice() - authorisedAmount.doubleValue()) <= tolerance;
     }
 
-    protected BigDecimal convertAmount(final Amount amount) {
-        final Currency currency = Currency.getInstance(amount.getCurrencyCode());
-        return new BigDecimal(amount.getValue()).movePointLeft(currency.getDefaultFractionDigits());
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -326,7 +329,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
 
         final Amount amount = orderNotificationMessage.getPaymentReply().getAmount();
 
-        final BigDecimal amountValue = convertAmount(amount);
+        final BigDecimal amountValue = worldpayOrderService.convertAmount(amount);
         transactionEntryModel.setAmount(amountValue);
         transactionEntryModel.setCurrency(commonI18NService.getCurrency(amount.getCurrencyCode()));
 
@@ -364,42 +367,52 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     }
 
     @Required
-    public void setPaymentTransactionDependency(Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency) {
+    public void setPaymentTransactionDependency(final Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency) {
         this.paymentTransactionDependency = paymentTransactionDependency;
     }
 
     @Required
-    public void setCommonI18NService(CommonI18NService commonI18NService) {
+    public void setCommonI18NService(final CommonI18NService commonI18NService) {
         this.commonI18NService = commonI18NService;
     }
 
     @Required
-    public void setModelService(ModelService modelService) {
+    public void setModelService(final ModelService modelService) {
         this.modelService = modelService;
     }
 
     @Required
-    public void setEntryCodeStrategy(EntryCodeStrategy entryCodeStrategy) {
+    public void setEntryCodeStrategy(final EntryCodeStrategy entryCodeStrategy) {
         this.entryCodeStrategy = entryCodeStrategy;
     }
 
     @Required
-    public void setWorldpayPaymentTransactionDao(WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
+    public void setWorldpayPaymentTransactionDao(final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
         this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
     }
 
     @Required
-    public void setWorldpayRiskScoreConverter(Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter) {
+    public void setWorldpayRiskScoreConverter(final Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter) {
         this.worldpayRiskScoreConverter = worldpayRiskScoreConverter;
     }
 
     @Required
-    public void setWorldpayAavResponsePopulator(Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator) {
+    public void setWorldpayAavResponsePopulator(final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator) {
         this.worldpayAavResponsePopulator = worldpayAavResponsePopulator;
     }
 
     @Required
-    public void setConfigurationService(ConfigurationService configurationService) {
+    public void setConfigurationService(final ConfigurationService configurationService) {
         this.configurationService = configurationService;
+    }
+
+    @Required
+    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
+    }
+
+    @Required
+    public void setWorldpayBankConfigurationService(final WorldpayBankConfigurationLookupService worldpayBankConfigurationService) {
+        this.worldpayBankConfigurationService = worldpayBankConfigurationService;
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public abstract class AbstractWorldpayOrderFraudSymptomDetection extends AbstractOrderFraudSymptomDetection {
 
-    public static final String SCORE_LIMIT_PROPERTY_NAME = WorldpayapiConstants.EXTENSIONNAME + ".fraud.scoreLimit";
+    private static final String SCORE_LIMIT_PROPERTY_NAME = WorldpayapiConstants.EXTENSIONNAME + ".fraud.scoreLimit";
 
     private ConfigurationService configurationService;
 
@@ -21,7 +21,7 @@ public abstract class AbstractWorldpayOrderFraudSymptomDetection extends Abstrac
     }
 
     @Required
-    public void setConfigurationService(ConfigurationService configurationService) {
+    public void setConfigurationService(final ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
 }

@@ -24,15 +24,15 @@ public class AlternativeShopperBankCodePayment extends AlternativePayment {
      * @param shopperBankCode
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AlternativeShopperBankCodePayment(PaymentType paymentType, String shopperCountryCode, String successURL, String failureURL, String cancelURL, String pendingURL, String shopperBankCode) {
+    public AlternativeShopperBankCodePayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, final String pendingURL, final String shopperBankCode) {
         super(paymentType, shopperCountryCode, successURL, failureURL, cancelURL, pendingURL);
         this.shopperBankCode = shopperBankCode;
     }
 
     @Override
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if ("setShopperBankCode".equals(methodName) && shopperBankCode != null) {
             method.invoke(targetObject, shopperBankCode);
         }
@@ -42,7 +42,7 @@ public class AlternativeShopperBankCodePayment extends AlternativePayment {
         return shopperBankCode;
     }
 
-    public void setShopperBankCode(String shopperBankCode) {
+    public void setShopperBankCode(final String shopperBankCode) {
         this.shopperBankCode = shopperBankCode;
     }
 

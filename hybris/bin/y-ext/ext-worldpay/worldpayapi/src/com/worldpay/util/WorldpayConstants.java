@@ -16,11 +16,6 @@ public class WorldpayConstants {
     }
 
     /**
-     * Package location holding the internal model objects
-     */
-    private static final String WORLDPAY_MODEL_PACKAGE = "com.worldpay.internal.model";
-
-    /**
      * Initialised JAXB context
      */
     public static final JAXBContext JAXB_CONTEXT = initContext();
@@ -34,6 +29,11 @@ public class WorldpayConstants {
      * Constant xml header to be added to all outgoing messages to Worldpay
      */
     public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE paymentService PUBLIC \"-//Worldpay//DTD Worldpay PaymentService v1//EN\" \"http://dtd.worldpay.com/paymentService_v1.dtd\">\n";
+
+    /**
+     * Package location holding the internal model objects
+     */
+    private static final String WORLDPAY_MODEL_PACKAGE = "com.worldpay.internal.model";
 
     private static JAXBContext initContext() {
         JAXBContext jaxBContext = null;

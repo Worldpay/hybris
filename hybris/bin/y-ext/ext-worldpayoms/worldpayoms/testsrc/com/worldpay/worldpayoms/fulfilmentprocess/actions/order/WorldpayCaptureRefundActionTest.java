@@ -38,7 +38,7 @@ public class WorldpayCaptureRefundActionTest {
     private static final BigDecimal ORIGINAL_REFUND_AMOUNT = new BigDecimal(17);
 
     @InjectMocks
-    private WorldpayCaptureRefundAction testObj = new WorldpayCaptureRefundAction();
+    private WorldpayCaptureRefundAction testObj;
 
     @Mock
     private ReturnProcessModel returnProcessModelMock;

@@ -11,6 +11,7 @@ import com.worldpay.service.request.CreateTokenServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 
+import java.math.BigDecimal;
 import java.util.Currency;
 
 /**
@@ -44,6 +45,13 @@ public interface WorldpayOrderService {
      * @return Amount object required by DirectAuthoriseServiceRequest
      */
     Amount createAmount(final Currency currency, final double amount);
+
+    /**
+     * Converts Amount Object into a BigDecimal value taking into account the currency
+     * @param amount
+     * @return amount as a BigDecimal
+     */
+    BigDecimal convertAmount(final Amount amount);
 
     /**
      * Creates a Worldpay {@link Session} object

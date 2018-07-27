@@ -196,6 +196,25 @@ public class DirectAuthoriseServiceRequestTest {
                 SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
     }
 
+    @Test
+    public void createDirectAuthorisedWithoutMerchantShouldRaiseWorldpayCommunicationException() {
+        thrown.expect(IllegalArgumentException.class);
+        merchantInfo = new MerchantInfo(null, null);
+        final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
+        DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
+    }
+
+    @Test
+    public void createDirectAuthorisedWithTokenRequestWithoutMerchantShouldRaiseWorldpayCommunicationException() {
+        thrown.expect(IllegalArgumentException.class);
+        merchantInfo = new MerchantInfo(null, null);
+        final Token tokenSsl = new Token(TOKEN_EVENT_REFERENCE, false);
+        final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + LocalDateTime.now().toString(), TOKEN_REASON);
+        DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, tokenSsl,
+                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
+
+    }
 
     private void assertCommonOrderRequestData(final DirectAuthoriseServiceRequest result) {
         assertEquals(merchantInfo, result.getMerchantInfo());

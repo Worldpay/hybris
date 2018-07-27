@@ -57,7 +57,7 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
     }
 
     @Required
-    public void setThreeDSecureTermPath(String threeDSecureTermPath) {
+    public void setThreeDSecureTermPath(final String threeDSecureTermPath) {
         this.threeDSecureTermPath = threeDSecureTermPath;
     }
 
@@ -70,7 +70,7 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
     }
 
     @Required
-    public void setThreeDSecureQuoteTermPath(String threeDSecureQuoteTermPath) {
+    public void setThreeDSecureQuoteTermPath(final String threeDSecureQuoteTermPath) {
         this.threeDSecureQuoteTermPath = threeDSecureQuoteTermPath;
     }
 

@@ -5,8 +5,8 @@ import de.hybris.bootstrap.annotations.ManualTest
 import groovyx.net.http.HttpResponseDecorator
 import spock.lang.Unroll
 
-import static groovyx.net.http.ContentType.*
 import static org.apache.http.HttpStatus.SC_OK
+import static org.apache.http.entity.ContentType.*
 
 @ManualTest
 @Unroll
@@ -23,14 +23,14 @@ class UserPaymentsTest extends AbstractWorldpaySpockTest {
                 path: getBasePathWithSite() + '/users/' + customer.id + '/paymentdetails/' + info.id,
                 query: ["fields": FIELD_SET_LEVEL_FULL],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
         then: "he is able to do so"
         with(response) {
             status == SC_OK
             data.accountHolderName == "Sven Johnson"
         }
         where:
-        format << [JSON,XML]
+        format << [APPLICATION_JSON, APPLICATION_XML]
     }
 
 }

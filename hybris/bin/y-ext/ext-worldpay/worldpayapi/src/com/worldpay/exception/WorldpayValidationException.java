@@ -15,7 +15,7 @@ public class WorldpayValidationException extends WorldpayException {
      * @param message
      * @param throwable
      */
-    public WorldpayValidationException(String message, Throwable throwable) {
+    public WorldpayValidationException(final String message, final Throwable throwable) {
         super(message, throwable);
     }
 
@@ -24,7 +24,7 @@ public class WorldpayValidationException extends WorldpayException {
      *
      * @param message
      */
-    public WorldpayValidationException(String message) {
+    public WorldpayValidationException(final String message) {
         super(message);
     }
 }

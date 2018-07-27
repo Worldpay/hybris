@@ -36,7 +36,7 @@ public class BankAccount extends AbstractPayment {
      * @param address
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public BankAccount(PaymentType paymentType, String accountHolderName, String accountNumber, String bankName, String bankLocation, String bankLocationId, Date birthDate, Address address) {
+    public BankAccount(final PaymentType paymentType, final String accountHolderName, final String accountNumber, final String bankName, final String bankLocation, final String bankLocationId, final Date birthDate, final Address address) {
         this.setPaymentType(paymentType);
         this.accountHolderName = accountHolderName;
         this.accountNumber = accountNumber;
@@ -48,9 +48,9 @@ public class BankAccount extends AbstractPayment {
     }
 
     @Override
-    public void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if (methodName.startsWith("set")) {
             if ("setAccountHolderName".equals(methodName) && accountHolderName != null) {
                 method.invoke(targetObject, accountHolderName);
@@ -73,9 +73,9 @@ public class BankAccount extends AbstractPayment {
                 methodInvoked = true;
             }
             if ("setCreditScoring".equals(methodName) && birthDate != null && address != null) {
-                CreditScoring intCreditScoring = new CreditScoring();
+                final CreditScoring intCreditScoring = new CreditScoring();
                 intCreditScoring.setAddress((com.worldpay.internal.model.Address) address.transformToInternalModel());
-                BirthDate intBirthDate = new BirthDate();
+                final BirthDate intBirthDate = new BirthDate();
                 intBirthDate.setDate((com.worldpay.internal.model.Date) address.transformToInternalModel());
                 intCreditScoring.setBirthDate(intBirthDate);
                 method.invoke(targetObject, intCreditScoring);
@@ -106,7 +106,7 @@ public class BankAccount extends AbstractPayment {
         return accountHolderName;
     }
 
-    public void setAccountHolderName(String accountHolderName) {
+    public void setAccountHolderName(final String accountHolderName) {
         this.accountHolderName = accountHolderName;
     }
 
@@ -114,7 +114,7 @@ public class BankAccount extends AbstractPayment {
         return accountNumber;
     }
 
-    public void setAccountNumber(String accountNumber) {
+    public void setAccountNumber(final String accountNumber) {
         this.accountNumber = accountNumber;
     }
 
@@ -122,7 +122,7 @@ public class BankAccount extends AbstractPayment {
         return bankName;
     }
 
-    public void setBankName(String bankName) {
+    public void setBankName(final String bankName) {
         this.bankName = bankName;
     }
 
@@ -130,7 +130,7 @@ public class BankAccount extends AbstractPayment {
         return bankLocation;
     }
 
-    public void setBankLocation(String bankLocation) {
+    public void setBankLocation(final String bankLocation) {
         this.bankLocation = bankLocation;
     }
 
@@ -138,7 +138,7 @@ public class BankAccount extends AbstractPayment {
         return bankLocationId;
     }
 
-    public void setBankLocationId(String bankLocationId) {
+    public void setBankLocationId(final String bankLocationId) {
         this.bankLocationId = bankLocationId;
     }
 
@@ -146,7 +146,7 @@ public class BankAccount extends AbstractPayment {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(final Date birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -154,7 +154,7 @@ public class BankAccount extends AbstractPayment {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(final Address address) {
         this.address = address;
     }
 

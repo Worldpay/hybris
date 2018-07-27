@@ -17,12 +17,12 @@ public class AbstractServiceRequest implements ServiceRequest {
      * @param merchantInfo
      * @param orderCode
      */
-    protected AbstractServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+    protected AbstractServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {
         this.merchantInfo = merchantInfo;
         this.orderCode = orderCode;
     }
 
-    protected static void checkParameters(String requestType, final Object... params) {
+    protected static void checkParameters(final String requestType, final Object... params) {
         for (final Object param : params) {
             if (param == null) {
                 throw new IllegalArgumentException("Required parameter to create " + requestType + " cannot be null");
@@ -36,7 +36,7 @@ public class AbstractServiceRequest implements ServiceRequest {
     }
 
     @Override
-    public void setMerchantInfo(MerchantInfo merchantInfo) {
+    public void setMerchantInfo(final MerchantInfo merchantInfo) {
         this.merchantInfo = merchantInfo;
     }
 
@@ -46,7 +46,7 @@ public class AbstractServiceRequest implements ServiceRequest {
     }
 
     @Override
-    public void setOrderCode(String orderCode) {
+    public void setOrderCode(final String orderCode) {
         this.orderCode = orderCode;
     }
 
@@ -56,7 +56,7 @@ public class AbstractServiceRequest implements ServiceRequest {
     }
 
     @Override
-    public void setCookie(String cookie) {
+    public void setCookie(final String cookie) {
         this.cookie = cookie;
     }
 }

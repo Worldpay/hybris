@@ -2,8 +2,6 @@ package com.worldpay.core.services;
 
 import de.hybris.platform.core.model.order.CartModel;
 
-import java.util.List;
-
 /**
  * Service providing extended Worldpay cart service functionality.
  *
@@ -12,18 +10,26 @@ import java.util.List;
 public interface WorldpayCartService {
 
     /**
+     * Sets shopper bank code on the {@link de.hybris.platform.core.model.order.CartModel}.
+     *
+     * @param shopperBankCode the shopper bank code
+     */
+    void resetDeclineCodeAndShopperBankOnCart(final String shopperBankCode);
+
+    /**
      * Sets worldpay decline code on the {@link de.hybris.platform.core.model.order.CartModel}.
      *
-     * @param worldpayOrderCode the world pay order code
+     * @param worldpayOrderCode the worldpay order code
      * @param declineCode       the decline code
      */
     void setWorldpayDeclineCodeOnCart(final String worldpayOrderCode, final String declineCode);
 
     /**
-     * Returns the list of carts by WorldpayOrderCode
+     * Returns the cart for the given WorldpayOrderCode
      *
      * @param worldpayOrderCode
-     * @return
+     * @return cart for the given worldpayCode
      */
-    List<CartModel> findCartsByWorldpayOrderCode(String worldpayOrderCode);
+    CartModel findCartByWorldpayOrderCode(final String worldpayOrderCode);
+
 }

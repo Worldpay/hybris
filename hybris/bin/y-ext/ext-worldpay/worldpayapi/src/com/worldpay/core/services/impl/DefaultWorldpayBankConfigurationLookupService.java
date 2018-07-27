@@ -1,26 +1,30 @@
 package com.worldpay.core.services.impl;
 
-import com.worldpay.core.dao.WorldpayBankConfigurationDao;
+import com.google.common.collect.ImmutableMap;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.model.WorldpayBankConfigurationModel;
+import de.hybris.platform.servicelayer.internal.dao.GenericDao;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 /**
  * {@inheritDoc}
  */
 public class DefaultWorldpayBankConfigurationLookupService implements WorldpayBankConfigurationLookupService {
 
-    private WorldpayBankConfigurationDao worldpayBankConfigurationDao;
     private APMConfigurationLookupService apmConfigurationLookupService;
+    private GenericDao<WorldpayBankConfigurationModel> worldpayBankConfigurationGenericDao;
 
     /**
      * {@inheritDoc}
+     *
      * @param apmCode string representing the APM code
      * @return
      */
@@ -30,16 +34,31 @@ public class DefaultWorldpayBankConfigurationLookupService implements WorldpayBa
         final Map<String, Object> queryParams = new HashMap<>();
         queryParams.put(WorldpayBankConfigurationModel.APM, apmConfigurationForCode);
         queryParams.put(WorldpayBankConfigurationModel.ACTIVE, Boolean.TRUE);
-        return worldpayBankConfigurationDao.find(queryParams);
+        return worldpayBankConfigurationGenericDao.find(queryParams);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param bankCode string representing the bank code
+     * @return WorldpayBankConfigurationModel
+     */
+    @Override
+    public WorldpayBankConfigurationModel getBankConfigurationForBankCode(final String bankCode) {
+        if (isBlank(bankCode)) {
+            return null;
+        }
+        final List<WorldpayBankConfigurationModel> bankList = worldpayBankConfigurationGenericDao.find(ImmutableMap.of(WorldpayBankConfigurationModel.CODE, bankCode));
+        return bankList.get(0);
     }
 
     @Required
-    public void setWorldpayBankConfigurationDao(WorldpayBankConfigurationDao worldpayBankConfigurationDao) {
-        this.worldpayBankConfigurationDao = worldpayBankConfigurationDao;
-    }
-
-    @Required
-    public void setApmConfigurationLookupService(APMConfigurationLookupService apmConfigurationLookupService) {
+    public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
         this.apmConfigurationLookupService = apmConfigurationLookupService;
+    }
+
+    @Required
+    public void setWorldpayBankConfigurationGenericDao(final GenericDao<WorldpayBankConfigurationModel> worldpayBankConfigurationGenericDao) {
+        this.worldpayBankConfigurationGenericDao = worldpayBankConfigurationGenericDao;
     }
 }

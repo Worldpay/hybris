@@ -152,7 +152,6 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL)).thenReturn(contentPageModelMock);
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
-        doNothing().when(testObj).resetDeclineCodeOnCart();
         doReturn(false).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
         when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(Collections.singletonList(ccPaymentInfoMock));

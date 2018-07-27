@@ -8,13 +8,13 @@ import com.worldpay.facades.order.WorldpayKlarnaPaymentCheckoutFacade;
 import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -27,6 +27,7 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacade implements WorldpayKlarn
     private CartService cartService;
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
     private OrderInquiryService orderInquiryService;
+    private WorldpayOrderService worldpayOrderService;
 
     /**
      * {@inheritDoc}
@@ -41,9 +42,7 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacade implements WorldpayKlarn
         if (AuthorisedStatus.AUTHORISED.equals(authStatus) || AuthorisedStatus.SHOPPER_REDIRECTED.equals(authStatus)) {
             final KlarnaRedirectAuthoriseResult klarnaRedirectAuthoriseResult = new KlarnaRedirectAuthoriseResult();
             klarnaRedirectAuthoriseResult.setPending(true);
-            final int paymentExponent = Integer.parseInt(serviceResponse.getPaymentReply().getAmount().getExponent());
-            final String paymentAmount = serviceResponse.getPaymentReply().getAmount().getValue();
-            klarnaRedirectAuthoriseResult.setPaymentAmount(new BigDecimal(paymentAmount).movePointLeft(paymentExponent));
+            klarnaRedirectAuthoriseResult.setPaymentAmount(worldpayOrderService.convertAmount(serviceResponse.getPaymentReply().getAmount()));
             final String decodedHtmlContent = new String(Base64.getDecoder().decode(serviceResponse.getReference().getValue()), StandardCharsets.UTF_8);
             klarnaRedirectAuthoriseResult.setDecodedHTMLContent(decodedHtmlContent);
 
@@ -75,5 +74,10 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacade implements WorldpayKlarn
     @Required
     public void setOrderInquiryService(DefaultOrderInquiryService orderInquiryService) {
         this.orderInquiryService = orderInquiryService;
+    }
+
+    @Required
+    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
     }
 }

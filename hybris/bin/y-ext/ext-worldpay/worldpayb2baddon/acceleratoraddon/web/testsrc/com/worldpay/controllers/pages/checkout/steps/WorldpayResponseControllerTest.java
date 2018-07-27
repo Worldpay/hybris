@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayResponseController.BILLING_ADDRESS_FORM;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -49,6 +48,7 @@ public class WorldpayResponseControllerTest {
     private static final String ORDER_GUID = "orderGuid";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String BILLING_ADDRESS_FORM_ENDPOINT = "billingAddressForm";
+    private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
     @Spy
     @InjectMocks

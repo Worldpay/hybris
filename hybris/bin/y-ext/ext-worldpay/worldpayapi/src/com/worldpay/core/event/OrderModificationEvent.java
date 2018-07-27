@@ -14,7 +14,7 @@ public class OrderModificationEvent extends AbstractEvent {
      * Public constructor for the Event
      * @param orderNotificationMessage the {@link OrderNotificationMessage} received from Worldpay to be attached to the event.
      */
-    public OrderModificationEvent(OrderNotificationMessage orderNotificationMessage) {
+    public OrderModificationEvent(final OrderNotificationMessage orderNotificationMessage) {
         super();
         this.orderNotificationMessage = orderNotificationMessage;
     }
@@ -23,7 +23,7 @@ public class OrderModificationEvent extends AbstractEvent {
         return orderNotificationMessage;
     }
 
-    public void setOrderNotificationMessage(OrderNotificationMessage orderNotificationMessage) {
+    public void setOrderNotificationMessage(final OrderNotificationMessage orderNotificationMessage) {
         this.orderNotificationMessage = orderNotificationMessage;
     }
 }

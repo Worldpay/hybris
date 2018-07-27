@@ -39,7 +39,7 @@ public class WorldpayItemCodePrepareInterceptor implements PrepareInterceptor<It
     }
 
     @Required
-    public void setKeyGenerator(KeyGenerator keyGenerator) {
+    public void setKeyGenerator(final KeyGenerator keyGenerator) {
         this.keyGenerator = keyGenerator;
     }
 

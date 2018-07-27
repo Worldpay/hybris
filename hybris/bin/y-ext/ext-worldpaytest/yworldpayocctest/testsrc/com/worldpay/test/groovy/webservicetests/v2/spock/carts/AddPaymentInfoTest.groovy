@@ -4,9 +4,9 @@ import com.worldpay.test.groovy.webservicetests.v2.spock.AbstractWorldpaySpockTe
 import de.hybris.bootstrap.annotations.ManualTest
 import spock.lang.Unroll
 
-import static groovyx.net.http.ContentType.*
 import static java.time.LocalDate.now
 import static org.apache.http.HttpStatus.SC_CREATED
+import static org.apache.http.entity.ContentType.*
 
 @ManualTest
 @Unroll
@@ -29,7 +29,8 @@ class AddPaymentInfoTest extends AbstractWorldpaySpockTest {
             "billingAddress.country.isocode": "DK"
     ]
     protected static
-    final String WP_DEFAULT_PAYMENT_JSON = "{\"accountHolderName\" : \"Sven Johnson\", \"cseToken\" : \"CSE_TOKEN\", \"cardType\" : {\"code\":\"visa\"}, \"expiryMonth\" : \"04\", \"expiryYear\" : \"2117\", \"defaultPayment\" : true, \"saved\" : true,\"billingAddress\" : { \"titleCode\" : \"Dr\", \"firstName\" : \"Sven\", \"lastName\" : \"Johnson\", \"line1\" : \"Vestergade 1000\", \"line2\" : \"test2\", \"postalCode\" : \"8000\", \"town\" : \"Aarhus\",\"country\":{\"isocode\" : \"DK\"}}}";
+    final String WP_DEFAULT_PAYMENT_JSON = "{\"accountHolderName\" : \"Sven Johnson\", \"cseToken\" : \"CSE_TOKEN\", \"cardType\" : {\"code\":\"visa\"}, \"expiryMonth\" : \"04\", \"expiryYear\" : \"2117\", \"defaultPayment\" : true, \"saved\" : true,\"billingAddress\" : { \"titleCode\" : \"Dr\", \"firstName\" : \"Sven\", \"lastName\" : \"Johnson\", \"line1\" : \"Vestergade 1000\", \"line2\" : \"test2\", \"postalCode\" : \"8000\", \"town\" : \"Aarhus\",\"country\":{\"isocode\" : \"DK\"}}}"
+
     protected static
     final String WP_DEFAULT_PAYMENT_XML = "<paymentDetails><accountHolderName>Sven Johnson</accountHolderName><cseToken>CSE_TOKEN</cseToken><cardType><code>visa</code></cardType><expiryMonth>4</expiryMonth><expiryYear>2117</expiryYear><defaultPayment>true</defaultPayment><saved>true</saved><billingAddress><firstName>Sven</firstName><lastName>Johnson</lastName><titleCode>Dr</titleCode><country><isocode>DK</isocode></country><postalCode>8000</postalCode><town>Aarhus</town><line1>Vestergade 1000</line1><line2>test2</line2></billingAddress></paymentDetails>"
 
@@ -68,10 +69,10 @@ class AddPaymentInfoTest extends AbstractWorldpaySpockTest {
         paymentDetails.cardType.code == 'visa'
 
         where:
-        requestFormat | responseFormat | postBody
-        URLENC        | XML            | WP_DEFAULT_PAYMENT
-        URLENC        | JSON           | WP_DEFAULT_PAYMENT
-        JSON          | JSON           | WP_DEFAULT_PAYMENT_JSON
-        XML           | XML            | WP_DEFAULT_PAYMENT_XML
+        requestFormat               | responseFormat   | postBody
+        APPLICATION_FORM_URLENCODED | APPLICATION_XML  | WP_DEFAULT_PAYMENT
+        APPLICATION_FORM_URLENCODED | APPLICATION_JSON | WP_DEFAULT_PAYMENT
+        APPLICATION_JSON            | APPLICATION_JSON | WP_DEFAULT_PAYMENT_JSON
+        APPLICATION_XML             | APPLICATION_XML  | WP_DEFAULT_PAYMENT_XML
     }
 }

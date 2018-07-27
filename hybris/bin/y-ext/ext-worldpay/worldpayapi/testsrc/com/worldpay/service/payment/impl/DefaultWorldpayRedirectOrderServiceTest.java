@@ -314,10 +314,10 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Test
     public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToTrue() {
         when(redirectAuthoriseResultMock.getSaveCard()).thenReturn(true);
-        setUpRedirectAuthoriseResultMock(AUTHORISED);
+        setUpRedirectAuthoriseResultMock(AUTHORISED, true);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
 
-        testObj.completeRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
+        testObj.completePendingRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
 
         verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
         verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
@@ -327,15 +327,43 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
     @Test
     public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToFalse() {
-        setUpRedirectAuthoriseResultMock(AUTHORISED);
+        setUpRedirectAuthoriseResultMock(AUTHORISED, true);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
 
-        testObj.completeRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
+        testObj.completePendingRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
 
         verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
         verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
         verify(worldpayPaymentTransactionServiceMock).createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock);
         verify(worldpayPaymentTransactionServiceMock).createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, bigDecimalMock);
+    }
+
+    @Test
+    public void testCompleteRedirectAuthoriseWithNoPendingPaymentTransactionEntryAndSetSavedPaymentInfoToTrue() {
+        when(redirectAuthoriseResultMock.getSaveCard()).thenReturn(true);
+        setUpRedirectAuthoriseResultMock(AUTHORISED, false);
+        when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
+
+        testObj.completeConfirmedRedirectAuthorise(bigDecimalMock, MERCHANT_CODE, cartModelMock);
+
+        verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
+        verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
+        verify(commerceCheckoutServiceMock).setPaymentInfo(commerceCheckoutParameterMock);
+        verify(worldpayPaymentTransactionServiceMock).createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock);
+        verify(worldpayPaymentTransactionServiceMock).createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, bigDecimalMock);
+    }
+
+    @Test
+    public void testCompleteRedirectAuthoriseWithNoPendingPaymentTransactionEntryAndSetSavedPaymentInfoToFalse() {
+        setUpRedirectAuthoriseResultMock(AUTHORISED, false);
+        when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
+
+        testObj.completeConfirmedRedirectAuthorise(bigDecimalMock, MERCHANT_CODE, cartModelMock);
+
+        verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
+        verify(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
+        verify(worldpayPaymentTransactionServiceMock).createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock);
+        verify(worldpayPaymentTransactionServiceMock).createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, bigDecimalMock);
     }
 
     @Test
@@ -370,7 +398,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Test
     public void testCheckResponseIsNotValidWhenUsingMacValidationAndRedirectResultStatusIsAUTHORISED() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
-        setUpRedirectAuthoriseResultMock(AUTHORISED);
+        setUpRedirectAuthoriseResultMock(AUTHORISED, true);
 
         doReturn(false).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
 
@@ -382,7 +410,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Test
     public void testCheckResponseIsValidWhenUsingMacValidationWithMac2ParameterAndRedirectResultStatusIsAUTHORISED() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
-        setUpRedirectAuthoriseResultMock(AUTHORISED);
+        setUpRedirectAuthoriseResultMock(AUTHORISED, true);
 
         doReturn(true).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC2, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
 
@@ -394,7 +422,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Test
     public void testCheckResponseIsNotValidWhenUsingMacValidationWithMac2ParameterAndRedirectResultStatusIsAUTHORISED() {
         when(merchantInfoMock.isUsingMacValidation()).thenReturn(true);
-        setUpRedirectAuthoriseResultMock(AUTHORISED);
+        setUpRedirectAuthoriseResultMock(AUTHORISED, true);
 
         doReturn(false).when(testObj).validateResponse(merchantInfoMock, ORDER_KEY, KEY_MAC2, String.valueOf(PAYMENT_AMOUNT), GBP, AUTHORISED);
 
@@ -445,11 +473,11 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         return worldpayResponse;
     }
 
-    private void setUpRedirectAuthoriseResultMock(final AuthorisedStatus paymentStatus) {
+    private void setUpRedirectAuthoriseResultMock(final AuthorisedStatus paymentStatus, final boolean pending) {
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(paymentStatus);
         when(redirectAuthoriseResultMock.getOrderKey()).thenReturn(ORDER_KEY);
-        when(redirectAuthoriseResultMock.getPending()).thenReturn(true);
+        when(redirectAuthoriseResultMock.getPending()).thenReturn(pending);
         when(redirectAuthoriseResultMock.getPaymentAmount()).thenReturn(bigDecimalMock);
     }
 }

@@ -39,7 +39,7 @@ public class AchPayment extends AbstractPayment {
      * @param accountNumber
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AchPayment(PaymentType paymentType, AchType achType, String firstName, String lastName, Address address, String bankAccountType, String routingNumber, String accountNumber) {
+    public AchPayment(final PaymentType paymentType, final AchType achType, final String firstName, final String lastName, final Address address, final String bankAccountType, final String routingNumber, final String accountNumber) {
         this.setPaymentType(paymentType);
         this.achType = achType;
         this.firstName = firstName;
@@ -58,7 +58,7 @@ public class AchPayment extends AbstractPayment {
      * @param address
      * @return AchPayment object
      */
-    public static AchPayment createAuthenticationAchPayment(String firstName, String lastName, Address address) {
+    public static AchPayment createAuthenticationAchPayment(final String firstName, final String lastName, final Address address) {
         return new AchPayment(PaymentType.ACH, AchType.AUTHENTICATION, firstName, lastName, address, null, null, null);
     }
 
@@ -72,7 +72,7 @@ public class AchPayment extends AbstractPayment {
      * @param accountNumber
      * @return AchPayment object
      */
-    public static AchPayment createDepositAchPayment(String firstName, String lastName, String bankAccountType, String routingNumber, String accountNumber) {
+    public static AchPayment createDepositAchPayment(final String firstName, final String lastName, final String bankAccountType, final String routingNumber, final String accountNumber) {
         return new AchPayment(PaymentType.ACH, AchType.DEPOSIT, firstName, lastName, null, bankAccountType, routingNumber, accountNumber);
     }
 
@@ -86,7 +86,7 @@ public class AchPayment extends AbstractPayment {
      * @param accountNumber
      * @return AchPayment object
      */
-    public static AchPayment createValidationAchPayment(String firstName, String lastName, String bankAccountType, String routingNumber, String accountNumber) {
+    public static AchPayment createValidationAchPayment(final String firstName, final String lastName, final String bankAccountType, final String routingNumber, final String accountNumber) {
         return new AchPayment(PaymentType.ACH, AchType.VALIDATION, firstName, lastName, null, bankAccountType, routingNumber, accountNumber);
     }
 
@@ -98,7 +98,7 @@ public class AchPayment extends AbstractPayment {
      * @param accountNumber
      * @return AchPayment object
      */
-    public static AchPayment createVerificationAchPayment(String bankAccountType, String routingNumber, String accountNumber) {
+    public static AchPayment createVerificationAchPayment(final String bankAccountType, final String routingNumber, final String accountNumber) {
         return new AchPayment(PaymentType.ACH, AchType.VERIFICATION, null, null, null, bankAccountType, routingNumber, accountNumber);
     }
 
@@ -107,19 +107,19 @@ public class AchPayment extends AbstractPayment {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         String methodName = method.getName();
         if ("getAuthenticationOrDepositOrValidationOrVerification".equals(methodName)) {
-            List<Object> intAchType = (List<Object>) method.invoke(targetObject);
+            final List<Object> intAchType = (List<Object>) method.invoke(targetObject);
             if (achType.equals(AchType.AUTHENTICATION)) {
-                Authentication intAuth = new Authentication();
+                final Authentication intAuth = new Authentication();
                 intAuth.setFirstName(firstName);
                 intAuth.setLastName(lastName);
                 intAuth.setAddress((com.worldpay.internal.model.Address) address.transformToInternalModel());
 
                 intAchType.add(intAuth);
             } else if (AchType.DEPOSIT.equals(achType)) {
-                Deposit intDeposit = new Deposit();
+                final Deposit intDeposit = new Deposit();
                 intDeposit.setFirstName(firstName);
                 intDeposit.setLastName(lastName);
                 intDeposit.setBankAccountType(bankAccountType);
@@ -128,7 +128,7 @@ public class AchPayment extends AbstractPayment {
 
                 intAchType.add(intDeposit);
             } else if (AchType.VALIDATION.equals(achType)) {
-                Validation intValidation = new Validation();
+                final Validation intValidation = new Validation();
                 intValidation.setFirstName(firstName);
                 intValidation.setLastName(lastName);
                 intValidation.setBankAccountType(bankAccountType);
@@ -137,7 +137,7 @@ public class AchPayment extends AbstractPayment {
 
                 intAchType.add(intValidation);
             } else if (AchType.VERIFICATION.equals(achType)) {
-                Verification intVerification = new Verification();
+                final Verification intVerification = new Verification();
                 intVerification.setBankAccountType(bankAccountType);
                 intVerification.setRoutingNumber(routingNumber);
                 intVerification.setAccountNumber(accountNumber);
@@ -151,7 +151,7 @@ public class AchPayment extends AbstractPayment {
         return achType;
     }
 
-    public void setAchType(AchType achType) {
+    public void setAchType(final AchType achType) {
         this.achType = achType;
     }
 
@@ -159,7 +159,7 @@ public class AchPayment extends AbstractPayment {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -167,7 +167,7 @@ public class AchPayment extends AbstractPayment {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -175,7 +175,7 @@ public class AchPayment extends AbstractPayment {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(final Address address) {
         this.address = address;
     }
 
@@ -183,7 +183,7 @@ public class AchPayment extends AbstractPayment {
         return bankAccountType;
     }
 
-    public void setBankAccountType(String bankAccountType) {
+    public void setBankAccountType(final String bankAccountType) {
         this.bankAccountType = bankAccountType;
     }
 
@@ -191,7 +191,7 @@ public class AchPayment extends AbstractPayment {
         return routingNumber;
     }
 
-    public void setRoutingNumber(String routingNumber) {
+    public void setRoutingNumber(final String routingNumber) {
         this.routingNumber = routingNumber;
     }
 
@@ -199,7 +199,7 @@ public class AchPayment extends AbstractPayment {
         return accountNumber;
     }
 
-    public void setAccountNumber(String accountNumber) {
+    public void setAccountNumber(final String accountNumber) {
         this.accountNumber = accountNumber;
     }
 

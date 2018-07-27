@@ -41,11 +41,11 @@ public class WorldpayPaymentInfoRemoveInterceptor implements RemoveInterceptor<P
             worldpayDirectOrderService.deleteToken(merchantInfo, creditCardPaymentInfoModel);
             LOG.info(MessageFormat.format("Deleting worldpay token for user with authenticated shopper id {0}",
                     creditCardPaymentInfoModel.getAuthenticatedShopperID()));
-        } catch (WorldpayConfigurationException e) {
+        } catch (final WorldpayConfigurationException e) {
             LOG.error(MessageFormat.format(
                     "Could not find merchant configuration for merchant id [{0}]. The token was not deleted in Worldpay - subscription id [{1}]",
                     merchantId, creditCardPaymentInfoModel.getSubscriptionId()), e);
-        } catch (WorldpayException e) {
+        } catch (final WorldpayException e) {
             LOG.error(MessageFormat.format("Failed to delete token in worldpay, subscription id [{0}]", creditCardPaymentInfoModel.getSubscriptionId()), e);
         }
     }

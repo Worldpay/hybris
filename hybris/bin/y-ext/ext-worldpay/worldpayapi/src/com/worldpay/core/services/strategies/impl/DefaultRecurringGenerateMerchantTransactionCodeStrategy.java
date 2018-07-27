@@ -26,13 +26,13 @@ public class DefaultRecurringGenerateMerchantTransactionCodeStrategy implements 
     }
 
     protected String internalGenerateCode(final AbstractOrderModel abstractOrderModel) {
-        AbstractOrderModel parameterOrder = abstractOrderModel;
-        if (parameterOrder == null) {
-            parameterOrder = cartService.getSessionCart();
+        AbstractOrderModel order = abstractOrderModel;
+        if (order == null) {
+            order = cartService.getSessionCart();
         }
-        final String worldpayOrderCode = parameterOrder.getCode() + "-" + getTime();
-        parameterOrder.setWorldpayOrderCode(worldpayOrderCode);
-        modelService.save(parameterOrder);
+        final String worldpayOrderCode = order.getCode() + "-" + getTime();
+        order.setWorldpayOrderCode(worldpayOrderCode);
+        modelService.save(order);
         return worldpayOrderCode;
     }
 
@@ -41,12 +41,12 @@ public class DefaultRecurringGenerateMerchantTransactionCodeStrategy implements 
     }
 
     @Required
-    public void setModelService(ModelService modelService) {
+    public void setModelService(final ModelService modelService) {
         this.modelService = modelService;
     }
 
     @Required
-    public void setCartService(CartService cartService) {
+    public void setCartService(final CartService cartService) {
         this.cartService = cartService;
     }
 }

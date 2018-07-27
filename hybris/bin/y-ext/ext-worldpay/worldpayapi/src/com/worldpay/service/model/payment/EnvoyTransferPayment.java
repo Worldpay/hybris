@@ -19,7 +19,7 @@ public class EnvoyTransferPayment extends AbstractPayment {
      * @param shopperCountryCode
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public EnvoyTransferPayment(PaymentType paymentType, String shopperCountryCode) {
+    public EnvoyTransferPayment(final PaymentType paymentType, final String shopperCountryCode) {
         this.setPaymentType(paymentType);
         this.shopperCountryCode = shopperCountryCode;
     }
@@ -30,9 +30,9 @@ public class EnvoyTransferPayment extends AbstractPayment {
      * @see com.worldpay.service.model.payment.AbstractPayment#invokeSetter(Method, Object)
      */
     @Override
-    public void invokeSetter(Method method, Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if (methodName.startsWith("set") && "setShopperCountryCode".equals(methodName) && shopperCountryCode != null) {
             method.invoke(targetObject, shopperCountryCode);
             methodInvoked = true;
@@ -53,7 +53,7 @@ public class EnvoyTransferPayment extends AbstractPayment {
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         // Do nothing. This provides a hook for subclasses to add extra functionality
     }
 
@@ -61,7 +61,7 @@ public class EnvoyTransferPayment extends AbstractPayment {
         return shopperCountryCode;
     }
 
-    public void setShopperCountryCode(String shopperCountryCode) {
+    public void setShopperCountryCode(final String shopperCountryCode) {
         this.shopperCountryCode = shopperCountryCode;
     }
 

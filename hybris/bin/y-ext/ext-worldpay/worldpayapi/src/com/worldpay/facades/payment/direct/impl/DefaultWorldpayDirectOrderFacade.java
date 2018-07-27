@@ -124,7 +124,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         } catch (final WorldpayConfigurationException e) {
             LOG.error(THERE_IS_NO_CONFIGURATION);
             throw e;
-        } catch (InvalidCartException e) {
+        } catch (final InvalidCartException e) {
             LOG.error(format("There was an error placing the order for cart [{0}]", abstractOrderModel.getCode()), e);
             throw e;
         }
@@ -290,12 +290,12 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     @Required
-    public void setWorldpayDirectOrderService(WorldpayDirectOrderService worldpayDirectOrderService) {
+    public void setWorldpayDirectOrderService(final WorldpayDirectOrderService worldpayDirectOrderService) {
         this.worldpayDirectOrderService = worldpayDirectOrderService;
     }
 
     @Required
-    public void setCartService(CartService cartService) {
+    public void setCartService(final CartService cartService) {
         this.cartService = cartService;
     }
 
@@ -304,7 +304,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     @Required
-    public void setWorldpayMerchantInfoService(WorldpayMerchantInfoService worldpayMerchantInfoService) {
+    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
 
@@ -314,7 +314,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     @Required
-    public void setAcceleratorCheckoutFacade(AcceleratorCheckoutFacade acceleratorCheckoutFacade) {
+    public void setAcceleratorCheckoutFacade(final AcceleratorCheckoutFacade acceleratorCheckoutFacade) {
         this.acceleratorCheckoutFacade = acceleratorCheckoutFacade;
     }
 

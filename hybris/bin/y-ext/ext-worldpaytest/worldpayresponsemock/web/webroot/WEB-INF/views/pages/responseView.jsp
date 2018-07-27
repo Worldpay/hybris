@@ -454,7 +454,7 @@
 <script type="text/javascript">
 
     $("#selectedPaymentMethod").change(function () {
-        var paymentMethod = $("#selectedPaymentMethod").val();
+        const paymentMethod = $("#selectedPaymentMethod").val();
         if (paymentMethod === "APM") {
             $("#creditCardFields").addClass("hide");
             $("#APMFields").removeClass("hide");
@@ -465,7 +465,7 @@
     });
 
     $("#selectRiskScore").change(function () {
-        var riskHandler = $("#selectRiskScore").val();
+        const riskHandler = $("#selectRiskScore").val();
         if (riskHandler === "NoRisk") {
             $("#RG").addClass("hide");
             $("#RMM").addClass("hide");
@@ -479,7 +479,7 @@
     });
 
     $("#selectToken").change(function(){
-        var tokenHandler = $("#selectToken").val();
+        const tokenHandler = $("#selectToken").val();
         if (tokenHandler === "NoToken"){
             $("#Token").addClass("hide");
         } else if (tokenHandler === "Token"){
@@ -488,7 +488,7 @@
     });
 
     $("#journalType").change(function () {
-        var journalType = $("#journalType").val();
+        const journalType = $("#journalType").val();
         if (journalType === "REFUND_WEBFORM_ISSUED") {
             $("#shopperWebformRefundDetails").removeClass("hide");
         } else {

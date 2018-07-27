@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -95,9 +96,20 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
 
     /**
      * {@inheritDoc}
+     *
+     * @deprecated use completePendingRedirectAuthorise
      */
     @Override
+    @Deprecated
     public void completeRedirectAuthorise(final RedirectAuthoriseResult result, final String merchantCode, final CartModel cartModel) {
+        completePendingRedirectAuthorise(result, merchantCode, cartModel);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void completePendingRedirectAuthorise(final RedirectAuthoriseResult result, final String merchantCode, final CartModel cartModel) {
         validateParameterNotNull(result, "RedirectAuthoriseResult cannot be null");
 
         final PaymentInfoModel paymentInfoModel = getWorldpayPaymentInfoService().createPaymentInfo(cartModel);
@@ -106,6 +118,21 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
         getCommerceCheckoutService().setPaymentInfo(commerceCheckoutParameter);
         final PaymentTransactionModel paymentTransaction = getWorldpayPaymentTransactionService().createPaymentTransaction(result.getPending(), merchantCode, commerceCheckoutParameter);
         getWorldpayPaymentTransactionService().createPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, cartModel, result.getPaymentAmount());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void completeConfirmedRedirectAuthorise(final BigDecimal paymentAmount, final String merchantCode, final CartModel cartModel) {
+        validateParameterNotNull(paymentAmount, "Payment amount cannot be null");
+
+        final PaymentInfoModel paymentInfoModel = getWorldpayPaymentInfoService().createPaymentInfo(cartModel);
+        cloneAndSetBillingAddressFromCart(cartModel, paymentInfoModel);
+        final CommerceCheckoutParameter commerceCheckoutParameter = createCommerceCheckoutParameter(cartModel, paymentInfoModel, paymentAmount);
+        getCommerceCheckoutService().setPaymentInfo(commerceCheckoutParameter);
+        final PaymentTransactionModel paymentTransaction = getWorldpayPaymentTransactionService().createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
+        getWorldpayPaymentTransactionService().createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, cartModel, paymentAmount);
     }
 
     /**

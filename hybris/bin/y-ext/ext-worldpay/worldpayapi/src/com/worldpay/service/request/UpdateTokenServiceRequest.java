@@ -48,17 +48,16 @@ public class UpdateTokenServiceRequest extends AbstractServiceRequest {
      * Static convenience method for creating an instance of the UpdateTokenServiceRequest with merchant scope
      *
      * @param merchantInfo           merchantInfo to be used in the Worldpay call
-     * @param authenticatedShopperId unique reference for the customer using the payment method
      * @param paymentTokenId         the payment token id to update
      * @param tokenRequest           contains the information to request a new token
      * @param cardDetails            payment to be used in the Worldpay call
      * @return new instance of the UpdateTokenServiceRequest initialised with input parameters
      */
-    public static UpdateTokenServiceRequest updateTokenRequestWithMerchantScope(final MerchantInfo merchantInfo, final String authenticatedShopperId, final String paymentTokenId, final TokenRequest tokenRequest, final CardDetails cardDetails) {
+    public static UpdateTokenServiceRequest updateTokenRequestWithMerchantScope(final MerchantInfo merchantInfo, final String paymentTokenId, final TokenRequest tokenRequest, final CardDetails cardDetails) {
         checkParameters("UpdateTokenServiceRequest", merchantInfo, cardDetails);
 
         final UpdateTokenServiceRequest request = new UpdateTokenServiceRequest(merchantInfo, null);
-        request.setUpdateTokenRequest(new UpdateTokenRequest(paymentTokenId, authenticatedShopperId, cardDetails, tokenRequest, true));
+        request.setUpdateTokenRequest(new UpdateTokenRequest(paymentTokenId, null, cardDetails, tokenRequest, true));
         return request;
     }
 

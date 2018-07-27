@@ -15,6 +15,7 @@ import com.worldpay.merchant.strategies.WorldpayOrderInfoStrategy;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -31,7 +32,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 
-import static com.worldpay.facades.payment.hosted.impl.DefaultWorldpayHostedOrderFacade.WORLDPAY_MERCHANT_CODE;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayHostedOrderFacadeTest {
 
+    private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
     private static final String MERCHANT_CODE = "merchantCode";
     private static final ImmutableMap<String, String> WORLDPAY_RESPONSE = ImmutableMap.of("responseKey", "responseValue");
     private static final String WORLDPAY_ORDER_CODE = "orderCode";
@@ -81,9 +82,11 @@ public class DefaultWorldpayHostedOrderFacadeTest {
     private WorldpayAPMConfigurationModel worldpayAPMConfigurationModel;
     @Mock
     private OrderInquiryServiceResponse orderInquiryServiceResponseMock;
+    @Mock
+    private WorldpayOrderService worldpayOrderServiceMock;
 
     @Before
-    public void setUp() throws WorldpayConfigurationException {
+    public void setUp() {
         when(sessionServiceMock.getAttribute(WORLDPAY_MERCHANT_CODE)).thenReturn(MERCHANT_CODE);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
         when(orderInquiryServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
@@ -104,7 +107,7 @@ public class DefaultWorldpayHostedOrderFacadeTest {
     public void shouldCompleteRedirect() {
         testObj.completeRedirectAuthorise(redirectAuthoriseResultMock);
 
-        verify(worldpayRedirectOrderServiceMock).completeRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
+        verify(worldpayRedirectOrderServiceMock).completePendingRedirectAuthorise(redirectAuthoriseResultMock, MERCHANT_CODE, cartModelMock);
     }
 
     @Test
@@ -116,7 +119,7 @@ public class DefaultWorldpayHostedOrderFacadeTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenRedirectResponseIsNotValid() throws WorldpayConfigurationException {
+    public void shouldReturnFalseWhenRedirectResponseIsNotValid() {
         when(worldpayRedirectOrderServiceMock.validateRedirectResponse(eq(merchantInfoMock), eq(WORLDPAY_RESPONSE))).thenReturn(false);
 
         assertFalse(testObj.validateRedirectResponse(WORLDPAY_RESPONSE));
@@ -128,8 +131,7 @@ public class DefaultWorldpayHostedOrderFacadeTest {
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderInquiryServiceMock.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(orderInquiryServiceResponseMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
-        when(paymentReplyMock.getAmount().getValue()).thenReturn("12345");
-        when(paymentReplyMock.getAmount().getExponent()).thenReturn("2");
+        when(worldpayOrderServiceMock.convertAmount(paymentReplyMock.getAmount())).thenReturn(BigDecimal.valueOf(123.45));
         when(paymentReplyMock.getMethodCode()).thenReturn(PAYMENT_TYPE_CODE);
         when(apmConfigurationLookupService.getAPMConfigurationForCode(PAYMENT_TYPE_CODE)).thenReturn(worldpayAPMConfigurationModel);
 
@@ -146,8 +148,7 @@ public class DefaultWorldpayHostedOrderFacadeTest {
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderInquiryServiceMock.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(orderInquiryServiceResponseMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
-        when(paymentReplyMock.getAmount().getValue()).thenReturn("12345");
-        when(paymentReplyMock.getAmount().getExponent()).thenReturn("2");
+        when(worldpayOrderServiceMock.convertAmount(paymentReplyMock.getAmount())).thenReturn(BigDecimal.valueOf(123.45));
         when(paymentReplyMock.getMethodCode()).thenReturn(PAYMENT_TYPE_CODE);
         when(apmConfigurationLookupService.getAPMConfigurationForCode(PAYMENT_TYPE_CODE)).thenReturn(null);
 

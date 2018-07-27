@@ -24,8 +24,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,49 +64,19 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      * @param redirectAttributes the {@link RedirectAttributes} to be used
      * @return
      */
-    @RequestMapping(value = "/hop-response", method = RequestMethod.GET)
     @RequireHardLogIn
+    @RequestMapping(value = "/hop-response", method = RequestMethod.GET)
     public String doHandleHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         final RedirectAuthoriseResult response = extractAuthoriseResultFromRequest(request);
         if (!requestParameterMap.containsKey(PAYMENT_STATUS_PARAMETER_NAME)) {
-            if (!getCheckoutFacade().hasValidCart()) {
-                return checkCart(response);
-            }
-            try {
-                final RedirectAuthoriseResult redirectAuthoriseResult = getWorldpayHostedOrderFacade().inquiryPaymentStatus();
-                return processResponse(model, redirectAttributes, redirectAuthoriseResult, redirectAuthoriseResult.getPaymentStatus());
-            } catch (WorldpayException e) {
-                LOG.error("Error inquiring order in Worldpay", e);
-                return doHostedOrderPageError(ERROR.name(), redirectAttributes);
-            }
+            return handleHopResponseWithoutPaymentStatus(model, redirectAttributes, response);
         }
 
         if (getWorldpayHostedOrderFacade().validateRedirectResponse(requestParameterMap)) {
-            if (!getCheckoutFacade().hasValidCart()) {
-                return checkCart(response);
-            }
-            return processResponse(model, redirectAttributes, response, response.getPaymentStatus());
+            return handleHopResponseWithPaymentStatus(model, redirectAttributes, response);
         }
         return doHostedOrderPageError(ERROR.name(), redirectAttributes);
-    }
-
-    private String processResponse(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response, final AuthorisedStatus paymentStatus) {
-        if (AUTHORISED.equals(paymentStatus)) {
-            getWorldpayHostedOrderFacade().completeRedirectAuthorise(response);
-            return placeOrderAndRedirect(model, redirectAttributes);
-        } else {
-            LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-response). Received {0}", paymentStatus.name()));
-            return doHostedOrderPageError(paymentStatus.name(), redirectAttributes);
-        }
-    }
-
-    private String checkCart(RedirectAuthoriseResult response) {
-        final PaymentTransactionModel paymentTransactionFromCode = worldpayPaymentTransactionService.getPaymentTransactionFromCode(response.getOrderCode());
-        if (paymentTransactionFromCode != null && paymentTransactionFromCode.getOrder() instanceof OrderModel) {
-            return redirectToOrderConfirmationPage(orderConverter.convert(paymentTransactionFromCode.getOrder()));
-        }
-        return REDIRECT_URL_CART;
     }
 
     /**
@@ -117,8 +85,8 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      * @param redirectAttributes the {@RedirectAttributes} to be used
      * @return
      */
-    @RequestMapping(value = "/hop-pending", method = RequestMethod.GET)
     @RequireHardLogIn
+    @RequestMapping(value = "/hop-pending", method = RequestMethod.GET)
     public String doHandlePendingHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         AuthorisedStatus paymentStatus = AuthorisedStatus.ERROR;
@@ -144,8 +112,8 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      * @param redirectAttributes the {@link RedirectAttributes} to be used
      * @return
      */
-    @RequestMapping(value = "bank-transfer/hop-response", method = RequestMethod.GET)
     @RequireHardLogIn
+    @RequestMapping(value = "bank-transfer/hop-response", method = RequestMethod.GET)
     public String doHandleBankTransferHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         final RedirectAuthoriseResult redirectAuthoriseResult = redirectAuthoriseResultConverter.convert(requestParameterMap);
@@ -160,28 +128,14 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      * @param redirectAttributes the {@link RedirectAttributes } to be used
      * @return
      */
-    @RequestMapping(value = "bank-transfer/hop-failure", method = RequestMethod.GET)
     @RequireHardLogIn
+    @RequestMapping(value = "bank-transfer/hop-failure", method = RequestMethod.GET)
     public String doHandleBankTransferHopFailure(final HttpServletRequest request, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         LOG.info(format("Failed to complete bank transfer for selected payment method. request params {0}", requestParameterMap));
 
         redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, REFUSED.name());
         return REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
-    }
-
-    /**
-     * Do hosted order page error.
-     *
-     * @param paymentStatus      the payment status
-     * @param redirectAttributes the {@link RedirectAttributes } to be used
-     * @return url for view
-     */
-    @RequestMapping(value = "/error", method = RequestMethod.GET)
-    @RequireHardLogIn
-    public String doHostedOrderPageError(@RequestParam(value = "paymentStatus", required = false) final String paymentStatus, final RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : AuthorisedStatus.ERROR.name());
-        return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + paymentStatus;
     }
 
     /**
@@ -201,6 +155,20 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
             redirectUrl = REDIRECT_URL_CHOOSE_DELIVERY_METHOD;
         }
         return redirectUrl;
+    }
+
+    /**
+     * Do hosted order page error.
+     *
+     * @param paymentStatus      the payment status
+     * @param redirectAttributes the {@link RedirectAttributes } to be used
+     * @return url for view
+     */
+    @RequestMapping(value = "/error", method = RequestMethod.GET)
+    @RequireHardLogIn
+    public String doHostedOrderPageError(@RequestParam(value = "paymentStatus", required = false) final String paymentStatus, final RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : AuthorisedStatus.ERROR.name());
+        return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + paymentStatus;
     }
 
     /**
@@ -224,12 +192,50 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         return worldpayAddonEndpointService.getBillingAddressForm();
     }
 
+    protected String handleHopResponseWithPaymentStatus(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response) {
+        if (!getCheckoutFacade().hasValidCart()) {
+            return checkCart(response);
+        }
+        return processResponse(model, redirectAttributes, response, response.getPaymentStatus());
+    }
+
+    protected String handleHopResponseWithoutPaymentStatus(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response) {
+        if (!getCheckoutFacade().hasValidCart()) {
+            return checkCart(response);
+        }
+        try {
+            final RedirectAuthoriseResult redirectAuthoriseResult = getWorldpayHostedOrderFacade().inquiryPaymentStatus();
+            return processResponse(model, redirectAttributes, redirectAuthoriseResult, redirectAuthoriseResult.getPaymentStatus());
+        } catch (WorldpayException e) {
+            LOG.error("Error inquiring order in Worldpay", e);
+            return doHostedOrderPageError(ERROR.name(), redirectAttributes);
+        }
+    }
+
+    protected String processResponse(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response, final AuthorisedStatus paymentStatus) {
+        if (AUTHORISED.equals(paymentStatus)) {
+            getWorldpayHostedOrderFacade().completeRedirectAuthorise(response);
+            return placeOrderAndRedirect(model, redirectAttributes);
+        } else {
+            LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-response). Received {0}", paymentStatus.name()));
+            return doHostedOrderPageError(paymentStatus.name(), redirectAttributes);
+        }
+    }
+
+    protected String checkCart(RedirectAuthoriseResult response) {
+        final PaymentTransactionModel paymentTransactionFromCode = worldpayPaymentTransactionService.getPaymentTransactionFromCode(response.getOrderCode());
+        if (paymentTransactionFromCode != null && paymentTransactionFromCode.getOrder() instanceof OrderModel) {
+            return redirectToOrderConfirmationPage(orderConverter.convert(paymentTransactionFromCode.getOrder()));
+        }
+        return REDIRECT_URL_CART;
+    }
+
     protected RedirectAuthoriseResult extractAuthoriseResultFromRequest(final HttpServletRequest request) {
         final Map<String, String> resultMap = getRequestParameterMap(request);
         return redirectAuthoriseResultConverter.convert(resultMap);
     }
 
-    private String placeOrderAndRedirect(final Model model, final RedirectAttributes redirectAttributes) {
+    protected String placeOrderAndRedirect(final Model model, final RedirectAttributes redirectAttributes) {
         final OrderData orderData;
         try {
             orderData = getCheckoutFacade().placeOrder();
@@ -240,19 +246,4 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         }
         return redirectToOrderConfirmationPage(orderData);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected Map<String, String> getRequestParameterMap(final HttpServletRequest request) {
-        final Enumeration parameterNames = request.getParameterNames();
-        final Map<String, String> map = new HashMap<>();
-        while (parameterNames.hasMoreElements()) {
-            final String paramName = (String) parameterNames.nextElement();
-            final String paramValue = request.getParameter(paramName);
-            map.put(paramName, paramValue);
-        }
-        return map;
-    }
-
 }

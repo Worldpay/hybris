@@ -43,7 +43,6 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final Currency CURRENCY = Currency.getInstance(Locale.UK);
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
-    private static final String PAYMENT_REPLY_AMOUNT = "330";
     private static final String CVV = "CVV";
     private static final String REQUEST_AMOUNT = "100";
     private static final String MERCHANT_CODE = "merchantCode";
@@ -111,15 +110,14 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
         when(worldpayBillingInfoAddressConverterMock.convert(subscriptionAuthorizationRequestMock.getShippingInfo())).thenReturn(addressMock);
         when(worldpayAdditionalInfoDataMock.getAuthenticatedShopperId()).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayDynamicInteractionResolverServiceMock.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock)).thenReturn(DynamicInteractionType.ECOMMERCE);
+        when(directAuthoriseServiceResponseMock.getPaymentReply().getAmount()).thenReturn(amountMock);
     }
 
     @Test
     public void performShouldReturnAuthorizationResultWhenResponseIsAuthorisedUsingCurrentSiteMerchant() throws WorldpayException {
         when(worldpayGatewayMock.directAuthorise(directAuthoriseServiceRequestCaptor.capture())).thenReturn(directAuthoriseServiceResponseMock);
-        when(directAuthoriseServiceResponseMock.getPaymentReply().getAmount().getValue()).thenReturn(PAYMENT_REPLY_AMOUNT);
-        when(authorizationResultMock.getCurrency()).thenReturn(CURRENCY);
         when(authorizationResultMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED);
-
+        when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(BigDecimal.valueOf(3.30));
         testObj.perform(subscriptionAuthorizationRequestMock);
 
         verify(worldpayGatewayMock).directAuthorise(directAuthoriseServiceRequestCaptor.capture());
@@ -129,7 +127,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
         verify(authorizationResultMock).setRequestToken(MERCHANT_CODE);
         verify(authorizationResultMock).setCurrency(subscriptionAuthorizationRequestMock.getCurrency());
         verify(authorizationResultMock).setAuthorizationTime(any(Date.class));
-        verify(authorizationResultMock).setTotalAmount(new BigDecimal(PAYMENT_REPLY_AMOUNT).movePointLeft(CURRENCY.getDefaultFractionDigits()));
+        verify(authorizationResultMock).setTotalAmount(BigDecimal.valueOf(3.30));
         verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         checkDirectAuthoriseServiceRequestValues();
     }
@@ -137,7 +135,6 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     @Test
     public void performShouldReturnErrorAuthorizationDueToMisConfigurationAndShouldNeverTryToDirectAuthorise() throws WorldpayException {
         when(worldpayGatewayMock.directAuthorise(directAuthoriseServiceRequestCaptor.capture())).thenReturn(directAuthoriseServiceResponseMock);
-        when(directAuthoriseServiceResponseMock.getPaymentReply().getAmount().getValue()).thenReturn(PAYMENT_REPLY_AMOUNT);
         when(authorizationResultMock.getCurrency()).thenReturn(CURRENCY);
         when(authorizationResultMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED);
         when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(null);
@@ -159,7 +156,6 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     @Test
     public void performShouldReturnAuthorizationResultWhenResponseIsNotErrorAndNotAuthorised() throws WorldpayException {
         when(worldpayGatewayMock.directAuthorise(directAuthoriseServiceRequestCaptor.capture())).thenReturn(directAuthoriseServiceResponseMock);
-        when(directAuthoriseServiceResponseMock.getPaymentReply().getAmount().getValue()).thenReturn(PAYMENT_REPLY_AMOUNT);
         when(directAuthoriseServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.REFUSED);
         when(authorizationResultMock.getCurrency()).thenReturn(CURRENCY);
 

@@ -8,6 +8,9 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
 
+/**
+ * Implementation of OrderNotificationProcessorStrategy that handles Settle notifications
+ */
 public class DefaultWorldpaySettledOrderNotificationProcessorStrategy implements OrderNotificationProcessorStrategy {
 
     private TransactionOperations transactionTemplate;

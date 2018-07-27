@@ -37,7 +37,7 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
         try {
             final CancelServiceRequest cancelRequest = buildCancelServiceRequest(request.getRequestId());
             return cancel(cancelRequest);
-        } catch (WorldpayException e) {
+        } catch (final WorldpayException e) {
             LOG.error(format("Exception raised while issuing a cancelServiceRequest: [{0}]", e.getMessage()), e);
             return createErrorVoidResult();
         }
@@ -77,7 +77,7 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
         return CancelServiceRequest.createCancelRequest(merchantInfo, worldpayOrderCode);
     }
 
-    public void setVoidServiceResponseConverter(WorldpayVoidServiceResponseConverter voidServiceResponseConverter) {
+    public void setVoidServiceResponseConverter(final WorldpayVoidServiceResponseConverter voidServiceResponseConverter) {
         this.voidServiceResponseConverter = voidServiceResponseConverter;
     }
 }

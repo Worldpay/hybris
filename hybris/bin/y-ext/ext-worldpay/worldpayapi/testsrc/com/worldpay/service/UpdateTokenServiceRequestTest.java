@@ -40,7 +40,7 @@ public class UpdateTokenServiceRequestTest {
 
     @Test
     public void shouldCreateUpdateTokenServiceRequestWithMerchantScope() {
-        final UpdateTokenServiceRequest result = UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfoMock, null, PAYMENT_TOKEN_ID, tokenRequestMock, cardDetailsMock);
+        final UpdateTokenServiceRequest result = UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfoMock, PAYMENT_TOKEN_ID, tokenRequestMock, cardDetailsMock);
 
         assertEquals(tokenRequestMock, result.getUpdateTokenRequest().getTokenRequest());
         assertEquals(cardDetailsMock, result.getUpdateTokenRequest().getCardDetails());

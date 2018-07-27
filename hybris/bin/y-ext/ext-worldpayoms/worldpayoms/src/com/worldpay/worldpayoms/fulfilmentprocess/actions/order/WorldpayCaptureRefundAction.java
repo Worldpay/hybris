@@ -21,6 +21,9 @@ import static de.hybris.platform.processengine.action.AbstractSimpleDecisionActi
 import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition.OK;
 import static java.text.MessageFormat.format;
 
+/**
+ * Action that requests a refund to Worldpay when refunding items.
+ */
 public class WorldpayCaptureRefundAction extends AbstractSimpleDecisionAction<ReturnProcessModel> {
     private static final Logger LOG = Logger.getLogger(WorldpayCaptureRefundAction.class);
 

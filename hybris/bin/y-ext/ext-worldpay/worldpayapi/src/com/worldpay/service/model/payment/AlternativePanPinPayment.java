@@ -29,16 +29,16 @@ public class AlternativePanPinPayment extends AlternativePayment {
      * @param pin
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AlternativePanPinPayment(PaymentType paymentType, String shopperCountryCode, String successURL, String failureURL, String cancelURL, String pendingURL, String pan, String pin) {
+    public AlternativePanPinPayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, final String pendingURL, final String pan, final String pin) {
         super(paymentType, shopperCountryCode, successURL, failureURL, cancelURL, pendingURL);
         this.pan = pan;
         this.pin = pin;
     }
 
     @Override
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if ("setPan".equals(methodName) && getPan() != null) {
             method.invoke(targetObject, getPan());
         }
@@ -51,7 +51,7 @@ public class AlternativePanPinPayment extends AlternativePayment {
         return pan;
     }
 
-    public void setPan(String pan) {
+    public void setPan(final String pan) {
         this.pan = pan;
     }
 
@@ -59,7 +59,7 @@ public class AlternativePanPinPayment extends AlternativePayment {
         return pin;
     }
 
-    public void setPin(String pin) {
+    public void setPin(final String pin) {
         this.pin = pin;
     }
 

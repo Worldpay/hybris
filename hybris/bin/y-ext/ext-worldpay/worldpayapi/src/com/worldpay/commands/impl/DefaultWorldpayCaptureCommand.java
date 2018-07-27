@@ -48,7 +48,7 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
         try {
             final CaptureServiceRequest captureRequest = buildCaptureServiceRequest(orderCode, amount, currency);
             return capture(captureRequest);
-        } catch (WorldpayException e) {
+        } catch (final WorldpayException e) {
             LOG.error(MessageFormat.format("Error during capture of payment with ordercode [{0}] to merchant [{1}]", orderCode, merchantCode), e);
             return createErrorCaptureResult();
         }
@@ -99,7 +99,7 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
     }
 
     @Required
-    public void setCaptureServiceResponseConverter(Converter<CaptureServiceResponse, CaptureResult> captureServiceResponseConverter) {
+    public void setCaptureServiceResponseConverter(final Converter<CaptureServiceResponse, CaptureResult> captureServiceResponseConverter) {
         this.captureServiceResponseConverter = captureServiceResponseConverter;
     }
 }

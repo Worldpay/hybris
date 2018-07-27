@@ -13,7 +13,7 @@ public class WorldpayConfigurationException extends WorldpayException {
      * @param message
      * @param throwable
      */
-    public WorldpayConfigurationException(String message, Throwable throwable) {
+    public WorldpayConfigurationException(final String message, final Throwable throwable) {
         super(message, throwable);
     }
 
@@ -22,7 +22,7 @@ public class WorldpayConfigurationException extends WorldpayException {
      *
      * @param message
      */
-    public WorldpayConfigurationException(String message) {
+    public WorldpayConfigurationException(final String message) {
         super(message);
     }
 }

@@ -130,8 +130,8 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
                                                  @RequestParam(required = false, defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
             throws WorldpayException, NoCheckoutCartException {
-        PaymentDetailsWsDTO paymentDetails = new PaymentDetailsWsDTO();
-        final Collection<PaymentDetailsWsDTOOption> options = new ArrayList<PaymentDetailsWsDTOOption>();
+        final PaymentDetailsWsDTO paymentDetails = new PaymentDetailsWsDTO();
+        final Collection<PaymentDetailsWsDTOOption> options = new ArrayList<>();
         options.add(PaymentDetailsWsDTOOption.BASIC);
         options.add(PaymentDetailsWsDTOOption.BILLING_ADDRESS);
         httpRequestPaymentDetailsWsDTOPopulator.populate(request, paymentDetails, options);
@@ -178,7 +178,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
     protected PaymentDetailsWsDTO addPaymentDetailsInternal(final HttpServletRequest request,
                                                             final PaymentDetailsWsDTO paymentDetails,
-                                                            String fields) throws NoCheckoutCartException, WorldpayException {
+                                                            final String fields) throws NoCheckoutCartException, WorldpayException {
         validatePayment(paymentDetails);
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSEAdditionalAuthInfo(paymentDetails);
@@ -186,12 +186,12 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         try {
             saveBillingAddresses(paymentDetails.getBillingAddress());
             worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
-        } catch (WorldpayException e) {
+        } catch (final WorldpayException e) {
             LOG.error("There was an error tokenizing the payment details", e);
             throw e;
         }
 
-        CartData cartData = checkoutFacade.getCheckoutCart();
+        final CartData cartData = checkoutFacade.getCheckoutCart();
         final CCPaymentInfoData paymentInfoData = cartData.getPaymentInfo();
         return dataMapper.map(paymentInfoData, PaymentDetailsWsDTO.class, fields);
 

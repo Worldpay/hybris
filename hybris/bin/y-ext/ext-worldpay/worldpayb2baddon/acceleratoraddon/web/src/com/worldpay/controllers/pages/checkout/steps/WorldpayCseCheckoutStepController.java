@@ -117,7 +117,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
             throws CMSItemNotFoundException {
         cseFormValidator.validate(csePaymentForm, bindingResult);
 
-        getSessionService().getCurrentSession().setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, Boolean.FALSE);
+        getSessionService().setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, Boolean.FALSE);
 
         if (addGlobalErrors(model, bindingResult)) {
             return getErrorView(model);

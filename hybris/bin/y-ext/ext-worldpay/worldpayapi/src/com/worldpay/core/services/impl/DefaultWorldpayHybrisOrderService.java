@@ -18,7 +18,7 @@ public class DefaultWorldpayHybrisOrderService implements WorldpayHybrisOrderSer
      * {@inheritDoc}
      */
     @Override
-    public void setWorldpayDeclineCodeOnOrder(String worldpayOrderCode, String declineCode) {
+    public void setWorldpayDeclineCodeOnOrder(final String worldpayOrderCode, final String declineCode) {
 
         final OrderModel orderModel = findOrderByWorldpayOrderCode(worldpayOrderCode);
         orderModel.setWorldpayDeclineCode(declineCode);
@@ -26,17 +26,17 @@ public class DefaultWorldpayHybrisOrderService implements WorldpayHybrisOrderSer
     }
 
     @Override
-    public OrderModel findOrderByWorldpayOrderCode(String worldpayOrderCode) {
+    public OrderModel findOrderByWorldpayOrderCode(final String worldpayOrderCode) {
         return worldpayHybrisOrderDao.findOrderByWorldpayOrderCode(worldpayOrderCode);
     }
 
     @Override
-    public String findOrderCodeByWorldpayOrderCode(String worldpayOrderCode) {
+    public String findOrderCodeByWorldpayOrderCode(final String worldpayOrderCode) {
         return findOrderByWorldpayOrderCode(worldpayOrderCode).getCode();
     }
 
     @Required
-    public void setWorldpayHybrisOrderDao(WorldpayHybrisOrderDao worldpayHybrisOrderDao) {
+    public void setWorldpayHybrisOrderDao(final WorldpayHybrisOrderDao worldpayHybrisOrderDao) {
         this.worldpayHybrisOrderDao = worldpayHybrisOrderDao;
     }
 
@@ -45,7 +45,7 @@ public class DefaultWorldpayHybrisOrderService implements WorldpayHybrisOrderSer
     }
 
     @Required
-    public void setModelService(ModelService modelService) {
+    public void setModelService(final ModelService modelService) {
         this.modelService = modelService;
     }
 

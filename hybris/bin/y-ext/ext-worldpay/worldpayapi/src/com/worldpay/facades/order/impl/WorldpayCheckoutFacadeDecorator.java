@@ -48,7 +48,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public CCPaymentInfoData createPaymentSubscription(CCPaymentInfoData paymentInfoData) {
+    public CCPaymentInfoData createPaymentSubscription(final CCPaymentInfoData paymentInfoData) {
         return getCheckoutFlowFacade().createPaymentSubscription(paymentInfoData);
     }
 
@@ -123,7 +123,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public boolean setPaymentDetails(String paymentInfoId) {
+    public boolean setPaymentDetails(final String paymentInfoId) {
         final boolean result = getCheckoutFlowFacade().setPaymentDetails(paymentInfoId);
         setPaymentInfoBillingAddressOnSessionCart();
         return result;
@@ -173,7 +173,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public boolean setDeliveryMode(String deliveryModeCode) {
+    public boolean setDeliveryMode(final String deliveryModeCode) {
         return getCheckoutFlowFacade().setDeliveryMode(deliveryModeCode);
     }
 
@@ -253,7 +253,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public List<CartModificationData> consolidateCheckoutCart(String pickupPointOfServiceName) throws CommerceCartModificationException {
+    public List<CartModificationData> consolidateCheckoutCart(final String pickupPointOfServiceName) throws CommerceCartModificationException {
         return getCheckoutFlowFacade().consolidateCheckoutCart(pickupPointOfServiceName);
     }
 
@@ -277,7 +277,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public AddressData getDeliveryAddressForCode(String code) {
+    public AddressData getDeliveryAddressForCode(final String code) {
         return getCheckoutFlowFacade().getDeliveryAddressForCode(code);
     }
 
@@ -293,7 +293,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public boolean setDeliveryAddress(AddressData address) {
+    public boolean setDeliveryAddress(final AddressData address) {
         return getCheckoutFlowFacade().setDeliveryAddress(address);
     }
 
@@ -301,7 +301,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public AddressData getAddressDataForId(String addressId, boolean visibleAddressesOnly) {
+    public AddressData getAddressDataForId(final String addressId, final boolean visibleAddressesOnly) {
         return getCheckoutFlowFacade().getAddressDataForId(addressId, visibleAddressesOnly);
     }
 
@@ -326,7 +326,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      */
     @Override
     public ExpressCheckoutResult performExpressCheckout() {
-        ExpressCheckoutResult result = getCheckoutFlowFacade().performExpressCheckout();
+        final ExpressCheckoutResult result = getCheckoutFlowFacade().performExpressCheckout();
         setPaymentInfoBillingAddressOnSessionCart();
         return result;
     }
@@ -381,7 +381,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     }
 
     @Required
-    public void setCheckoutFlowFacade(CheckoutFlowFacade checkoutFlowFacade) {
+    public void setCheckoutFlowFacade(final CheckoutFlowFacade checkoutFlowFacade) {
         this.checkoutFlowFacade = checkoutFlowFacade;
     }
 
@@ -390,12 +390,12 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     }
 
     @Required
-    public void setCartService(CartService cartService) {
+    public void setCartService(final CartService cartService) {
         this.cartService = cartService;
     }
 
     @Required
-    public void setAddressConverter(Converter<AddressModel, AddressData> addressConverter) {
+    public void setAddressConverter(final Converter<AddressModel, AddressData> addressConverter) {
         this.addressConverter = addressConverter;
     }
 

@@ -3,6 +3,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
@@ -14,6 +15,7 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -22,24 +24,12 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.PAYMENT_DATA;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.PAYMENT_METHOD_PARAM;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SHOPPER_BANK_CODE;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayIframeCheckoutStepController.REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayIframeCheckoutStepController.SHOW_NGPP_IFRAME;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayIframeCheckoutStepControllerTest {
 
     private static final String PAYMENT_METHOD = "paymentMethod";
@@ -48,6 +38,13 @@ public class WorldpayIframeCheckoutStepControllerTest {
     private static final String PAGE_REDIRECT = "pageRedirect";
     private static final String OTHER_PAYMENT = "otherPayment";
     private static final String BANK_CODE = "shopperBankCode";
+    private static final String SHOW_NGPP_IFRAME = "showNGPPIframe";
+    private static final String REDIRECT_PREFIX = "redirect:";
+    private static final String REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS = REDIRECT_PREFIX + "/checkout/multi/worldpay/iframe/add-payment-details";
+
+    private static final String PAYMENT_DATA = "paymentData";
+    private static final String SHOPPER_BANK_CODE = "shopperBankCode";
+    private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
 
     @Spy
     @InjectMocks
@@ -75,6 +72,8 @@ public class WorldpayIframeCheckoutStepControllerTest {
     private APMConfigurationLookupService apmConfigurationServiceMock;
     @Mock
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
+    @Mock
+    private WorldpayCartFacade worldpayCartFacadeMock;
 
     @Before
     public void setUp() {
@@ -85,7 +84,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
         when(worldpayPaymentCheckoutFacade.hasBillingDetails()).thenReturn(true);
         doReturn(true).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD);
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), eq(PAYMENT_METHOD));
-        doNothing().when(testObj).resetDeclineCodeOnCart();
+        doNothing().when(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
     }
 
@@ -95,7 +94,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
 
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrbsMock);
 
-        verify(testObj).resetDeclineCodeOnCart();
+        verify(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
         verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         verify(redirectAttrbsMock).addFlashAttribute(PAYMENT_DATA, paymentDataMock);
         verify(redirectAttrbsMock, never()).addFlashAttribute(eq(SHOPPER_BANK_CODE), any());
@@ -111,7 +110,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrbsMock);
 
         verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
-        verify(testObj).resetDeclineCodeOnCart();
+        verify(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
         verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         verify(redirectAttrbsMock, never()).addFlashAttribute(eq(PAYMENT_DATA), any());
         verify(redirectAttrbsMock, never()).addFlashAttribute(eq(PAYMENT_METHOD_PARAM), any());
@@ -138,10 +137,10 @@ public class WorldpayIframeCheckoutStepControllerTest {
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrbsMock);
 
         assertEquals(PAGE_REDIRECT, result);
-        verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
-        verify(redirectAttrbsMock).addFlashAttribute(PAYMENT_METHOD_PARAM, PAYMENT_METHOD);
-        verify(redirectAttrbsMock).addFlashAttribute(SHOPPER_BANK_CODE, BANK_CODE);
-        verify(testObj).resetDeclineCodeOnCart();
-        verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
+        final InOrder inOrder = inOrder(paymentDetailsFormValidatorMock, testObj, worldpayCartFacadeMock, redirectAttrbsMock);
+        inOrder.verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
+        inOrder.verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
+        inOrder.verify(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
+        inOrder.verify(redirectAttrbsMock).addFlashAttribute(SHOPPER_BANK_CODE, BANK_CODE);
     }
 }

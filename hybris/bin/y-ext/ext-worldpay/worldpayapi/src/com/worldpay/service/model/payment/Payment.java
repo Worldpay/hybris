@@ -11,5 +11,5 @@ public interface Payment extends InternalModelTransformer, Serializable {
 
     PaymentType getPaymentType();
 
-    void setPaymentType(PaymentType paymentType);
+    void setPaymentType(final PaymentType paymentType);
 }

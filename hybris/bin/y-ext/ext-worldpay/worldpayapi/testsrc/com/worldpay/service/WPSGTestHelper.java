@@ -34,10 +34,17 @@ public class WPSGTestHelper {
         return gateway.directAuthorise(request);
     }
 
-    public static CreateTokenResponse createToken(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
-                                                  final TokenRequest tokenRequest, final String authenticatedShopperId) throws WorldpayException {
+    public static CreateTokenResponse createShopperToken(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
+                                                         final TokenRequest tokenRequest, final String authenticatedShopperId) throws WorldpayException {
         final Payment payment = PaymentBuilder.createCSE(ENCRYPTED_DATA, ADDRESS);
         final CreateTokenServiceRequest request = CreateTokenServiceRequest.createTokenRequestForShopperToken(merchantInfo, authenticatedShopperId, payment, tokenRequest);
+        return gateway.createToken(request);
+    }
+
+    public static CreateTokenResponse createMerchantToken(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
+                                                          final TokenRequest tokenRequest) throws WorldpayException {
+        final Payment payment = PaymentBuilder.createCSE(ENCRYPTED_DATA, ADDRESS);
+        final CreateTokenServiceRequest request = CreateTokenServiceRequest.createTokenRequestForMerchantToken(merchantInfo, payment, tokenRequest);
         return gateway.createToken(request);
     }
 
@@ -48,8 +55,8 @@ public class WPSGTestHelper {
     }
 
     public static UpdateTokenResponse updateTokenWithMerchantScope(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo,
-                                                                   final TokenRequest tokenRequest, final String paymentTokenId, final CardDetails cardDetails, final String authenticatedShopperId) throws WorldpayException {
-        final UpdateTokenServiceRequest request = UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfo, authenticatedShopperId, paymentTokenId, tokenRequest, cardDetails);
+                                                                   final TokenRequest tokenRequest, final String paymentTokenId, final CardDetails cardDetails) throws WorldpayException {
+        final UpdateTokenServiceRequest request = UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfo, paymentTokenId, tokenRequest, cardDetails);
         return gateway.updateToken(request);
     }
 

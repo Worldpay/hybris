@@ -14,7 +14,7 @@ public interface WorldpayPaymentCheckoutFacade {
      *
      * @param addressData the address data
      */
-    void setBillingDetails(AddressData addressData);
+    void setBillingDetails(final AddressData addressData);
 
 
     /**

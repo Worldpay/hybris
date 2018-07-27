@@ -14,5 +14,5 @@ public interface WorldpayCheckoutService {
      * @param cartModel the cart model
      * @param addressModel the address model
      */
-    void setPaymentAddress(CartModel cartModel, AddressModel addressModel);
+    void setPaymentAddress(final CartModel cartModel, final AddressModel addressModel);
 }

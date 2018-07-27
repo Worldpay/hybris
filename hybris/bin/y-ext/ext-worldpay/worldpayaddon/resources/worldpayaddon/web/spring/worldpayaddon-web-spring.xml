@@ -64,7 +64,7 @@
         <property name="value" value="/checkout/multi/worldpay/choose-payment-method"/>
     </bean>
 
-    <util:set id="apmErrorResponseStatuses">
+    <util:set id="apmErrorResponseStatuses" value-type="com.worldpay.enums.order.AuthorisedStatus">
         <value>ERROR</value>
         <value>FAILURE</value>
         <value>EXPIRED</value>

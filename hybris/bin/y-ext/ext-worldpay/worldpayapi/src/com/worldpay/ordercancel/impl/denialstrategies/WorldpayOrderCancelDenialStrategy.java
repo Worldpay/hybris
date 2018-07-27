@@ -16,19 +16,21 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
 import static java.text.MessageFormat.format;
 
 /**
+ * Implementation of a OrderCancelDenialStrategy taking into consideration the conditions for Worldpay
  */
 public class WorldpayOrderCancelDenialStrategy extends AbstractCancelDenialStrategy implements OrderCancelDenialStrategy {
 
     private static final Logger LOG = Logger.getLogger(WorldpayOrderCancelDenialStrategy.class);
 
     /**
+     * Implementation of getCancelDenialReason that checks if the order has a confirmed captured paymentTransactionEntry.
      *
      * @param orderCancelConfigModel
      * @param orderModel
      * @param principalModel
      * @param partialCancel
      * @param partialEntryCancel
-     * @return
+     * @return Order cancel denial reason if exist.
      */
     @Override
     public OrderCancelDenialReason getCancelDenialReason(final OrderCancelConfigModel orderCancelConfigModel, final OrderModel orderModel,
@@ -41,7 +43,7 @@ public class WorldpayOrderCancelDenialStrategy extends AbstractCancelDenialStrat
         return null;
     }
 
-    private OrderCancelDenialReason findReason(OrderModel orderModel, List<PaymentTransactionModel> paymentTransactions) {
+    private OrderCancelDenialReason findReason(final OrderModel orderModel, final List<PaymentTransactionModel> paymentTransactions) {
         for (final PaymentTransactionModel paymentTransaction : paymentTransactions) {
             final List<PaymentTransactionEntryModel> entries = paymentTransaction.getEntries();
             for (final PaymentTransactionEntryModel entry : entries) {

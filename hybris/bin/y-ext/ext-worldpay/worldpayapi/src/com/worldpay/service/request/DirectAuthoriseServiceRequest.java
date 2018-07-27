@@ -39,7 +39,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             final MerchantInfo merchantInfo, final BasicOrderInfo orderInfo, final Payment payment,
             final Shopper shopper, final Session session, final Address shippingAddress,
             final Address billingAddress, final String statementNarrative, final DynamicInteractionType dynamicInteractionType) {
-        checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo);
+        checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, merchantInfo.getMerchantCode(), merchantInfo.getMerchantPassword());
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final PaymentDetails paymentDetails = new PaymentDetails(payment, session);
         final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, billingAddress, statementNarrative, paymentDetails, dynamicInteractionType);
@@ -125,7 +125,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
                                                                                      final Address billingAddress, String statementNarrative,
                                                                                      final TokenRequest tokenRequest,
                                                                                      final DynamicInteractionType dynamicInteractionType) {
-        checkParameters(TOKEN_AND_DIRECT_AUTHORISE_REQUEST, merch, orderInfo, tokenRequest);
+        checkParameters(TOKEN_AND_DIRECT_AUTHORISE_REQUEST, merch, orderInfo, tokenRequest, merch.getMerchantCode(), merch.getMerchantPassword());
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
         final PaymentDetails paymentDetails = new PaymentDetails(payment, session);
         final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, billingAddress, statementNarrative, paymentDetails, dynamicInteractionType);

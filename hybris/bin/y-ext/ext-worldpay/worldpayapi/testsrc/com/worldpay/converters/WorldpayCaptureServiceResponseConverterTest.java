@@ -1,5 +1,7 @@
 package com.worldpay.converters;
 
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.response.CaptureServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.commands.result.CaptureResult;
@@ -26,25 +28,28 @@ import static org.mockito.Mockito.when;
 public class WorldpayCaptureServiceResponseConverterTest {
 
     private static final String ORDER_CODE = "orderCode";
-    private static final String STRING_AMOUNT = "1099";
-    private static final String STRING_FRACTIONAL_AMOUNT = "10.99";
+    private final BigDecimal expectedAmount = BigDecimal.valueOf(10.99d);
 
     @InjectMocks
     private WorldpayCaptureServiceResponseConverter testObj = new WorldpayCaptureServiceResponseConverter();
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CaptureServiceResponse captureServiceResponseMock;
+    @Mock
+    private Amount amountMock;
+    @Mock
+    private WorldpayOrderService worldpayOrderServiceMock;
 
     @Before
     public void setUp() {
         testObj.setTargetClass(CaptureResult.class);
 
-        when(captureServiceResponseMock.getAmount().getValue()).thenReturn(STRING_AMOUNT);
+        when(captureServiceResponseMock.getAmount()).thenReturn(amountMock);
         when(captureServiceResponseMock.getOrderCode()).thenReturn(ORDER_CODE);
+        when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(expectedAmount);
     }
 
     @Test
-    public void convertShouldReturnCaptureResultForFractionalCurrencies() {
-        final BigDecimal amount = new BigDecimal(STRING_FRACTIONAL_AMOUNT);
+    public void convertShouldReturnCaptureResult() {
         final Currency currency = Currency.getInstance(Locale.UK);
 
         when(captureServiceResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
@@ -54,24 +59,7 @@ public class WorldpayCaptureServiceResponseConverterTest {
         assertEquals(currency, result.getCurrency());
         assertEquals(ORDER_CODE, result.getRequestId());
         assertNotNull(result.getRequestTime());
-        assertEquals(amount, result.getTotalAmount());
-        assertEquals(TransactionStatus.ACCEPTED, result.getTransactionStatus());
-        assertEquals(TransactionStatusDetails.SUCCESFULL, result.getTransactionStatusDetails());
-    }
-
-    @Test
-    public void convertShouldReturnCaptureResultForNonFractionalCurrencies() {
-        final BigDecimal amount = new BigDecimal(STRING_AMOUNT);
-        final Currency currency = Currency.getInstance(Locale.JAPAN);
-
-        when(captureServiceResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
-
-        final CaptureResult result = testObj.convert(captureServiceResponseMock);
-
-        assertEquals(currency, result.getCurrency());
-        assertEquals(ORDER_CODE, result.getRequestId());
-        assertNotNull(result.getRequestTime());
-        assertEquals(amount, result.getTotalAmount());
+        assertEquals(expectedAmount, result.getTotalAmount());
         assertEquals(TransactionStatus.ACCEPTED, result.getTransactionStatus());
         assertEquals(TransactionStatusDetails.SUCCESFULL, result.getTransactionStatusDetails());
     }

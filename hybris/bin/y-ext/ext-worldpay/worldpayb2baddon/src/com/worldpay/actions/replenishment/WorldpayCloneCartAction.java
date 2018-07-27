@@ -34,19 +34,19 @@ public class WorldpayCloneCartAction extends AbstractProceduralAction<Replenishm
         final CartToOrderCronJobModel cartToOrderCronJob = process.getCartToOrderCronJob();
         final CartModel cronJobCart = cartToOrderCronJob.getCart();
         userService.setCurrentUser(cronJobCart.getUser());
-        final CartModel clone = cartService.clone(typeService.getComposedTypeForClass(CartModel.class),
+        final CartModel clonedCart = cartService.clone(typeService.getComposedTypeForClass(CartModel.class),
                 typeService.getComposedTypeForClass(CartEntryModel.class), cronJobCart,
                 keyGenerator.generate().toString());
-        clone.setPaymentAddress(cartToOrderCronJob.getPaymentAddress());
-        clone.setDeliveryAddress(cartToOrderCronJob.getDeliveryAddress());
-        clone.setPaymentInfo(cartToOrderCronJob.getPaymentInfo());
-        clone.setStatus(OrderStatus.CREATED);
-        clone.setAllPromotionResults(Collections.emptySet());
-        clone.setPaymentTransactions(Collections.emptyList());
-        clone.setPermissionResults(Collections.emptyList());
-        clone.setGuid(guidKeyGenerator.generate().toString());
-        this.modelService.save(clone);
-        processParameterHelper.setProcessParameter(process, "cart", clone);
+        clonedCart.setPaymentAddress(cartToOrderCronJob.getPaymentAddress());
+        clonedCart.setDeliveryAddress(cartToOrderCronJob.getDeliveryAddress());
+        clonedCart.setPaymentInfo(cartToOrderCronJob.getPaymentInfo());
+        clonedCart.setStatus(OrderStatus.CREATED);
+        clonedCart.setAllPromotionResults(Collections.emptySet());
+        clonedCart.setPaymentTransactions(Collections.emptyList());
+        clonedCart.setPermissionResults(Collections.emptyList());
+        clonedCart.setGuid(guidKeyGenerator.generate().toString());
+        this.modelService.save(clonedCart);
+        processParameterHelper.setProcessParameter(process, "cart", clonedCart);
     }
 
     @Required

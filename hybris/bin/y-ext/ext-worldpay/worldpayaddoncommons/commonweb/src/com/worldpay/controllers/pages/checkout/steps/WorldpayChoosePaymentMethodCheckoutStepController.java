@@ -1,6 +1,7 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.core.services.WorldpayCartService;
+import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.forms.PaymentDetailsForm;
@@ -18,9 +19,7 @@ import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.RegionData;
-import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
-import de.hybris.platform.order.CartService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -38,11 +37,12 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
-@RequestMapping (value = "/checkout/multi/worldpay/choose-payment-method")
+@RequestMapping(value = "/checkout/multi/worldpay/choose-payment-method")
 public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
 
     protected static final String REGIONS = "regions";
@@ -65,24 +65,24 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
     @Resource
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
-    @Resource (name = "worldpayCheckoutFacade")
+    @Resource(name = "worldpayCheckoutFacade")
     private AcceleratorCheckoutFacade checkoutFacade;
     @Resource
-    private CartService cartService;
-    @Resource
-    private WorldpayCartService worldpayCartService;
+    private WorldpayCartFacade worldpayCartFacade;
     @Resource
     private PaymentDetailsFormValidator paymentDetailsFormValidator;
     @Resource(name = "addressDataUtil")
     private AddressDataUtil addressDataUtil;
+    @Resource(name = "apmConfigurationLookupService")
+    private APMConfigurationLookupService apmConfigurationLookupService;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @RequestMapping (method = GET, value = {"", "/", "/add-cse-payment-details", "/add-payment-details"})
+    @RequestMapping(method = GET, value = {"", "/", "/add-cse-payment-details", "/add-payment-details"})
     @RequireHardLogIn
-    @PreValidateCheckoutStep (checkoutStep = CHOOSE_PAYMENT_METHOD)
+    @PreValidateCheckoutStep(checkoutStep = CHOOSE_PAYMENT_METHOD)
     public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
         getCheckoutFacade().setDeliveryModeIfAvailable();
 
@@ -128,9 +128,10 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
     /**
      * Used for getting the decline-message for a refused notification, based on the decline-code persisted on the cart {@link de.hybris.platform.core.model.order.CartModel}
+     *
      * @return The localized error-message to display.
      */
-    @RequestMapping (value = "/getDeclineMessage", method = GET)
+    @RequestMapping(value = "/getDeclineMessage", method = GET)
     @ResponseBody
     public String getDeclineMessage() {
         final String worldpayDeclineCode = getCheckoutFacade().getCheckoutCart().getWorldpayDeclineCode();
@@ -158,30 +159,20 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
     /**
      * Sets the saved paymentMethod selected and proceeds to next step
+     *
      * @param selectedPaymentMethodId The id of the {@link CreditCardPaymentInfoModel} to use
      * @return
      */
-    @RequestMapping (value = "/choose", method = GET)
+    @RequestMapping(value = "/choose", method = GET)
     @RequireHardLogIn
-    public String doSelectPaymentMethod(@RequestParam ("selectedPaymentMethodId") final String selectedPaymentMethodId) {
-        if (StringUtils.isNotBlank(selectedPaymentMethodId)) {
-            getSessionService().getCurrentSession().setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, Boolean.TRUE);
+    public String doSelectPaymentMethod(@RequestParam("selectedPaymentMethodId") final String selectedPaymentMethodId) {
+        if (isNotBlank(selectedPaymentMethodId)) {
+            getSessionService().setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, Boolean.TRUE);
             getCheckoutFacade().setPaymentDetails(selectedPaymentMethodId);
             // For B2B the payment address needs to be set from paymentInfo
-            final CartModel sessionCart = cartService.getSessionCart();
-            if (sessionCart.getPaymentAddress() == null) {
-                sessionCart.setPaymentAddress(sessionCart.getPaymentInfo().getBillingAddress());
-                cartService.saveOrder(sessionCart);
-            }
+            worldpayCartFacade.setBillingAddressFromPaymentInfo();
         }
         return getCheckoutStep().nextStep();
-    }
-
-    protected void resetDeclineCodeOnCart() {
-        final String worldpayOrderCode = getCheckoutFacade().getCheckoutCart().getWorldpayOrderCode();
-        if (StringUtils.isNotBlank(worldpayOrderCode)) {
-            worldpayCartService.setWorldpayDeclineCodeOnCart(worldpayOrderCode, "0");
-        }
     }
 
     protected String getLocalisedDeclineMessage(final String returnCode) {
@@ -259,24 +250,26 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
     /**
      * Returns the configured Terms and Conditions URL.
+     *
      * @param request
      * @return
      */
-    @ModelAttribute (value = "getTermsAndConditionsUrl")
+    @ModelAttribute(value = "getTermsAndConditionsUrl")
     public String getTermsAndConditionsUrl(HttpServletRequest request) {
         return request.getContextPath() + CHECKOUT_MULTI_TERMS_AND_CONDITIONS;
     }
 
     /**
      * Removes a saved payment info from the customers account
+     *
      * @param paymentMethodId
      * @param redirectAttributes
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping (value = "/remove", method = POST)
+    @RequestMapping(value = "/remove", method = POST)
     @RequireHardLogIn
-    public String remove(@RequestParam (value = "paymentInfoId") final String paymentMethodId,
+    public String remove(@RequestParam(value = "paymentInfoId") final String paymentMethodId,
                          final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
         getUserFacade().unlinkCCPaymentInfo(paymentMethodId);
         GlobalMessages.addFlashMessage(redirectAttributes, GlobalMessages.CONF_MESSAGES_HOLDER,
@@ -287,7 +280,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     /**
      * {@inheritDoc}
      */
-    @RequestMapping (value = "/back", method = GET)
+    @RequestMapping(value = "/back", method = GET)
     @RequireHardLogIn
     @Override
     public String back(final RedirectAttributes redirectAttributes) {
@@ -297,7 +290,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     /**
      * {@inheritDoc}
      */
-    @RequestMapping (value = "/next", method = GET)
+    @RequestMapping(value = "/next", method = GET)
     @RequireHardLogIn
     @Override
     public String next(final RedirectAttributes redirectAttributes) {
@@ -350,5 +343,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         addressForm.setCountryIso(countryIsoCode);
         addressForm.setPhone(deliveryAddress.getPhone());
         paymentDetailsForm.setBillingAddress(addressForm);
+    }
+
+    protected boolean isAPM(final String paymentMethod) {
+        return apmConfigurationLookupService.getAllApmPaymentTypeCodes().contains(paymentMethod);
     }
 }

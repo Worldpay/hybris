@@ -3,6 +3,7 @@ package com.worldpay.facades.impl;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
 import com.worldpay.facades.BankConfigurationData;
+import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.model.WorldpayBankConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
@@ -21,12 +22,12 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayBankConfigurationFacadeTest {
 
     private static final String APM_CODE = "apmCode";
-    public static final String BANK_TRANSFER_APM = "bankTransferAPM";
-    public static final String PAYMENT_METHOD = "payment";
+    private static final String BANK_TRANSFER_APM = "bankTransferAPM";
+    private static final String PAYMENT_METHOD = "payment";
 
     @InjectMocks
     private DefaultWorldpayBankConfigurationFacade testObj = new DefaultWorldpayBankConfigurationFacade();
@@ -41,10 +42,10 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
     @Mock
     private APMConfigurationLookupService apmConfigurationLookupServiceMock;
     @Mock
-    private com.worldpay.model.WorldpayAPMConfigurationModel apmConfigurationModelMock;
+    private WorldpayAPMConfigurationModel apmConfigurationModelMock;
 
     @Test
-    public void testGetBankConfigurationForAPMCode() throws Exception {
+    public void testGetBankConfigurationForAPMCode() {
         when(converterMock.convert(eq(worldpayBankConfigurationModelMock))).thenReturn(bankConfigurationDataMock);
         when(worldpayBankConfigurationLookupServiceMock.getActiveBankConfigurationsForCode(APM_CODE)).thenReturn(singletonList(worldpayBankConfigurationModelMock));
 
@@ -60,7 +61,7 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
         assertTrue(testObj.isBankTransferApm(BANK_TRANSFER_APM));
     }
 
-     @Test
+    @Test
     public void isBankTransferApmShouldReturnFalseIfPaymentMethodIsNotApmThatSupportsBankTransfer(){
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(APM_CODE)).thenReturn(apmConfigurationModelMock);
         when(apmConfigurationModelMock.getBank()).thenReturn(false);
@@ -72,8 +73,6 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(PAYMENT_METHOD)).thenReturn(null);
         assertFalse(testObj.isBankTransferApm(PAYMENT_METHOD));
     }
-
-
 
 }
     
