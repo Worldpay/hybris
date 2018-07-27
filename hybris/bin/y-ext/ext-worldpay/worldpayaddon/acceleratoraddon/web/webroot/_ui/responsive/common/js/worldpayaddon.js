@@ -19,11 +19,11 @@ ACC.worldpay = {
     },
 
     bindUseDeliveryAddress: function () {
-        var wpUseDeliveryAddress = $("#wpUseDeliveryAddress");
+        const wpUseDeliveryAddress = $("#wpUseDeliveryAddress");
 
         wpUseDeliveryAddress.on("change", function () {
             if (wpUseDeliveryAddress.is(":checked")) {
-                var options = {
+                const options = {
                     'countryIsoCode': $('#wpUseDeliveryAddress').data("countryisocode"),
                     'useDeliveryAddress': true
                 };
@@ -36,7 +36,7 @@ ACC.worldpay = {
             }
         });
         if (wpUseDeliveryAddress.is(":checked")) {
-            this.disableAddressForm();
+            ACC.worldpay.disableAddressForm();
         }
     },
 
@@ -56,21 +56,21 @@ ACC.worldpay = {
     },
 
     useDeliveryAddressSelected: function () {
-        var wpUseDeliveryAddress = $("#wpUseDeliveryAddress");
+        const wpUseDeliveryAddress = $("#wpUseDeliveryAddress");
         if (wpUseDeliveryAddress.is(":checked")) {
             $('select[id^="billingAddress\\.country"]').val(wpUseDeliveryAddress.data('countryisocode'));
             ACC.worldpay.disableAddressForm();
         }
         else {
-            this.clearAddressForm();
-            this.enableAddressForm();
+            ACC.worldpay.clearAddressForm();
+            ACC.worldpay.enableAddressForm();
         }
     },
 
     bindCreditCardAddressForm: function () {
         $("#wpBillingCountrySelector").find(":input").on("change", function () {
-            var countrySelection = $(this).val();
-            var options = {
+            const countrySelection = $(this).val();
+            const options = {
                 'countryIsoCode': countrySelection,
                 'useDeliveryAddress': false
             };
@@ -96,7 +96,7 @@ ACC.worldpay = {
 
     populateDeclineCodeTimeout: function () {
         if (ACC.paymentStatus === "REFUSED") {
-            var waitTimer = ACC.worldpayDeclineMessageWaitTimerSeconds * 1000;
+            const waitTimer = ACC.worldpayDeclineMessageWaitTimerSeconds * 1000;
             setTimeout(function () {
                 populateDeclineCode();
             }, waitTimer);
@@ -106,16 +106,16 @@ ACC.worldpay = {
                     type: "GET",
                     success: function (data) {
                         if (data) {
-                            var row = $('#hop');
-                            var container = row.parent();
+                            const row = $('#hop');
+                            const container = row.parent();
 
-                            var declineCodeHTMLContent = "<div class='global-alerts'>" +
+                            const declineCodeHTMLContent = "<div class='global-alerts'>" +
                                 "<div class='alert alert-danger alert-dismissable'>" +
                                 "<button class='close' aria-hidden='true' data-dismiss='alert' type='button'>×</button>"
                                 + data +
                                 "</div>";
 
-                            var globalAlerts = container.find(".global-alerts");
+                            const globalAlerts = container.find(".global-alerts");
                             if (globalAlerts) {
                                 globalAlerts.last().append(declineCodeHTMLContent);
                             } else {
@@ -151,7 +151,7 @@ ACC.worldpay = {
 
     populateBankListByAPM: function (selectedAPM, callback) {
         $.get(ACC.config.encodedContextPath + "/worldpay/" + selectedAPM + "/banks", function (response) {
-            var placeHolderMessage = ACC.addons.worldpayaddon["worldpayaddon.checkout.paymentMethod.shopperbankcode.default"];
+            const placeHolderMessage = ACC.addons.worldpayaddon["worldpayaddon.checkout.paymentMethod.shopperbankcode.default"];
             $("#shopperBankCode").empty().append($("<option></option>")
                 .attr("selected", true).attr("disabled", true).text(placeHolderMessage));
 
@@ -159,7 +159,9 @@ ACC.worldpay = {
                 $("#shopperBankCode").append($("<option></option>")
                     .attr("value", value.bankCode).text(value.bankName));
             });
-            $("#bankElement").removeClass("hidden");
+            const $bankElement = $("#bankElement");
+            $bankElement.removeClass("hidden");
+            $bankElement.find('select').prop('disabled', false);
             if (typeof callback === 'function') {
                 callback();
             }
@@ -167,11 +169,11 @@ ACC.worldpay = {
     },
 
     checkPreviouslySelectedBank: function () {
-        var selectedAPM = $("[name='paymentMethod']:checked");
+        const selectedAPM = $("[name='paymentMethod']:checked");
         if (selectedAPM.data("isbank")) {
-            this.populateBankListByAPM(selectedAPM.val(), function () {
-                var shopperBankCodeSelectElem = $("#shopperBankCode");
-                var selectedBankCode = shopperBankCodeSelectElem.data("bankcode");
+            ACC.worldpay.populateBankListByAPM(selectedAPM.val(), function () {
+                const shopperBankCodeSelectElem = $("#shopperBankCode");
+                const selectedBankCode = shopperBankCodeSelectElem.data("bankcode");
                 if (selectedBankCode !== undefined) {
                     shopperBankCodeSelectElem.val(selectedBankCode);
                 }
@@ -180,18 +182,20 @@ ACC.worldpay = {
     },
 
     checkPreviouslySelectedPaymentMethod: function () {
-        var paymentMethodCode = $("#paymentButtons").data("paymentmethod");
+        const paymentMethodCode = $("#paymentButtons").data("paymentmethod");
         $('#paymentMethod_' + paymentMethodCode).prop('checked', true);
-        this.checkPreviouslySelectedBank();
+        ACC.worldpay.checkPreviouslySelectedBank();
     },
 
     bindBanks: function () {
         $(".cms-payment-button").on("change", function () {
-            var selectedAPM = $("[name='paymentMethod']:checked");
+            const selectedAPM = $("[name='paymentMethod']:checked");
             if (selectedAPM.data("isbank")) {
                 ACC.worldpay.populateBankListByAPM(selectedAPM.val());
             } else {
-                $("#bankElement").addClass("hidden");
+                const $bankElement = $("#bankElement");
+                $bankElement.addClass("hidden");
+                $bankElement.find('select').prop('disabled', true);
             }
         });
     }

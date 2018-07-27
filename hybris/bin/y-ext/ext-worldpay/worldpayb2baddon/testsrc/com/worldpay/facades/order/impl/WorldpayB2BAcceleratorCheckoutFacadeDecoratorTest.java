@@ -96,7 +96,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     private B2BCommentModel b2BCommentModelMock;
 
     @Before
-    public void setUp() throws InvalidCartException {
+    public void setUp() {
         CustomerModel customerModelMock = Mockito.mock(CustomerModel.class);
 
         Mockito.when(cartFacadeMock.hasSessionCart()).thenReturn(true);

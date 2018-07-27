@@ -41,7 +41,7 @@ public class WorldpayAuthorizationResultPopulator implements Populator<DirectAut
     }
 
     @Required
-    public void setWorldpayAuthorisationResultService(WorldpayAuthorisationResultService worldpayAuthorisationResultService) {
+    public void setWorldpayAuthorisationResultService(final WorldpayAuthorisationResultService worldpayAuthorisationResultService) {
         this.worldpayAuthorisationResultService = worldpayAuthorisationResultService;
     }
 }

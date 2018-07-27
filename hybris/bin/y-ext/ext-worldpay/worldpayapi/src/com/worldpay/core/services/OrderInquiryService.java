@@ -37,5 +37,12 @@ public interface OrderInquiryService {
      */
     OrderInquiryServiceResponse inquireOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException;
 
+    /**
+     * Inquires the payment status of an order placed with Klarna
+     *
+     * @param merchantInfo
+     * @param worldpayOrderCode The Worldpay order code
+     * @return
+     */
     OrderInquiryServiceResponse inquiryKlarnaOrder(MerchantInfo merchantInfo, String worldpayOrderCode) throws WorldpayException;
 }

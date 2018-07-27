@@ -16,13 +16,13 @@ import org.springframework.beans.factory.annotation.Required;
 public class DefaultWorldpayCustomerAccountService extends DefaultCustomerAccountService {
 
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
-
     private WorldpayDirectOrderService worldpayDirectOrderService;
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayCustomerAccountService.class);
 
     /**
      * Fist delete token at Worldpay than call super
+     *
      * @param customerModel
      * @param creditCardPaymentInfo
      */
@@ -31,19 +31,19 @@ public class DefaultWorldpayCustomerAccountService extends DefaultCustomerAccoun
         try {
             final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
             worldpayDirectOrderService.deleteToken(merchantInfo, creditCardPaymentInfo);
-        } catch (WorldpayException e) {
+        } catch (final WorldpayException e) {
             LOG.error("Error deleting token at worldpay ", e);
         }
         super.unlinkCCPaymentInfo(customerModel, creditCardPaymentInfo);
     }
 
     @Required
-    public void setWorldpayDirectOrderService(WorldpayDirectOrderService worldpayDirectOrderService) {
+    public void setWorldpayDirectOrderService(final WorldpayDirectOrderService worldpayDirectOrderService) {
         this.worldpayDirectOrderService = worldpayDirectOrderService;
     }
 
     @Required
-    public void setWorldpayMerchantInfoService(WorldpayMerchantInfoService worldpayMerchantInfoService) {
+    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
 

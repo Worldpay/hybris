@@ -27,7 +27,7 @@ public class AlternativePayment extends AbstractPayment {
      * @param pendingURL
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AlternativePayment(PaymentType paymentType, String shopperCountryCode, String successURL, String failureURL, String cancelURL, String pendingURL) {
+    public AlternativePayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, final String pendingURL) {
         this.setPaymentType(paymentType);
         this.shopperCountryCode = shopperCountryCode;
         this.successURL = successURL;
@@ -37,9 +37,9 @@ public class AlternativePayment extends AbstractPayment {
     }
 
     @Override
-    public void invokeSetter(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if (methodName.startsWith("set")) {
             if ("setShopperCountryCode".equals(methodName) && shopperCountryCode != null) {
                 method.invoke(targetObject, shopperCountryCode);
@@ -78,7 +78,7 @@ public class AlternativePayment extends AbstractPayment {
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         // Do nothing. This provides a hook for subclasses to add extra functionality
     }
 
@@ -86,7 +86,7 @@ public class AlternativePayment extends AbstractPayment {
         return shopperCountryCode;
     }
 
-    public void setShopperCountryCode(String shopperCountryCode) {
+    public void setShopperCountryCode(final String shopperCountryCode) {
         this.shopperCountryCode = shopperCountryCode;
     }
 
@@ -94,7 +94,7 @@ public class AlternativePayment extends AbstractPayment {
         return successURL;
     }
 
-    public void setSuccessURL(String successURL) {
+    public void setSuccessURL(final String successURL) {
         this.successURL = successURL;
     }
 
@@ -102,7 +102,7 @@ public class AlternativePayment extends AbstractPayment {
         return failureURL;
     }
 
-    public void setFailureURL(String failureURL) {
+    public void setFailureURL(final String failureURL) {
         this.failureURL = failureURL;
     }
 
@@ -110,7 +110,7 @@ public class AlternativePayment extends AbstractPayment {
         return cancelURL;
     }
 
-    public void setCancelURL(String cancelURL) {
+    public void setCancelURL(final String cancelURL) {
         this.cancelURL = cancelURL;
     }
 
@@ -118,7 +118,7 @@ public class AlternativePayment extends AbstractPayment {
         return pendingURL;
     }
 
-    public void setPendingURL(String pendingURL) {
+    public void setPendingURL(final String pendingURL) {
         this.pendingURL = pendingURL;
     }
 

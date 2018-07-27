@@ -18,7 +18,6 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.TERM_URL_PARAM_NAME;
 import static com.worldpay.payment.TransactionStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -33,7 +32,7 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
     private static final String LOCALISED_DECLINE_MESSAGE = "localisedDeclineMessage";
     private static final String ERROR_VIEW = "error";
     private static final String AUTOSUBMIT_3DSECURE = "AutoSubmit3DSecure";
-
+    private static final String TERM_URL_PARAM_NAME = "termURL";
     @Spy
     @InjectMocks
     private AbstractWorldpayDirectCheckoutStepController testObj = new TestAbstractWorldpayDirectCheckoutStepController();

@@ -25,4 +25,12 @@ public interface PaymentServiceMarshaller {
      * @return
      */
     String marshal(final PaymentService paymentService) throws WorldpayException;
+
+    /**
+     * Transforms the PaymentService object into an XML that represents it.
+     * Does not add the <xml></xml> header.
+     * @param paymentService
+     * @return
+     */
+    String marshalAsFragment(PaymentService paymentService) throws WorldpayException;
 }

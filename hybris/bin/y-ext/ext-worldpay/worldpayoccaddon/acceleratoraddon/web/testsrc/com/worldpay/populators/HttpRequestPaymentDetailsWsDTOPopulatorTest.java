@@ -3,53 +3,65 @@ package com.worldpay.populators;
 import com.worldpay.populator.options.PaymentDetailsWsDTOOption;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class HttpRequestPaymentDetailsWsDTOPopulatorTest {
 
     private static final String VISA = "visa";
+    private static final String ACCOUNT_HOLDER_NAME = "accountHolderName";
+    private static final String CARD_NUMBER = "cardNumber";
+    private static final String CARD_TYPE = "cardType";
+    private static final String CSE_TOKEN = "cseToken";
+    private static final String EXPIRY_MONTH = "expiryMonth";
+    private static final String EXPIRY_YEAR = "expiryYear";
+    private static final String ISSUE_NUMBER = "issueNumber";
+    private static final String START_MONTH = "startMonth";
+    private static final String START_YEAR = "startYear";
+    private static final String SUBSCRIPTION_ID = "subscriptionId";
+    private static final String ID = "id";
 
     @InjectMocks
     private HttpRequestPaymentDetailsWsDTOPopulator testObject;
 
     @Mock
-    @SuppressWarnings("PMD.UnusedPrivateField")
-    private HttpRequestAddressWsDTOPopulator httpRequestAddressWsDTOPopulator;
+    private HttpRequestAddressWsDTOPopulator httpRequestAddressWsDTOPopulatorMock;
 
     @Mock
     private HttpServletRequest httpServletRequestMock;
 
     private PaymentDetailsWsDTO paymentDetails = new PaymentDetailsWsDTO();
-    private Collection<PaymentDetailsWsDTOOption> options = new ArrayList<PaymentDetailsWsDTOOption>();
+    private Collection<PaymentDetailsWsDTOOption> options = new ArrayList<>();
 
 
     @Before
     public void setUp() {
         options.add(PaymentDetailsWsDTOOption.BASIC);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.ACCOUNT_HOLDER_NAME)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.ACCOUNT_HOLDER_NAME);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.CARD_NUMBER)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.CARD_NUMBER);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.CSE_TOKEN)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.CSE_TOKEN);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.EXPIRY_MONTH)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.EXPIRY_MONTH);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.EXPIRY_YEAR)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.EXPIRY_YEAR);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.SUBSCRIPTION_ID)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.SUBSCRIPTION_ID);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.ID)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.ID);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.ISSUE_NUMBER)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.ISSUE_NUMBER);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.START_MONTH)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.START_MONTH);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.START_YEAR)).thenReturn(HttpRequestPaymentDetailsWsDTOPopulator.START_YEAR);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestPaymentDetailsWsDTOPopulator.CARD_TYPE)).thenReturn(VISA);
+        when(httpServletRequestMock.getParameter(ACCOUNT_HOLDER_NAME)).thenReturn(ACCOUNT_HOLDER_NAME);
+        when(httpServletRequestMock.getParameter(CARD_NUMBER)).thenReturn(CARD_NUMBER);
+        when(httpServletRequestMock.getParameter(CSE_TOKEN)).thenReturn(CSE_TOKEN);
+        when(httpServletRequestMock.getParameter(EXPIRY_MONTH)).thenReturn(EXPIRY_MONTH);
+        when(httpServletRequestMock.getParameter(EXPIRY_YEAR)).thenReturn(EXPIRY_YEAR);
+        when(httpServletRequestMock.getParameter(SUBSCRIPTION_ID)).thenReturn(SUBSCRIPTION_ID);
+        when(httpServletRequestMock.getParameter(ID)).thenReturn(ID);
+        when(httpServletRequestMock.getParameter(ISSUE_NUMBER)).thenReturn(ISSUE_NUMBER);
+        when(httpServletRequestMock.getParameter(START_MONTH)).thenReturn(START_MONTH);
+        when(httpServletRequestMock.getParameter(START_YEAR)).thenReturn(START_YEAR);
+        when(httpServletRequestMock.getParameter(CARD_TYPE)).thenReturn(VISA);
     }
 
     @Test
@@ -60,7 +72,7 @@ public class HttpRequestPaymentDetailsWsDTOPopulatorTest {
 
         // Verify
         verifyBasic(paymentDetails);
-        Assert.assertEquals("Expect no billing address", null, paymentDetails.getBillingAddress());
+        assertNull("Expect no billing address", paymentDetails.getBillingAddress());
     }
 
     @Test
@@ -72,23 +84,25 @@ public class HttpRequestPaymentDetailsWsDTOPopulatorTest {
 
         // Verify
         verifyBasic(paymentDetails);
-        Assert.assertNotNull("Expect billing address", paymentDetails.getBillingAddress());
+        verify(httpRequestAddressWsDTOPopulatorMock).populate(httpServletRequestMock, paymentDetails.getBillingAddress());
+        verify(httpRequestAddressWsDTOPopulatorMock).setAddressPrefix("billingAddress");
+        assertNotNull("Expect billing address", paymentDetails.getBillingAddress());
     }
 
     private void verifyBasic(final PaymentDetailsWsDTO paymentDetails) {
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.ACCOUNT_HOLDER_NAME, paymentDetails.getAccountHolderName());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.CARD_NUMBER, paymentDetails.getCardNumber());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.CSE_TOKEN, paymentDetails.getCseToken());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.EXPIRY_MONTH, paymentDetails.getExpiryMonth());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.EXPIRY_YEAR, paymentDetails.getExpiryYear());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.ID, paymentDetails.getId());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.ISSUE_NUMBER, paymentDetails.getIssueNumber());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.START_MONTH, paymentDetails.getStartMonth());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.START_YEAR, paymentDetails.getStartYear());
-        Assert.assertEquals(HttpRequestPaymentDetailsWsDTOPopulator.SUBSCRIPTION_ID, paymentDetails.getSubscriptionId());
+        assertEquals(ACCOUNT_HOLDER_NAME, paymentDetails.getAccountHolderName());
+        assertEquals(CARD_NUMBER, paymentDetails.getCardNumber());
+        assertEquals(CSE_TOKEN, paymentDetails.getCseToken());
+        assertEquals(EXPIRY_MONTH, paymentDetails.getExpiryMonth());
+        assertEquals(EXPIRY_YEAR, paymentDetails.getExpiryYear());
+        assertEquals(ID, paymentDetails.getId());
+        assertEquals(ISSUE_NUMBER, paymentDetails.getIssueNumber());
+        assertEquals(START_MONTH, paymentDetails.getStartMonth());
+        assertEquals(START_YEAR, paymentDetails.getStartYear());
+        assertEquals(SUBSCRIPTION_ID, paymentDetails.getSubscriptionId());
 
-        Assert.assertEquals(VISA, paymentDetails.getCardType().getCode());
-        Assert.assertFalse(paymentDetails.getSaved());
-        Assert.assertFalse(paymentDetails.getDefaultPayment());
+        assertEquals(VISA, paymentDetails.getCardType().getCode());
+        assertFalse(paymentDetails.getSaved());
+        assertFalse(paymentDetails.getDefaultPayment());
     }
 }

@@ -13,6 +13,7 @@
                 <editorArea:section name="customersupportbackoffice.section.order.general.properties">
                     <editorArea:attribute qualifier="riskScore"/>
                     <editorArea:attribute qualifier="info"/>
+                    <editorArea:attribute qualifier="worldpayBank" readonly="true"/>
                 </editorArea:section>
             </editorArea:tab>
         </editorArea:editorArea>
@@ -30,6 +31,14 @@
         <y:base>
             <y:labels>
                 <y:label>'value=' + value + ' finalScore=' + finalScore</y:label>
+            </y:labels>
+        </y:base>
+    </context>
+
+    <context type="WorldpayBankConfiguration" component="base" merge-by="type">
+        <y:base>
+            <y:labels>
+                <y:label> description </y:label>
             </y:labels>
         </y:base>
     </context>

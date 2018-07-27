@@ -20,23 +20,22 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 import static java.util.Collections.singletonList;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultRefundedOrderNotificationProcessorStrategyTest {
 
-    public static final String REFUND_REFERENCE = "refundReference";
+    private static final String REFUND_REFERENCE = "refundReference";
+
     @InjectMocks
-    private DefaultRefundedOrderNotificationProcessorStrategy testObj = new DefaultRefundedOrderNotificationProcessorStrategy();
+    private DefaultRefundedOrderNotificationProcessorStrategy testObj;
 
     @Mock
     private ModelService modelServiceMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderNotificationMessage orderNotificationMessageMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTransactionModel paymentTransactionModelMock;
     @Mock
     private OrderModel orderModelMock;
@@ -60,7 +59,7 @@ public class DefaultRefundedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldMarkPaymentTransactionEntriesAsNonPendingWhenTheRefundReferenceMatches() throws WorldpayModelTransformationException {
+    public void shouldMarkPaymentTransactionEntriesAsNonPendingWhenTheRefundReferenceMatches() {
         when(orderNotificationMessageMock.getPaymentReply().getRefundReference()).thenReturn(REFUND_REFERENCE);
         when(paymentTransactionEntryModelMock.getCode()).thenReturn(REFUND_REFERENCE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(singletonList(paymentTransactionEntryModelMock));
@@ -72,7 +71,7 @@ public class DefaultRefundedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldNotMarkPaymentTransactionEntriesAsNonPendingWhenTheRefundReferenceDoesNotMatches() throws WorldpayModelTransformationException {
+    public void shouldNotMarkPaymentTransactionEntriesAsNonPendingWhenTheRefundReferenceDoesNotMatches() {
         when(orderNotificationMessageMock.getPaymentReply().getRefundReference()).thenReturn(REFUND_REFERENCE);
         when(paymentTransactionEntryModelMock.getCode()).thenReturn(REFUND_REFERENCE + "_INVALID");
         when(paymentTransactionModelMock.getEntries()).thenReturn(singletonList(paymentTransactionEntryModelMock));

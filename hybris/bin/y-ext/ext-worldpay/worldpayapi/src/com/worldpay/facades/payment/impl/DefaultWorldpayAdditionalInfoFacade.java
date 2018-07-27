@@ -23,7 +23,7 @@ public class DefaultWorldpayAdditionalInfoFacade implements WorldpayAdditionalIn
     }
 
     @Required
-    public void setWorldpayAdditionalInfoService(WorldpayAdditionalInfoService worldpayAdditionalInfoService) {
+    public void setWorldpayAdditionalInfoService(final WorldpayAdditionalInfoService worldpayAdditionalInfoService) {
         this.worldpayAdditionalInfoService = worldpayAdditionalInfoService;
     }
 }

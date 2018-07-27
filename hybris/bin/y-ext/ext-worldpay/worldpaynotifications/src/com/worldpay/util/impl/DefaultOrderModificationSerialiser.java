@@ -15,6 +15,7 @@ public class DefaultOrderModificationSerialiser implements OrderModificationSeri
 
     /**
      * {@inheritDoc}
+     *
      * @see OrderModificationSerialiser#serialise(OrderNotificationMessage)
      */
     @Override
@@ -25,6 +26,7 @@ public class DefaultOrderModificationSerialiser implements OrderModificationSeri
 
     /**
      * {@inheritDoc}
+     *
      * @see OrderModificationSerialiser#deserialise(String)
      */
     @Override

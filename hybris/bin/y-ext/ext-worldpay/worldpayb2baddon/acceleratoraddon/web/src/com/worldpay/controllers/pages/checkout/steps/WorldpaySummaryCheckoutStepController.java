@@ -22,7 +22,6 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.OrderEntryData;
 import de.hybris.platform.commercefacades.product.ProductOption;
 import de.hybris.platform.commercefacades.product.data.ProductData;
-import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.cronjob.enums.DayOfWeek;
 import de.hybris.platform.order.InvalidCartException;
 import org.apache.commons.lang.StringUtils;
@@ -107,7 +106,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final PlaceOrderForm placeOrderForm = new PlaceOrderForm();
         placeOrderForm.setReplenishmentRecurrence(B2BReplenishmentRecurrenceEnum.MONTHLY);
         placeOrderForm.setnDays("14");
-        final List<DayOfWeek> daysOfWeek = new ArrayList<DayOfWeek>();
+        final List<DayOfWeek> daysOfWeek = new ArrayList<>();
         daysOfWeek.add(DayOfWeek.MONDAY);
         placeOrderForm.setnDaysOfWeek(daysOfWeek);
         model.addAttribute("placeOrderForm", placeOrderForm);
@@ -129,7 +128,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     }
 
     protected List<String> getNumberRange(final int startNumber, final int endNumber) {
-        final List<String> numbers = new ArrayList<String>();
+        final List<String> numbers = new ArrayList<>();
         for (int number = startNumber; number <= endNumber; number++) {
             numbers.add(String.valueOf(number));
         }
@@ -149,8 +148,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     @RequestMapping(value = "/placeOrder")
     @RequireHardLogIn
     public String placeOrder(@ModelAttribute("placeOrderForm") final PlaceOrderForm placeOrderForm, final Model model, final HttpServletRequest request,
-                             final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException, InvalidCartException,
-            CommerceCartModificationException {
+                             final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException, InvalidCartException {
 
         if (validateCart(redirectAttributes)) {
             // Invalid cart. Bounce back to the cart page.
@@ -209,8 +207,8 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
     protected boolean getRequestSecurityCodeValue() {
         // Only request the security code if using a saved card
-        Boolean savedCardSelected = getSessionService().getCurrentSession().getAttribute(SAVED_CARD_SELECTED_ATTRIBUTE);
-        return savedCardSelected != null && savedCardSelected.booleanValue();
+        Boolean savedCardSelected = getSessionService().getAttribute(SAVED_CARD_SELECTED_ATTRIBUTE);
+        return savedCardSelected != null && savedCardSelected;
     }
 
     /**
@@ -223,30 +221,30 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected boolean isOrderFormValid(final PlaceOrderForm placeOrderForm, final Model model) {
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
         final String securityCode = placeOrderForm.getSecurityCode();
-
+        boolean valid = true;
         if (getRequestSecurityCodeValue() && StringUtils.isBlank(securityCode)) {
             addErrorMessage(model, "checkout.paymentMethod.noSecurityCode");
-            return false;
+            valid = false;
         }
 
         if (getCheckoutFlowFacade().hasNoDeliveryAddress()) {
             addErrorMessage(model, "checkout.deliveryAddress.notSelected");
-            return false;
+            valid = false;
         }
 
         if (getCheckoutFlowFacade().hasNoDeliveryMode()) {
             addErrorMessage(model, "checkout.deliveryMethod.notSelected");
-            return false;
+            valid = false;
         }
 
         if (getCheckoutFlowFacade().hasNoPaymentInfo()) {
             addErrorMessage(model, "checkout.paymentMethod.notSelected");
-            return false;
+            valid = false;
         }
 
         if (!placeOrderForm.isTermsCheck()) {
             addErrorMessage(model, "checkout.error.terms.not.accepted");
-            return false;
+            valid = false;
         }
 
         if (!getCheckoutFacade().containsTaxValues()) {
@@ -254,15 +252,15 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
                     "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can't continue",
                     cartData.getCode()));
             addErrorMessage(model, "checkout.error.tax.missing");
-            return false;
+            valid = false;
         }
 
         if (!cartData.isCalculated()) {
             LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can't continue", cartData.getCode()));
             addErrorMessage(model, "checkout.error.cart.notcalculated");
-            return false;
+            valid = false;
         }
-        return true;
+        return valid;
     }
 
     protected String redirectToOrderConfirmationPage(final PlaceOrderData placeOrderData, final AbstractOrderData orderData) {

@@ -25,7 +25,7 @@ public class PayAsOrder implements InternalModelTransformer, Serializable {
      * @param amount
      * @param cvc
      */
-    public PayAsOrder(String originalMerchantCode, String originalOrderCode, Amount amount, String cvc) {
+    public PayAsOrder(final String originalMerchantCode, final String originalOrderCode, final Amount amount, final String cvc) {
         this.originalMerchantCode = originalMerchantCode;
         this.originalOrderCode = originalOrderCode;
         this.amount = amount;
@@ -34,7 +34,7 @@ public class PayAsOrder implements InternalModelTransformer, Serializable {
 
     @Override
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
-        com.worldpay.internal.model.PayAsOrder intPayAsOrder = new com.worldpay.internal.model.PayAsOrder();
+        final com.worldpay.internal.model.PayAsOrder intPayAsOrder = new com.worldpay.internal.model.PayAsOrder();
         if (originalMerchantCode != null) {
             intPayAsOrder.setMerchantCode(originalMerchantCode);
         }
@@ -55,7 +55,7 @@ public class PayAsOrder implements InternalModelTransformer, Serializable {
         return originalMerchantCode;
     }
 
-    public void setOriginalMerchantCode(String originalMerchantCode) {
+    public void setOriginalMerchantCode(final String originalMerchantCode) {
         this.originalMerchantCode = originalMerchantCode;
     }
 
@@ -63,7 +63,7 @@ public class PayAsOrder implements InternalModelTransformer, Serializable {
         return originalOrderCode;
     }
 
-    public void setOriginalOrderCode(String originalOrderCode) {
+    public void setOriginalOrderCode(final String originalOrderCode) {
         this.originalOrderCode = originalOrderCode;
     }
 
@@ -71,7 +71,7 @@ public class PayAsOrder implements InternalModelTransformer, Serializable {
         return amount;
     }
 
-    public void setAmount(Amount amount) {
+    public void setAmount(final Amount amount) {
         this.amount = amount;
     }
 
@@ -79,7 +79,7 @@ public class PayAsOrder implements InternalModelTransformer, Serializable {
         return cvc;
     }
 
-    public void setCvc(String cvc) {
+    public void setCvc(final String cvc) {
         this.cvc = cvc;
     }
 

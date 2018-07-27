@@ -24,30 +24,30 @@ import java.net.URL;
  */
 public class DefaultWorldpayXMLValidator implements WorldpayXMLValidator {
 
-    private static Schema SCHEMA;
+    private static final Schema SCHEMA;
 
     static {
         try {
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            URL url = WorldpayConstants.class.getResource(WorldpayConstants.XSD_LOCATION);
+            final SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            final URL url = WorldpayConstants.class.getResource(WorldpayConstants.XSD_LOCATION);
             SCHEMA = sf.newSchema(url);
-        } catch (SAXException e) {
+        } catch (final SAXException e) {
             throw new IllegalStateException("Failed to initialise Schema", e);
         }
     }
 
     @Override
-    public void validate(PaymentService paymentService) throws WorldpayValidationException {
+    public void validate(final PaymentService paymentService) throws WorldpayValidationException {
         try {
             final JAXBSource source = new JAXBSource(WorldpayConstants.JAXB_CONTEXT, paymentService);
             final Validator validator = SCHEMA.newValidator();
             validator.setErrorHandler(new WorldpayErrorHandler());
             validator.validate(source);
-        } catch (JAXBException e) {
+        } catch (final JAXBException e) {
             throw new WorldpayValidationException("XML context or source building failure while validating xml model", e);
-        } catch (SAXException e) {
+        } catch (final SAXException e) {
             throw new WorldpayValidationException("Validation error against paymentService xsd", e);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new WorldpayValidationException("Unable to parse or validate against paymentService xsd", e);
         }
     }

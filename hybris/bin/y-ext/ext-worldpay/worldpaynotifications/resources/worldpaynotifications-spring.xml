@@ -8,7 +8,6 @@
     <!-- Strategies -->
     <alias name="worldpayOrderModificationProcessStrategy" alias="orderModificationProcessStrategy"/>
     <bean id="worldpayOrderModificationProcessStrategy" class="com.worldpay.strategies.impl.DefaultWorldpayOrderModificationProcessStrategy">
-        <property name="modelService" ref="modelService"/>
         <property name="businessProcessService" ref="businessProcessService"/>
         <property name="orderModificationDao" ref="orderModificationDao"/>
         <property name="processDefinitionDao" ref="processDefinitionDao"/>
@@ -18,6 +17,9 @@
         <property name="nonTriggeringOrderStatuses" ref="nonBusinessProcessTriggeringOrderStatuses"/>
         <property name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
         <property name="worldpayOrderModificationRefundProcessStrategy" ref="worldpayOrderModificationRefundProcessStrategy"/>
+        <property name="worldpayCartService" ref="worldpayCartService"/>
+        <property name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
+        <property name="worldpayPlaceOrderFromNotificationStrategy" ref="worldpayPlaceOrderFromNotificationStrategy"/>
     </bean>
 
     <alias name="defaultWorldpayOrderModificationRefundProcessStrategy" alias="worldpayOrderModificationRefundProcessStrategy"/>
@@ -130,6 +132,7 @@
                 <property name="transactionManager" ref="txManager"/>
             </bean>
         </property>
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias alias="capturedOrderNotificationProcessorStrategy" name="defaultCapturedOrderNotificationProcessorStrategy"/>
@@ -183,6 +186,24 @@
     <bean id="worldpayOrderModificationInterceptorMapping" class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
         <property name="interceptor" ref="worldpayOrderModificationPrepareInterceptor"/>
         <property name="typeCode" value="WorldpayOrderModification"/>
+    </bean>
+
+    <bean id="worldpayOrderNotificationHandler"
+          class="com.worldpay.notification.processors.DefaultWorldpayOrderNotificationHandler">
+        <property name="modelService" ref="modelService"/>
+        <property name="orderModificationDao" ref="orderModificationDao"/>
+    </bean>
+
+    <bean id="worldpayPlaceOrderFromNotificationStrategy"
+          class="com.worldpay.strategies.impl.DefaultWorldpayPlaceOrderFromNotificationStrategy">
+        <property name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
+        <property name="modelService" ref="modelService"/>
+        <property name="orderModificationSerialiser" ref="orderModificationSerialiser"/>
+        <property name="commerceCheckoutService" ref="commerceCheckoutService"/>
+        <property name="cartService" ref="cartService"/>
+        <property name="impersonationService" ref="impersonationService"/>
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+        <property name="worldpayRedirectOrderService" ref="worldpayRedirectOrderService"/>
     </bean>
 
 

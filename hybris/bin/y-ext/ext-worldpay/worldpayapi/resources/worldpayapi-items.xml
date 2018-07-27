@@ -49,6 +49,16 @@
             </indexes>
         </itemtype>
 
+        <itemtype code="Cart" autocreate="false" generate="false">
+            <description>Extending Cart to hold bank code</description>
+            <attributes>
+                <attribute qualifier="shopperBankCode" type="java.lang.String" generate="true" autocreate="true">
+                    <persistence type="property"/>
+                    <description>Bank code</description>
+                </attribute>
+            </attributes>
+        </itemtype>
+
         <itemtype code="WorldpayCurrencyRange" jaloclass="com.worldpay.jalo.WorldpayCurrencyRange">
             <deployment table="WorldpayCurrencyRange" typecode="19021"/>
             <attributes>
@@ -141,6 +151,10 @@
                     <defaultvalue>Boolean.FALSE</defaultvalue>
                 </attribute>
                 <attribute qualifier="riskScore" autocreate="true" type="WorldpayRiskScore">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="worldpayBank" autocreate="true" type="WorldpayBankConfiguration">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>

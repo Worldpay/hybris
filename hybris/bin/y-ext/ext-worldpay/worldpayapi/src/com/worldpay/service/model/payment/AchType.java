@@ -14,7 +14,7 @@ public enum AchType implements Serializable {
 
     private String typeName;
 
-    private AchType(String typeName) {
+    private AchType(final String typeName) {
         this.typeName = typeName;
     }
 

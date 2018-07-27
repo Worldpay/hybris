@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 @IntegrationTest
 public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTest {
@@ -34,9 +35,10 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
     public void testUpdateTokenWithoutOrderWithShopperScope() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
         final String authenticatedShopperId = UUID.randomUUID().toString();
-        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
+        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createShopperToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
         final String paymentTokenId = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
         final CardDetails cardDetails = createCardDetailsWithExpirationDate6YearsFromNow();
+
         final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithShopperScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
 
         assertNotNull("updateTokenResponse is null!", updateTokenResponse);
@@ -46,14 +48,16 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
         assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
     }
 
+    // This test may fail with the following error:
+    // <paymentService version="1.4" merchantCode="MERCHANT1ECOM"><reply><error code="5">Maximum number of updates exceeded for this token</error></reply></paymentService>
     @Test
     public void testUpdateTokenWithoutOrderWithMerchantScope() throws WorldpayException {
-        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
-        final String authenticatedShopperId = UUID.randomUUID().toString();
-        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
+        final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON, true);
+        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createMerchantToken(gateway, merchantInfo, tokenRequest);
         final String paymentTokenId = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
         final CardDetails cardDetails = createCardDetailsWithExpirationDate6YearsFromNow();
-        final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithMerchantScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
+
+        final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithMerchantScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails);
 
         assertNotNull("updateTokenResponse is null!", updateTokenResponse);
         assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());

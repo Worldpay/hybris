@@ -18,8 +18,8 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Optional;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
@@ -69,23 +69,22 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
     private AuthorizationResult getAuthorizationResult(final String merchantCode,
                                                        final DirectAuthoriseServiceResponse response,
                                                        final SubscriptionAuthorizationRequest subscriptionAuthorizationRequest) throws WorldpayException {
-        if (response == null) {
-            throw new WorldpayException("Response from worldpay is empty");
-        }
-        final AuthorizationResult result = worldpayAuthorizationResultConverter.convert(response);
-        addAuthorizationResultInfo(subscriptionAuthorizationRequest, merchantCode, result);
-        setTotalAmountWhenTransactionIsAccepted(response, result);
-        return result;
+        return Optional.ofNullable(response).map(directAuthoriseServiceResponse -> {
+            final AuthorizationResult result = worldpayAuthorizationResultConverter.convert(directAuthoriseServiceResponse);
+            addAuthorizationResultInfo(subscriptionAuthorizationRequest, merchantCode, result);
+            setTotalAmountWhenTransactionIsAccepted(response, result);
+            return result;
+        }).orElseThrow(() -> new WorldpayException("Response from worldpay is empty"));
     }
 
     private void setTotalAmountWhenTransactionIsAccepted(final DirectAuthoriseServiceResponse response, final AuthorizationResult result) {
         if (ACCEPTED.equals(result.getTransactionStatus())) {
-            result.setTotalAmount(new BigDecimal(response.getPaymentReply().getAmount().getValue()).movePointLeft(result.getCurrency().getDefaultFractionDigits()));
+            result.setTotalAmount(getWorldpayOrderService().convertAmount(response.getPaymentReply().getAmount()));
         }
     }
 
     private AuthorizationResult createErrorAuthorizeResult(final String merchantCode, final SubscriptionAuthorizationRequest subscriptionAuthorizationRequest) {
-        AuthorizationResult result = new AuthorizationResult();
+        final AuthorizationResult result = new AuthorizationResult();
         result.setTransactionStatus(ERROR);
         result.setTransactionStatusDetails(GENERAL_SYSTEM_ERROR);
         addAuthorizationResultInfo(subscriptionAuthorizationRequest, merchantCode, result);
@@ -148,7 +147,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
     }
 
     @Required
-    public void setWorldpayBillingInfoAddressConverter(Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter) {
+    public void setWorldpayBillingInfoAddressConverter(final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter) {
         this.worldpayBillingInfoAddressConverter = worldpayBillingInfoAddressConverter;
     }
 

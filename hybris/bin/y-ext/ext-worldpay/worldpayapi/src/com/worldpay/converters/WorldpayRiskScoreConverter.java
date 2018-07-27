@@ -39,7 +39,7 @@ public class WorldpayRiskScoreConverter extends AbstractConverter<RiskScore, Wor
     }
 
     @Required
-    public void setModelService(ModelService modelService) {
+    public void setModelService(final ModelService modelService) {
         this.modelService = modelService;
     }
 }

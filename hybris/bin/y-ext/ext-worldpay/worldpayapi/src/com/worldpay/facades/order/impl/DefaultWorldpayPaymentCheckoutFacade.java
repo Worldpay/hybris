@@ -71,7 +71,7 @@ public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentChec
     }
 
     @Required
-    public void setCheckoutFacade(CheckoutFacade checkoutFacade) {
+    public void setCheckoutFacade(final CheckoutFacade checkoutFacade) {
         this.checkoutFacade = checkoutFacade;
     }
 
@@ -80,17 +80,17 @@ public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentChec
     }
 
     @Required
-    public void setCartService(CartService cartService) {
+    public void setCartService(final CartService cartService) {
         this.cartService = cartService;
     }
 
     @Required
-    public void setDeliveryService(DeliveryService deliveryService) {
+    public void setDeliveryService(final DeliveryService deliveryService) {
         this.deliveryService = deliveryService;
     }
 
     @Required
-    public void setWorldpayCheckoutService(WorldpayCheckoutService worldpayCheckoutService) {
+    public void setWorldpayCheckoutService(final WorldpayCheckoutService worldpayCheckoutService) {
         this.worldpayCheckoutService = worldpayCheckoutService;
     }
 }

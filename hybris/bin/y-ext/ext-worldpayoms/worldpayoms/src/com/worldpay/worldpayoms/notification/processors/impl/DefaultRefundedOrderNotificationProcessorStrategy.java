@@ -9,11 +9,17 @@ import org.springframework.transaction.support.TransactionOperations;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 
+/**
+ * Implementation of OrderNotificationProcessorStrategy that handles Refund notifications
+ */
 public class DefaultRefundedOrderNotificationProcessorStrategy implements OrderNotificationProcessorStrategy {
 
     private TransactionOperations transactionTemplate;
     private ModelService modelService;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
         transactionTemplate.execute(transactionStatus -> {

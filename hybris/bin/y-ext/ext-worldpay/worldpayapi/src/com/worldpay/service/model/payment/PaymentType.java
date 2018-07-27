@@ -138,7 +138,7 @@ public enum PaymentType implements Serializable {
     private Class<?> modelClass;
 
     // Private constructor ensures that these are the only payment types that can be used
-    PaymentType(String methodCode, Class<?> modelClass) {
+    PaymentType(final String methodCode, final Class<?> modelClass) {
         this.methodCode = methodCode;
         this.modelClass = modelClass;
     }
@@ -157,7 +157,7 @@ public enum PaymentType implements Serializable {
      * @param methodCode to be looked up
      * @return PaymentType representation of the supplied methodCode, or null if it can't be found
      */
-    public static PaymentType getPaymentType(String methodCode) {
+    public static PaymentType getPaymentType(final String methodCode) {
         return methodCode == null ? null : lookup.get(methodCode.toUpperCase());
     }
 

@@ -1,5 +1,6 @@
 package com.worldpay.core.services.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.PaymentReply;
@@ -74,6 +75,8 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String ANOTHER_SUBSCRIPTION_ID = "anotherPaymentId";
     private static final String WORLDPAY_CREDIT_CARD_MAPPINGS = "worldpay.creditCard.mappings.";
     private static final String MERCHANT_ID = "merchant19";
+    private static final String PAYMENT_INFO_CODE = "00001009_ac2b99f2-3f15-494a-b33d-73166da4716d";
+    private static final String PAYMENT_TYPE = "paymentType";
 
     @Spy
     @InjectMocks
@@ -143,6 +146,11 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
         when(cartModelMock.getUser()).thenReturn(userModelMock);
         when(orderModelMock.getUser()).thenReturn(userModelMock);
+        when(orderModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        when(userModelMock.getPaymentInfos()).thenReturn(ImmutableList.of(paymentInfo1Mock));
+        when(paymentInfo1Mock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        when(savedPaymentInfoMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        when(worldpayAPMPaymentInfoModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(modelServiceMock.create(PaymentInfoModel.class)).thenReturn(orderPaymentInfoModelMock);
         when(modelServiceMock.create(CreditCardPaymentInfoModel.class)).thenReturn(creditCardPaymentInfoModelMock);
         when(paymentTransactionModelMock.getInfo()).thenReturn(paymentTransactionPaymentInfoModelMock);
@@ -520,5 +528,49 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(savedPaymentInfoMock).setCcOwner(CARD_DETAILS_HOLDER_NAME);
         verify(modelServiceMock).save(savedPaymentInfoMock);
         verify(modelServiceMock, never()).save(paymentInfo1Mock);
+    }
+
+    @Test
+    public void shouldDeleteInitialPaymentInfoWhenCreditCardPaymentInfoIsCreated() {
+        final PaymentInfoModel paymentInfo = createPaymentInfo();
+
+        final CreditCardPaymentInfoModel ccPaymentInfo = new CreditCardPaymentInfoModel();
+        ccPaymentInfo.setPaymentType(PAYMENT_TYPE);
+        ccPaymentInfo.setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        ccPaymentInfo.setCode(PAYMENT_INFO_CODE);
+        ccPaymentInfo.setNumber("444433******1111");
+
+        when(userModelMock.getPaymentInfos()).thenReturn(ImmutableList.of(paymentInfo, ccPaymentInfo));
+
+        testObj.removePaymentInfoWhenCreatingNewOneFromNotification(orderModelMock);
+
+        verify(modelServiceMock).remove(paymentInfo);
+        verify(modelServiceMock, never()).remove(ccPaymentInfo);
+
+    }
+
+    @Test
+    public void shouldDeleteInitialPaymentInfoWhenWorldpayPaymentInfoIsCreated() {
+        final PaymentInfoModel paymentInfo = createPaymentInfo();
+
+        final WorldpayAPMPaymentInfoModel apmPaymentInfo = new WorldpayAPMPaymentInfoModel();
+        apmPaymentInfo.setPaymentType(PAYMENT_TYPE);
+        apmPaymentInfo.setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        apmPaymentInfo.setCode(PAYMENT_INFO_CODE);
+
+        when(userModelMock.getPaymentInfos()).thenReturn(ImmutableList.of(paymentInfo, apmPaymentInfo));
+
+        testObj.removePaymentInfoWhenCreatingNewOneFromNotification(orderModelMock);
+
+        verify(modelServiceMock).remove(paymentInfo);
+        verify(modelServiceMock, never()).remove(apmPaymentInfo);
+    }
+
+    private PaymentInfoModel createPaymentInfo() {
+        final PaymentInfoModel paymentInfo = new PaymentInfoModel();
+        paymentInfo.setPaymentType(PAYMENT_TYPE);
+        paymentInfo.setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        paymentInfo.setCode(PAYMENT_INFO_CODE);
+        return paymentInfo;
     }
 }

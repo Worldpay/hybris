@@ -21,12 +21,12 @@ public class Cse extends AbstractPayment {
 
     @Override
     public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if ("setEncryptedData".equals(methodName) && encryptedData != null) {
             method.invoke(targetObject, encryptedData);
         }
         if ("setCardAddress".equals(methodName) && address != null) {
-            CardAddress intCardAddress = new CardAddress();
+            final CardAddress intCardAddress = new CardAddress();
             intCardAddress.setAddress((com.worldpay.internal.model.Address) address.transformToInternalModel());
             method.invoke(targetObject, intCardAddress);
         }
@@ -44,7 +44,7 @@ public class Cse extends AbstractPayment {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(final Address address) {
         this.address = address;
     }
 }

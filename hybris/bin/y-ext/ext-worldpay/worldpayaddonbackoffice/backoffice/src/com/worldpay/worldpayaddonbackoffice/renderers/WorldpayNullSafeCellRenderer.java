@@ -33,13 +33,13 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
      * @param dataType
      * @param widgetInstanceManager
      */
-    public void render(Listcell parent, ListColumn columnConfiguration, Object object, DataType dataType, WidgetInstanceManager widgetInstanceManager) {
-        String qualifier = columnConfiguration.getQualifier();
+    public void render(final Listcell parent, final ListColumn columnConfiguration, final Object object, final DataType dataType, final WidgetInstanceManager widgetInstanceManager) {
+        final String qualifier = columnConfiguration.getQualifier();
         Object nestedObject = object;
         Object targetField = object;
 
         try {
-            List tokenMap = this.getNestedAttributeUtils().splitQualifier(qualifier);
+            final List tokenMap = this.getNestedAttributeUtils().splitQualifier(qualifier);
 
             int e;
             for(e = 0; e < tokenMap.size() - 1; ++e) {
@@ -57,7 +57,7 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
             } else if(LOG.isWarnEnabled()) {
                 LOG.warn("Either Property " + nestedObject + " is null or the field " + qualifier + " is null, skipping render of " + qualifier);
             }
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InvalidNestedAttributeException e) {
+        } catch (final IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InvalidNestedAttributeException e) {
             if(LOG.isInfoEnabled()) {
                 LOG.info(e.getMessage(), e);
             }
@@ -68,12 +68,12 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
         return this.defaultListCellRenderer;
     }
 
-    protected boolean checkIfObjectIsEmptyCollection(Object object) {
+    protected boolean checkIfObjectIsEmptyCollection(final Object object) {
         return object instanceof Collection && CollectionUtils.isEmpty((Collection) object);
     }
 
     @Required
-    public void setDefaultListCellRenderer(WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer) {
+    public void setDefaultListCellRenderer(final WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer) {
         this.defaultListCellRenderer = defaultListCellRenderer;
     }
 
@@ -82,7 +82,7 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
     }
 
     @Required
-    public void setNestedAttributeUtils(NestedAttributeUtils nestedAttributeUtils) {
+    public void setNestedAttributeUtils(final NestedAttributeUtils nestedAttributeUtils) {
         this.nestedAttributeUtils = nestedAttributeUtils;
     }
 }

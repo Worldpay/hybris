@@ -13,11 +13,11 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.text.MessageFormat;
 import java.util.Currency;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
+import static java.text.MessageFormat.format;
 
 
 /**
@@ -46,8 +46,8 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
             final MerchantInfo merchantInfo = getMerchantInfo(orderCode);
             final RefundServiceRequest refundServiceRequest = buildRefundRequest(request.getMerchantTransactionCode(), orderCode, amount, merchantInfo);
             return refund(refundServiceRequest);
-        } catch (WorldpayException e) {
-            LOG.error(MessageFormat.format("Exception raised while issuing a refundRequest: [{0}]", e.getMessage()), e);
+        } catch (final WorldpayException e) {
+            LOG.error(format("Exception raised while issuing a refundRequest: [{0}]", e.getMessage()), e);
             return createErrorRefundResult();
         }
     }
@@ -89,7 +89,7 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
     }
 
     @Required
-    public void setRefundServiceResponseConverter(Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter) {
+    public void setRefundServiceResponseConverter(final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter) {
         this.refundServiceResponseConverter = refundServiceResponseConverter;
     }
 }

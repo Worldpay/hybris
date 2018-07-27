@@ -2,9 +2,9 @@ package com.worldpay.notification.processors.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
-import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.List;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
@@ -33,6 +32,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
     private TransactionOperations transactionTemplate;
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     private WorldpayPaymentInfoService worldpayPaymentInfoService;
+    private WorldpayOrderService worldpayOrderService;
 
     /**
      * {@inheritDoc}
@@ -42,12 +42,9 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
     @Override
 
     public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
-        if (LOG.isDebugEnabled()) {
-            final String orderCode = orderNotificationMessage.getOrderCode();
-            LOG.debug(format("Message for order having code {0} is a success, saving card and changing transaction status to not pending.", orderCode));
-        }
+        LOG.debug(format("Message for order having code {0} is a success, saving card and changing transaction status to not pending.", orderNotificationMessage.getOrderCode()));
 
-        final BigDecimal plannedAmount = convertAmount(orderNotificationMessage.getPaymentReply().getAmount());
+        final BigDecimal plannedAmount = worldpayOrderService.convertAmount(orderNotificationMessage.getPaymentReply().getAmount());
         paymentTransactionModel.setPlannedAmount(plannedAmount);
         final AbstractOrderModel orderModel = paymentTransactionModel.getOrder();
 
@@ -57,11 +54,6 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
             worldpayPaymentInfoService.setPaymentInfoModel(paymentTransactionModel, orderModel, orderNotificationMessage);
             return null;
         });
-    }
-
-    protected BigDecimal convertAmount(final Amount amount) {
-        final Currency currency = Currency.getInstance(amount.getCurrencyCode());
-        return new BigDecimal(amount.getValue()).movePointLeft(currency.getDefaultFractionDigits());
     }
 
     protected void updatePaymentTransactionEntry(PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage,
@@ -94,5 +86,10 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
     @Required
     public void setTransactionTemplate(TransactionOperations transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
+    }
+
+    @Required
+    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
     }
 }

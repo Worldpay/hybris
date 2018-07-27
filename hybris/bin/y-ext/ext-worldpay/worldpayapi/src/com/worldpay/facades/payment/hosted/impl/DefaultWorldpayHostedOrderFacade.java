@@ -13,6 +13,7 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.merchant.strategies.WorldpayOrderInfoStrategy;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
@@ -27,11 +28,12 @@ import java.text.MessageFormat;
 import java.util.Map;
 
 /**
+ * Default implementation for {@link WorldpayHostedOrderFacade}
  */
 public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFacade {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayHostedOrderFacade.class);
-    protected static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
+    private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
 
     private SessionService sessionService;
     private WorldpayRedirectOrderService worldpayRedirectOrderService;
@@ -41,6 +43,7 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     private OrderInquiryService orderInquiryService;
     private APMConfigurationLookupService apmConfigurationLookupService;
+    private WorldpayOrderService worldpayOrderService;
 
     /**
      * {@inheritDoc}
@@ -67,7 +70,7 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     public void completeRedirectAuthorise(final RedirectAuthoriseResult result) {
         final String merchantCode = sessionService.getAttribute(WORLDPAY_MERCHANT_CODE);
         final CartModel cart = getCartService().getSessionCart();
-        getWorldpayRedirectOrderService().completeRedirectAuthorise(result, merchantCode, cart);
+        getWorldpayRedirectOrderService().completePendingRedirectAuthorise(result, merchantCode, cart);
     }
 
     /**
@@ -79,7 +82,7 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
         try {
             final MerchantInfo merchantInfo = getWorldpayMerchantInfoService().getMerchantInfoByCode(merchantCode);
             return getWorldpayRedirectOrderService().validateRedirectResponse(merchantInfo, worldpayResponse);
-        } catch (WorldpayConfigurationException e) {
+        } catch (final WorldpayConfigurationException e) {
             LOG.error(MessageFormat.format("There was an error getting the configuration for the merchants: [{0}]", e.getMessage()), e);
         }
         return false;
@@ -93,8 +96,7 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
         final PaymentReply paymentReply = inquiryResponse.getPaymentReply();
         final RedirectAuthoriseResult redirectAuthoriseResult = new RedirectAuthoriseResult();
         redirectAuthoriseResult.setPaymentStatus(paymentReply.getAuthStatus());
-        final int paymentExponent = Integer.parseInt(paymentReply.getAmount().getExponent());
-        final BigDecimal paymentAmount = new BigDecimal(paymentReply.getAmount().getValue()).movePointLeft(paymentExponent);
+        final BigDecimal paymentAmount = worldpayOrderService.convertAmount(paymentReply.getAmount());
         redirectAuthoriseResult.setPaymentAmount(paymentAmount);
         redirectAuthoriseResult.setPending(apmConfigurationLookupService.getAPMConfigurationForCode(paymentReply.getMethodCode()) != null);
         return redirectAuthoriseResult;
@@ -129,12 +131,12 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
 
 
     @Required
-    public void setSessionService(SessionService sessionService) {
+    public void setSessionService(final SessionService sessionService) {
         this.sessionService = sessionService;
     }
 
     @Required
-    public void setWorldpayOrderInfoStrategy(WorldpayOrderInfoStrategy worldpayOrderInfoStrategy) {
+    public void setWorldpayOrderInfoStrategy(final WorldpayOrderInfoStrategy worldpayOrderInfoStrategy) {
         this.worldpayOrderInfoStrategy = worldpayOrderInfoStrategy;
     }
 
@@ -151,5 +153,10 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     @Required
     public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
         this.apmConfigurationLookupService = apmConfigurationLookupService;
+    }
+
+    @Required
+    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
     }
 }

@@ -47,8 +47,6 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
 
     /**
      * {@inheritDoc}
-     *
-     * @see OrderInquiryService#inquirePaymentTransaction(MerchantInfo, PaymentTransactionModel)
      */
     @Override
     public OrderInquiryServiceResponse inquirePaymentTransaction(final MerchantInfo merchantConfig, final PaymentTransactionModel paymentTransactionModel) throws WorldpayException {
@@ -59,8 +57,6 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
 
     /**
      * {@inheritDoc}
-     *
-     * @see OrderInquiryService#processOrderInquiryServiceResponse(PaymentTransactionModel, OrderInquiryServiceResponse)
      */
     @Override
     public void processOrderInquiryServiceResponse(final PaymentTransactionModel paymentTransactionModel, final OrderInquiryServiceResponse orderInquiryServiceResponse) {
@@ -77,12 +73,18 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OrderInquiryServiceResponse inquireOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException {
         final OrderInquiryServiceRequest orderInquiryServiceRequest = createOrderInquiryServiceRequest(merchantInfo, worldpayOrderCode);
         return getOrderInquiryServiceResponse(orderInquiryServiceRequest);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OrderInquiryServiceResponse inquiryKlarnaOrder(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException {
         final KlarnaOrderInquiryServiceRequest klarnaOrderInquiryServiceRequest = createKlarnaOrderInquiryServiceRequest(merchantInfo, worldpayOrderCode);
@@ -96,7 +98,7 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         try {
             final CallResults<OrderInquiryServiceResponse> results = executeInquiryCallable(callable, config);
             return results.getResult();
-        } catch (RetriesExhaustedException | UnexpectedException e) {
+        } catch (final RetriesExhaustedException | UnexpectedException e) {
             throw new WorldpayException("Unable to retrieve order status", e);
         }
     }
@@ -126,11 +128,11 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         return new CallExecutor<OrderInquiryServiceResponse>(config).execute(callable);
     }
 
-    protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+    protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {
         return OrderInquiryServiceRequest.createOrderInquiryRequest(merchantInfo, orderCode);
     }
 
-    protected KlarnaOrderInquiryServiceRequest createKlarnaOrderInquiryServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+    protected KlarnaOrderInquiryServiceRequest createKlarnaOrderInquiryServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {
         return KlarnaOrderInquiryServiceRequest.createKlarnaOrderInquiryRequest(merchantInfo, orderCode);
     }
 

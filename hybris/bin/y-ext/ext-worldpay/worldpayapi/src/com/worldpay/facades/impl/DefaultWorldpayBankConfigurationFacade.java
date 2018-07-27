@@ -40,17 +40,17 @@ public class DefaultWorldpayBankConfigurationFacade implements WorldpayBankConfi
     }
 
     @Required
-    public void setWorldpayBankConfigurationLookupService(WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService) {
+    public void setWorldpayBankConfigurationLookupService(final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService) {
         this.worldpayBankConfigurationLookupService = worldpayBankConfigurationLookupService;
     }
 
     @Required
-    public void setBankConfigurationModelBankConfigurationDataConverter(Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter) {
+    public void setBankConfigurationModelBankConfigurationDataConverter(final Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter) {
         this.bankConfigurationModelBankConfigurationDataConverter = bankConfigurationModelBankConfigurationDataConverter;
     }
 
     @Required
-    public void setApmConfigurationLookupService(APMConfigurationLookupService apmConfigurationLookupService) {
+    public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
         this.apmConfigurationLookupService = apmConfigurationLookupService;
     }
 }

@@ -4,14 +4,14 @@ import com.worldpay.test.groovy.webservicetests.v2.spock.AbstractWorldpaySpockTe
 import de.hybris.bootstrap.annotations.ManualTest
 import spock.lang.Unroll
 
-import static groovyx.net.http.ContentType.*
 import static org.apache.http.HttpStatus.SC_OK
+import static org.apache.http.entity.ContentType.*
 
 @ManualTest
 @Unroll
 class PlaceOrderTest extends AbstractWorldpaySpockTest {
 
-    def "Customer places order with valid cart and securityCode : #format"() {
+    def "Customer places order with valid cart and securityCode : #format "() {
         given: "customer with payment info"
         def customerWithPaymentInfo = createCustomerWithPaymentInfo(restClient)
         def customer = customerWithPaymentInfo[0]
@@ -21,11 +21,11 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def orderResponse = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                        'cartId'      : cart.code,
-                        'securityCode': '123'
+                    'cartId'      : cart.code,
+                    'securityCode': '123'
                 ],
                 contentType: format,
-                requestContentType: URLENC), {
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
             isNotEmpty(data.order.code)
@@ -36,10 +36,10 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         isNotEmpty(orderResponse.order.paymentInfo)
 
         where:
-        format << [JSON, XML]
+        format << [APPLICATION_JSON, APPLICATION_XML]
     }
 
-    def "Customer places order with valid cart and MISSING securityCode : #format"() {
+    def "Customer places order with valid cart and MISSING securityCode : #format "() {
         given: "customer with payment info"
         def customerWithPaymentInfo = createCustomerWithPaymentInfo(restClient)
         def customer = customerWithPaymentInfo[0]
@@ -49,10 +49,10 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def noOrder = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                        'cartId': cart.code,
+                    'cartId': cart.code,
                 ],
                 contentType: format,
-                requestContentType: URLENC), {
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data
@@ -62,7 +62,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         noOrder.errors.message[0] == "Required String parameter 'securityCode' is not present"
 
         where:
-        format << [JSON, XML]
+        format << [APPLICATION_JSON, APPLICATION_XML]
     }
 
     def "Customer places order with valid cart and gets refused using cardHolderName : #name"() {
@@ -75,11 +75,11 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def placeOrderResponse = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                        'cartId'      : cart.code,
-                        'securityCode': '123'
+                    'cartId'      : cart.code,
+                    'securityCode': '123'
                 ],
-                contentType: JSON,
-                requestContentType: URLENC), {
+                contentType: APPLICATION_JSON,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data
@@ -107,8 +107,8 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
                         'cartId'      : cart.code,
                         'securityCode': '123'
                 ],
-                contentType: JSON,
-                requestContentType: URLENC), {
+                contentType: APPLICATION_JSON,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data
@@ -132,11 +132,11 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def orderResponse = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                        'cartId'      : cart.code,
-                        'securityCode': '123'
+                    'cartId'      : cart.code,
+                    'securityCode': '123'
                 ],
                 contentType: format,
-                requestContentType: URLENC), {
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data
@@ -148,7 +148,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         isNotEmpty(orderResponse.threeDSecureInfo.merchantData)
 
         where:
-        format << [JSON, XML]
+        format << [APPLICATION_XML, APPLICATION_JSON]
     }
 
     def "Customer places order that passes 3D secure authorization : #format"() {
@@ -173,7 +173,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
                         'merchantData': md
                 ],
                 contentType: format,
-                requestContentType: URLENC), {
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data
@@ -182,7 +182,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         isNotEmpty(order.code)
 
         where:
-        format << [XML, JSON]
+        format << [APPLICATION_XML, APPLICATION_JSON]
     }
 
     def "Customer places order that fails 3D secure authorization : #authorisationResponse"() {
@@ -206,8 +206,8 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
                         'paRes'       : paRes,
                         'merchantData': md
                 ],
-                contentType: JSON,
-                requestContentType: URLENC), {
+                contentType: APPLICATION_JSON,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data

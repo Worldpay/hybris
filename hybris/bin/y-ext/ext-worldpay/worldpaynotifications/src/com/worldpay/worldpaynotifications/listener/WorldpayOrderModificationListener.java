@@ -37,7 +37,7 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
      * {@inheritDoc}
      */
     @Override
-    protected void onEvent(OrderModificationEvent orderModificationEvent) {
+    protected void onEvent(final OrderModificationEvent orderModificationEvent) {
         final OrderNotificationMessage orderNotificationMessage = orderModificationEvent.getOrderNotificationMessage();
         final AuthorisedStatus journalType = orderNotificationMessage.getJournalReply().getJournalType();
         if (journalType.equals(REFUSED)) {
@@ -59,7 +59,7 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
         }
     }
 
-    protected void saveOrderModification(OrderNotificationMessage orderNotificationMessage, PaymentTransactionType transactionType) {
+    protected void saveOrderModification(final OrderNotificationMessage orderNotificationMessage, final PaymentTransactionType transactionType) {
         final String worldpayOrderCode = orderNotificationMessage.getOrderCode();
         LOG.info(MessageFormat.format("Saving worldpayOrderModificationModel for worldpay order code: {0}", worldpayOrderCode));
         final WorldpayOrderModificationModel worldpayOrderModificationModel = modelService.create(WorldpayOrderModificationModel.class);
@@ -70,22 +70,22 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
     }
 
     @Required
-    public void setPaymentTransactionTypeMap(Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap) {
+    public void setPaymentTransactionTypeMap(final Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap) {
         this.paymentTransactionTypeMap = paymentTransactionTypeMap;
     }
 
     @Required
-    public void setModelService(ModelService modelService) {
+    public void setModelService(final ModelService modelService) {
         this.modelService = modelService;
     }
 
     @Required
-    public void setOrderModificationSerialiser(OrderModificationSerialiser orderModificationSerialiser) {
+    public void setOrderModificationSerialiser(final OrderModificationSerialiser orderModificationSerialiser) {
         this.orderModificationSerialiser = orderModificationSerialiser;
     }
 
     @Required
-    public void setWorldpayCartService(WorldpayCartService worldpayCartService) {
+    public void setWorldpayCartService(final WorldpayCartService worldpayCartService) {
         this.worldpayCartService = worldpayCartService;
     }
 }

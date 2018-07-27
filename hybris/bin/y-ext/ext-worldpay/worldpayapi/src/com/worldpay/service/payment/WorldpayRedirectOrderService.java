@@ -7,6 +7,7 @@ import com.worldpay.service.model.MerchantInfo;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.core.model.order.CartModel;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -37,8 +38,29 @@ public interface WorldpayRedirectOrderService {
      * @param authoriseResult The {@link RedirectAuthoriseResult} containing the processed parameters returned from worldpay redirect
      * @param merchantCode    The merchantCode used in the authorise with worldpay
      * @param cartModel       The {@link CartModel} cart for the order
+     * @deprecated in favour of completePendingRedirectAuthorise
      */
+    @Deprecated
     void completeRedirectAuthorise(final RedirectAuthoriseResult authoriseResult, final String merchantCode, final CartModel cartModel);
+
+    /**
+     * Completes the redirectAuthorise if successful authorise response received. Creates payment details and returns back
+     * to UI
+     *
+     * @param authoriseResult The {@link RedirectAuthoriseResult} containing the processed parameters returned from worldpay redirect
+     * @param merchantCode    The merchantCode used in the authorise with worldpay
+     * @param cartModel       The {@link CartModel} cart for the order
+     */
+    void completePendingRedirectAuthorise(final RedirectAuthoriseResult authoriseResult, final String merchantCode, final CartModel cartModel);
+
+    /**
+     * Completes the redirectAuthorise if successful authorise response received. Creates payment details with a payment transaction entry in a non-pending status
+     *
+     * @param paymentAmount The {@link BigDecimal} containing the amount for this paymentTransactionEntry
+     * @param merchantCode  The merchantCode used in the authorise with worldpay
+     * @param cartModel     The {@link CartModel} cart for the order
+     */
+    void completeConfirmedRedirectAuthorise(final BigDecimal paymentAmount, String merchantCode, CartModel cartModel);
 
     /**
      * Checks that the response parameters that have been returned are valid. Ensures mac code is correct if supplied

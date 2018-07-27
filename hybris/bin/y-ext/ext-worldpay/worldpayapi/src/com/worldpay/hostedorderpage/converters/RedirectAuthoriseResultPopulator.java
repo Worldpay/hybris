@@ -89,7 +89,7 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
         return null;
     }
 
-    public void setWorldpayOrderService(WorldpayOrderService worldpayOrderService) {
+    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
         this.worldpayOrderService = worldpayOrderService;
     }
 }

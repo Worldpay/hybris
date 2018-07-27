@@ -16,14 +16,14 @@ import java.util.List;
  */
 public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
 
-    protected RedirectAuthoriseServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+    protected RedirectAuthoriseServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {
         super(merchantInfo, orderCode);
     }
 
     /**
      * Static convenience method for creating an instance of the RedirectAuthoriseServiceRequest
      *
-     * @param merch                  merchantInfo to be used in the Worldpay call
+     * @param merchantInfo           merchantInfo to be used in the Worldpay call
      * @param orderInfo              orderInfo to be used in the Worldpay call
      * @param installationId         installationId to be used in the Worldpay call
      * @param orderContent           orderContent to be used in the Worldpay call
@@ -35,11 +35,19 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param statementNarrative     statementNarrative to be used in the Worldpay call
      * @return new instance of the RedirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
-                                                                                 final String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper,
-                                                                                 final Address shippingAddress, final Address billingAddress, final String statementNarrative) {
-        checkParameters("RedirectAuthoriseRequest", merch, orderInfo);
-        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
+    public static RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                                 final BasicOrderInfo orderInfo,
+                                                                                 final String installationId,
+                                                                                 final String orderContent,
+                                                                                 final List<PaymentType> includedPaymentMethods,
+                                                                                 final List<PaymentType> excludedPaymentMethods,
+                                                                                 final Shopper shopper,
+                                                                                 final Address shippingAddress,
+                                                                                 final Address billingAddress,
+                                                                                 final String statementNarrative) {
+        checkParameters("RedirectAuthoriseRequest", merchantInfo, orderInfo);
+        checkParameters("RedirectAuthoriseRequest", merchantInfo.getMerchantCode(), merchantInfo.getMerchantPassword());
+        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final Order reqOrder = createOrder(orderInfo, installationId, orderContent, includedPaymentMethods, excludedPaymentMethods, shopper, shippingAddress, billingAddress, statementNarrative);
         authRequest.setOrder(reqOrder);
         return authRequest;
@@ -48,7 +56,7 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
     /**
      * Static convenience method for creating an instance of the RedirectAuthoriseServiceRequest
      *
-     * @param merch                  merchantInfo to be used in the Worldpay call
+     * @param merchantInfo           merchantInfo to be used in the Worldpay call
      * @param orderInfo              orderInfo to be used in the Worldpay call
      * @param installationId         installationId to be used in the Worldpay call
      * @param orderContent           orderContent to be used in the Worldpay call
@@ -61,18 +69,35 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param tokenRequest           requests Worldpay to create a token with the details provided during HOP
      * @return new instance of the RedirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static RedirectAuthoriseServiceRequest createTokenAndRedirectAuthoriseRequest(final MerchantInfo merch, final BasicOrderInfo orderInfo, String installationId,
-                                                                                         String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper,
-                                                                                         final Address shippingAddress, final Address billingAddress, String statementNarrative, final TokenRequest tokenRequest) {
-        checkParameters("TokenAndRedirectAuthoriseRequest", merch, orderInfo, tokenRequest);
-        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
+    public static RedirectAuthoriseServiceRequest createTokenAndRedirectAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                                         final BasicOrderInfo orderInfo,
+                                                                                         final String installationId,
+                                                                                         final String orderContent,
+                                                                                         final List<PaymentType> includedPaymentMethods,
+                                                                                         final List<PaymentType> excludedPaymentMethods,
+                                                                                         final Shopper shopper,
+                                                                                         final Address shippingAddress,
+                                                                                         final Address billingAddress,
+                                                                                         final String statementNarrative,
+                                                                                         final TokenRequest tokenRequest) {
+        checkParameters("TokenAndRedirectAuthoriseRequest", merchantInfo, orderInfo, tokenRequest);
+        checkParameters("TokenAndRedirectAuthoriseRequest", merchantInfo.getMerchantCode(), merchantInfo.getMerchantPassword());
+        final RedirectAuthoriseServiceRequest authRequest = new RedirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final Order reqOrder = createOrder(orderInfo, installationId, orderContent, includedPaymentMethods, excludedPaymentMethods, shopper, shippingAddress, billingAddress, statementNarrative);
         reqOrder.setTokenRequest(tokenRequest);
         authRequest.setOrder(reqOrder);
         return authRequest;
     }
 
-    private static Order createOrder(final BasicOrderInfo orderInfo, final String installationId, final String orderContent, final List<PaymentType> includedPaymentMethods, final List<PaymentType> excludedPaymentMethods, final Shopper shopper, final Address shippingAddress, final Address billingAddress, final String statementNarrative) {
+    private static Order createOrder(final BasicOrderInfo orderInfo,
+                                     final String installationId,
+                                     final String orderContent,
+                                     final List<PaymentType> includedPaymentMethods,
+                                     final List<PaymentType> excludedPaymentMethods,
+                                     final Shopper shopper,
+                                     final Address shippingAddress,
+                                     final Address billingAddress,
+                                     final String statementNarrative) {
         final Order reqOrder = new Order(orderInfo.getOrderCode(), orderInfo.getDescription(), orderInfo.getAmount());
         reqOrder.setInstallationId(installationId);
         reqOrder.setOrderContent(orderContent);

@@ -40,19 +40,19 @@ import java.util.Collection;
 public class HttpRequestPaymentDetailsWsDTOPopulator extends AbstractHttpRequestWsDTOPopulator implements
         ConfigurablePopulator<HttpServletRequest, PaymentDetailsWsDTO, PaymentDetailsWsDTOOption> {
 
-    protected static final String ACCOUNT_HOLDER_NAME = "accountHolderName";
-    protected static final String CARD_NUMBER = "cardNumber";
-    protected static final String CARD_TYPE = "cardType";
-    protected static final String CSE_TOKEN = "cseToken";
-    protected static final String EXPIRY_MONTH = "expiryMonth";
-    protected static final String EXPIRY_YEAR = "expiryYear";
-    protected static final String ISSUE_NUMBER = "issueNumber";
-    protected static final String START_MONTH = "startMonth";
-    protected static final String START_YEAR = "startYear";
-    protected static final String SUBSCRIPTION_ID = "subscriptionId";
-    protected static final String ID = "id";
-    protected static final String DEFAULT_PAYMENT_INFO = "defaultPaymentInfo";
-    protected static final String SAVED = "saved";
+    private static final String ACCOUNT_HOLDER_NAME = "accountHolderName";
+    private static final String CARD_NUMBER = "cardNumber";
+    private static final String CARD_TYPE = "cardType";
+    private static final String CSE_TOKEN = "cseToken";
+    private static final String EXPIRY_MONTH = "expiryMonth";
+    private static final String EXPIRY_YEAR = "expiryYear";
+    private static final String ISSUE_NUMBER = "issueNumber";
+    private static final String START_MONTH = "startMonth";
+    private static final String START_YEAR = "startYear";
+    private static final String SUBSCRIPTION_ID = "subscriptionId";
+    private static final String ID = "id";
+    private static final String DEFAULT_PAYMENT_INFO = "defaultPaymentInfo";
+    private static final String SAVED = "saved";
 
     @Resource(name = "httpRequestAddressWsDTOPopulator")
     private HttpRequestAddressWsDTOPopulator httpRequestAddressWsDTOPopulator;
@@ -84,13 +84,13 @@ public class HttpRequestPaymentDetailsWsDTOPopulator extends AbstractHttpRequest
         }
     }
 
-    protected CardTypeWsDTO updateCartTypeFromRequest(HttpServletRequest request, CardTypeWsDTO defaultValue) {
+    protected CardTypeWsDTO updateCartTypeFromRequest(final HttpServletRequest request, final CardTypeWsDTO defaultValue) {
         final String cardType = getRequestParameterValue(request, CARD_TYPE);
         if (StringUtils.isEmpty(cardType)) {
             return defaultValue;
         } else {
-            CardTypeEnum enumValue = CardTypeEnum.valueOf(cardType.toLowerCase());
-            CardTypeWsDTO cardTypeWsDTO = new CardTypeWsDTO();
+            final CardTypeEnum enumValue = CardTypeEnum.valueOf(cardType.toLowerCase());
+            final CardTypeWsDTO cardTypeWsDTO = new CardTypeWsDTO();
             cardTypeWsDTO.setCode(enumValue.name());
             cardTypeWsDTO.setName(enumValue.getStringValue());
             return cardTypeWsDTO;

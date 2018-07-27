@@ -6,37 +6,26 @@ import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.PaymentService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.processengine.action.AbstractAction;
+import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction;
 import org.springframework.beans.factory.annotation.Required;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 import static org.fest.util.Collections.isEmpty;
 
-public class WorldpayCancelPaymentAction extends AbstractAction<OrderProcessModel> {
+/**
+ * Action that cancels the payment in Worldpay
+ */
+public class WorldpayCancelPaymentAction extends AbstractSimpleDecisionAction<OrderProcessModel> {
 
     private PaymentService paymentService;
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
 
-    public enum Transition {
-        OK, NOK;
-
-        public static Set<String> getStringValues() {
-            final Set<String> res = new HashSet<>();
-            for (final Transition transitions : Transition.values()) {
-                res.add(transitions.toString());
-            }
-            return res;
-        }
-    }
-
     @Override
-    public String execute(final OrderProcessModel orderProcessModel) {
+    public Transition executeAction(final OrderProcessModel orderProcessModel) {
         final OrderModel order = orderProcessModel.getOrder();
         final List<PaymentTransactionModel> paymentTransactions = order.getPaymentTransactions();
         if (firstElementExists(paymentTransactions)) {
@@ -44,11 +33,11 @@ public class WorldpayCancelPaymentAction extends AbstractAction<OrderProcessMode
             if (firstElementExists(paymentTransactionEntryModels)) {
                 final PaymentTransactionEntryModel cancelledPaymentTransactionEntry = paymentService.cancel(paymentTransactionEntryModels.get(0));
                 if (isSuccessful(cancelledPaymentTransactionEntry)) {
-                    return Transition.OK.name();
+                    return Transition.OK;
                 }
             }
         }
-        return Transition.NOK.name();
+        return Transition.NOK;
     }
 
     protected boolean firstElementExists(List elements) {
@@ -60,11 +49,6 @@ public class WorldpayCancelPaymentAction extends AbstractAction<OrderProcessMode
                 .equalsIgnoreCase(SUCCESFULL.name());
     }
 
-    @Override
-    public Set<String> getTransitions() {
-        return Transition.getStringValues();
-    }
-
     @Required
     public void setPaymentService(PaymentService paymentService) {
         this.paymentService = paymentService;
@@ -74,4 +58,6 @@ public class WorldpayCancelPaymentAction extends AbstractAction<OrderProcessMode
     public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }
+
+
 }

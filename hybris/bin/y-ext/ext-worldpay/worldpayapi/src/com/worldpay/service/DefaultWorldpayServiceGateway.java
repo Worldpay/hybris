@@ -147,7 +147,7 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
             try {
                 final Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
                 marshaller.setProperty(JAXB_FRAGMENT, TRUE);
-                worldpayConnector.logXMLOut(marshaller, paymentService);
+                worldpayConnector.logXMLOut(paymentService);
             } catch (final JAXBException jaxbException) {
                 throw new WorldpayValidationException(jaxbException.getMessage(), jaxbException);
             }

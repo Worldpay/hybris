@@ -35,7 +35,7 @@ public interface WorldpayPaymentInfoService {
      * @param orderModel
      * @param paymentInfoModel
      */
-    void updateAndAttachPaymentInfoModel(PaymentTransactionModel paymentTransactionModel, AbstractOrderModel orderModel, PaymentInfoModel paymentInfoModel);
+    void updateAndAttachPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final PaymentInfoModel paymentInfoModel);
 
 
     /**
@@ -76,6 +76,7 @@ public interface WorldpayPaymentInfoService {
 
     /**
      * Converts and sets the {@link CreditCardType} on the {@link CreditCardPaymentInfoModel} based on the methodCode of the {@link PaymentReply}
+     *
      * @param creditCardPaymentInfoModel The {@link CreditCardPaymentInfoModel} to be updated
      * @param paymentReply               The paymentReply to get the methodCode from. This methodCode will be converted based on configurations and mappings in Hybris.
      */
@@ -88,5 +89,5 @@ public interface WorldpayPaymentInfoService {
      * @param updateTokenServiceRequest
      * @return Optional {@link Optional} that will contain the updated CreditCardPaymentInfoModel or empty if no matching tokenised card is found
      */
-    Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(CartModel cartModel, UpdateTokenServiceRequest updateTokenServiceRequest);
+    Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest);
 }

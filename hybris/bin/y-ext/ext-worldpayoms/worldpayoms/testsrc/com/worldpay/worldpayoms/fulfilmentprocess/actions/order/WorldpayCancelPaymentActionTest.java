@@ -16,20 +16,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction.Transition.NOK;
-import static com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction.Transition.OK;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayCancelPaymentActionTest {
 
     @InjectMocks
-    private WorldpayCancelPaymentAction testObj = new WorldpayCancelPaymentAction();
+    private WorldpayCancelPaymentAction testObj;
 
     @Mock
     private PaymentService paymentServiceMock;
@@ -59,9 +58,9 @@ public class WorldpayCancelPaymentActionTest {
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatusDetails()).thenReturn(TransactionStatusDetails.SUCCESFULL.name());
 
-        final String result = testObj.execute(orderProcessModelMock);
+        final Transition result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(OK.name(), result);
+        assertEquals(Transition.OK, result);
     }
 
     @Test
@@ -69,18 +68,18 @@ public class WorldpayCancelPaymentActionTest {
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR.name());
         when(cancellationPaymentTransactionEntryModelMock.getTransactionStatusDetails()).thenReturn(TransactionStatusDetails.COMMUNICATION_PROBLEM.name());
 
-        final String result = testObj.execute(orderProcessModelMock);
+        final Transition result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(NOK.name(), result);
+        assertEquals(Transition.NOK, result);
     }
 
     @Test
     public void testExecuteShouldReturnNOKWhenOrderHasNoTransactions() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(emptyList());
 
-        final String result = testObj.execute(orderProcessModelMock);
+        final Transition result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(NOK.name(), result);
+        assertEquals(Transition.NOK, result);
     }
 
 
@@ -88,26 +87,26 @@ public class WorldpayCancelPaymentActionTest {
     public void testExecuteShouldReturnNOKWhenOrderNullTransaction() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(null));
 
-        final String result = testObj.execute(orderProcessModelMock);
+        final Transition result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(NOK.name(), result);
+        assertEquals(Transition.NOK, result);
     }
 
     @Test
     public void testExecuteShouldReturnNOKWhenOrderHasNoTransactionEntries() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(emptyList());
 
-        final String result = testObj.execute(orderProcessModelMock);
+        final Transition result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(NOK.name(), result);
+        assertEquals(Transition.NOK, result);
     }
 
     @Test
     public void testExecuteShouldReturnNOKWhenOrderHasNullTransactionEntry() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(singletonList(null));
 
-        final String result = testObj.execute(orderProcessModelMock);
+        final Transition result = testObj.executeAction(orderProcessModelMock);
 
-        assertEquals(NOK.name(), result);
+        assertEquals(Transition.NOK, result);
     }
 }

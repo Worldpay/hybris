@@ -14,7 +14,7 @@ public class WorldpayAddressEmailReversePopulator extends AddressReversePopulato
      * {@inheritDoc}
      */
     @Override
-    public void populate(AddressData source, AddressModel target) throws ConversionException {
+    public void populate(final AddressData source, final AddressModel target) throws ConversionException {
         super.populate(source, target);
         target.setEmail(source.getEmail());
     }

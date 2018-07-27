@@ -4,7 +4,6 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.strategy.APMAvailabilityStrategy;
 import com.worldpay.strategy.WorldpayDeliveryAddressStrategy;
 import de.hybris.platform.core.model.c2l.C2LItemModel;
-import de.hybris.platform.core.model.c2l.CountryModel;
 import de.hybris.platform.core.model.order.CartModel;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Required;

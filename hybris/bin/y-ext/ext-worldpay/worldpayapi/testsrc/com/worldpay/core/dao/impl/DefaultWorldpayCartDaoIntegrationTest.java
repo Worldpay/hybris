@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import javax.annotation.Resource;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,11 +38,9 @@ public class DefaultWorldpayCartDaoIntegrationTest extends ServicelayerTransacti
         final Collection<CartModel> cartModels = user.getCarts();
         final CartModel cartModel = cartModels.iterator().next();
         assertEquals(cartModel.getWorldpayDeclineCode(), null);
-        assertEquals(0, worldpayCartDao.findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE).size());
         cartModel.setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         modelService.save(cartModel);
-        final List<CartModel> cartsByWorldpayOrderCode = worldpayCartDao.findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
-        final CartModel cartModelFromDao = cartsByWorldpayOrderCode.iterator().next();
+        final CartModel cartModelFromDao = worldpayCartDao.findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         assertEquals(cartModel, cartModelFromDao);
         assertEquals(WORLDPAY_ORDER_CODE, cartModelFromDao.getWorldpayOrderCode());
     }

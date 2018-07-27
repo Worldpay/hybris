@@ -26,17 +26,17 @@ public class AlternativeCardAddressPayment extends AlternativePayment {
      * @param pendingURL
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AlternativeCardAddressPayment(PaymentType paymentType, String shopperCountryCode, String successURL, String failureURL, String cancelURL, String pendingURL, Address cardAddress) {
+    public AlternativeCardAddressPayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, String pendingURL, Address cardAddress) {
         super(paymentType, shopperCountryCode, successURL, failureURL, cancelURL, pendingURL);
         this.cardAddress = cardAddress;
     }
 
     @Override
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if ("setCardAddress".equals(methodName) && cardAddress != null) {
-            CardAddress intCardAddress = new CardAddress();
+            final CardAddress intCardAddress = new CardAddress();
             intCardAddress.setAddress((com.worldpay.internal.model.Address) cardAddress.transformToInternalModel());
             method.invoke(targetObject, intCardAddress);
         }
@@ -46,7 +46,7 @@ public class AlternativeCardAddressPayment extends AlternativePayment {
         return cardAddress;
     }
 
-    public void setCardAddress(Address cardAddress) {
+    public void setCardAddress(final Address cardAddress) {
         this.cardAddress = cardAddress;
     }
 

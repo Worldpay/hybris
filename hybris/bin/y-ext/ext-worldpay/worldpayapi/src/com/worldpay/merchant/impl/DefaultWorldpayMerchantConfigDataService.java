@@ -39,7 +39,7 @@ public class DefaultWorldpayMerchantConfigDataService implements WorldpayMerchan
     }
 
     @Required
-    public void setSiteConfigService(SiteConfigService siteConfigService) {
+    public void setSiteConfigService(final SiteConfigService siteConfigService) {
         this.siteConfigService = siteConfigService;
     }
 }

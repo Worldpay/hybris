@@ -7,15 +7,16 @@ import groovyx.net.http.RESTClient
 import org.openqa.selenium.UnhandledAlertException
 import org.openqa.selenium.firefox.FirefoxDriver
 
-import static groovyx.net.http.ContentType.JSON
-import static groovyx.net.http.ContentType.URLENC
 import static java.time.LocalDate.now
 import static org.apache.http.HttpStatus.SC_CREATED
 import static org.apache.http.HttpStatus.SC_OK
+import static org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED
+import static org.apache.http.entity.ContentType.APPLICATION_JSON
+import static org.openqa.selenium.By.className
 
 class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
 
-    protected createCustomerWithPaymentInfo(RESTClient client, accountHolderName = "Sven Johnson", format = JSON) {
+    protected createCustomerWithPaymentInfo(RESTClient client, accountHolderName = "Sven Johnson", format = APPLICATION_JSON) {
         def customer = registerCustomerWithTrustedClient(client, format)
         authorizeCustomer(client, customer)
 
@@ -40,14 +41,14 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         return customer
     }
 
-    protected addProductToCart(RESTClient client, customer, cartId, productId, format = JSON) {
+    protected addProductToCart(RESTClient client, customer, cartId, productId, format = APPLICATION_JSON) {
         HttpResponseDecorator response = client.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/entries',
                 body: [
                         'code': productId
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
@@ -57,40 +58,40 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         }
     }
 
-    protected setDeliveryAddress(RESTClient client, customer, cartId, address, format = JSON) {
+    protected setDeliveryAddress(RESTClient client, customer, cartId, address, format = APPLICATION_JSON) {
         HttpResponseDecorator response = client.put(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/addresses/delivery',
                 body: [
                         'addressId': address.id,
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }
     }
 
-    protected setDeliveryMode(RESTClient client, customer, cartId, deliveryMode, format = JSON) {
+    protected setDeliveryMode(RESTClient client, customer, cartId, deliveryMode, format = APPLICATION_JSON) {
         HttpResponseDecorator response = client.put(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/deliverymode',
                 body: [
                         'deliveryModeId': deliveryMode,
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }
     }
 
-    protected createWorldpayPaymentInfo(RESTClient client, customer, cartId, body, format = JSON) {
+    protected createWorldpayPaymentInfo(RESTClient client, customer, cartId, body, format = APPLICATION_JSON) {
         HttpResponseDecorator response = client.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/worldpaypaymentdetails',
                 body: body,
                 contentType: format,
-                requestContentType: JSON)
+                requestContentType: APPLICATION_JSON)
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_CREATED
@@ -98,7 +99,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         return response.data
     }
 
-    protected placeWorldpayOrder(RESTClient client, customer, cartId, securityCode, format = JSON) {
+    protected placeWorldpayOrder(RESTClient client, customer, cartId, securityCode, format = APPLICATION_JSON) {
         HttpResponseDecorator response = client.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
@@ -106,7 +107,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
                         'securityCode': securityCode
                 ],
                 contentType: format,
-                requestContentType: URLENC)
+                requestContentType: APPLICATION_FORM_URLENCODED)
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_CREATED
@@ -185,10 +186,10 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         browser.$("form").paResMagicValues = authorisationResponse
 
         // On the worldpay 3D simulator we select the given authorisationResponse and click the button
-        browser.getPage().$(org.openqa.selenium.By.className("lefty")).click()
+        browser.getPage().$(className("lefty")).click()
 
         // We are now on a mock endpoint in the worldpayresponsemock extension which collect the Pa response
-        def paRes = browser.getPage().$(org.openqa.selenium.By.className("PaRes")).value()
+        def paRes = browser.getPage().$(className("PaRes")).value()
         try {
             browser.close()
         }

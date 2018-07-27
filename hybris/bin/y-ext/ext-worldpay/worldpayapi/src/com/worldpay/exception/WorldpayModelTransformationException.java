@@ -17,7 +17,7 @@ public class WorldpayModelTransformationException extends WorldpayException {
      * @param message
      * @param throwable
      */
-    public WorldpayModelTransformationException(String message, Throwable throwable) {
+    public WorldpayModelTransformationException(final String message, final Throwable throwable) {
         super(message, throwable);
     }
 
@@ -26,7 +26,7 @@ public class WorldpayModelTransformationException extends WorldpayException {
      *
      * @param message
      */
-    public WorldpayModelTransformationException(String message) {
+    public WorldpayModelTransformationException(final String message) {
         super(message);
     }
 }

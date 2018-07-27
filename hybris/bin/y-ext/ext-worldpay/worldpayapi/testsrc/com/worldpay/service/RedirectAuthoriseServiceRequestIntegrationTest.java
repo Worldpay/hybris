@@ -54,39 +54,13 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
     }
 
     @Test
-    public void createRedirectAuthoriseRequestShouldRaiseWorldpayComunicationExceptionWhenValidatedByTheGatewayWhenMerchantIsNull() throws WorldpayException {
-        thrown.expect(WorldpayCommunicationException.class);
-        merchantInfo = new MerchantInfo(null, null);
-
-        final Shopper shopper = new Shopper(EMAIL_ADDRESS, null, null, null);
-
-        final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
-                includedPaymentMethods, null, shopper, ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE);
-
-        gateway.redirectAuthorise(request);
-    }
-
-    @Test
-    public void createTokenAndRedirectAuthoriseRequestShouldRaiseWorldpayComunicationExceptionWhenValidatedByTheGatewayWhenMerchantIsNull() throws WorldpayException {
-        thrown.expect(WorldpayCommunicationException.class);
-        merchantInfo = new MerchantInfo(null, null);
-
-        final Shopper shopper = new Shopper(EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
-
-        final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
-                includedPaymentMethods, null, shopper, ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST);
-
-        gateway.redirectAuthorise(request);
-    }
-
-    @Test
-    public void createRedirectAuthoriseRequestShouldRaiseWorldpayValidationExceptionWhenThereAreNullValues() throws WorldpayException {
+    public void createRedirectAuthoriseRequestShouldRaiseWorldpayValidationExceptionWhenThereAreNullValues() {
         thrown.expect(IllegalArgumentException.class);
         RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(merchantInfo, null, null, null, null, null, null, null, null, null);
     }
 
     @Test
-    public void createTokenAndRedirectAuthoriseRequestShouldRaiseWorldpayValidationExceptionWhenThereAreNullValues() throws WorldpayException {
+    public void createTokenAndRedirectAuthoriseRequestShouldRaiseWorldpayValidationExceptionWhenThereAreNullValues() {
         thrown.expect(IllegalArgumentException.class);
         RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, null, null, null, null, null, null, null, null, null, null);
     }

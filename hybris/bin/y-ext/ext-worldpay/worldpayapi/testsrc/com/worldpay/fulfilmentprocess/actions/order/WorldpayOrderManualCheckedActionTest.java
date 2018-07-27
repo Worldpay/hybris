@@ -1,19 +1,9 @@
 package com.worldpay.fulfilmentprocess.actions.order;
 
-import static com.worldpay.fulfilmentprocess.actions.order.WorldpayOrderManualCheckedAction.Transition.NOK;
-import static com.worldpay.fulfilmentprocess.actions.order.WorldpayOrderManualCheckedAction.Transition.OK;
-import static com.worldpay.fulfilmentprocess.actions.order.WorldpayOrderManualCheckedAction.Transition.UNDEFINED;
-import static de.hybris.platform.core.enums.OrderStatus.FRAUD_CHECKED;
-import static de.hybris.platform.core.enums.OrderStatus.SUSPENDED;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.enums.OrderStatus;
 import de.hybris.platform.core.model.order.OrderModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.servicelayer.model.ModelService;
@@ -22,20 +12,30 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static de.hybris.platform.core.enums.OrderStatus.FRAUD_CHECKED;
+import static de.hybris.platform.core.enums.OrderStatus.SUSPENDED;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayOrderManualCheckedActionTest {
+
+    private static final String OK = "OK";
+    private static final String NOK = "NOK";
+    private static final String UNDEFINED = "UNDEFINED";
 
     @InjectMocks
     private WorldpayOrderManualCheckedAction testObj;
 
     @Mock
     private OrderProcessModel orderProcessModelMock;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderModel orderModelMock;
     @Mock
     private ModelService modelServiceMock;
@@ -43,16 +43,19 @@ public class WorldpayOrderManualCheckedActionTest {
     private OrderHistoryEntryModel orderHistoryEntryModelMock;
     @Mock
     private TimeService timeServiceMock;
+    @Mock
+    private PaymentInfoModel originalPaymentInfo;
 
     @Before
     public void setUp() {
         when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(timeServiceMock.getCurrentTime()).thenReturn(DateTime.now().toDate());
+
     }
 
     @Test
-    public void executeShouldReturnOK() throws Exception {
+    public void executeShouldReturnOK() {
         when(orderModelMock.getFraudulent()).thenReturn(false);
 
         final String result = testObj.execute(orderProcessModelMock);
@@ -61,29 +64,42 @@ public class WorldpayOrderManualCheckedActionTest {
         verify(orderModelMock, never()).setStatus(SUSPENDED);
         verify(orderModelMock).setStatus(FRAUD_CHECKED);
         verify(modelServiceMock).save(orderModelMock);
-        assertEquals(OK.toString(), result);
+        assertEquals(OK, result);
     }
 
     @Test
-    public void executeShouldReturnNOK() throws Exception {
+    public void executeShouldReturnNOK() {
         when(orderModelMock.getFraudulent()).thenReturn(true);
+        when(orderModelMock.getPaymentInfo().getOriginal()).thenReturn(originalPaymentInfo);
 
         final String result = testObj.execute(orderProcessModelMock);
 
         verify(modelServiceMock).save(orderHistoryEntryModelMock);
         verify(orderModelMock).setStatus(SUSPENDED);
         verify(modelServiceMock).save(orderModelMock);
-        assertEquals(NOK.toString(), result);
+        assertEquals(NOK, result);
     }
 
     @Test
-    public void executeShouldReturnUNDEFINED() throws Exception {
+    public void executeShouldReturnUNDEFINED() {
         when(orderModelMock.getFraudulent()).thenReturn(null);
 
         final String result = testObj.execute(orderProcessModelMock);
 
         verify(modelServiceMock, never()).save(any(OrderHistoryEntryModel.class));
         verify(orderModelMock, never()).setStatus(any(OrderStatus.class));
-        assertEquals(UNDEFINED.toString(), result);
+        assertEquals(UNDEFINED, result);
+    }
+
+    @Test
+    public void executeDeletePaymentInfoWhenCheckFraudAndPaymentSaved() {
+        when(orderModelMock.getFraudulent()).thenReturn(true);
+        when(orderModelMock.getPaymentInfo().getOriginal()).thenReturn(originalPaymentInfo);
+        when(originalPaymentInfo.isSaved()).thenReturn(true);
+
+        final String result = testObj.execute(orderProcessModelMock);
+
+        verify(modelServiceMock).remove(originalPaymentInfo);
+        assertEquals(NOK, result);
     }
 }

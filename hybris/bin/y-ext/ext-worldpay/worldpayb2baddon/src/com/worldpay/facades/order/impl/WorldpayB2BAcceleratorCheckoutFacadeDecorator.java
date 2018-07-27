@@ -39,18 +39,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
         if (!placeOrderData.getTermsCheck().equals(Boolean.TRUE)) {
             throw new EntityValidationException(getLocalizedString(CART_CHECKOUT_TERM_UNCHECKED));
         }
-
-        // for CARD type and Pay-now, transaction must be authorized before placing order
-        final boolean isCardtPaymentType = CheckoutPaymentType.CARD.getCode().equals(getCart().getPaymentType().getCode());
-        if (isCardtPaymentType && isPayNowOrder(placeOrderData)) {
-            final List<PaymentTransactionModel> transactions = getCart().getPaymentTransactions();
-            if (transactions.stream()
-                    .map(PaymentTransactionModel::getEntries)
-                    .flatMap(Collection::stream)
-                    .noneMatch(entry -> PaymentTransactionType.AUTHORIZATION.equals(entry.getType()) && TransactionStatus.ACCEPTED.name().equals(entry.getTransactionStatus()))) {
-                throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_TRANSACTION_NOT_AUTHORIZED));
-            }
-        }
+        isAuthorisedNow(placeOrderData);
 
         if (isValidCheckoutCart(placeOrderData)) {
 
@@ -62,6 +51,20 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
         }
 
         return null;
+    }
+
+    protected void isAuthorisedNow(final PlaceOrderData placeOrderData) throws EntityValidationException {
+        // for CARD type and Pay-now, transaction must be authorized before placing order
+        final boolean isCardPaymentType = CheckoutPaymentType.CARD.getCode().equals(getCart().getPaymentType().getCode());
+        if (isCardPaymentType && isPayNowOrder(placeOrderData)) {
+            final List<PaymentTransactionModel> transactions = getCart().getPaymentTransactions();
+            if (transactions.stream()
+                    .map(PaymentTransactionModel::getEntries)
+                    .flatMap(Collection::stream)
+                    .noneMatch(entry -> PaymentTransactionType.AUTHORIZATION.equals(entry.getType()) && TransactionStatus.ACCEPTED.name().equals(entry.getTransactionStatus()))) {
+                throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_TRANSACTION_NOT_AUTHORIZED));
+            }
+        }
     }
 
     protected <T extends AbstractOrderData> T handleReplenishment(final PlaceOrderData placeOrderData) {
@@ -81,9 +84,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
     }
 
     protected boolean isPayNowOrder(final PlaceOrderData data) {
-        boolean isReplenishment = data.getReplenishmentOrder() != null && data.getReplenishmentOrder().booleanValue();
-
-        return !isReplenishment;
+        return data.getReplenishmentOrder() == null || !data.getReplenishmentOrder();
     }
 
 

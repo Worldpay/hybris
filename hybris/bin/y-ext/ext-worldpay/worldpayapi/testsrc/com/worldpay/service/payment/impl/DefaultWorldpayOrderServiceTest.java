@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.Currency;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,6 +103,16 @@ public class DefaultWorldpayOrderServiceTest {
         assertThat(result.getCurrencyCode()).isEqualToIgnoringCase("GBP");
         assertThat(result.getExponent()).isEqualToIgnoringCase("2");
         assertThat(result.getValue()).isEqualToIgnoringCase("1930");
+    }
+
+    @Test
+    public void shouldReturnAmountAsBigDecimalUsingFractionDigitsFromCurrency() throws Exception {
+        when(amountMock.getCurrencyCode()).thenReturn("GBP");
+        when(amountMock.getValue()).thenReturn("1935");
+
+        final BigDecimal result = testObj.convertAmount(amountMock);
+
+        assertEquals(result, BigDecimal.valueOf(19.35d));
     }
 
     @Test

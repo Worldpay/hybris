@@ -1,17 +1,20 @@
 package com.worldpay.strategies.impl;
 
 import com.worldpay.core.services.OrderNotificationService;
+import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.dao.OrderModificationDao;
 import com.worldpay.dao.ProcessDefinitionDao;
+import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.strategies.WorldpayOrderModificationProcessStrategy;
 import com.worldpay.strategies.WorldpayOrderModificationRefundProcessStrategy;
+import com.worldpay.strategies.WorldpayPlaceOrderFromNotificationStrategy;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import com.worldpay.util.OrderModificationSerialiser;
-import com.worldpay.worldpaynotifications.enums.DefectiveReason;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
+import de.hybris.platform.core.enums.OrderStatus;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -19,11 +22,14 @@ import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.processengine.model.BusinessProcessModel;
-import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
+import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.worldpay.worldpaynotifications.enums.DefectiveReason.*;
@@ -44,14 +50,16 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
 
     private OrderModificationDao orderModificationDao;
     private ProcessDefinitionDao processDefinitionDao;
-    private ModelService modelService;
     private BusinessProcessService businessProcessService;
     private OrderNotificationService orderNotificationService;
     private OrderModificationSerialiser orderModificationSerialiser;
     private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private Set nonTriggeringOrderStatuses;
+    private Set<OrderStatus> nonTriggeringOrderStatuses;
     private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
     private WorldpayOrderModificationRefundProcessStrategy worldpayOrderModificationRefundProcessStrategy;
+    private WorldpayCartService worldpayCartService;
+    private WorldpayOrderNotificationHandler worldpayOrderNotificationHandler;
+    private WorldpayPlaceOrderFromNotificationStrategy worldpayPlaceOrderFromNotificationStrategy;
 
     /**
      * {@inheritDoc}
@@ -67,7 +75,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
             final String worldpayOrderCode = orderModificationModel.getWorldpayOrderCode();
             if (CANCEL.equals(paymentTransactionType)) {
                 LOG.info(format("Marking order modification with [{0}] transaction for refused worldpayOrder [{1}] as processed", paymentTransactionType, worldpayOrderCode));
-                setNonDefectiveAndProcessed(orderModificationModel);
+                worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModificationModel);
             } else {
                 success = precessOrderModificationsMessagesNotCanceled(paymentTransactionType, orderModificationModel, worldpayOrderCode);
             }
@@ -77,22 +85,46 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
 
     protected boolean precessOrderModificationsMessagesNotCanceled(final PaymentTransactionType paymentTransactionType, final WorldpayOrderModificationModel orderModificationModel, final String worldpayOrderCode) {
         boolean success = true;
-        final PaymentTransactionModel paymentTransactionModel = worldpayPaymentTransactionService.getPaymentTransactionFromCode(worldpayOrderCode);
-        if (paymentTransactionModel != null) {
+        final Optional<PaymentTransactionModel> paymentTransactionModel = getPaymentTransactionFromCode(worldpayOrderCode);
+        if (paymentTransactionModel.isPresent()) {
+            final PaymentTransactionModel paymentTransaction = paymentTransactionModel.get();
             if (AUTHORIZATION.equals(paymentTransactionType)) {
-                markAsProcessedIfEntryIsNotPending(paymentTransactionType, orderModificationModel, paymentTransactionModel);
+                markAsProcessedIfEntryIsNotPending(paymentTransactionType, orderModificationModel, paymentTransaction);
             }
-            final AbstractOrderModel abstractOrderModel = paymentTransactionModel.getOrder();
+            final AbstractOrderModel abstractOrderModel = paymentTransaction.getOrder();
             if (abstractOrderModel instanceof OrderModel) {
                 success = processOrderModificationNotification(paymentTransactionType, orderModificationModel, worldpayOrderCode, (OrderModel) abstractOrderModel);
             } else if (abstractOrderModel instanceof CartModel) {
                 LOG.warn(format("Worldpay Order Code [{0}] related to a Cart. Skipping processing modification message.", worldpayOrderCode));
             }
         } else {
-            setDefectiveReason(orderModificationModel, NO_PAYMENT_TRANSACTION_MATCHED);
-            setDefectiveModification(orderModificationModel, null, false);
+            final Optional<CartModel> cart = getCartByWorldpayOrderCode(worldpayOrderCode);
+            if (cart.isPresent()) {
+                worldpayPlaceOrderFromNotificationStrategy.placeOrderFromNotification(orderModificationModel, cart.get());
+            } else {
+                worldpayOrderNotificationHandler.setDefectiveReason(orderModificationModel, NO_WORLDPAY_CODE_MATCHED);
+                worldpayOrderNotificationHandler.setDefectiveModification(orderModificationModel, null, false);
+            }
         }
         return success;
+    }
+
+    protected Optional<CartModel> getCartByWorldpayOrderCode(final String worldpayOrderCode) {
+        try {
+            return Optional.ofNullable(worldpayCartService.findCartByWorldpayOrderCode(worldpayOrderCode));
+        } catch (ModelNotFoundException | AmbiguousIdentifierException e) {
+            LOG.warn(MessageFormat.format("No cart related to worldpay order code [{0}]", worldpayOrderCode), e);
+            return Optional.empty();
+        }
+    }
+
+    protected Optional<PaymentTransactionModel> getPaymentTransactionFromCode(final String worldpayOrderCode) {
+        try {
+            return Optional.ofNullable(worldpayPaymentTransactionService.getPaymentTransactionFromCode(worldpayOrderCode));
+        } catch (ModelNotFoundException | AmbiguousIdentifierException e) {
+            LOG.warn(MessageFormat.format("No payment transaction related to worldpay order code [{0}]", worldpayOrderCode), e);
+            return Optional.empty();
+        }
     }
 
     protected boolean processOrderModificationNotification(final PaymentTransactionType paymentTransactionType, final WorldpayOrderModificationModel orderModificationModel,
@@ -106,8 +138,8 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
                 LOG.info(format("The previous transaction for [{0}] is still pending in worldpayOrder [{1}]", paymentTransactionType, worldpayOrderCode));
             }
         } catch (final Exception exception) {
-            setDefectiveReason(orderModificationModel, PROCESSING_ERROR);
-            setDefectiveModification(orderModificationModel, exception, true);
+            worldpayOrderNotificationHandler.setDefectiveReason(orderModificationModel, PROCESSING_ERROR);
+            worldpayOrderNotificationHandler.setDefectiveModification(orderModificationModel, exception, true);
             success = false;
         }
         return success;
@@ -117,23 +149,9 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
                                                       final WorldpayOrderModificationModel orderModificationModel,
                                                       final PaymentTransactionModel paymentTransactionModel) {
         worldpayPaymentTransactionService.getNotPendingPaymentTransactionEntriesForType(paymentTransactionModel, paymentTransactionType)
-                .forEach(paymentTransactionEntryModel -> setNonDefectiveAndProcessed(orderModificationModel));
+                .forEach(paymentTransactionEntryModel -> worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModificationModel));
     }
 
-    protected void setNonDefectiveAndProcessed(final WorldpayOrderModificationModel modification) {
-        modification.setProcessed(Boolean.TRUE);
-        modification.setDefective(Boolean.FALSE);
-        modelService.save(modification);
-    }
-
-    protected void setDefectiveModification(final WorldpayOrderModificationModel orderModificationModel, final Exception exception, final boolean processed) {
-        orderModificationModel.setDefective(Boolean.TRUE);
-        orderModificationModel.setProcessed(processed);
-        modelService.save(orderModificationModel);
-        if (exception != null) {
-            LOG.error(format("There was an error processing message [{0}]. Reason: [{1}]", orderModificationModel.getPk(), exception.getMessage()), exception);
-        }
-    }
 
     protected void processMessage(final PaymentTransactionType paymentTransactionTypeFromCronJob, final WorldpayOrderModificationModel orderModificationModel, final OrderModel orderModel) {
         final OrderNotificationMessage notificationMessage = orderModificationSerialiser.deserialise(orderModificationModel.getOrderNotificationMessage());
@@ -141,7 +159,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
             if (worldpayOrderModificationRefundProcessStrategy.processRefundFollowOn(orderModel, notificationMessage)) {
                 processOrderModification(orderModificationModel, notificationMessage);
             } else {
-                setDefectiveModification(orderModificationModel, null, true);
+                worldpayOrderNotificationHandler.setDefectiveModification(orderModificationModel, null, true);
             }
         } else if (SETTLED.equals(paymentTransactionTypeFromCronJob)) {
             processOrderModification(orderModificationModel, notificationMessage);
@@ -167,31 +185,15 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
                     triggerOrderProcessEvent(paymentTransactionType, businessProcessModels.get(0));
                 }
             } else {
-                setDefectiveReason(orderModificationModel, INVALID_AUTHENTICATED_SHOPPER_ID);
+                worldpayOrderNotificationHandler.setDefectiveReason(orderModificationModel, INVALID_AUTHENTICATED_SHOPPER_ID);
                 LOG.error(format("Received modification with invalid shopperId. The Modification has been marked as defective. worldpayOrderCode = [{0}], type=[{1}]",
                         orderModificationModel.getWorldpayOrderCode(), orderModificationModel.getType()));
-                setDefectiveModification(orderModificationModel, null, true);
+                worldpayOrderNotificationHandler.setDefectiveModification(orderModificationModel, null, true);
             }
         } else if (businessProcessModels.size() > 1) {
             LOG.error(format("Must only be one businessProcess found, number found: [{0}] " +
                     "for order [{1}] and transactionType [{2}]", businessProcessModels.size(), orderModel.getCode(), paymentTransactionType));
         }
-    }
-
-    protected void setDefectiveReason(final WorldpayOrderModificationModel orderModificationModel, DefectiveReason defectiveReason) {
-        orderModificationModel.setDefectiveReason(defectiveReason);
-        final List<WorldpayOrderModificationModel> existingModifications = orderModificationDao.findExistingModifications(orderModificationModel);
-
-        int defectiveCounter = getDefectiveCounter(orderModificationModel) + existingModifications.stream()
-                .mapToInt(this::getDefectiveCounter)
-                .sum();
-        existingModifications.forEach(modelService::remove);
-
-        orderModificationModel.setDefectiveCounter(defectiveCounter + 1);
-    }
-
-    private int getDefectiveCounter(final WorldpayOrderModificationModel modification) {
-        return modification.getDefectiveCounter() == null ? 0 : modification.getDefectiveCounter();
     }
 
     protected boolean notificationIsValid(final OrderNotificationMessage notificationMessage, final AbstractOrderModel orderModel) {
@@ -205,7 +207,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
 
     protected void processOrderModification(final WorldpayOrderModificationModel orderModificationModel, final OrderNotificationMessage notificationMessage) {
         orderNotificationService.processOrderNotificationMessage(notificationMessage);
-        setNonDefectiveAndProcessed(orderModificationModel);
+        worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModificationModel);
     }
 
     private void triggerOrderProcessEvent(final PaymentTransactionType paymentTransactionType, final BusinessProcessModel businessProcessModel) {
@@ -220,11 +222,6 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
     @Required
     public void setOrderModificationDao(OrderModificationDao orderModificationDao) {
         this.orderModificationDao = orderModificationDao;
-    }
-
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
     }
 
     @Required
@@ -253,7 +250,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
     }
 
     @Required
-    public void setNonTriggeringOrderStatuses(Set nonTriggeringOrderStatuses) {
+    public void setNonTriggeringOrderStatuses(Set<OrderStatus> nonTriggeringOrderStatuses) {
         this.nonTriggeringOrderStatuses = nonTriggeringOrderStatuses;
     }
 
@@ -265,5 +262,20 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
     @Required
     public void setWorldpayOrderModificationRefundProcessStrategy(final WorldpayOrderModificationRefundProcessStrategy worldpayOrderModificationRefundProcessStrategy) {
         this.worldpayOrderModificationRefundProcessStrategy = worldpayOrderModificationRefundProcessStrategy;
+    }
+
+    @Required
+    public void setWorldpayCartService(final WorldpayCartService worldpayCartService) {
+        this.worldpayCartService = worldpayCartService;
+    }
+
+    @Required
+    public void setWorldpayOrderNotificationHandler(final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler) {
+        this.worldpayOrderNotificationHandler = worldpayOrderNotificationHandler;
+    }
+
+    @Required
+    public void setWorldpayPlaceOrderFromNotificationStrategy(final WorldpayPlaceOrderFromNotificationStrategy worldpayPlaceOrderFromNotificationStrategy) {
+        this.worldpayPlaceOrderFromNotificationStrategy = worldpayPlaceOrderFromNotificationStrategy;
     }
 }

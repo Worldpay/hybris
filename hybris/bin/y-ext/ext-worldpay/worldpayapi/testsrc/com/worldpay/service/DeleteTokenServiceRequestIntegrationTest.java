@@ -31,7 +31,7 @@ public class DeleteTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
     public void testDeleteCreatedToken() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
         final String authenticatedShopperId = UUID.randomUUID().toString();
-        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
+        final CreateTokenResponse createTokenResponse = WPSGTestHelper.createShopperToken(gateway, merchantInfo, tokenRequest, authenticatedShopperId);
         final String paymentTokenId = createTokenResponse.getToken().getTokenDetails().getPaymentTokenID();
         final DeleteTokenResponse deleteTokenResponse = WPSGTestHelper.deleteToken(gateway, merchantInfo, tokenRequest, paymentTokenId, authenticatedShopperId);
 

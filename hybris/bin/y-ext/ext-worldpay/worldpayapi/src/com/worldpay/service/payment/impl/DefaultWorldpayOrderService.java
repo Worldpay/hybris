@@ -19,6 +19,7 @@ import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.math.BigDecimal;
 import java.util.Currency;
 
 import static com.worldpay.service.model.payment.PaymentType.IDEAL;
@@ -58,6 +59,15 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
     public Amount createAmount(final Currency currency, final double amount) {
         final Double roundedValue = commonI18NService.convertAndRoundCurrency(1, Math.pow(10, currency.getDefaultFractionDigits()), 0, amount);
         return new Amount(String.valueOf(roundedValue.intValue()), currency.getCurrencyCode(), String.valueOf(currency.getDefaultFractionDigits()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal convertAmount(final Amount amount) {
+        final Currency currency = Currency.getInstance(amount.getCurrencyCode());
+        return new BigDecimal(amount.getValue()).movePointLeft(currency.getDefaultFractionDigits());
     }
 
     /**
@@ -173,7 +183,7 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
                                                                      final TokenRequest tokenRequest, final String paymentTokenID,
                                                                      final CardDetails cardDetails) {
         if (isMerchantTokenEnabled()) {
-            return UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), paymentTokenID, tokenRequest, cardDetails);
+            return UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfo, paymentTokenID, tokenRequest, cardDetails);
         }
         return UpdateTokenServiceRequest.updateTokenRequestWithShopperScope(merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), paymentTokenID, tokenRequest, cardDetails);
     }

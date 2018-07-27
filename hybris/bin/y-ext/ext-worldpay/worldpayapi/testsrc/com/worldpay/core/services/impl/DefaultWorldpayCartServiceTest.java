@@ -3,7 +3,9 @@ package com.worldpay.core.services.impl;
 import com.worldpay.core.dao.WorldpayCartDao;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.CartModel;
-import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.order.CartService;
+import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
+import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,18 +13,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayCartServiceTest {
 
     private static final String WORLDPAY_ORDER_CODE = "orderCode";
     private static final String DECLINE_CODE = "A19";
+    private static final String BANK_CODE = "bankCode";
 
 
     @InjectMocks
@@ -30,61 +30,80 @@ public class DefaultWorldpayCartServiceTest {
 
     @Mock
     private WorldpayCartDao worldpayCartDaoMock;
-
     @Mock
     private CartModel cartModelMock;
     @Mock
     private CartModel cartModelMock2;
     @Mock
-    private ModelService modelServiceMock;
+    private CartService cartServiceMock;
 
-
-    private List<CartModel> cartModelList = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
-        when(worldpayCartDaoMock.findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(cartModelList);
+        when(worldpayCartDaoMock.findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(cartModelMock);
+        when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
     }
 
     @Test
     public void setWorldpayDeclineCodeOnCartShouldSetDeclineCode() {
-        cartModelList.add(cartModelMock);
 
         testObj.setWorldpayDeclineCodeOnCart(WORLDPAY_ORDER_CODE, DECLINE_CODE);
 
-        verify(worldpayCartDaoMock).findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        verify(worldpayCartDaoMock).findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(cartModelMock).setWorldpayDeclineCode(DECLINE_CODE);
-        verify(modelServiceMock).save(cartModelMock);
+        verify(cartServiceMock).saveOrder(cartModelMock);
     }
 
     @Test
     public void setWorldpayDeclineCodeOnCartShouldNotSetDeclineCodeWhenNoCartsFound() {
+        when(worldpayCartDaoMock.findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenThrow(new ModelNotFoundException("no cart found for the code"));
         testObj.setWorldpayDeclineCodeOnCart(WORLDPAY_ORDER_CODE, DECLINE_CODE);
 
-        verify(worldpayCartDaoMock).findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        verify(worldpayCartDaoMock).findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(cartModelMock, never()).setWorldpayDeclineCode(DECLINE_CODE);
-        verify(modelServiceMock, never()).save(cartModelMock);
+        verify(cartServiceMock, never()).saveOrder(cartModelMock);
     }
 
     @Test
     public void setWorldpayDeclineCodeOnCartShouldNotSetDeclineCodeWhenMultipleCartsFound() {
-        cartModelList.add(cartModelMock);
-        cartModelList.add(cartModelMock2);
+        when(worldpayCartDaoMock.findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenThrow(new AmbiguousIdentifierException("more than one cart found for the code"));
 
         testObj.setWorldpayDeclineCodeOnCart(WORLDPAY_ORDER_CODE, DECLINE_CODE);
 
-        verify(worldpayCartDaoMock).findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        verify(worldpayCartDaoMock).findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(cartModelMock2, never()).setWorldpayDeclineCode(DECLINE_CODE);
         verify(cartModelMock2, never()).setWorldpayDeclineCode(DECLINE_CODE);
-        verify(modelServiceMock, never()).save(cartModelMock);
-        verify(modelServiceMock, never()).save(cartModelMock2);
+        verify(cartServiceMock, never()).saveOrder(cartModelMock);
+        verify(cartServiceMock, never()).saveOrder(cartModelMock2);
     }
 
     @Test
     public void findCartsByWorldpayOrderCodeShouldUseWorldpay() {
-        final List<CartModel> result = testObj.findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        final CartModel result = testObj.findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
 
-        verify(worldpayCartDaoMock).findCartsByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
-        assertEquals(cartModelList, result);
+        verify(worldpayCartDaoMock).findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        assertEquals(cartModelMock, result);
+    }
+
+    @Test
+    public void setWorldpayDeclineCodeAndBankCodeOnCart() {
+        when(cartServiceMock.hasSessionCart()).thenReturn(true);
+        when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
+
+        testObj.resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
+
+        verify(cartModelMock).setWorldpayDeclineCode("0");
+        verify(cartModelMock).setShopperBankCode(BANK_CODE);
+        verify(cartServiceMock).saveOrder(cartModelMock);
+    }
+
+    @Test
+    public void shouldDoNothigIfNoCartInSession() {
+        when(cartServiceMock.hasSessionCart()).thenReturn(false);
+
+        testObj.resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
+
+        verifyZeroInteractions(cartModelMock);
+        verify(cartServiceMock, never()).saveOrder(cartModelMock);
     }
 }

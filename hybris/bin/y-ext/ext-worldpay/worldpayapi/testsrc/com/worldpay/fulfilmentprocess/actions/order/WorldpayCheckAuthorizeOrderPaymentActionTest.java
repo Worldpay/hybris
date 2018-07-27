@@ -30,13 +30,13 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayCheckAuthorizeOrderPaymentActionTest {
 
-    public static final String NOK = "NOK";
-    public static final String OK = "OK";
-    public static final String WAIT = "WAIT";
+    private static final String NOK = "NOK";
+    private static final String OK = "OK";
+    private static final String WAIT = "WAIT";
 
     @Spy
     @InjectMocks
-    private WorldpayCheckAuthorizeOrderPaymentAction testObj = new WorldpayCheckAuthorizeOrderPaymentAction();
+    private WorldpayCheckAuthorizeOrderPaymentAction testObj;
 
     @Mock
     private OrderProcessModel processMock;
@@ -66,7 +66,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     }
 
     @Test
-    public void executeShouldReturnOKIfOrderPaymentInfoIsInvoice() throws Exception {
+    public void executeShouldReturnOKIfOrderPaymentInfoIsInvoice() {
         when(orderModelMock.getPaymentInfo()).thenReturn(invoicePaymentInfoMock);
 
         final String result = testObj.execute(processMock);
@@ -76,7 +76,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     }
 
     @Test
-    public void executeShouldReturnNOKIfNotAllTransactionEntriesAuthorised() throws Exception {
+    public void executeShouldReturnNOKIfNotAllTransactionEntriesAuthorised() {
         when(orderModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION)).thenReturn(false);
 
@@ -88,7 +88,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     }
 
     @Test
-    public void executeShouldReturnWAITIfAllTransactionEntriesAcceptedButPending() throws Exception {
+    public void executeShouldReturnWAITIfAllTransactionEntriesAcceptedButPending() {
         when(orderModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isAuthorisedAmountCorrect(orderModelMock)).thenReturn(true);
@@ -101,7 +101,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     }
 
     @Test
-    public void executeShouldReturnOKIfAllTransactionEntriesAcceptedAndNotPending() throws Exception {
+    public void executeShouldReturnOKIfAllTransactionEntriesAcceptedAndNotPending() {
         when(orderModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isAuthorisedAmountCorrect(orderModelMock)).thenReturn(true);
@@ -115,7 +115,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     }
 
     @Test
-    public void executeShouldReturnNOKWhenAuthorisedAmountNotCorrect() throws Exception {
+    public void executeShouldReturnNOKWhenAuthorisedAmountNotCorrect() {
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isAuthorisedAmountCorrect(orderModelMock)).thenReturn(false);
         when(testObj.getTimeService()).thenReturn(timeServiceMock);
@@ -130,7 +130,7 @@ public class WorldpayCheckAuthorizeOrderPaymentActionTest {
     }
 
     @Test
-    public void executeShouldReturnOKWhenAuthorisedAmountIsCorrect() throws Exception {
+    public void executeShouldReturnOKWhenAuthorisedAmountIsCorrect() {
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isAuthorisedAmountCorrect(orderModelMock)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isPaymentTransactionPending(paymentTransactionMock, AUTHORIZATION)).thenReturn(false);

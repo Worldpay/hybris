@@ -15,6 +15,9 @@ import java.security.NoSuchAlgorithmException;
 
 import static java.util.Arrays.asList;
 
+/**
+ * Implementation of the Mac validator supporting the HMAC256 algorithm.
+ */
 public class HMAC256MacValidator implements MacValidator {
 
     private static final String HMAC_SHA_256 = "HmacSHA256";

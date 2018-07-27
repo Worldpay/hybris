@@ -7,12 +7,15 @@ Type;UID;MemberOfGroups;Password;Target;read;change;create;remove;change_perm
 UserGroup;customersupportadministratorgroup;;;;;;;;
 ;;;;WorldpayAavResponse;+;+;-;-
 ;;;;WorldpayRiskScore;+;+;-;-
+;;;;WorldpayBankConfiguration;+;+;-;-
 
 UserGroup;customersupportmanagergroup;;;;;;;;
 ;;;;WorldpayAavResponse;+;+;-;-
 ;;;;WorldpayRiskScore;+;+;-;-
+;;;;WorldpayBankConfiguration;+;+;-;-
 
 UserGroup;customersupportagentgroup;;;;;;;;
 ;;;;WorldpayAavResponse;+;+;-;-
 ;;;;WorldpayRiskScore;+;+;-;-
+;;;;WorldpayBankConfiguration;+;-;-;-
 $END_USERRIGHTS;;;;;

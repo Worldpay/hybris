@@ -5,7 +5,6 @@ import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
@@ -29,7 +28,6 @@ import de.hybris.platform.servicelayer.session.SessionService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 
 import static com.worldpay.enums.token.TokenEvent.CONFLICT;
 
@@ -109,7 +107,7 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
             throws WorldpayException {
         final CreateTokenServiceRequest createTokenRequest = worldpayRequestFactory.buildTokenRequest(merchantInfo, cartModel, cseAdditionalAuthInfo, worldpayAdditionalInfoData);
         final CreateTokenResponse createTokenResponse = getWorldpayServiceGateway().createToken(createTokenRequest);
-        CreditCardPaymentInfoModel creditCardPaymentInfoModel;
+        final CreditCardPaymentInfoModel creditCardPaymentInfoModel;
         if (createTokenResponse.isError()) {
             throw new WorldpayException(createTokenResponse.getErrorDetail().getMessage());
         }
@@ -169,11 +167,11 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     @Override
     public void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode) {
         final PaymentInfoModel paymentInfoModel = abstractOrderModel.getPaymentInfo();
-        final BigDecimal authorisationAmount = convertAmount(serviceResponse.getPaymentReply().getAmount());
-        CommerceCheckoutParameter commerceCheckoutParameter;
+        final BigDecimal authorisationAmount = getWorldpayOrderService().convertAmount(serviceResponse.getPaymentReply().getAmount());
+        final CommerceCheckoutParameter commerceCheckoutParameter;
 
         if (abstractOrderModel instanceof CartModel) {
-            CartModel cartModel = (CartModel) abstractOrderModel;
+            final CartModel cartModel = (CartModel) abstractOrderModel;
             cloneAndSetBillingAddressFromCart(cartModel, paymentInfoModel);
             commerceCheckoutParameter = createCommerceCheckoutParameter(cartModel, paymentInfoModel, authorisationAmount);
             getCommerceCheckoutService().setPaymentInfo(commerceCheckoutParameter);
@@ -206,18 +204,13 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         return attribute;
     }
 
-    protected BigDecimal convertAmount(final Amount amount) {
-        final Currency currency = Currency.getInstance(amount.getCurrencyCode());
-        return new BigDecimal(amount.getValue()).movePointLeft(currency.getDefaultFractionDigits());
-    }
-
     @Required
-    public void setSessionService(SessionService sessionService) {
+    public void setSessionService(final SessionService sessionService) {
         this.sessionService = sessionService;
     }
 
     @Required
-    public void setCartService(CartService cartService) {
+    public void setCartService(final CartService cartService) {
         this.cartService = cartService;
     }
 
@@ -225,5 +218,4 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     public void setWorldpayRequestFactory(final WorldpayRequestFactory worldpayRequestFactory) {
         this.worldpayRequestFactory = worldpayRequestFactory;
     }
-
 }

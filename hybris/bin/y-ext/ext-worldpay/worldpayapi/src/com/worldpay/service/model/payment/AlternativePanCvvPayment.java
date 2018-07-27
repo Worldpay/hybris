@@ -31,7 +31,7 @@ public class AlternativePanCvvPayment extends AlternativePayment {
      * @param expiryDate
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
-    public AlternativePanCvvPayment(PaymentType paymentType, String shopperCountryCode, String successURL, String failureURL, String cancelURL, String pendingURL, String pan, String cvv, Date expiryDate) {
+    public AlternativePanCvvPayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, final String pendingURL, String pan, String cvv, Date expiryDate) {
         super(paymentType, shopperCountryCode, successURL, failureURL, cancelURL, pendingURL);
         this.pan = pan;
         this.cvv = cvv;
@@ -39,9 +39,9 @@ public class AlternativePanCvvPayment extends AlternativePayment {
     }
 
     @Override
-    protected void invokeExtraSetters(Method method, Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
-        String methodName = method.getName();
+        final String methodName = method.getName();
         if ("setPan".equals(methodName) && getPan() != null) {
             method.invoke(targetObject, getPan());
         }
@@ -49,7 +49,7 @@ public class AlternativePanCvvPayment extends AlternativePayment {
             method.invoke(targetObject, getCvv());
         }
         if ("setExpiryDate".equals(methodName) && getExpiryDate() != null) {
-            ExpiryDate intExpiryDate = new ExpiryDate();
+            final ExpiryDate intExpiryDate = new ExpiryDate();
             intExpiryDate.setDate((com.worldpay.internal.model.Date) getExpiryDate().transformToInternalModel());
             method.invoke(targetObject, intExpiryDate);
         }
@@ -59,7 +59,7 @@ public class AlternativePanCvvPayment extends AlternativePayment {
         return pan;
     }
 
-    public void setPan(String pan) {
+    public void setPan(final String pan) {
         this.pan = pan;
     }
 
@@ -67,7 +67,7 @@ public class AlternativePanCvvPayment extends AlternativePayment {
         return cvv;
     }
 
-    public void setCvv(String cvv) {
+    public void setCvv(final String cvv) {
         this.cvv = cvv;
     }
 
@@ -75,7 +75,7 @@ public class AlternativePanCvvPayment extends AlternativePayment {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(final Date expiryDate) {
         this.expiryDate = expiryDate;
     }
 

@@ -5,6 +5,7 @@ import static de.hybris.platform.basecommerce.enums.FraudStatus.OK;
 
 import java.text.MessageFormat;
 
+import de.hybris.platform.basecommerce.enums.FraudStatus;
 import de.hybris.platform.core.enums.OrderStatus;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.fraud.FraudService;
@@ -28,7 +29,7 @@ public class WorldpayFraudCheckOrderInternalAction extends WorldpayAbstractFraud
     private String providerName;
 
     @Override
-    public Transition executeAction(final OrderProcessModel process) {
+    public String executeAction(final OrderProcessModel process) {
         ServicesUtil.validateParameterNotNull(process, "Process can not be null");
         ServicesUtil.validateParameterNotNull(process.getOrder(), "Order can not be null");
 
@@ -36,15 +37,15 @@ public class WorldpayFraudCheckOrderInternalAction extends WorldpayAbstractFraud
         final FraudServiceResponse response = getFraudService().recognizeOrderSymptoms(getProviderName(), order);
 
         if (CollectionUtils.isEmpty(response.getSymptoms())) {
-            final FraudReportModel fraudReport = createFraudReport(providerName, response, order, OK);
-            final OrderHistoryEntryModel historyEntry = createHistoryLog(providerName, order, OK, null);
+            final FraudReportModel fraudReport = createFraudReport(providerName, response, order, FraudStatus.OK);
+            final OrderHistoryEntryModel historyEntry = createHistoryLog(providerName, order, FraudStatus.OK, null);
             order.setFraudulent(Boolean.FALSE);
             order.setPotentiallyFraudulent(Boolean.FALSE);
             order.setStatus(OrderStatus.FRAUD_CHECKED);
             modelService.save(fraudReport);
             modelService.save(historyEntry);
             modelService.save(order);
-            return Transition.OK;
+            return OK;
         } else {
             LOG.warn(MessageFormat.format("The order [{0}] is potentially fraudulent. Sent into Fraud Review state", order.getCode()));
             final FraudReportModel fraudReport = createFraudReport(providerName, response, order, CHECK);
@@ -56,7 +57,7 @@ public class WorldpayFraudCheckOrderInternalAction extends WorldpayAbstractFraud
             modelService.save(fraudReport);
             modelService.save(historyEntry);
             modelService.save(order);
-            return Transition.POTENTIAL;
+            return POTENTIAL;
         }
     }
 
