@@ -21,24 +21,53 @@ public interface ServiceResponseTransformerHelper {
      * @param reply    reply to interrogate for errors
      * @return true if errors exist, else false
      */
-    boolean checkForError(ServiceResponse response, Reply reply);
-
+    boolean checkForError(final ServiceResponse response, final Reply reply);
 
     /**
-     * Build a {@link PaymentReply representation} given an internal representation of the payment
+     * Builds a {@link PaymentReply representation} given an internal representation of the payment
      *
      * @param intPayment intPayment to transform
      * @return PaymentReply representation
      */
-    PaymentReply buildPaymentReply(Payment intPayment);
+    PaymentReply buildPaymentReply(final Payment intPayment);
 
-    UpdateTokenReply buildUpdateTokenReply(UpdateTokenReceived intUpdateTokenReceived);
+    /**
+     * Builds a UpdateTokenReply using the UpdateTokenReceived passed as parameter
+     *
+     * @param intUpdateTokenReceived
+     * @return
+     */
+    UpdateTokenReply buildUpdateTokenReply(final UpdateTokenReceived intUpdateTokenReceived);
 
-    DeleteTokenReply buildDeleteTokenReply(DeleteTokenReceived intDeleteTokenReceived);
+    /**
+     * Builds a DeleteTokenReply using the DeleteTokenReceived passed as parameter
+     *
+     * @param intDeleteTokenReceived
+     * @return
+     */
+    DeleteTokenReply buildDeleteTokenReply(final DeleteTokenReceived intDeleteTokenReceived);
 
-    TokenReply buildTokenReply(Token intToken);
+    /**
+     * Builds a tokenReply using the Token passed as parameter
+     *
+     * @param intToken
+     * @return
+     */
+    TokenReply buildTokenReply(final Token intToken);
 
-    WebformRefundReply buildWebformRefundReply(ShopperWebformRefundDetails intShopperWebformRefundDetails);
+    /**
+     * builds a webformRefundReply using the ShopperWebformRefundDetails passed as parameter
+     *
+     * @param intShopperWebformRefundDetails
+     * @return
+     */
+    WebformRefundReply buildWebformRefundReply(final ShopperWebformRefundDetails intShopperWebformRefundDetails);
 
-    JournalReply buildJournalReply(Journal intJournal);
+    /**
+     * Builds a JournalReply using the Journal passed as parameter
+     *
+     * @param intJournal
+     * @return
+     */
+    JournalReply buildJournalReply(final Journal intJournal);
 }

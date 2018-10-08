@@ -15,9 +15,11 @@ import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGr
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.PlaceOrderForm;
+import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
+import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.*;
 import de.hybris.platform.commercefacades.product.ProductFacade;
@@ -55,7 +57,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpaySummaryCheckoutStepControllerTest {
 
     private static final String SECURITY_CODE = "securityCode";
@@ -76,34 +78,37 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Spy
     @InjectMocks
     private WorldpaySummaryCheckoutStepController testObj;
-
+    @Mock
+    private CMSPageService cmsPageServiceMock;
+    @Mock
+    private CMSPreviewService cmsPreviewServiceMock;
     @Mock
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
+
     @Mock
     private RedirectAttributes redirectAttributesMock;
     @Mock
     private PlaceOrderForm placeOrderFormMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
     @Mock
     private CartFacade cartFacadeMock;
     @Mock
     private CartModificationData cartModificationDataMock;
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private CartData cartDataMock;
     @Mock
     private AcceleratorCheckoutFacade checkoutFacadeMock;
     @Mock
     private CheckoutFlowFacade checkoutFlowFacadeMock;
-    @Mock
-    private CMSPageService cmsPageServiceMock;
+
     @Mock
     private ContentPageModel contentPageModelMock;
     @Mock
     private PageTitleResolver pageTitleResolverMock;
     @Mock
     private ResourceBreadcrumbBuilder resourceBreadcrumbBuilderMock;
-    @Mock (name = "checkoutFlowGroupMap")
+    @Mock(name = "checkoutFlowGroupMap")
     private Map<String, CheckoutGroup> checkoutFlowGroupMapMock;
     @Mock
     private Map<String, CheckoutStep> checkoutStepMapMock;
@@ -135,6 +140,8 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    @Mock
+    private PagePreviewCriteriaData pagePreiewCriteriaMock;
 
     private Model modelMock = new ExtendedModelMap();
 
@@ -142,7 +149,8 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     public void setUp() throws Exception {
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(placeOrderFormMock.getSecurityCode()).thenReturn(SECURITY_CODE);
-        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY)).thenReturn(contentPageModelMock);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreiewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreiewCriteriaMock)).thenReturn(contentPageModelMock);
         when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
         when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
         when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
@@ -166,7 +174,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     }
 
     @Test
-    @SuppressWarnings ("unchecked")
+    @SuppressWarnings("unchecked")
     public void enterStepShouldReturnCheckoutSummaryPage() throws CMSItemNotFoundException {
         when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
         when(cartDataMock.getDeliveryMode()).thenReturn(deliveryModeDataMock);

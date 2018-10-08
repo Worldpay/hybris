@@ -197,6 +197,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     @Test
     public void shouldReturnDirectResponseDataWith3DSecureInformationWhenDirectAuthoriseServiceResponseContainsRequest3DInfo() throws WorldpayException, InvalidCartException {
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(null);
+        when(directAuthoriseServiceResponseMock.is3DSecured()).thenReturn(true);
         when(directAuthoriseServiceResponseMock.getRequest3DInfo()).thenReturn(request3DInfoMock);
         when(request3DInfoMock.getIssuerUrl()).thenReturn(ISSUER_URL);
         when(request3DInfoMock.getPaRequest()).thenReturn(PA_REQUEST);
@@ -326,6 +327,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     @Test
     public void shouldRedirectTo3DSecureOnRecurringPayment() throws WorldpayException, InvalidCartException {
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(null);
+        when(directAuthoriseServiceResponseMock.is3DSecured()).thenReturn(true);
         when(directAuthoriseServiceResponseMock.getRequest3DInfo()).thenReturn(request3DInfoMock);
         when(request3DInfoMock.getIssuerUrl()).thenReturn(ISSUER_URL);
         when(request3DInfoMock.getPaRequest()).thenReturn(PA_REQUEST);

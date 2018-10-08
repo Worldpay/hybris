@@ -26,9 +26,6 @@ storefront.supportedUiExperienceLevels.apparel-uk=DESKTOP,MOBILE
 storefront.supportedUiExperienceLevels.apparel-de=DESKTOP,MOBILE
 storefront.supportedUiExperienceLevels.powertools=DESKTOP,MOBILE
 
-# Payment Service provider.
-payment.service-provider.name=Worldpay
-
 # Set the HOP PCI strategy at this level so that it's consistent across stores
 hop.pci.strategy.enabled=true
 

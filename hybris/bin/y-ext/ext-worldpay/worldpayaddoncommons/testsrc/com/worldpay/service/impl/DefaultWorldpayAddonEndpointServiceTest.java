@@ -30,7 +30,7 @@ public class DefaultWorldpayAddonEndpointServiceTest {
     private Configuration configuration;
 
     @Test
-    public void shouldReturnPathPrefixedByAddon() throws Exception {
+    public void shouldReturnPathPrefixedByAddon() {
         when(configurationService.getConfiguration()).thenReturn(configuration);
         when(configuration.getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX)).thenReturn(ADDON_PREFIX);
 

@@ -51,7 +51,7 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRequest(merchantInfo, cartModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
-        if (response.getRequest3DInfo() != null) {
+        if (response.is3DSecured()) {
           /*
           In case the transaction requires 3d secure, two strings need to be placed in the users session: echoData and a cookie.
           These are needed to successfully reference the initial transaction in Worldpay when the user comes back from the 3d secure page.
@@ -73,7 +73,7 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
                                                                     final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRecurringPayment(merchantInfo, abstractOrderModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
-        if (response.getRequest3DInfo() != null) {
+        if (response.is3DSecured()) {
             sessionService.setAttribute(THREE_D_SECURE_COOKIE_PARAM, response.getCookie());
             sessionService.setAttribute(THREE_D_SECURE_ECHO_DATA_PARAM, response.getEchoData());
         }

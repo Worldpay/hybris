@@ -13,12 +13,12 @@ public class DefaultWorldpayAddonEndpointService implements WorldpayAddonEndpoin
     protected static final String WORLDPAY_ADDON_PREFIX = "worldpay.addon.prefix";
     protected static final String UNDEFINED_PREFIX = "undefined";
 
-    protected static final String CHECKOUTSUMMARYPAGE = "pages/checkout/multi/worldpayCheckoutSummaryPage";
-    protected static final String CSEPAYMENTDETAILSPAGE = "pages/checkout/multi/worldpayCSEPaymentPage";
-    protected static final String HOSTEDORDERPOSTPAGE = "pages/checkout/multi/hostedOrderPostPage";
-    protected static final String AUTOSUBMIT3DSECURE = "pages/checkout/multi/autoSubmit3DSecure";
+    protected static final String CHECKOUT_SUMMARY_PAGE = "pages/checkout/multi/worldpayCheckoutSummaryPage";
+    protected static final String CSE_PAYMENT_DETAILS_PAGE = "pages/checkout/multi/worldpayCSEPaymentPage";
+    protected static final String HOSTED_ORDER_POST_PAGE = "pages/checkout/multi/hostedOrderPostPage";
+    protected static final String AUTO_SUBMIT_3D_SECURE = "pages/checkout/multi/autoSubmit3DSecure";
 
-    protected static final String BILLINGADDRESSFORM = "fragments/checkout/worldpayBillingAddressForm";
+    protected static final String BILLING_ADDRESS_FORM = "fragments/checkout/worldpayBillingAddressForm";
 
     private static final String KLARNA_RESPONSE_PAGE = "pages/klarna/klarnaResponseContentPage";
 
@@ -27,27 +27,27 @@ public class DefaultWorldpayAddonEndpointService implements WorldpayAddonEndpoin
 
     @Override
     public String getCheckoutSummaryPage() {
-        return getEndpoint(CHECKOUTSUMMARYPAGE);
+        return getEndpoint(CHECKOUT_SUMMARY_PAGE);
     }
 
     @Override
     public String getCSEPaymentDetailsPage() {
-        return getEndpoint(CSEPAYMENTDETAILSPAGE);
+        return getEndpoint(CSE_PAYMENT_DETAILS_PAGE);
     }
 
     @Override
     public String getHostedOrderPostPage() {
-        return getEndpoint(HOSTEDORDERPOSTPAGE);
+        return getEndpoint(HOSTED_ORDER_POST_PAGE);
     }
 
     @Override
     public String getAutoSubmit3DSecure() {
-        return getEndpoint(AUTOSUBMIT3DSECURE);
+        return getEndpoint(AUTO_SUBMIT_3D_SECURE);
     }
 
     @Override
     public String getBillingAddressForm() {
-        return getEndpoint(BILLINGADDRESSFORM);
+        return getEndpoint(BILLING_ADDRESS_FORM);
     }
 
     protected String getEndpoint(final String path) {

@@ -8,6 +8,7 @@ import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
+import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModification;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
@@ -37,7 +38,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayCheckoutFacadeDecoratorTest {
 
     private static final String PICKUP_POINT_OF_SERVICE_NAME = "pickupPointOfServiceName";
@@ -45,16 +46,18 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     private static final String DELIVERY_MODE_CODE = "deliveryModeCode";
     private static final String ADDRESS_CODE = "addressCode";
 
-    @InjectMocks
-    private WorldpayCheckoutFacadeDecorator testObj = new WorldpayCheckoutFacadeDecorator();
-    @SuppressWarnings ("PMD")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
+
+    @InjectMocks
+    private WorldpayCheckoutFacadeDecorator testObj;
+
     @Mock
     private AddressModel sourceMock;
     @Mock
     private CheckoutFlowFacade checkoutFlowFacadeMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CartService cartServiceMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CartModel cartModelMock;
@@ -224,7 +227,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
 
         final boolean result = testObj.setPaymentDetails(PAYMENT_INFO);
 
-        final InOrder inOrder = inOrder(checkoutFlowFacadeMock, cartModelMock,cartServiceMock);
+        final InOrder inOrder = inOrder(checkoutFlowFacadeMock, cartModelMock, cartServiceMock);
         inOrder.verify(checkoutFlowFacadeMock).setPaymentDetails(PAYMENT_INFO);
         inOrder.verify(cartModelMock).setPaymentAddress(addressModelMock);
         inOrder.verify(cartServiceMock).saveOrder(cartModelMock);
@@ -439,5 +442,17 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     public void hasValidCart() {
         testObj.hasValidCart();
         verify(checkoutFlowFacadeMock).hasValidCart();
+    }
+
+    @Test
+    public void getCountriesShouldUseMethodFromCheckoutFlowFacadeForTypeBilling() {
+        testObj.getCountries(CountryType.BILLING);
+        verify(checkoutFlowFacadeMock).getCountries(CountryType.BILLING);
+    }
+
+    @Test
+    public void getCountriesShouldUseMethodFromCheckoutFlowFacadeForTypeDelivery() {
+        testObj.getCountries(CountryType.SHIPPING);
+        verify(checkoutFlowFacadeMock).getCountries(CountryType.SHIPPING);
     }
 }

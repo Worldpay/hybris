@@ -10,6 +10,7 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -84,6 +85,38 @@ public class DefaultWorldpayKlarnaStrategyTest {
         final LineItem lineItem = result.getLineItems().get(0);
         assertThat(lineItem.getLineItemReference().getValue()).isEqualToIgnoringCase("1");
         assertThat(lineItem.getName()).isEqualToIgnoringCase("productName");
+        assertThat(lineItem.getQuantity()).isEqualToIgnoringCase("1");
+        assertThat(lineItem.getTaxRate()).isEqualToIgnoringCase(EXPECTED_2000);
+        assertThat(lineItem.getTotalTaxAmount()).isEqualToIgnoringCase("1416");
+        assertThat(lineItem.getTotalDiscountAmount()).isEqualToIgnoringCase("0");
+        assertThat(lineItem.getLineItemType()).isEqualTo(LineItem.LINE_ITEM_TYPE.PHYSICAL);
+    }
+
+    @Test
+    public void shouldPopulateOrderLinesAndEscapeThemForXML() throws Exception {
+        when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
+        when(cartModelMock.getTotalTax()).thenReturn(14.16);
+        when(cartModelMock.getEntries()).thenReturn(singletonList(cartEntryModelMock));
+        when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
+        when(cartEntryModelMock.getOrder().getCurrency().getDigits()).thenReturn(2);
+        when(cartEntryModelMock.getEntryNumber()).thenReturn(1);
+        when(cartEntryModelMock.getProduct().getName()).thenReturn("productáéÑÑÑName");
+        when(cartEntryModelMock.getQuantity()).thenReturn(1L);
+        when(cartEntryModelMock.getProduct().getUnit().getName()).thenReturn("Stück");
+        when(cartEntryModelMock.getBasePrice()).thenReturn(84.96);
+        when(cartEntryModelMock.getTotalPrice()).thenReturn(84.96);
+        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 14.16D, "GBP")));
+        when(cartEntryModelMock.getDiscountValues()).thenReturn(singletonList(new DiscountValue("dv", 0D, false, "GBP")));
+
+        final OrderLines result = testObj.createOrderLines(cartModelMock);
+
+        assertThat(result.getTermsURL()).isEqualToIgnoringCase(TERMS_URL);
+        assertThat(result.getLineItems()).hasSize(1);
+        assertThat(result.getOrderTaxAmount()).isEqualToIgnoringCase("1416");
+        final LineItem lineItem = result.getLineItems().get(0);
+        assertThat(lineItem.getLineItemReference().getValue()).isEqualToIgnoringCase("1");
+        assertThat(lineItem.getName()).isEqualToIgnoringCase(StringEscapeUtils.escapeXml("productáéÑÑÑName"));
+        assertThat(lineItem.getQuantityUnit()).isEqualToIgnoringCase(StringEscapeUtils.escapeXml("Stück"));
         assertThat(lineItem.getQuantity()).isEqualToIgnoringCase("1");
         assertThat(lineItem.getTaxRate()).isEqualToIgnoringCase(EXPECTED_2000);
         assertThat(lineItem.getTotalTaxAmount()).isEqualToIgnoringCase("1416");

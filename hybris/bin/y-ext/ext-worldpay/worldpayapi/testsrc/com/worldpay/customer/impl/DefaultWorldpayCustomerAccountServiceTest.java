@@ -25,47 +25,40 @@ import static org.mockito.Mockito.*;
 public class DefaultWorldpayCustomerAccountServiceTest {
 
     @InjectMocks
-    private DefaultWorldpayCustomerAccountService testSubject = new DefaultWorldpayCustomerAccountService();
+    private DefaultWorldpayCustomerAccountService testObj;
 
     @Mock
-    private WorldpayMerchantInfoService worldpayMerchantInfoService;
-
+    private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
-    private WorldpayDirectOrderService worldpayDirectOrderService;
-
+    private WorldpayDirectOrderService worldpayDirectOrderServiceMock;
     @Mock
     private ModelService modelService;
-
     @Mock
     private MerchantInfo merchantInfoMock;
-
     @Mock
     private CustomerModel customerModelMock;
-
     @Mock
     private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock;
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
-        when(worldpayMerchantInfoService.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(customerModelMock.getPaymentInfos()).thenReturn(Collections.singletonList(creditCardPaymentInfoModelMock));
     }
 
     @Test
     public void testDeleteTokenCalled() throws WorldpayException {
-        testSubject.unlinkCCPaymentInfo(customerModelMock, creditCardPaymentInfoModelMock);
+        testObj.deleteCCPaymentInfo(customerModelMock, creditCardPaymentInfoModelMock);
 
-        verify(worldpayDirectOrderService).deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock);
-        verify(modelService).save(customerModelMock);
+        verify(worldpayDirectOrderServiceMock).deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock);
+        verify(modelService).save(creditCardPaymentInfoModelMock);
+        verify(modelService).refresh(customerModelMock);
     }
 
     @Test
     public void testHandleExceptionsFromDeleteTokenCall() throws WorldpayException {
-        doThrow(new WorldpayException("Exception in delete token")).when(worldpayDirectOrderService).deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock);
-        testSubject.unlinkCCPaymentInfo(customerModelMock, creditCardPaymentInfoModelMock);
+        doThrow(new WorldpayException("Exception in delete token")).when(worldpayDirectOrderServiceMock).deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock);
 
-        verify(worldpayDirectOrderService).deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock);
-        verify(modelService).save(customerModelMock);
+        testObj.deleteCCPaymentInfo(customerModelMock, creditCardPaymentInfoModelMock);
     }
-
 }

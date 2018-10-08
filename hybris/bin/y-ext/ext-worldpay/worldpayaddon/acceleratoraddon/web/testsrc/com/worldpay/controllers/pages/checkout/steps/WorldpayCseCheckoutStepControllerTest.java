@@ -19,9 +19,11 @@ import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.Breadcrumb;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
+import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
+import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
@@ -45,9 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.PAYMENT_METHOD_PARAM;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SHOPPER_BANK_CODE;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL;
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.*;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static com.worldpay.service.model.payment.PaymentType.PAYPAL;
@@ -59,7 +59,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayCseCheckoutStepControllerTest {
 
     private static final String CHECKOUT_ORDER_CONFIRMATION = "/checkout/orderConfirmation/";
@@ -76,7 +76,16 @@ public class WorldpayCseCheckoutStepControllerTest {
     @InjectMocks
     private WorldpayCseCheckoutStepController testObj;
 
-    @Mock (answer = RETURNS_DEEP_STUBS)
+    @Mock
+    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    @Mock
+    private CMSPreviewService cmsPreviewServiceMock;
+    @Mock
+    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
+    @Mock
+    private CartFacade cartFacadeMock;
+    
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
     @Mock
     private Model modelMock;
@@ -86,12 +95,12 @@ public class WorldpayCseCheckoutStepControllerTest {
     private BindingResult bindingResultMock;
     @Mock
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
-    @Mock (name = "cseFormValidator")
+    @Mock(name = "cseFormValidator")
     private Validator cseFormValidatorMock;
     @Mock
     private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
     @Mock
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
+    private CountryData countryDataMock;
     @Mock
     private PaymentDetailsForm paymentDetailsFormMock;
     @Mock
@@ -102,7 +111,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     private ContentPageModel contentPageModelMock;
     @Mock
     private CartData cartDataMock;
-    @Mock (name = "csePaymentDetailsFormValidator")
+    @Mock(name = "csePaymentDetailsFormValidator")
     private Validator csePaymentDetailsFormValidatorMock;
     @Mock
     private AddressForm addressFormMock;
@@ -113,10 +122,8 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private SiteConfigService siteConfigServiceMock;
     @Mock
-    private CartFacade cartFacadeMock;
-    @Mock
     private ResourceBreadcrumbBuilder resourceBreadcrumbBuilder;
-    @Mock (answer = RETURNS_DEEP_STUBS, name = "checkoutFacade")
+    @Mock(answer = RETURNS_DEEP_STUBS, name = "checkoutFacade")
     private WorldpayCheckoutFacadeDecorator checkoutFacadeMock;
     @Mock
     private CMSPageService cmsPageServiceMock;
@@ -127,8 +134,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private CCPaymentInfoData ccPaymentInfoMock;
     @Mock
-    private CountryData countryDataMock;
-    @Mock
     private Breadcrumb breadcrumbMock;
     @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
@@ -137,7 +142,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private DirectResponseData directResponseDataMock;
     @Mock
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    private PagePreviewCriteriaData pagePreiewCriteriaMock;
 
     @Before
     public void setUp() throws Exception {
@@ -150,13 +155,14 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(true);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
-        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL)).thenReturn(contentPageModelMock);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreiewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreiewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(cartFacadeMock.getDeliveryCountries()).thenReturn(Collections.singletonList(countryDataMock));
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
         doReturn(false).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
         when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(Collections.singletonList(ccPaymentInfoMock));
         when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
-        when(cartFacadeMock.getDeliveryCountries()).thenReturn(Collections.singletonList(countryDataMock));
         when(resourceBreadcrumbBuilder.getBreadcrumbs(anyString())).thenReturn(Collections.singletonList(breadcrumbMock));
         when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);

@@ -8,15 +8,12 @@ def config = {
     }
 
     extensions {
-        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayfulfilment'
+        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/y-ext/ext-worldpayfulfilment'
 
-        extName 'mcc'
         extName 'commercesearchbackoffice'
         extName 'b2bcommercebackoffice'
         extName 'solrfacetsearchbackoffice'
-        extName 'b2badmincockpit'
 
-        extName 'yacceleratorcockpits'
         extName 'yacceleratorinitialdata'
         extName 'yacceleratorfulfilmentprocess'
         extName 'ycommercewebservices'

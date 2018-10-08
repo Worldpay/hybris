@@ -20,6 +20,11 @@ import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.Optional;
 
+
+/**
+ * {@inheritDoc}
+ * Default implementation
+ */
 public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller {
 
     /**

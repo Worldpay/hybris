@@ -265,13 +265,12 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
      * @param paymentMethodId
      * @param redirectAttributes
      * @return
-     * @throws CMSItemNotFoundException
      */
     @RequestMapping(value = "/remove", method = POST)
     @RequireHardLogIn
     public String remove(@RequestParam(value = "paymentInfoId") final String paymentMethodId,
-                         final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
-        getUserFacade().unlinkCCPaymentInfo(paymentMethodId);
+                         final RedirectAttributes redirectAttributes) {
+        getUserFacade().removeCCPaymentInfo(paymentMethodId);
         GlobalMessages.addFlashMessage(redirectAttributes, GlobalMessages.CONF_MESSAGES_HOLDER,
                 TEXT_ACCOUNT_PROFILE_PAYMENT_CART_REMOVED);
         return getCheckoutStep().currentStep();

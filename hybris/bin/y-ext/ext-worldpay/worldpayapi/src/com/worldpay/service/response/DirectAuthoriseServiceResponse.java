@@ -22,6 +22,11 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
     private TokenReply token;
     private String echoData;
 
+    /**
+     * Determines if the response needs 3d secure authentication.
+     *
+     * @return
+     */
     public boolean is3DSecured() {
         return request3DInfo != null;
     }

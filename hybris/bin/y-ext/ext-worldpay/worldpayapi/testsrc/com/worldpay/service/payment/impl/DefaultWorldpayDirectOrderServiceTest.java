@@ -170,7 +170,6 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Test
     public void shouldNotStoreCookieAndEchoDataInSession() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceRequestMock);
-        when(directAuthoriseServiceResponseMock.getRequest3DInfo()).thenReturn(null);
 
         testObj.authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 
@@ -194,7 +193,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Test
     public void shouldStoreCookieAndEchoDataInSession() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceRequestMock);
-        when(directAuthoriseServiceResponseMock.getRequest3DInfo()).thenReturn(request3DInfoMock);
+        when(directAuthoriseServiceResponseMock.is3DSecured()).thenReturn(true);
 
         testObj.authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 
@@ -359,7 +358,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     @Test
     public void shouldAddSessionAttributesWhenResponseContainsRequest3DInfoOnRecurringPayment() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectAuthoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceRequestMock);
-        when(directAuthoriseServiceResponseMock.getRequest3DInfo()).thenReturn(request3DInfoMock);
+        when(directAuthoriseServiceResponseMock.is3DSecured()).thenReturn(true);
 
         final DirectAuthoriseServiceResponse result = testObj.authoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 

@@ -11,15 +11,13 @@
 <spring:htmlEscape defaultHtmlEscape="true" />
 
 <spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl" htmlEscape="false"/>
-<spring:url value="/checkout/multi/termsAndConditions" var="getTermsAndConditionsUrl" htmlEscape="false"/>
 
 <template:page pageTitle="${pageTitle}" hideHeaderLinks="true">
-
     <div class="row">
         <div class="col-sm-6">
             <div class="checkout-headline">
                 <span class="glyphicon glyphicon-lock"></span>
-                <spring:theme code="checkout.multi.secure.checkout"/>
+                <spring:theme code="checkout.multi.secure.checkout" />
             </div>
 
             <multi-checkout:checkoutSteps checkoutSteps="${checkoutSteps}" progressBarId="${progressBarId}">
@@ -33,7 +31,6 @@
                         <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm">
                             <wp-b2b-multi-checkout:securityCode/>
                             <wp-b2b-multi-checkout:termsAndConditions/>
-
                             <button id="placeOrder" type="submit" class="btn btn-primary btn-block btn-place-order btn-block btn-lg checkoutSummaryButton" disabled="disabled">
                                 <spring:theme code="checkout.summary.placeOrder"/>
                             </button>

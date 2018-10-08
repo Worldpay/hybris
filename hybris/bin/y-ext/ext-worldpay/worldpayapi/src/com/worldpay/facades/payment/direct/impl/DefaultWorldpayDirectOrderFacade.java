@@ -235,7 +235,6 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
                                                        final MerchantInfo merchantInfo) throws WorldpayException, InvalidCartException {
         final DirectResponseData response = new DirectResponseData();
         final PaymentReply paymentReply = serviceResponse.getPaymentReply();
-        final Request3DInfo request3DInfo = serviceResponse.getRequest3DInfo();
         if (paymentReply != null) {
             final AuthorisedStatus status = paymentReply.getAuthStatus();
             if (AUTHORISED.equals(status)) {
@@ -246,8 +245,8 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             } else if (CANCELLED.equals(status)) {
                 handleCancelledResponse(response);
             }
-        } else if (request3DInfo != null) {
-            handle3DInfoRequest(response, request3DInfo);
+        } else if (serviceResponse.is3DSecured()) {
+            handle3DInfoRequest(response, serviceResponse.getRequest3DInfo());
         } else {
             final String errorMessage = format(ERROR_AUTHORISING_ORDER, abstractOrderModel.getWorldpayOrderCode());
             throwWorldpayException(errorMessage);
@@ -261,7 +260,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     protected boolean shouldProcessResponse(final DirectAuthoriseServiceResponse serviceResponse) {
-        return serviceResponse.getPaymentReply() != null || serviceResponse.getRequest3DInfo() != null;
+        return serviceResponse.getPaymentReply() != null || serviceResponse.is3DSecured();
     }
 
     protected boolean shouldProcessRedirect(final DirectAuthoriseServiceResponse serviceResponse) {

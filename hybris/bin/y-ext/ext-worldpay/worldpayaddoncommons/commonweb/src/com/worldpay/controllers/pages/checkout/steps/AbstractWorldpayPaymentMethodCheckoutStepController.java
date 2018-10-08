@@ -24,11 +24,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 
 @Controller
-@RequestMapping (value = "/checkout/multi/payment-method")
+@RequestMapping(value = "/checkout/multi/payment-method")
 public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extends AbstractCheckoutStepController {
 
     protected static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = REDIRECT_PREFIX + "/checkout/multi/worldpay/choose-payment-method";
@@ -56,17 +58,17 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     @Resource
     private WorldpayHostedOrderFacade worldpayHostedOrderFacade;
 
-    @ModelAttribute ("billingCountries")
+    @ModelAttribute("billingCountries")
     public Collection<CountryData> getBillingCountries() {
         return getCheckoutFacade().getBillingCountries();
     }
 
-    @ModelAttribute ("cardTypes")
+    @ModelAttribute("cardTypes")
     public Collection<CardTypeData> getCardTypes() {
         return getCheckoutFacade().getSupportedCardTypes();
     }
 
-    @ModelAttribute ("months")
+    @ModelAttribute("months")
     public List<SelectOption> getMonths() {
         final List<SelectOption> months = new ArrayList<>();
         months.add(new SelectOption("01", "1"));
@@ -84,16 +86,12 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
         return months;
     }
 
-    @ModelAttribute ("expiryYears")
+    @ModelAttribute("expiryYears")
     public List<SelectOption> getExpiryYears() {
-        final List<SelectOption> expiryYears = new ArrayList<>();
         final LocalDate localDate = LocalDate.now();
-
-        for (int i = localDate.getYear(); i < (localDate.getYear() + PLUS_YEARS); i++) {
-            expiryYears.add(new SelectOption(String.valueOf(i), String.valueOf(i)));
-        }
-
-        return expiryYears;
+        return IntStream.range(localDate.getYear(), localDate.getYear() + PLUS_YEARS)
+                .mapToObj(i -> new SelectOption(String.valueOf(i), String.valueOf(i)))
+                .collect(Collectors.toList());
     }
 
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
