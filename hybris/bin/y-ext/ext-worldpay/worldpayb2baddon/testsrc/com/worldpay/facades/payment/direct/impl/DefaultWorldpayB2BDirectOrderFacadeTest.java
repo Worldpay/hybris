@@ -74,8 +74,8 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
     @Mock
     private B2BOrderService b2BOrderServiceMock;
 
-    @SuppressWarnings("PMD")
     @Rule
+    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
     @Before

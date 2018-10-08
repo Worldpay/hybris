@@ -11,6 +11,7 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
@@ -75,14 +76,13 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
                 final double adjustedLineItemTaxAmount = lineItemDiscounted.getTotalTaxAmountValue() - taxRoundingDifference;
                 lineItemDiscounted.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
             } else {
-                final Optional<LineItem> shippingFeeLineItemOptional = orderLines.getLineItems().stream()
+                orderLines.getLineItems().stream()
                         .filter(lineItem1 -> SHIPPING_FEE.equals(lineItem1.getLineItemType()))
-                        .findAny();
-                if (shippingFeeLineItemOptional.isPresent()) {
-                    final LineItem shippingLineItem = shippingFeeLineItemOptional.get();
-                    final double adjustedLineItemTaxAmount = shippingLineItem.getTotalTaxAmountValue() - taxRoundingDifference;
-                    shippingLineItem.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
-                }
+                        .findAny()
+                        .ifPresent(shippingLineItem -> {
+                            final double adjustedLineItemTaxAmount = shippingLineItem.getTotalTaxAmountValue() - taxRoundingDifference;
+                            shippingLineItem.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
+                        });
             }
         }
     }
@@ -94,9 +94,9 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         lineItem.setLineItemType(LineItem.LINE_ITEM_TYPE.PHYSICAL);
         final LineItemReference lineItemReference = new LineItemReference(null, String.valueOf(entry.getEntryNumber()));
         lineItem.setLineItemReference(lineItemReference);
-        lineItem.setName(entry.getProduct().getName());
+        lineItem.setName(StringEscapeUtils.escapeXml(entry.getProduct().getName()));
         lineItem.setQuantity(String.valueOf(entry.getQuantity()));
-        lineItem.setQuantityUnit(entry.getProduct().getUnit().getName());
+        lineItem.setQuantityUnit(StringEscapeUtils.escapeXml(entry.getProduct().getUnit().getName()));
         lineItem.setUnitPrice(convertDoubleToStringFormat(digits, entry.getBasePrice()));
         final double totalAmount = calculateEntryTotalAmount(entry);
         lineItem.setTotalAmount(convertDoubleToStringFormat(digits, totalAmount));

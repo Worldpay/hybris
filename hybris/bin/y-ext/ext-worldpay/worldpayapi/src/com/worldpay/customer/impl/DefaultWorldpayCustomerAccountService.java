@@ -27,14 +27,14 @@ public class DefaultWorldpayCustomerAccountService extends DefaultCustomerAccoun
      * @param creditCardPaymentInfo
      */
     @Override
-    public void unlinkCCPaymentInfo(final CustomerModel customerModel, final CreditCardPaymentInfoModel creditCardPaymentInfo) {
+    public void deleteCCPaymentInfo(final CustomerModel customerModel, final CreditCardPaymentInfoModel creditCardPaymentInfo) {
         try {
             final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
             worldpayDirectOrderService.deleteToken(merchantInfo, creditCardPaymentInfo);
         } catch (final WorldpayException e) {
             LOG.error("Error deleting token at worldpay ", e);
         }
-        super.unlinkCCPaymentInfo(customerModel, creditCardPaymentInfo);
+        super.deleteCCPaymentInfo(customerModel, creditCardPaymentInfo);
     }
 
     @Required

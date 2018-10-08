@@ -40,7 +40,7 @@ def config = {
     }
 
     extensions {
-        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayoms'
+        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/y-ext/ext-worldpayoms'
 
         extName 'ordermanagementaddon'
         extName 'orderselfserviceaddon'
@@ -52,16 +52,12 @@ def config = {
         extName 'warehousingfacade'
         extName 'warehousingwebservices'
 
-        extName 'instore'
-
-        extName 'mcc'
         extName 'adaptivesearchsolr'
         extName 'adaptivesearchbackoffice'
         extName 'backoffice'
         extName 'commercesearchbackoffice'
         extName 'commerceservicesbackoffice'
         extName 'solrserver'
-        extName 'yacceleratorcockpits'
         extName 'yacceleratorinitialdata'
         extName 'yacceleratorordermanagement'
         extName 'yacceleratorstorefront'

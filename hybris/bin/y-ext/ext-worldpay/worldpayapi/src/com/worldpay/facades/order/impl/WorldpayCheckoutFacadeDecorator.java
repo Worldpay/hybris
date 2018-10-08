@@ -6,6 +6,7 @@ import de.hybris.platform.commercefacades.order.data.*;
 import de.hybris.platform.commercefacades.storelocator.data.PointOfServiceData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
+import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
@@ -181,6 +182,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public List<CountryData> getDeliveryCountries() {
         return getCheckoutFlowFacade().getDeliveryCountries();
     }
@@ -261,8 +263,17 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public List<CountryData> getBillingCountries() {
         return getCheckoutFlowFacade().getBillingCountries();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<CountryData> getCountries(final CountryType countryType) {
+        return getCheckoutFlowFacade().getCountries(countryType);
     }
 
     /**

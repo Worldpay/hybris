@@ -1,9 +1,9 @@
 #Ant properties
-#Fri Jul 27 16:05:15 BST 2018
-builddate=20180727 1605
+#Sat Oct 06 18:58:13 BST 2018
+builddate=20181006 1858
 description=worldpayaddoncommons
 name=worldpayaddoncommons
-releasedate=20180508 0119
+releasedate=20180910 1056
 vendor=hybris
-version=6.7.0.1
-version.api=6.7.0
+version=1808.1
+version.api=18.08.0

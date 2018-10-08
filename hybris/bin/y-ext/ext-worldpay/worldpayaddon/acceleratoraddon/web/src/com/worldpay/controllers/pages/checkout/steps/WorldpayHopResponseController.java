@@ -206,7 +206,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         try {
             final RedirectAuthoriseResult redirectAuthoriseResult = getWorldpayHostedOrderFacade().inquiryPaymentStatus();
             return processResponse(model, redirectAttributes, redirectAuthoriseResult, redirectAuthoriseResult.getPaymentStatus());
-        } catch (WorldpayException e) {
+        } catch (final WorldpayException e) {
             LOG.error("Error inquiring order in Worldpay", e);
             return doHostedOrderPageError(ERROR.name(), redirectAttributes);
         }
@@ -222,7 +222,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         }
     }
 
-    protected String checkCart(RedirectAuthoriseResult response) {
+    protected String checkCart(final RedirectAuthoriseResult response) {
         final PaymentTransactionModel paymentTransactionFromCode = worldpayPaymentTransactionService.getPaymentTransactionFromCode(response.getOrderCode());
         if (paymentTransactionFromCode != null && paymentTransactionFromCode.getOrder() instanceof OrderModel) {
             return redirectToOrderConfirmationPage(orderConverter.convert(paymentTransactionFromCode.getOrder()));

@@ -323,10 +323,6 @@
         <property name="cartService" ref="cartService"/>
     </bean>
 
-    <bean id="defaultWorldpayapiLabelLocator" class="de.hybris.platform.cockpit.util.ConfigurableCockpitLabelLocator" lazy-init="false">
-        <property name="resourceFolder" value="/worldpayapi/cockpit/localization/"/>
-    </bean>
-
     <bean id="worldpayPaymentInfoIsApmHandler" class="com.worldpay.attributehandlers.WorldpayPaymentInfoIsApmHandler">
         <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
     </bean>

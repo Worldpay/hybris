@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * {@inheritDoc}
+ * Default implementation of {@link ServiceResponseTransformerHelper}
  */
 public class DefaultServiceResponseTransformerHelper implements ServiceResponseTransformerHelper {
 
@@ -28,7 +28,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
      * {@inheritDoc}
      */
     @Override
-    public boolean checkForError(ServiceResponse response, Reply reply) {
+    public boolean checkForError(final ServiceResponse response, final Reply reply) {
         final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
         if (replyType instanceof com.worldpay.internal.model.Error) {
             final com.worldpay.internal.model.Error intError = (com.worldpay.internal.model.Error) replyType;
@@ -36,8 +36,8 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             response.setError(errorDtl);
             return true;
         } else if (replyType instanceof OrderStatus) {
-            OrderStatus ordStatus = (OrderStatus) replyType;
-            Object statusType = ordStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
+            final OrderStatus ordStatus = (OrderStatus) replyType;
+            final Object statusType = ordStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
             if (statusType instanceof com.worldpay.internal.model.Error) {
                 final com.worldpay.internal.model.Error intError = (com.worldpay.internal.model.Error) statusType;
                 final ErrorDetail errorDtl = buildErrorDetail(intError);
@@ -48,7 +48,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return false;
     }
 
-    private ErrorDetail buildErrorDetail(com.worldpay.internal.model.Error intError) {
+    private ErrorDetail buildErrorDetail(final com.worldpay.internal.model.Error intError) {
         ErrorDetail errorDtl = null;
         if (intError != null) {
             errorDtl = new ErrorDetail(intError.getCode(), intError.getvalue());
@@ -61,28 +61,28 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
      */
     @Override
     public PaymentReply buildPaymentReply(final Payment intPayment) {
-        PaymentReply paymentReply = new PaymentReply();
+        final PaymentReply paymentReply = new PaymentReply();
         paymentReply.setMethodCode(intPayment.getPaymentMethod());
         final PaymentMethodDetail paymentMethodDetail = intPayment.getPaymentMethodDetail();
         if (paymentMethodDetail != null) {
             paymentReply.setCardDetails(transformCard(paymentMethodDetail.getCard(), intPayment.getCardHolderName()));
         }
 
-        com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
+        final com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
         final Amount amount = transformAmount(intAmount);
         paymentReply.setAmount(amount);
         paymentReply.setAuthStatus(AuthorisedStatus.valueOf(intPayment.getLastEvent()));
-        CVCResultCode intCvcResultCode = intPayment.getCVCResultCode();
+        final CVCResultCode intCvcResultCode = intPayment.getCVCResultCode();
         if (intCvcResultCode != null) {
-            String cvcResultDescription = intCvcResultCode.getDescription().get(0);
+            final String cvcResultDescription = intCvcResultCode.getDescription().get(0);
             paymentReply.setCvcResultDescription(cvcResultDescription);
         }
         final List<Balance> balanceList = intPayment.getBalance();
         if (balanceList != null && !balanceList.isEmpty()) {
-            Balance balance = balanceList.get(0);
+            final Balance balance = balanceList.get(0);
             paymentReply.setBalanceAccountType(balance.getAccountType());
-            com.worldpay.internal.model.Amount intBalAmount = balance.getAmount();
-            Amount balAmount = transformAmount(intBalAmount);
+            final com.worldpay.internal.model.Amount intBalAmount = balance.getAmount();
+            final Amount balAmount = transformAmount(intBalAmount);
             paymentReply.setBalanceAmount(balAmount);
         }
 
@@ -122,6 +122,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return riskScore;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UpdateTokenReply buildUpdateTokenReply(final UpdateTokenReceived intUpdateTokenReceived) {
         final UpdateTokenReply updateTokenReply = new UpdateTokenReply();
@@ -129,6 +132,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return updateTokenReply;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DeleteTokenReply buildDeleteTokenReply(final DeleteTokenReceived intDeleteTokenReceived) {
         final DeleteTokenReply deleteTokenReply = new DeleteTokenReply();
@@ -136,6 +142,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return deleteTokenReply;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TokenReply buildTokenReply(final Token intToken) {
         final TokenReply tokenReply = new TokenReply();
@@ -181,6 +190,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return tokenDetails;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public WebformRefundReply buildWebformRefundReply(final ShopperWebformRefundDetails intShopperWebformRefundDetails) {
         final WebformRefundReply webformRefundReply = new WebformRefundReply();
@@ -288,7 +300,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     private com.worldpay.service.model.payment.Card transformCard(final Card intCard, final CardHolderName cardHolderName) {
         Date transformedDate = null;
-        String cardHolderNameValue = transformCardHolderName(cardHolderName);
+        final String cardHolderNameValue = transformCardHolderName(cardHolderName);
         if (intCard.getExpiryDate() != null) {
             transformedDate = transformDate(intCard.getExpiryDate().getDate());
         }
@@ -305,9 +317,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     private Address transformAddress(final com.worldpay.internal.model.CardAddress intCardAddress) {
         if (intCardAddress != null && intCardAddress.getAddress() != null) {
-            com.worldpay.internal.model.Address intAddress = intCardAddress.getAddress();
+            final com.worldpay.internal.model.Address intAddress = intCardAddress.getAddress();
             final List<Object> streetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3 = intAddress.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3();
-            Address address = new Address();
+            final Address address = new Address();
             setAddressFields(streetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3, address);
             address.setFirstName(intAddress.getFirstName());
             address.setLastName(intAddress.getLastName());
@@ -351,16 +363,19 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return new Date(intDate.getDayOfMonth(), intDate.getMonth(), intDate.getYear(), intDate.getHour(), intDate.getMinute(), intDate.getSecond());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public JournalReply buildJournalReply(Journal intJournal) {
-        JournalReply journalReply = new JournalReply();
+    public JournalReply buildJournalReply(final Journal intJournal) {
+        final JournalReply journalReply = new JournalReply();
         journalReply.setJournalType(AuthorisedStatus.valueOf(intJournal.getJournalType()));
         populateBookingDate(intJournal, journalReply);
         populateAccountTransactions(intJournal, journalReply);
         return journalReply;
     }
 
-    private void populateBookingDate(Journal intJournal, JournalReply journalReply) {
+    private void populateBookingDate(final Journal intJournal, final JournalReply journalReply) {
         Optional.ofNullable(intJournal.getBookingDate())
                 .ifPresent(bookingDate -> Optional.ofNullable(bookingDate.getDate()).ifPresent(intDate -> {
                     final Date date = transformDate(intDate);
@@ -368,15 +383,15 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 }));
     }
 
-    private void populateAccountTransactions(Journal intJournal, JournalReply journalReply) {
-        List<AccountTx> accountTxs = intJournal.getAccountTx();
-        for (AccountTx accountTx : accountTxs) {
-            AccountTransaction accountTransaction = new AccountTransaction();
+    private void populateAccountTransactions(final Journal intJournal, final JournalReply journalReply) {
+        final List<AccountTx> accountTxs = intJournal.getAccountTx();
+        for (final AccountTx accountTx : accountTxs) {
+            final AccountTransaction accountTransaction = new AccountTransaction();
 
             accountTransaction.setAccountType(accountTx.getAccountType());
             accountTransaction.setBatchId(accountTx.getBatchId());
 
-            com.worldpay.internal.model.Amount amount = accountTx.getAmount();
+            final com.worldpay.internal.model.Amount amount = accountTx.getAmount();
 
             if (amount != null) {
                 accountTransaction.setAmount(transformAmount(amount));

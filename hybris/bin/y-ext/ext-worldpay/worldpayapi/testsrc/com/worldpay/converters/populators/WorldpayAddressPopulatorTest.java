@@ -3,6 +3,7 @@ package com.worldpay.converters.populators;
 import com.worldpay.service.model.Address;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.user.AddressModel;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayAddressPopulatorTest {
 
     @InjectMocks
@@ -32,7 +33,7 @@ public class WorldpayAddressPopulatorTest {
     private static final String TELEPHONE = "telephone";
     private static final String STATE = "state";
 
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private AddressModel sourceMock;
 
     @Before
@@ -101,7 +102,23 @@ public class WorldpayAddressPopulatorTest {
         assertEquals(STATE, target.getState());
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test
+    public void testEscapeCharacters() {
+
+        when(sourceMock.getLine1()).thenReturn("áéíóú");
+        when(sourceMock.getLine2()).thenReturn("üöë");
+        when(sourceMock.getTown()).thenReturn("ñÑçÇ");
+
+        final Address target = new Address();
+
+        testObject.populate(sourceMock, target);
+
+        assertEquals(StringEscapeUtils.escapeXml("áéíóú"), target.getAddress1());
+        assertEquals(StringEscapeUtils.escapeXml("üöë"), target.getAddress2());
+        assertEquals(StringEscapeUtils.escapeXml("ñÑçÇ"), target.getCity());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void populateThrowsExceptionIfSourceIsNull() {
         final Address target = new Address();
         // Did this for Gold certification. sonar does not like null params

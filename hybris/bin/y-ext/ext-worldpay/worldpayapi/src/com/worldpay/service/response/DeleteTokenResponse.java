@@ -2,6 +2,9 @@ package com.worldpay.service.response;
 
 import com.worldpay.service.model.token.DeleteTokenReply;
 
+/**
+ * Object representing the response of a delete token request.
+ */
 public class DeleteTokenResponse extends AbstractServiceResponse {
 
     private DeleteTokenReply deleteTokenReply;
