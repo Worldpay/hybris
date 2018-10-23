@@ -4,6 +4,7 @@ import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactio
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
@@ -11,6 +12,7 @@ import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Cse;
+import com.worldpay.service.model.payment.PayWithGoogleSSL;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.Token;
@@ -44,6 +46,7 @@ import java.util.Locale;
 
 import static com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory.TOKEN_DELETED;
 import static com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory.TOKEN_UPDATED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.eq;
@@ -106,9 +109,7 @@ public class DefaultWorldpayRequestFactoryTest {
     @Mock
     private CurrencyModel currencyModelMock;
     @Mock
-    private DirectAuthoriseServiceRequest directAuthoriseServiceRequestMock;
-    @Mock(answer = RETURNS_DEEP_STUBS)
-    private DirectAuthoriseServiceRequest directTokenisedAuthoriseServiceRequestMock;
+    private DirectAuthoriseServiceRequest directAuthoriseServiceRequestMock, directTokenisedAuthoriseServiceRequestMock, directGooglePayAuthoriseServiceRequestMock;
     @Mock
     private Amount amountMock;
     @Mock
@@ -132,7 +133,7 @@ public class DefaultWorldpayRequestFactoryTest {
     @Mock
     private Payment paymentMock;
     @Mock
-    private Shopper shopperMock;
+    private Shopper shopperMock, shopperWithoutSessionNorBrowserMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CreateTokenResponse createTokenResponseMock;
     @Captor
@@ -149,10 +150,15 @@ public class DefaultWorldpayRequestFactoryTest {
     private WorldpayKlarnaStrategy worldpayKlarnaStrategyMock;
     @Mock
     private WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService;
+    @Mock
+    private PayWithGoogleSSL googlePayMock;
+    @Mock
+    private GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfoMock;
 
     @Before
     public void setUp() throws WorldpayException {
         doReturn(csePaymentMock).when(testObj).createCsePayment(cseAdditionalAuthInfoMock, billingAddressMock);
+
         when(worldpayAddressConverterMock.convert(deliveryAddressModelMock)).thenReturn(shippingAddressMock);
         when(worldpayAddressConverterMock.convert(paymentAddressModelMock)).thenReturn(billingAddressMock);
 
@@ -184,6 +190,7 @@ public class DefaultWorldpayRequestFactoryTest {
         when(worldpayAdditionalInfoDataMock.getAuthenticatedShopperId()).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayOrderServiceMock.createBankPayment(PAYMENT_METHOD, SHOPPER_BANK_CODE)).thenReturn(paymentMock);
         when(worldpayOrderServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, sessionMock, browserMock)).thenReturn(shopperMock);
+        when(worldpayOrderServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, null, null)).thenReturn(shopperWithoutSessionNorBrowserMock);
         when(bankTransferAdditionalAuthInfoMock.getPaymentMethod()).thenReturn(PAYMENT_METHOD);
         when(bankTransferAdditionalAuthInfoMock.getShopperBankCode()).thenReturn(SHOPPER_BANK_CODE);
         when(bankTransferAdditionalAuthInfoMock.getStatementNarrative()).thenReturn(STATEMENT_NARRATIVE);
@@ -212,7 +219,7 @@ public class DefaultWorldpayRequestFactoryTest {
     }
 
     @Test
-    public void shouldUseShippingAsBilling() throws Exception {
+    public void shouldUseShippingAsBilling() {
         when(cseAdditionalAuthInfoMock.getUsingShippingAsBilling()).thenReturn(true);
         doReturn(directTokenisedAuthoriseServiceRequestMock).when(testObj).createTokenisedDirectAuthoriseRequest(merchantInfoMock, basicOrderInfoMock, tokenMock, authenticatedShopperMock, shippingAddressMock, DynamicInteractionType.ECOMMERCE);
         doReturn(csePaymentMock).when(testObj).createCsePayment(cseAdditionalAuthInfoMock, shippingAddressMock);
@@ -223,12 +230,12 @@ public class DefaultWorldpayRequestFactoryTest {
     }
 
     @Test
-    public void shouldCreateTokenisedDirectAuthoriseRequest() throws Exception {
+    public void shouldCreateTokenisedDirectAuthoriseRequest() {
         doReturn(directTokenisedAuthoriseServiceRequestMock).when(testObj).createTokenisedDirectAuthoriseRequest(merchantInfoMock, basicOrderInfoMock, tokenMock, authenticatedShopperMock, shippingAddressMock, DynamicInteractionType.ECOMMERCE);
 
-        testObj.buildDirectAuthoriseRequest(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
+        final DirectAuthoriseServiceRequest result = testObj.buildDirectAuthoriseRequestWithTokenForCSE(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 
-        verify(testObj).createTokenisedDirectAuthoriseRequest(merchantInfoMock, basicOrderInfoMock, tokenMock, authenticatedShopperMock, shippingAddressMock, DynamicInteractionType.ECOMMERCE);
+        assertThat(result).isEqualTo(directTokenisedAuthoriseServiceRequestMock);
     }
 
     @Test
@@ -267,6 +274,19 @@ public class DefaultWorldpayRequestFactoryTest {
     }
 
     @Test
+    public void shouldBuildDirectAuthorisationWithGooglePay() {
+        when(googlePayAdditionalAuthInfoMock.getProtocolVersion()).thenReturn("protocolVersion");
+        when(googlePayAdditionalAuthInfoMock.getSignature()).thenReturn("signature");
+        when(googlePayAdditionalAuthInfoMock.getSignedMessage()).thenReturn("signedMessage");
+        doReturn(googlePayMock).when(testObj).createGooglePayPayment("protocolVersion", "signature", "signedMessage");
+        doReturn(directGooglePayAuthoriseServiceRequestMock).when(testObj).createGooglePayDirectAuthoriseRequest(merchantInfoMock, basicOrderInfoMock, googlePayMock, shopperWithoutSessionNorBrowserMock, shippingAddressMock, DynamicInteractionType.ECOMMERCE);
+
+        final DirectAuthoriseServiceRequest result = testObj.buildDirectAuthoriseGooglePayRequest(merchantInfoMock, cartModelMock, googlePayAdditionalAuthInfoMock);
+
+        assertThat(result).isEqualTo(directGooglePayAuthoriseServiceRequestMock);
+    }
+
+    @Test
     public void shouldCreateUpdateTokenRequest() {
         when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_UPDATED + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))).thenReturn(tokenRequestMockWithReason);
 
@@ -291,7 +311,7 @@ public class DefaultWorldpayRequestFactoryTest {
                 thenReturn(tokenRequestMockWithReason);
         when(creditCardPaymentInfoModelMock.getEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
         when(creditCardPaymentInfoModelMock.getAuthenticatedShopperID()).thenReturn(AUTHENTICATED_SHOPPER_ID);
-        
+
         testObj.buildTokenDeleteRequest(merchantInfoMock, creditCardPaymentInfoModelMock);
 
         verify(testObj).createDeleteTokenServiceRequest(eq(merchantInfoMock), eq(creditCardPaymentInfoModelMock), eq(tokenRequestMockWithReason));

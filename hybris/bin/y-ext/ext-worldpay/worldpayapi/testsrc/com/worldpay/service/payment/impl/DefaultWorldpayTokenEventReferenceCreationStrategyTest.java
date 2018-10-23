@@ -16,7 +16,8 @@ import static org.mockito.Mockito.when;
 @RunWith (MockitoJUnitRunner.class)
 public class DefaultWorldpayTokenEventReferenceCreationStrategyTest {
 
-    public static final String CART_CODE = "cartCode";
+    private static final String CART_CODE = "cartCode";
+
     @InjectMocks
     private DefaultWorldpayTokenEventReferenceCreationStrategy testObj = new DefaultWorldpayTokenEventReferenceCreationStrategy();
     @Mock

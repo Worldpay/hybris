@@ -3,8 +3,10 @@ package com.worldpay.service;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
+import com.worldpay.service.model.payment.PayWithGoogleSSL;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
+import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
@@ -17,8 +19,9 @@ import org.junit.rules.ExpectedException;
 import java.time.LocalDateTime;
 
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 @UnitTest
 public class DirectAuthoriseServiceRequestTest {
@@ -50,6 +53,7 @@ public class DirectAuthoriseServiceRequestTest {
     private static final Browser BROWSER = new Browser("text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)", "0");
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", COUNTRY_CODE);
     private static final Shopper SHOPPER = new Shopper(SHOPPER_EMAIL, null, BROWSER, SESSION);
+    private static final Shopper SHOPPER_WITHOUT_BROWSER_NOR_SESSION = new Shopper(SHOPPER_EMAIL, null, null, null);
     private static final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, AUTHENTICATED_SHOPPER_ID, BROWSER, SESSION);
 
     private MerchantInfo merchantInfo;
@@ -127,9 +131,9 @@ public class DirectAuthoriseServiceRequestTest {
         final Order requestOrder = result.getOrder();
         assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
         assertEquals(SHOPPER_WITH_SHOPPER_ID, result.getOrder().getShopper());
-        assertThat(requestOrder.getOrderLines().getLineItems().size(), is(1));
-        assertThat(requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference().getId(), is(LINE_ITEM_REFERENCE_ID));
-        assertThat(requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference().getValue(), is(LINE_ITEM_REFERENCE_VALUE));
+        assertThat(requestOrder.getOrderLines().getLineItems()).hasSize(1);
+        assertThat(requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference().getId()).isEqualTo(LINE_ITEM_REFERENCE_ID);
+        assertThat(requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference().getValue()).isEqualTo(LINE_ITEM_REFERENCE_VALUE);
 
         assertCommonOrderRequestData(result);
     }
@@ -197,7 +201,7 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void createDirectAuthorisedWithoutMerchantShouldRaiseWorldpayCommunicationException() {
+    public void createDirectAuthorisedWithoutMerchantShouldRaiseIllegalArgumentExceptionException() {
         thrown.expect(IllegalArgumentException.class);
         merchantInfo = new MerchantInfo(null, null);
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
@@ -206,13 +210,29 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void createDirectAuthorisedWithTokenRequestWithoutMerchantShouldRaiseWorldpayCommunicationException() {
+    public void createDirectAuthorisedWithTokenRequestWithoutMerchantShouldRaiseIllegalArgumentException() {
         thrown.expect(IllegalArgumentException.class);
         merchantInfo = new MerchantInfo(null, null);
         final Token tokenSsl = new Token(TOKEN_EVENT_REFERENCE, false);
         final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + LocalDateTime.now().toString(), TOKEN_REASON);
         DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, tokenSsl,
                 SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
+
+    }
+
+    @Test
+    public void shouldCreateGooglePayDirectAuthorisationRequest() {
+        final PayWithGoogleSSL payment = new PayWithGoogleSSL("protocolVersion", "signature", "signedMessage");
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment, SHOPPER_WITHOUT_BROWSER_NOR_SESSION, SHIPPING_ADDRESS, DynamicInteractionType.ECOMMERCE);
+
+        assertThat(result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode()).isEqualTo(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+    }
+
+    @Test
+    public void shouldRaiseIllegalArgumentExceptionWhenPaymentIsNotPayWithGoogleSSL() {
+        thrown.expect(IllegalArgumentException.class);
+        final Token payment = new Token(TOKEN_EVENT_REFERENCE, false);
+        DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment, SHOPPER_WITHOUT_BROWSER_NOR_SESSION, SHIPPING_ADDRESS, DynamicInteractionType.ECOMMERCE);
 
     }
 

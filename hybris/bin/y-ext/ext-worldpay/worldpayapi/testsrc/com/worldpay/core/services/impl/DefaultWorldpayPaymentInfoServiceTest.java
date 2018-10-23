@@ -2,6 +2,8 @@ package com.worldpay.core.services.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.payment.Card;
@@ -37,6 +39,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -70,13 +74,16 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String NEW = "NEW";
     private static final String MATCH = "MATCH";
     private static final String CONFLICT = "CONFLICT";
-    private static final DateTime DATE_TIME = new DateTime();
+    private static final LocalDate DATE_TIME = LocalDate.of(2020, 2, 15);
     private static final String CC_PAYMENT_INFO_MODEL_CODE = "ccPaymentInfoModelCode";
     private static final String ANOTHER_SUBSCRIPTION_ID = "anotherPaymentId";
     private static final String WORLDPAY_CREDIT_CARD_MAPPINGS = "worldpay.creditCard.mappings.";
     private static final String MERCHANT_ID = "merchant19";
     private static final String PAYMENT_INFO_CODE = "00001009_ac2b99f2-3f15-494a-b33d-73166da4716d";
     private static final String PAYMENT_TYPE = "paymentType";
+    private static final String PROTOCOL_VERSION = "protocolVersion";
+    private static final String SIGNATURE = "signature";
+    private static final String SIGNED_MESSAGE = "signedMessage";
 
     @Spy
     @InjectMocks
@@ -137,6 +144,10 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Rule
     @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
+    @Mock
+    private GooglePayAdditionalAuthInfo googlePayAdditionAuthInfoMock;
+    @Mock
+    private GooglePayPaymentInfoModel googlePayPaymentInfoModelMock;
 
     @Before
     public void setUp() {
@@ -312,7 +323,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setValidToYear(CARD_EXPIRY_YEAR);
         verify(creditCardPaymentInfoModelMock).setCcOwner(CARD_HOLDER_NAME);
         verify(creditCardPaymentInfoModelMock).setType(VISA);
-        verify(creditCardPaymentInfoModelMock).setExpiryDate(DATE_TIME.toDate());
+        verify(creditCardPaymentInfoModelMock).setExpiryDate(java.util.Date.from(DATE_TIME.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
 
         verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
@@ -564,6 +575,23 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         verify(modelServiceMock).remove(paymentInfo);
         verify(modelServiceMock, never()).remove(apmPaymentInfo);
+    }
+
+    @Test
+    public void shouldCreatePaymentInfoWithGooglePayInformation() {
+        when(modelServiceMock.create(GooglePayPaymentInfoModel.class)).thenReturn(googlePayPaymentInfoModelMock);
+        when(googlePayAdditionAuthInfoMock.getSignedMessage()).thenReturn(SIGNED_MESSAGE);
+        when(googlePayAdditionAuthInfoMock.getSignature()).thenReturn(SIGNATURE);
+        when(googlePayAdditionAuthInfoMock.getProtocolVersion()).thenReturn(PROTOCOL_VERSION);
+
+        testObj.createPaymentInfoGooglePay(cartModelMock, googlePayAdditionAuthInfoMock);
+
+        verify(googlePayPaymentInfoModelMock).setSignedMessage(SIGNED_MESSAGE);
+        verify(googlePayPaymentInfoModelMock).setSignature(SIGNATURE);
+        verify(googlePayPaymentInfoModelMock).setProtocolVersion(PROTOCOL_VERSION);
+        verify(googlePayPaymentInfoModelMock).setUser(cartModelMock.getUser());
+        verify(googlePayPaymentInfoModelMock).setSaved(false);
+        verify(googlePayPaymentInfoModelMock).setCode(startsWith(ORDER_CODE));
     }
 
     private PaymentInfoModel createPaymentInfo() {

@@ -1,8 +1,10 @@
 package com.worldpay.facades.payment.direct.impl;
 
+import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
@@ -16,7 +18,10 @@ import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
+import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
+import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
@@ -25,16 +30,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.enums.order.AuthorisedStatus.CANCELLED;
-import static com.worldpay.enums.order.AuthorisedStatus.REFUNDED;
-import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static com.worldpay.payment.TransactionStatus.AUTHENTICATION_REQUIRED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
@@ -59,6 +61,10 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
 
+    @Rule
+    @SuppressWarnings("PMD.MemberScope")
+    public ExpectedException expectedException = ExpectedException.none();
+
     @InjectMocks
     private DefaultWorldpayDirectOrderFacade testObj;
 
@@ -71,20 +77,26 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     @Mock
     private WorldpayDirectOrderService worldpayDirectOrderServiceMock;
     @Mock
-    private CartModel cartModelMock;
+    private WorldpayPaymentInfoService worldpayPaymentInfoServiceMock;
+    @Mock
+    private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
+    @Mock
+    private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
+    @Mock
+    private CommerceCheckoutService commerceCheckoutServiceMock;
 
+    @Mock
+    private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategyMock;
+    @Mock
+    private CartModel cartModelMock;
     @Mock
     private MerchantInfo merchantInfoMock;
     @Mock
     private CartService cartServiceMock;
     @Mock
-    private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
-    @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
     @Mock
     private DirectAuthoriseServiceResponse directAuthoriseServiceResponseMock, directAuthoriseServiceResponse3dSecureMock;
-    @Mock
-    private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
     @Mock
     private PaymentReply paymentReplyMock;
     @Mock
@@ -92,15 +104,15 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     @Mock
     private Request3DInfo request3DInfoMock;
     @Mock
-    private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategyMock;
-    @Mock
     private RedirectReference redirectReferenceMock;
     @Mock
     private UserModel userModelMock;
-
-    @SuppressWarnings("PMD")
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfoMock;
+    @Captor
+    private ArgumentCaptor<CommerceCheckoutParameter> commerceCheckoutParameterArgumentCaptor;
+    @Mock
+    private PaymentInfoModel paymentInfoMock;
 
     @Before
     public void setUp() throws Exception {
@@ -162,7 +174,6 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         assertEquals(TransactionStatus.CANCELLED, authorise.getTransactionStatus());
     }
 
-
     @Test
     public void authoriseShouldRaiseIllegalStateExceptionWhenTryingToAuthoriseWithoutCart() throws WorldpayException, InvalidCartException {
         expectedException.expect(IllegalStateException.class);
@@ -214,7 +225,6 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         final DirectResponseData result = testObj.authorise3DSecure(PA_RESPONSE, worldpayAdditionalInfoDataMock);
 
         final InOrder inOrder = inOrder(acceleratorCheckoutFacadeMock, worldpayDirectOrderServiceMock);
-
         inOrder.verify(worldpayDirectOrderServiceMock).authorise3DSecure(merchantInfoMock, WORLDPAY_ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE);
         inOrder.verify(worldpayDirectOrderServiceMock).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
         inOrder.verify(acceleratorCheckoutFacadeMock).placeOrder();
@@ -374,4 +384,35 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
     }
 
+    @Test
+    public void shouldAuthoriseGooglePayRequest() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.authoriseGooglePay(merchantInfoMock, cartModelMock, googlePayAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+
+        final DirectResponseData result = testObj.authoriseGooglePayDirect(googlePayAdditionalAuthInfoMock);
+
+        verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock, MERCHANT_CODE);
+        assertThat(result.getTransactionStatus()).isEqualTo(AUTHORISED);
+    }
+
+    @Test
+    public void shouldCreatePaymentInfo() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.authoriseGooglePay(merchantInfoMock, cartModelMock, googlePayAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+        when(worldpayPaymentInfoServiceMock.createPaymentInfoGooglePay(cartModelMock,googlePayAdditionalAuthInfoMock)).thenReturn(paymentInfoMock);
+
+        testObj.authoriseGooglePayDirect(googlePayAdditionalAuthInfoMock);
+
+        verify(commerceCheckoutServiceMock).setPaymentInfo(commerceCheckoutParameterArgumentCaptor.capture());
+        final CommerceCheckoutParameter commerceCheckoutParameter = commerceCheckoutParameterArgumentCaptor.getValue();
+        assertThat(commerceCheckoutParameter.getCart()).isEqualTo(cartModelMock);
+        assertThat(commerceCheckoutParameter.getPaymentInfo()).isEqualTo(paymentInfoMock);
+    }
+
+    @Test(expected = WorldpayConfigurationException.class)
+    public void authoriseGooglePayDirectShouldRaiseWorldpayConfigurationExceptionWhenMerchantsAreNotConfigured() throws WorldpayException, InvalidCartException {
+        when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenThrow(new WorldpayConfigurationException(EXCEPTION_MESSAGE));
+
+        testObj.authoriseGooglePayDirect(googlePayAdditionalAuthInfoMock);
+
+        verify(worldpayDirectOrderServiceMock, never()).authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
+    }
 }

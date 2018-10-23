@@ -167,7 +167,6 @@
     <bean id="defaultWorldpayDirectOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService"
           parent="abstractWorldpayOrderService">
         <property name="sessionService" ref="sessionService"/>
-        <property name="cartService" ref="cartService"/>
         <property name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
     </bean>
 
@@ -667,6 +666,8 @@
         <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
         <property name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
         <property name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
+        <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <property name="commerceCheckoutService" ref="commerceCheckoutService"/>
     </bean>
 
     <!-- The defaultUserFacade uses directly the AddressReversePopulator -->

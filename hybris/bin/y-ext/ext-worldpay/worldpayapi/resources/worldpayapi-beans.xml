@@ -122,6 +122,12 @@
         <property name="expiryMonth" type="java.lang.String"/>
     </bean>
 
+    <bean class="com.worldpay.data.GooglePayAdditionalAuthInfo" extends="com.worldpay.data.AdditionalAuthInfo">
+        <property name="protocolVersion" type="java.lang.String"/>
+        <property name="signature" type="java.lang.String"/>
+        <property name="signedMessage" type="java.lang.String"/>
+    </bean>
+
     <bean class="com.worldpay.data.BankTransferAdditionalAuthInfo" extends="com.worldpay.data.AdditionalAuthInfo">
         <property name="shopperBankCode" type="java.lang.String"/>
     </bean>

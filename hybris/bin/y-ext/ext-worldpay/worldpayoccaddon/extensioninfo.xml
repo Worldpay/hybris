@@ -15,14 +15,12 @@
 
 	<extension abstractclassprefix="Generated" classprefix="Worldpayoccaddon" description="worldpayoccaddon extension" managername="WorldpayoccaddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayoccaddon">
 
-		<!-- you should add all required extensions to this list, except platform extensions which are automatically required -->         
+		<!-- you should add all required extensions to this list, except platform extensions which are automatically required -->
 		<requires-extension name="addonsupport"/>
 		<requires-extension name="commercewebservicescommons"/>
 		<requires-extension name="worldpayapi"/>
 
 		<coremodule generated="true" manager="com.worldpay.jalo.WorldpayoccaddonManager" packageroot="com.worldpay"/>
-					
-		
 
 	</extension>
 

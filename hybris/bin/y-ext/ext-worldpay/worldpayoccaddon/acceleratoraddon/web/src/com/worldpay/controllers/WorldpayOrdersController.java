@@ -2,7 +2,6 @@ package com.worldpay.controllers;
 
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
-import com.worldpay.dto.order.ThreeDSecureInfoWsDTO;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exceptions.NoCheckoutCartException;
 import com.worldpay.exceptions.ThreeDSecureException;
@@ -11,7 +10,6 @@ import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
 import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.CartModificationData;
 import de.hybris.platform.commercefacades.order.data.CartModificationDataList;
@@ -20,11 +18,9 @@ import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
-import de.hybris.platform.webservicescommons.mapping.DataMapper;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import de.hybris.platform.webservicescommons.validators.CompositeValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -36,7 +32,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-import static com.worldpay.payment.TransactionStatus.*;
+import static com.worldpay.payment.TransactionStatus.AUTHORISED;
+import static com.worldpay.payment.TransactionStatus.ERROR;
 import static java.text.MessageFormat.format;
 
 /**
@@ -54,19 +51,15 @@ import static java.text.MessageFormat.format;
 @RequestMapping(value = "/{baseSiteId}")
 public class WorldpayOrdersController extends AbstractWorldpayController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorldpayOrdersController.class);
+    private static final Logger LOG = Logger.getLogger(WorldpayOrdersController.class);
 
     // Named like this in order to use the bean definition from ycommercewebservices
     @Resource(name = "commerceWebServicesCartFacade2")
     private CartFacade cartFacade;
-    @Resource
-    private CheckoutFacade checkoutFacade;
     @Resource(name = "cartLoaderStrategy")
     private CartLoaderStrategy cartLoaderStrategy;
     @Resource(name = "worldpayPlaceOrderCartValidator")
     private CompositeValidator placeOrderCartValidator;
-    @Resource(name = "dataMapper")
-    private DataMapper dataMapper;
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
@@ -101,10 +94,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
                                               @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
             throws InvalidCartException, WebserviceValidationException, NoCheckoutCartException, WorldpayException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.info("placeOrder");
-        }
-
         cartLoaderStrategy.loadCart(cartId);
         validateCartForPlaceOrder();
 
@@ -113,28 +102,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.authorise(worldpayAdditionalInfoData);
 
         return handleDirectResponse(directResponseData, fields);
-    }
-
-    protected PlaceOrderResponseWsDTO handleDirectResponse(final DirectResponseData directResponseData, final String fields) {
-        PlaceOrderResponseWsDTO placeOrderResponseWsDTO = new PlaceOrderResponseWsDTO();
-
-        if (AUTHENTICATION_REQUIRED == directResponseData.getTransactionStatus()) {
-            ThreeDSecureInfoWsDTO threeDSecureInfoWsDTO = new ThreeDSecureInfoWsDTO();
-            threeDSecureInfoWsDTO.setIssuerURL(directResponseData.getIssuerURL());
-            threeDSecureInfoWsDTO.setMerchantData(checkoutFacade.getCheckoutCart().getWorldpayOrderCode());
-            threeDSecureInfoWsDTO.setPaRequest(directResponseData.getPaRequest());
-
-            placeOrderResponseWsDTO.setThreeDSecureInfo(threeDSecureInfoWsDTO);
-            placeOrderResponseWsDTO.setThreeDSecureNeeded(true);
-        } else {
-            placeOrderResponseWsDTO.setOrder(dataMapper.map(directResponseData.getOrderData(), OrderWsDTO.class, fields));
-            placeOrderResponseWsDTO.setThreeDSecureNeeded(false);
-        }
-
-        placeOrderResponseWsDTO.setTransactionStatus(directResponseData.getTransactionStatus());
-        placeOrderResponseWsDTO.setReturnCode(directResponseData.getReturnCode());
-
-        return placeOrderResponseWsDTO;
     }
 
     @Secured({ "ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT" })

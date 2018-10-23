@@ -1,0 +1,168 @@
+// Hybris b2c_acc recipe extended with Worldpay addon
+
+def config = {
+    localProperties {
+        property 'recaptcha.publickey', ''
+        property 'recaptcha.privatekey', ''
+        property 'googleApiKey', ''
+        property 'apiregistryservices.events.exporting', 'false'
+        property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
+
+    }
+
+    extensions {
+
+        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/ext-worldpayfulfilment'
+
+        extName 'adaptivesearchsolr'
+        extName 'adaptivesearchbackoffice'
+        extName 'adaptivesearchsamplesaddon'
+        extName 'adaptivesearchwebservices'
+        extName 'commerceservicesbackoffice'
+        extName 'solrfacetsearchbackoffice'
+        extName 'solrserver'
+
+        extName 'yacceleratorbackoffice'
+        extName 'yacceleratorinitialdata'
+        extName 'yacceleratorfulfilmentprocess'
+        extName 'yacceleratorstorefront'
+        extName 'ycommercewebservices'
+        extName 'ycommercewebservicestest'
+
+        extName 'electronicsstore'
+
+        extName 'captchaaddon'
+        extName 'acceleratorwebservicesaddon'
+        extName 'commerceorgsamplesaddon'
+        extName 'orderselfserviceaddon'
+
+        extName 'rulebuilderbackoffice'
+        extName 'couponbackoffice'
+        extName 'droolsruleengineservices'
+        extName 'couponfacades'
+        extName 'promotionenginesamplesaddon'
+
+        extName 'assistedservicestorefront'
+        extName 'assistedservicewebservices'
+        extName 'assistedserviceyprofileaddon'
+        extName 'assistedservicecustomerinterestsaddon'
+        extName 'assistedservicepromotionaddon'
+
+        extName 'customerticketingaddon'
+        extName 'customersupportbackoffice'
+
+        extName 'profiletagaddon'
+        extName 'profileservices'
+        extName 'yaasconfigurationbackoffice'
+
+        extName 'textfieldconfiguratortemplatebackoffice'
+        extName 'textfieldconfiguratortemplateaddon'
+
+        extName 'permissionswebservices'
+        extName 'smarteditaddon'
+        extName 'cmssmartedit'
+        extName 'cmsbackoffice'
+        extName 'cmsoccaddon'
+
+        extName 'consignmenttrackingaddon'
+        extName 'consignmenttrackingmock'
+        extName 'consignmenttrackingbackoffice'
+
+        extName 'notificationaddon'
+        extName 'customerinterestsaddon'
+        extName 'stocknotificationaddon'
+        extName 'configurablebundleaddon'
+
+
+        extName 'assistedserviceatddtests'
+        extName 'promotionengineatddtests'
+        extName 'textfieldconfiguratortemplateatddtests'
+        extName 'configurablebundleatddtests'
+
+        extName 'configurablebundlecockpits'
+
+        extName 'pcmbackofficesamplesaddon'
+
+        extName 'b2cangularaddon'
+
+        extName 'xyformscockpits'
+        extName 'xyformsbackoffice'
+        extName 'xyformsstorefrontcommons'
+        extName 'xyformssamples'
+        extName 'xyformsweb'
+        extName 'platformbackoffice'
+        extName 'xyformsatddtests'
+        extName 'orbeonweb'
+        extName 'consignmenttrackingoccaddon'
+        extName 'customerinterestsoccaddon'
+        extName 'notificationoccaddon'
+        extName 'stocknotificationoccaddon'
+
+        extName 'kymaintegrationbackoffice'
+        extName 'kymaintegrationsampledata'
+
+        extName 'odata2webservices'
+        extName 'odata2webservicesfeaturetests'
+        extName 'integrationbackoffice'
+
+        extName 'worldpayaddon'
+        extName 'worldpayaddonbackoffice'
+        extName 'worldpayapi'
+        extName 'worldpaynotifications'
+        extName 'worldpaysampledataaddon'
+        extName 'worldpayoccaddon'
+        extName 'worldpayhac'
+    }
+}
+
+task setup {
+    dependsOn 'createSpartacusImpex'
+    doLast {
+        apply plugin: 'installer-platform-plugin'
+        apply plugin: 'installer-addon-plugin'
+        def pl = platform(config)
+        pl.setup()
+        pl.project.addons {
+            names "worldpayaddon,worldpaysampledataaddon,captchaaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,assistedservicestorefront,assistedservicecustomerinterestsaddon,assistedserviceyprofileaddon,assistedservicepromotionaddon,customerticketingaddon,textfieldconfiguratortemplateaddon,smarteditaddon,consignmenttrackingaddon,notificationaddon,customerinterestsaddon,stocknotificationaddon,orderselfserviceaddon,adaptivesearchsamplesaddon,configurablebundleaddon," +
+                    "pcmbackofficesamplesaddon,b2cangularaddon,xyformssamples,xyformsstorefrontcommons,profiletagaddon"
+            template "yacceleratorstorefront"
+            storeFronts "yacceleratorstorefront"
+            platform pl
+        }
+
+        pl.project.addons {
+            names "worldpayoccaddon,acceleratorwebservicesaddon,consignmenttrackingoccaddon,customerinterestsoccaddon,notificationoccaddon,stocknotificationoccaddon,cmsoccaddon"
+            template "ycommercewebservices"
+            storeFronts "ycommercewebservices"
+            platform pl
+        }
+    }
+}
+
+task initialize {
+    doLast {
+        apply plugin: 'installer-platform-plugin'
+        def pl = platform(config)
+        pl.build()
+        pl.initialize()
+    }
+}
+
+task start {
+    doLast {
+        apply plugin: 'installer-platform-plugin'
+        def pl = platform(config)
+        pl.start()
+    }
+}
+
+
+task createSpartacusImpex {
+    doLast {
+        copy {
+            from "spartacus.impex"
+            into "${suiteHome}/hybris/bin/y-ext/ext-worldpay/worldpaysampledataaddon/resources/worldpaysampledataaddon/import/contentCatalogs/electronicsContentCatalog/"
+            rename ('spartacus.impex','cms-addon-extra.impex')
+        }
+    }
+}

@@ -4,12 +4,14 @@ import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactio
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Cse;
+import com.worldpay.service.model.payment.PayWithGoogleSSL;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
 import com.worldpay.service.model.token.CardDetails;
@@ -103,7 +105,16 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public DirectAuthoriseServiceRequest buildDirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) {
+        return buildDirectAuthoriseRequestWithTokenForCSE(merchantInfo, cartModel, worldpayAdditionalInfoData);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DirectAuthoriseServiceRequest buildDirectAuthoriseRequestWithTokenForCSE(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) {
         final String orderCode = recurringGenerateMerchantTransactionCodeStrategy.generateCode(cartModel);
         final Amount amount = worldpayOrderService.createAmount(cartModel.getCurrency(), cartModel.getTotalPrice());
         final BasicOrderInfo orderInfo = worldpayOrderService.createBasicOrderInfo(orderCode, orderCode, amount);
@@ -121,6 +132,28 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final AddressModel deliveryAddress = worldpayDeliveryAddressStrategy.getDeliveryAddress(cartModel);
         final DynamicInteractionType dynamicInteractionType = worldpayDynamicInteractionResolverService.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoData);
         return createTokenisedDirectAuthoriseRequest(merchantInfo, orderInfo, token, authenticatedShopper, worldpayAddressConverter.convert(deliveryAddress), dynamicInteractionType);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DirectAuthoriseServiceRequest buildDirectAuthoriseGooglePayRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) {
+
+        final String orderCode = recurringGenerateMerchantTransactionCodeStrategy.generateCode(cartModel);
+        final Amount amount = worldpayOrderService.createAmount(cartModel.getCurrency(), cartModel.getTotalPrice());
+        final BasicOrderInfo orderInfo = worldpayOrderService.createBasicOrderInfo(orderCode, orderCode, amount);
+
+        final PayWithGoogleSSL googlePayPayment = createGooglePayPayment(googlePayAdditionalAuthInfo.getProtocolVersion(), googlePayAdditionalAuthInfo.getSignature(), googlePayAdditionalAuthInfo.getSignedMessage());
+
+        final CustomerModel customerModel = (CustomerModel) cartModel.getUser();
+        final String shopperEmailAddress = customerEmailResolutionService.getEmailForCustomer(customerModel);
+
+        final Shopper shopper = worldpayOrderService.createShopper(shopperEmailAddress, null, null);
+        final AddressModel deliveryAddress = worldpayDeliveryAddressStrategy.getDeliveryAddress(cartModel);
+
+        return createGooglePayDirectAuthoriseRequest(merchantInfo, orderInfo, googlePayPayment, shopper, worldpayAddressConverter.convert(deliveryAddress), DynamicInteractionType.ECOMMERCE);
     }
 
     /**
@@ -249,9 +282,16 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return DirectAuthoriseServiceRequest.createKlarnaDirectAuthoriseRequest(merchantInfo, orderInfo, payment, shopper, shopper.getSession(), shippingAddress, billingAddress, statementNarrative, orderLines, dynamicInteractionType);
     }
 
+    protected DirectAuthoriseServiceRequest createGooglePayDirectAuthoriseRequest(final MerchantInfo merchantInfo, final BasicOrderInfo orderInfo, final Payment payment, final Shopper shopper, final Address shippingAddress, final DynamicInteractionType dynamicInteractionType) {
+        return DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(merchantInfo, orderInfo, payment, shopper, shippingAddress, dynamicInteractionType);
+    }
 
     protected Cse createCsePayment(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final Address billingAddress) {
         return PaymentBuilder.createCSE(cseAdditionalAuthInfo.getEncryptedData(), billingAddress);
+    }
+
+    public PayWithGoogleSSL createGooglePayPayment(final String protocolVersion, final String signature, final String signedMessage) {
+        return new PayWithGoogleSSL(protocolVersion, signature, signedMessage);
     }
 
     protected DirectAuthoriseServiceRequest createDirect3DAuthoriseRequest(final MerchantInfo merchantInfo,
