@@ -80,7 +80,7 @@ task setup {
         pl.setup()
 
         pl.project.addons {
-            names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon,smarteditaddon"
+            names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon"
             template "yacceleratorstorefront"
             storeFronts "yacceleratorstorefront"
             platform pl
