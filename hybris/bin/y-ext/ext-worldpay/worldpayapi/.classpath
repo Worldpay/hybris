@@ -15,6 +15,7 @@
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
 	<classpathentry exported="false" kind="src" path="/platform" />
+	<classpathentry kind="src" path="/cms2"/>
 				
 </classpath>
 				
