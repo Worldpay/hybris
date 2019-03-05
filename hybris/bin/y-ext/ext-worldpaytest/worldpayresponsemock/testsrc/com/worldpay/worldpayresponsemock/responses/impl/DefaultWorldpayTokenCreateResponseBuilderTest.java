@@ -1,19 +1,9 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
 import com.worldpay.enums.token.TokenEvent;
-import com.worldpay.internal.model.CardDetails;
-import com.worldpay.internal.model.Date;
-import com.worldpay.internal.model.Derived;
-import com.worldpay.internal.model.PaymentInstrument;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.PaymentTokenCreate;
-import com.worldpay.internal.model.Reply;
-import com.worldpay.internal.model.Submit;
-import com.worldpay.internal.model.Token;
-import com.worldpay.internal.model.TokenDetails;
+import com.worldpay.internal.model.*;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -21,13 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.LocalDate;
 import java.util.Collections;
 
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder.CARD_BRAND;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder.CARD_SUB_BRAND;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder.CC_OWNER;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder.ISSUER_COUNTRY_CODE;
-import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder.OBFUSCATED_PAN;
+import static com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
@@ -80,8 +67,8 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         assertEquals(CARD_SUB_BRAND, derived.getCardSubBrand());
         assertEquals(ISSUER_COUNTRY_CODE, derived.getIssuerCountryCode());
         assertEquals(OBFUSCATED_PAN, derived.getObfuscatedPAN());
-        assertEquals(DateTime.now().monthOfYear().getAsString(), expiryDate.getMonth());
-        assertEquals(DateTime.now().plusYears(5).year().getAsString(), expiryDate.getYear());
+        assertEquals(Integer.toString(LocalDate.now().getMonthValue()), expiryDate.getMonth());
+        assertEquals(Integer.toString(LocalDate.now().plusYears(5).getYear()), expiryDate.getYear());
         assertFalse(StringUtils.isEmpty(tokenDetails.getPaymentTokenID().getvalue()));
         assertEquals(TokenEvent.NEW.name(), tokenDetails.getTokenEvent());
         assertEquals(CC_OWNER, cardDetails.getCardHolderName().getvalue());

@@ -1,48 +1,39 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2016 SAP SE or an SAP affiliate company.
- All rights reserved.
-
- This software is the confidential and proprietary information of SAP
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with SAP.
-
-
--->
-
-
-<!--
-	ATTENTION: This is just an example file. You have to edit it according to your needs.
--->
-
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="beans.xsd">
 
-	<enum class="com.worldpay.populator.options.PaymentDetailsWsDTOOption">
-		<value>BASIC</value>
-		<value>BILLING_ADDRESS</value>
-	</enum>
+    <enum class="com.worldpay.populator.options.PaymentDetailsWsDTOOption">
+        <value>BASIC</value>
+        <value>BILLING_ADDRESS</value>
+    </enum>
 
-	<bean class="de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO">
-		<property name="cseToken" type="String"/>
-	</bean>
+    <bean class="de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO">
+        <property name="cseToken" type="String"/>
+        <property name="googlePayDetails" type="com.worldpay.dto.order.GooglePayRequestWsDTO"/>
+    </bean>
 
-	<bean class="com.worldpay.dto.order.PlaceOrderResponseWsDTO">
-		<property name="threeDSecureNeeded" type="boolean" />
-		<property name="threeDSecureInfo" type="com.worldpay.dto.order.ThreeDSecureInfoWsDTO" />
-		<property name="order" type="de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO" />
-		<property name="transactionStatus" type="com.worldpay.payment.TransactionStatus" />
-		<property name="returnCode" type="String" />
-	</bean>
+    <bean class="com.worldpay.dto.order.PlaceOrderResponseWsDTO">
+        <property name="threeDSecureNeeded" type="boolean"/>
+        <property name="threeDSecureInfo" type="com.worldpay.dto.order.ThreeDSecureInfoWsDTO"/>
+        <property name="order" type="de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO"/>
+        <property name="transactionStatus" type="com.worldpay.payment.TransactionStatus"/>
+        <property name="returnCode" type="String"/>
+    </bean>
 
-	<bean class="com.worldpay.dto.order.ThreeDSecureInfoWsDTO">
-		<property name="paRequest" type="String" />
-		<property name="merchantData" type="String" />
-		<property name="issuerURL" type="String" />
-		<!-- Term url is not returned, this is handled by the storefront -->
-	</bean>
+    <bean class="com.worldpay.dto.order.ThreeDSecureInfoWsDTO">
+        <property name="paRequest" type="String"/>
+        <property name="merchantData" type="String"/>
+        <property name="issuerURL" type="String"/>
+        <!-- Term url is not returned, this is handled by the storefront -->
+    </bean>
 
+    <bean class="com.worldpay.dto.order.GooglePayRequestWsDTO">
+        <property name="protocolVersion" type="java.lang.String"/>
+        <property name="signature" type="java.lang.String"/>
+        <property name="signedMessage" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.applepay.ValidateMerchantRequestWsDTO">
+        <property name="validationURL" type="java.lang.String"/>
+    </bean>
 
 </beans>

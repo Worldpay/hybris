@@ -141,7 +141,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Mock
-    private PagePreviewCriteriaData pagePreiewCriteriaMock;
+    private PagePreviewCriteriaData pagePreviewCriteriaMock;
 
     private Model modelMock = new ExtendedModelMap();
 
@@ -149,8 +149,8 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     public void setUp() throws Exception {
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(placeOrderFormMock.getSecurityCode()).thenReturn(SECURITY_CODE);
-        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreiewCriteriaMock);
-        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreiewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
         when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
         when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
         when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());

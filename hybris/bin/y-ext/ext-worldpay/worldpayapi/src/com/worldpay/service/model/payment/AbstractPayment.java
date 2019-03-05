@@ -43,7 +43,7 @@ public abstract class AbstractPayment implements Payment, Serializable {
      * @throws IllegalAccessException    if the method is not accessible
      * @throws InvocationTargetException if method cannot be invoked against the supplied target object
      */
-    public abstract void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException;
+    public abstract void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException, WorldpayModelTransformationException;
 
     @Override
     public PaymentType getPaymentType() {

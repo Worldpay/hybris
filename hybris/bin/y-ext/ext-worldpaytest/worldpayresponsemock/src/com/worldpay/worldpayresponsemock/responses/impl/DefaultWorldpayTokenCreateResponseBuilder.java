@@ -2,8 +2,8 @@ package com.worldpay.worldpayresponsemock.responses.impl;
 
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.internal.model.*;
-import org.joda.time.DateTime;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -39,7 +39,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         tokenDetails.setTokenEventReference(tokenEventReference);
         tokenDetails.setTokenEvent(TokenEvent.NEW.name());
         final PaymentTokenExpiry paymentTokenExpiry = new PaymentTokenExpiry();
-        final DateTime dateTime = DateTime.now();
+        final LocalDateTime dateTime = LocalDateTime.now();
         final Date paymentTokenExpiryDate = getExpiryDate(dateTime);
         paymentTokenExpiry.setDate(paymentTokenExpiryDate);
         tokenDetails.setPaymentTokenExpiry(paymentTokenExpiry);
@@ -76,10 +76,10 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         return response;
     }
 
-    private Date getExpiryDate(final DateTime dateTime) {
+    private Date getExpiryDate(final LocalDateTime dateTime) {
         final Date paymentTokenExpiryDate = new Date();
         paymentTokenExpiryDate.setDayOfMonth(String.valueOf(dateTime.getDayOfMonth()));
-        paymentTokenExpiryDate.setMonth(String.valueOf(dateTime.getMonthOfYear()));
+        paymentTokenExpiryDate.setMonth(String.valueOf(dateTime.getMonthValue()));
         paymentTokenExpiryDate.setYear(String.valueOf(dateTime.plusYears(5).getYear()));
         return paymentTokenExpiryDate;
     }

@@ -1,8 +1,6 @@
 package com.worldpay.facades.payment.direct;
 
-import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
@@ -61,9 +59,9 @@ public interface WorldpayDirectOrderFacade {
     /**
      * Performs a direct authorisation using a saved order with Worldpay.
      *
-     * @param abstractOrderModel The abstractOrderModel to authorise.
+     * @param abstractOrderModel         The abstractOrderModel to authorise.
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
-     * @param merchantInfo The Worldpay merchant
+     * @param merchantInfo               The Worldpay merchant
      * @return {@link DirectResponseData} Wrapper object containing information on the response from Worldpay
      */
     DirectResponseData authoriseRecurringPayment(final AbstractOrderModel abstractOrderModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
@@ -77,4 +75,27 @@ public interface WorldpayDirectOrderFacade {
      * @return String containing the redirect url
      */
     String authoriseKlarnaRedirect(final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException;
+
+    /**
+     * Performs a direct authorisation using the data provided by ApplePay
+     * @param applePayAdditionalAuthInfo
+     * @return
+     */
+    DirectResponseData authoriseApplePayDirect(final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) throws WorldpayException, InvalidCartException;
+
+    /**
+     * Performs a request to Worldpay with the payment details of a GooglePay transaction.
+     *
+     * @param googlePayAdditionalAuthInfo Object that contains information to authorise an order using GooglePay.
+     * @return {@link DirectResponseData} Wrapper object containing information on the response from Worldpay.
+     */
+    DirectResponseData authoriseGooglePayDirect(final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException, InvalidCartException;
+
+    /**
+     * Update the payment method.
+     * @return the updated total and line items
+     * @param paymentMethodUpdateRequest
+     */
+    ApplePayOrderUpdate updatePaymentMethod(ApplePayPaymentMethodUpdateRequest paymentMethodUpdateRequest);
+
 }

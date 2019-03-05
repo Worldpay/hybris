@@ -52,7 +52,7 @@
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button class="btn btn-primary btn-block submit_worldpayCSEForm checkout-next" tabindex="20">
+                            <button class="btn btn-primary btn-block submit_worldpayCSEForm checkout-next" tabindex="20" id="worldpay-pay-button">
                                 <spring:theme code="checkout.multi.paymentMethod.continue" />
                             </button>
                         </div>

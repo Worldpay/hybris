@@ -89,8 +89,8 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         if (intPayment.getISO8583ReturnCode() != null) {
             paymentReply.setReturnCode(intPayment.getISO8583ReturnCode().getCode());
         }
-        final RiskScore riskScore = buildRiskScore(intPayment.getRiskScore());
-        paymentReply.setRiskScore(riskScore);
+
+        Optional.ofNullable(intPayment.getRiskScore()).map(this::buildRiskScore).ifPresent(paymentReply::setRiskScore);
 
         setAAVCodes(intPayment, paymentReply);
 

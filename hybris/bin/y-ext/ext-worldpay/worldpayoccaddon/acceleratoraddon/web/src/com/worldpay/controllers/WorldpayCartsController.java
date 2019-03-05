@@ -1,14 +1,17 @@
 package com.worldpay.controllers;
 
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.dto.order.GooglePayRequestWsDTO;
+import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exceptions.NoCheckoutCartException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
+import com.worldpay.payment.DirectResponseData;
 import com.worldpay.populator.options.PaymentDetailsWsDTOOption;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
-import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
@@ -17,13 +20,13 @@ import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO;
 import de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO;
 import de.hybris.platform.converters.ConfigurablePopulator;
+import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -60,12 +63,10 @@ import java.util.Collection;
 @CacheControl(directive = CacheControlDirective.NO_CACHE)
 public class WorldpayCartsController extends AbstractWorldpayController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorldpayCartsController.class);
+    private static final Logger LOG = Logger.getLogger(WorldpayCartsController.class);
 
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
-    private CheckoutFacade checkoutFacade;
     @Resource(name = "userFacade")
     private UserFacade userFacade;
     @Resource(name = "i18NFacade")
@@ -124,7 +125,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
      */
     @Secured(
             {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
-    @RequestMapping(value = "/{cartId}/worldpaypaymentdetails", method = RequestMethod.POST)
+    @PostMapping(value = "/{cartId}/worldpaypaymentdetails")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
@@ -163,10 +164,8 @@ public class WorldpayCartsController extends AbstractWorldpayController {
      * @security Permitted only for customers, guests, customer managers or trusted clients. Trusted client or customer
      * manager may impersonate as any user and access cart on their behalf.
      */
-    @Secured(
-            {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
-    @RequestMapping(value = "/{cartId}/worldpaypaymentdetails", method = RequestMethod.POST, consumes =
-            {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @PostMapping(value = "/{cartId}/worldpaypaymentdetails", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
@@ -174,6 +173,21 @@ public class WorldpayCartsController extends AbstractWorldpayController {
                                                  @RequestParam(required = false, defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
             throws NoCheckoutCartException, WorldpayException {
         return addPaymentDetailsInternal(request, paymentDetails, fields);
+    }
+
+
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @PostMapping(value = "/{cartId}/googlepay-details", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public PlaceOrderResponseWsDTO addPaymentDetailsForGooglePay(@RequestBody final PaymentDetailsWsDTO paymentDetails, @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
+            throws WorldpayException, InvalidCartException {
+
+        final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo = createGooglePayAdditionalAuthInfo(paymentDetails.getGooglePayDetails());
+        saveBillingAddresses(paymentDetails.getBillingAddress());
+
+        final DirectResponseData responseData = worldpayDirectOrderFacade.authoriseGooglePayDirect(googlePayAdditionalAuthInfo);
+        return handleDirectResponse(responseData, fields);
     }
 
     protected PaymentDetailsWsDTO addPaymentDetailsInternal(final HttpServletRequest request,
@@ -194,7 +208,14 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         final CartData cartData = checkoutFacade.getCheckoutCart();
         final CCPaymentInfoData paymentInfoData = cartData.getPaymentInfo();
         return dataMapper.map(paymentInfoData, PaymentDetailsWsDTO.class, fields);
+    }
 
+    private GooglePayAdditionalAuthInfo createGooglePayAdditionalAuthInfo(@RequestBody final GooglePayRequestWsDTO googlePayRequestWsDTO) {
+        final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo = new GooglePayAdditionalAuthInfo();
+        googlePayAdditionalAuthInfo.setProtocolVersion(googlePayRequestWsDTO.getProtocolVersion());
+        googlePayAdditionalAuthInfo.setSignature(googlePayRequestWsDTO.getSignature());
+        googlePayAdditionalAuthInfo.setSignedMessage(googlePayRequestWsDTO.getSignedMessage());
+        return googlePayAdditionalAuthInfo;
     }
 
     protected CSEAdditionalAuthInfo createCSEAdditionalAuthInfo(final PaymentDetailsWsDTO paymentDetails) {

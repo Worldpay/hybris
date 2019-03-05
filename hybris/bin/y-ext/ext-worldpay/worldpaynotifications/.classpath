@@ -8,7 +8,7 @@
 	<classpathentry exported="true" kind="src" path="/payment" />
 	<classpathentry exported="true" kind="src" path="/ticketsystem" />
 	<classpathentry exported="true" kind="src" path="/worldpayapi" />
-	<classpathentry exported="true" kind="lib" path="lib/gson-2.6.2.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/gson-2.8.5.jar" />
 	<classpathentry exported="false" kind="lib" path="web/webroot/WEB-INF/lib/displaytag-1.2.jar" />
 	<classpathentry exported="false" kind="lib" path="web/webroot/WEB-INF/lib/jstl-impl-1.2.jar" />
 	<classpathentry exported="true" kind="lib" path="resources" />

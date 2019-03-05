@@ -68,6 +68,12 @@
 						<columntype database="oracle">
 							<value>CLOB</value>
 						</columntype>
+						<columntype database="sqlserver">
+							<value>nvarchar(max)</value>
+						</columntype>
+						<columntype database="mysql">
+							<value>text</value>
+						</columntype>
 						<columntype database="sap">
 							<value>NCLOB</value>
 						</columntype>

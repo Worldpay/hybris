@@ -42,7 +42,7 @@ public class WorldpayThreeDSecureEndpointControllerTest {
 
     @Spy
     @InjectMocks
-    private WorldpayThreeDSecureEndpointController testObj = new WorldpayThreeDSecureEndpointController();
+    private WorldpayThreeDSecureEndpointController testObj;
 
     @Mock
     private ThreeDSecureForm threeDSecureFormMock;

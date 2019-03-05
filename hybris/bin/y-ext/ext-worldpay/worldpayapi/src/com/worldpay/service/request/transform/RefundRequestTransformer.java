@@ -56,7 +56,7 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
             refund.setShopperWebformRefund(Boolean.TRUE.toString());
         }
         refund.setAmount((Amount) refundRequest.getAmount().transformToInternalModel());
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetry().add(refund);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().add(refund);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

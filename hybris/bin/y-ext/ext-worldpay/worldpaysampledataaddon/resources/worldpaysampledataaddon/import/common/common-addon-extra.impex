@@ -12,6 +12,8 @@ INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]; name[lang = en]; de
 ; CHINAUNIONPAY-SSL  ; China Union Pay ; China Union Pay ;      ; GBP, EUR, USD      ;                            ;                                                 ; true ;
 ; ALIPAY-SSL         ; Alipay          ; Alipay          ;      ; GBP, EUR, USD, SGD ; CN                         ; GBP:1:5000, EUR:1:6000, USD:1:8000, SGD:2:10000 ; true ;
 ; PAYPAL-EXPRESS     ; PayPal          ; PayPal          ;      ;                    ;                            ;                                                 ; true ;
+; PAYWITHGOOGLE-SSL  ; Google Pay      ; Google Pay      ;      ;                    ;                            ;                                                 ; true ;
+; APPLEPAY-SSL       ; Apple Pay       ; Apple Pay       ;      ;                    ;                            ;                                                 ; true ;
 ; BANKLINKNORDEA-SSL ; Nordea          ; Nordea          ;      ; EUR, USD, GBP      ;                            ;                                                 ;      ;
 ; POSTEPAY-SSL       ; Postepay        ; Postepay        ;      ; EUR                ;                            ; EUR:1:3000                                      ; true ; true
 ; MISTERCASH-SSL     ; MisterCash      ; MisterCash      ;      ; EUR                ;                            ; EUR:1:5000                                      ;      ;

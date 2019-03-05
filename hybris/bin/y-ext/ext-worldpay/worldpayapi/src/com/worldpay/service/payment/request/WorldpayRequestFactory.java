@@ -1,8 +1,10 @@
 package com.worldpay.service.payment.request;
 
 import com.worldpay.data.AdditionalAuthInfo;
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.MerchantInfo;
@@ -40,13 +42,11 @@ public interface WorldpayRequestFactory {
      * @param merchantInfo               the merchantInfo
      * @param cseAdditionalAuthInfo      contains cse form specific information for the request including encrypted payment information
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
-     * @param createTokenResponse
+     * @param createTokenResponse        represents the response to the token creation request
      * @return Built {@link UpdateTokenServiceRequest}
-     * @throws WorldpayConfigurationException
      */
-    UpdateTokenServiceRequest buildTokenUpdateRequest(MerchantInfo merchantInfo, CSEAdditionalAuthInfo cseAdditionalAuthInfo,
-                                                      WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CreateTokenResponse createTokenResponse)
-            throws WorldpayConfigurationException;
+    UpdateTokenServiceRequest buildTokenUpdateRequest(final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                                      final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CreateTokenResponse createTokenResponse);
 
     /**
      * Builds an update token request to send to Worldpay
@@ -54,9 +54,21 @@ public interface WorldpayRequestFactory {
      * @param merchantInfo               the merchantInfo
      * @param creditCardPaymentInfoModel the creditCardPaymentInfoModel
      * @return Built {@link DeleteTokenServiceRequest}
+     */
+    DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel);
+
+    /**
+     * Builds an authorise request to send to Worldpay
+     * Deprecated in favour of WorldpayRequestFactory.buildDirectAuthoriseRequestWithTokenForCSE
+     *
+     * @param merchantInfo               the merchantInfo
+     * @param cartModel                  the session cart
+     * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
+     * @return Built {@link DirectAuthoriseServiceRequest}
      * @throws WorldpayConfigurationException
      */
-    DeleteTokenServiceRequest buildTokenDeleteRequest(MerchantInfo merchantInfo, CreditCardPaymentInfoModel creditCardPaymentInfoModel)
+    @Deprecated
+    DirectAuthoriseServiceRequest buildDirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
             throws WorldpayConfigurationException;
 
     /**
@@ -66,10 +78,18 @@ public interface WorldpayRequestFactory {
      * @param cartModel                  the session cart
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
      * @return Built {@link DirectAuthoriseServiceRequest}
-     * @throws WorldpayConfigurationException
      */
-    DirectAuthoriseServiceRequest buildDirectAuthoriseRequest(MerchantInfo merchantInfo, CartModel cartModel, WorldpayAdditionalInfoData worldpayAdditionalInfoData)
-            throws WorldpayConfigurationException;
+    DirectAuthoriseServiceRequest buildDirectAuthoriseRequestWithTokenForCSE(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
+
+    /**
+     * * Builds an authorise request with a GooglePay request to send to Worldpay
+     *
+     * @param merchantInfo                the merchantInfo
+     * @param cartModel                   the session cart
+     * @param googlePayAdditionalAuthInfo object that contains the parameters returned by Google Pay
+     * @return Built {@link DirectAuthoriseServiceRequest}
+     */
+    DirectAuthoriseServiceRequest buildDirectAuthoriseGooglePayRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo);
 
     /**
      * Builds a 3D secure direct request to send to Worldpay
@@ -80,11 +100,10 @@ public interface WorldpayRequestFactory {
      * @param paRes                      the payer Response required for 3D request
      * @param cookie                     the cookie from the authorise response
      * @return Built {@link DirectAuthoriseServiceRequest}
-     * @throws WorldpayConfigurationException
      */
-    DirectAuthoriseServiceRequest build3dDirectAuthoriseRequest(MerchantInfo merchantInfo, String worldpayOrderCode,
-                                                                WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                                String paRes, String cookie) throws WorldpayConfigurationException;
+    DirectAuthoriseServiceRequest build3dDirectAuthoriseRequest(final MerchantInfo merchantInfo, final String worldpayOrderCode,
+                                                                final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                                final String paRes, final String cookie);
 
     /**
      * Builds a direct authorise request to send to Worldpay with Bank details
@@ -94,11 +113,12 @@ public interface WorldpayRequestFactory {
      * @param bankTransferAdditionalAuthInfo
      * @param worldpayAdditionalInfoData
      * @return Built {@link DirectAuthoriseServiceRequest}
-     * @throws WorldpayConfigurationException
+     * @throws WorldpayConfigurationException thrown when the URLs are not configured correctly
      */
-    DirectAuthoriseServiceRequest buildDirectAuthoriseBankTransferRequest(MerchantInfo merchantInfo, CartModel cartModel,
-                                                                          BankTransferAdditionalAuthInfo bankTransferAdditionalAuthInfo,
-                                                                          WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException;
+    DirectAuthoriseServiceRequest buildDirectAuthoriseBankTransferRequest(final MerchantInfo merchantInfo,
+                                                                          final CartModel cartModel,
+                                                                          final BankTransferAdditionalAuthInfo bankTransferAdditionalAuthInfo,
+                                                                          final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException;
 
     /**
      * Builds an authorise recurring payment request to send to Worldpay
@@ -107,23 +127,30 @@ public interface WorldpayRequestFactory {
      * @param abstractOrderModel         the session cart or an order
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
      * @return Built {@link DirectAuthoriseServiceRequest}
-     * @throws WorldpayConfigurationException
      */
-    DirectAuthoriseServiceRequest buildDirectAuthoriseRecurringPayment(MerchantInfo merchantInfo, AbstractOrderModel abstractOrderModel, WorldpayAdditionalInfoData worldpayAdditionalInfoData)
-                throws WorldpayConfigurationException;
+    DirectAuthoriseServiceRequest buildDirectAuthoriseRecurringPayment(MerchantInfo merchantInfo, AbstractOrderModel abstractOrderModel, WorldpayAdditionalInfoData worldpayAdditionalInfoData);
 
     /**
      * Builds a direct authorise request to send to Worldpay with Bank details
      *
      * @param merchantInfo               the merchantInfo
-     * @param cartModel         the session cart or an order
+     * @param cartModel                  the session cart or an order
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
      * @param additionalAuthInfo
      * @return Built {@link DirectAuthoriseServiceRequest}
-     * @throws WorldpayConfigurationException
+     * @throws WorldpayConfigurationException thrown when the URLs are not configured correctly
      */
     DirectAuthoriseServiceRequest buildDirectAuthoriseKlarnaRequest(final MerchantInfo merchantInfo,
                                                                     final CartModel cartModel,
                                                                     final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                                     final AdditionalAuthInfo additionalAuthInfo) throws WorldpayConfigurationException;
+
+    /**
+     * Builds a direct authorise request using ApplePay
+     * @param merchantInfoMock
+     * @param cartModelMock
+     * @param applePayAdditionalInfo
+     * @return
+     */
+    DirectAuthoriseServiceRequest buildApplePayDirectAuthorisationRequest(MerchantInfo merchantInfoMock, CartModel cartModelMock, ApplePayAdditionalAuthInfo applePayAdditionalInfo);
 }

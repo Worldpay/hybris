@@ -27,6 +27,24 @@
      				</attributes>
      			</itemtype>
 
+				<itemtype code="WorldpayGooglePayComponent" autocreate="true" generate="true"
+						  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayGooglePayComponent">
+					<attributes>
+						<attribute type="localized:Media" qualifier="media">
+							<persistence type="property" />
+						</attribute>
+					</attributes>
+				</itemtype>
+
+				<itemtype code="WorldpayApplePayComponent" autocreate="true" generate="true"
+						  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayApplePayComponent">
+					<attributes>
+						<attribute type="localized:Media" qualifier="media">
+							<persistence type="property" />
+						</attribute>
+					</attributes>
+				</itemtype>
+
      			<itemtype code="WorldpayAPMComponent" autocreate="true" generate="true"
      					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayAPMComponent">
      				<attributes>

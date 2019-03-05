@@ -37,7 +37,7 @@ public class DeleteTokenResponseTransformer extends AbstractServiceResponseTrans
             throw new WorldpayModelTransformationException("DeleteTokenResponse did not contain an OK object");
         }
         final Ok okResponse = (Ok) response;
-        final Object deleteTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDone().get(0);
+        final Object deleteTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
         if (deleteTokenReceived instanceof DeleteTokenReceived) {
             deleteTokenResponse.setDeleteTokenResponse(getServiceResponseTransformerHelper().buildDeleteTokenReply((DeleteTokenReceived) deleteTokenReceived));
         }

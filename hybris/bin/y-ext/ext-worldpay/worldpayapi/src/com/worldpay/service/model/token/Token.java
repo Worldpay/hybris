@@ -33,7 +33,7 @@ public class Token extends AbstractPayment {
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
+    public InternalModelObject transformToInternalModel() {
         final TOKENSSL tokenssl = new TOKENSSL();
         tokenssl.setTokenScope(merchantToken ? "merchant" : "shopper");
 

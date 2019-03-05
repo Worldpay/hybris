@@ -1,11 +1,6 @@
 package com.worldpay.worldpayresponsemock.mock;
 
-import com.worldpay.internal.model.Order;
-import com.worldpay.internal.model.OrderStatus;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.Reference;
-import com.worldpay.internal.model.Reply;
-import com.worldpay.internal.model.Submit;
+import com.worldpay.internal.model.*;
 import com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayResponseBuilder;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;
@@ -13,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,20 +51,20 @@ public class DefaultWorldpayResponseBuilderTest {
         final PaymentService result = testObj.buildRedirectResponse(paymentServiceMock, request);
 
         final List<Object> paymentServiceElements = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
-        for (Object paymentServiceElement : paymentServiceElements) {
+        for (final Object paymentServiceElement : paymentServiceElements) {
             if (paymentServiceElement instanceof Reply) {
                 final Reply reply = (Reply) paymentServiceElement;
                 final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
                 assertThat(replyElements, hasItems(instanceOf(OrderStatus.class)));
-                for (Object replyElement : replyElements) {
+                for (final Object replyElement : replyElements) {
                     if (replyElement instanceof OrderStatus) {
                         final OrderStatus orderStatus = (OrderStatus) replyElement;
                         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
                         final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
                         assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
-                        for (Object orderStatusElement : orderStatusElements) {
+                        for (final Object orderStatusElement : orderStatusElements) {
                             if (orderStatusElement instanceof Reference) {
-                                Reference reference = (Reference) orderStatusElement;
+                                final Reference reference = (Reference) orderStatusElement;
                                 assertTrue(reference.getvalue().endsWith("/worldpayresponsemock/redirect?"));
                             }
                         }
@@ -82,6 +76,4 @@ public class DefaultWorldpayResponseBuilderTest {
 
         assertEquals(MERCHANT_CODE, result.getMerchantCode());
     }
-
-
 }

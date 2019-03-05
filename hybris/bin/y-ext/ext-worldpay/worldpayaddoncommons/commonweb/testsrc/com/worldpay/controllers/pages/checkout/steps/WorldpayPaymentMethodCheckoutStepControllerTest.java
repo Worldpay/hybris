@@ -19,9 +19,11 @@ import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
+import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
+import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,19 +38,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.CMS_PAGE_TITLE;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.HOP_DEBUG_MODE_PARAM;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.HOSTED_ORDER_PAGE_DATA;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.REQUEST;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SAVE_PAYMENT_INFO;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SHOPPER_BANK_CODE;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.*;
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.*;
 
@@ -123,12 +118,14 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
     @Mock
     private AdditionalAuthInfo additionalAuthInfoMock;
+    @Mock
+    private CMSPreviewService cmsPreviewServiceMock;
 
     @Before
     public void setUp() throws Exception {
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), anyString());
 
-        when(cmsPageServiceMock.getPageForLabelOrId(anyString())).thenReturn(contentPageModelMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any(PagePreviewCriteriaData.class))).thenReturn(contentPageModelMock);
         when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
         when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
         when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);

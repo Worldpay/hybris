@@ -38,8 +38,6 @@ public class DefaultWorldpayPaymentInfoServiceCreditCardTypeTest {
 
     @Mock
     private PaymentReply paymentReplyMock;
-    @Mock
-    private TokenReply tokenReplyMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
     @Mock

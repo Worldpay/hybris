@@ -21,6 +21,8 @@
         <property name="installationId" value="1048564"/>
         <property name="statementNarrative" value=""/>
         <property name="orderContent" value="Order Content MERCHANTREL60ECOM"/>
+        <property name="googlePaySettings" ref="googlePaySettings"/>
+        <property name="applePaySettings" ref="applePaySettings"/>
     </bean>
 
     <bean id="customerServiceMerchantConfigurationASM" class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -45,5 +47,59 @@
         <property name="installationId" value="1048564"/>
         <property name="statementNarrative" value=""/>
         <property name="orderContent" value="Order Content MERCHANTREL60RECUR replenishment"/>
+    </bean>
+
+    <bean id="googlePaySettings" class="com.worldpay.config.merchant.GooglePayConfigData">
+        <property name="cardType" value="CARD"/>
+        <property name="allowedAuthMethods">
+            <util:list value-type="java.lang.String">
+                <value>PAN_ONLY</value>
+                <!--<value>CRYPTOGRAM_3DS</value>-->
+            </util:list>
+        </property>
+        <property name="allowedCardNetworks">
+            <util:list value-type="java.lang.String">
+                <value>AMEX</value>
+                <value>DISCOVER</value>
+                <value>JCB</value>
+                <value>MASTERCARD</value>
+                <value>VISA</value>
+            </util:list>
+        </property>
+        <property name="environment" value="TEST"/>
+        <property name="gatewayMerchantId" value="REQUEST_IT_TO_WORLDPAY"/>
+        <property name="merchantId" value=""/>
+        <property name="merchantName" value="#{websiteMerchantConfiguration.code}"/>
+    </bean>
+
+    <bean id="applePaySettings" class="com.worldpay.config.merchant.ApplePayConfigData">
+        <property name="merchantId" value="CREATE_IT_IN_APPLE_PAY"/>
+        <property name="merchantName" value="Worldpay test"/>
+        <property name="countryCode" value="ES"/>
+        <property name="merchantCapabilities">
+            <util:list value-type="java.lang.String">
+                <value>supportsCredit</value>
+                <value>supportsDebit</value>
+                <value>supports3DS</value>
+                <value>supportsEMV</value>
+            </util:list>
+        </property>
+        <property name="supportedNetworks">
+            <util:list value-type="java.lang.String">
+                <value>amex</value>
+                <!--<value>cartesBancaires</value>-->
+                <!--<value>chinaUnionPay</value>-->
+                <value>discover</value>
+                <!--<value>eftpos</value>-->
+                <!--<value>electron</value>-->
+                <!--<value>interac</value>-->
+                <value>jcb</value>
+                <value>maestro</value>
+                <value>masterCard</value>
+                <!--<value>privateLabel</value>-->
+                <value>visa</value>
+                <!--<value>vPay</value>-->
+            </util:list>
+        </property>
     </bean>
 </beans>

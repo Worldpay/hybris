@@ -36,7 +36,7 @@ public class PaymentMethodMask implements InternalModelTransformer, Serializable
     @Override
     public InternalModelObject transformToInternalModel() {
         com.worldpay.internal.model.PaymentMethodMask intPaymentMethodMask = new com.worldpay.internal.model.PaymentMethodMask();
-        List<Object> includeOrExclude = intPaymentMethodMask.getIncludeOrExclude();
+        List<Object> includeOrExclude = intPaymentMethodMask.getStoredCredentialsOrIncludeOrExclude();
         if (includes != null) {
             for (PaymentType paymentType : includes) {
                 Include include = new Include();

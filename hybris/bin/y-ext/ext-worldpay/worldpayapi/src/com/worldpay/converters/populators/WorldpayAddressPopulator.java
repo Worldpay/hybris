@@ -32,7 +32,7 @@ public class WorldpayAddressPopulator implements Populator<AddressModel, Address
 
         target.setFirstName(StringEscapeUtils.escapeXml(source.getFirstname()));
         target.setLastName(StringEscapeUtils.escapeXml(source.getLastname()));
-        target.setPostalCode(source.getPostalcode());
+        target.setPostalCode(StringEscapeUtils.escapeXml(source.getPostalcode()));
         target.setTelephoneNumber(source.getPhone1());
 
         if (source.getRegion() != null) {

@@ -31,14 +31,14 @@ public class DefaultWorldpayUrlServiceTest {
     @Mock
     private BaseSiteService baseSiteServiceMock;
     @Mock
-    private SiteBaseUrlResolutionService siteBaseUrlResolutionService;
+    private SiteBaseUrlResolutionService siteBaseUrlResolutionServiceMock;
     @Mock
     private BaseSiteModel currentBaseSiteMock;
 
     @Test
     public void testGetFullUrlSecure() throws Exception {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSiteMock, true, URL)).thenReturn(FULL_SITE_URL);
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, URL)).thenReturn(FULL_SITE_URL);
 
         final String result = testObj.getFullUrl(URL, true);
 
@@ -48,7 +48,7 @@ public class DefaultWorldpayUrlServiceTest {
     @Test
     public void testGetFullUrlUnSecure() throws Exception {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSiteMock, false, URL)).thenReturn(FULL_SITE_URL);
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, false, URL)).thenReturn(FULL_SITE_URL);
 
         final String result = testObj.getFullUrl(URL, false);
 
@@ -58,7 +58,7 @@ public class DefaultWorldpayUrlServiceTest {
     @Test
     public void shouldReturnBaseURLForCurrentSite() throws Exception {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSiteMock, true, EMPTY_URL)).thenReturn(FULL_SITE_URL);
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, EMPTY_URL)).thenReturn(FULL_SITE_URL);
 
         final String result = testObj.getBaseWebsiteUrlForSite();
 
@@ -69,7 +69,7 @@ public class DefaultWorldpayUrlServiceTest {
     public void shouldReturnFullTermsUrl() throws Exception {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
         doReturn(TERMS_URL).when(testObj).getTermsPath();
-        when(siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSiteMock, true, TERMS_URL)).thenReturn(FULL_SITE_URL);
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, TERMS_URL)).thenReturn(FULL_SITE_URL);
 
         final String result = testObj.getFullTermsUrl();
 
@@ -79,7 +79,7 @@ public class DefaultWorldpayUrlServiceTest {
     @Test(expected = WorldpayConfigurationException.class)
     public void testGetFullUrlShouldRaiseExceptionWhenServiceReturnsNull() throws Exception {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSiteMock, true, URL)).thenReturn(null);
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, URL)).thenReturn(null);
 
         testObj.getFullUrl(URL, true);
     }
@@ -88,7 +88,7 @@ public class DefaultWorldpayUrlServiceTest {
     public void testSetOfAddresses() throws WorldpayConfigurationException {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
         // Returns the 3rd argument of the invocation, the Url passed in the getFullUrl invocation
-        when(siteBaseUrlResolutionService.getWebsiteUrlForSite(eq(currentBaseSiteMock), eq(true), anyString())).thenAnswer(invocationOnMOck -> {
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(eq(currentBaseSiteMock), eq(true), anyString())).thenAnswer(invocationOnMOck -> {
             Object[] args = invocationOnMOck.getArguments();
             return args[2];
         });
@@ -112,5 +112,12 @@ public class DefaultWorldpayUrlServiceTest {
         doReturn("threeDPath").when(testObj).getThreeDSecureTermPath();
         testObj.getFullThreeDSecureTermURL();
         verify(testObj).getFullUrl("threeDPath", true);
+    }
+
+    @Test
+    public void testReturnCurrentBaseSiteDomain() {
+        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, null)).thenReturn(URL);
+        testObj.getWebsiteUrlForCurrentSite();
     }
 }

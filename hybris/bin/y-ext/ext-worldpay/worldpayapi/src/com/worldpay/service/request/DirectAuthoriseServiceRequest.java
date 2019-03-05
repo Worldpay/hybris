@@ -17,7 +17,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
     private static final String DIRECT_AUTHORISE_SERVICE_REQUEST = "DirectAuthoriseServiceRequest";
     private static final String TOKEN_AND_DIRECT_AUTHORISE_REQUEST = "TokenAndDirectAuthoriseRequest";
 
-    protected DirectAuthoriseServiceRequest(MerchantInfo merchantInfo, String orderCode) {
+    protected DirectAuthoriseServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {
         super(merchantInfo, orderCode);
     }
 
@@ -35,10 +35,15 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param dynamicInteractionType contains the source interaction of the order
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static DirectAuthoriseServiceRequest createDirectAuthoriseRequest(
-            final MerchantInfo merchantInfo, final BasicOrderInfo orderInfo, final Payment payment,
-            final Shopper shopper, final Session session, final Address shippingAddress,
-            final Address billingAddress, final String statementNarrative, final DynamicInteractionType dynamicInteractionType) {
+    public static DirectAuthoriseServiceRequest createDirectAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                             final BasicOrderInfo orderInfo,
+                                                                             final Payment payment,
+                                                                             final Shopper shopper,
+                                                                             final Session session,
+                                                                             final Address shippingAddress,
+                                                                             final Address billingAddress,
+                                                                             final String statementNarrative,
+                                                                             final DynamicInteractionType dynamicInteractionType) {
         checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, merchantInfo.getMerchantCode(), merchantInfo.getMerchantPassword());
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final PaymentDetails paymentDetails = new PaymentDetails(payment, session);
@@ -52,26 +57,30 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
     /**
      * Static convenience method for creating an instance of the DirectAuthoriseServiceRequest
      *
-     * @param merchantInfo           merchantInfo to be used in the Worldpay call
-     * @param orderInfo              orderInfo to be used in the Worldpay call
-     * @param payment                payment to be used in the Worldpay call
-     * @param shopper                shopper information to be used in the Worldpay call
-     * @param session                session to be used in the Worldpay call
-     * @param shippingAddress        shippingAddress to be used in the Worldpay call
-     * @param billingAddress         billingAddress to be used in the Worldpay call
-     * @param statementNarrative     statementNarrative to be used in the Worldpay call
-     * @param orderLines             orderLines containing the items ordered
-     * @param dynamicInteractionType contains the source interaction of the order
+     * @param merchantInfo       merchantInfo to be used in the Worldpay call
+     * @param orderInfo          orderInfo to be used in the Worldpay call
+     * @param payment            payment to be used in the Worldpay call
+     * @param shopper            shopper information to be used in the Worldpay call
+     * @param session            session to be used in the Worldpay call
+     * @param shippingAddress    shippingAddress to be used in the Worldpay call
+     * @param billingAddress     billingAddress to be used in the Worldpay call
+     * @param statementNarrative statementNarrative to be used in the Worldpay call
+     * @param orderLines         orderLines containing the items ordered
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static DirectAuthoriseServiceRequest createKlarnaDirectAuthoriseRequest(
-            final MerchantInfo merchantInfo, final BasicOrderInfo orderInfo, final Payment payment,
-            final Shopper shopper, final Session session, final Address shippingAddress,
-            final Address billingAddress, final String statementNarrative, final OrderLines orderLines, final DynamicInteractionType dynamicInteractionType) {
+    public static DirectAuthoriseServiceRequest createKlarnaDirectAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                                   final BasicOrderInfo orderInfo,
+                                                                                   final Payment payment,
+                                                                                   final Shopper shopper,
+                                                                                   final Session session,
+                                                                                   final Address shippingAddress,
+                                                                                   final Address billingAddress,
+                                                                                   final String statementNarrative,
+                                                                                   final OrderLines orderLines) {
         checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo);
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final PaymentDetails paymentDetails = new PaymentDetails(payment, session);
-        final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, billingAddress, statementNarrative, paymentDetails, dynamicInteractionType);
+        final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, billingAddress, statementNarrative, paymentDetails, DynamicInteractionType.ECOMMERCE);
         reqOrder.setOrderLines(orderLines);
         authRequest.setOrder(reqOrder);
 
@@ -81,18 +90,21 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
     /**
      * Static convenience method for creating an instance of the DirectAuthoriseServiceRequest
      *
-     * @param merchantInfo           merchantInfo to be used in the Worldpay call
-     * @param orderInfo              orderInfo to be used in the Worldpay call
-     * @param payment                token to be used in the Worldpay call which is linked to a billing address
-     * @param shopper                shopper information to be used in the Worldpay call
-     * @param shippingAddress        shippingAddress to be used in the Worldpay call
-     * @param statementNarrative     statementNarrative to be used in the Worldpay call
-     * @param dynamicInteractionType contains the source interaction of the order
+     * @param merchantInfo       merchantInfo to be used in the Worldpay call
+     * @param orderInfo          orderInfo to be used in the Worldpay call
+     * @param payment            token to be used in the Worldpay call which is linked to a billing address
+     * @param shopper            shopper information to be used in the Worldpay call
+     * @param shippingAddress    shippingAddress to be used in the Worldpay call
+     * @param statementNarrative statementNarrative to be used in the Worldpay call
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
     public static DirectAuthoriseServiceRequest createTokenisedDirectAuthoriseRequest(final MerchantInfo merchantInfo,
-                                                                                      final BasicOrderInfo orderInfo, final Payment payment,
-                                                                                      final Shopper shopper, final Address shippingAddress, final String statementNarrative, final DynamicInteractionType dynamicInteractionType) {
+                                                                                      final BasicOrderInfo orderInfo,
+                                                                                      final Payment payment,
+                                                                                      final Shopper shopper,
+                                                                                      final Address shippingAddress,
+                                                                                      final String statementNarrative,
+                                                                                      final DynamicInteractionType dynamicInteractionType) {
         checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, shopper);
         checkInstanceOfToken(payment);
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
@@ -104,9 +116,57 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
     }
 
     /**
+     * Static convenience method for creating an instance of the DirectAuthoriseServiceRequest with an ApplePay payment method
+     *
+     * @param merchantInfo    merchantInfo to be used in the Worldpay call
+     * @param orderInfo       orderInfo to be used in the Worldpay call
+     * @param payment         ApplePay to be used in the Worldpay call which is linked to a billing address
+     * @param shopper         shopper information to be used in the Worldpay call
+     * @param shippingAddress shippingAddress to be used in the Worldpay call
+     * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
+     */
+    public static DirectAuthoriseServiceRequest createApplePayDirectAuthoriseRequest(final MerchantInfo merchantInfo, final BasicOrderInfo orderInfo, final Payment payment, final Shopper shopper, final Address shippingAddress) {
+        checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, shopper);
+        checkInstanceOfApplePay(payment);
+        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
+        final PaymentDetails paymentDetails = new PaymentDetails(payment, shopper.getSession());
+        // Passing billing address as null as the token has one in Worldpay.
+        final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, null, null, paymentDetails, DynamicInteractionType.ECOMMERCE);
+        authRequest.setOrder(reqOrder);
+        return authRequest;
+    }
+
+    /**
+     * Static convenience method for creating an instance of the DirectAuthoriseServiceRequest with a GooglePay payment method
+     *
+     * @param merchantInfo           merchantInfo to be used in the Worldpay call
+     * @param orderInfo              orderInfo to be used in the Worldpay call
+     * @param payment                GooglePay to be used in the Worldpay call which is linked to a billing address
+     * @param shopper                shopper information to be used in the Worldpay call
+     * @param shippingAddress        shippingAddress to be used in the Worldpay call
+     * @param dynamicInteractionType contains the source interaction of the order
+     * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
+     */
+    public static DirectAuthoriseServiceRequest createGooglePayDirectAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                                      final BasicOrderInfo orderInfo,
+                                                                                      final Payment payment,
+                                                                                      final Shopper shopper,
+                                                                                      final Address shippingAddress,
+                                                                                      final DynamicInteractionType dynamicInteractionType) {
+        checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, shopper);
+        checkInstanceOfGooglePay(payment);
+        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
+        final PaymentDetails paymentDetails = new PaymentDetails(payment, shopper.getSession());
+        // Passing billing address as null as the token has one in Worldpay.
+        final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, null, null, paymentDetails, dynamicInteractionType);
+        authRequest.setOrder(reqOrder);
+        return authRequest;
+    }
+
+    /**
      * Static convenience method for creating an instance of the DirectAuthoriseServiceRequest that will request a new Token to be created.
      *
-     * @param merch                  merchantInfo to be used in the Worldpay call
+     * @param merchantInfo           merchantInfo to be used in the Worldpay call
      * @param orderInfo              orderInfo to be used in the Worldpay call
      * @param payment                payment to be used in the Worldpay call
      * @param shopper                shopper information to be used in the Worldpay call
@@ -118,15 +178,18 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param dynamicInteractionType contains the source interaction of the order
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static DirectAuthoriseServiceRequest createTokenAndDirectAuthoriseRequest(final MerchantInfo merch,
-                                                                                     final BasicOrderInfo orderInfo, final Payment payment,
-                                                                                     final Shopper shopper, final Session session,
+    public static DirectAuthoriseServiceRequest createTokenAndDirectAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                                     final BasicOrderInfo orderInfo,
+                                                                                     final Payment payment,
+                                                                                     final Shopper shopper,
+                                                                                     final Session session,
                                                                                      final Address shippingAddress,
-                                                                                     final Address billingAddress, String statementNarrative,
+                                                                                     final Address billingAddress,
+                                                                                     final String statementNarrative,
                                                                                      final TokenRequest tokenRequest,
                                                                                      final DynamicInteractionType dynamicInteractionType) {
-        checkParameters(TOKEN_AND_DIRECT_AUTHORISE_REQUEST, merch, orderInfo, tokenRequest, merch.getMerchantCode(), merch.getMerchantPassword());
-        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
+        checkParameters(TOKEN_AND_DIRECT_AUTHORISE_REQUEST, merchantInfo, orderInfo, tokenRequest, merchantInfo.getMerchantCode(), merchantInfo.getMerchantPassword());
+        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final PaymentDetails paymentDetails = new PaymentDetails(payment, session);
         final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, billingAddress, statementNarrative, paymentDetails, dynamicInteractionType);
         reqOrder.setTokenRequest(tokenRequest);
@@ -140,17 +203,19 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * parameters passed back from the 3D security call.
      * Note - the other details passed in must match the original DirectAuthoriseServiceRequest.
      *
-     * @param merch     merchantInfo to be used in the Worldpay call
-     * @param orderInfo orderInfo to be used in the Worldpay call
-     * @param session   session to be used in the Worldpay call
-     * @param paRes     paRes to be used in the Worldpay call
+     * @param merchantInfo merchantInfo to be used in the Worldpay call
+     * @param orderInfo    orderInfo to be used in the Worldpay call
+     * @param session      session to be used in the Worldpay call
+     * @param paRes        paRes to be used in the Worldpay call
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static DirectAuthoriseServiceRequest createDirect3DAuthoriseRequest(
-            final MerchantInfo merch, final BasicOrderInfo orderInfo, final Session session, String paRes) {
-        checkParameters("Direct3DAuthoriseRequest", merch, orderInfo);
+    public static DirectAuthoriseServiceRequest createDirect3DAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                               final BasicOrderInfo orderInfo,
+                                                                               final Session session,
+                                                                               final String paRes) {
+        checkParameters("Direct3DAuthoriseRequest", merchantInfo, orderInfo);
 
-        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
+        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
 
         final Order reqOrder = new Order(orderInfo.getOrderCode(), null, null);
         reqOrder.setSession(session);
@@ -164,7 +229,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * parameters passed back from the 3D security call.
      * Note - the other details passed in must match the original DirectAuthoriseServiceRequest.
      *
-     * @param merch                  merchantInfo to be used in the Worldpay call
+     * @param merchantInfo           merchantInfo to be used in the Worldpay call
      * @param orderInfo              orderInfo to be used in the Worldpay call
      * @param payment                payment to be used in the Worldpay call
      * @param shopper                shopper information to be used in the Worldpay call
@@ -178,12 +243,20 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
      * @param dynamicInteractionType contains the source interaction of the order
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
-    public static DirectAuthoriseServiceRequest createTokenAndDirect3DAuthoriseRequest(
-            final MerchantInfo merch, final BasicOrderInfo orderInfo, final Payment payment,
-            final Shopper shopper, final Session session, final String paRes, final String echoData,
-            final Address shippingAddress, final Address billingAddress, final String statementNarrative, final TokenRequest tokenRequest, final DynamicInteractionType dynamicInteractionType) {
-        checkParameters("TokenAndDirect3DAuthoriseRequest", merch, orderInfo, tokenRequest);
-        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merch, orderInfo.getOrderCode());
+    public static DirectAuthoriseServiceRequest createTokenAndDirect3DAuthoriseRequest(final MerchantInfo merchantInfo,
+                                                                                       final BasicOrderInfo orderInfo,
+                                                                                       final Payment payment,
+                                                                                       final Shopper shopper,
+                                                                                       final Session session,
+                                                                                       final String paRes,
+                                                                                       final String echoData,
+                                                                                       final Address shippingAddress,
+                                                                                       final Address billingAddress,
+                                                                                       final String statementNarrative,
+                                                                                       final TokenRequest tokenRequest,
+                                                                                       final DynamicInteractionType dynamicInteractionType) {
+        checkParameters("TokenAndDirect3DAuthoriseRequest", merchantInfo, orderInfo, tokenRequest);
+        final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
         final PaymentDetails paymentDetails = new PaymentDetails(payment, session, paRes);
         final Order reqOrder = createOrder(orderInfo, shopper, shippingAddress, billingAddress, statementNarrative, paymentDetails, dynamicInteractionType);
         reqOrder.setEchoData(echoData);

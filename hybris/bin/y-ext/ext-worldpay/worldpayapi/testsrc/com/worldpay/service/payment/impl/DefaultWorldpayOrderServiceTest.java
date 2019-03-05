@@ -1,9 +1,14 @@
 package com.worldpay.service.payment.impl;
 
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
+import com.worldpay.data.ApplePayHeader;
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.exception.WorldpayModelTransformationException;
+import com.worldpay.internal.model.Header;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.*;
+import com.worldpay.service.model.applepay.ApplePay;
 import com.worldpay.service.model.klarna.KlarnaPayment;
 import com.worldpay.service.model.payment.AlternativeShopperBankCodePayment;
 import com.worldpay.service.model.payment.PaymentType;
@@ -53,6 +58,12 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String LANGUAGE_CODE = "languageCode";
     private static final String EXTRA_DATA = "extraData";
     private static final String WORLDPAY_MERCHANT_TOKEN_ENABLED = "worldpay.merchant.token.enabled";
+    private static final String EPHEMERAL_PUBLIC_KEY = "ephemeralPublicKey";
+    private static final String PUBLIC_KEY_HASH = "publicKeyHash";
+    private static final String TRANSACTION_ID = "transactionId";
+    private static final String DATA = "data";
+    private static final String SIGNATURE = "signature";
+    private static final String VERSION = "version";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -106,7 +117,7 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldReturnAmountAsBigDecimalUsingFractionDigitsFromCurrency() throws Exception {
+    public void shouldReturnAmountAsBigDecimalUsingFractionDigitsFromCurrency() {
         when(amountMock.getCurrencyCode()).thenReturn("GBP");
         when(amountMock.getValue()).thenReturn("1935");
 
@@ -199,7 +210,7 @@ public class DefaultWorldpayOrderServiceTest {
         final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, null);
 
         assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertEquals(null, result.getTokenReason());
+        assertNull(result.getTokenReason());
         assertTrue(result.isMerchantToken());
     }
 
@@ -221,7 +232,7 @@ public class DefaultWorldpayOrderServiceTest {
         final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, null);
 
         assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertEquals(null, result.getTokenReason());
+        assertNull(result.getTokenReason());
         assertThat(result.isMerchantToken()).isFalse();
     }
 
@@ -279,7 +290,7 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateUpdateTokenServiceRequestWithShopperScope() throws Exception {
+    public void shouldCreateUpdateTokenServiceRequestWithShopperScope() {
         when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
 
         final UpdateTokenServiceRequest result = testObj.createUpdateTokenServiceRequest(merchantInfoMock, worldpayAdditionalInfoDataMock, tokenRequestMock, "paymentTokenId", cardDetailsMock);
@@ -288,7 +299,7 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateUpdateTokenServiceRequestWithMerchantScope() throws Exception {
+    public void shouldCreateUpdateTokenServiceRequestWithMerchantScope() {
         when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
 
         final UpdateTokenServiceRequest result = testObj.createUpdateTokenServiceRequest(merchantInfoMock, worldpayAdditionalInfoDataMock, tokenRequestMock, "paymentTokenId", cardDetailsMock);
@@ -297,14 +308,39 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateTokenForDeletionWithMerchantScope() throws Exception {
+    public void shouldCreateTokenForDeletionWithMerchantScope() {
         final TokenRequest result = testObj.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_REASON, null);
         assertThat(result.isMerchantToken()).isTrue();
     }
 
     @Test
-    public void shouldCreateTokenForDeletionWithShopperScope() throws Exception {
+    public void shouldCreateTokenForDeletionWithShopperScope() {
         final TokenRequest result = testObj.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_REASON, AUTHENTICATED_SHOPPER_ID);
         assertThat(result.isMerchantToken()).isFalse();
+    }
+
+    @Test
+    public void shouldCreateApplePayPayment() throws WorldpayModelTransformationException {
+        final ApplePayHeader applePayHeader = new ApplePayHeader();
+        applePayHeader.setEphemeralPublicKey(EPHEMERAL_PUBLIC_KEY);
+        applePayHeader.setPublicKeyHash(PUBLIC_KEY_HASH);
+        applePayHeader.setTransactionId(TRANSACTION_ID);
+
+        final ApplePayAdditionalAuthInfo additionalInfoApplePayData = new ApplePayAdditionalAuthInfo();
+        additionalInfoApplePayData.setHeader(applePayHeader);
+        additionalInfoApplePayData.setData(DATA);
+        additionalInfoApplePayData.setSignature(SIGNATURE);
+        additionalInfoApplePayData.setVersion(VERSION);
+
+        final ApplePay result = (ApplePay) testObj.createApplePayPayment(additionalInfoApplePayData);
+
+        assertThat(result.getData()).isEqualTo(DATA);
+        assertThat(result.getSignature()).isEqualTo(SIGNATURE);
+        assertThat(result.getVersion()).isEqualTo(VERSION);
+        final Header header = (Header) result.getHeader().transformToInternalModel();
+        assertThat(header.getEphemeralPublicKey()).isEqualTo(EPHEMERAL_PUBLIC_KEY);
+        assertThat(header.getPublicKeyHash()).isEqualTo(PUBLIC_KEY_HASH);
+        assertThat(header.getTransactionId()).isEqualTo(TRANSACTION_ID);
+
     }
 }

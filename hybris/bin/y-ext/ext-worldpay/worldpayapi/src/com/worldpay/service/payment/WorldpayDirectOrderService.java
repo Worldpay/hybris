@@ -1,8 +1,10 @@
 package com.worldpay.service.payment;
 
 import com.worldpay.data.AdditionalAuthInfo;
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.MerchantInfo;
@@ -44,6 +46,18 @@ public interface WorldpayDirectOrderService {
     DirectAuthoriseServiceResponse authoriseBankTransfer(final MerchantInfo merchantInfo, final CartModel cartModel, final BankTransferAdditionalAuthInfo bankTransferAdditionalAuthInfo,
                                                          final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
 
+
+    /**
+     * Builds the directAuthoriseRequest containing the payment details for ApplePay authorisation.
+     * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
+     *
+     * @param merchantInfo
+     * @param cartModel
+     * @param applePayAdditionalAuthInfo
+     * @return
+     */
+    DirectAuthoriseServiceResponse authoriseApplePay(MerchantInfo merchantInfo, CartModel cartModel, ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) throws WorldpayException;
+
     /**
      * Builds the directAuthoriseRequest containing the encrypted card details and the address-details.
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
@@ -61,7 +75,7 @@ public interface WorldpayDirectOrderService {
      * The request is then sent to Worldpay
      *
      * @param merchantInfo               Merchant configuration
-     * @param creditCardPaymentInfoModel    {@link CreditCardPaymentInfoModel} saved payment information needed to be deleted
+     * @param creditCardPaymentInfoModel {@link CreditCardPaymentInfoModel} saved payment information needed to be deleted
      */
     void deleteToken(final MerchantInfo merchantInfo, CreditCardPaymentInfoModel creditCardPaymentInfoModel)
             throws WorldpayException;
@@ -84,18 +98,20 @@ public interface WorldpayDirectOrderService {
      * Updates/Creates the PaymentTransaction associated to the authorisation received from Worldpay. Updates/Creates a non-pending paymentTransactionEntry of type AUTHORISATION.
      * Updates/Creates the paymentInfo associated to the transaction and the order.
      *
-     * @param serviceResponse {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
+     * @param serviceResponse    {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
      * @param abstractOrderModel The cart or order used in the current checkout.
-     * @param merchantCode    merchantCode used in the communication with Worldpay.
+     * @param merchantCode       merchantCode used in the communication with Worldpay.
      */
     void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode);
+
+    void completeAuthoriseGooglePay(DirectAuthoriseServiceResponse serviceResponse, AbstractOrderModel abstractOrderModel, String merchantCode);
 
     /**
      * See {@see completeAuthorise}. Completes the authorization after being validated by the 3D Secure issuer.
      *
      * @param abstractOrderModel The cart or order to authorise
-     * @param serviceResponse {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
-     * @param merchantInfo    Merchant configuration
+     * @param serviceResponse    {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
+     * @param merchantInfo       Merchant configuration
      */
     void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse, final MerchantInfo merchantInfo);
 
@@ -104,7 +120,7 @@ public interface WorldpayDirectOrderService {
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
      *
      * @param merchantInfo               Merchant configuration
-     * @param abstractOrderModel  {@link CartModel} or {@link de.hybris.platform.core.model.order.OrderModel} used in the current checkout.
+     * @param abstractOrderModel         {@link CartModel} or {@link de.hybris.platform.core.model.order.OrderModel} used in the current checkout.
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
@@ -116,13 +132,21 @@ public interface WorldpayDirectOrderService {
      * Builds the directAuthoriseRequest containing the details for Klarna payment.
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
      *
-     * @param merchantInfo                   Merchant configuration
-     * @param cartModel                      {@link CartModel} used in the current checkout.
-     * @param worldpayAdditionalInfoData     Object that contains information about the current session, browser used, and cookies.
+     * @param merchantInfo               Merchant configuration
+     * @param cartModel                  {@link CartModel} used in the current checkout.
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      * @param additionalAuthInfo
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
     DirectAuthoriseServiceResponse authoriseKlarna(final MerchantInfo merchantInfo, final CartModel cartModel,
                                                    final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                    final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException;
+
+    /**
+     * @param merchantInfo                Merchant configuration
+     * @param cartModel                   {@link CartModel} used in the current checkout.
+     * @param googlePayAdditionalAuthInfo Contains the necessary information to authorise the transaction in Worldpay with Google Pay parameters.
+     * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
+     */
+    DirectAuthoriseServiceResponse authoriseGooglePay(final MerchantInfo merchantInfo, final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException;
 }

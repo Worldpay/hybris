@@ -1,5 +1,7 @@
 package com.worldpay.core.services;
 
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
@@ -64,6 +66,14 @@ public interface WorldpayPaymentInfoService {
     PaymentInfoModel createPaymentInfo(final CartModel cartModel);
 
     /**
+     * Creates a paymentInfo saving parameters from Google
+     *
+     * @param cartModel cart to base the paymentInfo on
+     * @return
+     */
+    PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo);
+
+    /**
      * Creates a CreditCardPaymentInfo based on the passed cart {@link CartModel} and {@link CreateTokenResponse}
      *
      * @param cartModel           the session cart
@@ -90,4 +100,14 @@ public interface WorldpayPaymentInfoService {
      * @return Optional {@link Optional} that will contain the updated CreditCardPaymentInfoModel or empty if no matching tokenised card is found
      */
     Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest);
+
+    /**
+     * Creates an ApplePay payment info
+     *
+     * @param cartModel
+     * @param applePayAdditionalAuthInfo
+     * @return
+     */
+    PaymentInfoModel createPaymentInfoApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo);
+
 }

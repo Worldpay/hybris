@@ -3,6 +3,7 @@
 def config = {
     localProperties {
         property 'googleApiKey', ''
+        property 'testclasses.addonname', 'yacceleratorstorefront'
     }
 
     extensions {

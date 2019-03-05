@@ -21,6 +21,7 @@ import de.hybris.platform.cms2.model.pages.PageTemplateModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
+import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
@@ -154,6 +155,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     private AddressDataUtil addressDataUtilMock;
     @Mock
     private PagePreviewCriteriaData pagePreviewCriteriaDataMock;
+    @Mock
+    private CartFacade cartFacadeMock;
 
     private List<RegionData> regionDataList;
 
@@ -356,7 +359,6 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldAddRegionsAndSetupPageOnError() throws CMSItemNotFoundException {
-
         testObj.handleFormErrors(modelMock, paymentDetailsFormMock);
 
         verify(modelMock).addAttribute(REGIONS, regionDataList);

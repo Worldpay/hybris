@@ -38,7 +38,7 @@ public class AuthorisationCodeResponseTransformer extends AbstractServiceRespons
         if (intOk == null) {
             throw new WorldpayModelTransformationException("No ok status returned in Worldpay reply message");
         }
-        Object receivedType = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDone().get(0);
+        Object receivedType = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
         if (receivedType instanceof AuthorisationCodeReceived) {
             AuthorisationCodeReceived intAuthorisationCodeReceived = (AuthorisationCodeReceived) receivedType;
             authorisationCodeResponse.setOrderCode(intAuthorisationCodeReceived.getOrderCode());

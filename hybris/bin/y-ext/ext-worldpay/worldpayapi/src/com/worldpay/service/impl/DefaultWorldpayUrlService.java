@@ -21,6 +21,11 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
     private BaseSiteService baseSiteService;
     private SiteBaseUrlResolutionService siteBaseUrlResolutionService;
 
+    @Override
+    public String getWebsiteUrlForCurrentSite() {
+        return siteBaseUrlResolutionService.getWebsiteUrlForSite(baseSiteService.getCurrentBaseSite(), true, null);
+    }
+
     /**
      * Resolves a given URL to a full URL including server and port, etc.
      *
@@ -77,6 +82,7 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
     public String getFullErrorURL() throws WorldpayConfigurationException {
         return getFullUrl(getErrorPath(), true);
     }
+
     /**
      * {@inheritDoc}
      */
@@ -116,6 +122,7 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
     public String getKlarnaConfirmationURL() throws WorldpayConfigurationException {
         return getFullUrl(getKlarnaConfirmationPath(), true);
     }
+
 
     public BaseSiteService getBaseSiteService() {
         return baseSiteService;

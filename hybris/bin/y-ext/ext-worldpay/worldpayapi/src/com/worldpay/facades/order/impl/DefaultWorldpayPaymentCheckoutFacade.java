@@ -18,7 +18,6 @@ import java.util.List;
  * Worldpay checkout facade to ensure Worldpay details are included in correct place
  */
 public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentCheckoutFacade {
-
     private CheckoutFacade checkoutFacade;
     private WorldpayCheckoutService worldpayCheckoutService;
     private CartService cartService;

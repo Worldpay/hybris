@@ -2,6 +2,10 @@ package com.worldpay.core.services.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
+import com.worldpay.model.ApplePayPaymentInfoModel;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.payment.Card;
@@ -26,7 +30,6 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.commons.lang.time.DateUtils;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,11 +40,15 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 
 import static com.worldpay.service.model.payment.PaymentType.UATP;
 import static de.hybris.platform.core.enums.CreditCardType.VISA;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.*;
@@ -61,7 +68,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String CARD_DETAILS_EXPIRY_MONTH = "cardDetailsExpiryMonth";
     private static final String CARD_DETAILS_EXPIRY_YEAR = "cardDetailsExpiryYear";
     private static final String CARD_DETAILS_HOLDER_NAME = "cardDetailsHolderName";
-    private static final Date CREATION_TIME = DateTime.now().toDate();
+    private static final Date CREATION_TIME = Date.from(Instant.now());
     private static final String ORDER_CODE = "orderCode";
     private static final Double TOTAL_PRICE = Double.valueOf("100.0");
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
@@ -70,13 +77,22 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String NEW = "NEW";
     private static final String MATCH = "MATCH";
     private static final String CONFLICT = "CONFLICT";
-    private static final DateTime DATE_TIME = new DateTime();
+    private static final LocalDate DATE_TIME = LocalDate.of(2020, 2, 15);
     private static final String CC_PAYMENT_INFO_MODEL_CODE = "ccPaymentInfoModelCode";
     private static final String ANOTHER_SUBSCRIPTION_ID = "anotherPaymentId";
     private static final String WORLDPAY_CREDIT_CARD_MAPPINGS = "worldpay.creditCard.mappings.";
     private static final String MERCHANT_ID = "merchant19";
     private static final String PAYMENT_INFO_CODE = "00001009_ac2b99f2-3f15-494a-b33d-73166da4716d";
     private static final String PAYMENT_TYPE = "paymentType";
+    private static final String PROTOCOL_VERSION = "protocolVersion";
+    private static final String SIGNATURE = "signature";
+    private static final String SIGNED_MESSAGE = "signedMessage";
+    private static final String TRANSACTION_ID = "4ff0a4c2833b41144591ca2230eb44a5dab1373433b829125cc9099a46c53908";
+    private static final String VERSION = "EC_v1";
+
+    @Rule
+    @SuppressWarnings("PMD.MemberScope")
+    public ExpectedException thrown = ExpectedException.none();
 
     @Spy
     @InjectMocks
@@ -133,10 +149,14 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private UpdateTokenServiceRequest updateTokenServiceRequestMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CardDetails cardDetailsMock;
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    private ApplePayAdditionalAuthInfo applePayAdditionalAuthInfoMock;
+    @Mock
+    private ApplePayPaymentInfoModel applePayPaymentInfoModelMock;
+    @Mock
+    private GooglePayAdditionalAuthInfo googlePayAdditionAuthInfoMock;
+    @Mock
+    private GooglePayPaymentInfoModel googlePayPaymentInfoModelMock;
 
     @Before
     public void setUp() {
@@ -187,6 +207,9 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(worldpayAPMConfigurationModelMock.getAutoCancelPendingTimeoutInMinutes()).thenReturn(TIMEOUT_IN_MINUTES);
         when(userModelMock.getPaymentInfos()).thenReturn(Arrays.asList(paymentInfo1Mock, savedPaymentInfoMock));
         when(savedPaymentInfoMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
+        when(applePayAdditionalAuthInfoMock.getVersion()).thenReturn(VERSION);
+        when(applePayAdditionalAuthInfoMock.getHeader().getTransactionId()).thenReturn(TRANSACTION_ID);
+        when(modelServiceMock.clone(any(PaymentTransactionModel.class), eq(CreditCardPaymentInfoModel.class))).thenReturn(creditCardPaymentInfoModelMock);
     }
 
     @Test
@@ -278,7 +301,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     }
 
     @Test
-    public void shouldNotCreateCreditCardPaymentInfoModelWhenPaymentTransactionIsACreditCardPaymentInfoThatHasASubscriptionId() {
+    public void shouldNotCreateCreditCardPaymentInfoModelWhenPaymentTransactionHasACreditCardPaymentInfoThatHasASubscriptionId() {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
 
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
@@ -289,6 +312,26 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
         verify(modelServiceMock, never()).save(any(CreditCardPaymentInfoModel.class));
+
+        verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
+        verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
+        verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
+    }
+
+    @Test
+    public void shouldNotCreateCreditCardPaymentInfoModelWhenPaymentTransactionHasACreditCardPaymentInfoThatDoesNotHaveSubscriptionId() {
+        when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
+
+        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
+        when(orderNotificationMessageMock.getTokenReply()).thenReturn(null);
+        when(paymentTransactionModelMock.getInfo()).thenReturn(creditCardPaymentInfoModelMock);
+        when(creditCardPaymentInfoModelMock.getSubscriptionId()).thenReturn(null);
+        when(modelServiceMock.clone(paymentTransactionPaymentInfoModelMock, WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
+
+
+        testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
+
+        verify(modelServiceMock).clone(any(CreditCardPaymentInfoModel.class),eq(CreditCardPaymentInfoModel.class));
 
         verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
@@ -312,7 +355,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setValidToYear(CARD_EXPIRY_YEAR);
         verify(creditCardPaymentInfoModelMock).setCcOwner(CARD_HOLDER_NAME);
         verify(creditCardPaymentInfoModelMock).setType(VISA);
-        verify(creditCardPaymentInfoModelMock).setExpiryDate(DATE_TIME.toDate());
+        verify(creditCardPaymentInfoModelMock).setExpiryDate(java.util.Date.from(DATE_TIME.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
 
         verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
@@ -564,6 +607,42 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         verify(modelServiceMock).remove(paymentInfo);
         verify(modelServiceMock, never()).remove(apmPaymentInfo);
+    }
+
+    @Test
+    public void shouldCreatePaymentInfoWithGooglePayInformation() {
+        when(modelServiceMock.create(GooglePayPaymentInfoModel.class)).thenReturn(googlePayPaymentInfoModelMock);
+        when(googlePayAdditionAuthInfoMock.getSignedMessage()).thenReturn(SIGNED_MESSAGE);
+        when(googlePayAdditionAuthInfoMock.getSignature()).thenReturn(SIGNATURE);
+        when(googlePayAdditionAuthInfoMock.getProtocolVersion()).thenReturn(PROTOCOL_VERSION);
+
+        testObj.createPaymentInfoGooglePay(cartModelMock, googlePayAdditionAuthInfoMock);
+
+        verify(googlePayPaymentInfoModelMock).setSignedMessage(SIGNED_MESSAGE);
+        verify(googlePayPaymentInfoModelMock).setSignature(SIGNATURE);
+        verify(googlePayPaymentInfoModelMock).setProtocolVersion(PROTOCOL_VERSION);
+        verify(googlePayPaymentInfoModelMock).setUser(cartModelMock.getUser());
+        verify(googlePayPaymentInfoModelMock).setSaved(false);
+        verify(googlePayPaymentInfoModelMock).setCode(startsWith(ORDER_CODE));
+        verify(cartModelMock).setPaymentInfo(googlePayPaymentInfoModelMock);
+        verify(modelServiceMock).save(cartModelMock);
+    }
+
+    @Test
+    public void shouldCreateApplePayPaymentInfoAndSetItAsPaymentInfoOnTheCart() {
+        when(modelServiceMock.create(ApplePayPaymentInfoModel.class)).thenReturn(applePayPaymentInfoModelMock);
+
+        final ApplePayPaymentInfoModel result = (ApplePayPaymentInfoModel) testObj.createPaymentInfoApplePay(cartModelMock, applePayAdditionalAuthInfoMock);
+
+        assertThat(result).isEqualTo(applePayPaymentInfoModelMock);
+        verify(applePayPaymentInfoModelMock).setUser(cartModelMock.getUser());
+        verify(applePayPaymentInfoModelMock).setSaved(false);
+        verify(applePayPaymentInfoModelMock).setCode(startsWith(ORDER_CODE));
+        verify(applePayPaymentInfoModelMock).setTransactionId(TRANSACTION_ID);
+        verify(applePayPaymentInfoModelMock).setVersion(VERSION);
+        verify(cartModelMock).setPaymentInfo(applePayPaymentInfoModelMock);
+        verify(modelServiceMock).save(cartModelMock);
+        verify(modelServiceMock).save(applePayPaymentInfoModelMock);
     }
 
     private PaymentInfoModel createPaymentInfo() {

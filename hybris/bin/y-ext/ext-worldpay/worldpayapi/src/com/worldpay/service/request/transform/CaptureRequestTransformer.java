@@ -58,7 +58,7 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
         if (captureRequest.getDate() != null) {
             capture.setDate((Date) captureRequest.getDate().transformToInternalModel());
         }
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetry().add(capture);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().add(capture);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

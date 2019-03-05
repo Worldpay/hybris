@@ -2,7 +2,9 @@ package com.worldpay.worldpayresponsemock.builders;
 
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.internal.model.*;
-import org.joda.time.DateTime;
+
+import java.time.Instant;
+import java.time.LocalDate;
 
 import static com.worldpay.worldpayresponsemock.builders.AddressBuilder.anAddressBuilder;
 
@@ -17,7 +19,7 @@ public final class TokenBuilder {
     private static final String CREDIT = "CREDIT";
     private static final String GB = "GB";
     private static final String TOKEN_REASON = "tokenReason";
-    private static final DateTime DATE_TIME = DateTime.now();
+    private static final LocalDate DATE_TIME = LocalDate.now();
 
     private String authenticatedShopperId;
     private String tokenReasonValue = TOKEN_REASON;
@@ -232,7 +234,7 @@ public final class TokenBuilder {
         tokenDetails.setTokenReason(tokenDetailsReason);
 
         if (tokenId == null) {
-            tokenId = String.valueOf(DateTime.now().getMillis());
+            tokenId = String.valueOf(Instant.now().toEpochMilli());
         }
         final PaymentTokenID paymentTokenId = new PaymentTokenID();
         paymentTokenId.setvalue(tokenId);
@@ -243,7 +245,7 @@ public final class TokenBuilder {
 
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         if (tokenExpiryDate == null) {
-            tokenExpiryDate = buildDate(String.valueOf(DATE_TIME.getDayOfMonth()), String.valueOf(DATE_TIME.getMonthOfYear()), String.valueOf(DATE_TIME.plusYears(10).getYear()));
+            tokenExpiryDate = buildDate(String.valueOf(LocalDate.from(DATE_TIME).getDayOfMonth()), String.valueOf(LocalDate.from(DATE_TIME).getMonthValue()), String.valueOf(LocalDate.from(DATE_TIME).plusYears(10).getYear()));
         }
         tokenExpiry.setDate(tokenExpiryDate);
 
@@ -261,7 +263,7 @@ public final class TokenBuilder {
 
         final ExpiryDate expiryDateForCard = new ExpiryDate();
         if (cardExpiryDate == null) {
-            cardExpiryDate = buildDate(null, String.valueOf(DATE_TIME.getMonthOfYear()), String.valueOf(DATE_TIME.plusYears(4).getYear()));
+            cardExpiryDate = buildDate(null, String.valueOf(LocalDate.from(DATE_TIME).getMonthValue()), String.valueOf(LocalDate.from(DATE_TIME).plusYears(4).getYear()));
         }
         expiryDateForCard.setDate(cardExpiryDate);
         cardDetails.setExpiryDate(expiryDateForCard);
