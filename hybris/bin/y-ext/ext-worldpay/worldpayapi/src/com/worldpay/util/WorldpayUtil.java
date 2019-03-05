@@ -3,8 +3,9 @@ package com.worldpay.util;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
-import org.joda.time.DateTime;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 
@@ -45,6 +46,6 @@ public final class WorldpayUtil {
      * @return
      */
     public static Date createDateInPast(final int days) {
-        return new DateTime().minusDays(days).toDate();
+        return Date.from(LocalDate.now().minusDays(days).atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

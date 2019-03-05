@@ -2,7 +2,11 @@ package com.worldpay.core.services.impl;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.enums.token.TokenEvent;
+import com.worldpay.model.GooglePayPaymentInfoModel;
+import com.worldpay.model.ApplePayPaymentInfoModel;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.Date;
 import com.worldpay.service.model.PaymentReply;
@@ -27,11 +31,11 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.text.MessageFormat;
-import java.util.Collection;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -129,6 +133,44 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo) {
+        validateParameterNotNull(cartModel, "CartModel cannot be null");
+        validateParameterNotNull(googleAuthInfo, "GooglePayAdditionalAuthInfo cannot be null");
+        final GooglePayPaymentInfoModel paymentInfoModel = modelService.create(GooglePayPaymentInfoModel.class);
+        paymentInfoModel.setUser(cartModel.getUser());
+        paymentInfoModel.setSaved(false);
+        paymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
+        paymentInfoModel.setProtocolVersion(googleAuthInfo.getProtocolVersion());
+        paymentInfoModel.setSignature(googleAuthInfo.getSignature());
+        paymentInfoModel.setSignedMessage(googleAuthInfo.getSignedMessage());
+        cartModel.setPaymentInfo(paymentInfoModel);
+        modelService.save(cartModel);
+        return updatePaymentInfo(cartModel, paymentInfoModel);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PaymentInfoModel createPaymentInfoApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) {
+        validateParameterNotNull(cartModel, "CartModel cannot be null");
+        validateParameterNotNull(applePayAdditionalAuthInfo, "ApplePayAdditionalAuthInfo cannot be null");
+        final ApplePayPaymentInfoModel paymentInfoModel = modelService.create(ApplePayPaymentInfoModel.class);
+        paymentInfoModel.setUser(cartModel.getUser());
+        paymentInfoModel.setSaved(false);
+        paymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
+        paymentInfoModel.setVersion(applePayAdditionalAuthInfo.getVersion());
+        paymentInfoModel.setTransactionId(applePayAdditionalAuthInfo.getHeader().getTransactionId());
+        cartModel.setPaymentInfo(paymentInfoModel);
+        modelService.save(cartModel);
+        return updatePaymentInfo(cartModel, paymentInfoModel);
+
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @see WorldpayPaymentInfoService#createCreditCardPaymentInfo(CartModel, CreateTokenResponse, boolean, String)
      */
@@ -214,16 +256,12 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     }
 
     protected CreditCardPaymentInfoModel findMatchingTokenisedCard(final UserModel userModel, final String paymentTokenId) {
-        Collection<PaymentInfoModel> paymentInfos = userModel.getPaymentInfos();
-        for (PaymentInfoModel paymentInfoModel : paymentInfos) {
-            if (paymentInfoModel instanceof CreditCardPaymentInfoModel) {
-                CreditCardPaymentInfoModel customerSavedCard = (CreditCardPaymentInfoModel) paymentInfoModel;
-                if (paymentTokenId.equals(customerSavedCard.getSubscriptionId())) {
-                    return customerSavedCard;
-                }
-            }
-        }
-        return null;
+        return userModel.getPaymentInfos().stream()
+                .filter(CreditCardPaymentInfoModel.class::isInstance)
+                .map(CreditCardPaymentInfoModel.class::cast)
+                .filter(card -> paymentTokenId.equals(card.getSubscriptionId()))
+                .findAny()
+                .orElse(null);
     }
 
     /**
@@ -312,8 +350,8 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setSaved(saveCard);
         creditCardPaymentInfoModel.setAuthenticatedShopperID(tokenReply.getAuthenticatedShopperID());
         creditCardPaymentInfoModel.setEventReference(tokenReply.getTokenDetails().getTokenEventReference());
-        final DateTime dt = getDateTime(tokenReply.getTokenDetails().getPaymentTokenExpiry());
-        creditCardPaymentInfoModel.setExpiryDate(dt.toDate());
+        final LocalDate dt = getDateTime(tokenReply.getTokenDetails().getPaymentTokenExpiry());
+        creditCardPaymentInfoModel.setExpiryDate(java.util.Date.from(dt.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         modelService.save(creditCardPaymentInfoModel);
         return creditCardPaymentInfoModel;
     }
@@ -329,8 +367,8 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         return cartModel.getCode() + "_" + UUID.randomUUID();
     }
 
-    protected DateTime getDateTime(final Date paymentTokenExpiryDate) {
-        return new DateTime().withDate(Integer.valueOf(paymentTokenExpiryDate.getYear()), Integer.valueOf(paymentTokenExpiryDate.getMonth()), Integer.valueOf(paymentTokenExpiryDate.getDayOfMonth()));
+    protected LocalDate getDateTime(final Date paymentTokenExpiryDate) {
+        return LocalDate.of(Integer.valueOf(paymentTokenExpiryDate.getYear()), Integer.valueOf(paymentTokenExpiryDate.getMonth()), Integer.valueOf(paymentTokenExpiryDate.getDayOfMonth()));
     }
 
     private PaymentInfoModel updatePaymentInfo(final AbstractOrderModel cartModel, final PaymentInfoModel paymentInfoModel) {

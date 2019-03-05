@@ -9,6 +9,7 @@ import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
 import de.hybris.platform.servicelayer.ServicelayerBaseTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.annotation.Resource;
@@ -51,6 +52,7 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
     // This test may fail with the following error:
     // <paymentService version="1.4" merchantCode="MERCHANT1ECOM"><reply><error code="5">Maximum number of updates exceeded for this token</error></reply></paymentService>
     @Test
+    @Ignore("ignored because its unstable")
     public void testUpdateTokenWithoutOrderWithMerchantScope() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON, true);
         final CreateTokenResponse createTokenResponse = WPSGTestHelper.createMerchantToken(gateway, merchantInfo, tokenRequest);

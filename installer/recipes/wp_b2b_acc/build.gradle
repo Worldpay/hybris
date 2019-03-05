@@ -5,6 +5,7 @@ def config = {
         property 'googleApiKey', ''
         property 'website.powertools.http', 'http://powertools.local:9001/yb2bacceleratorstorefront'
         property 'website.powertools.https', 'https://powertools.local:9002/yb2bacceleratorstorefront'
+        property 'testclasses.addonname', 'yb2bacceleratorstorefront'
     }
 
     extensions {

@@ -17,9 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.assertNull;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -34,9 +38,10 @@ public class DirectAuthoriseResponseTransformerTest {
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String REFERENCE_ID = "referenceId";
     private static final String REFERENCE_VALUE = "reference_value";
+    private static final String PA_REQUEST = "paRequest";
+    private static final String ISSUER_URL = "issuerURL";
 
     @Rule
-    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
     @InjectMocks
@@ -61,7 +66,14 @@ public class DirectAuthoriseResponseTransformerTest {
         responses.add(orderStatus);
         final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
         final RequestInfo requestInfo = new RequestInfo();
-        requestInfo.setRequest3DSecure(new Request3DSecure());
+        final Request3DSecure request3DSecure = new Request3DSecure();
+
+        final IssuerURL issuerURL = new IssuerURL();
+        issuerURL.setvalue(ISSUER_URL);
+        final PaRequest paRequest = new PaRequest();
+        paRequest.setvalue(PA_REQUEST);
+        request3DSecure.getPaRequestOrIssuerURLOrMpiRequestOrMpiURLOrIssuerPayloadOrTransactionId3DSOrMajor3DSVersion().addAll(Arrays.asList(issuerURL, paRequest));
+        requestInfo.setRequest3DSecure(request3DSecure);
         orderStatusType.add(requestInfo);
 
         final Token token = new Token();
@@ -83,6 +95,45 @@ public class DirectAuthoriseResponseTransformerTest {
         assertEquals(ORDER_CODE, result.getOrderCode());
         assertEquals(ECHO_DATA, result.getEchoData());
         assertEquals(tokenReplyMock, result.getToken());
+        assertThat(result.getRequest3DInfo().getIssuerUrl()).isEqualTo(ISSUER_URL);
+        assertThat(result.getRequest3DInfo().getPaRequest()).isEqualTo(PA_REQUEST);
+    }
+
+    @Test
+    public void testTransformShouldCreateServiceResponseFromPaymentServiceWithRequestInfoAndIssuerURLAndPaRequestIsNull() throws Exception {
+        final PaymentService paymentServiceReply = new PaymentService();
+        final Reply reply = new Reply();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final OrderStatus orderStatus = new OrderStatus();
+        orderStatus.setOrderCode(ORDER_CODE);
+        responses.add(orderStatus);
+        final List<Object> orderStatusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final RequestInfo requestInfo = new RequestInfo();
+        final Request3DSecure request3DSecure = new Request3DSecure();
+        requestInfo.setRequest3DSecure(request3DSecure);
+        orderStatusType.add(requestInfo);
+
+        final Token token = new Token();
+        orderStatus.setToken(token);
+        final EchoData intEchoData = new EchoData();
+        intEchoData.setvalue(ECHO_DATA);
+        orderStatus.setEchoData(intEchoData);
+
+        paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
+
+        when(serviceResponseTransformerHelperMock.buildTokenReply(token)).thenReturn(tokenReplyMock);
+
+        final DirectAuthoriseServiceResponse result = (DirectAuthoriseServiceResponse) testObj.transform(paymentServiceReply);
+
+        assertNotNull(result.getRequest3DInfo());
+        assertNull(result.getPaymentReply());
+        assertNull(result.getRedirectReference());
+
+        assertEquals(ORDER_CODE, result.getOrderCode());
+        assertEquals(ECHO_DATA, result.getEchoData());
+        assertEquals(tokenReplyMock, result.getToken());
+        assertThat(result.getRequest3DInfo().getIssuerUrl()).isNullOrEmpty();
+        assertThat(result.getRequest3DInfo().getPaRequest()).isNullOrEmpty();
     }
 
     @Test

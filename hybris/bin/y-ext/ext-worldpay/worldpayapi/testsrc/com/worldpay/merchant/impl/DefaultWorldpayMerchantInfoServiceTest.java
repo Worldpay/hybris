@@ -19,13 +19,11 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayMerchantInfoServiceTest {
 
     private static final String KNOWN_MERCHANT_CODE = "knownMerchantCode";
@@ -35,10 +33,10 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Spy
     @InjectMocks
-    private DefaultWorldpayMerchantInfoService testObj ;
+    private DefaultWorldpayMerchantInfoService testObj;
     @Mock
     private WorldpayMerchantConfigData worldpayMerchantConfigDataMock, anotherWorldpayMerchantConfigDataMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTransactionModel paymentTransactionMock;
     @Mock
     private WorldpayMerchantStrategy worldpayMerchantStrategyMock;
@@ -81,7 +79,7 @@ public class DefaultWorldpayMerchantInfoServiceTest {
         assertEquals(KNOWN_MERCHANT_CODE, result.getMerchantCode());
     }
 
-    @Test (expected = WorldpayConfigurationException.class)
+    @Test(expected = WorldpayConfigurationException.class)
     public void getKnownMerchantShouldReturnExceptionWhenMerchantIsNotFound() throws WorldpayConfigurationException {
         testObj.getMerchantInfoByCode("mumbo jumbo");
     }

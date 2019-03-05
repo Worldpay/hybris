@@ -44,7 +44,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
             authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
             final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
-            for (Object orderStatusType : intOrderStatusElements) {
+            for (final Object orderStatusType : intOrderStatusElements) {
                 transformOrderStatus(authResponse, intOrderStatus, orderStatusType);
             }
         } else {
@@ -85,11 +85,16 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
         }
     }
 
-    private Request3DInfo build3DInfo(Request3DSecure intRequest3dSecure) {
-        Request3DInfo req3dInfo = null;
+    private Request3DInfo build3DInfo(final Request3DSecure intRequest3dSecure) {
+        final Request3DInfo req3dInfo = new Request3DInfo();
         if (intRequest3dSecure != null) {
-            req3dInfo = new Request3DInfo(intRequest3dSecure.getPaRequest(), intRequest3dSecure.getIssuerURL());
+            final List<Object> valueList = intRequest3dSecure.getPaRequestOrIssuerURLOrMpiRequestOrMpiURLOrIssuerPayloadOrTransactionId3DSOrMajor3DSVersion();
+            final String issuerURL = valueList.stream().filter(IssuerURL.class::isInstance).map(IssuerURL.class::cast).findAny().map(IssuerURL::getvalue).orElse(null);
+            final String paRequest = valueList.stream().filter(PaRequest.class::isInstance).map(PaRequest.class::cast).findAny().map(PaRequest::getvalue).orElse(null);
+            req3dInfo.setIssuerUrl(issuerURL);
+            req3dInfo.setPaRequest(paRequest);
         }
         return req3dInfo;
+
     }
 }

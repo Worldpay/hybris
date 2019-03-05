@@ -75,6 +75,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String TOKEN_EVENT_REFERENCE_VALUE = "tokenEventReferenceValue";
     private static final String TOKEN_REASON_VALUE = "tokenReasonValue";
     private static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
+    private static final String NO_RISK_SCORE = "NoRisk";
 
     @Mock
     private ResponseForm responseFormMock;
@@ -109,7 +110,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
     @Test
     public void buildResponseShouldReturnAnXMLWithCreditCardDataAndNoRiskScore() throws WorldpayException {
-        when(responseFormMock.getSelectedRiskScore()).thenReturn(StringUtils.EMPTY);
+        when(responseFormMock.getSelectedRiskScore()).thenReturn(NO_RISK_SCORE);
         when(responseFormMock.getCcPaymentType()).thenReturn(CC_PAYMENT_TYPE);
         when(responseFormMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
         when(responseFormMock.getCardMonth()).thenReturn(CARD_MONTH);

@@ -129,7 +129,6 @@
         <itemtype code="WorldpayAPMPaymentInfo"
                   extends="PaymentInfo"
                   jaloclass="de.hybris.platform.jalo.order.payment.PaymentInfo"
-                  autocreate="true"
                   generate="false">
             <attributes>
                 <attribute qualifier="apmConfiguration" autocreate="true" type="WorldpayAPMConfiguration">
@@ -138,6 +137,42 @@
                 </attribute>
                 <attribute qualifier="timeoutDate" autocreate="true" type="java.util.Date">
                     <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <itemtype code="GooglePayPaymentInfo" extends="WorldpayAPMPaymentInfo">
+            <attributes>
+                <attribute qualifier="protocolVersion" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="signature" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="signedMessage" type="java.lang.String">
+                    <persistence type="property">
+                        <columntype database="oracle">
+                            <value>CLOB</value>
+                        </columntype>
+                        <columntype database="sap">
+                            <value>NCLOB</value>
+                        </columntype>
+                        <columntype>
+                            <value>HYBRIS.LONG_STRING</value>
+                        </columntype>
+                    </persistence>
+                </attribute>
+            </attributes>
+
+        </itemtype>
+
+        <itemtype code="ApplePayPaymentInfo" extends="WorldpayAPMPaymentInfo">
+            <attributes>
+                <attribute qualifier="transactionId" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="version" type="java.lang.String">
                     <persistence type="property"/>
                 </attribute>
             </attributes>
@@ -258,8 +293,11 @@
                         <columntype database="mysql">
                             <value>text</value>
                         </columntype>
+                        <columntype database="sap">
+                            <value>NCLOB</value>
+                        </columntype>
                         <columntype>
-                            <value>varchar(4000)</value>
+                            <value>HYBRIS.LONG_STRING</value>
                         </columntype>
                     </persistence>
                 </attribute>

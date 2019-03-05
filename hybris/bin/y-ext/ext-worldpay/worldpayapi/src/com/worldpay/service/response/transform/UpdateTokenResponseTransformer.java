@@ -36,7 +36,7 @@ public class UpdateTokenResponseTransformer extends AbstractServiceResponseTrans
             throw new WorldpayModelTransformationException("UpdateTokenResponse did not contain an OK object");
         }
         final Ok okResponse = (Ok) response;
-        final Object updateTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDone().get(0);
+        final Object updateTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
         if (updateTokenReceived instanceof UpdateTokenReceived) {
             updateTokenResponse.setUpdateTokenReply(getServiceResponseTransformerHelper().buildUpdateTokenReply((UpdateTokenReceived) updateTokenReceived));
         }

@@ -1,21 +1,10 @@
 package com.worldpay.worldpayresponsemock.builders;
 
 
-import com.worldpay.internal.model.AVSResultCode;
-import com.worldpay.internal.model.Amount;
-import com.worldpay.internal.model.AuthorisationId;
-import com.worldpay.internal.model.Balance;
-import com.worldpay.internal.model.CVCResultCode;
-import com.worldpay.internal.model.Card;
-import com.worldpay.internal.model.CardHolderName;
-import com.worldpay.internal.model.Date;
-import com.worldpay.internal.model.ExpiryDate;
-import com.worldpay.internal.model.ISO8583ReturnCode;
-import com.worldpay.internal.model.Payment;
-import com.worldpay.internal.model.PaymentMethodDetail;
-import com.worldpay.internal.model.RiskScore;
+import com.worldpay.internal.model.*;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.LocalDate;
+
+import java.time.LocalDate;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 
@@ -37,10 +26,11 @@ public final class PaymentBuilder {
     private static final String RESPONSE_CODE = "19";
     private static final String DEFAULT_CURRENCY_CODE = "GBP";
     private static final String DEFAULT_RISK_SCORE = "1.00";
+    private static final String NO_RISK_SCORE = "NoRisk";
 
     private String cardNumber = TEST_CREDIT_CARD;
     private String cardType = CREDIT_CARD;
-    private String expiryMonth = String.valueOf(DATE.getMonthOfYear());
+    private String expiryMonth = String.valueOf(DATE.getMonth());
     private String expiryYear = String.valueOf(DATE.plusYears(3).getYear());
     private String cardHolderNameValue = DEFAULT_CARD_HOLDER_NAME;
     private String lastEvent;
@@ -73,7 +63,7 @@ public final class PaymentBuilder {
      * @param cardNumber
      * @return this builder
      */
-    public PaymentBuilder withCardNumber(String cardNumber) {
+    public PaymentBuilder withCardNumber(final String cardNumber) {
         this.cardNumber = cardNumber;
         return this;
     }
@@ -83,7 +73,7 @@ public final class PaymentBuilder {
      * @param cardType
      * @return this builder
      */
-    public PaymentBuilder withCardType(String cardType) {
+    public PaymentBuilder withCardType(final String cardType) {
         this.cardType = cardType;
         return this;
     }
@@ -93,7 +83,7 @@ public final class PaymentBuilder {
      * @param expiryMonth
      * @return this builder
      */
-    public PaymentBuilder withExpiryMonth(String expiryMonth) {
+    public PaymentBuilder withExpiryMonth(final String expiryMonth) {
         this.expiryMonth = expiryMonth;
         return this;
     }
@@ -103,7 +93,7 @@ public final class PaymentBuilder {
      * @param expiryYear
      * @return this builder
      */
-    public PaymentBuilder withExpiryYear(String expiryYear) {
+    public PaymentBuilder withExpiryYear(final String expiryYear) {
         this.expiryYear = expiryYear;
         return this;
     }
@@ -113,7 +103,7 @@ public final class PaymentBuilder {
      * @param cardHolderName
      * @return this builder
      */
-    public PaymentBuilder withCardHolderName(String cardHolderName) {
+    public PaymentBuilder withCardHolderName(final String cardHolderName) {
         this.cardHolderNameValue = cardHolderName;
         return this;
     }
@@ -123,7 +113,7 @@ public final class PaymentBuilder {
      * @param lastEvent
      * @return this builder
      */
-    public PaymentBuilder withLastEvent(String lastEvent) {
+    public PaymentBuilder withLastEvent(final String lastEvent) {
         this.lastEvent = lastEvent;
         return this;
     }
@@ -133,7 +123,7 @@ public final class PaymentBuilder {
      * @param selectedRiskScore
      * @return this builder
      */
-    public PaymentBuilder withSelectedRiskScore(String selectedRiskScore) {
+    public PaymentBuilder withSelectedRiskScore(final String selectedRiskScore) {
         this.selectedRiskScore = selectedRiskScore;
         return this;
     }
@@ -143,7 +133,7 @@ public final class PaymentBuilder {
      * @param riskValue
      * @return this builder
      */
-    public PaymentBuilder withRiskValue(String riskValue) {
+    public PaymentBuilder withRiskValue(final String riskValue) {
         this.riskValue = riskValue;
         return this;
     }
@@ -153,7 +143,7 @@ public final class PaymentBuilder {
      * @param finalScore
      * @return
      */
-    public PaymentBuilder withFinalScore(String finalScore) {
+    public PaymentBuilder withFinalScore(final String finalScore) {
         this.finalScore = finalScore;
         return this;
     }
@@ -163,7 +153,7 @@ public final class PaymentBuilder {
      * @param paymentMethod
      * @return this builder
      */
-    public PaymentBuilder withPaymentMethod(String paymentMethod) {
+    public PaymentBuilder withPaymentMethod(final String paymentMethod) {
         this.paymentMethod = paymentMethod;
         return this;
     }
@@ -173,7 +163,7 @@ public final class PaymentBuilder {
      * @param creditCardPaymentMethod
      * @return this builder
      */
-    public PaymentBuilder withCreditCardPaymentMethod(String creditCardPaymentMethod) {
+    public PaymentBuilder withCreditCardPaymentMethod(final String creditCardPaymentMethod) {
         this.creditCardPaymentMethod = creditCardPaymentMethod;
         return this;
     }
@@ -183,7 +173,7 @@ public final class PaymentBuilder {
      * @param apmPaymentMethod
      * @return this builder
      */
-    public PaymentBuilder withApmPaymentMethod(String apmPaymentMethod) {
+    public PaymentBuilder withApmPaymentMethod(final String apmPaymentMethod) {
         this.apmPaymentMethod = apmPaymentMethod;
         return this;
     }
@@ -193,7 +183,7 @@ public final class PaymentBuilder {
      * @param transactionAmount
      * @return this builder
      */
-    public PaymentBuilder withTransactionAmount(String transactionAmount) {
+    public PaymentBuilder withTransactionAmount(final String transactionAmount) {
         this.transactionAmount = transactionAmount;
         return this;
     }
@@ -203,7 +193,7 @@ public final class PaymentBuilder {
      * @param currencyCode
      * @return this builder
      */
-    public PaymentBuilder withCurrencyCode(String currencyCode) {
+    public PaymentBuilder withCurrencyCode(final String currencyCode) {
         this.currencyCode = currencyCode;
         return this;
     }
@@ -213,7 +203,7 @@ public final class PaymentBuilder {
      * @param exponent
      * @return this builder
      */
-    public PaymentBuilder withExponent(String exponent) {
+    public PaymentBuilder withExponent(final String exponent) {
         this.exponent = exponent;
         return this;
     }
@@ -223,7 +213,7 @@ public final class PaymentBuilder {
      * @param responseCode
      * @return this builder
      */
-    public PaymentBuilder withResponseCode(String responseCode) {
+    public PaymentBuilder withResponseCode(final String responseCode) {
         this.responseCode = responseCode;
         return this;
     }
@@ -233,7 +223,7 @@ public final class PaymentBuilder {
      * @param responseCodeDescription
      * @return this builder
      */
-    public PaymentBuilder withResponseCodeDescription(String responseCodeDescription) {
+    public PaymentBuilder withResponseCodeDescription(final String responseCodeDescription) {
         this.responseCodeDescription = responseCodeDescription;
         return this;
     }
@@ -243,7 +233,7 @@ public final class PaymentBuilder {
      * @param refundReference
      * @return this builder
      */
-    public PaymentBuilder withRefundReference(String refundReference) {
+    public PaymentBuilder withRefundReference(final String refundReference) {
         this.refundReference = refundReference;
         return this;
     }
@@ -298,8 +288,8 @@ public final class PaymentBuilder {
             payment.setRefundReference(this.refundReference);
         }
 
-        if (StringUtils.isNotBlank(selectedRiskScore)) {
-            RiskScore riskScore = new RiskScore();
+        if (!StringUtils.equalsIgnoreCase(selectedRiskScore, NO_RISK_SCORE)) {
+            final RiskScore riskScore = new RiskScore();
             if (equalsIgnoreCase(selectedRiskScore, RMM)) {
                 riskScore.setValue(this.riskValue);
             } else if (equalsIgnoreCase(selectedRiskScore, RG)) {
@@ -308,7 +298,11 @@ public final class PaymentBuilder {
             payment.setRiskScore(riskScore);
         }
 
-        final Amount amount = AmountBuilder.anAmountBuilder().withExponent(this.exponent).withAmount(this.transactionAmount).withCurrencyCode(this.currencyCode).build();
+        final Amount amount = AmountBuilder.anAmountBuilder()
+                .withExponent(this.exponent)
+                .withAmount(this.transactionAmount)
+                .withCurrencyCode(this.currencyCode)
+                .build();
         payment.setAmount(amount);
 
         final Balance balance = new Balance();

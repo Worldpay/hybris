@@ -13,14 +13,15 @@ import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadc
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractCheckoutController;
+import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
+import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CardTypeData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,7 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +45,7 @@ import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConst
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -62,7 +63,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String CARD_HOLDER_NAME = "cardHolderName";
 
     @InjectMocks
-    private AbstractWorldpayPaymentMethodCheckoutStepController testObj = new TestWorldpayPaymentMethodCheckoutStepController();
+    private final AbstractWorldpayPaymentMethodCheckoutStepController testObj = new TestWorldpayPaymentMethodCheckoutStepController();
 
     @Mock
     private RedirectAttributes redirectAttributes;
@@ -94,12 +95,14 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private CSEPaymentForm csePaymentFormMock;
     @Mock
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
+    @Mock
+    private CMSPreviewService cmsPreviewService;
 
-    private List<CountryData> billingCountries = emptyList();
-    private List<CardTypeData> supportedCardTypes = emptyList();
-    private List<Breadcrumb> breadcrumbs = Collections.emptyList();
-    private List<CountryData> deliveryCountries = Collections.emptyList();
-    private Model model = new ExtendedModelMap();
+    private final List<CountryData> billingCountries = emptyList();
+    private final List<CardTypeData> supportedCardTypes = emptyList();
+    private final List<Breadcrumb> breadcrumbs = Collections.emptyList();
+    private final List<CountryData> deliveryCountries = Collections.emptyList();
+    private final Model model = new ExtendedModelMap();
 
     @Before
     public void setUp() {
@@ -149,7 +152,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     public void shouldPopulateModelWithExpiryYears() {
 
         final List<AbstractCheckoutController.SelectOption> result = testObj.getExpiryYears();
-        final int currentYear = DateTime.now().getYear();
+        final int currentYear = LocalDate.now().getYear();
 
         assertEquals(11, result.size());
 
@@ -186,7 +189,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldAddCmsPageToModel() throws CommerceCartModificationException, CMSItemNotFoundException {
-        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL)).thenReturn(contentPageModelMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(eq(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL), any(PagePreviewCriteriaData.class))).thenReturn(contentPageModelMock);
 
         testObj.enterStep(model, redirectAttributes);
 

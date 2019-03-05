@@ -7,10 +7,30 @@ ACC.worldpay = {
         "populateDeclineCodeTimeout",
         "hideOrShowSaveDetails",
         "bindBanks",
-        "checkPreviouslySelectedPaymentMethod"
+        "checkPreviouslySelectedPaymentMethod",
+        "onPaymentMethodChange"
     ],
 
     spinner: $("<img src='" + ACC.config.commonResourcePath + "/images/spinner.gif' />"),
+
+    pageSpinner: {
+        createSpinner: function() {
+            const prefix = ACC.config.commonResourcePath.replace('/_ui/', '/_ui/addons/worldpayaddon/');
+            return $('<img style="width: 32px; height: 32px; margin: auto;" src="' + prefix + '/images/oval-spinner.svg" />')
+        },
+
+        start: function() {
+            this.overlay = $('<div id="cboxOverlay" style="opacity: 0.7; cursor: pointer; visibility: visible; display: flex;" />');
+            this.createSpinner().appendTo(ACC.worldpay.pageSpinner.overlay);
+            this.overlay.appendTo($('body'));
+        },
+
+        end: function() {
+            this.overlay.fadeOut(400, function() {
+                $(this).remove();
+            });
+        }
+    },
 
     bindCountrySelector: function () {
         $('select[id^="billingAddress\\.country"]').on("change", function () {
@@ -198,5 +218,63 @@ ACC.worldpay = {
                 $bankElement.find('select').prop('disabled', true);
             }
         });
+    },
+
+    onPaymentMethodChange: function() {
+        const checkboxes = $('[name="paymentMethod"]');
+        checkboxes.on('change', function (event) {
+            switch(event.target.value) {
+                case 'APPLEPAY-SSL':
+                    ACC.applePay.enableApplePayFlow();
+                    break;
+                case 'GOOGLEPAY-SSL':
+                    ACC.googlePay.enableGooglePayFlow();
+                    break;
+                default:
+                    this.resetPaymentFlow();
+                    break;
+            }
+
+            $('.main__inner-wrapper > .global-alerts .alert.alert-danger').remove();
+        }.bind(this));
+    },
+
+    resetPaymentFlow: function () {
+        $('#applepay-button').hide();
+        $('#googlepay-button').hide();
+        $('.checkout-next')
+            .not('#applepay-button')
+            .not('#googlepay-button')
+            .show();
+
+        $('#wpBillingCountrySelector')
+            .show()
+            .prev().show();
+
+        $('#wpBillingAddress').show();
+    },
+
+    requireTermsAndConditions: function() {
+        const terms = $('#termsAndConditions');
+        $('<div class="help-block"><span>' + 
+                ACC.addons.worldpayaddon["worldpayaddon.checkout.error.terms.not.accepted"] + 
+                '</span></div>').appendTo(terms);
+        terms.addClass('has-error');
+
+        terms.on('change', function(event) {
+            if ($(this).find('input[type=checkbox]').is(':checked')){
+                terms.find('.help-block').hide();
+                terms.removeClass('has-error');
+            } else {
+                terms.find('.help-block').show();
+                terms.addClass('has-error');
+            }
+        });
+    },
+
+    redirectToConfirmationPage: function(order) {
+        const orderId = order.guestCustomer ? order.guid : order.code;
+
+        window.location.href = ACC.config.encodedContextPath + '/checkout/orderConfirmation/' + orderId;
     }
 };

@@ -46,7 +46,10 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
         final OrderStatusEvent orderStatusEvent = new OrderStatusEvent();
         // Payment
         orderStatusEvent.setOrderCode(responseForm.getWorldpayOrderCode());
-        final Amount amount = anAmountBuilder().withAmount(responseForm.getTransactionAmount()).withCurrencyCode(responseForm.getCurrencyCode()).build();
+        final Amount amount = anAmountBuilder()
+                .withAmount(responseForm.getTransactionAmount())
+                .withCurrencyCode(responseForm.getCurrencyCode())
+                .build();
 
         final Payment payment = createPayment(responseForm);
         orderStatusEvent.setPayment(payment);
@@ -101,13 +104,23 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
     }
 
     protected Payment createPayment(final ResponseForm responseForm) {
-        final Payment payment = aPaymentBuilder().withPaymentMethod(responseForm.getSelectedPaymentMethod())
-                .withApmPaymentMethod(responseForm.getApmPaymentType()).withCreditCardPaymentMethod(responseForm.getCcPaymentType())
-                .withCardHolderName(responseForm.getCardHolderName()).withCardNumber(responseForm.getTestCreditCard())
-                .withCurrencyCode(responseForm.getCurrencyCode()).withExpiryMonth(responseForm.getCardMonth()).withExponent(String.valueOf(responseForm.getExponent()))
+        final Payment payment = aPaymentBuilder()
+                .withPaymentMethod(responseForm.getSelectedPaymentMethod())
+                .withApmPaymentMethod(responseForm.getApmPaymentType())
+                .withCreditCardPaymentMethod(responseForm.getCcPaymentType())
+                .withCardHolderName(responseForm.getCardHolderName())
+                .withCardNumber(responseForm.getTestCreditCard())
+                .withCurrencyCode(responseForm.getCurrencyCode())
+                .withExpiryMonth(responseForm.getCardMonth())
+                .withExponent(String.valueOf(responseForm.getExponent()))
                 .withExpiryYear(responseForm.getCardYear())
-                .withTransactionAmount(responseForm.getTransactionAmount()).withSelectedRiskScore(responseForm.getSelectedRiskScore()).withRiskValue(responseForm.getRiskValue())
-                .withFinalScore(responseForm.getFinalScore()).withLastEvent(responseForm.getLastEvent()).withRefundReference(responseForm.getReference()).build();
+                .withTransactionAmount(responseForm.getTransactionAmount())
+                .withSelectedRiskScore(responseForm.getSelectedRiskScore())
+                .withRiskValue(responseForm.getRiskValue())
+                .withFinalScore(responseForm.getFinalScore())
+                .withLastEvent(responseForm.getLastEvent())
+                .withRefundReference(responseForm.getReference())
+                .build();
         populateAavFields(responseForm, payment);
         return payment;
     }

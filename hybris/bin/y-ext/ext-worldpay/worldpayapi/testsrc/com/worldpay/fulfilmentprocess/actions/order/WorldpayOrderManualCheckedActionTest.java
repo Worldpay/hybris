@@ -8,7 +8,6 @@ import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.time.TimeService;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +15,9 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Instant;
+import java.util.Date;
 
 import static de.hybris.platform.core.enums.OrderStatus.FRAUD_CHECKED;
 import static de.hybris.platform.core.enums.OrderStatus.SUSPENDED;
@@ -50,7 +52,7 @@ public class WorldpayOrderManualCheckedActionTest {
     public void setUp() {
         when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
-        when(timeServiceMock.getCurrentTime()).thenReturn(DateTime.now().toDate());
+        when(timeServiceMock.getCurrentTime()).thenReturn(Date.from(Instant.now()));
 
     }
 

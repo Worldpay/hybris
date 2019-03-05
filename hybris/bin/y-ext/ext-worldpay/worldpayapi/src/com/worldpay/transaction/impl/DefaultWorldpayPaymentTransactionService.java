@@ -27,10 +27,11 @@ import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -223,7 +224,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public PaymentTransactionModel getPaymentTransactionFromCode(final String transactionCode) {
         try {
             return worldpayPaymentTransactionDao.findPaymentTransactionByRequestId(transactionCode);
-        } catch (ModelNotFoundException e) {
+        } catch (final ModelNotFoundException e) {
             LOG.error(format("Error finding paymentTransaction with code [{0}]", transactionCode), e);
             return null;
         }
@@ -301,7 +302,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
             }
         }
 
-        double tolerance = configurationService.getConfiguration().getDouble("worldpayapi.authoriseamount.validation.tolerance");
+        final double tolerance = configurationService.getConfiguration().getDouble("worldpayapi.authoriseamount.validation.tolerance");
 
         return Math.abs(order.getTotalPrice() - authorisedAmount.doubleValue()) <= tolerance;
     }
@@ -324,7 +325,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         transactionEntryModel.setTransactionStatus(ACCEPTED.name());
         transactionEntryModel.setTransactionStatusDetails(SUCCESFULL.name());
         transactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransactionModel));
-        transactionEntryModel.setTime(DateTime.now().toDate());
+        transactionEntryModel.setTime(Date.from(Instant.now()));
         transactionEntryModel.setPending(Boolean.FALSE);
 
         final Amount amount = orderNotificationMessage.getPaymentReply().getAmount();
@@ -358,7 +359,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         transactionEntryModel.setRequestId(abstractOrderModel.getWorldpayOrderCode());
         transactionEntryModel.setRequestToken(merchantCode);
         transactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransaction));
-        transactionEntryModel.setTime(DateTime.now().toDate());
+        transactionEntryModel.setTime(Date.from(Instant.now()));
         transactionEntryModel.setTransactionStatus(ACCEPTED.name());
         transactionEntryModel.setTransactionStatusDetails(SUCCESFULL.name());
         transactionEntryModel.setAmount(authorisedAmount);

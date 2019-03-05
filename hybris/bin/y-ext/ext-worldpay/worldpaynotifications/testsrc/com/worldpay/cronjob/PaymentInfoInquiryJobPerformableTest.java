@@ -13,7 +13,6 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
 import org.apache.commons.configuration.Configuration;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +21,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Date;
 
 import static com.worldpay.cronjob.PaymentInfoInquiryJobPerformable.WORLDPAY_APM_DAYS_BEFORE_STOP_INQUIRING_TIMEOUT;
 import static com.worldpay.cronjob.PaymentInfoInquiryJobPerformable.WORLDPAY_APM_MINUTES_BEFORE_INQUIRING_TIMEOUT;
@@ -75,7 +79,7 @@ public class PaymentInfoInquiryJobPerformableTest {
         when(paymentTransactionModelMock.getOrder().getSite().getUid()).thenReturn(SITE_UID);
         when(worldpayMerchantInfoServiceMock.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoMock);
         when(paymentTransactionModelMock.getRequestToken()).thenReturn(REQUEST_TOKEN_APM);
-        when(paymentTransactionModelMock.getCreationtime()).thenReturn(DateTime.now().toDate());
+        when(paymentTransactionModelMock.getCreationtime()).thenReturn(Date.from(Instant.now()));
     }
 
     @Test
@@ -115,7 +119,9 @@ public class PaymentInfoInquiryJobPerformableTest {
 
     @Test
     public void performShouldNotPollWhenPaymentTransactionModelIsOlderThanConfiguredBlanketTimeout() throws WorldpayException {
-        when(paymentTransactionModelMock.getCreationtime()).thenReturn(new DateTime().minusDays(BLANKET_TIMEOUT_DAYS + 1).toDate());
+        final LocalDate expectedLocalDate = LocalDate.now().minus(BLANKET_TIMEOUT_DAYS + 1, ChronoUnit.DAYS);
+        final Date expectedDate = Date.from(expectedLocalDate.atStartOfDay().toInstant(ZoneOffset.UTC));
+        when(paymentTransactionModelMock.getCreationtime()).thenReturn(expectedDate);
 
         final PerformResult result = testObj.perform(cronjobModelMock);
 

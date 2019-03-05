@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -19,11 +18,10 @@ public class OrderInquiryServiceRequestTest {
     private static final String ORDER_CODE = "orderCode";
 
     @Rule
-    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testOrderInquiry() throws WorldpayException {
+    public void testOrderInquiry() {
 
         final OrderInquiryServiceRequest request = OrderInquiryServiceRequest.createOrderInquiryRequest(MERCHANT_INFO, ORDER_CODE);
 

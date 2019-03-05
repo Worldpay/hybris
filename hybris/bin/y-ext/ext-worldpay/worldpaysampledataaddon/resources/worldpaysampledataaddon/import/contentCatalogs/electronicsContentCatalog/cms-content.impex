@@ -22,6 +22,14 @@ INSERT_UPDATE Media;code[unique=true];$media;mime[default='image/jpeg'];$content
 ; nordea-icon     ; $siteResource/nordea-icon.png     ; ; ; images
 ; ideal-icon      ; $siteResource/ideal-icon.png      ; ; ; images
 ; klarna-icon     ; $siteResource/klarna-icon.png     ; ; ; images
+; google-pay-icon ; $siteResource/google-pay-icon.png ; ; ; images
+; apple-pay-icon  ; $siteResource/apple-pay-icon.png  ; ; ; images
+
+INSERT_UPDATE WorldpayApplePayComponent;uid[unique=true];$contentCV[unique=true];name;$picture[lang=$lang]
+; applePayComponent ; ; "Apple Pay" ; apple-pay-icon
+
+INSERT_UPDATE WorldpayGooglePayComponent;uid[unique=true];$contentCV[unique=true];name;$picture[lang=$lang]
+; googlePayComponent ; ; "Google Pay" ; google-pay-icon
 
 INSERT_UPDATE WorldpayCCComponent;uid[unique=true];$contentCV[unique=true];name;$picture[lang=$lang]
 ; creditCardComponent ; ; "Credit Card" ; cc-icon
@@ -41,7 +49,7 @@ INSERT_UPDATE WorldpayAPMComponent;uid[unique=true];$contentCV[unique=true];name
 ; klarnaComponent        ; ; "Klarna"          ; KLARNA-SSL         ; klarna-icon     ; AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];cmsComponents(uid,$contentCV)
-;;WorldpayPaymentButtonsSlot;creditCardComponent,payPalComponent,chinaUnionPayComponent,alipayComponent,enetsComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,nordeaComponent,idealComponent,klarnaComponent
+;;WorldpayPaymentButtonsSlot;googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,chinaUnionPayComponent,alipayComponent,enetsComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,nordeaComponent,idealComponent,klarnaComponent
 
 INSERT_UPDATE CMSParagraphComponent;$contentCV[unique=true];uid[unique=true];content[lang=$lang];
 ;;WorldpayHelpParagraphComponent;"<strong>Need Help setting up your Merchants?</strong> <span>Contact Your Worldpay Relationship Manager and they will only be too happy to help!</span>";

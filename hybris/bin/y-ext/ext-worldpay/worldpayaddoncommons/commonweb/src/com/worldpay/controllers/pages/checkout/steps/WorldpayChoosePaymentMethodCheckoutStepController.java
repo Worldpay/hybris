@@ -71,9 +71,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     private WorldpayCartFacade worldpayCartFacade;
     @Resource
     private PaymentDetailsFormValidator paymentDetailsFormValidator;
-    @Resource(name = "addressDataUtil")
+    @Resource
     private AddressDataUtil addressDataUtil;
-    @Resource(name = "apmConfigurationLookupService")
+    @Resource
     private APMConfigurationLookupService apmConfigurationLookupService;
 
     /**
@@ -101,7 +101,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
      * {@inheritDoc}
      */
     @Override
-    protected void setupAddPaymentPage(Model model) throws CMSItemNotFoundException {
+    protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
         model.addAttribute("cartData", cartData);
@@ -141,7 +141,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         return EMPTY;
     }
 
-    protected void populateAddressForm(AddressData addressData, AddressForm addressForm) {
+    protected void populateAddressForm(final AddressData addressData, final AddressForm addressForm) {
         final RegionData region = addressData.getRegion();
         if (region != null && !StringUtils.isEmpty(region.getIsocode())) {
             addressForm.setRegionIso(region.getIsocode());
@@ -255,7 +255,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
      * @return
      */
     @ModelAttribute(value = "getTermsAndConditionsUrl")
-    public String getTermsAndConditionsUrl(HttpServletRequest request) {
+    public String getTermsAndConditionsUrl(final HttpServletRequest request) {
         return request.getContextPath() + CHECKOUT_MULTI_TERMS_AND_CONDITIONS;
     }
 

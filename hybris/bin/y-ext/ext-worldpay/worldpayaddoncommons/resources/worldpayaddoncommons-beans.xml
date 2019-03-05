@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
-  ~ [y] hybris Platform
-  ~ 
-  ~ Copyright (c) 2000-2016 SAP SE
-  ~ All rights reserved.
-  ~ 
-  ~ This software is the confidential and proprietary information of SAP 
-  ~ Hybris ("Confidential Information"). You shall not disclose such 
-  ~ Confidential Information and shall use it only in accordance with the 
-  ~ terms of the license agreement you entered into with SAP Hybris.
-  -->
+
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="beans.xsd">
 
     <enum class="com.worldpay.payment.TransactionStatus">
@@ -44,6 +34,17 @@
         <property name="returnCode" type="java.lang.String"/>
         <property name="issuerURL" type="java.lang.String"/>
         <property name="paRequest" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.payment.applepay.ValidateMerchantRequestData">
+        <property name="validationURL" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.payment.applepay.ValidateMerchantRequestDTO">
+        <property name="displayName" type="java.lang.String"/>
+        <property name="merchantIdentifier" type="java.lang.String"/>
+        <property name="initiative" type="java.lang.String"/>
+        <property name="initiativeContext" type="java.lang.String"/>
     </bean>
 
 </beans>

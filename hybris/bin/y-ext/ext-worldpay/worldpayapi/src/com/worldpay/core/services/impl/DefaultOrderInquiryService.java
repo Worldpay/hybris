@@ -1,7 +1,7 @@
 package com.worldpay.core.services.impl;
 
-import com.evanlennick.retry4j.CallExecutor;
-import com.evanlennick.retry4j.CallResults;
+import com.evanlennick.retry4j.CallExecutorBuilder;
+import com.evanlennick.retry4j.Status;
 import com.evanlennick.retry4j.config.RetryConfig;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import com.evanlennick.retry4j.exception.RetriesExhaustedException;
@@ -96,8 +96,8 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         final RetryConfig config = buildRetryConfig();
 
         try {
-            final CallResults<OrderInquiryServiceResponse> results = executeInquiryCallable(callable, config);
-            return results.getResult();
+            final Status<OrderInquiryServiceResponse> orderInquiryServiceResponseCallResults = executeInquiryCallable(callable, config);
+            return orderInquiryServiceResponseCallResults.getResult();
         } catch (final RetriesExhaustedException | UnexpectedException e) {
             throw new WorldpayException("Unable to retrieve order status", e);
         }
@@ -124,8 +124,8 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
                 .build();
     }
 
-    protected CallResults<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {
-        return new CallExecutor<OrderInquiryServiceResponse>(config).execute(callable);
+    protected Status<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {
+        return new CallExecutorBuilder<OrderInquiryServiceResponse>().config(config).build().execute(callable);
     }
 
     protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {

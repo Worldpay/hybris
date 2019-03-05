@@ -7,7 +7,7 @@ def config = {
         property 'googleApiKey', ''
         property 'apiregistryservices.events.exporting', 'false'
         property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
-
+        property 'testclasses.addonname', 'yacceleratorstorefront'
     }
 
     extensions {

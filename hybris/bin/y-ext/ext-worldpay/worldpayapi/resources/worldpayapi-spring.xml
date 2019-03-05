@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2013 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
--->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
@@ -20,6 +9,7 @@
     <import resource="classpath:/merchants/merchants.xml"/>
     <import resource="classpath:/fulfilment/worldpayapi-order-actions-spring.xml"/>
     <import resource="classpath:/gateway/worldpayapi-gateway-spring.xml"/>
+    <import resource="classpath:/applepay/worldpayapi-applepay-spring.xml"/>
 
     <alias name="worldpayCustomerAccountService" alias="customerAccountService"/>
     <bean id="worldpayCustomerAccountService"
@@ -167,7 +157,6 @@
     <bean id="defaultWorldpayDirectOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService"
           parent="abstractWorldpayOrderService">
         <property name="sessionService" ref="sessionService"/>
-        <property name="cartService" ref="cartService"/>
         <property name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
     </bean>
 
@@ -607,6 +596,16 @@
         <property name="worldpayCheckoutService" ref="defaultWorldpayCheckoutService"/>
     </bean>
 
+    <alias name="defaultWorldpayApplePayPaymentCheckoutFacade" alias="worldpayApplePayPaymentCheckoutFacade"/>
+    <bean id="defaultWorldpayApplePayPaymentCheckoutFacade" class="com.worldpay.facades.order.impl.DefaultWorldpayApplePayPaymentCheckoutFacade">
+        <property name="i18NFacade" ref="i18NFacade"/>
+        <property name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
+        <property name="userFacade" ref="userFacade"/>
+        <property name="worldpayPaymentCheckoutFacade" ref="worldpayPaymentCheckoutFacade"/>
+        <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <property name="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter" ref="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"/>
+    </bean>
+
     <alias name="defaultWorldpayKlarnaPaymentCheckoutFacade" alias="worldpayKlarnaPaymentCheckoutFacade"/>
     <bean id="defaultWorldpayKlarnaPaymentCheckoutFacade" class="com.worldpay.facades.order.impl.DefaultWorldpayKlarnaPaymentCheckoutFacade">
         <property name="checkoutFacade" ref="checkoutFacade"/>
@@ -667,6 +666,9 @@
         <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
         <property name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
         <property name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
+        <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade" />
+        <property name="cartFacade" ref="cartFacade" />
     </bean>
 
     <!-- The defaultUserFacade uses directly the AddressReversePopulator -->
@@ -679,6 +681,20 @@
 
     <bean id="worldpayOrderDataPopulator" class="com.worldpay.facades.order.converters.populators.WorldpayOrderDataPopulator">
         <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    </bean>
+
+    <bean id="applePayConfigDataToValidateMerchantRequestDTOPopulator" class="com.worldpay.populators.ApplePayConfigDataToValidateMerchantRequestDTOPopulator">
+        <property name="worldpayUrlService" ref="worldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultApplePayConfigDataToValidateMerchantRequestDTOPopulatingConverter" alias="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"/>
+    <bean id="defaultApplePayConfigDataToValidateMerchantRequestDTOPopulatingConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.payment.applepay.ValidateMerchantRequestDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="applePayConfigDataToValidateMerchantRequestDTOPopulator"/>
+            </list>
+        </property>
     </bean>
 
     <alias name="defaultOrderInquiryService" alias="orderInquiryService"/>
@@ -748,5 +764,18 @@
     <bean id="defaultWorldpayDynamicInteractionResolverService" class="com.worldpay.service.interaction.impl.DefaultWorldpayDynamicInteractionResolverService">
         <property name="assistedServiceService" ref="assistedServiceService"/>
     </bean>
+
+    <alias name="defaultBankConfigurationModelBankConfigurationDataConverter" alias="bankConfigurationModelBankConfigurationDataConverter"/>
+    <bean id="defaultBankConfigurationModelBankConfigurationDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.facades.BankConfigurationData"/>
+        <property name="populators">
+            <list>
+                <ref bean="bankConfigurationPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultBankConfigurationPopulator" alias="bankConfigurationPopulator"/>
+    <bean id="defaultBankConfigurationPopulator" class="com.worldpay.converters.populators.WorldpayBankConfigurationPopulator"/>
 
 </beans>

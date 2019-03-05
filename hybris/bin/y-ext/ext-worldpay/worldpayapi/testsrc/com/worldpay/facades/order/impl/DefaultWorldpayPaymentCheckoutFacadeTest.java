@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
@@ -37,7 +36,6 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
     @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Spy
     @InjectMocks
     private DefaultWorldpayPaymentCheckoutFacade testObj;
 
@@ -46,7 +44,7 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
     @Mock
     private CheckoutFacade checkoutFacade;
     @Mock
-    private CartService cartService;
+    private CartService cartServiceMock;
     @Mock
     private CartModel cartModelMock;
     @Mock
@@ -61,7 +59,7 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
     @Before
     public void setUp() {
         when(checkoutFacade.hasCheckoutCart()).thenReturn(true);
-        when(cartService.getSessionCart()).thenReturn(cartModelMock);
+        when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
         when(deliveryServiceMock.getSupportedDeliveryAddressesForOrder(cartModelMock, false)).thenReturn(Collections.singletonList(addressModelMock));
     }
 
@@ -105,7 +103,7 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
 
     @Test
     public void hasBillingDetailsReturnsFalseWhenCartIsNull() {
-        when(cartService.getSessionCart()).thenReturn(null);
+        when(cartServiceMock.getSessionCart()).thenReturn(null);
         final boolean result = testObj.hasBillingDetails();
         assertFalse(result);
     }

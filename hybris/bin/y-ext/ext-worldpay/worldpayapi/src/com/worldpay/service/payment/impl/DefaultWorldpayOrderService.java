@@ -1,9 +1,12 @@
 package com.worldpay.service.payment.impl;
 
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.*;
+import com.worldpay.service.model.applepay.ApplePay;
+import com.worldpay.service.model.applepay.Header;
 import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
@@ -186,6 +189,12 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
             return UpdateTokenServiceRequest.updateTokenRequestWithMerchantScope(merchantInfo, paymentTokenID, tokenRequest, cardDetails);
         }
         return UpdateTokenServiceRequest.updateTokenRequestWithShopperScope(merchantInfo, worldpayAdditionalInfoData.getAuthenticatedShopperId(), paymentTokenID, tokenRequest, cardDetails);
+    }
+
+    @Override
+    public Payment createApplePayPayment(final ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData) {
+        final Header header = new Header(worldpayAdditionalInfoApplePayData.getHeader().getEphemeralPublicKey(), worldpayAdditionalInfoApplePayData.getHeader().getPublicKeyHash(), worldpayAdditionalInfoApplePayData.getHeader().getTransactionId(), null);
+        return new ApplePay(header, worldpayAdditionalInfoApplePayData.getSignature(), worldpayAdditionalInfoApplePayData.getVersion(), worldpayAdditionalInfoApplePayData.getData(), null);
     }
 
 

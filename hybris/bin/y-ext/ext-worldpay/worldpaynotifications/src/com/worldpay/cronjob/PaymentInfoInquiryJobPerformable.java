@@ -15,9 +15,11 @@ import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.cronjob.AbstractJobPerformable;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 
 import static de.hybris.platform.cronjob.enums.CronJobResult.FAILURE;
@@ -65,7 +67,7 @@ public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable {
                     final OrderInquiryServiceResponse orderInquiryServiceResponse = orderInquiryService.inquirePaymentTransaction(merchantConfig, paymentTransactionModel);
                     LOG.info(format("Processing order Inquiry Service Response for pending payment transaction with worldpay order code [{0}]", requestId));
                     orderInquiryService.processOrderInquiryServiceResponse(paymentTransactionModel, orderInquiryServiceResponse);
-                } catch (WorldpayException e) {
+                } catch (final WorldpayException e) {
                     LOG.error(format("Error receiving response from Worldpay for orderInquiry with worldpayOrderCode [{0}]. " +
                             "Probably the service is down, or there is a problem with the merchant configuration", requestId), e);
                     return new PerformResult(FAILURE, FINISHED);
@@ -76,21 +78,21 @@ public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable {
     }
 
     private boolean paymentTransactionIsOverBlanketTime(final PaymentTransactionModel paymentTransactionModel, final int blanketTime) {
-        return paymentTransactionModel.getCreationtime().before(new DateTime().minusDays(blanketTime).toDate());
+        return paymentTransactionModel.getCreationtime().before(Date.from(Instant.now().minus(blanketTime, ChronoUnit.DAYS)));
     }
 
     @Required
-    public void setOrderInquiryService(OrderInquiryService orderInquiryService) {
+    public void setOrderInquiryService(final OrderInquiryService orderInquiryService) {
         this.orderInquiryService = orderInquiryService;
     }
 
     @Required
-    public void setWorldpayPaymentTransactionDao(WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
+    public void setWorldpayPaymentTransactionDao(final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
         this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
     }
 
     @Required
-    public void setWorldpayMerchantInfoService(WorldpayMerchantInfoService worldpayMerchantInfoService) {
+    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
 
@@ -100,7 +102,7 @@ public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable {
     }
 
     @Required
-    public void setPaymentTransactionRejectionStrategy(PaymentTransactionRejectionStrategy paymentTransactionRejectionStrategy) {
+    public void setPaymentTransactionRejectionStrategy(final PaymentTransactionRejectionStrategy paymentTransactionRejectionStrategy) {
         this.paymentTransactionRejectionStrategy = paymentTransactionRejectionStrategy;
     }
 

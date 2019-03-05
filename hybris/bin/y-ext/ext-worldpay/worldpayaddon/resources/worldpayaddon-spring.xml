@@ -1,39 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2014 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
--->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <alias alias="commercePaymentAuthorizationStrategy" name="worldpayCommercePaymentAuthorizationStrategy"/>
     <bean id="worldpayCommercePaymentAuthorizationStrategy" parent="defaultPaymentAuthorizationStrategy">
         <property name="generateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
     </bean>
-
-    <!-- Converters and populators -->
-    <alias name="defaultBankConfigurationModelBankConfigurationDataConverter" alias="bankConfigurationModelBankConfigurationDataConverter"/>
-    <bean id="defaultBankConfigurationModelBankConfigurationDataConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.worldpay.facades.BankConfigurationData"/>
-        <property name="populators">
-            <list>
-                <ref bean="bankConfigurationPopulator"/>
-            </list>
-        </property>
-    </bean>
-
-    <alias name="defaultBankConfigurationPopulator" alias="bankConfigurationPopulator"/>
-    <bean id="defaultBankConfigurationPopulator" class="com.worldpay.converters.populators.WorldpayBankConfigurationPopulator"/>
 
     <!--Fix issue with template cms content scripts not running-->
     <bean parent="modifyPopulatorList">
@@ -62,9 +36,9 @@
     <bean id="apmOpenStatusDisplayKey" class="java.lang.String">
         <constructor-arg value="APM_OPEN"/>
     </bean>
+
     <bean id="worldpayAcceleratorStatusDisplayMapMergeDirective" depends-on="acceleratorStatusDisplayMap" parent="mapMergeDirective">
         <property name="key" ref="apmOpenStatusDisplayKey"/>
         <property name="value" value="pending"/>
     </bean>
-
 </beans>

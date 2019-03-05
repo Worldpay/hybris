@@ -4,6 +4,7 @@ import com.worldpay.facades.APMAvailabilityFacade;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
 import de.hybris.platform.order.CartService;
+import org.springframework.beans.factory.annotation.Required;
 
 
 /**
@@ -21,11 +22,13 @@ public class DefaultAPMAvailabilityFacade implements APMAvailabilityFacade {
         return apmAvailabilityService.isAvailable(apmConfiguration, cartService.getSessionCart());
     }
 
+    @Required
     public void setApmAvailabilityService(final APMAvailabilityService apmAvailabilityService) {
         this.apmAvailabilityService = apmAvailabilityService;
     }
 
-    public void setCartService(final CartService cartService) {
+    @Required
+    public void setCartService(CartService cartService) {
         this.cartService = cartService;
     }
 }

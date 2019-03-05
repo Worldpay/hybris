@@ -108,6 +108,7 @@ public class WorldpayAddressPopulatorTest {
         when(sourceMock.getLine1()).thenReturn("áéíóú");
         when(sourceMock.getLine2()).thenReturn("üöë");
         when(sourceMock.getTown()).thenReturn("ñÑçÇ");
+        when(sourceMock.getPostalcode()).thenReturn("abcÑñç");
 
         final Address target = new Address();
 
@@ -116,6 +117,7 @@ public class WorldpayAddressPopulatorTest {
         assertEquals(StringEscapeUtils.escapeXml("áéíóú"), target.getAddress1());
         assertEquals(StringEscapeUtils.escapeXml("üöë"), target.getAddress2());
         assertEquals(StringEscapeUtils.escapeXml("ñÑçÇ"), target.getCity());
+        assertEquals(StringEscapeUtils.escapeXml("abcÑñç"), target.getPostalCode());
     }
 
     @Test(expected = IllegalArgumentException.class)

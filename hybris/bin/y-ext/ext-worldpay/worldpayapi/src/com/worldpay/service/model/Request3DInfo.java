@@ -10,6 +10,9 @@ public class Request3DInfo implements Serializable {
     private String paRequest;
     private String issuerUrl;
 
+    public Request3DInfo() {
+    }
+
     /**
      * Constructor with full list of fields
      *

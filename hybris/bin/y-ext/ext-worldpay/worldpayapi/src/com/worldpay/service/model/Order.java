@@ -45,7 +45,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
     @Override
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
         com.worldpay.internal.model.Order intOrder = new com.worldpay.internal.model.Order();
-        List<Object> childElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrInfo3DSecureOrSession();
+        List<Object> childElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrInfo3DSecureOrSession();
 
         if (getOrderCode() != null) {
             intOrder.setOrderCode(getOrderCode());
@@ -103,7 +103,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
             Info3DSecure intInfo3dSecure = new Info3DSecure();
             PaResponse intPaResponse = new PaResponse();
             intPaResponse.setvalue(getPaResponse());
-            intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrXidOrCavvOrEciOrAttemptedAuthentication().add(intPaResponse);
+            intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrXidOrCavvOrEciOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSversionOrDsTransIdOrMerchantName().add(intPaResponse);
             childElements.add(intInfo3dSecure);
         }
         if (session != null) {

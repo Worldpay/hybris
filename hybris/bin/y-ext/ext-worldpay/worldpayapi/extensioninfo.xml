@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
 
-    <extension abstractclassprefix="Generated" classprefix="Worldpayapi" managername="WorldpayapiManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayapi">
+    <extension abstractclassprefix="Generated" classprefix="Worldpayapi" managername="WorldpayapiManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayapi" usemaven="false">
 
         <requires-extension name="acceleratorfacades"/>
         <requires-extension name="acceleratorservices"/>

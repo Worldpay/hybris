@@ -186,6 +186,72 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(REFUND_REFERENCE, paymentReply.getRefundReference());
     }
 
+    @Test
+    public void buildPaymentReplyWithoutRiskScoreShouldNotSetRiskScoreOnPaymentReply() {
+        final Payment payment = new Payment();
+        final PaymentMethodDetail paymentMethodDetail = new PaymentMethodDetail();
+        paymentMethodDetail.setCard(createCard());
+        createAmount();
+        createCvcResultCode();
+        createBalance();
+        createIso8583ReturnCode();
+        createAavAddressResultCode();
+        createAavCardholderNameResultCode();
+        createAavEmailResultCode();
+        createAavPostcodeResultCode();
+        createAavTelephoneResultCode();
+        createAuthorisationId();
+
+        payment.setPaymentMethod(PAYMENT_METHOD);
+        payment.setPaymentMethodDetail(paymentMethodDetail);
+        payment.setAmount(amount);
+        payment.getBalance().add(balance);
+        payment.setLastEvent(LAST_EVENT);
+        payment.setCVCResultCode(cvcResultCode);
+        payment.getBalance().add(balance);
+        payment.setISO8583ReturnCode(iso8583ReturnCode);
+        payment.setRiskScore(riskScore);
+        payment.setCardHolderName(cardHolderName);
+        payment.setAAVAddressResultCode(aavAddressResultCode);
+        payment.setAAVCardholderNameResultCode(aavCardholderNameResultCode);
+        payment.setAAVEmailResultCode(aavEmailResultCode);
+        payment.setAAVPostcodeResultCode(aavPostcodeResultCode);
+        payment.setAAVTelephoneResultCode(aavTelephoneResultCode);
+        payment.setRefundReference(REFUND_REFERENCE);
+        payment.setAuthorisationId(authorisationId);
+
+        final PaymentReply paymentReply = testObj.buildPaymentReply(payment);
+
+        assertEquals(PAYMENT_METHOD, paymentReply.getMethodCode());
+        assertEquals(EXPIRY_MONTH, paymentReply.getCardDetails().getExpiryDate().getMonth());
+        assertEquals(EXPIRY_YEAR, paymentReply.getCardDetails().getExpiryDate().getYear());
+        assertEquals(CARD_HOLDER_NAME, paymentReply.getCardDetails().getCardHolderName());
+        assertEquals(CARD_NUMBER, paymentReply.getCardDetails().getCardNumber());
+        assertEquals(PaymentType.VISA, paymentReply.getCardDetails().getPaymentType());
+        assertEquals(AuthorisedStatus.AUTHORISED, paymentReply.getAuthStatus());
+        assertEquals(CVC_RESULT_CODE_DESCRIPTION, paymentReply.getCvcResultDescription());
+        assertEquals(ISO8583_RETURN_CODE_CODE, paymentReply.getReturnCode());
+        assertThat(paymentReply.getRiskScore()).isEqualTo(null);
+        assertEquals(AAV_ADDRESS_RESULT_CODE_DESCRIPTION, paymentReply.getAavAddressResultCode());
+        assertEquals(AAV_CARDHOLDER_NAME_RESULT_CODE_DESCRIPTION, paymentReply.getAavCardholderNameResultCode());
+        assertEquals(AAV_EMAIL_RESULT_CODE_DESCRIPTION, paymentReply.getAavEmailResultCode());
+        assertEquals(AAV_POSTCODE_RESULT_CODE_DESCRIPTION, paymentReply.getAavPostcodeResultCode());
+        assertEquals(AAV_TELEPHONE_RESULT_CODE_DESCRIPTION, paymentReply.getAavTelephoneResultCode());
+
+        assertEquals(BALANCE_AMOUNT_VALUE, paymentReply.getBalanceAmount().getValue());
+        assertEquals(BALANCE_AMOUNT_CURRENCY_CODE, paymentReply.getBalanceAmount().getCurrencyCode());
+        assertEquals(BALANCE_AMOUNT_EXPONENT, paymentReply.getBalanceAmount().getExponent());
+        assertEquals(BALANCE_AMOUNT_DEBIT_CREDIT_INDICATOR, paymentReply.getBalanceAmount().getDebitCreditIndicator().getCode());
+
+        assertEquals(AMOUNT_VALUE, paymentReply.getAmount().getValue());
+        assertEquals(AMOUNT_CURRENCY_CODE, paymentReply.getAmount().getCurrencyCode());
+        assertEquals(AMOUNT_EXPONENT, paymentReply.getAmount().getExponent());
+        assertEquals(AMOUNT_DEBIT_CREDIT_INDICATOR, paymentReply.getAmount().getDebitCreditIndicator().getCode());
+        assertEquals(AUTHORISATION_ID, paymentReply.getAuthorisationId());
+        assertEquals(AUTHORISATION_ID_BY, paymentReply.getAuthorisedBy());
+        assertEquals(REFUND_REFERENCE, paymentReply.getRefundReference());
+    }
+
     private Card createCard() {
         Card intCard = new Card();
         intCard.setType(PaymentType.VISA.getMethodCode());

@@ -23,5 +23,4 @@ public interface WorldpayPaymentCheckoutFacade {
      * @return the boolean
      */
     boolean hasBillingDetails();
-
 }

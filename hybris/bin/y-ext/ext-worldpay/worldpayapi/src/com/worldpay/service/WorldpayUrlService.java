@@ -81,4 +81,11 @@ public interface WorldpayUrlService {
      * @throws WorldpayConfigurationException
      */
     String getKlarnaConfirmationURL() throws WorldpayConfigurationException;
+
+    /**
+     * Get the website url without path for the current base site
+     *
+     * @return The base site url
+     */
+    String getWebsiteUrlForCurrentSite();
 }

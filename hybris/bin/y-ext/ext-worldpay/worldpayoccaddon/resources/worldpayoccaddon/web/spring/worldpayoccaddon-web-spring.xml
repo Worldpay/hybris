@@ -97,4 +97,5 @@
 		</property>
 	</bean>
 
+	<import resource="v2-web-spring-worldpayoccaddon.xml"/>
 </beans>

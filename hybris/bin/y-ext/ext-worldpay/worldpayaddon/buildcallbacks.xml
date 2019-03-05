@@ -75,34 +75,6 @@
 -->
 <project name="worldpayaddon_buildcallbacks">
 
-    <macrodef name="worldpayaddon_after_build">
-        <sequential>
-            <if>
-                <isset property="ext.cmscockpit.path"/>
-                <then>
-                    <echo level="info" message="worldpayaddon - Copying custom wizard to cmscockpit..."/>
-                    <copy todir="${ext.cmscockpit.path}/web/webroot/cmscockpit/images">
-                        <fileset dir="${ext.worldpayaddon.path}/resources/worldpayaddon/cmscockpit/images">
-                            <include name="**/**.*"/>
-                        </fileset>
-                    </copy>
-                </then>
-            </if>
-
-            <if>
-                <isset property="ext.btgcockpit.path"/>
-                <then>
-                    <echo level="info" message="worldpayaddon - Copying custom wizard to btgcockpit..."/>
-                    <copy todir="${ext.btgcockpit.path}/web/webroot/cmscockpit/images">
-                        <fileset dir="${ext.worldpayaddon.path}/resources/worldpayaddon/cmscockpit/images">
-                            <include name="**/**.*"/>
-                        </fileset>
-                    </copy>
-                </then>
-            </if>
-        </sequential>
-    </macrodef>
-
     <macrodef name="_after_yunitweb">
         <sequential>
             <if>

@@ -1,16 +1,11 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
-import com.worldpay.internal.model.Order;
-import com.worldpay.internal.model.OrderStatus;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.Reference;
-import com.worldpay.internal.model.Reply;
-import com.worldpay.internal.model.Submit;
+import com.worldpay.internal.model.*;
 import com.worldpay.worldpayresponsemock.constants.WorldpayresponsemockConstants;
 import com.worldpay.worldpayresponsemock.responses.WorldpayResponseBuilder;
-import org.joda.time.DateTime;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.OffsetDateTime;
 
 import static com.worldpay.worldpayresponsemock.constants.WorldpayresponsemockConstants.PROTOCOL_SEPARATOR;
 import static com.worldpay.worldpayresponsemock.constants.WorldpayresponsemockConstants.SCHEME_SEPARATOR;
@@ -26,16 +21,16 @@ public class DefaultWorldpayResponseBuilder implements WorldpayResponseBuilder {
      * {@inheritDoc}
      */
     @Override
-    public PaymentService buildRedirectResponse(PaymentService request, HttpServletRequest httpServletRequest) {
+    public PaymentService buildRedirectResponse(final PaymentService request, final HttpServletRequest httpServletRequest) {
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantCode());
-        Reply reply = new Reply();
-        OrderStatus orderStatus = new OrderStatus();
+        final Reply reply = new Reply();
+        final OrderStatus orderStatus = new OrderStatus();
         final Submit submit = (Submit) request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final Order order = (Order) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
         orderStatus.setOrderCode(order.getOrderCode());
-        Reference reference = new Reference();
-        reference.setId(DateTime.now().toString());
+        final Reference reference = new Reference();
+        reference.setId(OffsetDateTime.now().toString());
         reference.setvalue(buildStoreFrontHopResponseEndpoint(httpServletRequest));
         orderStatus.
                 getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().

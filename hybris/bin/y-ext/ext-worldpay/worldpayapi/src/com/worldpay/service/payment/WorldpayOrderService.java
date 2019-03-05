@@ -1,5 +1,6 @@
 package com.worldpay.service.payment;
 
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.*;
@@ -48,6 +49,7 @@ public interface WorldpayOrderService {
 
     /**
      * Converts Amount Object into a BigDecimal value taking into account the currency
+     *
      * @param amount
      * @return amount as a BigDecimal
      */
@@ -170,4 +172,12 @@ public interface WorldpayOrderService {
     UpdateTokenServiceRequest createUpdateTokenServiceRequest(final MerchantInfo merchantInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                               final TokenRequest tokenRequest, final String paymentTokenID,
                                                               final CardDetails cardDetails);
+
+    /**
+     * Creates an Payment of type ApplePay with the requested details
+     *
+     * @param worldpayAdditionalInfoApplePayData
+     * @return
+     */
+    Payment createApplePayPayment(ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData);
 }
