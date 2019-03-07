@@ -5,6 +5,7 @@ import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.catalog.model.CatalogVersionModel;
 import de.hybris.platform.cms2.model.contents.ContentCatalogModel;
 import de.hybris.platform.cms2.model.pages.AbstractPageModel;
+import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
 import de.hybris.platform.cms2.servicelayer.daos.CMSPageDao;
 import de.hybris.platform.cms2.servicelayer.services.CMSSiteService;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.worldpay.support.appender.impl.WorldpayConfiguredFlowsAppender.PAYMENT_AND_BILLING_LABEL;
@@ -72,8 +74,8 @@ public class WorldpayConfiguredFlowsAppenderTest {
         when(contentCatalogOnlineMock.getActiveCatalogVersion()).thenReturn(contentCatalogVersionMock);
         when(contentCatalogVersionMock.getCatalog().getName()).thenReturn(CATALOG_NAME);
 
-        final List<AbstractPageModel> allPaymentPages = asList(cmsPageDesktopMock, cmsPageMobileMock);
-        when(cmsPageDao.findAllPagesByLabel(PAYMENT_AND_BILLING_LABEL, singletonList(contentCatalogVersionMock))).thenReturn(allPaymentPages);
+        final Collection<ContentPageModel> allPaymentPages = asList(cmsPageDesktopMock, cmsPageMobileMock);
+        when(cmsPageDao.findPagesByLabel(PAYMENT_AND_BILLING_LABEL, singletonList(contentCatalogVersionMock))).thenReturn(allPaymentPages);
 
         when(cmsPageDesktopMock.getMasterTemplate().getUid()).thenReturn(ACTIVE_PAGE_TEMPLATE);
         when(cmsPageMobileMock.getMasterTemplate().getUid()).thenReturn(ACTIVE_PAGE_TEMPLATE);

@@ -7,6 +7,7 @@
         <requires-extension name="acceleratorservices"/>
         <requires-extension name="assistedserviceservices"/>
 
+        <requires-extension name="cms2"/>
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpayapiManager" packageroot="com.worldpay"/>
 
     </extension>
