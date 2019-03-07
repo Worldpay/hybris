@@ -25,6 +25,7 @@ import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
+import de.hybris.platform.commerceservices.enums.CountryType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -150,7 +151,8 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
         verify(siteConfigServiceMock).getBoolean("oms.enabled", false);
         verify(checkoutFlowFacadeMock).hasNoPaymentInfo();
-        verify(cartFacadeMock).getDeliveryCountries();
+        verify(acceleratorCheckoutFacadeMock).getCountries(CountryType.SHIPPING);
+        verify(acceleratorCheckoutFacadeMock).getCountries(CountryType.BILLING);
         verify(resourceBreadcrumbBuilderMock).getBreadcrumbs(CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB);
         verify(pageTitleResolver).resolveContentPageTitle(CMS_PAGE_TITLE);
         verify(modelMock).addAttribute(HOSTED_ORDER_PAGE_DATA, paymentDataMock);
@@ -170,7 +172,8 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
         verify(siteConfigServiceMock).getBoolean("oms.enabled", false);
         verify(checkoutFlowFacadeMock).hasNoPaymentInfo();
-        verify(cartFacadeMock).getDeliveryCountries();
+        verify(acceleratorCheckoutFacadeMock).getCountries(CountryType.SHIPPING);
+        verify(acceleratorCheckoutFacadeMock).getCountries(CountryType.BILLING);
         verify(worldpayPaymentCheckoutFacadeMock).hasBillingDetails();
         verify(resourceBreadcrumbBuilderMock).getBreadcrumbs(CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB);
         verify(pageTitleResolver).resolveContentPageTitle(CMS_PAGE_TITLE);

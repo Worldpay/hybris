@@ -7,7 +7,9 @@ def config = {
         property 'googleApiKey', ''
         property 'apiregistryservices.events.exporting', 'false'
         property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
+        property 'ansi.colors', 'true'
         property 'testclasses.addonname', 'yacceleratorstorefront'
+        property 'multicountrysampledataaddon.import.active', 'false'
     }
 
     extensions {
@@ -30,6 +32,7 @@ def config = {
         extName 'ycommercewebservicestest'
 
         extName 'electronicsstore'
+        extName 'apparelstore'
 
         extName 'captchaaddon'
         extName 'acceleratorwebservicesaddon'
@@ -40,6 +43,7 @@ def config = {
         extName 'couponbackoffice'
         extName 'droolsruleengineservices'
         extName 'couponfacades'
+        extName 'couponservices'
         extName 'promotionenginesamplesaddon'
 
         extName 'assistedservicestorefront'
@@ -73,25 +77,13 @@ def config = {
         extName 'stocknotificationaddon'
         extName 'configurablebundleaddon'
 
-
-        extName 'assistedserviceatddtests'
-        extName 'promotionengineatddtests'
-        extName 'textfieldconfiguratortemplateatddtests'
-        extName 'configurablebundleatddtests'
-
-        extName 'configurablebundlecockpits'
-
         extName 'pcmbackofficesamplesaddon'
 
-        extName 'b2cangularaddon'
-
-        extName 'xyformscockpits'
         extName 'xyformsbackoffice'
         extName 'xyformsstorefrontcommons'
         extName 'xyformssamples'
         extName 'xyformsweb'
         extName 'platformbackoffice'
-        extName 'xyformsatddtests'
         extName 'orbeonweb'
         extName 'consignmenttrackingoccaddon'
         extName 'customerinterestsoccaddon'
@@ -101,6 +93,8 @@ def config = {
         extName 'kymaintegrationbackoffice'
         extName 'kymaintegrationsampledata'
 
+        /* integration-apis */
+        extName 'outboundservices'
         extName 'odata2webservices'
         extName 'odata2webservicesfeaturetests'
         extName 'integrationbackoffice'
@@ -124,7 +118,7 @@ task setup {
         pl.setup()
         pl.project.addons {
             names "worldpayaddon,worldpaysampledataaddon,captchaaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,assistedservicestorefront,assistedservicecustomerinterestsaddon,assistedserviceyprofileaddon,assistedservicepromotionaddon,customerticketingaddon,textfieldconfiguratortemplateaddon,smarteditaddon,consignmenttrackingaddon,notificationaddon,customerinterestsaddon,stocknotificationaddon,orderselfserviceaddon,adaptivesearchsamplesaddon,configurablebundleaddon," +
-                    "pcmbackofficesamplesaddon,b2cangularaddon,xyformssamples,xyformsstorefrontcommons,profiletagaddon"
+                    "pcmbackofficesamplesaddon,xyformssamples,xyformsstorefrontcommons,profiletagaddon"
             template "yacceleratorstorefront"
             storeFronts "yacceleratorstorefront"
             platform pl

@@ -751,15 +751,6 @@
         <property name="value" ref="contentPageModelConverter"/>
     </bean>
 
-    <alias name="worldpaySupportedPagesSetFactoryBean" alias="cmsSupportedPages" />
-    <bean id="worldpaySupportedPagesSetFactoryBean" parent="defaultCmsSupportedPages">
-        <property name="sourceSet">
-            <set merge="true">
-                <value type="java.lang.Class">com.worldpay.model.WorldpayPaymentPageModel</value>
-            </set>
-        </property>
-    </bean>
-
     <alias name="defaultWorldpayDynamicInteractionResolverService" alias="worldpayDynamicInteractionResolverService"/>
     <bean id="defaultWorldpayDynamicInteractionResolverService" class="com.worldpay.service.interaction.impl.DefaultWorldpayDynamicInteractionResolverService">
         <property name="assistedServiceService" ref="assistedServiceService"/>

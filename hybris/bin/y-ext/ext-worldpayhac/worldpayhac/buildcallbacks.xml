@@ -18,22 +18,4 @@
         </sequential>
     </macrodef>
 
-    <!-- TODO Remove this after upgrading to hybris 1811 -->
-    <macrodef name="worldpayhac_after_build">
-        <sequential>
-            <property name="worldpayHacJspDirSource" value="${ext.worldpayhac.path}/hac/resources"/>
-            <property name="hacJspDirTarget" value="${ext.hac.path}/web/webroot/WEB-INF"/>
-
-            <echo level="info"
-                  message="# worldpayhac - Copying jsp manually (hybris bug ECP-3056) ${hacJspDirTarget}"/>
-
-            <copy todir="${hacJspDirTarget}" overwrite="true">
-                <fileset dir="${worldpayHacJspDirSource}">
-                    <include name="**/*"/>
-                </fileset>
-            </copy>
-
-        </sequential>
-    </macrodef>
-
 </project>
