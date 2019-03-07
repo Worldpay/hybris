@@ -1,6 +1,5 @@
-// Hybris b2c_acc_oms recipe extended with Worldpay addon
-
 apply plugin: 'installer-platform-plugin'
+apply plugin: 'installer-addon2-plugin'
 
 buildscript {
     repositories {
@@ -16,14 +15,12 @@ ext {
     workDir = "./work"
 }
 
-def config = {
+def platform = platform() {
     localProperties {
         '# place your custom properties into this file instead of modifying the project.properties'
         '# all properties in this file have higher priority and will overwrite the platform/project.properties settings.'
 
-        property 'googleApiKey', ''
-
-        property 'mykey', 'myvalue'
+        property '#mykey', '#myvalue'
         property '#hac.webroot', '/hac'
 
         '# using higher memory settings (4G heap and 512 permgen) to prevent out of memory issues on tcserver'
@@ -37,102 +34,111 @@ def config = {
         property 'website.apparel-de.https', 'https://apparel-de.local:9002/yacceleratorstorefront'
         property 'website.apparel-uk.http', 'http://apparel-uk.local:9001/yacceleratorstorefront'
         property 'website.apparel-uk.https', 'https://apparel-uk.local:9002/yacceleratorstorefront'
+        property 'apiregistryservices.events.exporting', 'false'
+        property 'ansi.colors', 'true'
         property 'testclasses.addonname', 'yacceleratorstorefront'
     }
 
     extensions {
         scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/y-ext/ext-worldpayoms'
+        extensionNames 'ordermanagementaddon',
+                'orderselfserviceaddon',
+                'ordermanagementwebservices',
 
-        extName 'ordermanagementaddon'
-        extName 'orderselfserviceaddon'
-        extName 'ordermanagementfacade'
-        extName 'ordermanagementwebservices'
+                'warehousing',
+                'warehousingbackoffice',
+                'warehousingwebservices',
 
-        extName 'warehousing'
-        extName 'warehousingbackoffice'
-        extName 'warehousingfacade'
-        extName 'warehousingwebservices'
+                'adaptivesearchsolr',
+                'adaptivesearchbackoffice',
+                'adaptivesearchsamplesaddon',
+                'commerceservicesbackoffice',
 
-        extName 'adaptivesearchsolr'
-        extName 'adaptivesearchbackoffice'
-        extName 'backoffice'
-        extName 'commercesearchbackoffice'
-        extName 'commerceservicesbackoffice'
-        extName 'solrserver'
-        extName 'yacceleratorinitialdata'
-        extName 'yacceleratorordermanagement'
-        extName 'yacceleratorstorefront'
-        extName 'ycommercewebservices'
+                'yacceleratorbackoffice',
+                'yacceleratorinitialdata',
+                'yacceleratorordermanagement',
+                'yacceleratorstorefront',
+                'yaddon',
+                'ycommercewebservices',
+                'cmsoccaddon',
 
-        extName 'electronicsstore'
-        extName 'apparelstore'
+                'apparelstore',
+                'electronicsstore',
+                'powertoolsstore',
+                'solrserver',
 
-        extName 'acceleratorwebservicesaddon'
+                'acceleratorwebservicesaddon',
+                'commerceorgaddon',
+                'commerceorgsamplesaddon',
 
-        extName 'customersupportbackoffice'
-        extName 'customerticketingaddon'
-        extName 'ticketsystembackoffice'
-        extName 'consignmenttrackingbackoffice'
+                'assistedservicestorefront',
+                'assistedservicewebservices',
+                'customerticketingaddon',
+                'customersupportbackoffice',
+                'ticketsystembackoffice',
+                'consignmenttrackingbackoffice',
 
-        extName 'rulebuilderbackoffice'
-        extName 'couponbackoffice'
-        extName 'droolsruleengineservices'
-        extName 'couponfacades'
-        extName 'promotionenginesamplesaddon'
-        extName 'consignmenttrackingaddon'
+                'rulebuilderbackoffice',
+                'couponbackoffice',
+                'droolsruleengineservices',
+                'couponfacades',
+                'promotionenginesamplesaddon',
+                'consignmenttrackingaddon',
 
-        extName 'cmswebservices'
-        extName 'smarteditwebservices'
-        extName 'cmssmarteditwebservices'
-        extName 'permissionswebservices'
-        extName 'smarteditaddon'
-        extName 'cmssmartedit'
+                'pcmbackofficesamplesaddon',
 
-        extName 'worldpayaddon'
-        extName 'worldpayaddonbackoffice'
-        extName 'worldpayapi'
-        extName 'worldpaynotifications'
-        extName 'worldpaysampledataaddon'
-        extName 'worldpayoccaddon'
-        extName 'worldpayhac'
+                'consignmenttrackingoccaddon',
+
+                'outboundservices',
+                'odata2webservices',
+                'odata2webservicesfeaturetests',
+
+                'kymaintegrationbackoffice',
+                'kymaintegrationsampledata',
+
+                'worldpayaddon',
+                'worldpayaddonbackoffice',
+                'worldpayapi',
+                'worldpaynotifications',
+                'worldpaysampledataaddon',
+                'worldpayoccaddon',
+                'worldpayhac'
     }
-}
 
-task setup {
-    doLast {
-        apply plugin: 'installer-platform-plugin'
-        apply plugin: 'installer-addon-plugin'
-
-        def pl = platform(config)
-        pl.setup()
-
-        pl.project.addons {
-            names "worldpayaddon,worldpaysampledataaddon,promotionenginesamplesaddon,customerticketingaddon,ordermanagementaddon,orderselfserviceaddon,consignmenttrackingaddon,smarteditaddon"
-            template "yacceleratorstorefront"
-            storeFronts "yacceleratorstorefront"
-            platform pl
+    addons {
+        forStoreFronts('yacceleratorstorefront') {
+            names 'worldpayaddon', 'worldpaysampledataaddon','commerceorgsamplesaddon', 'customerticketingaddon', 'promotionenginesamplesaddon', 'adaptivesearchsamplesaddon',
+                    'pcmbackofficesamplesaddon', 'ordermanagementaddon', 'orderselfserviceaddon', 'consignmenttrackingaddon', 'assistedservicestorefront'
+            template 'yacceleratorstorefront'
         }
 
-        pl.project.addons {
-            names "worldpayoccaddon,acceleratorwebservicesaddon"
-            template "ycommercewebservices"
-            storeFronts "ycommercewebservices"
-            platform pl
+        forStoreFronts('ycommercewebservices') {
+            names 'worldpayoccaddon', 'acceleratorwebservicesaddon', 'consignmenttrackingoccaddon', 'cmsoccaddon'
+            template 'ycommercewebservices'
         }
     }
 }
 
-task initialize {
+task setup() {
     doLast {
-        def thePlatform = platform(config)
-        thePlatform.build()
-        thePlatform.initialize()
+        platform.setup()
+    }
+}
+
+task buildSystem(dependsOn: setup) {
+    doLast {
+        platform.build()
+    }
+}
+
+task initialize(dependsOn: buildSystem) {
+    doLast {
+        platform.initialize()
     }
 }
 
 task start {
     doLast {
-        def thePlatform = platform(config)
-        thePlatform.start()
+        platform.start()
     }
 }

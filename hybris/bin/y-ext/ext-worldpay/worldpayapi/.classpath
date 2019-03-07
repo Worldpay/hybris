@@ -6,6 +6,7 @@
 	<classpathentry exported="true" kind="src" path="/acceleratorfacades" />
 	<classpathentry exported="true" kind="src" path="/acceleratorservices" />
 	<classpathentry exported="true" kind="src" path="/assistedserviceservices" />
+	<classpathentry exported="true" kind="src" path="/cms2" />
 	<classpathentry exported="true" kind="lib" path="lib/jjwt-0.9.1.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/retry4j-0.15.0.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-2.4.jar" />

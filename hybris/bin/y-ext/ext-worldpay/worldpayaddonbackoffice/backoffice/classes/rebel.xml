@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.zeroturnaround.com">
+  <classpath>
+    <dir name="/home/admin/Downloads/worldpayaddon-1811.1-20190307-1425-RELEASE_R1811_1.0-c1a8089b/hybris/bin/y-ext/ext-worldpay/worldpayaddonbackoffice/backoffice/classes" />
+  </classpath>
+</application>

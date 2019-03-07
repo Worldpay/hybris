@@ -3,17 +3,23 @@
 def config = {
     localProperties {
         property 'googleApiKey', ''
+        property 'ansi.colors', 'true'
         property 'testclasses.addonname', 'yacceleratorstorefront'
+        property 'multicountrysampledataaddon.import.active', 'false'
     }
 
     extensions {
 
         scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/y-ext/ext-worldpayfulfilment'
 
-        extName 'commercesearchbackoffice'
+        extName 'adaptivesearchsolr'
+        extName 'adaptivesearchbackoffice'
+        extName 'adaptivesearchsamplesaddon'
+        extName 'adaptivesearchwebservices'
         extName 'commerceservicesbackoffice'
         extName 'solrfacetsearchbackoffice'
         extName 'solrserver'
+        extName 'yacceleratorbackoffice'
         extName 'yacceleratorinitialdata'
         extName 'yacceleratorfulfilmentprocess'
         extName 'yacceleratorstorefront'
@@ -34,6 +40,7 @@ def config = {
         extName 'couponbackoffice'
         extName 'droolsruleengineservices'
         extName 'couponfacades'
+        extName 'couponservices'
         extName 'promotionenginesamplesaddon'
 
         extName 'cmswebservices'
@@ -42,26 +49,41 @@ def config = {
         extName 'permissionswebservices'
         extName 'smarteditaddon'
         extName 'cmssmartedit'
+        extName 'cmsbackoffice'
+        extName 'multicountrysampledataaddon'
+        extName 'cmsoccaddon'
 
         extName 'previewpersonalizationweb'
         extName 'personalizationcmsweb'
         extName 'personalizationsmartedit'
+        extName 'personalizationpromotionssmartedit'
         extName 'personalizationsampledataaddon'
-        extName 'personalizationyprofile'
+        extName 'personalizationpromotionssampledataaddon'
         extName 'personalizationpromotions'
         extName 'personalizationpromotionsweb'
         extName 'personalizationservicesbackoffice'
         extName 'personalizationpromotionsbackoffice'
         extName 'personalizationcmsbackoffice'
+        extName 'personalizationsearchbackoffice'
+        extName 'personalizationsearchsmartedit'
+        extName 'personalizationsearchweb'
+        extName 'personalizationsearchsamplesaddon'
 
         extName 'textfieldconfiguratortemplatebackoffice'
         extName 'textfieldconfiguratortemplateaddon'
-        extName 'textfieldconfiguratortemplateatddtests'
         extName 'assistedservicestorefront'
+        extName 'assistedservicewebservices'
+        extName 'assistedservicepromotionaddon'
 
-        extName 'assistedserviceatddtests'
-        extName 'promotionengineatddtests'
-        extName 'commercesearchatddtests'
+        extName 'pcmbackofficesamplesaddon'
+
+        /* integration-apis */
+        extName 'outboundservices'
+        extName 'odata2webservices'
+        extName 'odata2webservicesfeaturetests'
+
+        extName 'kymaintegrationbackoffice'
+        extName 'kymaintegrationsampledata'
 
         extName 'worldpayaddon'
         extName 'worldpayaddonbackoffice'
@@ -81,14 +103,14 @@ task setup {
         pl.setup()
 
         pl.project.addons {
-            names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon"
+            names "worldpayaddon,worldpaysampledataaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,smarteditaddon,textfieldconfiguratortemplateaddon,assistedservicestorefront,assistedservicepromotionaddon,customerticketingaddon,orderselfserviceaddon,adaptivesearchsamplesaddon,multicountrysampledataaddon,pcmbackofficesamplesaddon,personalizationsearchsamplesaddon"
             template "yacceleratorstorefront"
             storeFronts "yacceleratorstorefront"
             platform pl
         }
 
         pl.project.addons {
-            names "worldpayoccaddon,acceleratorwebservicesaddon"
+            names "worldpayoccaddon,acceleratorwebservicesaddon,cmsoccaddon"
             template "ycommercewebservices"
             storeFronts "ycommercewebservices"
             platform pl

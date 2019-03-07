@@ -5,16 +5,22 @@ def config = {
         property 'googleApiKey', ''
         property 'website.powertools.http', 'http://powertools.local:9001/yb2bacceleratorstorefront'
         property 'website.powertools.https', 'https://powertools.local:9002/yb2bacceleratorstorefront'
+        property 'apiregistryservices.events.exporting', 'false'
+        property 'ansi.colors', 'true'
         property 'testclasses.addonname', 'yb2bacceleratorstorefront'
     }
 
     extensions {
         scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/y-ext/ext-worldpayfulfilment'
 
-        extName 'commercesearchbackoffice'
+        extName 'adaptivesearchsolr'
+        extName 'adaptivesearchbackoffice'
+        extName 'adaptivesearchsamplesaddon'
+        extName 'adaptivesearchwebservices'
         extName 'b2bcommercebackoffice'
         extName 'solrfacetsearchbackoffice'
 
+        extName 'yacceleratorbackoffice'
         extName 'yacceleratorinitialdata'
         extName 'yacceleratorfulfilmentprocess'
         extName 'ycommercewebservices'
@@ -36,6 +42,7 @@ def config = {
         extName 'couponbackoffice'
         extName 'droolsruleengineservices'
         extName 'couponfacades'
+        extName 'couponservices'
         extName 'promotionenginesamplesaddon'
 
         extName 'textfieldconfiguratortemplatebackoffice'
@@ -47,22 +54,36 @@ def config = {
         extName 'permissionswebservices'
         extName 'smarteditaddon'
         extName 'cmssmartedit'
+        extName 'cmsbackoffice'
         extName 'assistedservicestorefront'
+        extName 'assistedservicewebservices'
+        extName 'cmsoccaddon'
 
         extName 'previewpersonalizationweb'
         extName 'personalizationcmsweb'
         extName 'personalizationsmartedit'
+        extName 'personalizationpromotionssmartedit'
         extName 'personalizationsampledataaddon'
+        extName 'personalizationpromotionssampledataaddon'
         extName 'personalizationpromotions'
         extName 'personalizationpromotionsweb'
         extName 'personalizationservicesbackoffice'
         extName 'personalizationpromotionsbackoffice'
         extName 'personalizationcmsbackoffice'
+        extName 'personalizationsearchbackoffice'
+        extName 'personalizationsearchsmartedit'
+        extName 'personalizationsearchweb'
+        extName 'personalizationsearchsamplesaddon'
 
-        extName 'assistedserviceatddtests'
-        extName 'promotionengineatddtests'
-        extName 'commercesearchatddtests'
-        extName 'textfieldconfiguratortemplateatddtests'
+        extName 'pcmbackofficesamplesaddon'
+
+        /* integration-apis */
+        extName 'outboundservices'
+        extName 'odata2webservices'
+        extName 'odata2webservicesfeaturetests'
+
+        extName 'kymaintegrationbackoffice'
+        extName 'kymaintegrationsampledata'
 
         extName 'worldpayaddonbackoffice'
         extName 'worldpayapi'
@@ -73,6 +94,18 @@ def config = {
     }
 }
 
+def addExtgen = {
+    println "Adding empty extgen.properties for yb2bacceleratorstorefront."
+    def customFolder = new File("${project.rootDir}/../hybris/bin/custom")
+    def targetFile = new File("${project.rootDir}/../hybris/bin/custom/yb2bacceleratorstorefront/extgen.properties")
+    if (customFolder.exists() && !targetFile.exists()) {
+        targetFile.write "# Empty extgen for compliance with ExtensionRequirementsTest"
+        println "Finished adding extgen.properties for yb2bacceleratorstorefront."
+    } else {
+        println "Unable to add extgen.properties for yb2bacceleratorstorefront."
+    }
+}
+
 task setup {
     doLast {
         apply plugin: 'installer-platform-plugin'
@@ -80,7 +113,7 @@ task setup {
         def pl = platform(config)
         pl.setup()
 
-        pl.executeAntTarget 'extgen -Dinput.template=yacceleratorstorefront -Dinput.name=yb2bacceleratorstorefront -Dinput.package=de.hybris.platform.yb2bacceleratorstorefront'
+        pl.executeAntTarget 'extgen -Dhybris.target=extgen -Dinput.template=yacceleratorstorefront -Dinput.name=yb2bacceleratorstorefront -Dinput.package=de.hybris.platform.yb2bacceleratorstorefront'
 
         pl.extensions {
             extName 'yb2bacceleratorstorefront'
@@ -88,18 +121,21 @@ task setup {
         pl.setup()
 
         pl.project.addons {
-            names "worldpayb2baddon,worldpaysampledataaddon,b2bacceleratoraddon,commerceorgaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,textfieldconfiguratortemplateaddon,smarteditaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon"
+            names "worldpayb2baddon,worldpaysampledataaddon,b2bacceleratoraddon,commerceorgaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,textfieldconfiguratortemplateaddon,smarteditaddon," +
+                    "assistedservicestorefront,customerticketingaddon,orderselfserviceaddon,adaptivesearchsamplesaddon,pcmbackofficesamplesaddon,personalizationsearchsamplesaddon"
             template "yacceleratorstorefront"
             storeFronts "yb2bacceleratorstorefront"
             platform pl
         }
 
         pl.project.addons {
-            names "acceleratorwebservicesaddon"
+            names "acceleratorwebservicesaddon,cmsoccaddon"
             template "ycommercewebservices"
             storeFronts "ycommercewebservices"
             platform pl
         }
+
+        addExtgen()
     }
 }
 
@@ -111,6 +147,7 @@ task initialize {
         pl.initialize()
     }
 }
+
 
 task start {
     doLast {

@@ -4,6 +4,7 @@ import com.worldpay.support.appender.WorldpaySupportEmailAppender;
 import de.hybris.platform.catalog.model.CatalogVersionModel;
 import de.hybris.platform.cms2.model.contents.ContentCatalogModel;
 import de.hybris.platform.cms2.model.pages.AbstractPageModel;
+import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
 import de.hybris.platform.cms2.servicelayer.daos.CMSPageDao;
 import de.hybris.platform.cms2.servicelayer.services.CMSSiteService;
@@ -41,7 +42,7 @@ public class WorldpayConfiguredFlowsAppender implements WorldpaySupportEmailAppe
             for (final CatalogVersionModel contentCatalogModel : contentCatalogModels) {
                 final String contentCatalogName = contentCatalogModel.getCatalog().getName();
                 stringBuilder.append(TWO_TABS).append(contentCatalogName).append(System.lineSeparator());
-                final Collection<AbstractPageModel> allPagesByLabel = cmsPageDao.findAllPagesByLabel(PAYMENT_AND_BILLING_LABEL, singletonList(contentCatalogModel));
+                final Collection<ContentPageModel> allPagesByLabel = cmsPageDao.findPagesByLabel(PAYMENT_AND_BILLING_LABEL, singletonList(contentCatalogModel));
                 for (final AbstractPageModel pageModel : allPagesByLabel) {
                     final String pageUid = pageModel.getUid();
                     stringBuilder.append(THREE_TABS).append("PageId: ").append(pageUid).append(System.lineSeparator());
