@@ -28,7 +28,7 @@ public class DefaultWorldpayResponseMockMerchantInfoServiceTest {
     private WorldpayMerchantConfigData worldpayMerchantConfigData;
 
     @Test
-    public void getAllMerchantCodes() throws Exception {
+    public void getAllMerchantCodes() {
         testObj.setConfiguredMerchants(singletonList(worldpayMerchantConfigData));
         when(worldpayMerchantConfigData.getCode()).thenReturn(MERCHANT_CODE);
 

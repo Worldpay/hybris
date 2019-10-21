@@ -279,14 +279,14 @@ public final class TokenBuilder {
 
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(cardDetails);
         token.setAuthenticatedShopperID(authenticatedShopperId);
         token.setTokenEventReference(tokenEventReference);
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(tokenReasonValue);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(tokenReason);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(tokenDetails);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(paymentInstrument);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenReason);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenDetails);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(paymentInstrument);
 
         return token;
     }

@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+       
+    <extension abstractclassprefix="Generated" classprefix="Worldpaynotifications" managername="WorldpaynotificationsManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpaynotifications" usemaven="false">
+              
+        <requires-extension name="payment"/>
+              
+        <requires-extension name="ticketsystem"/>
+              
+        <requires-extension name="worldpayapi"/>
+              
+        <coremodule generated="true" manager="com.worldpay.worldpaynotifications.jalo.WorldpaynotificationsManager" packageroot="com.worldpay.worldpaynotifications"/>
+              
+        <webmodule jspcompile="false" webroot="/worldpaynotifications"/>
+           
+    </extension>
+          
 
-   <extension abstractclassprefix="Generated" classprefix="Worldpaynotifications" managername="WorldpaynotificationsManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpaynotifications" usemaven="false">
-
-      <requires-extension name="payment"/>
-      <requires-extension name="ticketsystem"/>
-      <requires-extension name="worldpayapi"/>
-
-      <coremodule generated="true" manager="com.worldpay.worldpaynotifications.jalo.WorldpaynotificationsManager" packageroot="com.worldpay.worldpaynotifications"/>
-
-      <webmodule jspcompile="false" webroot="/worldpaynotifications"/>
-
-   </extension>
-      
 </extensioninfo>

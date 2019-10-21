@@ -22,23 +22,23 @@ public class AuthorisationCodeResponseTransformer extends AbstractServiceRespons
     public ServiceResponse transform(PaymentService reply) throws WorldpayModelTransformationException {
         AuthorisationCodeServiceResponse authorisationCodeResponse = new AuthorisationCodeServiceResponse();
 
-        Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         if (responseType == null) {
             throw new WorldpayModelTransformationException("No reply message in Worldpay response");
         }
         if (!(responseType instanceof Reply)) {
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
-        Reply intReply = (Reply) responseType;
+        final Reply intReply = (Reply) responseType;
         if (getServiceResponseTransformerHelper().checkForError(authorisationCodeResponse, intReply)) {
             return authorisationCodeResponse;
         }
 
-        Ok intOk = (Ok) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
+        final Ok intOk = (Ok) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
         if (intOk == null) {
             throw new WorldpayModelTransformationException("No ok status returned in Worldpay reply message");
         }
-        Object receivedType = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
+        final Object receivedType = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
         if (receivedType instanceof AuthorisationCodeReceived) {
             AuthorisationCodeReceived intAuthorisationCodeReceived = (AuthorisationCodeReceived) receivedType;
             authorisationCodeResponse.setOrderCode(intAuthorisationCodeReceived.getOrderCode());

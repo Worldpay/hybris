@@ -27,7 +27,7 @@
                         </div>
                     </div>
                     <div class="place-order-form hidden-xs">
-                        <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm">
+                        <form:form action="${placeOrderUrl}" id="placeOrderForm1" modelAttribute="placeOrderForm">
                             <wp-multi-checkout:securityCode/>
                             <wp-multi-checkout:termsAndConditions/>
                             <button id="placeOrder" type="submit" class="btn btn-primary btn-place-order btn-block worldpayPlaceOrderWithSecurityCode">

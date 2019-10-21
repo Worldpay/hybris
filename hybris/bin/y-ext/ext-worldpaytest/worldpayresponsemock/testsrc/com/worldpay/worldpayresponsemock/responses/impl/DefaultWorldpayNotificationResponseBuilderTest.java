@@ -269,7 +269,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
-        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError()) {
+        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError()) {
             if (tokenElement instanceof TokenDetails) {
                 TokenDetails tokenDetails = (TokenDetails) tokenElement;
                 assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
@@ -284,7 +284,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
                 final Derived derived = cardDetails.getDerived();

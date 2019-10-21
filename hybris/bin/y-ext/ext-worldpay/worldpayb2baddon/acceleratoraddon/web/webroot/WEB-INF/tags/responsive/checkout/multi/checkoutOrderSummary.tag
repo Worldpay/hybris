@@ -44,7 +44,7 @@
 </div>
 
 <div class="place-order-form visible-xs">
-    <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm">
+    <form:form action="${placeOrderUrl}" id="placeOrderForm1" modelAttribute="placeOrderForm">
         <wp-multi-checkout:securityCode/>
         <div class="checkbox">
             <label> <form:checkbox id="Terms1" path="termsCheck" />

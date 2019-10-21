@@ -35,7 +35,7 @@
                                 <div class="headline"><spring:theme code="checkout.multi.paymentMethod"/></div>
 
                                 <c:url value="/checkout/multi/worldpay/cse/place-order" var="addCseDataUrl"/>
-                                <form:form id="worldpayCsePaymentForm" commandName="csePaymentForm" method="post"
+                                <form:form id="worldpayCsePaymentForm" modelAttribute="csePaymentForm" method="post"
                                            action="${addCseDataUrl}" class="create_update_payment_form">
 
                                     <wp-multi-checkout:worldpayCSECardDetails/>

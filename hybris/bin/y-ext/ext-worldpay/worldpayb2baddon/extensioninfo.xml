@@ -12,18 +12,22 @@
 
   
 --><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
-
-	<extension abstractclassprefix="Generated" classprefix="Worldpayb2baddon" description="worldpayb2baddon extension" managername="Worldpayb2baddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayb2baddon">
-
-		<!-- you should add all required extensions to this list, except platform extensions which are automatically required -->         
-		<requires-extension name="addonsupport"/>
-		<requires-extension name="b2bacceleratoraddon"/>
-		<requires-extension name="worldpayaddoncommons"/>
-
-		<coremodule generated="true" manager="com.worldpay.jalo.Worldpayb2baddonManager" packageroot="com.worldpay"/>
-
+    	
+    <extension abstractclassprefix="Generated" classprefix="Worldpayb2baddon" description="worldpayb2baddon extension" managername="Worldpayb2baddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayb2baddon">
+        		
+        <!-- you should add all required extensions to this list, except platform extensions which are automatically required -->
+                 
 		
+        <requires-extension name="addonsupport"/>
+        		
+        <requires-extension name="b2bacceleratoraddon"/>
+        		
+        <requires-extension name="worldpayaddoncommons"/>
+        		
+        <coremodule generated="true" manager="com.worldpay.jalo.Worldpayb2baddonManager" packageroot="com.worldpay"/>
+        		
 
-	</extension>
-
+	
+    </extension>
+    
 </extensioninfo>

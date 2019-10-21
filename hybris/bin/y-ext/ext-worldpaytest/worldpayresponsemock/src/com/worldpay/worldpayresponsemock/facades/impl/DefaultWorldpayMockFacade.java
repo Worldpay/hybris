@@ -44,7 +44,7 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
     protected boolean requestContainsTokenCreate(final PaymentService paymentServiceRequest) {
         if (paymentServiceRequest.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) instanceof Submit) {
             Submit submit = (Submit) paymentServiceRequest.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-            final Object possibleTokenCreate = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+            final Object possibleTokenCreate = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
             return possibleTokenCreate instanceof PaymentTokenCreate;
         }
         return false;
@@ -54,9 +54,9 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
     private boolean requestContainsSubmitOrderWithPaymentMethodMask(PaymentService paymentServiceRequest) {
         if (paymentServiceRequest.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) instanceof Submit) {
             Submit submit = (Submit) paymentServiceRequest.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-            final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+            final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
             if (possibleOrder instanceof Order) {
-                final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrInfo3DSecureOrSession();
+                final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrInfo3DSecureOrSession();
                 return orderElements.stream().anyMatch(PaymentMethodMask.class::isInstance);
             }
         }
@@ -77,9 +77,9 @@ public class DefaultWorldpayMockFacade implements WorldpayMockFacade {
     private boolean requestContainsSubmitOrderWithPaymentDetails(PaymentService request) {
         if (request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) instanceof Submit) {
             Submit submit = (Submit) request.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-            final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+            final Object possibleOrder = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
             if (possibleOrder instanceof Order) {
-                final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrInfo3DSecureOrSession();
+                final List<Object> orderElements = ((Order) possibleOrder).getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrInfo3DSecureOrSession();
                 return orderElements.stream().anyMatch(PaymentDetails.class::isInstance);
             }
         }

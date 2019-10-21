@@ -1,9 +1,11 @@
 #Ant properties
-#Thu Mar 07 14:25:57 UTC 2019
-builddate=20190307 1425
-description=worldpayaddonbackoffice
-name=worldpayaddonbackoffice
-releasedate=20190116 1153
+#Mon Oct 21 15:48:08 UTC 2019
+version.api=1905
 vendor=hybris
-version=1811.1
-version.api=1811
+group.id=de.hybris.platform
+name=worldpayaddonbackoffice
+description=worldpayaddonbackoffice
+builddate=20191021 1547
+releasedate=20190917 1043
+version=1905.4
+module.name=platform-module
