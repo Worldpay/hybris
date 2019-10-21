@@ -62,7 +62,7 @@ public class TokenTest {
         assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
         assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(tokenElements.get(1)).isInstanceOf(PaymentInstrument.class);
-        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
+        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertEquals(MERCHANT, result.getTokenScope());
     }
 
@@ -80,7 +80,7 @@ public class TokenTest {
         assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
         assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(tokenElements.get(1)).isInstanceOf(PaymentInstrument.class);
-        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
+        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertEquals(SHOPPER, result.getTokenScope());
     }
 }

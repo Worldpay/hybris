@@ -17,7 +17,7 @@ public class CreateTokenResponseTransformer extends AbstractServiceResponseTrans
     public ServiceResponse transform(final PaymentService paymentService) throws WorldpayModelTransformationException {
         final CreateTokenResponse createTokenResponse = new CreateTokenResponse();
 
-        Object responseType = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object responseType = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         if (responseType == null) {
             throw new WorldpayModelTransformationException("No reply message in Worldpay create token response");
         }

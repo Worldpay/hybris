@@ -37,7 +37,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             return true;
         } else if (replyType instanceof OrderStatus) {
             final OrderStatus ordStatus = (OrderStatus) replyType;
-            final Object statusType = ordStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
+            final Object statusType = ordStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse().get(0);
             if (statusType instanceof com.worldpay.internal.model.Error) {
                 final com.worldpay.internal.model.Error intError = (com.worldpay.internal.model.Error) statusType;
                 final ErrorDetail errorDtl = buildErrorDetail(intError);
@@ -151,7 +151,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         tokenReply.setAuthenticatedShopperID(intToken.getAuthenticatedShopperID());
         tokenReply.setTokenEventReference(intToken.getTokenEventReference());
 
-        final List<Object> tokenInformationFields = intToken.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenInformationFields = intToken.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
         for (final Object tokenInformationField : tokenInformationFields) {
             if (tokenInformationField instanceof TokenReason) {
                 tokenReply.setTokenReason(((TokenReason) tokenInformationField).getvalue());
@@ -159,7 +159,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 final com.worldpay.service.model.token.TokenDetails tokenDetails = transformTokenDetails((TokenDetails) tokenInformationField);
                 tokenReply.setTokenDetails(tokenDetails);
             } else if (tokenInformationField instanceof PaymentInstrument) {
-                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0);
+                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0);
                 if (paymentInstrument instanceof CardDetails) {
                     final com.worldpay.service.model.payment.Card card = transformCard((CardDetails) paymentInstrument);
                     tokenReply.setPaymentInstrument(card);

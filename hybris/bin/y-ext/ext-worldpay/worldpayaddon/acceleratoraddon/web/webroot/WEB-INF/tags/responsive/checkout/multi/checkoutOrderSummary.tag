@@ -42,7 +42,7 @@
 </div>
 
 <div class="visible-xs clearfix">
-    <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm" class="place-order-form col-xs-12">
+    <form:form action="${placeOrderUrl}" id="placeOrderForm1" modelAttribute="placeOrderForm" class="place-order-form col-xs-12">
         <wp-multi-checkout:securityCode/>
         <wp-multi-checkout:termsAndConditions/>
 

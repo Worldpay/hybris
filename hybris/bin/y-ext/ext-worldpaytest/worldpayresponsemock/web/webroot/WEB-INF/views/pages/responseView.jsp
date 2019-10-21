@@ -138,7 +138,7 @@
     </style>
 </head>
 <body>
-<form:form action="sendSelectedResponse" commandName="responseForm" method="POST">
+<form:form action="sendSelectedResponse" modelAttribute="responseForm" method="POST">
     <h3>Worldpay Response Mock - Developer's only</h3>
     <fieldset>
         <legend>General</legend>

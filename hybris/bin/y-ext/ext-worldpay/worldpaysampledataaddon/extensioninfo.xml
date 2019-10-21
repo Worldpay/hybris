@@ -10,13 +10,19 @@
  Information and shall use it only in accordance with the terms of the
  license agreement you entered into with hybris.
 --><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
-
+        
     <extension abstractclassprefix="Generated" classprefix="Worldpaysampledataaddon" description="worldpaysampledataaddon extension" managername="WorldpaysampledataaddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpaysampledataaddon">
+                
         <!-- Needed to ensure loading of accelerator data before adding sample data -->
+                
         <requires-extension name="worldpayapi"/>
+                
         <!-- Needed to ensure loading of component restrictions date before adding APM components -->
+                
         <requires-extension name="assistedservicestorefront"/>
+                
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpaysampledataaddonManager" packageroot="com.worldpay"/>
+            
     </extension>
-
+    
 </extensioninfo>

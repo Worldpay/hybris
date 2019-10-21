@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="place-order-form hidden-xs">
-                        <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm">
+                        <form:form action="${placeOrderUrl}" id="placeOrderForm1" modelAttribute="placeOrderForm">
                             <wp-b2b-multi-checkout:securityCode/>
                             <wp-b2b-multi-checkout:termsAndConditions/>
                             <button id="placeOrder" type="submit" class="btn btn-primary btn-block btn-place-order btn-block btn-lg checkoutSummaryButton" disabled="disabled">

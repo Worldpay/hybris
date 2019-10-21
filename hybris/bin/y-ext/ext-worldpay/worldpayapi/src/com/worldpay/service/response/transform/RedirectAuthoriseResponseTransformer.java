@@ -1,14 +1,12 @@
 package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.OrderStatus;
-import com.worldpay.internal.model.PaymentService;
-import com.worldpay.internal.model.Reference;
-import com.worldpay.internal.model.Reply;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
+
+import java.util.List;
 
 /**
  * Specific class for transforming a {@link PaymentService} into a {@link RedirectAuthoriseServiceResponse} object
@@ -42,19 +40,23 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
         }
         authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
-        if (intOrderStatus.getToken() != null) {
-            final TokenReply token = getServiceResponseTransformerHelper().buildTokenReply(intOrderStatus.getToken());
-            authResponse.setToken(token);
-        }
+        final List<Object> intOrderData = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
 
-        final Object orderStatusType = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
-        if (orderStatusType instanceof Reference) {
-            Reference intReference = (Reference) orderStatusType;
+        intOrderData.stream()
+                .filter(Token.class::isInstance)
+                .map(Token.class::cast)
+                .findAny()
+                .map(getServiceResponseTransformerHelper()::buildTokenReply)
+                .ifPresent(authResponse::setToken);
 
-            authResponse.setRedirectReference(new RedirectReference(intReference.getId(), intReference.getvalue()));
-        } else {
-            throw new WorldpayModelTransformationException("Order status type returned in Worldpay reply message is not one of the expected types for redirect authorise");
-        }
+        final Reference reference = intOrderData.stream()
+                .filter(Reference.class::isInstance)
+                .map(Reference.class::cast)
+                .findAny()
+                .orElseThrow(() -> new WorldpayModelTransformationException("Order status type returned in Worldpay reply message is not one of the expected types for redirect authorise"));
+
+        final RedirectReference redirectReference = new RedirectReference(reference.getId(), reference.getvalue());
+        authResponse.setRedirectReference(redirectReference);
 
         return authResponse;
     }

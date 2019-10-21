@@ -37,7 +37,7 @@
                                     </c:if>
 
                                     <c:url value="/checkout/multi/worldpay/redirect/add-payment-details" var="addPaymentAddressUrl"/>
-                                    <form:form id="worldpayBillingAddressForm" commandName="paymentDetailsForm" method="post"
+                                    <form:form id="worldpayBillingAddressForm" modelAttribute="paymentDetailsForm" method="post"
                                                action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
                                         <wp-multi-checkout:paymentButtons cse="false"/>

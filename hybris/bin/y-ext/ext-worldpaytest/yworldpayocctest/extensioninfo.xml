@@ -12,12 +12,15 @@
 
 
 --><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
-
-	<extension abstractclassprefix="Generated" classprefix="Yworldpayocctest" managername="YworldpayocctestManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="yworldpayocctest" usemaven="false">
-
-		<coremodule generated="true" manager="com.worldpay.jalo.YworldpayocctestManager" packageroot="com.worldpay"/>
-		<meta key="extgen-template-extension" value="true"/>
-		<meta key="modulegen-name" value="commercewebservices"/>
-	</extension>
-
+    	
+    <extension abstractclassprefix="Generated" classprefix="Yworldpayocctest" managername="YworldpayocctestManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="yworldpayocctest" usemaven="false">
+        		
+        <coremodule generated="true" manager="com.worldpay.jalo.YworldpayocctestManager" packageroot="com.worldpay"/>
+        		
+        <meta key="extgen-template-extension" value="true"/>
+        		
+        <meta key="modulegen-name" value="commercewebservices"/>
+        	
+    </extension>
+    
 </extensioninfo>

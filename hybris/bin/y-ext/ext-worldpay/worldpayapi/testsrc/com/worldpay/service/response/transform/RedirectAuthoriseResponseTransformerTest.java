@@ -1,8 +1,8 @@
 package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
@@ -48,7 +48,6 @@ public class RedirectAuthoriseResponseTransformerTest {
 
     @Test
     public void transformShouldReturnARedirectAuthoriseServiceResponse() throws Exception {
-
         final PaymentService paymentServiceReply = new PaymentService();
 
         final List<Object> responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
@@ -58,14 +57,18 @@ public class RedirectAuthoriseResponseTransformerTest {
         final List<Object> statusElements = paymentReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
         final OrderStatus intOrderStatus = new OrderStatus();
         intOrderStatus.setOrderCode(ORDER_CODE);
-        final Token token = new Token();
-        token.setTokenEventReference(TOKEN_REFERENCE);
-        intOrderStatus.setToken(token);
-        final List<Object> referenceElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+
+        final List<Object> referenceElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
+
         final Reference reference = new Reference();
         reference.setId(REFERENCE_ID);
         reference.setvalue(REFERENCE_VALUE);
         referenceElements.add(reference);
+
+        final Token token = new Token();
+        token.setTokenEventReference(TOKEN_REFERENCE);
+        referenceElements.add(token);
+
         statusElements.add(intOrderStatus);
 
         when(serviceResponseTransformerHelperMock.buildTokenReply(token)).thenReturn(tokenReplyMock);
@@ -88,7 +91,6 @@ public class RedirectAuthoriseResponseTransformerTest {
 
         testObj.transform(paymentServiceReply);
     }
-
 
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenResponseTypeIsNotReply() throws WorldpayModelTransformationException {
@@ -134,7 +136,6 @@ public class RedirectAuthoriseResponseTransformerTest {
         testObj.transform(paymentServiceReply);
     }
 
-
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenOrderStatusTypeIsNotReference() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
@@ -144,7 +145,7 @@ public class RedirectAuthoriseResponseTransformerTest {
         final Reply reply = new Reply();
         final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
-        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
         orderStatusElements.add(new BankAccount());
         replyElements.add(orderStatus);
         responseType.add(reply);
