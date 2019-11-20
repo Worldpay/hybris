@@ -1,3 +1,11 @@
+# Worldpay Connector for the SAP Commerce Cloud
+The Worldpay Connector for SAP Commerce Cloud is a seamless extension to the Commerce storefront, enabling retailers to implement their global payment strategy through a single integration in a secure, compliant and unified approach. The extensive WorldPay extension enables retailers to gain access to: Global and regional payment methods, a variety of integration options, customisable hosted payment pages, 3D Secure and market leading fraud screening (RiskGuardian™).
+
+The Connector is SAP Premium Certified.
+
+About Worldpay: 
+Worldpay (formerly RBS WorldPay) is a payment processing company. The company provides payment services for mail order and Internet retailers, as well as point of sale transactions. Customers are a mix of multinational, multichannel retailers, with the majority being small business merchants. It also provides loans to small businesse
+
 # Installation and Usage
 
 ## Installing the Plugin into hybris with fulfilment functionality
