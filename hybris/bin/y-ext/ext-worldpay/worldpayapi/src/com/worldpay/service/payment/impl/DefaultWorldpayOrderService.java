@@ -10,12 +10,15 @@ import com.worldpay.service.model.applepay.Header;
 import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
+import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.CreateTokenServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
+import com.worldpay.threedsecureflexenums.ChallengePreferenceEnum;
+import com.worldpay.threedsecureflexenums.ChallengeWindowSizeEnum;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.Optional;
 
 import static com.worldpay.service.model.payment.PaymentType.IDEAL;
 
@@ -36,6 +40,14 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
     private CommonI18NService commonI18NService;
     private WorldpayUrlService worldpayUrlService;
     private SiteConfigService siteConfigService;
+
+    private static TokenRequest createMerchantTokenRequest(final String tokenEventReference, final String tokenReason) {
+        return new TokenRequest(tokenEventReference, tokenReason, true);
+    }
+
+    private static TokenRequest createShopperTokenRequest(final String tokenEventReference, final String tokenReason) {
+        return new TokenRequest(tokenEventReference, tokenReason, false);
+    }
 
     /**
      * {@inheritDoc}
@@ -138,14 +150,6 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
         return createShopperTokenRequest(tokenEventReference, tokenReason);
     }
 
-    private TokenRequest createMerchantTokenRequest(final String tokenEventReference, final String tokenReason) {
-        return new TokenRequest(tokenEventReference, tokenReason, true);
-    }
-
-    private TokenRequest createShopperTokenRequest(final String tokenEventReference, final String tokenReason) {
-        return new TokenRequest(tokenEventReference, tokenReason, false);
-    }
-
     @Override
     public CreateTokenServiceRequest createTokenServiceRequest(final MerchantInfo merchantInfo, final String authenticatedShopperId,
                                                                final Payment csePayment, final TokenRequest tokenRequest) {
@@ -175,10 +179,7 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
 
     @Override
     public Token createToken(final String subscriptionId, final String securityCode) {
-        if (isMerchantTokenEnabled()) {
-            return PaymentBuilder.createToken(subscriptionId, securityCode, true);
-        }
-        return PaymentBuilder.createToken(subscriptionId, securityCode, false);
+        return PaymentBuilder.createToken(subscriptionId, securityCode, isMerchantTokenEnabled());
     }
 
     @Override
@@ -197,14 +198,33 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
         return new ApplePay(header, worldpayAdditionalInfoApplePayData.getSignature(), worldpayAdditionalInfoApplePayData.getVersion(), worldpayAdditionalInfoApplePayData.getData(), null);
     }
 
+    @Override
+    public Additional3DSData createAdditional3DSData(final WorldpayAdditionalInfoData worldpayAdditionalInfoData) {
+        return Optional.ofNullable(worldpayAdditionalInfoData.getAdditional3DS2()).map(additional3DS2Info -> {
+            Additional3DSData additional3DSData = new Additional3DSData();
+            additional3DSData.setDfReferenceId(additional3DS2Info.getDfReferenceId());
+
+            final ChallengeWindowSizeEnum challengeWindowSizeEnum = ChallengeWindowSizeEnum.getEnum(additional3DS2Info.getChallengeWindowSize());
+            additional3DSData.setChallengeWindowSize(challengeWindowSizeEnum);
+
+            if (additional3DS2Info.getChallengePreference() != null) {
+                final ChallengePreferenceEnum challengePreferenceEnum = ChallengePreferenceEnum.getEnum(additional3DS2Info.getChallengePreference());
+                additional3DSData.setChallengePreference(challengePreferenceEnum);
+            }
+
+            return additional3DSData;
+
+        }).orElse(null);
+    }
+
 
     @Required
-    public void setCommonI18NService(CommonI18NService commonI18NService) {
+    public void setCommonI18NService(final CommonI18NService commonI18NService) {
         this.commonI18NService = commonI18NService;
     }
 
     @Required
-    public void setWorldpayUrlService(WorldpayUrlService worldpayUrlService) {
+    public void setWorldpayUrlService(final WorldpayUrlService worldpayUrlService) {
         this.worldpayUrlService = worldpayUrlService;
     }
 

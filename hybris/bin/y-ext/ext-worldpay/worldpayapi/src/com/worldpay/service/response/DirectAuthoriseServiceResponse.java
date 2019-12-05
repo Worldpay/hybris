@@ -1,11 +1,17 @@
 package com.worldpay.service.response;
 
+import com.worldpay.enums.order.ThreeDSecureFlowEnum;
+import com.worldpay.enums.order.ThreeDSecureVersionEnum;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.RedirectReference;
 import com.worldpay.service.model.Request3DInfo;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 /**
  * This class represents the details that are passed back from a call to {@link WorldpayServiceGateway#directAuthorise(DirectAuthoriseServiceRequest) directAuthorise()} in the
@@ -16,6 +22,9 @@ import com.worldpay.service.request.DirectAuthoriseServiceRequest;
  */
 public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
 
+    private static final String V1 = "1";
+    private static final String V2 = "2";
+    private static final Logger LOG = LoggerFactory.getLogger(DirectAuthoriseServiceResponse.class);
     private Request3DInfo request3DInfo;
     private PaymentReply paymentReply;
     private RedirectReference redirectReference;
@@ -27,15 +36,52 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
      *
      * @return
      */
-    public boolean is3DSecured() {
-        return request3DInfo != null;
+    public Optional<ThreeDSecureVersionEnum> get3DSecureVersion() {
+        if (getRequest3DInfo() != null) {
+            if (V1.equals(getRequest3DInfo().getMajor3DSVersion())) {
+                return Optional.of(ThreeDSecureVersionEnum.V1);
+            }
+            if (V2.equals(getRequest3DInfo().getMajor3DSVersion())) {
+                return Optional.of(ThreeDSecureVersionEnum.V2);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * @return
+     */
+    public Optional<ThreeDSecureFlowEnum> get3DSecureFlow() {
+        final Request3DInfo request = getRequest3DInfo();
+        if (request != null) {
+            if (isLegacyThreeDSecureFlow(request)) {
+                return Optional.of(ThreeDSecureFlowEnum.LEGACY_FLOW);
+            } else if (isThreeDSecureFlexFlow(request)) {
+                return Optional.of(ThreeDSecureFlowEnum.THREEDSFLEX_FLOW);
+            } else {
+                LOG.warn("{} is incomplete", request);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static boolean isLegacyThreeDSecureFlow(final Request3DInfo request) {
+        return request.getIssuerUrl() != null && request.getPaRequest() != null;
+    }
+
+    private static boolean isThreeDSecureFlexFlow(final Request3DInfo request) {
+        return request.getIssuerUrl() != null &&
+                request.getMajor3DSVersion() != null &&
+                request.getTransactionId3DS() != null &&
+                request.getIssuerPayload() != null;
     }
 
     public Request3DInfo getRequest3DInfo() {
         return request3DInfo;
     }
 
-    public void setRequest3DInfo(Request3DInfo request3DInfo) {
+    public void setRequest3DInfo(final Request3DInfo request3DInfo) {
         this.request3DInfo = request3DInfo;
     }
 
@@ -43,7 +89,7 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
         return paymentReply;
     }
 
-    public void setPaymentReply(PaymentReply paymentReply) {
+    public void setPaymentReply(final PaymentReply paymentReply) {
         this.paymentReply = paymentReply;
     }
 
@@ -51,7 +97,7 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
         return redirectReference;
     }
 
-    public void setRedirectReference(RedirectReference redirectReference) {
+    public void setRedirectReference(final RedirectReference redirectReference) {
         this.redirectReference = redirectReference;
     }
 
@@ -59,7 +105,7 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
         return echoData;
     }
 
-    public void setEchoData(String echoData) {
+    public void setEchoData(final String echoData) {
         this.echoData = echoData;
     }
 

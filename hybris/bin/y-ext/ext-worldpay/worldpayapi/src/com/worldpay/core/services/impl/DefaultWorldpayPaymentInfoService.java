@@ -54,6 +54,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayPaymentInfoService.class);
     private static final String WORLDPAY_CREDIT_CARD_MAPPINGS = "worldpay.creditCard.mappings.";
+    private static final String CART_MODEL_CANNOT_BE_NULL = "CartModel cannot be null";
 
     private ModelService modelService;
     private EnumerationService enumerationService;
@@ -123,7 +124,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      */
     @Override
     public PaymentInfoModel createPaymentInfo(final CartModel cartModel) {
-        validateParameterNotNull(cartModel, "CartModel cannot be null");
+        validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         final PaymentInfoModel paymentInfoModel = modelService.create(PaymentInfoModel.class);
         paymentInfoModel.setUser(cartModel.getUser());
         paymentInfoModel.setSaved(false);
@@ -136,7 +137,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      */
     @Override
     public PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo) {
-        validateParameterNotNull(cartModel, "CartModel cannot be null");
+        validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         validateParameterNotNull(googleAuthInfo, "GooglePayAdditionalAuthInfo cannot be null");
         final GooglePayPaymentInfoModel paymentInfoModel = modelService.create(GooglePayPaymentInfoModel.class);
         paymentInfoModel.setUser(cartModel.getUser());
@@ -155,7 +156,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      */
     @Override
     public PaymentInfoModel createPaymentInfoApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) {
-        validateParameterNotNull(cartModel, "CartModel cannot be null");
+        validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         validateParameterNotNull(applePayAdditionalAuthInfo, "ApplePayAdditionalAuthInfo cannot be null");
         final ApplePayPaymentInfoModel paymentInfoModel = modelService.create(ApplePayPaymentInfoModel.class);
         paymentInfoModel.setUser(cartModel.getUser());
@@ -176,7 +177,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      */
     @Override
     public CreditCardPaymentInfoModel createCreditCardPaymentInfo(final CartModel cartModel, final CreateTokenResponse createTokenResponse, final boolean saveCard, final String merchantId) {
-        validateParameterNotNull(cartModel, "CartModel cannot be null");
+        validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         validateParameterNotNull(createTokenResponse, "Token response cannot be null");
 
         final TokenReply tokenReply = createTokenResponse.getToken();

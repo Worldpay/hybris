@@ -1,17 +1,10 @@
 package com.worldpay.service.payment.request;
 
-import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.request.CreateTokenServiceRequest;
-import com.worldpay.service.request.DeleteTokenServiceRequest;
-import com.worldpay.service.request.DirectAuthoriseServiceRequest;
-import com.worldpay.service.request.UpdateTokenServiceRequest;
+import com.worldpay.service.request.*;
 import com.worldpay.service.response.CreateTokenResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
@@ -56,20 +49,6 @@ public interface WorldpayRequestFactory {
      * @return Built {@link DeleteTokenServiceRequest}
      */
     DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel);
-
-    /**
-     * Builds an authorise request to send to Worldpay
-     * Deprecated in favour of WorldpayRequestFactory.buildDirectAuthoriseRequestWithTokenForCSE
-     *
-     * @param merchantInfo               the merchantInfo
-     * @param cartModel                  the session cart
-     * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
-     * @return Built {@link DirectAuthoriseServiceRequest}
-     * @throws WorldpayConfigurationException
-     */
-    @Deprecated
-    DirectAuthoriseServiceRequest buildDirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
-            throws WorldpayConfigurationException;
 
     /**
      * Builds an authorise request to send to Worldpay
@@ -147,10 +126,22 @@ public interface WorldpayRequestFactory {
 
     /**
      * Builds a direct authorise request using ApplePay
+     *
      * @param merchantInfoMock
      * @param cartModelMock
      * @param applePayAdditionalInfo
      * @return
      */
     DirectAuthoriseServiceRequest buildApplePayDirectAuthorisationRequest(MerchantInfo merchantInfoMock, CartModel cartModelMock, ApplePayAdditionalAuthInfo applePayAdditionalInfo);
+
+    /**
+     * Builds the second 3D secure payment request to send to Worldpay
+     *
+     * @param merchantInfo               the merchantInfo
+     * @param worldpayOrderCode          the current checkout order code
+     * @param sessionId                  the session id
+     * @param cookie                     the cookie
+     * @return Built {@link SecondThreeDSecurePaymentRequest}
+     */
+    SecondThreeDSecurePaymentRequest buildSecondThreeDSecurePaymentRequest(MerchantInfo merchantInfo, String worldpayOrderCode, String sessionId, String cookie);
 }

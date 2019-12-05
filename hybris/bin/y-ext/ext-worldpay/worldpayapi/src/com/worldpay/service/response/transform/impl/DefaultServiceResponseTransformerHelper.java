@@ -2,7 +2,11 @@ package com.worldpay.service.response.transform.impl;
 
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.internal.model.*;
+import com.worldpay.internal.model.Balance;
 import com.worldpay.internal.model.Error;
+import com.worldpay.internal.model.OrderStatus;
+import com.worldpay.internal.model.Payment;
+import com.worldpay.internal.model.ThreeDSecureResult;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.Address;
 import com.worldpay.service.model.Amount;
@@ -62,21 +66,68 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     @Override
     public PaymentReply buildPaymentReply(final Payment intPayment) {
         final PaymentReply paymentReply = new PaymentReply();
-        paymentReply.setMethodCode(intPayment.getPaymentMethod());
-        final PaymentMethodDetail paymentMethodDetail = intPayment.getPaymentMethodDetail();
-        if (paymentMethodDetail != null) {
-            paymentReply.setCardDetails(transformCard(paymentMethodDetail.getCard(), intPayment.getCardHolderName()));
-        }
 
-        final com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
-        final Amount amount = transformAmount(intAmount);
-        paymentReply.setAmount(amount);
+        paymentReply.setMethodCode(intPayment.getPaymentMethod());
         paymentReply.setAuthStatus(AuthorisedStatus.valueOf(intPayment.getLastEvent()));
+
+        setPaymentMethodDetail(intPayment, paymentReply);
+        setAmount(intPayment, paymentReply);
+        setCvcResult(intPayment, paymentReply);
+        setBalanceList(intPayment, paymentReply);
+        setReturnCode(intPayment, paymentReply);
+        setRiskScore(intPayment, paymentReply);
+        setAAVCodes(intPayment, paymentReply);
+        setRefundReference(intPayment, paymentReply);
+        setAuthorisationId(intPayment, paymentReply);
+        setThreeDSecureResult(intPayment, paymentReply);
+
+        return paymentReply;
+    }
+
+    private void setRefundReference(final Payment intPayment, final PaymentReply paymentReply) {
+        paymentReply.setRefundReference(intPayment.getRefundReference());
+    }
+
+    private void setRiskScore(final Payment intPayment, final PaymentReply paymentReply) {
+        Optional.ofNullable(intPayment.getRiskScore()).map(this::buildRiskScore).ifPresent(paymentReply::setRiskScore);
+    }
+
+    private void setCvcResult(final Payment intPayment, final PaymentReply paymentReply) {
         final CVCResultCode intCvcResultCode = intPayment.getCVCResultCode();
         if (intCvcResultCode != null) {
             final String cvcResultDescription = intCvcResultCode.getDescription().get(0);
             paymentReply.setCvcResultDescription(cvcResultDescription);
         }
+    }
+
+    private void setThreeDSecureResult(final Payment intPayment, final PaymentReply paymentReply) {
+        final ThreeDSecureResult threeDSecureResult = intPayment.getThreeDSecureResult();
+        if (threeDSecureResult != null) {
+            final String threeDSecureResultDescription = threeDSecureResult.getDescription().get(0);
+            paymentReply.setThreeDSecureResultDescription(threeDSecureResultDescription);
+        }
+    }
+
+    private void setAmount(final Payment intPayment, final PaymentReply paymentReply) {
+        final com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
+        final Amount amount = transformAmount(intAmount);
+        paymentReply.setAmount(amount);
+    }
+
+    private void setPaymentMethodDetail(final Payment intPayment, final PaymentReply paymentReply) {
+        final PaymentMethodDetail paymentMethodDetail = intPayment.getPaymentMethodDetail();
+        if (paymentMethodDetail != null) {
+            paymentReply.setCardDetails(transformCard(paymentMethodDetail.getCard(), intPayment.getCardHolderName()));
+        }
+    }
+
+    private void setReturnCode(final Payment intPayment, final PaymentReply paymentReply) {
+        if (intPayment.getISO8583ReturnCode() != null) {
+            paymentReply.setReturnCode(intPayment.getISO8583ReturnCode().getCode());
+        }
+    }
+
+    private void setBalanceList(final Payment intPayment, final PaymentReply paymentReply) {
         final List<Balance> balanceList = intPayment.getBalance();
         if (balanceList != null && !balanceList.isEmpty()) {
             final Balance balance = balanceList.get(0);
@@ -85,17 +136,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             final Amount balAmount = transformAmount(intBalAmount);
             paymentReply.setBalanceAmount(balAmount);
         }
+    }
 
-        if (intPayment.getISO8583ReturnCode() != null) {
-            paymentReply.setReturnCode(intPayment.getISO8583ReturnCode().getCode());
-        }
-
-        Optional.ofNullable(intPayment.getRiskScore()).map(this::buildRiskScore).ifPresent(paymentReply::setRiskScore);
-
-        setAAVCodes(intPayment, paymentReply);
-
-        paymentReply.setRefundReference(intPayment.getRefundReference());
-
+    private void setAuthorisationId(final Payment intPayment, final PaymentReply paymentReply) {
         final AuthorisationId authorisationId = intPayment.getAuthorisationId();
         if (authorisationId != null) {
             paymentReply.setAuthorisationId(authorisationId.getId());
@@ -104,8 +147,6 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 paymentReply.setAuthorisedBy(authorisedBy);
             }
         }
-
-        return paymentReply;
     }
 
     private RiskScore buildRiskScore(final com.worldpay.internal.model.RiskScore intRiskScore) {

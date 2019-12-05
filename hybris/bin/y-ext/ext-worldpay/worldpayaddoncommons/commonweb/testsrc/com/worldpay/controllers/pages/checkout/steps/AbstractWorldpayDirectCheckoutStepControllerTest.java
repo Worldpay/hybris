@@ -1,10 +1,10 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.facades.WorldpayDirectResponseFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
-import com.worldpay.service.WorldpayUrlService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.commercefacades.order.data.CartData;
@@ -18,7 +18,9 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
-import static com.worldpay.payment.TransactionStatus.*;
+import javax.servlet.http.HttpServletResponse;
+
+import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -26,16 +28,16 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractWorldpayDirectCheckoutStepControllerTest {
 
-    private static final String SECURE_TERM_URL = "termUrl";
     private static final String ORDER_CODE = "orderCode";
     private static final String RETURN_CODE = "A12";
     private static final String LOCALISED_DECLINE_MESSAGE = "localisedDeclineMessage";
     private static final String ERROR_VIEW = "error";
     private static final String AUTOSUBMIT_3DSECURE = "AutoSubmit3DSecure";
-    private static final String TERM_URL_PARAM_NAME = "termURL";
+    private static final String AUTOSUBMIT_3DSECURE_FLEX = "AutoSubmit3dSecureFlex";
+    private static final String MERCHANT_DATA_VALUE = "merchantDataValue";
     @Spy
     @InjectMocks
-    private AbstractWorldpayDirectCheckoutStepController testObj = new TestAbstractWorldpayDirectCheckoutStepController();
+    private final AbstractWorldpayDirectCheckoutStepController testObj = new TestAbstractWorldpayDirectCheckoutStepController();
     @Mock
     private DirectResponseData directResponseDataMock;
     @Mock
@@ -43,13 +45,15 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
     @Mock
     private OrderData orderDataMock;
     @Mock
-    private WorldpayUrlService worldpayUrlServiceMock;
-    @Mock
     private CartData cartDataMock;
     @Mock
     private WorldpayCheckoutFacadeDecorator checkoutFacadeMock;
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    @Mock
+    private WorldpayDirectResponseFacade worldpayDirectResponseFacade;
+    @Mock
+    private HttpServletResponse responseMock;
 
     @Before
     public void setUp() {
@@ -58,43 +62,60 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
         when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
         when(directResponseDataMock.getReturnCode()).thenReturn(RETURN_CODE);
         when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
+        when(cartDataMock.getWorldpayOrderCode()).thenReturn(MERCHANT_DATA_VALUE);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(worldpayAddonEndpointService.getAutoSubmit3DSecure()).thenReturn(AUTOSUBMIT_3DSECURE);
+        when(worldpayAddonEndpointService.getAutoSubmit3DSecureFlex()).thenReturn(AUTOSUBMIT_3DSECURE_FLEX);
     }
 
     @Test
-    public void shouldRedirectTo3dSecureIfAuthenticationRequired() throws CMSItemNotFoundException, WorldpayConfigurationException {
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHENTICATION_REQUIRED);
+    public void shouldRedirectTo3DSecureIfAuthenticationRequiredForLegacyFlow() throws CMSItemNotFoundException, WorldpayConfigurationException {
+        when(worldpayDirectResponseFacade.is3DSecureLegacyFlow(directResponseDataMock)).thenReturn(true);
 
-        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock);
+        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock, responseMock);
 
         assertEquals(AUTOSUBMIT_3DSECURE, result);
     }
 
     @Test
-    public void shouldAdd3DSecureTermUrlToModelIfPaymentRequiresAuth() throws CMSItemNotFoundException, WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getFullThreeDSecureTermURL()).thenReturn(SECURE_TERM_URL);
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHENTICATION_REQUIRED);
+    public void shouldRedirectTo3DSecureIfAuthenticationRequiredFor3DSecureFlexFlow() throws CMSItemNotFoundException, WorldpayConfigurationException {
+        when(worldpayDirectResponseFacade.is3DSecureFlexFlow(directResponseDataMock)).thenReturn(true);
 
-        testObj.handleDirectResponse(modelMock, directResponseDataMock);
+        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock, responseMock);
 
-        verify(modelMock).addAttribute(TERM_URL_PARAM_NAME, SECURE_TERM_URL);
+        assertEquals(AUTOSUBMIT_3DSECURE_FLEX, result);
+    }
+
+    @Test
+    public void shouldRetrieveAllAttributesForModelIfPaymentRequires3dSecureLegacyFlowAuthentication() throws CMSItemNotFoundException, WorldpayConfigurationException {
+        when(worldpayDirectResponseFacade.is3DSecureLegacyFlow(directResponseDataMock)).thenReturn(true);
+
+        testObj.handleDirectResponse(modelMock, directResponseDataMock, responseMock);
+
+        verify(worldpayDirectResponseFacade).retrieveAttributesForLegacy3dSecure(directResponseDataMock);
+    }
+
+    @Test
+    public void shouldRetrieveAllAttributesForModelIfPaymentRequires3dSecureFlexFlowAuthentication() throws CMSItemNotFoundException, WorldpayConfigurationException {
+        when(worldpayDirectResponseFacade.is3DSecureFlexFlow(directResponseDataMock)).thenReturn(true);
+
+        testObj.handleDirectResponse(modelMock, directResponseDataMock, responseMock);
+
+        verify(worldpayDirectResponseFacade).retrieveAttributesForFlex3dSecure(directResponseDataMock);
     }
 
     @Test
     public void shouldReturnErrorPageWhenCancelled() throws CMSItemNotFoundException, WorldpayConfigurationException {
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(CANCELLED);
+        when(worldpayDirectResponseFacade.isCancelled(directResponseDataMock)).thenReturn(true);
 
-        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock);
+        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock, responseMock);
 
         assertEquals(ERROR_VIEW, result);
     }
 
     @Test
     public void shouldRedirectToErrorIfResponseIsNotAuthorisedOrAuthRequired() throws CMSItemNotFoundException, WorldpayConfigurationException {
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(ERROR);
-
-        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock);
+        final String result = testObj.handleDirectResponse(modelMock, directResponseDataMock, responseMock);
 
         assertEquals(ERROR_VIEW, result);
     }

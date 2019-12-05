@@ -1,10 +1,6 @@
 package com.worldpay.service.payment;
 
-import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.MerchantInfo;
@@ -54,7 +50,7 @@ public interface WorldpayDirectOrderService {
      * @param merchantInfo
      * @param cartModel
      * @param applePayAdditionalAuthInfo
-     * @return
+     * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
     DirectAuthoriseServiceResponse authoriseApplePay(MerchantInfo merchantInfo, CartModel cartModel, ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) throws WorldpayException;
 
@@ -149,4 +145,14 @@ public interface WorldpayDirectOrderService {
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
     DirectAuthoriseServiceResponse authoriseGooglePay(final MerchantInfo merchantInfo, final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException;
+
+    /**
+     * The request is then sent to Worldpay for second time authorization for 3D secure.
+     *
+     * @param merchantInfo                       Merchant configuration.
+     * @param worldpayOrderCode                  used in the current checkout.
+     * @param sessionId                          the session id that come from the request.
+     * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
+     */
+    DirectAuthoriseServiceResponse authorise3DSecureAgain(MerchantInfo merchantInfo, String worldpayOrderCode, String sessionId) throws WorldpayException;
 }

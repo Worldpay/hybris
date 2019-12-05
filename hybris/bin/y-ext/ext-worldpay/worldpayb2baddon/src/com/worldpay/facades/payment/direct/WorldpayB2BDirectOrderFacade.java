@@ -32,4 +32,5 @@ public interface WorldpayB2BDirectOrderFacade extends WorldpayDirectOrderFacade 
     DirectResponseData authoriseRecurringPayment(final String orderCode,
                                                  final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
 
+
 }

@@ -8,6 +8,7 @@ import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
+import com.worldpay.forms.B2BCSEPaymentForm;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
@@ -91,7 +92,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private Model modelMock;
     @Mock
-    private CSEPaymentForm csePaymentFormMock;
+    private B2BCSEPaymentForm b2bCSEPaymentFormMock;
     @Mock
     private BindingResult bindingResultMock;
     @Mock
@@ -177,7 +178,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldRedirectToSummaryIfNoException() throws CMSItemNotFoundException {
         // When no errors are thrown
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
 
         assertEquals(REDIRECT_TO_SUMMARY_PAGE, result);
     }
@@ -186,7 +187,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldRedirectToErrorIfExceptionThrownByFacade() throws CMSItemNotFoundException, WorldpayException {
         doThrow(new WorldpayException("errorMessage")).when(worldpayDirectOrderFacadeMock).tokenize(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
 
         assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
     }
@@ -195,18 +196,18 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldDisplayCsePaymentPageIfErrorTokenizing() throws CMSItemNotFoundException, WorldpayException {
         doThrow(new WorldpayException("errorMessage")).when(worldpayDirectOrderFacadeMock).tokenize(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
 
-        testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
 
-        verify(modelMock).addAttribute(eq(CSE_PAYMENT_FORM), any(CSEPaymentForm.class));
+        verify(modelMock).addAttribute(eq(B2B_CSE_PAYMENT_FORM), any(CSEPaymentForm.class));
     }
 
     @Test
     public void shouldValidateCseFormAndRedirectToCseForm() throws CMSItemNotFoundException {
         doReturn(true).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
 
-        verify(cseFormValidatorMock).validate(csePaymentFormMock, bindingResultMock);
+        verify(cseFormValidatorMock).validate(b2bCSEPaymentFormMock, bindingResultMock);
         assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
     }
 

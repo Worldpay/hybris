@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  */
 public abstract class AbstractPayment implements Payment, Serializable {
 
-    private PaymentType paymentType;
+    protected PaymentType paymentType;
 
     @Override
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
