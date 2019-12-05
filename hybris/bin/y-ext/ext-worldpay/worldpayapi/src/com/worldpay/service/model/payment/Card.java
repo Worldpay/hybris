@@ -40,7 +40,7 @@ public class Card extends AbstractPayment {
      */
     public Card(final PaymentType paymentType, final String cardNumber, final String cvc, final Date expiryDate, final String cardHolderName, final Address cardAddress,
                 final Date birthDate, final Date startDate, final String issueNumber) {
-        this.setPaymentType(paymentType);
+        this.paymentType = paymentType;
         this.cardNumber = cardNumber;
         this.cvc = cvc;
         this.expiryDate = expiryDate;

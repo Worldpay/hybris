@@ -5,6 +5,7 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
+import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
@@ -180,4 +181,13 @@ public interface WorldpayOrderService {
      * @return
      */
     Payment createApplePayPayment(ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData);
+
+
+    /**
+     * Creates a additional 3DS Data element to be used in request
+     *
+     * @param worldpayAdditionalInfoData The additional info to build the object
+     * @return Additional3DSData object
+     */
+    Additional3DSData createAdditional3DSData(WorldpayAdditionalInfoData worldpayAdditionalInfoData);
 }

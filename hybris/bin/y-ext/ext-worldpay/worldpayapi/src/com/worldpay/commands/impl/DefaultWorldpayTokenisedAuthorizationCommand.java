@@ -6,7 +6,9 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
+import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.Token;
+import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.util.WorldpayUtil;
@@ -36,8 +38,7 @@ import static java.text.MessageFormat.format;
 public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayCommand implements SubscriptionAuthorizationCommand {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayTokenisedAuthorizationCommand.class);
-
-    protected static final String UNKNOWN_MERCHANT_CODE = "unknownMerchantCode";
+    private static final String UNKNOWN_MERCHANT_CODE = "unknownMerchantCode";
 
     private Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter;
     private Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter;
@@ -114,22 +115,31 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
         final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(worldpayOrderCode, worldpayOrderCode, amount);
         final Session session = getWorldpayOrderService().createSession(additionalInfo);
         final Browser browser = getWorldpayOrderService().createBrowser(additionalInfo);
+        final Additional3DSData additional3DSData = new Additional3DSData(additionalInfo.getAdditional3DS2().getDfReferenceId());
         final String customerEmail = additionalInfo.getCustomerEmail();
         final String authenticatedShopperId = additionalInfo.getAuthenticatedShopperId();
         final Shopper shopper = getWorldpayOrderService().createAuthenticatedShopper(customerEmail, authenticatedShopperId, session, browser);
         final Token token = getWorldpayOrderService().createToken(subscriptionAuthorizationRequest.getSubscriptionID(), additionalInfo.getSecurityCode());
         final Address shippingAddress = worldpayBillingInfoAddressConverter.convert(subscriptionAuthorizationRequest.getShippingInfo());
         final DynamicInteractionType dynamicInteractionType = worldpayDynamicInteractionResolverService.resolveInteractionTypeForDirectIntegration(additionalInfo);
-        return createTokenisedDirectAuthoriseRequest(merchantInfo, orderInfo, shopper, token, shippingAddress, dynamicInteractionType);
+
+        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(orderInfo)
+                .withPayment(token)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(null)
+                .withStatementNarrative(null)
+                .withDynamicInteractionType(dynamicInteractionType)
+                .withAdditional3DSData(additional3DSData)
+                .build();
+
+        return createTokenisedDirectAuthoriseRequest(requestParameters);
     }
 
-    protected DirectAuthoriseServiceRequest createTokenisedDirectAuthoriseRequest(final MerchantInfo merchantInfo,
-                                                                                  final BasicOrderInfo orderInfo,
-                                                                                  final Shopper shopper,
-                                                                                  final Token token,
-                                                                                  final Address shippingAddress,
-                                                                                  final DynamicInteractionType dynamicInteractionType) {
-        return DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(merchantInfo, orderInfo, token, shopper, shippingAddress, null, dynamicInteractionType);
+    protected DirectAuthoriseServiceRequest createTokenisedDirectAuthoriseRequest(final AuthoriseRequestParameters requestParameters) {
+        return DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters);
     }
 
     protected MerchantInfo getMerchant() {

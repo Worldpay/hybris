@@ -26,11 +26,21 @@ public class WPSGTestHelper {
     private static final Shopper SHOPPER = new Shopper(SHOPPER_EMAIL, null, BROWSER, SESSION);
     private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
 
-    public static DirectAuthoriseServiceResponse directAuthorise(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo, String orderCode) throws WorldpayException {
+    public static DirectAuthoriseServiceResponse directAuthorise(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo, final String orderCode) throws WorldpayException {
         final BasicOrderInfo orderInfo = new BasicOrderInfo(orderCode, "Your Order & Order desc", new Amount("100", "EUR", "2"));
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", ADDRESS);
-        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, orderInfo, payment,
-                SHOPPER, SESSION, ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
+
+        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(orderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER)
+                .withShippingAddress(ADDRESS)
+                .withBillingAddress(BILLING_ADDRESS)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+
+        final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
         return gateway.directAuthorise(request);
     }
 
@@ -66,7 +76,7 @@ public class WPSGTestHelper {
         return gateway.deleteToken(request);
     }
 
-    public static CaptureServiceResponse capture(WorldpayServiceGateway gateway, MerchantInfo merchantInfo, String orderCode) throws WorldpayException {
+    public static CaptureServiceResponse capture(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo, final String orderCode) throws WorldpayException {
         final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(merchantInfo, orderCode, new Amount("100", "EUR", "2"), null);
 
         return gateway.capture(request);

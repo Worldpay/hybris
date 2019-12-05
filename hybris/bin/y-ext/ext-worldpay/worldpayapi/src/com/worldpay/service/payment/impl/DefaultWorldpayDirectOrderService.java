@@ -1,23 +1,14 @@
 package com.worldpay.service.payment.impl;
 
-import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
+import com.worldpay.service.payment.WorldpaySessionService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
-import com.worldpay.service.request.CreateTokenServiceRequest;
-import com.worldpay.service.request.DeleteTokenServiceRequest;
-import com.worldpay.service.request.DirectAuthoriseServiceRequest;
-import com.worldpay.service.request.UpdateTokenServiceRequest;
-import com.worldpay.service.response.CreateTokenResponse;
-import com.worldpay.service.response.DeleteTokenResponse;
-import com.worldpay.service.response.DirectAuthoriseServiceResponse;
-import com.worldpay.service.response.UpdateTokenResponse;
+import com.worldpay.service.request.*;
+import com.worldpay.service.response.*;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
@@ -25,7 +16,6 @@ import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.session.SessionService;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
@@ -37,12 +27,12 @@ import static com.worldpay.enums.token.TokenEvent.CONFLICT;
  * Default implementation of {@link WorldpayDirectOrderService}
  */
 public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderService implements WorldpayDirectOrderService {
-
-    private static final String THREE_D_SECURE_ECHO_DATA_PARAM = "3DSecureEchoData";
-    private static final String THREE_D_SECURE_COOKIE_PARAM = "3DSecureCookie";
-
-    private SessionService sessionService;
     private WorldpayRequestFactory worldpayRequestFactory;
+    private WorldpaySessionService worldpaySessionService;
+
+    protected static boolean createTokenRepliesWithConflict(final CreateTokenResponse createTokenResponse) {
+        return CONFLICT.name().equals(createTokenResponse.getToken().getTokenDetails().getTokenEvent());
+    }
 
     /**
      * {@inheritDoc}
@@ -52,17 +42,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRequestWithTokenForCSE(merchantInfo, cartModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
-        if (response.is3DSecured()) {
-          /*
-          In case the transaction requires 3d secure, two strings need to be placed in the users session: echoData and a cookie.
-          These are needed to successfully reference the initial transaction in Worldpay when the user comes back from the 3d secure page.
-          Example values:
-              echoData=148556494881709
-              cookie=machine=0ab20014;path=/
-           */
-            sessionService.setAttribute(THREE_D_SECURE_COOKIE_PARAM, response.getCookie());
-            sessionService.setAttribute(THREE_D_SECURE_ECHO_DATA_PARAM, response.getEchoData());
-        }
+        worldpaySessionService.setSessionAttributesFor3DSecure(response, worldpayAdditionalInfoData);
+
         return response;
     }
 
@@ -74,10 +55,9 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
                                                                     final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRecurringPayment(merchantInfo, abstractOrderModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
-        if (response.is3DSecured()) {
-            sessionService.setAttribute(THREE_D_SECURE_COOKIE_PARAM, response.getCookie());
-            sessionService.setAttribute(THREE_D_SECURE_ECHO_DATA_PARAM, response.getEchoData());
-        }
+
+        worldpaySessionService.setSessionAttributesFor3DSecure(response, worldpayAdditionalInfoData);
+
         return response;
     }
 
@@ -120,6 +100,17 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     public DirectAuthoriseServiceResponse authoriseGooglePay(final MerchantInfo merchantInfo, final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException {
         final DirectAuthoriseServiceRequest directAuthoriseGooglePayRequest = worldpayRequestFactory.buildDirectAuthoriseGooglePayRequest(merchantInfo, cartModel, googlePayAdditionalAuthInfo);
         return getWorldpayServiceGateway().directAuthorise(directAuthoriseGooglePayRequest);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public DirectAuthoriseServiceResponse authorise3DSecureAgain(final MerchantInfo merchantInfo, final String worldpayOrderCode, final String sessionId) throws WorldpayException {
+        final String cookie = worldpaySessionService.getAndRemoveThreeDSecureCookie();
+        final SecondThreeDSecurePaymentRequest request = worldpayRequestFactory.buildSecondThreeDSecurePaymentRequest(merchantInfo, worldpayOrderCode, sessionId, cookie);
+        return getWorldpayServiceGateway().sendSecondThreeDSecurePayment(request);
     }
 
     /**
@@ -184,10 +175,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         }
     }
 
-    protected boolean createTokenRepliesWithConflict(final CreateTokenResponse createTokenResponse) {
-        return CONFLICT.name().equals(createTokenResponse.getToken().getTokenDetails().getTokenEvent());
-    }
-
     /**
      * {@inheritDoc}DefaultWorldpayOrderService.java
      */
@@ -196,7 +183,7 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
                                                             final String worldpayOrderCode,
                                                             final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                             final String paResponse) throws WorldpayException {
-        final String cookie = getAndRemoveSessionAttribute(THREE_D_SECURE_COOKIE_PARAM);
+        final String cookie = worldpaySessionService.getAndRemoveThreeDSecureCookie();
 
         final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = worldpayRequestFactory.build3dDirectAuthoriseRequest(
                 merchantInfo, worldpayOrderCode, worldpayAdditionalInfoData, paResponse, cookie);
@@ -264,19 +251,13 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         completeAuthorise(serviceResponse, abstractOrderModel, merchantInfo.getMerchantCode());
     }
 
-    private String getAndRemoveSessionAttribute(final String param) {
-        final String attribute = sessionService.getAttribute(param);
-        sessionService.removeAttribute(param);
-        return attribute;
-    }
-
-    @Required
-    public void setSessionService(final SessionService sessionService) {
-        this.sessionService = sessionService;
-    }
-
     @Required
     public void setWorldpayRequestFactory(final WorldpayRequestFactory worldpayRequestFactory) {
         this.worldpayRequestFactory = worldpayRequestFactory;
+    }
+
+    @Required
+    public void setWorldpaySessionService(final WorldpaySessionService worldpaySessionService) {
+        this.worldpaySessionService = worldpaySessionService;
     }
 }

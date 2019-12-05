@@ -1,11 +1,8 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
-import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.*;
+import com.worldpay.enums.order.ThreeDSecureFlowEnum;
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
@@ -13,6 +10,7 @@ import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.payment.WorldpayOrderService;
+import com.worldpay.service.payment.WorldpaySessionService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
 import com.worldpay.service.request.CreateTokenServiceRequest;
 import com.worldpay.service.request.DeleteTokenServiceRequest;
@@ -22,6 +20,7 @@ import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
+import com.worldpay.threedsecureflexenums.ChallengeWindowSizeEnum;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
@@ -29,7 +28,6 @@ import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParamete
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
-import de.hybris.platform.order.CartService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.session.SessionService;
@@ -64,8 +62,10 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private static final String BANK_CODE = "bankCode";
     private static final String ECHO_DATA = "echoData";
     private static final String COOKIE = "cookie";
+    private static final String WINDOW_SIZE = ChallengeWindowSizeEnum.R_250_400.toString();
     private static final String THREE_D_SECURE_ECHO_DATA_PARAM = "3DSecureEchoData";
     private static final String THREE_D_SECURE_COOKIE_PARAM = "3DSecureCookie";
+    private static final String THREE_D_SECURE_WINDOW_SIZE = "challengeWindowSize";
 
     @Spy
     @InjectMocks
@@ -73,8 +73,6 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
-    @Mock
-    private CartService cartServiceMock;
     @Mock
     private CommerceCheckoutService commerceCheckoutServiceMock;
     @Mock
@@ -85,7 +83,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private CartModel cartModelMock;
     @Mock
     private CSEAdditionalAuthInfo cseAdditionalAuthInfoMock;
-    @Mock
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
     @Mock
     private GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfoMock;
@@ -93,7 +91,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private Session sessionMock;
     @Mock
     private Browser browserMock;
-    @Mock
+    @Spy
     private DirectAuthoriseServiceResponse directAuthoriseServiceResponseMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private DirectAuthoriseServiceRequest directAuthoriseServiceRequestMock, directAuthoriseForRedirectServiceRequestMock, directAuthoriseForApplePayServiceRequestMock;
@@ -145,6 +143,8 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private AddressService addressServiceMock;
     @Captor
     private ArgumentCaptor<CommerceCheckoutParameter> commerceCheckoutParameterArgumentCaptor;
+    @Mock
+    private WorldpaySessionService worldpaySessionServiceMock;
 
     @Before
     public void setUp() throws WorldpayException {
@@ -168,6 +168,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(worldpayRequestFactoryMock.buildTokenRequest(merchantInfoMock, cartModelMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock)).thenReturn(createTokenServiceRequestMock);
         when(directAuthoriseServiceResponseMock.getCookie()).thenReturn(COOKIE);
         when(directAuthoriseServiceResponseMock.getEchoData()).thenReturn(ECHO_DATA);
+        when(worldpayAdditionalInfoDataMock.getAdditional3DS2().getChallengeWindowSize()).thenReturn(WINDOW_SIZE);
         when(createTokenResponseMock.getToken().getPaymentInstrument().getPaymentType()).thenReturn(PaymentType.VISA);
     }
 
@@ -179,6 +180,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
         verify(sessionServiceMock, never()).setAttribute(eq(THREE_D_SECURE_COOKIE_PARAM), anyString());
         verify(sessionServiceMock, never()).setAttribute(eq(THREE_D_SECURE_ECHO_DATA_PARAM), anyString());
+        verify(sessionServiceMock, never()).setAttribute(eq(THREE_D_SECURE_WINDOW_SIZE), anyString());
     }
 
     @Test
@@ -195,14 +197,23 @@ public class DefaultWorldpayDirectOrderServiceTest {
     }
 
     @Test
-    public void shouldStoreCookieAndEchoDataInSession() throws WorldpayException {
+    public void shouldStoreCookieAndEchoDataInSessionWhenThreeDSecureFlowIsLegacy() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectAuthoriseRequestWithTokenForCSE(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceRequestMock);
-        when(directAuthoriseServiceResponseMock.is3DSecured()).thenReturn(true);
+        when(directAuthoriseServiceResponseMock.get3DSecureFlow()).thenReturn(Optional.of(ThreeDSecureFlowEnum.LEGACY_FLOW));
 
         testObj.authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 
-        verify(sessionServiceMock).setAttribute(THREE_D_SECURE_COOKIE_PARAM, COOKIE);
-        verify(sessionServiceMock).setAttribute(THREE_D_SECURE_ECHO_DATA_PARAM, ECHO_DATA);
+        verify(worldpaySessionServiceMock).setSessionAttributesFor3DSecure(directAuthoriseServiceResponseMock, worldpayAdditionalInfoDataMock);
+    }
+
+    @Test
+    public void shouldStoreCookieAndEchoDataInSessionWhenThreeDSecureFlowIsThreeDS2() throws WorldpayException {
+        when(worldpayRequestFactoryMock.buildDirectAuthoriseRequestWithTokenForCSE(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceRequestMock);
+        when(directAuthoriseServiceResponseMock.get3DSecureFlow()).thenReturn(Optional.of(ThreeDSecureFlowEnum.THREEDSFLEX_FLOW));
+
+        testObj.authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
+
+        verify(worldpaySessionServiceMock).setSessionAttributesFor3DSecure(directAuthoriseServiceResponseMock, worldpayAdditionalInfoDataMock);
     }
 
     @Test
@@ -217,14 +228,13 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
     @Test
     public void shouldRecoverEchoDataAndCookieFromSessionAndAddTo3dRequest() throws WorldpayException {
+        when(worldpaySessionServiceMock.getAndRemoveThreeDSecureCookie()).thenReturn(COOKIE);
         when(worldpayRequestFactoryMock.build3dDirectAuthoriseRequest(merchantInfoMock, ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE, COOKIE)).thenReturn(directAuthoriseServiceRequestMock);
-        when(sessionServiceMock.getAttribute(THREE_D_SECURE_COOKIE_PARAM)).thenReturn(COOKIE);
-        when(sessionServiceMock.getAttribute(THREE_D_SECURE_ECHO_DATA_PARAM)).thenReturn(ECHO_DATA);
 
         testObj.authorise3DSecure(merchantInfoMock, ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE);
 
-        verify(sessionServiceMock).removeAttribute(THREE_D_SECURE_COOKIE_PARAM);
         verify(worldpayServiceGatewayMock).directAuthorise(directAuthoriseServiceRequestMock);
+        verify(worldpaySessionServiceMock).getAndRemoveThreeDSecureCookie();
     }
 
     @Test
@@ -365,18 +375,18 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
         verify(sessionServiceMock, never()).setAttribute(eq(THREE_D_SECURE_COOKIE_PARAM), anyString());
         verify(sessionServiceMock, never()).setAttribute(eq(THREE_D_SECURE_ECHO_DATA_PARAM), anyString());
+        verify(sessionServiceMock, never()).setAttribute(eq(THREE_D_SECURE_WINDOW_SIZE), anyString());
         assertEquals(directAuthoriseServiceResponseMock, result);
     }
 
     @Test
     public void shouldAddSessionAttributesWhenResponseContainsRequest3DInfoOnRecurringPayment() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectAuthoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceRequestMock);
-        when(directAuthoriseServiceResponseMock.is3DSecured()).thenReturn(true);
+        when(directAuthoriseServiceResponseMock.get3DSecureFlow()).thenReturn(Optional.of(ThreeDSecureFlowEnum.LEGACY_FLOW));
 
         final DirectAuthoriseServiceResponse result = testObj.authoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock);
 
-        verify(sessionServiceMock).setAttribute(THREE_D_SECURE_COOKIE_PARAM, COOKIE);
-        verify(sessionServiceMock).setAttribute(THREE_D_SECURE_ECHO_DATA_PARAM, ECHO_DATA);
+        verify(worldpaySessionServiceMock).setSessionAttributesFor3DSecure(directAuthoriseServiceResponseMock, worldpayAdditionalInfoDataMock);
         assertEquals(directAuthoriseServiceResponseMock, result);
     }
 

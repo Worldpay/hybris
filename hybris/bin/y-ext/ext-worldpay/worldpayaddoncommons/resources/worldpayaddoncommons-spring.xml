@@ -16,8 +16,6 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="defaultWorldpayAddonEndpointService" class="com.worldpay.service.impl.DefaultWorldpayAddonEndpointService"/>
-
 	<alias name="worldpayDynamicAttributesOrderStatusDisplayByMap" alias="dynamicAttributesOrderStatusDisplay"/>
 	<bean id="worldpayDynamicAttributesOrderStatusDisplayByMap" class="com.worldpay.core.checkout.attribute.WorldpayOrderStatusDisplayDynamicAttributeHandler" parent="acceleratorDynamicAttributesOrderStatusDisplayByMap">
 		<property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>

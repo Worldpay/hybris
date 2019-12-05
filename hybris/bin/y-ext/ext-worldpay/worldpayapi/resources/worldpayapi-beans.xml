@@ -54,6 +54,17 @@
         <value>FAILURE</value>
     </enum>
 
+    <enum class="com.worldpay.enums.order.ThreeDSecureVersionEnum">
+        <value>V1</value>
+        <value>V2</value>
+    </enum>
+
+    <enum class="com.worldpay.enums.order.ThreeDSecureFlowEnum">
+        <value>LEGACY_FLOW</value>
+        <value>THREEDSFLEX_FLOW</value>
+    </enum>
+
+
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
@@ -91,6 +102,7 @@
         <property name="authenticatedShopperId" type="java.lang.String"/>
         <property name="savedCardPayment" type="boolean"/>
         <property name="replenishmentOrder" type="boolean"/>
+        <property name="additional3DS2" type="com.worldpay.data.Additional3DS2Info"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -104,8 +116,11 @@
         <property name="orderContent" type="java.lang.String"/>
         <property name="excludedPaymentTypes" type="java.util.List&lt;java.lang.String>"/>
         <property name="includedPaymentTypes" type="java.util.List&lt;java.lang.String>"/>
-        <property name="googlePaySettings" type="com.worldpay.config.merchant.GooglePayConfigData" />
-        <property name="applePaySettings" type="com.worldpay.config.merchant.ApplePayConfigData" />
+        <property name="googlePaySettings" type="com.worldpay.config.merchant.GooglePayConfigData"/>
+        <property name="applePaySettings" type="com.worldpay.config.merchant.ApplePayConfigData"/>
+        <property name="threeDSFlexJsonWebTokenSettings"
+                  type="com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials"/>
+        <property name="threeDSFlexChallengePreference" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.AdditionalAuthInfo">
@@ -131,12 +146,20 @@
         <property name="transactionId" type="java.lang.String"/>
     </bean>
 
+    <bean class="com.worldpay.data.Additional3DS2Info">
+        <property name="dfReferenceId" type="java.lang.String"/>
+        <property name="challengeWindowSize" type="java.lang.String"/>
+        <property name="challengePreference" type="java.lang.String"/>
+    </bean>
+
     <bean class="com.worldpay.data.CSEAdditionalAuthInfo" extends="com.worldpay.data.AdditionalAuthInfo">
         <property name="encryptedData" type="java.lang.String"/>
         <property name="cardHolderName" type="java.lang.String"/>
         <property name="expiryYear" type="java.lang.String"/>
         <property name="expiryMonth" type="java.lang.String"/>
+        <property name="additional3DS2" type="com.worldpay.data.Additional3DS2Info"/>
     </bean>
+
 
     <bean class="com.worldpay.data.GooglePayAdditionalAuthInfo" extends="com.worldpay.data.AdditionalAuthInfo">
         <property name="protocolVersion" type="java.lang.String"/>
@@ -154,84 +177,84 @@
     </bean>
 
     <bean class="com.worldpay.config.merchant.GooglePayConfigData">
-        <property name="cardType" type="java.lang.String" />
-        <property name="allowedAuthMethods" type="java.util.List&lt;String>" />
-        <property name="allowedCardNetworks" type="java.util.List&lt;String>" />
-        <property name="environment" type="java.lang.String" />
-        <property name="gatewayMerchantId" type="java.lang.String" />
-        <property name="merchantName" type="java.lang.String" />
-        <property name="merchantId" type="java.lang.String" />
+        <property name="cardType" type="java.lang.String"/>
+        <property name="allowedAuthMethods" type="java.util.List&lt;String>"/>
+        <property name="allowedCardNetworks" type="java.util.List&lt;String>"/>
+        <property name="environment" type="java.lang.String"/>
+        <property name="gatewayMerchantId" type="java.lang.String"/>
+        <property name="merchantName" type="java.lang.String"/>
+        <property name="merchantId" type="java.lang.String"/>
     </bean>
-    
+
     <bean class="com.worldpay.data.GooglePayAddressData">
-        <property name="address1" type="java.lang.String" />
-        <property name="address2" type="java.lang.String" />
-        <property name="address3" type="java.lang.String" />
-        <property name="administrativeArea" type="java.lang.String" />
-        <property name="countryCode" type="java.lang.String" />
-        <property name="locality" type="java.lang.String" />
-        <property name="name" type="java.lang.String" />
-        <property name="postalCode" type="java.lang.String" />
-        <property name="sortingCode" type="java.lang.String" />
+        <property name="address1" type="java.lang.String"/>
+        <property name="address2" type="java.lang.String"/>
+        <property name="address3" type="java.lang.String"/>
+        <property name="administrativeArea" type="java.lang.String"/>
+        <property name="countryCode" type="java.lang.String"/>
+        <property name="locality" type="java.lang.String"/>
+        <property name="name" type="java.lang.String"/>
+        <property name="postalCode" type="java.lang.String"/>
+        <property name="sortingCode" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.GooglePayAuthorisationRequest">
-        <property name="token" type="com.worldpay.data.GooglePayAdditionalAuthInfo" />
-        <property name="billingAddress" type="com.worldpay.data.GooglePayAddressData" />
+        <property name="token" type="com.worldpay.data.GooglePayAdditionalAuthInfo"/>
+        <property name="billingAddress" type="com.worldpay.data.GooglePayAddressData"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.ApplePayConfigData">
-        <property name="merchantId" type="java.lang.String" />
-        <property name="merchantName" type="java.lang.String" />
-        <property name="supportedNetworks" type="java.util.List&lt;String>" />
-        <property name="merchantCapabilities" type="java.util.List&lt;String>" />
-        <property name="countryCode" type="java.lang.String" />
+        <property name="merchantId" type="java.lang.String"/>
+        <property name="merchantName" type="java.lang.String"/>
+        <property name="supportedNetworks" type="java.util.List&lt;String>"/>
+        <property name="merchantCapabilities" type="java.util.List&lt;String>"/>
+        <property name="countryCode" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayAuthorisationRequest">
-        <property name="token" type="com.worldpay.data.ApplePayPaymentToken" />
-        <property name="billingContact" type="com.worldpay.data.ApplePayPaymentContact" />
-        <property name="shippingContact" type="com.worldpay.data.ApplePayPaymentContact" />
+        <property name="token" type="com.worldpay.data.ApplePayPaymentToken"/>
+        <property name="billingContact" type="com.worldpay.data.ApplePayPaymentContact"/>
+        <property name="shippingContact" type="com.worldpay.data.ApplePayPaymentContact"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentToken">
-        <property name="paymentMethod" type="com.worldpay.data.ApplePayPaymentMethod" />
-        <property name="transactionIdentifier" type="java.lang.String"/> 
-        <property name="paymentData" type="com.worldpay.data.ApplePayAdditionalAuthInfo" />
+        <property name="paymentMethod" type="com.worldpay.data.ApplePayPaymentMethod"/>
+        <property name="transactionIdentifier" type="java.lang.String"/>
+        <property name="paymentData" type="com.worldpay.data.ApplePayAdditionalAuthInfo"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentContact">
-        <property name="phoneNumber" type="java.lang.String" />
-        <property name="emailAddress" type="java.lang.String" />
-        <property name="givenName" type="java.lang.String" />
-        <property name="familyName" type="java.lang.String" />
-        <property name="phoneticGivenName" type="java.lang.String" />
-        <property name="phoneticFamilyName" type="java.lang.String" />
-        <property name="addressLines" type="java.util.List&lt;java.lang.String>" />
-        <property name="subLocality" type="java.lang.String" />
-        <property name="locality" type="java.lang.String" />
-        <property name="postalCode" type="java.lang.String" />
-        <property name="subAdministrativeArea" type="java.lang.String" />
-        <property name="administrativeArea" type="java.lang.String" />
-        <property name="country" type="java.lang.String" />
-        <property name="countryCode" type="java.lang.String" />
+        <property name="phoneNumber" type="java.lang.String"/>
+        <property name="emailAddress" type="java.lang.String"/>
+        <property name="givenName" type="java.lang.String"/>
+        <property name="familyName" type="java.lang.String"/>
+        <property name="phoneticGivenName" type="java.lang.String"/>
+        <property name="phoneticFamilyName" type="java.lang.String"/>
+        <property name="addressLines" type="java.util.List&lt;java.lang.String>"/>
+        <property name="subLocality" type="java.lang.String"/>
+        <property name="locality" type="java.lang.String"/>
+        <property name="postalCode" type="java.lang.String"/>
+        <property name="subAdministrativeArea" type="java.lang.String"/>
+        <property name="administrativeArea" type="java.lang.String"/>
+        <property name="country" type="java.lang.String"/>
+        <property name="countryCode" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentMethod">
-        <property name="displayName" type="java.lang.String" />
-        <property name="network" type="java.lang.String" />
-        <property name="type" type="java.lang.String" />
-        <property name="paymentPass" type="com.worldpay.data.ApplePayPaymentPass" />
+        <property name="displayName" type="java.lang.String"/>
+        <property name="network" type="java.lang.String"/>
+        <property name="type" type="java.lang.String"/>
+        <property name="paymentPass" type="com.worldpay.data.ApplePayPaymentPass"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentPass">
-        <property name="primaryAccountIdentifier" type="java.lang.String" />
-        <property name="primaryAccountNumberSuffix" type="java.lang.String" />
-        <property name="deviceAccountIdentifier" type="java.lang.String" />
-        <property name="deviceAccountNumberSuffix" type="java.lang.String" />
-        <property name="activationState" type="com.worldpay.data.ApplePayPaymentPassActivationState" />
+        <property name="primaryAccountIdentifier" type="java.lang.String"/>
+        <property name="primaryAccountNumberSuffix" type="java.lang.String"/>
+        <property name="deviceAccountIdentifier" type="java.lang.String"/>
+        <property name="deviceAccountNumberSuffix" type="java.lang.String"/>
+        <property name="activationState" type="com.worldpay.data.ApplePayPaymentPassActivationState"/>
     </bean>
-    
+
     <enum class="com.worldpay.data.ApplePayPaymentPassActivationState">
         <value>activated</value>
         <value>requiresActivation</value>
@@ -241,22 +264,32 @@
     </enum>
 
     <bean class="com.worldpay.data.ApplePayLineItem">
-        <property name="type" type="java.lang.String" />
-        <property name="label" type="java.lang.String" />
-        <property name="amount" type="java.lang.String" />
+        <property name="type" type="java.lang.String"/>
+        <property name="label" type="java.lang.String"/>
+        <property name="amount" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayOrderUpdate">
-        <property name="newTotal" type="ApplePayLineItem" />
-        <property name="newLineItems" type="java.util.List&lt;com.worldpay.data.ApplePayPaymentContact>" />
+        <property name="newTotal" type="ApplePayLineItem"/>
+        <property name="newLineItems" type="java.util.List&lt;com.worldpay.data.ApplePayPaymentContact>"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentMethodUpdateRequest">
-        <property name="paymentMethod" type="java.lang.String" />
+        <property name="paymentMethod" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayShippingMethodUpdateRequest">
-        <property name="shippingMethod" type="java.lang.String" />
+        <property name="shippingMethod" type="java.lang.String"/>
     </bean>
-    
+
+    <bean class="com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials">
+        <property name="orgUnitId" type="java.lang.String"/>
+        <property name="iss" type="java.lang.String"/>
+        <property name="jwtMacKey" type="java.lang.String"/>
+        <property name="alg" type="java.lang.String"/>
+        <property name="eventOriginDomain" type="java.lang.String"/>
+        <property name="challengeUrl" type="java.lang.String"/>
+        <property name="ddcUrl" type="java.lang.String"/>
+    </bean>
+
 </beans>

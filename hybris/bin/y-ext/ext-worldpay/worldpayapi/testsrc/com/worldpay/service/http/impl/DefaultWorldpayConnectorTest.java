@@ -36,6 +36,8 @@ public class DefaultWorldpayConnectorTest {
 
     private static final String WORLDPAY_CONFIG_ENDPOINT = "worldpay.config.endpoint";
     private static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
+    private static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
+    private static final String WORLDPAY_CONFIG_CONTEXT = "worldpay.config.context";
     private static final String ENDPOINT = "https://secure-test.worldpay.com/jsp/merchant/xml/paymentService.jsp";
 
     @InjectMocks
@@ -63,8 +65,10 @@ public class DefaultWorldpayConnectorTest {
 
     @Before
     public void setUp() throws Exception {
+
         when(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT)).thenReturn("environment");
-        when(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENDPOINT + "." + "environment")).thenReturn(ENDPOINT);
+        when(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_DOMAIN + "." + "environment")).thenReturn("https://secure-test.worldpay.com");
+        when(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_CONTEXT + "." + "environment")).thenReturn("/jsp/merchant/xml/paymentService.jsp");
         when(merchantInfoMock.getMerchantCode()).thenReturn("merchantCode");
         when(merchantInfoMock.getMerchantPassword()).thenReturn("merchantPassword");
     }
