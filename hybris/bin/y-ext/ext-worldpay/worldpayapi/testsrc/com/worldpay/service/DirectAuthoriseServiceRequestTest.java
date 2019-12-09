@@ -9,8 +9,10 @@ import com.worldpay.service.model.payment.PayWithGoogleSSL;
 import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
 import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
@@ -57,60 +59,60 @@ public class DirectAuthoriseServiceRequestTest {
     private static final Shopper SHOPPER = new Shopper(SHOPPER_EMAIL, null, BROWSER, SESSION);
     private static final Shopper SHOPPER_WITHOUT_BROWSER_NOR_SESSION = new Shopper(SHOPPER_EMAIL, null, null, null);
     private static final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, AUTHENTICATED_SHOPPER_ID, BROWSER, SESSION);
-
-    private MerchantInfo merchantInfo;
-    private BasicOrderInfo basicOrderInfo;
-    private Payment payment;
-
+    private static final String REFERENCE_ID = "referenceId";
     @SuppressWarnings("PMD.MemberScope")
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private MerchantInfo merchantInfo;
+    private BasicOrderInfo basicOrderInfo;
+    private Payment payment;
+    private Additional3DSData additional3DSData;
 
     @Before
     public void setUp() {
         merchantInfo = new MerchantInfo(MERCHANT1ECOM, "3l3ph4nt_&_c4st!3");
         basicOrderInfo = new BasicOrderInfo(ORDER_CODE, DESCRIPTION, AMOUNT);
-    }
-
-    @Test
-    public void createTokenAndDirectAuthoriseRequestWillRaiseIllegalArgumentExceptionWhenParametersAreNull() {
-        thrown.expect(IllegalArgumentException.class);
-
-        DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, null, null, null, null, null, null, null, null, DynamicInteractionType.ECOMMERCE);
+        additional3DSData = new Additional3DSData(REFERENCE_ID);
     }
 
     @Test
     public void createDirectAuthoriseRequestWillRaiseIllegalArgumentExceptionWhenParametersAreNull() {
         thrown.expect(IllegalArgumentException.class);
 
-        DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, null, null, null, null, null, null, null, DynamicInteractionType.ECOMMERCE);
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(null)
+                .withPayment(null)
+                .withShopper(null)
+                .withShippingAddress(null)
+                .withBillingAddress(null)
+                .withStatementNarrative(null)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+
+        DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters3D);
     }
 
     @Test
     public void createDirectAuthoriseRequestShouldNotRequestTokenAndHaveAllTheInformation() {
         payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
+
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(BILLING_ADDRESS)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters3D);
 
         final Order requestOrder = result.getOrder();
         assertNull(requestOrder.getTokenRequest());
         assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
         assertEquals(SHOPPER, result.getOrder().getShopper());
         assertEquals(payment, result.getOrder().getPaymentDetails().getPayment());
-        assertCommonOrderRequestData(result);
-    }
-
-    @Test
-    public void createDirectAuthoriseRequestShouldRequestTokenAndHaveAllTheInformation() {
-        payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
-
-        final Order requestOrder = result.getOrder();
-        assertEquals(TOKEN_REQUEST, requestOrder.getTokenRequest());
-        assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
-        assertEquals(SHOPPER_WITH_SHOPPER_ID, result.getOrder().getShopper());
-
         assertCommonOrderRequestData(result);
     }
 
@@ -127,8 +129,19 @@ public class DirectAuthoriseServiceRequestTest {
 
         final OrderLines orderLines = new OrderLines("orderTaxAmount", "termsURL", singletonList(lineItem));
 
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createKlarnaDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, orderLines);
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER_WITH_SHOPPER_ID)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(BILLING_ADDRESS)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .withOrderLines(orderLines)
+                .build();
+
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createKlarnaDirectAuthoriseRequest(requestParameters3D);
 
         final Order requestOrder = result.getOrder();
         assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
@@ -148,27 +161,59 @@ public class DirectAuthoriseServiceRequestTest {
         payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
 
         basicOrderInfo = new BasicOrderInfo(ORDER_CODE, "Your Order & Order desc with token", new Amount("1000", "EUR", "2"));
-        DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
+
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER_WITH_SHOPPER_ID)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(null)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+
+                .withAdditional3DSData(additional3DSData).build();
+        DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
     }
 
     @Test
     public void createTokenisedDirectAuthoriseRequestShouldCreateAnOrderRequestWithToken() {
         payment = new Token(TOKEN_ID, false);
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
+
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER_WITH_SHOPPER_ID)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(null)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+
+                .withAdditional3DSData(additional3DSData).build();
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
 
         assertEquals("TOKEN-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode());
         assertEquals(TOKEN_ID, ((Token) result.getOrder().getPaymentDetails().getPayment()).getPaymentTokenID());
         assertEquals(SHOPPER_WITH_SHOPPER_ID, result.getOrder().getShopper());
+        assertEquals(REFERENCE_ID, result.getOrder().getAdditional3DSData().getDfReferenceId());
         assertCommonOrderRequestData(result);
     }
 
     @Test
     public void createApplePayDirectAuthoriseRequestShouldCreateAnOrderRequestWithApplePayAsPaymentMethod() {
         payment = new ApplePay(new Header("ephKey", "keyHash", "transactionId", "applicationData"), "signature", "version", "data", "tokenRequestorID");
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createApplePayDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER_WITH_SHOPPER_ID, SHIPPING_ADDRESS);
+
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER_WITH_SHOPPER_ID)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(null)
+                .withStatementNarrative(null)
+                .withDynamicInteractionType(null).build();
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createApplePayDirectAuthoriseRequest(requestParameters3D);
 
         assertEquals("APPLEPAY-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode());
         assertEquals("data", ((ApplePay) result.getOrder().getPaymentDetails().getPayment()).getData());
@@ -176,23 +221,21 @@ public class DirectAuthoriseServiceRequestTest {
     }
 
     @Test
-    public void createTokenAndDirect3DAuthoriseRequestShouldContainEchoDataAndTokenRequest() {
-        payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
-
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenAndDirect3DAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, PA_RES, ECHO_DATA, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
-
-        assertCommonOrderRequestData(result);
-        assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
-        assertEquals(TOKEN_REQUEST, result.getOrder().getTokenRequest());
-        assertEquals(ECHO_DATA, result.getOrder().getEchoData());
-        assertEquals(PA_RES, result.getOrder().getPaymentDetails().getPaResponse());
-        assertEquals(SHOPPER, result.getOrder().getShopper());
-    }
-
-    @Test
     public void createDirect3DAuthoriseRequestShouldContainPaResponse() {
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(merchantInfo, basicOrderInfo, SESSION, PA_RES);
+
+        final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(null)
+                .withShopper(SHOPPER_WITH_SHOPPER_ID)
+                .withShippingAddress(null)
+                .withBillingAddress(null)
+                .withStatementNarrative(null)
+                .withDynamicInteractionType(null)
+
+
+                .withPaRes(PA_RES).build();
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(requestParameters3D);
 
         assertEquals(merchantInfo, result.getMerchantInfo());
         assertEquals(ORDER_CODE, result.getOrderCode());
@@ -207,25 +250,34 @@ public class DirectAuthoriseServiceRequestTest {
         thrown.expect(IllegalArgumentException.class);
         merchantInfo = new MerchantInfo(null, null);
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
-        DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, DynamicInteractionType.ECOMMERCE);
-    }
 
-    @Test
-    public void createDirectAuthorisedWithTokenRequestWithoutMerchantShouldRaiseIllegalArgumentException() {
-        thrown.expect(IllegalArgumentException.class);
-        merchantInfo = new MerchantInfo(null, null);
-        final Token tokenSsl = new Token(TOKEN_EVENT_REFERENCE, false);
-        final TokenRequest TOKEN_REQUEST = new TokenRequest("JShopper" + "REF" + LocalDateTime.now().toString(), TOKEN_REASON);
-        DirectAuthoriseServiceRequest.createTokenAndDirectAuthoriseRequest(merchantInfo, basicOrderInfo, tokenSsl,
-                SHOPPER, SESSION, SHIPPING_ADDRESS, BILLING_ADDRESS, STATEMENT_NARRATIVE, TOKEN_REQUEST, DynamicInteractionType.ECOMMERCE);
+        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(BILLING_ADDRESS)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
+        DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
     }
 
     @Test
     public void shouldCreateGooglePayDirectAuthorisationRequest() {
         final PayWithGoogleSSL payment = new PayWithGoogleSSL("protocolVersion", "signature", "signedMessage");
-        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment, SHOPPER_WITHOUT_BROWSER_NOR_SESSION, SHIPPING_ADDRESS, DynamicInteractionType.ECOMMERCE);
+        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER_WITHOUT_BROWSER_NOR_SESSION)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(null)
+                .withStatementNarrative(null)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(requestParameters);
 
         assertThat(result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode()).isEqualTo(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
     }
@@ -234,7 +286,18 @@ public class DirectAuthoriseServiceRequestTest {
     public void shouldRaiseIllegalArgumentExceptionWhenPaymentIsNotPayWithGoogleSSL() {
         thrown.expect(IllegalArgumentException.class);
         final Token payment = new Token(TOKEN_EVENT_REFERENCE, false);
-        DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(merchantInfo, basicOrderInfo, payment, SHOPPER_WITHOUT_BROWSER_NOR_SESSION, SHIPPING_ADDRESS, DynamicInteractionType.ECOMMERCE);
+
+        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER_WITHOUT_BROWSER_NOR_SESSION)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(null)
+                .withStatementNarrative(null)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+
+        DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(requestParameters);
 
     }
 

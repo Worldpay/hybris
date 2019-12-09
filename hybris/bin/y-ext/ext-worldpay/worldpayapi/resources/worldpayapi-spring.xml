@@ -156,8 +156,8 @@
     <alias name="defaultWorldpayDirectOrderService" alias="worldpayDirectOrderService"/>
     <bean id="defaultWorldpayDirectOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService"
           parent="abstractWorldpayOrderService">
-        <property name="sessionService" ref="sessionService"/>
         <property name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
+        <property name="worldpaySessionService" ref="worldpaySessionService"/>
     </bean>
 
     <alias name="defaultWorldpayRequestFactory" alias="worldpayRequestFactory"/>
@@ -171,6 +171,7 @@
         <property name="commerceCommonI18NService" ref="commerceCommonI18NService"/>
         <property name="worldpayKlarnaStrategy" ref="worldpayKlarnaStrategy"/>
         <property name="worldpayDynamicInteractionResolverService" ref="worldpayDynamicInteractionResolverService"/>
+        <property name="worldpayRiskDataService" ref="worldpayRiskDataService"/>
     </bean>
 
     <bean id="abstractWorldpayUrlService" class="com.worldpay.service.impl.AbstractWorldpayUrlService" abstract="true">
@@ -180,6 +181,10 @@
         <property name="errorPath" value="/checkout/multi/worldpay/error"/>
         <property name="cancelPath" value="/checkout/multi/worldpay/hop-cancel"/>
         <property name="threeDSecureTermPath" value="/checkout/multi/worldpay/3dsecure/sop/response"/>
+        <property name="threeDSecureFlexFlowReturnUrl"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.returnurl')}"/>
+        <property name="threeDSecureFlexAuthSubmit"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.secondauthorisation.submit.url')}"/>
         <property name="threeDSecureQuoteTermPath" value="/my-account/worldpay/3dsecure/sop/response"/>
         <property name="termsPath" value="/checkout/multi/termsAndConditions" />
         <property name="klarnaConfirmationPath" value="/checkout/multi/worldpay/klarna/confirmation" />
@@ -410,6 +415,9 @@
         <property name="worldpayUrlService" ref="bankTransferWorldpayUrlService"/>
         <property name="siteConfigService" ref="siteConfigService"/>
     </bean>
+
+    <alias name="defaultWorldpayRiskDataService" alias="worldpayRiskDataService"/>
+    <bean id="defaultWorldpayRiskDataService" class="com.worldpay.service.payment.impl.DefaultWorldpayRiskDataService"/>
 
     <alias name="defaultWorldpayKlarnaStrategy" alias="worldpayKlarnaStrategy"/>
     <bean id="defaultWorldpayKlarnaStrategy" class="com.worldpay.service.payment.impl.DefaultWorldpayKlarnaStrategy">
@@ -669,6 +677,7 @@
         <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
         <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade" />
         <property name="cartFacade" ref="cartFacade" />
+        <property name="worldpayJsonWebTokenService" ref="worldpayJsonWebTokenService" />
     </bean>
 
     <!-- The defaultUserFacade uses directly the AddressReversePopulator -->
@@ -768,5 +777,36 @@
 
     <alias name="defaultBankConfigurationPopulator" alias="bankConfigurationPopulator"/>
     <bean id="defaultBankConfigurationPopulator" class="com.worldpay.converters.populators.WorldpayBankConfigurationPopulator"/>
+
+    <alias name="defaultWorldpayJsonWebTokenService" alias="worldpayJsonWebTokenService"/>
+    <bean id="defaultWorldpayJsonWebTokenService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayJsonWebTokenService">
+        <constructor-arg ref="worldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultWorldpayDirectResponseService" alias="worldpayDirectResponseService"/>
+    <bean id="defaultWorldpayDirectResponseService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayDirectResponseService"/>
+
+    <alias name="defaultWorldpayAddonEndpointService" alias="worldpayAddonEndpointService"/>
+    <bean id="defaultWorldpayAddonEndpointService"
+          class="com.worldpay.service.impl.DefaultWorldpayAddonEndpointService"/>
+
+    <alias name="defaultWorldpayDirectResponseFacade" alias="worldpayDirectResponseFacade"/>
+    <bean id="defaultWorldpayDirectResponseFacade"
+          class="com.worldpay.facades.impl.DefaultWorldpayDirectResponseFacade">
+        <constructor-arg ref="worldpayDirectResponseService"/>
+        <constructor-arg ref="worldpayCheckoutFacade"/>
+        <constructor-arg ref="worldpayUrlService"/>
+        <constructor-arg ref="worldpayJsonWebTokenService"/>
+        <constructor-arg ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg ref="worldpaySessionService"/>
+    </bean>
+
+    <alias name="defaultWorldpaySessionService" alias="worldpaySessionService"/>
+    <bean name="defaultWorldpaySessionService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpaySessionService">
+        <constructor-arg ref="sessionService"/>
+    </bean>
 
 </beans>

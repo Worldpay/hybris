@@ -88,4 +88,13 @@ public interface WorldpayUrlService {
      * @return The base site url
      */
     String getWebsiteUrlForCurrentSite();
+
+    /**
+     * Get the fully qualified 3D secure url for Flex flow to provide to card issuer
+     *
+     * @return
+     */
+    String getFullThreeDSecureFlexFlowReturnUrl() throws WorldpayConfigurationException;
+
+    String getFullThreeDSecureFlexAutosubmitUrl() throws WorldpayConfigurationException;
 }

@@ -2,7 +2,6 @@ package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.RedirectReference;
 import com.worldpay.service.model.Request3DInfo;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
@@ -59,6 +58,14 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
         final List<Object> intOrderStatuses = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
 
         intOrderStatuses.stream()
+                .filter(ChallengeRequired.class::isInstance)
+                .map(ChallengeRequired.class::cast)
+                .findAny()
+                .map(ChallengeRequired::getThreeDSChallengeDetails)
+                .map(this::build3DInfoForChallenge)
+                .ifPresent(authResponse::setRequest3DInfo);
+
+        intOrderStatuses.stream()
                 .filter(RequestInfo.class::isInstance)
                 .map(RequestInfo.class::cast)
                 .findAny()
@@ -93,6 +100,18 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
                 .findAny()
                 .map(EchoData::getvalue)
                 .ifPresent(authResponse::setEchoData);
+    }
+
+    private Request3DInfo build3DInfoForChallenge(final ThreeDSChallengeDetails threeDSChallengeDetails) {
+        final Request3DInfo req3dInfo = new Request3DInfo();
+        if (threeDSChallengeDetails != null) {
+            req3dInfo.setMajor3DSVersion(threeDSChallengeDetails.getThreeDSVersion().getvalue());
+            req3dInfo.setIssuerUrl(threeDSChallengeDetails.getAcsURL());
+            req3dInfo.setIssuerPayload(threeDSChallengeDetails.getPayload());
+            req3dInfo.setTransactionId3DS(threeDSChallengeDetails.getTransactionId3DS());
+        }
+        return req3dInfo;
+
     }
 
     private Request3DInfo build3DInfo(final Request3DSecure intRequest3dSecure) {

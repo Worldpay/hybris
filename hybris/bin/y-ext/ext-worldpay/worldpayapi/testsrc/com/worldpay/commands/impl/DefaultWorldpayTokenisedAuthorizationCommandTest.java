@@ -1,5 +1,6 @@
 package com.worldpay.commands.impl;
 
+import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayException;
@@ -29,7 +30,6 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.worldpay.commands.impl.DefaultWorldpayTokenisedAuthorizationCommand.UNKNOWN_MERCHANT_CODE;
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.GENERAL_SYSTEM_ERROR;
 import static org.junit.Assert.assertEquals;
@@ -51,6 +51,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     private static final String SECURITY_CODE = "securityCode";
     private static final String CUSTOMER_EMAIL = "customerEmail";
     private static final String WORLDPAY_ORDER_CODE = "originalOrderCode";
+    private static final String UNKNOWN_MERCHANT_CODE = "unknownMerchantCode";
 
     @Spy
     @InjectMocks
@@ -91,6 +92,8 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     private Token tokenMock;
     @Mock
     private WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverServiceMock;
+    @Mock
+    private Additional3DS2Info additional3DS2InfoMock;
 
     @Before
     public void setUp() throws WorldpayException {
@@ -109,6 +112,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(worldpayBillingInfoAddressConverterMock.convert(subscriptionAuthorizationRequestMock.getShippingInfo())).thenReturn(addressMock);
         when(worldpayAdditionalInfoDataMock.getAuthenticatedShopperId()).thenReturn(AUTHENTICATED_SHOPPER_ID);
+        when(worldpayAdditionalInfoDataMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
         when(worldpayDynamicInteractionResolverServiceMock.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock)).thenReturn(DynamicInteractionType.ECOMMERCE);
         when(directAuthoriseServiceResponseMock.getPaymentReply().getAmount()).thenReturn(amountMock);
     }

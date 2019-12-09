@@ -10,11 +10,12 @@
 <template:page pageTitle="${pageTitle}" hideHeaderLinks="true">
 
      <jsp:attribute name="pageScripts">
-        <script type="text/javascript" src="https://payments.worldpay.com/resources/cse/js/worldpay-cse-1.0.1.min.js"></script>
+        <script type="text/javascript" src="https://payments.worldpay.com/resources/cse/js/worldpay-cse-1.0.2.min.js"></script>
         <script>
             $(document).ready(function () {
                 $("#worldpayBillingAddressForm").attr("data-worldpay", "payment-form");
                 Worldpay.setPublicKey("${csePublicKey}");
+                ACC.worldpayCSE.originEventDomain3DSFlex = "${originEventDomain3DSFlex}";
             });
         </script>
     </jsp:attribute>
@@ -33,7 +34,7 @@
                                 <div class="headline"><spring:theme code="checkout.multi.paymentMethod"/></div>
 
                                 <c:url value="/checkout/multi/worldpay/cse/tokenize" var="addCseDataUrl"/>
-                                <form:form id="worldpayCsePaymentForm" modelAttribute="csePaymentForm" method="post"
+                                <form:form id="worldpayCsePaymentForm" modelAttribute="b2bCSEPaymentForm" method="post"
                                            action="${addCseDataUrl}" class="create_update_payment_form">
 
                                     <wp-multi-checkout:worldpayCSECardDetails/>

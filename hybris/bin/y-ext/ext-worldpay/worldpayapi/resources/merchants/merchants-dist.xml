@@ -23,6 +23,9 @@
         <property name="orderContent" value="Order Content MERCHANTREL60ECOM"/>
         <property name="googlePaySettings" ref="googlePaySettings"/>
         <property name="applePaySettings" ref="applePaySettings"/>
+        <property name="threeDSFlexJsonWebTokenSettings" ref="threeDS2JsonWebTokenSettings"/>
+        <property name="threeDSFlexChallengePreference"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dSecureFlex.challengePreference')}"/>
     </bean>
 
     <bean id="customerServiceMerchantConfigurationASM" class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -35,6 +38,9 @@
         <property name="installationId" value="1048564"/>
         <property name="statementNarrative" value=""/>
         <property name="orderContent" value="Order Content MERCHANTREL60MOTO ASM"/>
+        <property name="threeDSFlexJsonWebTokenSettings" ref="threeDS2JsonWebTokenSettings"/>
+        <property name="threeDSFlexChallengePreference"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dSecureFlex.challengePreference')}"/>
     </bean>
 
     <bean id="replenishmentMerchantConfiguration" class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -101,5 +107,21 @@
                 <!--<value>vPay</value>-->
             </util:list>
         </property>
+    </bean>
+
+    <bean id="threeDS2JsonWebTokenSettings" class="com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials">
+        <property name="iss"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.iss')}"/>
+        <property name="jwtMacKey"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.jwtmackey')}"/>
+        <property name="orgUnitId"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.orgunitid')}"/>
+        <property name="alg"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.alg')}"/>
+        <property name="eventOriginDomain" value="#{configurationService.configuration.getProperty('worldpay.config.domain.TEST')}"/> <!-- Replace this for PROD/TEST/MOCK -->
+        <property name="challengeUrl"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.challengeurl')}"/>
+        <property name="ddcUrl"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.ddcurl')}"/>
     </bean>
 </beans>

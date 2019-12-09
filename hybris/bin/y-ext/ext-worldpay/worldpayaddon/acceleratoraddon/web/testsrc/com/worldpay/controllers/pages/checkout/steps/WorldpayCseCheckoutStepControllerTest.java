@@ -1,6 +1,8 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.data.Additional3DS2Info;
+import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
@@ -44,6 +46,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
@@ -52,6 +55,7 @@ import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutS
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static com.worldpay.service.model.payment.PaymentType.PAYPAL;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
@@ -71,20 +75,27 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String BILLING_ERROR_VIEW = "billingErrorView";
     private static final String RESOLVED_PAGE_TITLE = "resolvedPageTitle";
     private static final String CSE_PAYMENT_DETAILS_PAGE = "CSEPaymentDetailsPage";
+    private static final String THREEDSFLEX_JSON_WEB_TOKEN_VALUE = "THREEDSFLEX_JSON_WEB_TOKEN_VALUE";
+    private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE = "EVENT_ORIGIN_DOMAIN_VALUE";
+    private static final String CVC = "111";
+    private static final String ID_REFERENCE = "idReference";
+    private static final String WINDOW_SIZE = "windowSize";
+    private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
+    private static final String THREEDS_FLEX_CHALLENGE_IFRAME = "threeDSFlexIframePage";
+    private static final String THREEDSECURE_FLEX_DDC_URL_VALUE = "threeDSecureDDCUrlValue";
 
     @Spy
     @InjectMocks
     private WorldpayCseCheckoutStepController testObj;
 
     @Mock
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
     @Mock
     private CMSPreviewService cmsPreviewServiceMock;
     @Mock
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
     @Mock
     private CartFacade cartFacadeMock;
-    
     @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
     @Mock
@@ -97,7 +108,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
     @Mock(name = "cseFormValidator")
     private Validator cseFormValidatorMock;
-    @Mock
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
     @Mock
     private CountryData countryDataMock;
@@ -142,10 +153,16 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private DirectResponseData directResponseDataMock;
     @Mock
+    private CSEAdditionalAuthInfo cseAdditionalAuthInfoMock;
+    @Mock
     private PagePreviewCriteriaData pagePreiewCriteriaMock;
+    @Mock
+    private Additional3DS2Info additional3DS2InfoMock;
+    @Mock
+    private HttpServletResponse responseMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws CMSItemNotFoundException {
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         doReturn(BILLING_ERROR_VIEW).when(testObj).handleFormErrors(modelMock, paymentDetailsFormMock);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
@@ -166,15 +183,15 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(resourceBreadcrumbBuilder.getBreadcrumbs(anyString())).thenReturn(Collections.singletonList(breadcrumbMock));
         when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);
-        when(worldpayAddonEndpointService.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
+        when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
     }
 
     @Test
     public void shouldRedirectToOrderConfirmation() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
-        doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock);
+        doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
         when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenReturn(directResponseDataMock);
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 
         assertEquals(CHECKOUT_ORDER_CONFIRMATION, result);
     }
@@ -183,7 +200,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldRedirectToErrorIfExceptionThrownByFacade() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
         when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 
         assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
     }
@@ -192,7 +209,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldDisplayCsePaymentPageIfErrorAuthorisingPayment() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
         when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
 
-        testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 
         verify(modelMock).addAttribute(eq(CSE_PAYMENT_FORM), any(CSEPaymentForm.class));
     }
@@ -201,7 +218,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldValidateCseFormAndRedirectToCseForm() throws CMSItemNotFoundException {
         doReturn(true).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 
         verify(cseFormValidatorMock).validate(csePaymentFormMock, bindingResultMock);
         assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
@@ -311,5 +328,42 @@ public class WorldpayCseCheckoutStepControllerTest {
         testObj.getErrorView(modelMock);
 
         verify(modelMock).addAttribute(CSE_PUBLIC_KEY, CSE_PUBLIC_KEY_VALUE);
+    }
+
+    @Test
+    public void shouldPopulate3DSecureJsonWebToken() {
+        when(worldpayDirectOrderFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
+        when(worldpayDirectOrderFacadeMock.getEventOriginDomainForDDC()).thenReturn(THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE);
+        when(worldpayAddonEndpointServiceMock.getDdcIframe3dSecureFlex()).thenReturn(THREDSFLEX_DDC_PAGE);
+        when(worldpayMerchantConfigDataMock.getThreeDSFlexJsonWebTokenSettings().getDdcUrl()).thenReturn(THREEDSECURE_FLEX_DDC_URL_VALUE);
+
+        final String result = testObj.getDDCIframeContent(modelMock);
+
+        verify(modelMock).addAttribute(THREEDSECURE_JWT_FLEX_DDC, THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
+        verify(modelMock).addAttribute(THREEDSECURE_FLEX_DDC_URL, THREEDSECURE_FLEX_DDC_URL_VALUE);
+        assertThat(result).isEqualTo(THREDSFLEX_DDC_PAGE);
+    }
+
+    @Test
+    public void shouldCreateWorldpayAdditionalInfo() {
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(cseAdditionalAuthInfoMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
+        when(cseAdditionalAuthInfoMock.getAdditional3DS2().getDfReferenceId()).thenReturn(ID_REFERENCE);
+        when(cseAdditionalAuthInfoMock.getAdditional3DS2().getChallengeWindowSize()).thenReturn(WINDOW_SIZE);
+
+        testObj.createWorldpayAdditionalInfo(httpServletRequestMock, CVC, cseAdditionalAuthInfoMock);
+
+        verify(worldpayAdditionalInfoFacadeMock).createWorldpayAdditionalInfoData(httpServletRequestMock);
+        verify(worldpayAdditionalInfoDataMock).setSecurityCode(CVC);
+        verify(worldpayAdditionalInfoDataMock).setAdditional3DS2(additional3DS2InfoMock);
+    }
+
+    @Test
+    public void shouldRenderIframePageForChallenge() {
+        when(worldpayAddonEndpointServiceMock.getChallengeIframe3dSecureFlex()).thenReturn(THREEDS_FLEX_CHALLENGE_IFRAME);
+
+        final String result = testObj.getChallengeIframeContent(modelMock);
+
+        assertThat(result).isEqualTo(THREEDS_FLEX_CHALLENGE_IFRAME);
     }
 }

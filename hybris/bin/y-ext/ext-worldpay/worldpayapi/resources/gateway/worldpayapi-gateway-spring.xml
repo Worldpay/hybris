@@ -75,6 +75,10 @@
           class="com.worldpay.service.response.transform.OrderInquiryResponseTransformer"
           parent="abstractServiceResponseTransformer"/>
 
+    <bean id="secondThreeDSecurePaymentResponseTransformer"
+          class="com.worldpay.service.response.transform.SecondThreeDSecurePaymentResponseTransformer"
+          parent="abstractServiceResponseTransformer"/>
+
     <util:map id="responseTransformerStrategyMap" map-class="java.util.HashMap"
               key-type="java.lang.String"
               value-type="com.worldpay.service.response.transform.ServiceResponseTransformer">
@@ -90,6 +94,7 @@
         <entry key="com.worldpay.service.request.AuthorisationCodeServiceRequest" value-ref="authorisationCodeResponseTransformer" />
         <entry key="com.worldpay.service.request.OrderInquiryServiceRequest" value-ref="orderInquiryResponseTransformer" />
         <entry key="com.worldpay.service.request.KlarnaOrderInquiryServiceRequest" value-ref="orderInquiryResponseTransformer" />
+        <entry key="com.worldpay.service.request.SecondThreeDSecurePaymentRequest" value-ref="directAuthoriseResponseTransformer"/>
     </util:map>
 
     <bean id="createTokenRequestTransformer"
@@ -133,6 +138,9 @@
           class="com.worldpay.service.request.transform.OrderInquiryRequestTransformer">
         <property name="configurationService" ref="configurationService"/>
     </bean>
+    <bean id="secondThreeDSecurePaymentRequestTransformer" class="com.worldpay.service.request.transform.SecondThreeDSecurePaymentRequestTransformer">
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
 
     <util:map id="requestTransformerStrategyMap" map-class="java.util.HashMap"
               key-type="java.lang.String"
@@ -149,6 +157,7 @@
         <entry key="com.worldpay.service.request.AuthorisationCodeServiceRequest" value-ref="authorisationCodeRequestTransformer" />
         <entry key="com.worldpay.service.request.OrderInquiryServiceRequest" value-ref="orderInquiryRequestTransformer" />
         <entry key="com.worldpay.service.request.KlarnaOrderInquiryServiceRequest" value-ref="orderInquiryRequestTransformer" />
+        <entry key="com.worldpay.service.request.SecondThreeDSecurePaymentRequest" value-ref="secondThreeDSecurePaymentRequestTransformer"/>
     </util:map>
 
     <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate"/>

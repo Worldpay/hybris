@@ -15,6 +15,7 @@
                     </label>
 
                     <input id="SecurityCode" type="text" class="form-control security" name="securityCode"/>
+                    <input type="hidden" id="requestSecurityCode" name="requestSecurityCode" value="${requestSecurityCode}"/>
                 </div>
             </ycommerce:testId>
         </div>

@@ -16,7 +16,7 @@ public class ApplePay extends AbstractPayment {
     private String tokenRequestorID;
 
     public ApplePay(final Header header, final String signature, final String version, final String data, final String tokenRequestorID) {
-        this.setPaymentType(PaymentType.APPLEPAYSSL);
+        this.paymentType = PaymentType.APPLEPAYSSL;
         this.header = header;
         this.signature = signature;
         this.version = version;

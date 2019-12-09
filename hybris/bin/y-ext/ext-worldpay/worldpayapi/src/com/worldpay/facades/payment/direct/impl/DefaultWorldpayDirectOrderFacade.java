@@ -1,6 +1,7 @@
 package com.worldpay.facades.payment.direct.impl;
 
 import com.google.common.base.Preconditions;
+import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
 import com.worldpay.enums.order.AuthorisedStatus;
@@ -16,6 +17,7 @@ import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.Request3DInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
+import com.worldpay.service.payment.WorldpayJsonWebTokenService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
@@ -39,16 +41,16 @@ import static java.text.MessageFormat.format;
  */
 public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFacade {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayDirectOrderFacade.class);
-
     protected static final String ERROR_AUTHORISING_ORDER = "There was a problem authorising the order with worldpayOrderCode [{0}]";
-    protected static final String THERE_WAS_AN_ERROR_COMMUNICATING_WTH_WORLDPAY = "There was an error communicating wth Worldpay";
+    protected static final String THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY = "There was an error communicating with Worldpay";
     protected static final String THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE = "There was an error in the service gateway:  [{0}]";
+    private static final Logger LOG = Logger.getLogger(DefaultWorldpayDirectOrderFacade.class);
     private static final String THERE_IS_NO_CONFIGURATION = "There is no configuration for the requested merchant. Please review your settings.";
 
     private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
     private WorldpayDirectOrderService worldpayDirectOrderService;
 
+    private WorldpayJsonWebTokenService worldpayJsonWebTokenService;
     private CartService cartService;
     private WorldpayMerchantInfoService worldpayMerchantInfoService;
     private AcceleratorCheckoutFacade acceleratorCheckoutFacade;
@@ -84,22 +86,14 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         Preconditions.checkState(cartService.hasSessionCart(), "Cannot authorize payment where there is no cart");
 
         final CartModel cart = cartService.getSessionCart();
-        try {
-            final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
-            final String authenticatedShopperId = worldpayAuthenticatedShopperIdStrategy.getAuthenticatedShopperId(cart.getUser());
-            worldpayAdditionalInfoData.setAuthenticatedShopperId(authenticatedShopperId);
-
-            final DirectAuthoriseServiceResponse serviceResponse = worldpayDirectOrderService.authorise(merchantInfo, cart, worldpayAdditionalInfoData);
-
-            return handleDirectServiceResponse(serviceResponse, merchantInfo, cart);
-        } catch (final WorldpayConfigurationException e) {
-            LOG.error(THERE_IS_NO_CONFIGURATION);
-            throw e;
-        }
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
+        return internalAuthorise(cart, worldpayAdditionalInfoData, merchantInfo);
     }
 
     @Override
     public DirectResponseData authoriseRecurringPayment(final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException {
+        Preconditions.checkState(cartService.hasSessionCart(), "Cannot authorize payment where there is no cart");
+
         final CartModel cart = cartService.getSessionCart();
         final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         return internalAuthoriseRecurringPayment(cart, worldpayAdditionalInfoData, merchantInfo);
@@ -128,6 +122,20 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             throw e;
         } catch (final InvalidCartException e) {
             LOG.error(format("There was an error placing the order for cart [{0}]", abstractOrderModel.getCode()), e);
+            throw e;
+        }
+    }
+
+    protected DirectResponseData internalAuthorise(final CartModel cart, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final MerchantInfo merchantInfo) throws WorldpayException, InvalidCartException {
+        try {
+            final String authenticatedShopperId = worldpayAuthenticatedShopperIdStrategy.getAuthenticatedShopperId(cart.getUser());
+            worldpayAdditionalInfoData.setAuthenticatedShopperId(authenticatedShopperId);
+
+            final DirectAuthoriseServiceResponse serviceResponse = worldpayDirectOrderService.authorise(merchantInfo, cart, worldpayAdditionalInfoData);
+
+            return handleDirectServiceResponse(serviceResponse, merchantInfo, cart);
+        } catch (final WorldpayConfigurationException e) {
+            LOG.error(THERE_IS_NO_CONFIGURATION);
             throw e;
         }
     }
@@ -184,6 +192,19 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return createNoop();
     }
 
+    @Override
+    public String createJsonWebTokenForDDC() {
+        final WorldpayMerchantConfigData merchantConfigData = getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData();
+        return worldpayJsonWebTokenService.createJsonWebTokenForDDC(merchantConfigData);
+    }
+
+    @Override
+    public String getEventOriginDomainForDDC() {
+        return getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData() != null &&
+                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings() != null ?
+                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings().getEventOriginDomain() : null;
+    }
+
     protected ApplePayOrderUpdate createNoop() {
         final ApplePayLineItem newTotalLineItem = new ApplePayLineItem();
         newTotalLineItem.setType("final");
@@ -218,7 +239,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             LOG.error(errorMessage);
             throw new WorldpayException(errorMessage);
         } else {
-            throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WTH_WORLDPAY);
+            throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY);
         }
     }
 
@@ -247,8 +268,47 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             LOG.error(errorMessage);
             throw new WorldpayException(errorMessage);
         } else {
-            throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WTH_WORLDPAY);
+            throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY);
         }
+    }
+
+    @Override
+    public DirectResponseData executeSecondPaymentAuthorisation3DSecure(final String sessionId) throws WorldpayException, InvalidCartException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
+        return internalSecondPaymentAuthorise3DSecure(sessionId, merchantInfo);
+    }
+
+    private DirectResponseData internalSecondPaymentAuthorise3DSecure(final String sessionId, final MerchantInfo merchantInfo) throws WorldpayException, InvalidCartException {
+        final DirectResponseData response = new DirectResponseData();
+        DirectAuthoriseServiceResponse serviceResponse = null;
+        if (cartService.hasSessionCart()) {
+            final CartModel cartModel = cartService.getSessionCart();
+            serviceResponse = worldpayDirectOrderService.authorise3DSecureAgain(merchantInfo, cartModel.getWorldpayOrderCode(), sessionId);
+            if (shouldProcessResponse(serviceResponse)) {
+                final PaymentReply paymentReply = serviceResponse.getPaymentReply();
+                final AuthorisedStatus authStatus = paymentReply.getAuthStatus();
+                if (AUTHORISED.equals(authStatus)) {
+                    worldpayDirectOrderService.completeAuthorise3DSecure(cartModel, serviceResponse, merchantInfo);
+                    handleAuthorisedResponse(response);
+                } else if (REFUSED.equals(authStatus)) {
+                    handleRefusedResponse(response, paymentReply.getReturnCode());
+                } else {
+                    final String errorMessage = format(ERROR_AUTHORISING_ORDER, serviceResponse.getOrderCode());
+                    LOG.error(errorMessage);
+                    throw new WorldpayException(errorMessage);
+                }
+                return response;
+            } else if (serviceResponse.getErrorDetail() != null) {
+                final String errorMessage = format(THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE, serviceResponse.getErrorDetail().getMessage());
+                LOG.error(errorMessage);
+                throw new WorldpayException(errorMessage);
+            } else {
+                throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY);
+            }
+        } else {
+            throwWorldpayException("The session has not a valid cart");
+        }
+        return response;
     }
 
     protected DirectResponseData handleDirectServiceResponse(final DirectAuthoriseServiceResponse serviceResponse, final MerchantInfo merchantInfo, final AbstractOrderModel abstractOrderModel)
@@ -266,7 +326,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             LOG.error(errorMessage);
             throw new WorldpayException(errorMessage);
         } else {
-            throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WTH_WORLDPAY);
+            throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY);
         }
     }
 
@@ -304,7 +364,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             } else if (CANCELLED.equals(status)) {
                 handleCancelledResponse(response);
             }
-        } else if (serviceResponse.is3DSecured()) {
+        } else if (serviceResponse.get3DSecureFlow().isPresent()) {
             handle3DInfoRequest(response, serviceResponse.getRequest3DInfo());
         } else {
             final String errorMessage = format(ERROR_AUTHORISING_ORDER, abstractOrderModel.getWorldpayOrderCode());
@@ -319,7 +379,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     protected boolean shouldProcessResponse(final DirectAuthoriseServiceResponse serviceResponse) {
-        return serviceResponse.getPaymentReply() != null || serviceResponse.is3DSecured();
+        return serviceResponse.getPaymentReply() != null || serviceResponse.get3DSecureFlow().isPresent();
     }
 
     protected boolean shouldProcessRedirect(final DirectAuthoriseServiceResponse serviceResponse) {
@@ -342,24 +402,17 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     protected void handle3DInfoRequest(final DirectResponseData response, final Request3DInfo request3DInfo) {
-        response.setTransactionStatus(TransactionStatus.AUTHENTICATION_REQUIRED);
         response.setIssuerURL(request3DInfo.getIssuerUrl());
         response.setPaRequest(request3DInfo.getPaRequest());
+        response.setIssuerPayload(request3DInfo.getIssuerPayload());
+        response.setMajor3DSVersion(request3DInfo.getMajor3DSVersion());
+        response.setTransactionId3DS(request3DInfo.getTransactionId3DS());
+        response.setTransactionStatus(TransactionStatus.AUTHENTICATION_REQUIRED);
     }
 
     @Required
     public void setWorldpayDirectOrderService(final WorldpayDirectOrderService worldpayDirectOrderService) {
         this.worldpayDirectOrderService = worldpayDirectOrderService;
-    }
-
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
-    }
-
-    @Required
-    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
-        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
 
     @Required
@@ -381,8 +434,18 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return worldpayMerchantInfoService;
     }
 
+    @Required
+    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
+    }
+
     public CartService getCartService() {
         return cartService;
+    }
+
+    @Required
+    public void setCartService(final CartService cartService) {
+        this.cartService = cartService;
     }
 
     public WorldpayMerchantConfigDataFacade getWorldpayMerchantConfigDataFacade() {
@@ -394,10 +457,17 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
     }
 
-    public CartFacade getCartFacade() { return cartFacade; }
+    public CartFacade getCartFacade() {
+        return cartFacade;
+    }
 
     @Required
     public void setCartFacade(final CartFacade cartFacade) {
         this.cartFacade = cartFacade;
+    }
+
+    @Required
+    public void setWorldpayJsonWebTokenService(final WorldpayJsonWebTokenService worldpayJsonWebTokenService) {
+        this.worldpayJsonWebTokenService = worldpayJsonWebTokenService;
     }
 }

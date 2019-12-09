@@ -10,6 +10,7 @@ import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.util.WorldpayConstants;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpEntity;
@@ -29,7 +30,8 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayConnector.class);
 
-    protected static final String WORLDPAY_CONFIG_ENDPOINT = "worldpay.config.endpoint";
+    protected static final String WORLDPAY_CONFIG_CONTEXT = "worldpay.config.context";
+    protected static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
     protected static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
 
     private PaymentServiceMarshaller paymentServiceMarshaller;
@@ -46,7 +48,10 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
                                            final MerchantInfo merchantInfo,
                                            final String cookie) throws WorldpayException {
         final String environment = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT);
-        final String endpoint = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENDPOINT + "." + environment);
+        final String domain = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_DOMAIN + "." + environment);
+        final String context = configurationService.getConfiguration().getString( WORLDPAY_CONFIG_CONTEXT + "." + environment);
+        final String endpoint = domain + context;
+
 
         final URI uri = URI.create(endpoint);
         final HttpHeaders headers = configureHttpHeaders(merchantInfo, cookie, uri.getHost());
@@ -60,6 +65,7 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Basic " + new String(Base64.getEncoder().encode(plainCreds), StandardCharsets.UTF_8));
         headers.add(HttpHeaders.HOST, host);
+        headers.add(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_XML.toString());
         Optional.ofNullable(cookie).ifPresent(cookieValue -> headers.add(HttpHeaders.COOKIE, cookieValue));
         return headers;
     }

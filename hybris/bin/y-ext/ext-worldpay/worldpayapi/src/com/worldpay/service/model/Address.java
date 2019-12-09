@@ -60,12 +60,14 @@ public class Address implements InternalModelTransformer, Serializable {
     @Override
     public InternalModelObject transformToInternalModel() {
         final com.worldpay.internal.model.Address intAddress = new com.worldpay.internal.model.Address();
-        if (firstName != null) {
-            intAddress.setFirstName(firstName);
-        }
-        if (lastName != null) {
-            intAddress.setLastName(lastName);
-        }
+
+        intAddress.setFirstName(firstName);
+        intAddress.setLastName(lastName);
+        intAddress.setPostalCode(postalCode);
+        intAddress.setCity(city);
+        intAddress.setState(state);
+        intAddress.setCountryCode(countryCode);
+
         List<Object> addressDetails = intAddress.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3();
         if (street != null) {
             final Street intStreet = new Street();
@@ -102,18 +104,7 @@ public class Address implements InternalModelTransformer, Serializable {
             intAddress3.setvalue(address3);
             addressDetails.add(intAddress3);
         }
-        if (postalCode != null) {
-            intAddress.setPostalCode(postalCode);
-        }
-        if (city != null) {
-            intAddress.setCity(city);
-        }
-        if (state != null) {
-            intAddress.setState(state);
-        }
-        if (countryCode != null) {
-            intAddress.setCountryCode(countryCode);
-        }
+
         if (StringUtils.isNotBlank(telephoneNumber)) {
             intAddress.setTelephoneNumber(telephoneNumber);
         }
