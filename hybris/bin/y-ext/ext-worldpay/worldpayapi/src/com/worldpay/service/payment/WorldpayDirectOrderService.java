@@ -30,6 +30,18 @@ public interface WorldpayDirectOrderService {
     DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
 
     /**
+     * Builds the directTokenAndAuthoriseRequest containing the encrypted card details and the address-details.
+     * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
+     *
+     * @param merchantInfo               Merchant configuration
+     * @param cartModel                  {@link CartModel} used in the current checkout.
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     * @param cseAdditionalAuthInfo
+     * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
+     */
+    DirectAuthoriseServiceResponse createTokenAndAuthorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException;
+
+    /**
      * Builds the directAuthoriseRequest containing the payment details for a Bank transfer.
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
      *
@@ -57,13 +69,12 @@ public interface WorldpayDirectOrderService {
     /**
      * Builds the directAuthoriseRequest containing the encrypted card details and the address-details.
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
-     *
+     *  @param cartModel                  {@link CartModel} used in the current checkout.
      * @param merchantInfo               Merchant configuration
-     * @param cartModel                  {@link CartModel} used in the current checkout.
      * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      */
-    void createToken(final MerchantInfo merchantInfo, final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
+    void createToken(final CartModel cartModel, final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
             throws WorldpayException;
 
     /**
@@ -151,8 +162,7 @@ public interface WorldpayDirectOrderService {
      *
      * @param merchantInfo                       Merchant configuration.
      * @param worldpayOrderCode                  used in the current checkout.
-     * @param sessionId                          the session id that come from the request.
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
-    DirectAuthoriseServiceResponse authorise3DSecureAgain(MerchantInfo merchantInfo, String worldpayOrderCode, String sessionId) throws WorldpayException;
+    DirectAuthoriseServiceResponse authorise3DSecureAgain(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException;
 }

@@ -2,6 +2,7 @@ package com.worldpay.core.services.impl;
 
 import com.evanlennick.retry4j.config.RetryConfig;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.WorldpayServiceGateway;
@@ -128,7 +129,7 @@ public class DefaultOrderInquiryServiceTest {
     }
 
     @Test
-    public void processOrderInquiryServiceResponseShouldCreateAPMPaymentInfo() {
+    public void processOrderInquiryServiceResponseShouldCreateAPMPaymentInfo() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
 
         testObj.processOrderInquiryServiceResponse(paymentTransactionModelMock, orderInquiryServiceResponseMock);
@@ -138,7 +139,7 @@ public class DefaultOrderInquiryServiceTest {
     }
 
     @Test
-    public void processOrderInquiryServiceResponseShouldNotCreateAPMPaymentInfoWhenNotAPM() {
+    public void processOrderInquiryServiceResponseShouldNotCreateAPMPaymentInfoWhenNotAPM() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
 
         testObj.processOrderInquiryServiceResponse(paymentTransactionModelMock, orderInquiryServiceResponseMock);
@@ -148,7 +149,7 @@ public class DefaultOrderInquiryServiceTest {
     }
 
     @Test
-    public void processOrderInquiryServiceResponseShouldDoNothingWhenInquiryResponseHasErrors() {
+    public void processOrderInquiryServiceResponseShouldDoNothingWhenInquiryResponseHasErrors() throws WorldpayConfigurationException {
         when(orderInquiryServiceResponseMock.isError()).thenReturn(true);
         when(orderInquiryServiceResponseMock.getErrorDetail().getMessage()).thenReturn(ERROR_MESSAGE);
 

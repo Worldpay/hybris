@@ -6,6 +6,7 @@ import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.model.MerchantInfo;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
+import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.InvalidCartException;
 
 /**
@@ -16,11 +17,13 @@ public interface WorldpayDirectOrderFacade {
     /**
      * Performs a tokenize with Worldpay
      *
+     *
+     * @param cartModel
      * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      * @throws WorldpayException - something went wrong
      */
-    void tokenize(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
+    void tokenize(final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
 
     /**
      * Performs a direct authorisation using Client Side Encryption with Worldpay.
@@ -31,6 +34,7 @@ public interface WorldpayDirectOrderFacade {
      * @throws InvalidCartException - something went wrong
      */
     DirectResponseData authorise(final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
+
 
     /**
      * Retrieves the origin event domain to verify the validity of the message received by DCC Iframe
@@ -132,10 +136,31 @@ public interface WorldpayDirectOrderFacade {
     /**
      * Execute the second payment request for 3d secure flow
      *
-     * @param sessionId - the current process session id
      * @return DirectResponseData
      * @throws WorldpayException    - something went wrong
      * @throws InvalidCartException - something went wrong
      */
-    DirectResponseData executeSecondPaymentAuthorisation3DSecure(String sessionId) throws WorldpayException, InvalidCartException;
+    DirectResponseData executeSecondPaymentAuthorisation3DSecure() throws WorldpayException, InvalidCartException;
+
+    /**
+     * Performs a direct tokenize and authorisation at same time using Client Side Encryption with Worldpay.
+     *
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
+     * @return {@link DirectResponseData} Wrapper object containing information on the response from Worldpay
+     * @throws WorldpayException    - something went wrong
+     * @throws InvalidCartException - something went wrong
+     */
+    DirectResponseData authoriseAndTokenize(final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException;
+
+    /**
+     * Performs a tokenize with Worldpay
+     *
+     *
+     * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     * @throws WorldpayException - something went wrong
+     */
+    void tokenize(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
+
 }

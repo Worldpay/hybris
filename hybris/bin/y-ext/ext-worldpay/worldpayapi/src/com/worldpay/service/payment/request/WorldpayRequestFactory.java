@@ -127,21 +127,40 @@ public interface WorldpayRequestFactory {
     /**
      * Builds a direct authorise request using ApplePay
      *
-     * @param merchantInfoMock
-     * @param cartModelMock
+     * @param merchantInfo
+     * @param cartModel
      * @param applePayAdditionalInfo
-     * @return
+     * @return a directAuthoriseServiceRequest
      */
-    DirectAuthoriseServiceRequest buildApplePayDirectAuthorisationRequest(MerchantInfo merchantInfoMock, CartModel cartModelMock, ApplePayAdditionalAuthInfo applePayAdditionalInfo);
+    DirectAuthoriseServiceRequest buildApplePayDirectAuthorisationRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalInfo);
 
     /**
      * Builds the second 3D secure payment request to send to Worldpay
      *
-     * @param merchantInfo               the merchantInfo
-     * @param worldpayOrderCode          the current checkout order code
-     * @param sessionId                  the session id
-     * @param cookie                     the cookie
+     * @param merchantInfo      the merchantInfo
+     * @param worldpayOrderCode the current checkout order code
+     * @param sessionId         the session id
+     * @param cookie            the cookie
      * @return Built {@link SecondThreeDSecurePaymentRequest}
      */
-    SecondThreeDSecurePaymentRequest buildSecondThreeDSecurePaymentRequest(MerchantInfo merchantInfo, String worldpayOrderCode, String sessionId, String cookie);
+    SecondThreeDSecurePaymentRequest buildSecondThreeDSecurePaymentRequest(final MerchantInfo merchantInfo, final String worldpayOrderCode, final String sessionId, final String cookie);
+
+
+    /**
+     * Builds a tokenised authorisation direct request
+     *
+     * @param merchantInfo
+     * @param cartModel
+     * @return a directAuthoriseServiceRequest
+     */
+    DirectAuthoriseServiceRequest buildDirectTokenAndAuthorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo);
+
+    /**
+     * Builds a redirect authorise request
+     * @param merchantInfo
+     * @param cartModel
+     * @param additionalAuthInfo
+     * @return
+     */
+    RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo);
 }

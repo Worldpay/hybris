@@ -10,7 +10,7 @@
  Information and shall use it only in accordance with the terms of the
  license agreement you entered into with hybris.
 
-  
+
 --><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
         
     <extension abstractclassprefix="Generated" classprefix="Worldpayoms" managername="WorldpayomsManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayoms" usemaven="false">

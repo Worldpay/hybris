@@ -51,7 +51,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
     @Override
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
         com.worldpay.internal.model.Order intOrder = new com.worldpay.internal.model.Order();
-        List<Object> childElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrInfo3DSecureOrSession();
+        List<Object> childElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
 
         if (getOrderCode() != null) {
             intOrder.setOrderCode(getOrderCode());
@@ -109,7 +109,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
             final Info3DSecure intInfo3dSecure = new Info3DSecure();
             final PaResponse intPaResponse = new PaResponse();
             intPaResponse.setvalue(getPaResponse());
-            intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrXidOrCavvOrEciOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrDsTransactionId().add(intPaResponse);
+            intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEci().add(intPaResponse);
             childElements.add(intInfo3dSecure);
         }
         if (session != null) {
@@ -401,6 +401,10 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
 
     public void setDynamicInteractionType(final DynamicInteractionType dynamicInteractionType) {
         this.dynamicInteractionType = dynamicInteractionType;
+    }
+
+    public DynamicInteractionType getDynamicInteractionType() {
+        return dynamicInteractionType;
     }
 
     public Additional3DSData getAdditional3DSData() {

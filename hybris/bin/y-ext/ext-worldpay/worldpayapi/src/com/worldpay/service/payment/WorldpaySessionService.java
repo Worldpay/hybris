@@ -17,11 +17,18 @@ public interface WorldpaySessionService {
     void setSessionAttributesFor3DSecure(DirectAuthoriseServiceResponse authoriseServiceResponse, WorldpayAdditionalInfoData worldpayAdditionalInfoData);
 
     /**
-     * Removes the value stored in the session with the name as {@code param}
+     * Removes the ThreeDSecureCookie stored in the session, and returns it
      *
      * @return
      */
     String getAndRemoveThreeDSecureCookie();
+
+    /**
+     * Removes the AddidionalDataSessionId stored in the session, and returns it
+     *
+     * @return
+     */
+    String getAndRemoveAdditionalDataSessionId();
 
     /**
      * Returns the window size stored in the current session

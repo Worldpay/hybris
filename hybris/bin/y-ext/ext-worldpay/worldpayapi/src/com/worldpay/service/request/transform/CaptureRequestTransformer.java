@@ -5,7 +5,10 @@ import com.worldpay.internal.model.*;
 import com.worldpay.service.request.CaptureServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.commons.collections.CollectionUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Specific class for transforming an {@link CaptureServiceRequest} into a {@link PaymentService} object
@@ -29,7 +32,11 @@ import org.springframework.beans.factory.annotation.Required;
 public class CaptureRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
+
+    public CaptureRequestTransformer(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     /**
      * (non-Javadoc)
@@ -58,14 +65,32 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
         if (captureRequest.getDate() != null) {
             capture.setDate((Date) captureRequest.getDate().transformToInternalModel());
         }
+
+        setShippingInfo(captureRequest.getTrackingIds(), capture);
+
         orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().add(capture);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
     }
 
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
+    protected void setShippingInfo(final List<String> trackingIds, final Capture capture) {
+        if (CollectionUtils.isNotEmpty(trackingIds)) {
+            final Shipping shipping = new Shipping();
+            shipping.getShippingInfo().addAll(getShippingInfos(trackingIds));
+            capture.setShipping(shipping);
+        }
+    }
+
+    protected List<ShippingInfo> getShippingInfos(final List<String> trackingIds) {
+        return trackingIds.stream()
+                .map(this::getShippingInfoWithTrackingId)
+                .collect(Collectors.toList());
+    }
+
+    protected ShippingInfo getShippingInfoWithTrackingId(final String trackingId) {
+        final ShippingInfo shippingInfo = new ShippingInfo();
+        shippingInfo.setTrackingId(trackingId);
+        return shippingInfo;
     }
 }

@@ -143,10 +143,10 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSESubscriptionAdditionalAuthInfo(csePaymentForm);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, csePaymentForm.getSecurityCode(), cseAdditionalAuthInfo);
 
-        return handleResponse(model, worldpayAdditionalInfoData, response);
+        return authorisePayment(model, worldpayAdditionalInfoData, response);
     }
 
-    protected String handleResponse(final Model model, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final HttpServletResponse response) throws CMSItemNotFoundException {
+    protected String authorisePayment(final Model model, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final HttpServletResponse response) throws CMSItemNotFoundException {
         try {
             final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(worldpayAdditionalInfoData);
             return handleDirectResponse(model, directResponseData, response);
@@ -240,7 +240,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private boolean hasTaxCalculated(final CartData cartData, final Model model) {
         if (!getCheckoutFacade().containsTaxValues()) {
             LOGGER.error(format(
-                    "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can't continue",
+                    "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
                     cartData.getCode()));
             addErrorMessage(model, "checkout.error.tax.missing");
             return false;
@@ -250,7 +250,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
     private boolean isCartCalculated(final CartData cartData, final Model model) {
         if (!cartData.isCalculated()) {
-            LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can't continue", cartData.getCode()));
+            LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can\'t continue", cartData.getCode()));
             addErrorMessage(model, "checkout.error.cart.notcalculated");
             return false;
         }

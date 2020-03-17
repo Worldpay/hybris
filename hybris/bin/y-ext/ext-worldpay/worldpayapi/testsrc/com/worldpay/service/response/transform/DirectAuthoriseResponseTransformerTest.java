@@ -135,7 +135,7 @@ public class DirectAuthoriseResponseTransformerTest {
         final RequestInfo requestInfo = new RequestInfo();
 
         final ChallengeRequired challengeRequired = new ChallengeRequired();
-        ThreeDSChallengeDetails threeDSChallengeDetails = new ThreeDSChallengeDetails();
+        final ThreeDSChallengeDetails threeDSChallengeDetails = new ThreeDSChallengeDetails();
         threeDSChallengeDetails.setAcsURL(ISSUER_URL);
         threeDSChallengeDetails.setPayload(ISSUER_PAYLOAD);
         ThreeDSVersion threeDSVersion = new ThreeDSVersion();

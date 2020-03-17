@@ -108,7 +108,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @RequestMapping(value = "/users/{userId}/worldpayorders/3dresponse", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    protected OrderWsDTO doHandleThreeDSecureResponse(final HttpServletRequest request,
+    public OrderWsDTO doHandleThreeDSecureResponse(final HttpServletRequest request,
                                   @RequestParam final String cartId,
                                   @RequestParam final String paRes,
                                   @RequestParam final String merchantData,

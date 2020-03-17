@@ -6,6 +6,7 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.AuthoriseServiceRequest;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.request.transform.AuthoriseRequestTransformer;
@@ -65,8 +66,17 @@ public class DefaultWorldpayXMLValidatorTest {
     public void testValidate() throws WorldpayValidationException, WorldpayModelTransformationException {
         final List<PaymentType> includedPTs = singletonList(ONLINE);
         final Shopper shopper = new Shopper(EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
-                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT);
+        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(includedPTs)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         final PaymentService paymentService = testObj.transform(request);
 
@@ -78,8 +88,8 @@ public class DefaultWorldpayXMLValidatorTest {
         final List<PaymentType> includedPTs = singletonList(ONLINE);
         final Shopper shopper = new Shopper(EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON, false);
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
-                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, tokenRequest);
+        final AuthoriseRequestParameters authoriseRequestParameters = getAuthoriseRequestParameters(includedPTs, shopper, tokenRequest);
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         final PaymentService paymentService = testObj.transform(request);
 
@@ -91,11 +101,25 @@ public class DefaultWorldpayXMLValidatorTest {
         final List<PaymentType> includedPTs = singletonList(ONLINE);
         final Shopper shopper = new Shopper(EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON, true);
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, basicOrderInfo, null, ORDER_CONTENT,
-                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, tokenRequest);
+        final AuthoriseRequestParameters authoriseRequestParameters = getAuthoriseRequestParameters(includedPTs, shopper, tokenRequest);
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         final PaymentService paymentService = testObj.transform(request);
 
         VALIDATOR.validate(paymentService);
+    }
+
+    protected AuthoriseRequestParameters getAuthoriseRequestParameters(final List<PaymentType> includedPTs, final Shopper shopper, final TokenRequest tokenRequest) {
+        return AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(includedPTs)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withTokenRequest(tokenRequest)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
     }
 }

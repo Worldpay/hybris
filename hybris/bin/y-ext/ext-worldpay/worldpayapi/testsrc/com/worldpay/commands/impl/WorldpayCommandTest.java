@@ -1,8 +1,5 @@
 package com.worldpay.commands.impl;
 
-import static org.jgroups.util.Util.assertEquals;
-import static org.mockito.Mockito.when;
-
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.model.MerchantInfo;
@@ -15,6 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
 public class WorldpayCommandTest {
@@ -22,7 +22,7 @@ public class WorldpayCommandTest {
     private static final String ORDER_CODE = "orderCode";
 
     @InjectMocks
-    private WorldpayCommand testObj = new WorldpayCommand();
+    private WorldpayCommand testObj;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock

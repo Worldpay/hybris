@@ -1,6 +1,7 @@
 package com.worldpay.notification.processors.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
@@ -34,7 +35,7 @@ public class DefaultRefusedOrderNotificationProcessorStrategy implements OrderNo
      * @see OrderNotificationProcessorStrategy#processNotificationMessage(PaymentTransactionModel, OrderNotificationMessage)
      */
     @Override
-    public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
+    public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) throws WorldpayConfigurationException {
         final AbstractOrderModel orderModel = paymentTransactionModel.getOrder();
         if (isOrderRefusable(orderModel)) {
             worldpayPaymentInfoService.setPaymentInfoModel(paymentTransactionModel, orderModel, orderNotificationMessage);

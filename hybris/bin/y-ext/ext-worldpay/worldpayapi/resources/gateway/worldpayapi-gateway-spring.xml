@@ -116,7 +116,7 @@
     </bean>
     <bean id="captureRequestTransformer"
           class="com.worldpay.service.request.transform.CaptureRequestTransformer">
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
     <bean id="cancelRequestTransformer"
           class="com.worldpay.service.request.transform.CancelRequestTransformer">

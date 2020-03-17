@@ -1,23 +1,36 @@
 package com.worldpay.facades.payment.direct.impl;
 
+import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayB2BDirectOrderFacade;
+import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
 import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.payment.WorldpayDirectOrderService;
+import com.worldpay.service.payment.WorldpayJsonWebTokenService;
+import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
+import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.b2b.services.B2BOrderService;
+import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.OrderModel;
+import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Implementation of the authorise operations that enables the Client Side Encryption with Worldpay
  */
 public class DefaultWorldpayB2BDirectOrderFacade extends DefaultWorldpayDirectOrderFacade implements WorldpayB2BDirectOrderFacade {
 
-    private B2BOrderService b2BOrderService;
+    private final B2BOrderService b2BOrderService;
+
+    public DefaultWorldpayB2BDirectOrderFacade(final WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy, final WorldpayDirectOrderService worldpayDirectOrderService, final WorldpayJsonWebTokenService worldpayJsonWebTokenService, final CartService cartService, final WorldpayMerchantInfoService worldpayMerchantInfoService, final AcceleratorCheckoutFacade acceleratorCheckoutFacade, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade, final CartFacade cartFacade, final B2BOrderService b2BOrderService) {
+        super(worldpayAuthenticatedShopperIdStrategy, worldpayDirectOrderService, worldpayJsonWebTokenService, cartService, worldpayMerchantInfoService, acceleratorCheckoutFacade, worldpayPaymentInfoService, worldpayMerchantConfigDataFacade, cartFacade);
+        this.b2BOrderService = b2BOrderService;
+    }
 
     /**
      * {@inheritDoc}
@@ -46,8 +59,4 @@ public class DefaultWorldpayB2BDirectOrderFacade extends DefaultWorldpayDirectOr
         response.setTransactionStatus(TransactionStatus.AUTHORISED);
     }
 
-    @Required
-    public void setB2BOrderService(B2BOrderService b2BOrderService) {
-        this.b2BOrderService = b2BOrderService;
-    }
 }

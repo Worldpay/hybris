@@ -1,6 +1,5 @@
 $contentCatalog=powertoolsContentCatalog
 $contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$jarResourceCms=jar:com.worldpay.constants.WorldpaysampledataaddonConstants&/worldpaysampledataaddon/import/cockpits/cmscockpit
 
 $media=@media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator]
 $lang=en
@@ -13,11 +12,3 @@ INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active;c
 
 INSERT_UPDATE ContentSlotForPage;$contentCV[unique=true];uid[unique=true];position[unique=true];page(uid,$contentCV)[unique=true];contentSlot(uid,$contentCV)[unique=true]
 ;;Side-WorldpayPaymentAndBillingCheckoutPage;SideContent;worldpayPaymentAndBillingCheckoutPage;SideContent-WorldpayPaymentAndBillingCheckoutPage
-
-#CMSCockpit Preview Image for WorldpayPaymentAndBillingCheckoutPage
-INSERT_UPDATE Media;$contentCV[unique=true];code[unique=true];mime;realfilename;$media[forceWrite=true]
-;;worldpayPaymentAndBillingCheckoutPagePreview;text/png;WorldpayPaymentAndBillingPowertools.png;$jarResourceCms/preview-images/powertools/WorldpayPaymentAndBillingPowertools.png
-
-# Preview for WorldpayPaymentAndBillingCheckoutPage
-UPDATE WorldpayPaymentPage;$contentCV[unique=true];uid[unique=true];previewImage(code,$contentCV);masterTemplate(uid,$contentCV)
-;;worldpayPaymentAndBillingCheckoutPage;worldpayPaymentAndBillingCheckoutPagePreview;WorldpayCSEPaymentAndBillingCheckoutPageTemplate
