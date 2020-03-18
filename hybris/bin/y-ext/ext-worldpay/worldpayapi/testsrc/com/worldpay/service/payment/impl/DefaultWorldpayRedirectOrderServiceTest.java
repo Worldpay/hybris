@@ -10,9 +10,9 @@ import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayTokenEventReferenceCreationStrategy;
+import com.worldpay.service.payment.request.WorldpayRequestFactory;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
@@ -49,15 +49,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.junit.Assert.*;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyMapOf;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -96,6 +91,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private static final String KEY_PAYMENT_AMOUNT = "paymentAmount";
     private static final String KEY_PAYMENT_CURRENCY = "paymentCurrency";
     private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
+    private static final String ERROR_MESSAGE = "errorMessage";
 
     @Spy
     @InjectMocks
@@ -156,10 +152,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Mock
     private Shopper shopperMock;
     @Mock
-    private TokenRequest tokenRequestMock;
-    @Mock
-    private Shopper authenticatedShopperMock;
-    @Mock
     private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategyMock;
     @Mock
     private WorldpayTokenEventReferenceCreationStrategy worldpayTokenEventReferenceCreationStrategyMock;
@@ -175,22 +167,17 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     private AddressService addressServiceMock;
     @Mock
     private CurrencyModel currencyModelMock;
+    @Mock
+    private WorldpayRequestFactory worldpayRequestFactoryMock;
+    @Mock
+    private ErrorDetail errorDetailMock;
 
     @Before
     public void setUp() throws WorldpayException {
-        when(cartModelMock.getTotalPrice()).thenReturn(TOTAL_PRICE);
-        when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
-        when(currencyModelMock.getIsocode()).thenReturn(GBP);
-        when(cartModelMock.getUser()).thenReturn(customerModelMock);
-        when(cartModelMock.getPaymentAddress()).thenReturn(cartPaymentAddressModelMock);
-        when(customerEmailResolutionServiceMock.getEmailForCustomer(customerModelMock)).thenReturn(CUSTOMER_EMAIL);
-        when(worldpayAddressConverterMock.convert(cartModelMock.getPaymentAddress())).thenReturn(billingAddressMock);
-        when(redirectAuthoriseServiceResponseMock.getRedirectReference()).thenReturn(redirectReferenceMock);
-        when(commonI18NServiceMock.getCurrentLanguage().getIsocode()).thenReturn(LANGUAGE_ISO_CODE);
-        when(modelServiceMock.create(PaymentInfoModel.class)).thenReturn(paymentInfoModelMock);
-        when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), eq(WORLDPAY_ORDER_CODE), any(Amount.class))).thenReturn(basicOrderInfoMock);
-        when(worldpayOrderServiceMock.createShopper(CUSTOMER_EMAIL, null, null)).thenReturn(shopperMock);
+        when(worldpayRequestFactoryMock.buildRedirectAuthoriseRequest(merchantInfoMock, cartModelMock, additionalAuthInfoMock)).thenReturn(redirectAuthoriseServiceRequestMock);
         when(worldpayServiceGatewayMock.redirectAuthorise(redirectAuthoriseServiceRequestMock)).thenReturn(redirectAuthoriseServiceResponseMock);
+        when(redirectAuthoriseServiceResponseMock.getRedirectReference()).thenReturn(redirectReferenceMock);
+        when(redirectAuthoriseServiceRequestMock.getOrder().getBillingAddress().getCountryCode()).thenReturn(COUNTRY_CODE);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(redirectReferenceMock.getValue()).thenReturn(REDIRECT_URL);
         when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(FULL_SUCCESS_URL);
@@ -198,6 +185,19 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FULL_FAILURE_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(FULL_CANCEL_URL);
         when(worldpayUrlServiceMock.getFullErrorURL()).thenReturn(FULL_ERROR_URL);
+        when(commonI18NServiceMock.getCurrentLanguage().getIsocode()).thenReturn(LANGUAGE_ISO_CODE);
+
+        when(cartModelMock.getTotalPrice()).thenReturn(TOTAL_PRICE);
+        when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
+        when(currencyModelMock.getIsocode()).thenReturn(GBP);
+        when(cartModelMock.getUser()).thenReturn(customerModelMock);
+        when(cartModelMock.getPaymentAddress()).thenReturn(cartPaymentAddressModelMock);
+        when(customerEmailResolutionServiceMock.getEmailForCustomer(customerModelMock)).thenReturn(CUSTOMER_EMAIL);
+        when(worldpayAddressConverterMock.convert(cartModelMock.getPaymentAddress())).thenReturn(billingAddressMock);
+        when(modelServiceMock.create(PaymentInfoModel.class)).thenReturn(paymentInfoModelMock);
+        when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), eq(WORLDPAY_ORDER_CODE), any(Amount.class))).thenReturn(basicOrderInfoMock);
+        when(worldpayOrderServiceMock.createShopper(CUSTOMER_EMAIL, null, null)).thenReturn(shopperMock);
+
         when(worldpayPaymentInfoServiceMock.createPaymentInfo(cartModelMock)).thenReturn(paymentInfoModelMock);
         when(worldpayAuthenticatedShopperIdStrategyMock.getAuthenticatedShopperId(customerModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayTokenEventReferenceCreationStrategyMock.createTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
@@ -205,32 +205,17 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         when(worldpayDeliveryAddressStrategyMock.getDeliveryAddress(cartModelMock)).thenReturn(potentialPickupAddressModelMock);
         when(worldpayAddressConverterMock.convert(cartDeliveryAddressModelMock)).thenReturn(cartDeliveryAddressMock);
         when(worldpayAddressConverterMock.convert(potentialPickupAddressModelMock)).thenReturn(potentialPickupAddressMock);
-        when(redirectAuthoriseServiceRequestMock.getOrder().getBillingAddress().getCountryCode()).thenReturn(COUNTRY_CODE);
         when(addressServiceMock.cloneAddressForOwner(cartPaymentAddressModelMock, paymentInfoModelMock)).thenReturn(clonedAddressMock);
-
         doReturn(paymentTypeListMock).when(testObj).getIncludedPaymentTypeList(additionalAuthInfoMock);
         doReturn(commerceCheckoutParameterMock).when(testObj).createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, bigDecimalMock);
-        doReturn(redirectAuthoriseServiceRequestMock).when(testObj).createRedirectAuthoriseRequest(merchantInfoMock, additionalAuthInfoMock, shopperMock, basicOrderInfoMock, paymentTypeListMock, null, potentialPickupAddressMock, cartDeliveryAddressMock);
-        doReturn(redirectAuthoriseServiceRequestMock).when(testObj).createRedirectAuthoriseRequest(merchantInfoMock, additionalAuthInfoMock, shopperMock, basicOrderInfoMock, paymentTypeListMock, null, potentialPickupAddressMock, billingAddressMock);
-        doReturn(redirectAuthoriseServiceRequestMock).when(testObj).createRedirectTokenAndAuthoriseRequest(merchantInfoMock, additionalAuthInfoMock, authenticatedShopperMock, basicOrderInfoMock, paymentTypeListMock, null, potentialPickupAddressMock, billingAddressMock, tokenRequestMock);
     }
 
     @Test
-    public void shouldGenerateOrderCode() throws WorldpayException {
-
-        testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
-
-        verify(worldpayOrderServiceMock).createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), eq(WORLDPAY_ORDER_CODE), any(Amount.class));
-        verify(worldpayDeliveryAddressStrategyMock).getDeliveryAddress(cartModelMock);
-    }
-
-    @Test
-    public void testRedirectAuthoriseUseShippingAsBilling() throws WorldpayException {
-        when(additionalAuthInfoMock.getUsingShippingAsBilling()).thenReturn(TRUE);
-        when(cartModelMock.getDeliveryAddress()).thenReturn(cartDeliveryAddressModelMock);
-
+    public void redirectAuthorise_ShouldReturnPaymentDataCorrectlySet_WhenItIsCall() throws WorldpayException {
         final PaymentData result = testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
 
+        verify(sessionServiceMock).setAttribute(WORLDPAY_MERCHANT_CODE, MERCHANT_CODE);
+        verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMapOf(String.class, String.class));
         assertEquals(REDIRECT_URL, result.getPostUrl());
         assertEquals(COUNTRY_CODE, result.getParameters().get(KEY_COUNTRY));
         assertEquals(LANGUAGE_ISO_CODE, result.getParameters().get(KEY_LANGUAGE));
@@ -238,77 +223,36 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         assertEquals(FULL_PENDING_URL, result.getParameters().get(KEY_PENDING_URL));
         assertEquals(FULL_FAILURE_URL, result.getParameters().get(KEY_FAILURE_URL));
         assertEquals(FULL_CANCEL_URL, result.getParameters().get(KEY_CANCEL_URL));
-        verify(testObj).createRedirectAuthoriseRequest(merchantInfoMock, additionalAuthInfoMock, shopperMock, basicOrderInfoMock, paymentTypeListMock, null, potentialPickupAddressMock, cartDeliveryAddressMock);
-    }
-
-    @Test
-    public void shouldUseBillingAddressWhenShippingAddressIsNull() throws WorldpayException {
-        when(cartModelMock.getDeliveryAddress()).thenReturn(null);
-
-        testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
-
-        verify(testObj).createRedirectAuthoriseRequest(merchantInfoMock, additionalAuthInfoMock, shopperMock, basicOrderInfoMock, paymentTypeListMock, null, potentialPickupAddressMock, billingAddressMock);
-    }
-
-    @Test
-    public void shouldUseBillingAddress() throws WorldpayException {
-        when(additionalAuthInfoMock.getUsingShippingAsBilling()).thenReturn(FALSE);
-
-        testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
-
-        verify(testObj).createRedirectAuthoriseRequest(merchantInfoMock, additionalAuthInfoMock, shopperMock, basicOrderInfoMock, paymentTypeListMock, null, potentialPickupAddressMock, billingAddressMock);
     }
 
     @Test(expected = WorldpayException.class)
-    public void testRedirectAuthoriseShouldThrowWorldpayExceptionIfRedirectUrlIsNull() throws WorldpayException {
-        doReturn(redirectAuthoriseServiceRequestMock).when(testObj).createRedirectAuthoriseRequest(eq(merchantInfoMock), eq(additionalAuthInfoMock), eq(shopperMock), eq(basicOrderInfoMock), anyListOf(PaymentType.class), anyListOf(PaymentType.class), eq(potentialPickupAddressMock), eq(potentialPickupAddressMock));
-        when(redirectReferenceMock.getValue()).thenReturn(EMPTY);
+    public void redirectAuthorise_ShouldThrowAWPException_WhenWorldpayServiceGatewayRiseIt() throws WorldpayException {
+        when(worldpayServiceGatewayMock.redirectAuthorise(redirectAuthoriseServiceRequestMock)).thenThrow(new WorldpayException(("Response Error")));
 
         testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
     }
 
-    @Test
-    public void testRedirectAuthoriseNotUseShippingAsBilling() throws WorldpayException {
-        when(additionalAuthInfoMock.getUsingShippingAsBilling()).thenReturn(FALSE);
-        when(worldpayOrderServiceMock.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, null, null)).thenReturn(authenticatedShopperMock);
-        when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, null)).thenReturn(tokenRequestMock);
-        when(additionalAuthInfoMock.getSaveCard()).thenReturn(TRUE);
+    @Test(expected = WorldpayException.class)
+    public void redirectAuthorise_ShouldThrowAWPException_WhenWorldpayServiceGatewayResponseIsNull() throws WorldpayException {
+        when(worldpayServiceGatewayMock.redirectAuthorise(redirectAuthoriseServiceRequestMock)).thenReturn(null);
 
-        final PaymentData result = testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
-
-        assertEquals(REDIRECT_URL, result.getPostUrl());
-        assertEquals(COUNTRY_CODE, result.getParameters().get(KEY_COUNTRY));
-        assertEquals(LANGUAGE_ISO_CODE, result.getParameters().get(KEY_LANGUAGE));
-        assertEquals(FULL_SUCCESS_URL, result.getParameters().get(KEY_SUCCESS_URL));
-        assertEquals(FULL_PENDING_URL, result.getParameters().get(KEY_PENDING_URL));
-        assertEquals(FULL_FAILURE_URL, result.getParameters().get(KEY_FAILURE_URL));
-        assertEquals(FULL_CANCEL_URL, result.getParameters().get(KEY_CANCEL_URL));
-        assertEquals(FULL_ERROR_URL, result.getParameters().get(KEY_ERROR_URL));
-
-        verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMapOf(String.class, String.class));
-        verify(sessionServiceMock).setAttribute(WORLDPAY_MERCHANT_CODE, MERCHANT_CODE);
+        testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
     }
 
-    @Test
-    public void shouldCreateRedirectRequestForTokenisationWhenSavedCardIsEnabled() throws WorldpayException {
-        when(additionalAuthInfoMock.getUsingShippingAsBilling()).thenReturn(FALSE);
-        when(additionalAuthInfoMock.getSaveCard()).thenReturn(TRUE);
-        when(worldpayOrderServiceMock.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, null, null)).thenReturn(authenticatedShopperMock);
-        when(worldpayOrderServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, null)).thenReturn(tokenRequestMock);
+    @Test(expected = WorldpayException.class)
+    public void redirectAuthorise_ShouldThrowAWPException_WhenRedirectReferenceFromRedirectResponseIsNull() throws WorldpayException {
+        when(redirectAuthoriseServiceResponseMock.getRedirectReference()).thenReturn(null);
+        when(redirectAuthoriseServiceResponseMock.getErrorDetail()).thenReturn(errorDetailMock);
+        when(errorDetailMock.getMessage()).thenReturn(ERROR_MESSAGE);
 
-        final PaymentData result = testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
+        testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
+    }
 
-        assertEquals(REDIRECT_URL, result.getPostUrl());
-        assertEquals(COUNTRY_CODE, result.getParameters().get(KEY_COUNTRY));
-        assertEquals(LANGUAGE_ISO_CODE, result.getParameters().get(KEY_LANGUAGE));
-        assertEquals(FULL_SUCCESS_URL, result.getParameters().get(KEY_SUCCESS_URL));
-        assertEquals(FULL_PENDING_URL, result.getParameters().get(KEY_PENDING_URL));
-        assertEquals(FULL_FAILURE_URL, result.getParameters().get(KEY_FAILURE_URL));
-        assertEquals(FULL_CANCEL_URL, result.getParameters().get(KEY_CANCEL_URL));
-        assertEquals(FULL_CANCEL_URL, result.getParameters().get(KEY_CANCEL_URL));
+    @Test(expected = WorldpayException.class)
+    public void redirectAuthorise_ShouldThrowAWPException_WhenRedirectReferenceValueIsNull() throws WorldpayException {
+        when(redirectReferenceMock.getValue()).thenReturn(null);
 
-        verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMapOf(String.class, String.class));
-        verify(sessionServiceMock).setAttribute(WORLDPAY_MERCHANT_CODE, MERCHANT_CODE);
+        testObj.redirectAuthorise(merchantInfoMock, cartModelMock, additionalAuthInfoMock);
     }
 
     @Test
@@ -437,6 +381,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
         assertFalse(result);
     }
+
 
     private Map<String, String> createFullWorldpayResponse() {
         final Map<String, String> worldpayResponse = new HashMap<>();

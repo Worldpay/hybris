@@ -30,6 +30,7 @@ public class PaymentReply implements Serializable {
     private String authorisationId;
     private String authorisedBy;
     private String threeDSecureResultDescription;
+    private SchemeResponse schemeResponse;
 
     public Card getCardDetails() {
         return cardDetails;
@@ -175,6 +176,14 @@ public class PaymentReply implements Serializable {
         this.authorisationId = authorisationId;
     }
 
+    public String getThreeDSecureResultDescription() {
+        return threeDSecureResultDescription;
+    }
+
+    public void setThreeDSecureResultDescription(final String threeDSecureResultDescription) {
+        this.threeDSecureResultDescription = threeDSecureResultDescription;
+    }
+
     public String getAuthorisedBy() {
         return authorisedBy;
     }
@@ -183,12 +192,12 @@ public class PaymentReply implements Serializable {
         this.authorisedBy = authorisedBy;
     }
 
-    public String getThreeDSecureResultDescription() {
-        return threeDSecureResultDescription;
+    public SchemeResponse getSchemeResponse() {
+        return schemeResponse;
     }
 
-    public void setThreeDSecureResultDescription(final String threeDSecureResultDescription) {
-        this.threeDSecureResultDescription = threeDSecureResultDescription;
+    public void setSchemeResponse(final SchemeResponse schemeResponse) {
+        this.schemeResponse = schemeResponse;
     }
 
     @Override
@@ -214,6 +223,7 @@ public class PaymentReply implements Serializable {
                 ", authorisationId='" + authorisationId + '\'' +
                 ", authorisedBy='" + authorisedBy + '\'' +
                 ", threeDSecureResultDescription='" + threeDSecureResultDescription + '\'' +
+                ", schemeResponse=" + schemeResponse +
                 '}';
     }
 }

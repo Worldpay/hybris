@@ -20,7 +20,7 @@
 
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd">
-           
+
     <context:annotation-config/>
 
 	<alias alias="commercePaymentAuthorizationStrategy" name="worldpayCommercePaymentAuthorizationStrategy"/>
@@ -36,7 +36,7 @@
 
 	<alias name="defaultB2BWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>
 	<bean id="defaultB2BWorldpayDirectOrderFacade" parent="defaultWorldpayDirectOrderFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayB2BDirectOrderFacade">
-		<property name="b2BOrderService" ref="b2bOrderService" />
+		<constructor-arg name="b2BOrderService" ref="b2bOrderService" />
 	</bean>
 
 	<!-- Converters and populators -->
@@ -107,5 +107,5 @@
 		<property name="worldpayDirectOrderFacade" ref="worldpayDirectOrderFacade"/>
 		<property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
 	</bean>
-	
+
 </beans>

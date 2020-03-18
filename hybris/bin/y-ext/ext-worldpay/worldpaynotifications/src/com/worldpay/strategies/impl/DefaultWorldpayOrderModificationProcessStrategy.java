@@ -4,6 +4,7 @@ import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.dao.OrderModificationDao;
 import com.worldpay.dao.ProcessDefinitionDao;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -73,17 +74,17 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
 
         for (final WorldpayOrderModificationModel orderModificationModel : orderModificationsByType) {
             final String worldpayOrderCode = orderModificationModel.getWorldpayOrderCode();
-            if (CANCEL.equals(paymentTransactionType)) {
+            if (REFUSED.equals(paymentTransactionType)) {
                 LOG.info(format("Marking order modification with [{0}] transaction for refused worldpayOrder [{1}] as processed", paymentTransactionType, worldpayOrderCode));
                 worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModificationModel);
             } else {
-                success = precessOrderModificationsMessagesNotCanceled(paymentTransactionType, orderModificationModel, worldpayOrderCode);
+                success = precessOrderModificationsMessagesNotRefused(paymentTransactionType, orderModificationModel, worldpayOrderCode);
             }
         }
         return success;
     }
 
-    protected boolean precessOrderModificationsMessagesNotCanceled(final PaymentTransactionType paymentTransactionType, final WorldpayOrderModificationModel orderModificationModel, final String worldpayOrderCode) {
+    protected boolean precessOrderModificationsMessagesNotRefused(final PaymentTransactionType paymentTransactionType, final WorldpayOrderModificationModel orderModificationModel, final String worldpayOrderCode) {
         boolean success = true;
         final Optional<PaymentTransactionModel> paymentTransactionModel = getPaymentTransactionFromCode(worldpayOrderCode);
         if (paymentTransactionModel.isPresent()) {
@@ -153,7 +154,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
     }
 
 
-    protected void processMessage(final PaymentTransactionType paymentTransactionTypeFromCronJob, final WorldpayOrderModificationModel orderModificationModel, final OrderModel orderModel) {
+    protected void processMessage(final PaymentTransactionType paymentTransactionTypeFromCronJob, final WorldpayOrderModificationModel orderModificationModel, final OrderModel orderModel) throws WorldpayConfigurationException {
         final OrderNotificationMessage notificationMessage = orderModificationSerialiser.deserialise(orderModificationModel.getOrderNotificationMessage());
         if (REFUND_FOLLOW_ON.equals(paymentTransactionTypeFromCronJob)) {
             if (worldpayOrderModificationRefundProcessStrategy.processRefundFollowOn(orderModel, notificationMessage)) {
@@ -171,9 +172,9 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
     protected void processNotification(final PaymentTransactionType paymentTransactionTypeFromCronJob,
                                        final WorldpayOrderModificationModel orderModificationModel,
                                        final OrderModel orderModel,
-                                       final OrderNotificationMessage notificationMessage) {
+                                       final OrderNotificationMessage notificationMessage) throws WorldpayConfigurationException {
         PaymentTransactionType paymentTransactionType = paymentTransactionTypeFromCronJob;
-        if (CANCEL.equals(paymentTransactionTypeFromCronJob)) {
+        if (REFUSED.equals(paymentTransactionTypeFromCronJob)) {
             // Rejected payments expect the order to be in a waitFor_AUTHORIZATION state
             paymentTransactionType = AUTHORIZATION;
         }
@@ -205,7 +206,7 @@ public class DefaultWorldpayOrderModificationProcessStrategy implements Worldpay
         return tokenAuthenticatedShopperId == null || tokenAuthenticatedShopperId.equals(worldpayAuthenticatedShopperIdStrategy.getAuthenticatedShopperId(orderModel.getUser()));
     }
 
-    protected void processOrderModification(final WorldpayOrderModificationModel orderModificationModel, final OrderNotificationMessage notificationMessage) {
+    protected void processOrderModification(final WorldpayOrderModificationModel orderModificationModel, final OrderNotificationMessage notificationMessage) throws WorldpayConfigurationException {
         orderNotificationService.processOrderNotificationMessage(notificationMessage);
         worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModificationModel);
     }

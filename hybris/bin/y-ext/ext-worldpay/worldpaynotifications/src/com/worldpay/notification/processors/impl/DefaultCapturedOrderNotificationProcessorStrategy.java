@@ -1,13 +1,13 @@
 package com.worldpay.notification.processors.impl;
 
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
+import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.util.List;
@@ -20,9 +20,15 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
  */
 public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderNotificationProcessorStrategy {
 
-    private TransactionOperations transactionTemplate;
-    private ModelService modelService;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    private final TransactionOperations transactionTemplate;
+    private final ModelService modelService;
+    private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+
+    public DefaultCapturedOrderNotificationProcessorStrategy(final TransactionOperations transactionTemplate, final ModelService modelService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
+        this.transactionTemplate = transactionTemplate;
+        this.modelService = modelService;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+    }
 
     /**
      * {@inheritDoc}
@@ -31,7 +37,8 @@ public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderN
     @Override
     public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
         final PaymentInfoModel paymentInfoModel = paymentTransactionModel.getInfo();
-        if (paymentInfoModel != null && paymentInfoModel.getIsApm()) {
+        final String paymentTypeCode = orderNotificationMessage.getPaymentReply().getMethodCode();
+        if (shouldCapture(paymentInfoModel, paymentTypeCode)) {
             transactionTemplate.execute(transactionStatus -> {
                 worldpayPaymentTransactionService.createCapturedPaymentTransactionEntry(paymentTransactionModel, orderNotificationMessage);
                 return null;
@@ -46,23 +53,14 @@ public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderN
         }
     }
 
+    private boolean shouldCapture(final PaymentInfoModel paymentInfoModel, final String paymentTypeCode) {
+        return paymentInfoModel != null && (!paymentInfoModel.getIsApm() ||
+                    (paymentInfoModel.getIsApm() && !paymentTypeCode.equals(PaymentType.KLARNASSL.getMethodCode())));
+    }
+
     protected void updatePaymentTransactionEntry(final PaymentTransactionModel transactionModel, final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus) {
         worldpayPaymentTransactionService.updateEntriesStatus(paymentTransactionEntries, transactionStatus);
         modelService.save(transactionModel);
     }
 
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setTransactionTemplate(TransactionOperations transactionTemplate) {
-        this.transactionTemplate = transactionTemplate;
-    }
 }

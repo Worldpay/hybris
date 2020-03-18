@@ -10,7 +10,7 @@
 
     <!-- New transition WAIT to wait for authorisation from worldpay -->
     <action id="checkAuthorizeOrderPayment" bean="checkAuthorizeOrderPaymentAction">
-        <transition name="OK" to="fraudCheck"/>
+        <transition name="OK" to="waitFor_CANCEL"/>
         <transition name="NOK" to="sendPaymentFailedNotification"/>
         <transition name="WAIT" to="waitFor_AUTHORIZATION"/>
     </action>
@@ -19,6 +19,16 @@
     <wait id="waitFor_AUTHORIZATION" then="checkAuthorizeOrderPayment" prependProcessCode="false">
         <event>${process.code}_AUTHORIZATION</event>
     </wait>
+
+    <wait id="waitFor_CANCEL" then="cancelOrderDueToCancelWorldpayNotification" prependProcessCode="false">
+        <event>${process.code}_CANCEL</event>
+        <timeout delay="PT15M" then="fraudCheck"/>
+    </wait>
+
+    <action id="cancelOrderDueToCancelWorldpayNotification"
+            bean="worldpayCancelWholeOrderDueToCancelNotificationAction">
+        <transition name="OK" to="failed"/>
+    </action>
 
     <!-- This action is managed by worldpayFraudCheckOrderInternalAction -->
     <action id="fraudCheck" bean="fraudCheckOrderInternalAction">

@@ -221,7 +221,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void testPopulateAddressFormWithRegionDataEmptyString() {
-        when(addressDataMock.getRegion().getIsocode()).thenReturn(StringUtils.EMPTY);
+        when(addressDataMock.getRegion().getIsocodeShort()).thenReturn(StringUtils.EMPTY);
 
         when(addressDataMock.getTitle()).thenReturn(TITLE);
         when(addressDataMock.getFirstName()).thenReturn(FIRST_NAME);
@@ -251,7 +251,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     public void testPopulateAddressFormWithRegionData() {
 
         when(addressDataMock.getRegion()).thenReturn(regionDataMock);
-        when(addressDataMock.getRegion().getIsocode()).thenReturn(REGION_ISO_CODE);
+        when(addressDataMock.getRegion().getIsocodeShort()).thenReturn(REGION_ISO_CODE);
 
         when(addressDataMock.getTitle()).thenReturn(TITLE);
         when(addressDataMock.getFirstName()).thenReturn(FIRST_NAME);

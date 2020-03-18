@@ -63,7 +63,23 @@
         <value>LEGACY_FLOW</value>
         <value>THREEDSFLEX_FLOW</value>
     </enum>
+    <enum class="com.worldpay.enums.payment.storedCredentials.Usage">
+        <value>NA</value>
+        <value>FIRST</value>
+        <value>USED</value>
+    </enum>
 
+    <enum class="com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason">
+        <value>NA</value>
+        <value>REAUTH</value>
+        <value>UNSCHEDULED</value>
+        <value>DELAYED</value>
+        <value>INSTALMENT</value>
+        <value>INCREMENTAL</value>
+        <value>RECURRING</value>
+        <value>RESUBMISSION</value>
+        <value>NOSHOW</value>
+    </enum>
 
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
@@ -103,6 +119,7 @@
         <property name="savedCardPayment" type="boolean"/>
         <property name="replenishmentOrder" type="boolean"/>
         <property name="additional3DS2" type="com.worldpay.data.Additional3DS2Info"/>
+        <property name="transactionIdentifier" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.WorldpayMerchantConfigData">

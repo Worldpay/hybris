@@ -10,8 +10,8 @@ import com.hybris.cockpitng.engine.WidgetInstanceManager;
 import com.hybris.cockpitng.labels.LabelService;
 import com.hybris.cockpitng.widgets.common.WidgetComponentRenderer;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.zkoss.zul.Listcell;
 
@@ -24,7 +24,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
  * Backoffice amount render for PaymentTransaction
  */
 public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
-    private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionAmountRenderer.class);
+    private static final Logger LOG = LogManager.getLogger(PaymentTransactionAmountRenderer.class);
     private static final String PAYMENT_TRANSACTION = "PaymentTransaction";
 
     private TypeFacade typeFacade;

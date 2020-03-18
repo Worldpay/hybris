@@ -11,8 +11,8 @@ import com.worldpay.service.payment.WorldpayJsonWebTokenService;
 import com.worldpay.service.payment.WorldpaySessionService;
 import com.worldpay.threedsecureflexenums.ChallengeWindowSizeEnum;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ import java.util.Map;
  * {@inheritDoc}
  */
 public class DefaultWorldpayDirectResponseFacade implements WorldpayDirectResponseFacade {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayDirectResponseFacade.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpayDirectResponseFacade.class);
 
     private static final String TERM_URL_PARAM_NAME = "termURL";
     private static final String PA_REQUEST_PARAM_NAME = "paRequest";

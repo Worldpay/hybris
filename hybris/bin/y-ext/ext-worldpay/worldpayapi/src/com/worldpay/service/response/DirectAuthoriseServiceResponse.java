@@ -8,8 +8,8 @@ import com.worldpay.service.model.RedirectReference;
 import com.worldpay.service.model.Request3DInfo;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
@@ -22,9 +22,9 @@ import java.util.Optional;
  */
 public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
 
+    private static final Logger LOG = LogManager.getLogger(DirectAuthoriseServiceResponse.class);
     private static final String V1 = "1";
     private static final String V2 = "2";
-    private static final Logger LOG = LoggerFactory.getLogger(DirectAuthoriseServiceResponse.class);
     private Request3DInfo request3DInfo;
     private PaymentReply paymentReply;
     private RedirectReference redirectReference;

@@ -9,8 +9,8 @@ import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.payment.WorldpayJsonWebTokenService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
@@ -24,7 +24,7 @@ import java.util.UUID;
  */
 public class DefaultWorldpayJsonWebTokenService implements WorldpayJsonWebTokenService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayJsonWebTokenService.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpayJsonWebTokenService.class);
 
     private static final String TYP = "typ";
     private static final String ALG = "alg";

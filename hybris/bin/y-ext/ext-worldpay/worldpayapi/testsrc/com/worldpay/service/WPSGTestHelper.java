@@ -77,7 +77,7 @@ public class WPSGTestHelper {
     }
 
     public static CaptureServiceResponse capture(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo, final String orderCode) throws WorldpayException {
-        final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(merchantInfo, orderCode, new Amount("100", "EUR", "2"), null);
+        final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(merchantInfo, orderCode, new Amount("100", "EUR", "2"), null, null);
 
         return gateway.capture(request);
     }

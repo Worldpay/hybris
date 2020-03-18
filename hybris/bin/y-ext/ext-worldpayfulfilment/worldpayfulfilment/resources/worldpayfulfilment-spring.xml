@@ -53,4 +53,11 @@
     <bean id="worldpayOrderCancelNotificationServiceAdapter" class="com.worldpay.voidprocess.adapters.WorldpayOrderCancelNotificationServiceAdapter">
         <property name="eventService" ref="eventService"/>
     </bean>
+
+    <alias name="defaultWorldpayAddShippingTrackingInfoToConsignmentStrategy" alias="addShippingTrackingInfoToConsignmentStrategy"/>
+    <bean id="defaultWorldpayAddShippingTrackingInfoToConsignmentStrategy" class="com.worldpay.consignmentprocess.strategies.consigment.impl.DefaultWorldpayAddShippingTrackingInfoToConsignmentStrategy"/>
+
+    <bean id="addShippingTrackingInfoAction" class="com.worldpay.consignmentprocess.actions.consigment.AddShippingTrackingInfoAction" parent="abstractAction">
+        <constructor-arg name="addShippingTrackingInfoToConsignmentStrategy" ref="addShippingTrackingInfoToConsignmentStrategy"/>
+    </bean>
 </beans>

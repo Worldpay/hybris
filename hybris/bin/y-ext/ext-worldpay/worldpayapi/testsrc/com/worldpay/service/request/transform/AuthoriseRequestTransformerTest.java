@@ -8,6 +8,7 @@ import com.worldpay.internal.model.Submit;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.AuthoriseServiceRequest;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -69,8 +70,18 @@ public class AuthoriseRequestTransformerTest {
         final List<PaymentType> includedPTs = singletonList(ONLINE);
         final TokenRequest tokenRequest = new TokenRequest(TOKEN_REFERENCE, TOKEN_REASON);
         final Shopper shopper = new Shopper(SHOPPER_EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(merchantInfo, orderInfo, ORDER_CONTENT, null,
-                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT, tokenRequest);
+        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(orderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(includedPTs)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withTokenRequest(tokenRequest)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         final PaymentService result = testObj.transform(request);
 
@@ -79,7 +90,7 @@ public class AuthoriseRequestTransformerTest {
         final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
         final com.worldpay.internal.model.Order intOrder = (com.worldpay.internal.model.Order) orderList.get(0);
 
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
         final String description = ((Description) orderElements.stream().filter(Description.class::isInstance).findFirst().get()).getvalue();
         assertEquals("Incorrect description", "Your Order & Order desc", description);
 
@@ -108,8 +119,17 @@ public class AuthoriseRequestTransformerTest {
         final Address billingAddress = new Address(FIRST_NAME, LAST_NAME, SHOPPER_ADDRESS_1, SHOPPER_ADDRESS_2, SHOPPER_ADDRESS_3, POSTAL_CODE, CITY, GB);
         final List<PaymentType> includedPTs = singletonList(ONLINE);
         final Shopper shopper = new Shopper(SHOPPER_EMAIL_ADDRESS, AUTH_SHOPPER_ID, null, null);
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(merchantInfo, orderInfo, ORDER_CONTENT, null,
-                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT);
+        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(orderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(includedPTs)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         final PaymentService result = testObj.transform(request);
 
@@ -118,7 +138,7 @@ public class AuthoriseRequestTransformerTest {
         final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
         final com.worldpay.internal.model.Order intOrder = (com.worldpay.internal.model.Order) orderList.get(0);
 
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
         final String description = ((Description) orderElements.stream().filter(Description.class::isInstance).findFirst().get()).getvalue();
         assertEquals("Incorrect description", "Your Order & Order desc", description);
 

@@ -18,6 +18,7 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.dto.TransactionStatus;
+import de.hybris.platform.payment.dto.TransactionStatusDetails;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
@@ -305,6 +306,30 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         final double tolerance = configurationService.getConfiguration().getDouble("worldpayapi.authoriseamount.validation.tolerance");
 
         return Math.abs(order.getTotalPrice() - authorisedAmount.doubleValue()) <= tolerance;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PaymentTransactionEntryModel createNotPendingCancelOrderTransactionEntry(final PaymentTransactionModel paymentTransactionModel) {
+        final PaymentTransactionEntryModel paymentTransactionEntryModel = modelService.create(PaymentTransactionEntryModel.class);
+        final AbstractOrderModel orderModel = paymentTransactionModel.getOrder();
+
+        paymentTransactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransactionModel));
+        paymentTransactionEntryModel.setType(CANCEL);
+        paymentTransactionEntryModel.setPaymentTransaction(paymentTransactionModel);
+        paymentTransactionEntryModel.setTime(Date.from(Instant.now()));
+        paymentTransactionEntryModel.setRequestId(orderModel.getWorldpayOrderCode());
+        paymentTransactionEntryModel.setAmount(BigDecimal.valueOf(orderModel.getTotalPrice()));
+        paymentTransactionEntryModel.setRequestToken(paymentTransactionModel.getRequestToken());
+        paymentTransactionEntryModel.setTransactionStatus(TransactionStatus.REJECTED.name());
+        paymentTransactionEntryModel.setTransactionStatusDetails(TransactionStatusDetails.PROCESSOR_DECLINE.name());
+        paymentTransactionEntryModel.setCurrency(orderModel.getCurrency());
+        paymentTransactionEntryModel.setPending(false);
+        modelService.save(paymentTransactionEntryModel);
+
+        return paymentTransactionEntryModel;
     }
 
     /**

@@ -3,14 +3,18 @@ package com.worldpay.commands.impl;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.Token;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
+import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import com.worldpay.util.WorldpayUtil;
 import de.hybris.platform.payment.commands.SubscriptionAuthorizationCommand;
 import de.hybris.platform.payment.commands.request.SubscriptionAuthorizationRequest;
@@ -18,7 +22,6 @@ import de.hybris.platform.payment.commands.result.AuthorizationResult;
 import de.hybris.platform.payment.dto.BillingInfo;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Date;
 import java.util.Optional;
@@ -40,9 +43,16 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayTokenisedAuthorizationCommand.class);
     private static final String UNKNOWN_MERCHANT_CODE = "unknownMerchantCode";
 
-    private Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter;
-    private Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter;
-    private WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService;
+    private final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter;
+    private final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter;
+    private final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService;
+
+    public DefaultWorldpayTokenisedAuthorizationCommand(final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter, final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter, final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
+        super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);
+        this.worldpayBillingInfoAddressConverter = worldpayBillingInfoAddressConverter;
+        this.worldpayAuthorizationResultConverter = worldpayAuthorizationResultConverter;
+        this.worldpayDynamicInteractionResolverService = worldpayDynamicInteractionResolverService;
+    }
 
     /**
      * {@inheritDoc}
@@ -149,20 +159,5 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
             LOG.error(format("There is an error with the current merchants configuration. Exception: [{0}]", e.getMessage()), e);
         }
         return null;
-    }
-
-    @Required
-    public void setWorldpayAuthorizationResultConverter(final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter) {
-        this.worldpayAuthorizationResultConverter = worldpayAuthorizationResultConverter;
-    }
-
-    @Required
-    public void setWorldpayBillingInfoAddressConverter(final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter) {
-        this.worldpayBillingInfoAddressConverter = worldpayBillingInfoAddressConverter;
-    }
-
-    @Required
-    public void setWorldpayDynamicInteractionResolverService(final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService) {
-        this.worldpayDynamicInteractionResolverService = worldpayDynamicInteractionResolverService;
     }
 }

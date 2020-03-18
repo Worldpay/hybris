@@ -7,14 +7,12 @@ import de.hybris.platform.cronjob.enums.CronJobResult;
 import de.hybris.platform.cronjob.enums.CronJobStatus;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
@@ -26,27 +24,20 @@ import static org.mockito.Mockito.when;
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class OrderModificationProcessorJobPerformableTest {
-    
+
     @InjectMocks
     private OrderModificationProcessorJobPerformable testObj = new OrderModificationProcessorJobPerformable();
-    
+
     @Mock
     private OrderModificationCronJobModel cronJobModelMock;
     @Mock
     private WorldpayOrderModificationProcessStrategy worldpayOrderModificationProcessStrategyMock;
-    
-    private Set<PaymentTransactionType> paymentTransactionTypes = new HashSet<>();
-    
-    @Before
-    public void setUp() {
-        paymentTransactionTypes.add(AUTHORIZATION);
-        paymentTransactionTypes.add(CAPTURE);
-        paymentTransactionTypes.add(CANCEL);
-    }
+
+    private Set<PaymentTransactionType> paymentTransactionTypes = Set.of(AUTHORIZATION, CAPTURE, CANCEL);
 
     @Test
     public void performShouldProcessAllProcessableModifications() {
-        when(cronJobModelMock.getTypeOfPaymentTransactionToProcessSet()).thenReturn(paymentTransactionTypes);
+        when(cronJobModelMock.getPaymentTransactionTypes()).thenReturn(paymentTransactionTypes);
         when(worldpayOrderModificationProcessStrategyMock.processOrderModificationMessages(any(PaymentTransactionType.class))).thenReturn(true);
 
         final PerformResult result = testObj.perform(cronJobModelMock);
@@ -60,8 +51,8 @@ public class OrderModificationProcessorJobPerformableTest {
     }
 
     @Test
-    public void performShouldMarkErrorWhenFalseReturnedFromStragety() {
-        when(cronJobModelMock.getTypeOfPaymentTransactionToProcessSet()).thenReturn(paymentTransactionTypes);
+    public void performShouldMarkErrorWhenFalseReturnedFromStrategy() {
+        when(cronJobModelMock.getPaymentTransactionTypes()).thenReturn(paymentTransactionTypes);
         when(worldpayOrderModificationProcessStrategyMock.processOrderModificationMessages(any(PaymentTransactionType.class))).thenReturn(false);
 
         final PerformResult result = testObj.perform(cronJobModelMock);
@@ -73,5 +64,5 @@ public class OrderModificationProcessorJobPerformableTest {
         verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(CAPTURE);
         verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(CANCEL);
     }
-    
+
 }

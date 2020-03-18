@@ -38,8 +38,8 @@ public class DefaultWorldpayCronJobSupportInformationServiceTest {
     @Test
     public void shouldReturnPaymentTypesCheckedByAllOrderModificationCronjobs() {
         when(flexibleSearchServiceMock.getModelsByExample(any(OrderModificationCronJobModel.class))).thenReturn(asList(orderModificationCronJobModelForAuthMock, orderModificationCronJobModelForCaptureMock));
-        when(orderModificationCronJobModelForAuthMock.getTypeOfPaymentTransactionToProcessSet()).thenReturn(singleton(AUTHORIZATION));
-        when(orderModificationCronJobModelForCaptureMock.getTypeOfPaymentTransactionToProcessSet()).thenReturn(singleton(CAPTURE));
+        when(orderModificationCronJobModelForAuthMock.getPaymentTransactionTypes()).thenReturn(singleton(AUTHORIZATION));
+        when(orderModificationCronJobModelForCaptureMock.getPaymentTransactionTypes()).thenReturn(singleton(CAPTURE));
 
         final Set<PaymentTransactionType> result = testObj.getPaymentTransactionType();
 

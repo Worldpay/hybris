@@ -10,6 +10,7 @@ import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentBuilder;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.threeds2.Additional3DSData;
+import com.worldpay.service.model.threeds2.RiskData;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.AuthoriseRequestParameters;
@@ -31,7 +32,6 @@ import static org.junit.Assert.assertNull;
 public class DirectAuthoriseServiceRequestTest {
 
     private static final String TOKEN_ID = "tokenId";
-    private static final String ECHO_DATA = "echoData";
     private static final String MERCHANT1ECOM = "MERCHANT1ECOM";
     private static final String DESCRIPTION = "Your Order & Order desc";
     private static final Amount AMOUNT = new Amount("100", "EUR", "2");
@@ -60,6 +60,7 @@ public class DirectAuthoriseServiceRequestTest {
     private static final Shopper SHOPPER_WITHOUT_BROWSER_NOR_SESSION = new Shopper(SHOPPER_EMAIL, null, null, null);
     private static final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, AUTHENTICATED_SHOPPER_ID, BROWSER, SESSION);
     private static final String REFERENCE_ID = "referenceId";
+
     @SuppressWarnings("PMD.MemberScope")
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -67,12 +68,14 @@ public class DirectAuthoriseServiceRequestTest {
     private BasicOrderInfo basicOrderInfo;
     private Payment payment;
     private Additional3DSData additional3DSData;
+    private RiskData riskData;
 
     @Before
     public void setUp() {
         merchantInfo = new MerchantInfo(MERCHANT1ECOM, "3l3ph4nt_&_c4st!3");
         basicOrderInfo = new BasicOrderInfo(ORDER_CODE, DESCRIPTION, AMOUNT);
         additional3DSData = new Additional3DSData(REFERENCE_ID);
+        riskData = new RiskData();
     }
 
     @Test
@@ -87,7 +90,8 @@ public class DirectAuthoriseServiceRequestTest {
                 .withShippingAddress(null)
                 .withBillingAddress(null)
                 .withStatementNarrative(null)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .build();
 
         DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters3D);
     }
@@ -104,7 +108,8 @@ public class DirectAuthoriseServiceRequestTest {
                 .withShippingAddress(SHIPPING_ADDRESS)
                 .withBillingAddress(BILLING_ADDRESS)
                 .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .build();
 
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters3D);
 
@@ -171,8 +176,8 @@ public class DirectAuthoriseServiceRequestTest {
                 .withBillingAddress(null)
                 .withStatementNarrative(STATEMENT_NARRATIVE)
                 .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-
-                .withAdditional3DSData(additional3DSData).build();
+                .withAdditional3DSData(additional3DSData)
+                .build();
         DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
     }
 
@@ -189,8 +194,8 @@ public class DirectAuthoriseServiceRequestTest {
                 .withBillingAddress(null)
                 .withStatementNarrative(STATEMENT_NARRATIVE)
                 .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-
-                .withAdditional3DSData(additional3DSData).build();
+                .withAdditional3DSData(additional3DSData)
+                .build();
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
 
         assertEquals("TOKEN-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode());
@@ -259,7 +264,8 @@ public class DirectAuthoriseServiceRequestTest {
                 .withShippingAddress(SHIPPING_ADDRESS)
                 .withBillingAddress(BILLING_ADDRESS)
                 .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .build();
 
         DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
     }
@@ -275,7 +281,8 @@ public class DirectAuthoriseServiceRequestTest {
                 .withShippingAddress(SHIPPING_ADDRESS)
                 .withBillingAddress(null)
                 .withStatementNarrative(null)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .build();
 
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(requestParameters);
 
@@ -295,10 +302,45 @@ public class DirectAuthoriseServiceRequestTest {
                 .withShippingAddress(SHIPPING_ADDRESS)
                 .withBillingAddress(null)
                 .withStatementNarrative(null)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .build();
 
         DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(requestParameters);
 
+    }
+
+    @Test
+    public void createDirectTokenAndAuthoriseRequest_ShouldReturnADirectAuthoriseServiceRequestCorrectlyFilled_WhenWePassToItAuthoriseRequestParameters() {
+        basicOrderInfo.setOrderCode(ORDER_CODE);
+        final AuthoriseRequestParameters authoriseRequestParametersMock = getAuthoriseRequestParametersMock();
+
+        final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createDirectTokenAndAuthoriseRequest(authoriseRequestParametersMock);
+        final Order resultOrder = result.getOrder();
+
+        assertEquals(merchantInfo, result.getMerchantInfo());
+        assertEquals(ORDER_CODE, result.getOrderCode());
+        assertEquals(resultOrder.getBillingAddress(), BILLING_ADDRESS);
+        assertEquals(resultOrder.getShippingAddress(), SHIPPING_ADDRESS);
+        assertEquals(resultOrder.getStatementNarrative(), STATEMENT_NARRATIVE);
+        assertEquals(resultOrder.getDynamicInteractionType(), DynamicInteractionType.ECOMMERCE);
+        assertEquals(resultOrder.getTokenRequest(), TOKEN_REQUEST);
+        assert3DSInfoOrderRequestData(result);
+    }
+
+    protected AuthoriseRequestParameters getAuthoriseRequestParametersMock() {
+        return AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(SHOPPER)
+                .withShippingAddress(SHIPPING_ADDRESS)
+                .withBillingAddress(BILLING_ADDRESS)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+                .withTokenRequest(TOKEN_REQUEST)
+                .withAdditional3DSData(additional3DSData)
+                .withRiskData(riskData)
+                .build();
     }
 
     private void assertCommonOrderRequestData(final DirectAuthoriseServiceRequest result) {
@@ -311,5 +353,10 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(STATEMENT_NARRATIVE, result.getOrder().getStatementNarrative());
         assertEquals(payment, result.getOrder().getPaymentDetails().getPayment());
         assertEquals(SESSION, result.getOrder().getPaymentDetails().getSession());
+    }
+
+    private void assert3DSInfoOrderRequestData(final DirectAuthoriseServiceRequest result){
+        assertEquals(riskData, result.getOrder().getRiskData());
+        assertEquals(additional3DSData, result.getOrder().getAdditional3DSData());
     }
 }

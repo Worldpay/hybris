@@ -2,6 +2,7 @@ package com.worldpay.core.services.impl;
 
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.enums.order.AuthorisedStatus;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -47,7 +48,7 @@ public class DefaultOrderNotificationServiceTest {
     }
 
     @Test
-    public void processOrderNotificationMessageDoesNothingIfNoProcessorFound() {
+    public void processOrderNotificationMessageDoesNothingIfNoProcessorFound() throws WorldpayConfigurationException {
         when(orderNotificationMessageMock.getJournalReply().getJournalType()).thenReturn(REFUSED);
 
         testObj.processOrderNotificationMessage(orderNotificationMessageMock);
@@ -57,7 +58,7 @@ public class DefaultOrderNotificationServiceTest {
     }
 
     @Test
-    public void processOrderNotificationMessageInvokesProcessorForJournalType() {
+    public void processOrderNotificationMessageInvokesProcessorForJournalType() throws WorldpayConfigurationException {
         when(orderNotificationMessageMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(orderNotificationMessageMock.getJournalReply().getJournalType()).thenReturn(AUTHORISED);
         when(worldpayPaymentTransactionDaoMock.findPaymentTransactionByRequestIdFromOrdersOnly(ORDER_CODE)).thenReturn(paymentTransactionModelMock);

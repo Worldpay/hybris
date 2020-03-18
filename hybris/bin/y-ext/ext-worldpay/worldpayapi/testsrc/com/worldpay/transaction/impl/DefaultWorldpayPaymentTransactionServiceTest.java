@@ -43,10 +43,11 @@ import java.util.*;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.PROCESSOR_DECLINE;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
-import static java.math.BigDecimal.TEN;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -135,7 +136,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private WorldpayOrderService worldpayOrderServiceMock;
 
     @Before
-
     public void setUp() {
         paymentTransactionDependency.put(CAPTURE, AUTHORIZATION);
         paymentTransactionDependency.put(SETTLED, CAPTURE);
@@ -170,10 +170,10 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         when(apmOpenPaymentTransactionModelMock.getApmOpen()).thenReturn(Boolean.TRUE);
 
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(TEN);
+        when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(BigDecimal.TEN);
         when(amountMock.getCurrencyCode()).thenReturn(currency.getCurrencyCode());
 
-        when(capturedEntryMock.getAmount()).thenReturn(TEN);
+        when(capturedEntryMock.getAmount()).thenReturn(BigDecimal.TEN);
 
         when(orderNotificationMessageMock.getPaymentReply().getAmount()).thenReturn(amountMock);
         when(orderNotificationMessageMock.getOrderCode()).thenReturn(REQUEST_ID);
@@ -181,7 +181,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
 
         when(commonI18NServiceMock.getCurrency(currency.getCurrencyCode())).thenReturn(currencyModelMock);
 
-        when(commerceCheckoutParameterMock.getAuthorizationAmount()).thenReturn(TEN);
+        when(commerceCheckoutParameterMock.getAuthorizationAmount()).thenReturn(BigDecimal.TEN);
         when(commerceCheckoutParameterMock.getCart()).thenReturn(cartModelMock);
         when(commerceCheckoutParameterMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
         when(commerceCheckoutParameterMock.getPaymentProvider()).thenReturn(PAYMENT_PROVIDER);
@@ -194,7 +194,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         when(configurationMock.getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.01);
         when(cartModelMock.getShopperBankCode()).thenReturn(BANK_CODE);
         when(worldpayBankConfigurationServiceMock.getBankConfigurationForBankCode(BANK_CODE)).thenReturn(worldpayBankConfigurationMock);
-
     }
 
     @Test
@@ -375,7 +374,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         verify(paymentTransactionModelMock).setCurrency(currencyModelMock);
         verify(paymentTransactionModelMock).setInfo(paymentInfoModelMock);
         verify(paymentTransactionModelMock).setApmOpen(true);
-        verify(paymentTransactionModelMock).setPlannedAmount(TEN);
+        verify(paymentTransactionModelMock).setPlannedAmount(BigDecimal.TEN);
         verify(paymentTransactionModelMock).setWorldpayBank(worldpayBankConfigurationMock);
         verify(modelServiceMock).save(paymentTransactionModelMock);
     }
@@ -387,7 +386,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
 
         testObj.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock);
 
-        verify(paymentTransactionModelMock,never()).setWorldpayBank(any(WorldpayBankConfigurationModel.class));
+        verify(paymentTransactionModelMock, never()).setWorldpayBank(any(WorldpayBankConfigurationModel.class));
     }
 
     @Test
@@ -485,7 +484,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
 
         testObj.updateEntriesAmount(paymentTransactionEntries, amountMock);
 
-        verify(pendingCaptureEntryMock).setAmount(TEN);
+        verify(pendingCaptureEntryMock).setAmount(BigDecimal.TEN);
         verify(pendingCaptureEntryMock).setCurrency(currencyModelMock);
         verify(modelServiceMock).saveAll(paymentTransactionEntries);
     }
@@ -493,13 +492,13 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     @Test
     public void shouldLogWarningForDifferentAmountsUpdated() {
         final List<PaymentTransactionEntryModel> paymentTransactionEntries = Collections.singletonList(pendingCaptureEntryMock);
-        when(pendingCaptureEntryMock.getAmount()).thenReturn(TEN.add(BigDecimal.valueOf(50)));
+        when(pendingCaptureEntryMock.getAmount()).thenReturn(BigDecimal.TEN.add(BigDecimal.valueOf(50)));
         when(pendingCaptureEntryMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
         when(pendingCaptureEntryMock.getType()).thenReturn(CAPTURE);
 
         testObj.updateEntriesAmount(paymentTransactionEntries, amountMock);
 
-        verify(testObj).logAmountChanged(pendingCaptureEntryMock, TEN);
+        verify(testObj).logAmountChanged(pendingCaptureEntryMock, BigDecimal.TEN);
     }
 
     @Test
@@ -577,6 +576,31 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         assertTrue(result);
     }
 
+    @Test
+    public void createNotPendingCancelOrderTransactionEntry_ShouldCreateCancelTransactionEntryWithPendingSetToFalse() {
+        when(paymentTransactionModelMock.getOrder()).thenReturn(abstractOrderMock);
+        when(abstractOrderMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        when(abstractOrderMock.getCurrency()).thenReturn(currencyModelMock);
+        when(abstractOrderMock.getTotalPrice()).thenReturn(BigDecimal.TEN.doubleValue());
+        when(paymentTransactionModelMock.getRequestToken()).thenReturn(REQUEST_TOKEN);
+        when(modelServiceMock.create(PaymentTransactionEntryModel.class)).thenReturn(new PaymentTransactionEntryModel());
+
+        final PaymentTransactionEntryModel result = testObj.createNotPendingCancelOrderTransactionEntry(paymentTransactionModelMock);
+
+        assertThat(result.getCode()).isEqualTo(TRANSACTION_ENTRY_CODE);
+        assertThat(result.getPaymentTransaction()).isEqualTo(paymentTransactionModelMock);
+        assertThat(result.getTime()).isNotNull();
+        assertThat(result.getRequestId()).isEqualTo(WORLDPAY_ORDER_CODE);
+        assertThat(result.getAmount().doubleValue()).isEqualTo(BigDecimal.TEN.doubleValue());
+        assertThat(result.getRequestToken()).isEqualTo(REQUEST_TOKEN);
+        assertThat(result.getTransactionStatus()).isEqualTo(REJECTED.name());
+        assertThat(result.getTransactionStatusDetails()).isEqualTo(PROCESSOR_DECLINE.name());
+        assertThat(result.getCurrency()).isEqualTo(currencyModelMock);
+        assertThat(result.getPending()).isFalse();
+        assertThat(result.getType()).isEqualTo(CANCEL);
+        verify(modelServiceMock).save(result);
+    }
+
     protected void verifyPaymentTransactionEntry(final PaymentTransactionEntryModel result, final PaymentTransactionType transactionType, final Boolean pendingFlag) {
         verify(result).setType(transactionType);
         verify(result).setRequestId(REQUEST_ID);
@@ -584,7 +608,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         verify(result).setTransactionStatus(ACCEPTED.name());
         verify(result).setTransactionStatusDetails(SUCCESFULL.name());
         verify(result).setCode(TRANSACTION_ENTRY_CODE);
-        verify(result).setAmount(TEN);
+        verify(result).setAmount(BigDecimal.TEN);
         verify(result).setPending(pendingFlag);
         verify(modelServiceMock).save(result);
     }

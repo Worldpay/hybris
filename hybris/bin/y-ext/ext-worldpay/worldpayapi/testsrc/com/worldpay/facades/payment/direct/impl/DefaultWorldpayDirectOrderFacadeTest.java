@@ -19,6 +19,7 @@ import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
+import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
@@ -69,7 +70,6 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private static final String THREEDS_V2 = "2";
     private static final String ISSUER_PAYLOAD = "issuerPayload";
     private static final String TRANSACTION_ID_3DS = "transactionId3Ds";
-    private static final String SESSION_ID = "SESSION_ID";
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -126,13 +126,15 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private WorldpayJsonWebTokenService worldpayJsonWebTokenServiceMock;
     @Mock
     private ThreeDSFlexJsonWebTokenCredentials threeDSJsonWebTokenCredentialsMock;
+    @Mock
+    private OrderData orderDataMock;
 
     @Before
     public void setUp() throws Exception {
         when(worldpayDirectOrderServiceMock.authoriseRecurringPayment(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceResponseMock);
         when(worldpayDirectOrderServiceMock.authorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock)).thenReturn(directAuthoriseServiceResponseMock);
         when(worldpayDirectOrderServiceMock.authorise3DSecure(merchantInfoMock, WORLDPAY_ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE)).thenReturn(directAuthoriseServiceResponse3dSecureMock);
-        when(worldpayDirectOrderServiceMock.authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID)).thenReturn(directAuthoriseServiceResponse3dSecureMock);
+        when(worldpayDirectOrderServiceMock.authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE)).thenReturn(directAuthoriseServiceResponse3dSecureMock);
         when(cartServiceMock.hasSessionCart()).thenReturn(Boolean.TRUE);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
         when(cartModelMock.getUser()).thenReturn(userModelMock);
@@ -143,6 +145,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(directAuthoriseServiceResponse3dSecureMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
         when(worldpayAuthenticatedShopperIdStrategyMock.getAuthenticatedShopperId(userModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
+        when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
     }
 
     @Test
@@ -336,10 +339,10 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
     @Test
     public void testExecuteSecondPaymentAuthorisation3DSecureAuthorised() throws WorldpayException, InvalidCartException {
-        final DirectResponseData result = testObj.executeSecondPaymentAuthorisation3DSecure(SESSION_ID);
+        final DirectResponseData result = testObj.executeSecondPaymentAuthorisation3DSecure();
 
         final InOrder inOrder = inOrder(acceleratorCheckoutFacadeMock, worldpayDirectOrderServiceMock);
-        inOrder.verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID);
+        inOrder.verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE);
         inOrder.verify(worldpayDirectOrderServiceMock).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
         inOrder.verify(acceleratorCheckoutFacadeMock).placeOrder();
         assertEquals(AUTHORISED, result.getTransactionStatus());
@@ -351,9 +354,9 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(paymentReplyMock.getAuthStatus()).thenReturn(REFUSED);
         when(paymentReplyMock.getReturnCode()).thenReturn(RETURN_CODE);
 
-        final DirectResponseData result = testObj.executeSecondPaymentAuthorisation3DSecure(SESSION_ID);
+        final DirectResponseData result = testObj.executeSecondPaymentAuthorisation3DSecure();
 
-        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID);
+        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE);
         assertEquals(RETURN_CODE, result.getReturnCode());
         assertEquals(TransactionStatus.REFUSED, result.getTransactionStatus());
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
@@ -363,9 +366,9 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     public void testExecuteSecondPaymentAuthorisation3DSecureStatusInvalid() throws WorldpayException, InvalidCartException {
         when(paymentReplyMock.getAuthStatus()).thenReturn(REFUNDED);
 
-        testObj.executeSecondPaymentAuthorisation3DSecure(SESSION_ID);
+        testObj.executeSecondPaymentAuthorisation3DSecure();
 
-        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID);
+        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
     }
 
@@ -375,9 +378,9 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(directAuthoriseServiceResponse3dSecureMock.getErrorDetail()).thenReturn(errorDetailMock);
         when(errorDetailMock.getMessage()).thenReturn(ERROR_MESSAGE);
 
-        testObj.executeSecondPaymentAuthorisation3DSecure(SESSION_ID);
+        testObj.executeSecondPaymentAuthorisation3DSecure();
 
-        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID);
+        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
     }
 
@@ -388,9 +391,9 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(directAuthoriseServiceResponse3dSecureMock.getErrorDetail()).thenReturn(null);
         when(paymentReplyMock.getAuthStatus()).thenReturn(FAILURE);
 
-        testObj.executeSecondPaymentAuthorisation3DSecure(SESSION_ID);
+        testObj.executeSecondPaymentAuthorisation3DSecure();
 
-        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID);
+        verify(worldpayDirectOrderServiceMock).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
     }
 
@@ -398,9 +401,9 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     public void testExecuteSecondPaymentAuthorisation3DSecureWhenNoSessionCart() throws WorldpayException, InvalidCartException {
         when(cartServiceMock.hasSessionCart()).thenReturn(false);
 
-        testObj.executeSecondPaymentAuthorisation3DSecure(SESSION_ID);
+        testObj.executeSecondPaymentAuthorisation3DSecure();
 
-        verify(worldpayDirectOrderServiceMock, never()).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE, SESSION_ID);
+        verify(worldpayDirectOrderServiceMock, never()).authorise3DSecureAgain(merchantInfoMock, WORLDPAY_ORDER_CODE);
         verify(worldpayDirectOrderServiceMock, never()).completeAuthorise3DSecure(cartModelMock, directAuthoriseServiceResponse3dSecureMock, merchantInfoMock);
     }
 
@@ -618,5 +621,122 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         final String result = testObj.getEventOriginDomainForDDC();
 
         assertThat(result).isEqualTo(EVENT_ORIGIN_DOMAIN);
+    }
+
+    @Test(expected = WorldpayException.class)
+    public void internalTokenizeAndAuthorise_ShouldThrowAnException_WhenWorldpayDirectOrderServiceThrowIt() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenThrow(new WorldpayException("Worldpay Exception"));
+
+        testObj.internalTokenizeAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test(expected = WorldpayException.class)
+    public void internalTokenizeAndAuthorise_ShouldThrowAnException_WhenHandleDirectResponseMethodThrowsIt() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+        when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(null);
+
+        testObj.internalTokenizeAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test(expected = InvalidCartException.class)
+    public void internalTokenizeAndAuthorise_ShouldThrowInvalidCartException_WhenHandleDirectResponseMethodThrowsIt() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+        doThrow(InvalidCartException.class).when(acceleratorCheckoutFacadeMock).placeOrder();
+
+        testObj.internalTokenizeAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test(expected = InvalidCartException.class)
+    public void authoriseAndTokenize_ShouldReturnThrowInvalidCartException_WhenInternalTokenizeAndAuthoriseMethodThrowsIt() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+        doThrow(InvalidCartException.class).when(acceleratorCheckoutFacadeMock).placeOrder();
+
+        testObj.authoriseAndTokenize(worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test(expected = WorldpayException.class)
+    public void authoriseAndTokenize_ShouldReturnThrowWorldpayException_WhenInternalTokenizeAndAuthoriseMethodThrowsIt() throws WorldpayException, InvalidCartException {
+        when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+        when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(null);
+
+        testObj.authoriseAndTokenize(worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test
+    public void internalTokenizeAndAuthorise_ShouldReturnADirectResponseDataAuthorised_WhenAResponseIsReceivedByDirectOrderServiceIsAuthorised() throws WorldpayException, InvalidCartException {
+        when(acceleratorCheckoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
+        final DirectResponseData directResponseData = testObj.internalTokenizeAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+
+        assertEquals(orderDataMock, directResponseData.getOrderData());
+        assertEquals(AUTHORISED, directResponseData.getTransactionStatus());
+        verify(worldpayDirectOrderServiceMock).createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test
+    public void internalTokenizeAndAuthorise_ShouldReturnADirectResponseDataRefused_WhenAResponseIsReceivedByDirectOrderServiceIsRefused() throws WorldpayException, InvalidCartException {
+        when(acceleratorCheckoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
+        when(paymentReplyMock.getAuthStatus()).thenReturn(REFUSED);
+        when(paymentReplyMock.getReturnCode()).thenReturn(RETURN_CODE);
+
+        final DirectResponseData directResponseData = testObj.internalTokenizeAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+
+        assertNull(directResponseData.getOrderData());
+        assertEquals(TransactionStatus.REFUSED, directResponseData.getTransactionStatus());
+        assertEquals(RETURN_CODE, directResponseData.getReturnCode());
+    }
+
+    @Test
+    public void internalTokenizeAndAuthorise_ShouldReturnADirectResponseDataCancelled_WhenAResponseIsReceivedByDirectOrderServiceIsCancelled() throws WorldpayException, InvalidCartException {
+        when(acceleratorCheckoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
+        when(paymentReplyMock.getAuthStatus()).thenReturn(CANCELLED);
+
+        final DirectResponseData directResponseData = testObj.internalTokenizeAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+
+        assertEquals(TransactionStatus.CANCELLED, directResponseData.getTransactionStatus());
+        assertNull(directResponseData.getOrderData());
+        assertNull(directResponseData.getReturnCode());
+        verify(worldpayDirectOrderServiceMock).createTokenAndAuthorise(merchantInfoMock, cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void tokenize_ShouldRiseAnException_WhenThereIsNotSessionCart() throws WorldpayException, IllegalStateException {
+        when(cartServiceMock.hasSessionCart()).thenReturn(Boolean.FALSE);
+
+        testObj.tokenize(cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+    }
+
+    @Test(expected = WorldpayException.class)
+    public void tokenize_ShouldRiseAnException_WhenTokeniseWithCartParameterRiseAWorldpayException() throws WorldpayException, IllegalStateException {
+        doThrow(new WorldpayException("Token creation error")).when(worldpayDirectOrderServiceMock).createToken(cartModelMock, merchantInfoMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+
+        testObj.tokenize(cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+    }
+
+    @Test
+    public void tokenize_ShouldCreateToken_WhenThereIsCartInSession() throws WorldpayException, IllegalStateException {
+        testObj.tokenize(cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+
+        verify(worldpayDirectOrderServiceMock).createToken(cartModelMock, merchantInfoMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void tokenize_ShouldRiseAnException_WhenCartParameterIsNull() throws WorldpayException, IllegalStateException {
+        cartModelMock = null;
+
+        testObj.tokenize(cartModelMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+    }
+
+    @Test(expected = WorldpayException.class)
+    public void tokenize_ShouldRiseAnException_WhenCreateTokenRiseAWorldpayException() throws WorldpayException, IllegalStateException {
+        doThrow(new WorldpayException("Token creation error")).when(worldpayDirectOrderServiceMock).createToken(cartModelMock, merchantInfoMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+
+        testObj.tokenize(cartModelMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+    }
+
+    @Test
+    public void tokenize_ShouldCreateTokenHavingCartParameter_WhenThereIsCartInSession() throws WorldpayException, IllegalStateException {
+        testObj.tokenize(cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
+
+        verify(worldpayDirectOrderServiceMock).createToken(cartModelMock, merchantInfoMock, cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
     }
 }
