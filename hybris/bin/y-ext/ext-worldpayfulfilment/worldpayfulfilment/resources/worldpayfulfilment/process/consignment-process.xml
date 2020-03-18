@@ -15,9 +15,13 @@
 	</wait>
 
 	<action id="receiveConsignmentStatus" bean="receiveConsignmentStatusAction">
-		<transition name="OK" to="allowShipment"/>
+		<transition name="OK" to="addShippingTrackingInfo"/>
 		<transition name="CANCEL" to="cancelConsignment"/>
 		<transition name="ERROR" to="error"/>
+	</action>
+
+	<action id="addShippingTrackingInfo" bean="addShippingTrackingInfoAction">
+		<transition name="OK" to="allowShipment"/>
 	</action>
 
 	<action id="allowShipment" bean="allowShipmentAction">

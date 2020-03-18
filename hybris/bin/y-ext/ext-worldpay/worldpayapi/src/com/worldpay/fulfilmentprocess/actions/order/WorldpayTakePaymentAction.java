@@ -1,8 +1,10 @@
 package com.worldpay.fulfilmentprocess.actions.order;
 
+import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.PaymentService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
@@ -69,11 +71,15 @@ public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel>
 
     protected String handleEmptyTransactionEntries(final PaymentTransactionModel paymentTransaction) {
         final PaymentInfoModel paymentTransactionInfo = paymentTransaction.getInfo();
-        if (paymentTransactionInfo == null || !paymentTransactionInfo.getIsApm()) {
+        if (shouldIssueCaptureRequest(paymentTransactionInfo)) {
             paymentService.capture(paymentTransaction);
         }
         // Always go back to wait-state, as the notification will not have been received at this point.
         return WAIT;
+    }
+
+    protected boolean shouldIssueCaptureRequest(final PaymentInfoModel paymentTransactionInfo) {
+        return paymentTransactionInfo == null || isKlarnaPayment(paymentTransactionInfo) || !paymentTransactionInfo.getIsApm();
     }
 
     protected boolean checkForPendingStatus(final OrderModel order, final PaymentTransactionModel txn) {
@@ -91,6 +97,15 @@ public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel>
             LOG.error("The payment transaction capture has failed. Order: " + order.getCode() + ". Transaction: " + transaction.getCode());
             setOrderStatus(order, PAYMENT_NOT_CAPTURED);
             return true;
+        }
+        return false;
+    }
+
+    protected boolean isKlarnaPayment(final PaymentInfoModel paymentInfoModel){
+        if (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel) {
+            final WorldpayAPMPaymentInfoModel worldpayAPMPaymentInfoModel = (WorldpayAPMPaymentInfoModel) paymentInfoModel;
+            final String paymentTypeCode = worldpayAPMPaymentInfoModel.getApmConfiguration().getCode();
+            return PaymentType.KLARNASSL.getMethodCode().equals(paymentTypeCode);
         }
         return false;
     }

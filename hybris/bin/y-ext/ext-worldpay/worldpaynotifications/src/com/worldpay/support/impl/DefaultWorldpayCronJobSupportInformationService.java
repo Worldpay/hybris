@@ -28,7 +28,7 @@ public class DefaultWorldpayCronJobSupportInformationService implements Worldpay
 
         final Set<PaymentTransactionType> paymentTransactionTypes = new HashSet<>();
         for (final OrderModificationCronJobModel orderNotificationCronJobModel : orderNotificationCronJobModels) {
-            paymentTransactionTypes.addAll(orderNotificationCronJobModel.getTypeOfPaymentTransactionToProcessSet());
+            paymentTransactionTypes.addAll(orderNotificationCronJobModel.getPaymentTransactionTypes());
         }
         return paymentTransactionTypes;
     }

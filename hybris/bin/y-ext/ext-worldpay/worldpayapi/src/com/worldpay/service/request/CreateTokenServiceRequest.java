@@ -33,7 +33,7 @@ public class CreateTokenServiceRequest extends AbstractServiceRequest {
         checkParameters("CreateTokenServiceRequest", merchantInfo, payment);
 
         final CreateTokenServiceRequest request = new CreateTokenServiceRequest(merchantInfo, null);
-        request.setCardTokenRequest(new CardTokenRequest(authenticatedShopperId, tokenRequest, payment));
+        request.setCardTokenRequest(new CardTokenRequest(tokenRequest, authenticatedShopperId, payment));
         return request;
     }
 

@@ -14,6 +14,8 @@ public class DefaultWorldpaySessionService implements WorldpaySessionService {
     private static final String THREED_SECURE_ECHO_DATA_KEY = "3DSecureEchoData";
     private static final String THREED_SECURE_COOKIE_KEY = "3DSecureCookie";
     private static final String THREED_SECURE_WINDOW_KEY = "challengeWindowSize";
+    private static final String WORLDPAY_ADDITIONAL_DATA_SESSION_ID = "worldpay_additional_data_session_id";
+
     private final SessionService sessionService;
 
     public DefaultWorldpaySessionService(final SessionService sessionService) {
@@ -50,6 +52,16 @@ public class DefaultWorldpaySessionService implements WorldpaySessionService {
     public String getAndRemoveThreeDSecureCookie() {
         final String attribute = sessionService.getAttribute(THREED_SECURE_COOKIE_KEY);
         sessionService.removeAttribute(THREED_SECURE_COOKIE_KEY);
+        return attribute;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAndRemoveAdditionalDataSessionId() {
+        final String attribute = sessionService.getAttribute(WORLDPAY_ADDITIONAL_DATA_SESSION_ID);
+        sessionService.removeAttribute(WORLDPAY_ADDITIONAL_DATA_SESSION_ID);
         return attribute;
     }
 

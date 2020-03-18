@@ -2,16 +2,19 @@
 package com.worldpay.commands.impl;
 
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.response.RefundServiceResponse;
+import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.payment.commands.FollowOnRefundCommand;
 import de.hybris.platform.payment.commands.request.FollowOnRefundRequest;
 import de.hybris.platform.payment.commands.result.RefundResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Currency;
 
@@ -30,7 +33,12 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayFollowOnRefundCommand.class);
 
-    private Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter;
+    private final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter;
+
+    public DefaultWorldpayFollowOnRefundCommand(final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
+        super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);
+        this.refundServiceResponseConverter = refundServiceResponseConverter;
+    }
 
     /**
      * {@inheritDoc}
@@ -86,10 +94,5 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
         final RefundResult refundResult = refundServiceResponseConverter.convert(refundResponse);
         refundResult.setRequestToken(refundRequest.getMerchantInfo().getMerchantCode());
         return refundResult;
-    }
-
-    @Required
-    public void setRefundServiceResponseConverter(final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter) {
-        this.refundServiceResponseConverter = refundServiceResponseConverter;
     }
 }

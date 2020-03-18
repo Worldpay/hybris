@@ -1,6 +1,7 @@
 package com.worldpay.notification.processors.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -82,7 +83,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldProcessAuthorisedNotificationAndSetRiskScore() {
+    public void shouldProcessAuthorisedNotificationAndSetRiskScore() throws WorldpayConfigurationException {
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
 
         verify(worldpayPaymentTransactionServiceMock).updateEntriesStatus(pendingAuthorizationTransactionEntries, ACCEPTED.name());

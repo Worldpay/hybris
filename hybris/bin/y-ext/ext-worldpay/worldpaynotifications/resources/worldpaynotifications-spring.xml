@@ -137,13 +137,13 @@
 
     <alias alias="capturedOrderNotificationProcessorStrategy" name="defaultCapturedOrderNotificationProcessorStrategy"/>
     <bean id="defaultCapturedOrderNotificationProcessorStrategy" class="com.worldpay.notification.processors.impl.DefaultCapturedOrderNotificationProcessorStrategy">
-        <property name="modelService" ref="modelService"/>
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <property name="transactionTemplate">
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="txManager"/>
             </bean>
-        </property>
+        </constructor-arg>
     </bean>
 
     <alias alias="refusedOrderNotificationProcessorStrategy" name="defaultRefusedOrderNotificationProcessorStrategy"/>

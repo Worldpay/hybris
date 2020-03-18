@@ -1,6 +1,7 @@
 package com.worldpay.notification.processors.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -51,7 +52,12 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
         final List<PaymentTransactionEntryModel> paymentTransactionEntries = worldpayPaymentTransactionService.getPendingPaymentTransactionEntriesForType(paymentTransactionModel, AUTHORIZATION);
         transactionTemplate.execute(transactionStatus -> {
             updatePaymentTransactionEntry(paymentTransactionModel, orderNotificationMessage, paymentTransactionEntries, ACCEPTED.name());
-            worldpayPaymentInfoService.setPaymentInfoModel(paymentTransactionModel, orderModel, orderNotificationMessage);
+            try {
+                worldpayPaymentInfoService.setPaymentInfoModel(paymentTransactionModel, orderModel, orderNotificationMessage);
+            } catch (final WorldpayConfigurationException e) {
+                LOG.info("Could not set the paymentInfo to the order.",e);
+                return null;
+            }
             return null;
         });
     }

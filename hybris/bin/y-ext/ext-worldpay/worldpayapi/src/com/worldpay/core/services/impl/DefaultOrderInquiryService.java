@@ -8,6 +8,7 @@ import com.evanlennick.retry4j.exception.RetriesExhaustedException;
 import com.evanlennick.retry4j.exception.UnexpectedException;
 import com.worldpay.core.services.OrderInquiryService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.MerchantInfo;
@@ -59,7 +60,7 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
      * {@inheritDoc}
      */
     @Override
-    public void processOrderInquiryServiceResponse(final PaymentTransactionModel paymentTransactionModel, final OrderInquiryServiceResponse orderInquiryServiceResponse) {
+    public void processOrderInquiryServiceResponse(final PaymentTransactionModel paymentTransactionModel, final OrderInquiryServiceResponse orderInquiryServiceResponse) throws WorldpayConfigurationException {
         if (!orderInquiryServiceResponse.isError()) {
             final String methodCode = orderInquiryServiceResponse.getPaymentReply().getMethodCode();
             worldpayPaymentInfoService.savePaymentType(paymentTransactionModel, methodCode);

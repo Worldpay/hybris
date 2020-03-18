@@ -1,6 +1,7 @@
 package com.worldpay.notification.processors.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -81,7 +82,7 @@ public class DefaultRefusedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldProcessRefusedNotification() throws OrderCancelException {
+    public void shouldProcessRefusedNotification() throws OrderCancelException, WorldpayConfigurationException {
         when(orderModelMock.getStatus()).thenReturn(OrderStatus.PAYMENT_PENDING);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
@@ -94,7 +95,7 @@ public class DefaultRefusedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldProcessRefusedNotificationAndShouldNOTTriggerAnyEventIfOrderStatusIsNOTPaymentPending() throws OrderCancelException {
+    public void shouldProcessRefusedNotificationAndShouldNOTTriggerAnyEventIfOrderStatusIsNOTPaymentPending() throws OrderCancelException, WorldpayConfigurationException {
         when(orderModelMock.getStatus()).thenReturn(OrderStatus.CREATED);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);

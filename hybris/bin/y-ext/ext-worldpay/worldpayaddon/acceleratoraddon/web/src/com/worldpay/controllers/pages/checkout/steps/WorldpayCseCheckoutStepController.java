@@ -1,5 +1,7 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
+import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
@@ -25,6 +27,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -126,13 +129,12 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSEAdditionalAuthInfo(csePaymentForm);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm.getCvc(), cseAdditionalAuthInfo);
 
-        return handleResponse(model, cseAdditionalAuthInfo, worldpayAdditionalInfoData, response);
+        return authoriseAndHandleResponse(model, cseAdditionalAuthInfo, worldpayAdditionalInfoData, response);
     }
 
-    protected String handleResponse(final Model model, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final HttpServletResponse response) throws CMSItemNotFoundException {
+    protected String authoriseAndHandleResponse(final Model model, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final HttpServletResponse response) throws CMSItemNotFoundException {
         try {
-            worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
-            final DirectResponseData directResponseData = worldpayDirectOrderFacade.authorise(worldpayAdditionalInfoData);
+           final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseAndTokenize(worldpayAdditionalInfoData,cseAdditionalAuthInfo);
             return handleDirectResponse(model, directResponseData, response);
         } catch (final InvalidCartException | WorldpayException e) {
             GlobalMessages.addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
@@ -159,7 +161,6 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     /**
      * Returns the DDC collection iframe for 3d secure 2 payments
      *
-     * @param model
      * @return the iframe
      */
     @GetMapping(value = "/challengeIframe")
@@ -176,6 +177,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         }
         return worldpayAdditionalInfo;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -185,7 +187,6 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         model.addAttribute(CSE_PAYMENT_FORM, new CSEPaymentForm());
         model.addAttribute(CSE_PUBLIC_KEY, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getCsePublicKey());
         model.addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, worldpayDirectOrderFacade.getEventOriginDomainForDDC());
-
     }
 
     @Override
@@ -196,8 +197,10 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
 
     protected void setDDCIframeData(final Model model) {
         model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDirectOrderFacade.createJsonWebTokenForDDC());
-        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData() != null &&
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings() != null ?
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings().getDdcUrl() : null);
+        final String ddcUrl = Optional.ofNullable(getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData())
+                .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
+                .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
+                .orElse(null);
+        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, ddcUrl);
     }
 }

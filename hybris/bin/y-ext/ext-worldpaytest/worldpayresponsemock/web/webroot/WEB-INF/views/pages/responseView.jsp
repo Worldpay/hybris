@@ -345,6 +345,25 @@
         </fieldset>
     </fieldset>
 
+    <fieldset>
+        <legend>Stored Credentials</legend>
+        <label for="selectStoredCredentials">
+            <form:label path="selectStoredCredentials">
+                <span>Select Stored Credentials</span>
+                <form:select path="selectStoredCredentials" id="selectStoredCredentials">
+                    <option value="noStoredCredentials">No Stored Credentials</option>
+                    <option value="storedCredentials">Stored Credentials</option>
+                </form:select>
+            </form:label>
+            <fieldset id="storedCredentialsFields" class="hide">
+                <form:label path="transactionIdentifier">
+                    <span>Transaction Identifier number:</span>
+                    <form:input path="transactionIdentifier"/>
+                </form:label>
+            </fieldset>
+        </label>
+    </fieldset>
+
     <fieldset id="APMFields" class="hide">
         <label>APM</label>
         <form:label path="apmPaymentType">
@@ -484,6 +503,15 @@
             $("#Token").addClass("hide");
         } else if (tokenHandler === "Token"){
             $("#Token").removeClass("hide");
+        }
+    });
+
+    $("#selectStoredCredentials").change(function(){
+        const selectStoredCredentials = $("#selectStoredCredentials").val();
+        if (selectStoredCredentials === "noStoredCredentials"){
+            $("#storedCredentialsFields").addClass("hide");
+        } else if (selectStoredCredentials === "storedCredentials"){
+            $("#storedCredentialsFields").removeClass("hide");
         }
     });
 

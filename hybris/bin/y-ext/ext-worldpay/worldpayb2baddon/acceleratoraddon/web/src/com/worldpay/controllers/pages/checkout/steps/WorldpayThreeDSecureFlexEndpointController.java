@@ -50,10 +50,8 @@ public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpay
 
     @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
-
     @Resource
     private ConfigurationService configurationService;
-
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
 
@@ -80,7 +78,7 @@ public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpay
     @RequireHardLogIn
     public String doHandleThreeDSecureResponse(final HttpServletRequest request, @ModelAttribute(B2B_CSE_PAYMENT_FORM) final B2BCSEPaymentForm b2bCSEPaymentForm, final Model model, final HttpServletResponse response) throws CMSItemNotFoundException {
         try {
-            final DirectResponseData responseData = worldpayDirectOrderFacade.executeSecondPaymentAuthorisation3DSecure(request.getRequestedSessionId());
+            final DirectResponseData responseData = worldpayDirectOrderFacade.executeSecondPaymentAuthorisation3DSecure();
             if (AUTHORISED != responseData.getTransactionStatus()) {
                 return handleDirectResponse(model, responseData, response);
             }

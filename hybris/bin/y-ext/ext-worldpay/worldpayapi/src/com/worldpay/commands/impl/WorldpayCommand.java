@@ -7,17 +7,23 @@ import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Class that contains methods and dependencies used by the implemented Commands
  */
 public class WorldpayCommand {
 
-    private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private WorldpayOrderService worldpayOrderService;
-    private WorldpayServiceGateway worldpayServiceGateway;
+    private final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    private final WorldpayOrderService worldpayOrderService;
+    private final WorldpayServiceGateway worldpayServiceGateway;
+
+    public WorldpayCommand(final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.worldpayOrderService = worldpayOrderService;
+        this.worldpayServiceGateway = worldpayServiceGateway;
+    }
 
     /**
      * Returns the MerchantInfo {@link MerchantInfo} used in the transaction
@@ -31,11 +37,6 @@ public class WorldpayCommand {
         return worldpayMerchantInfoService.getMerchantInfoFromTransaction(paymentTransactionModel);
     }
 
-    @Required
-    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
-        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
-    }
-
     public WorldpayMerchantInfoService getWorldpayMerchantInfoService() {
         return worldpayMerchantInfoService;
     }
@@ -44,24 +45,10 @@ public class WorldpayCommand {
         return worldpayPaymentTransactionService;
     }
 
-    @Required
-    public void setWorldpayPaymentTransactionService(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
-        this.worldpayServiceGateway = worldpayServiceGateway;
-    }
-
     public WorldpayOrderService getWorldpayOrderService() {
         return worldpayOrderService;
     }
 
-    @Required
-    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
-    }
 
     public WorldpayServiceGateway getWorldpayServiceGateway() {
         return worldpayServiceGateway;

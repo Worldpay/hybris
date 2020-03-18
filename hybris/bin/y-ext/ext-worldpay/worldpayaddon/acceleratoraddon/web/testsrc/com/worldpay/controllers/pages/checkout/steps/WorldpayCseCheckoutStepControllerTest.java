@@ -26,11 +26,9 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
-import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
-import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import org.junit.Before;
@@ -94,8 +92,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     private CMSPreviewService cmsPreviewServiceMock;
     @Mock
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
-    @Mock
-    private CartFacade cartFacadeMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
     @Mock
@@ -110,8 +106,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     private Validator cseFormValidatorMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
-    @Mock
-    private CountryData countryDataMock;
     @Mock
     private PaymentDetailsForm paymentDetailsFormMock;
     @Mock
@@ -174,7 +168,6 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreiewCriteriaMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreiewCriteriaMock)).thenReturn(contentPageModelMock);
-        when(cartFacadeMock.getDeliveryCountries()).thenReturn(Collections.singletonList(countryDataMock));
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
         doReturn(false).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
         when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
@@ -187,9 +180,9 @@ public class WorldpayCseCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRedirectToOrderConfirmation() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
+    public void addCseData_shouldRedirectToOrderConfirmation_WhenThereIsNotExceptionsOrErrors() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
         doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
-        when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenReturn(directResponseDataMock);
+        when(worldpayDirectOrderFacadeMock.authoriseAndTokenize(eq(worldpayAdditionalInfoDataMock), any(CSEAdditionalAuthInfo.class))).thenReturn(directResponseDataMock);
 
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 
@@ -197,8 +190,8 @@ public class WorldpayCseCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRedirectToErrorIfExceptionThrownByFacade() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
-        when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
+    public void addCseData_ShouldRedirectToError_WhenAnExceptionIsThrownByFacade() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
+        when(worldpayDirectOrderFacadeMock.authoriseAndTokenize(eq(worldpayAdditionalInfoDataMock), any(CSEAdditionalAuthInfo.class))).thenThrow(new WorldpayException("errorMessage"));
 
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 
@@ -206,8 +199,8 @@ public class WorldpayCseCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldDisplayCsePaymentPageIfErrorAuthorisingPayment() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
-        when(worldpayDirectOrderFacadeMock.authorise(eq(worldpayAdditionalInfoDataMock))).thenThrow(new WorldpayException("errorMessage"));
+    public void addCseData_ShouldDisplayCsePaymentPage_WhenThereIsAnErrorAuthorisingPayment() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
+        when(worldpayDirectOrderFacadeMock.authoriseAndTokenize(eq(worldpayAdditionalInfoDataMock), any(CSEAdditionalAuthInfo.class))).thenThrow(new WorldpayException("errorMessage"));
 
         testObj.addCseData(httpServletRequestMock, modelMock, csePaymentFormMock, bindingResultMock, responseMock);
 

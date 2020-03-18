@@ -3,8 +3,13 @@ package com.worldpay.service.request;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
+import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.model.payment.StoredCredentials;
 import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.threeds2.RiskData;
+import com.worldpay.service.model.token.TokenRequest;
+
+import java.util.List;
 
 public final class AuthoriseRequestParameters {
     private MerchantInfo merchantInfo;
@@ -19,9 +24,19 @@ public final class AuthoriseRequestParameters {
     private Additional3DSData additional3DSData;
     private RiskData riskData;
     private String paRes;
-
+    private String authenticatedShopperId;
+    private TokenRequest tokenRequest;
+    private StoredCredentials storedCredentials;
+    private List<PaymentType> includedPTs;
+    private List<PaymentType> excludedPTs;
+    private String installationId;
+    private String orderContent;
 
     private AuthoriseRequestParameters() {
+    }
+
+    public StoredCredentials getStoredCredentials() {
+        return storedCredentials;
     }
 
     public MerchantInfo getMerchantInfo() {
@@ -72,67 +87,89 @@ public final class AuthoriseRequestParameters {
         return riskData;
     }
 
-    @Override
-    public String toString() {
-        return "AuthoriseRequestParameters{" +
-                "merchantInfo=" + merchantInfo +
-                ", orderInfo=" + orderInfo +
-                ", payment=" + payment +
-                ", shopper=" + shopper +
-                ", shippingAddress=" + shippingAddress +
-                ", billingAddress=" + billingAddress +
-                ", statementNarrative='" + statementNarrative + '\'' +
-                ", dynamicInteractionType=" + dynamicInteractionType +
-                ", orderLines=" + orderLines +
-                ", additional3DSData=" + additional3DSData +
-                ", riskData=" + riskData +
-                ", paRes='" + paRes + '\'' +
-                '}';
+    public String getAuthenticatedShopperId() {
+        return authenticatedShopperId;
     }
 
-    public interface ParamMerchantInfo {
-        ParamOrderInfo withMerchantInfo(MerchantInfo merchantInfo);
+    public TokenRequest getTokenRequest() {
+        return tokenRequest;
     }
 
-    public interface ParamOrderInfo {
-        ParamPayment withOrderInfo(BasicOrderInfo orderInfo);
+    public void setIncludedPTs(final List<PaymentType> includedPTs) {
+        this.includedPTs = includedPTs;
     }
 
-    public interface ParamPayment {
-        ParamShopper withPayment(Payment payment);
+    public List<PaymentType> getIncludedPTs() {
+        return includedPTs;
     }
 
-    public interface ParamShopper {
-        ParamShippingAddress withShopper(Shopper shopper);
+    public String getInstallationId() {
+        return installationId;
     }
 
-    public interface ParamShippingAddress {
-        ParamBillingAddress withShippingAddress(Address shippingAddress);
+    public void setInstallationId(final String installationId) {
+        this.installationId = installationId;
     }
 
-    public interface ParamBillingAddress {
-        ParamStatementNarrative withBillingAddress(Address billingAddress);
+    public String getOrderContent() {
+        return orderContent;
     }
 
-    public interface ParamStatementNarrative {
-        ParamDynamicInteractionType withStatementNarrative(String statementNarrative);
+    public void setOrderContent(final String orderContent) {
+        this.orderContent = orderContent;
     }
 
-    public interface ParamDynamicInteractionType {
-        AuthoriseRequestParametersCreator withDynamicInteractionType(DynamicInteractionType dynamicInteractionType);
+    public List<PaymentType> getExcludedPTs() {
+        return excludedPTs;
+    }
+
+    public void setExcludedPTs(final List<PaymentType> excludedPTs) {
+        this.excludedPTs = excludedPTs;
     }
 
     public interface AuthoriseRequestParametersCreator {
         AuthoriseRequestParametersCreator withOrderLines(OrderLines orderLines);
+
         AuthoriseRequestParametersCreator withAdditional3DSData(Additional3DSData additional3DSData);
+
         AuthoriseRequestParametersCreator withPaRes(String paRes);
+
         AuthoriseRequestParametersCreator withRiskData(RiskData riskData);
+
+        AuthoriseRequestParametersCreator withStoredCredentials(StoredCredentials storedCredentials);
+
+        AuthoriseRequestParametersCreator withAuthenticatedShopperId(String authenticatedShopperId);
+
+        AuthoriseRequestParametersCreator withTokenRequest(TokenRequest tokenRequest);
+
+        AuthoriseRequestParametersCreator withDynamicInteractionType(DynamicInteractionType dynamicInteractionType);
+
+        AuthoriseRequestParametersCreator withStatementNarrative(String statementNarrative);
+
+        AuthoriseRequestParametersCreator withBillingAddress(Address billingAddress);
+
+        AuthoriseRequestParametersCreator withShippingAddress(Address shippingAddress);
+
+        AuthoriseRequestParametersCreator withShopper(Shopper shopper);
+
+        AuthoriseRequestParametersCreator withPayment(Payment payment);
+
+        AuthoriseRequestParametersCreator withOrderInfo(BasicOrderInfo orderInfo);
+
+        AuthoriseRequestParametersCreator withMerchantInfo(MerchantInfo merchantInfo);
+
+        AuthoriseRequestParametersCreator withIncludedPTs(List<PaymentType> includedPTs);
+
+        AuthoriseRequestParametersCreator withInstallationId(String installationId);
+
+        AuthoriseRequestParametersCreator withExcludedPTs(List<PaymentType> excludedPTs);
+
+        AuthoriseRequestParametersCreator withOrderContent(String orderContent);
 
         AuthoriseRequestParameters build();
     }
 
-    public static class AuthoriseRequestParametersBuilder implements ParamDynamicInteractionType, ParamShippingAddress, ParamBillingAddress,
-            ParamStatementNarrative, ParamShopper, ParamPayment, ParamMerchantInfo, ParamOrderInfo, AuthoriseRequestParametersCreator {
+    public static class AuthoriseRequestParametersBuilder implements  AuthoriseRequestParametersCreator {
 
         private MerchantInfo merchantInfo;
         private BasicOrderInfo orderInfo;
@@ -146,6 +183,13 @@ public final class AuthoriseRequestParameters {
         private Additional3DSData additional3DSData;
         private RiskData riskData;
         private String paRes;
+        private StoredCredentials storedCredentials;
+        private String authenticatedShopperId;
+        private TokenRequest tokenRequest;
+        private List<PaymentType> includedPTs;
+        private String installationId;
+        private List<PaymentType> excludedPTs;
+        private String orderContent;
 
         private AuthoriseRequestParametersBuilder() {
         }
@@ -155,48 +199,54 @@ public final class AuthoriseRequestParameters {
          *
          * @return
          */
-        public static ParamMerchantInfo getInstance() {
+        public static AuthoriseRequestParametersCreator getInstance() {
             return new AuthoriseRequestParametersBuilder();
         }
 
         @Override
-        public ParamOrderInfo withMerchantInfo(final MerchantInfo merchantInfo) {
+        public AuthoriseRequestParametersCreator withMerchantInfo(final MerchantInfo merchantInfo) {
             this.merchantInfo = merchantInfo;
             return this;
         }
 
         @Override
-        public ParamPayment withOrderInfo(final BasicOrderInfo orderInfo) {
+        public AuthoriseRequestParametersCreator withIncludedPTs(final List<PaymentType> includedPTs) {
+            this.includedPTs = includedPTs;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withOrderInfo(final BasicOrderInfo orderInfo) {
             this.orderInfo = orderInfo;
             return this;
         }
 
         @Override
-        public ParamShopper withPayment(final Payment payment) {
+        public AuthoriseRequestParametersCreator withPayment(final Payment payment) {
             this.payment = payment;
             return this;
         }
 
         @Override
-        public ParamShippingAddress withShopper(final Shopper shopper) {
+        public AuthoriseRequestParametersCreator withShopper(final Shopper shopper) {
             this.shopper = shopper;
             return this;
         }
 
         @Override
-        public ParamBillingAddress withShippingAddress(final Address shippingAddress) {
+        public AuthoriseRequestParametersCreator withShippingAddress(final Address shippingAddress) {
             this.shippingAddress = shippingAddress;
             return this;
         }
 
         @Override
-        public ParamStatementNarrative withBillingAddress(final Address billingAddress) {
+        public AuthoriseRequestParametersCreator withBillingAddress(final Address billingAddress) {
             this.billingAddress = billingAddress;
             return this;
         }
 
         @Override
-        public ParamDynamicInteractionType withStatementNarrative(final String statementNarrative) {
+        public AuthoriseRequestParametersCreator withStatementNarrative(final String statementNarrative) {
             this.statementNarrative = statementNarrative;
             return this;
         }
@@ -232,6 +282,42 @@ public final class AuthoriseRequestParameters {
         }
 
         @Override
+        public AuthoriseRequestParametersCreator withStoredCredentials(final StoredCredentials storedCredentials) {
+            this.storedCredentials = storedCredentials;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withAuthenticatedShopperId(final String authenticatedShopperId) {
+            this.authenticatedShopperId = authenticatedShopperId;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withTokenRequest(final TokenRequest tokenRequest) {
+            this.tokenRequest = tokenRequest;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withInstallationId(final String installationId) {
+            this.installationId = installationId;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withExcludedPTs(final List<PaymentType> excludedPTs) {
+            this.excludedPTs = excludedPTs;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withOrderContent(final String orderContent) {
+            this.orderContent = orderContent;
+            return this;
+        }
+
+        @Override
         public AuthoriseRequestParameters build() {
             AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
 
@@ -247,8 +333,41 @@ public final class AuthoriseRequestParameters {
             parameters.additional3DSData = additional3DSData;
             parameters.paRes = paRes;
             parameters.riskData = riskData;
+            parameters.storedCredentials = storedCredentials;
+            parameters.tokenRequest = tokenRequest;
+            parameters.authenticatedShopperId = authenticatedShopperId;
+            parameters.includedPTs = includedPTs;
+            parameters.installationId = installationId;
+            parameters.excludedPTs = excludedPTs;
+            parameters.orderContent = orderContent;
 
             return parameters;
         }
     }
+
+    @Override
+    public String toString() {
+        return "AuthoriseRequestParameters{" +
+                "merchantInfo=" + merchantInfo +
+                ", orderInfo=" + orderInfo +
+                ", payment=" + payment +
+                ", shopper=" + shopper +
+                ", shippingAddress=" + shippingAddress +
+                ", billingAddress=" + billingAddress +
+                ", statementNarrative='" + statementNarrative + '\'' +
+                ", dynamicInteractionType=" + dynamicInteractionType +
+                ", orderLines=" + orderLines +
+                ", additional3DSData=" + additional3DSData +
+                ", riskData=" + riskData +
+                ", paRes='" + paRes + '\'' +
+                ", authenticatedShopperId='" + authenticatedShopperId + '\'' +
+                ", tokenRequest=" + tokenRequest +
+                ", storedCredentials=" + storedCredentials +
+                ", includedPTs=" + includedPTs +
+                ", excludedPTs=" + excludedPTs +
+                ", installationId='" + installationId + '\'' +
+                ", orderContent='" + orderContent + '\'' +
+                '}';
+    }
+
 }

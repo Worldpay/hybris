@@ -6,7 +6,6 @@
 #######
 
 $contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$jarResourceCmsCockpit=jar:com.worldpay.constants.WorldpayaddonConstants&/worldpayaddon/import/cockpits/cmscockpit
 
 # Add Velocity templates that are in the CMS Cockpit. These give a better layout for editing pages
 # The FileLoaderValueTranslator loads a File into a String property. The templates could also be inserted in-line in this file.
@@ -14,12 +13,6 @@ INSERT_UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];name;restric
 ;;WorldpayPaymentAndBillingCheckoutPageTemplate;Worldpay Redirect Payment Page Template;WorldpayPaymentPage;;addon:/$addonExtensionName/pages/checkout/multi/worldpayChooseRedirectPaymentDetailsPage
 ;;WorldpayCSEPaymentAndBillingCheckoutPageTemplate;Worldpay CSE Payment Page Template;WorldpayPaymentPage;;addon:/$addonExtensionName/pages/checkout/multi/worldpayChooseCSEPaymentDetailsPage
 ;;WorldpayIframePaymentAndBillingCheckoutPageTemplate;Worldpay iFrame Payment Page Template;WorldpayPaymentPage;;addon:/$addonExtensionName/pages/checkout/multi/worldpayChooseIframePaymentDetailsPage
-
-#The velocity template is imported after creating a pageTemplate
-UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];velocityTemplate[translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
-;;WorldpayPaymentAndBillingCheckoutPageTemplate;$jarResourceCmsCockpit/structure-view/structure_WorldpayPaymentAndBillingCheckoutPageTemplate.vm
-;;WorldpayCSEPaymentAndBillingCheckoutPageTemplate;$jarResourceCmsCockpit/structure-view/structure_WorldpayCSEPaymentAndBillingCheckoutPageTemplate.vm
-;;WorldpayIframePaymentAndBillingCheckoutPageTemplate;$jarResourceCmsCockpit/structure-view/structure_WorldpayIframePaymentAndBillingCheckoutPageTemplate.vm
 
 # Content Pages
 INSERT_UPDATE WorldpayPaymentPage;$contentCV[unique=true];uid[unique=true];name;masterTemplate(uid,$contentCV);label;defaultPage[default='true'];approvalStatus(code)[default='approved'];homepage[default='false'];
