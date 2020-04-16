@@ -34,6 +34,9 @@
         <property name="returnCode" type="java.lang.String"/>
         <property name="issuerURL" type="java.lang.String"/>
         <property name="paRequest" type="java.lang.String"/>
+        <property name="transactionId3DS" type="java.lang.String"/>
+        <property name="major3DSVersion" type="java.lang.String"/>
+        <property name="issuerPayload" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.payment.applepay.ValidateMerchantRequestData">

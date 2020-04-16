@@ -48,7 +48,7 @@ public class DefaultOrderModificationDaoTest {
     }
 
     @Test
-    public void testFindUnprocessedOrderModificationsByType() throws Exception {
+    public void testFindUnprocessedOrderModificationsByType() {
         final List<WorldpayOrderModificationModel> result = testObj.findUnprocessedOrderModificationsByType(AUTHORIZATION);
 
         assertTrue(result.size() == 1);
@@ -63,7 +63,7 @@ public class DefaultOrderModificationDaoTest {
     }
 
     @Test
-    public void testFindUnprocessedAndNotNotifiedOrderModificationsBeforeDate() throws Exception {
+    public void testFindUnprocessedAndNotNotifiedOrderModificationsBeforeDate() {
         final Date myDate = new Date();
         final List<WorldpayOrderModificationModel> result = testObj.findUnprocessedAndNotNotifiedOrderModificationsBeforeDate(myDate);
 
@@ -80,7 +80,7 @@ public class DefaultOrderModificationDaoTest {
     }
 
     @Test
-    public void testFindProcessedOrderModificationsBeforeDate() throws Exception {
+    public void testFindProcessedOrderModificationsBeforeDate() {
         final Date myDate = new Date();
         final List<WorldpayOrderModificationModel> result = testObj.findProcessedOrderModificationsBeforeDate(myDate);
 

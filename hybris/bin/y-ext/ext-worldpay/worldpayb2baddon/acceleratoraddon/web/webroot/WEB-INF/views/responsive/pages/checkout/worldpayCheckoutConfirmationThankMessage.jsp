@@ -33,7 +33,7 @@
 			<div class="checkout__new-account__headline"><spring:theme code="guest.register"/></div>
             <p><spring:theme code="order.confirmation.guest.register.description"/></p>
 
-			<form:form method="post" commandName="guestRegisterForm" class="checkout__new-account__form clearfix">
+			<form:form method="post" modelAttribute="guestRegisterForm" class="checkout__new-account__form clearfix">
                 <div class="col-sm-8 col-sm-push-2 col-md-6 col-md-push-3">
                     <form:hidden path="orderCode"/>
                     <form:hidden path="uid"/>

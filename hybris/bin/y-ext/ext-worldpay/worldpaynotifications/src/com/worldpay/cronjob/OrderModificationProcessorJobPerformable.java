@@ -27,7 +27,7 @@ public class OrderModificationProcessorJobPerformable extends AbstractJobPerform
 
     @Override
     public PerformResult perform(final OrderModificationCronJobModel cronJobModel) {
-        final Set<PaymentTransactionType> typeOfPaymentTransactionToProcessSet = cronJobModel.getTypeOfPaymentTransactionToProcessSet();
+        final Set<PaymentTransactionType> typeOfPaymentTransactionToProcessSet = cronJobModel.getPaymentTransactionTypes();
         LOG.info(MessageFormat.format("Executing cronjob for payment transaction types: {0}", typeOfPaymentTransactionToProcessSet));
         boolean success = true;
         for (final PaymentTransactionType paymentTransactionType : typeOfPaymentTransactionToProcessSet) {

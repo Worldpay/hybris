@@ -199,6 +199,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, null);
         try {
             saveBillingAddresses(paymentDetails.getBillingAddress());
+
             worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
         } catch (final WorldpayException e) {
             LOG.error("There was an error tokenizing the payment details", e);

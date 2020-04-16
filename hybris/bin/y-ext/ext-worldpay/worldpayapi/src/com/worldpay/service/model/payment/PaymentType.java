@@ -83,6 +83,7 @@ public enum PaymentType implements Serializable {
     SID("SID-SSL", SIDSSL.class),
     SKRILL("SKRILL-SSL", SKRILLSSL.class),
     SOFORT("SOFORT-SSL", SOFORTSSL.class),
+    SOFORTCH("SOFORT_CH-SSL", SOFORTCHSSL.class),
     SPOROPAY("SPOROPAY-SSL", SPOROPAYSSL.class),
     SWIFF("SWIFF-SSL", SWIFFSSL.class),
     TELEINGRESO("TELEINGRESO-SSL", TELEINGRESOSSL.class),

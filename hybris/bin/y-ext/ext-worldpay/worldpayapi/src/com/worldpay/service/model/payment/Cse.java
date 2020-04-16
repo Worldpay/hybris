@@ -16,7 +16,7 @@ public class Cse extends AbstractPayment {
     public Cse(final String encryptedData, final Address address) {
         this.encryptedData = encryptedData;
         this.address = address;
-        this.setPaymentType(CSEDATA);
+        this.paymentType = CSEDATA;
     }
 
     @Override

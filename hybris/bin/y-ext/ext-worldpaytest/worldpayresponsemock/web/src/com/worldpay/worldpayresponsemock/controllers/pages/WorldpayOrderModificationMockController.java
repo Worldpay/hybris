@@ -67,6 +67,7 @@ public class WorldpayOrderModificationMockController {
     protected static final String DEFAULT_CITY = "city";
     protected static final String DEFAULT_COUNTRY_CODE = "GB";
     protected static final String DEFAULT_SUB_BRAND = "subBrand";
+    protected static final String DEFAULT_STORED_CREDENTIALS = "noStoredCredentials";
 
     @Resource
     private WorldpayNotificationResponseBuilder worldpayNotificationResponseBuilder;
@@ -139,6 +140,7 @@ public class WorldpayOrderModificationMockController {
         responseForm.setCountryCode(DEFAULT_COUNTRY_CODE);
         responseForm.setCardSubBrand(DEFAULT_SUB_BRAND);
         responseForm.setIssuerCountry(DEFAULT_COUNTRY_CODE);
+        responseForm.setSelectStoredCredentials(DEFAULT_STORED_CREDENTIALS);
 
         return responseForm;
     }

@@ -42,7 +42,7 @@ public class UpdateTokenRequest implements InternalModelTransformer, Serializabl
 
         final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
         final com.worldpay.internal.model.CardDetails intCardDetails = (com.worldpay.internal.model.CardDetails) cardDetails.transformToInternalModel();
-        intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(intCardDetails);
+        intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(intCardDetails);
         intPaymentTokenUpdate.setPaymentInstrument(intPaymentInstrument);
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(tokenRequest.getTokenReason());

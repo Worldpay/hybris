@@ -23,8 +23,8 @@
     </bean>
 
     <!-- Process Definitions -->
-    <alias name="worldpayOrderProcessDefinitionResource" alias="orderProcessDefinitionResource"/>
-    <bean id="worldpayOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <alias name="worldpayOmsOrderProcessDefinitionResource" alias="orderProcessDefinitionResource"/>
+    <bean id="worldpayOmsOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayoms/process/order-process.xml"/>
     </bean>
 

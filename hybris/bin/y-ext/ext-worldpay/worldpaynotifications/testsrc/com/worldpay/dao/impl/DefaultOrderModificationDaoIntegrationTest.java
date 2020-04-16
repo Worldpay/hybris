@@ -23,6 +23,7 @@ public class DefaultOrderModificationDaoIntegrationTest extends ServicelayerTran
     public static final String TEST_WORLDPAY_ORDER_CODE = "testWorldpayOrderCode";
     public static final String TEST_WORLDPAY_ORDER_CODE_PROCESSED = "testWorldpayOrderCodeProcessed";
     public static final String TMP_VAL = "tmpVal";
+    public static final String WORLDPAY_CANCELLED_ORDER_CODE = "worldpayCancelOrderCode";
 
     private DefaultOrderModificationDao testObj = new DefaultOrderModificationDao();
 
@@ -99,6 +100,15 @@ public class DefaultOrderModificationDaoIntegrationTest extends ServicelayerTran
         processedAndDefectiveOrderModificationMessage.setNotified(false);
         processedAndDefectiveOrderModificationMessage.setCreationtime(createDateInPast(EXPIRED_MESSAGE_TIME_IN_DAYS));
 
+        final WorldpayOrderModificationModel processedAndDefectiveOrderCancelModificationMessage = modelService.create(WorldpayOrderModificationModel.class);
+        processedAndDefectiveOrderCancelModificationMessage.setProcessed(false);
+        processedAndDefectiveOrderCancelModificationMessage.setDefective(false);
+        processedAndDefectiveOrderCancelModificationMessage.setType(CANCEL);
+        processedAndDefectiveOrderCancelModificationMessage.setWorldpayOrderCode(WORLDPAY_CANCELLED_ORDER_CODE);
+        processedAndDefectiveOrderCancelModificationMessage.setOrderNotificationMessage(TMP_VAL);
+        processedAndDefectiveOrderCancelModificationMessage.setNotified(false);
+        processedAndDefectiveOrderCancelModificationMessage.setCreationtime(createDateInPast(EXPIRED_MESSAGE_TIME_IN_DAYS));
+
         modelService.saveAll();
     }
 
@@ -121,9 +131,15 @@ public class DefaultOrderModificationDaoIntegrationTest extends ServicelayerTran
     }
 
     @Test
+    public void findUnprocessedOrderModificationsByTypeCancel() {
+        final List<WorldpayOrderModificationModel> result = testObj.findUnprocessedOrderModificationsByType(CANCEL);
+        assertEquals(1, result.size());
+    }
+
+    @Test
     public void shouldFindAllUnprocessedAndNotNotifiedOrderModificationsWhenAllOrderModificationsExistBeforeDatePassed() {
         final List<WorldpayOrderModificationModel> result = testObj.findUnprocessedAndNotNotifiedOrderModificationsBeforeDate(new Date());
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test

@@ -21,14 +21,14 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
     public ServiceResponse transform(PaymentService reply) throws WorldpayModelTransformationException {
         OrderInquiryServiceResponse orderInquiryResponse = new OrderInquiryServiceResponse();
 
-        Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         if (responseType == null) {
             throw new WorldpayModelTransformationException("No reply message in Worldpay response");
         }
         if (!(responseType instanceof Reply)) {
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
-        Reply intReply = (Reply) responseType;
+        final Reply intReply = (Reply) responseType;
         if (getServiceResponseTransformerHelper().checkForError(orderInquiryResponse, intReply)) {
             return orderInquiryResponse;
         }
@@ -39,7 +39,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
         }
         orderInquiryResponse.setOrderCode(intOrderStatus.getOrderCode());
 
-        final List<Object> orderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+        final List<Object> orderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
         for (final Object orderStatusElement : orderStatusElements) {
             if (orderStatusElement instanceof Payment) {
                 final Payment intPayment = (Payment) orderStatusElement;
@@ -47,7 +47,6 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
                 orderInquiryResponse.setPaymentReply(paymentReply);
             } else if (orderStatusElement instanceof Reference) {
                 final Reference intReference = (Reference) orderStatusElement;
-
                 final RedirectReference reference = new RedirectReference(intReference.getId(), intReference.getvalue());
                 orderInquiryResponse.setReference(reference);
             }

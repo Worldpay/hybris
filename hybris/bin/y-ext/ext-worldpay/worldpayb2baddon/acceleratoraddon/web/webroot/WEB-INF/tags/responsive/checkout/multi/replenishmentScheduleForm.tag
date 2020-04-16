@@ -18,12 +18,12 @@
 <div style="display:none;">
 	<div class="clearfix" id="replenishmentSchedule"
 		data-date-For-Date-Picker="${dateForForDatePicker}"
-		data-place-Order-Form-Replenishment-Recurrence="${placeOrderForm.replenishmentRecurrence}"
+		data-place-Order-Form-Replenishment-Recurrence="${b2bCSEPaymentForm.replenishmentRecurrence}"
 		data-date-For-Date-Picker="${fn:escapeXml(dateForForDatePicker)}"
-		data-place-Order-Form-Replenishment-Recurrence="${fn:escapeXml(placeOrderForm.replenishmentRecurrence)}"
-		data-place-Order-Form-N-Days="${fn:escapeXml(placeOrderForm.nDays)}"
-		data-place-Order-Form-Nth-Day-Of-Month="${fn:escapeXml(placeOrderForm.nthDayOfMonth)}"
-		data-place-Order-Form-Replenishment-Order="${placeOrderForm.replenishmentOrder}">
+		data-place-Order-Form-Replenishment-Recurrence="${fn:escapeXml(b2bCSEPaymentForm.replenishmentRecurrence)}"
+		data-place-Order-Form-N-Days="${fn:escapeXml(b2bCSEPaymentForm.nDays)}"
+		data-place-Order-Form-Nth-Day-Of-Month="${fn:escapeXml(b2bCSEPaymentForm.nthDayOfMonth)}"
+		data-place-Order-Form-Replenishment-Order="${b2bCSEPaymentForm.replenishmentOrder}">
 
 
 		<div class="column scheduleform  scheduleform_left">

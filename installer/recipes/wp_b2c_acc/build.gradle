@@ -1,4 +1,6 @@
 // Hybris b2c_acc recipe extended with Worldpay addon
+apply plugin: 'installer-platform-plugin'
+apply plugin: 'installer-addon-plugin'
 
 def config = {
     localProperties {
@@ -97,8 +99,6 @@ def config = {
 
 task setup {
     doLast {
-        apply plugin: 'installer-platform-plugin'
-        apply plugin: 'installer-addon-plugin'
         def pl = platform(config)
         pl.setup()
 
@@ -120,7 +120,6 @@ task setup {
 
 task initialize {
     doLast {
-        apply plugin: 'installer-platform-plugin'
         def pl = platform(config)
         pl.build()
         pl.initialize()
@@ -129,7 +128,6 @@ task initialize {
 
 task start {
     doLast {
-        apply plugin: 'installer-platform-plugin'
         def pl = platform(config)
         pl.start()
     }

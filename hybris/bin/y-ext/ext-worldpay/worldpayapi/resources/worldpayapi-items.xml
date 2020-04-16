@@ -2,17 +2,13 @@
 <items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="items.xsd">
 
-    <collectiontypes>
-        <collectiontype code="apmConfigurationCountriesSet" elementtype="Country" type="set"/>
-        <collectiontype code="apmConfigurationCurrenciesSet" elementtype="Currency" type="set"/>
-        <collectiontype code="apmConfigurationCurrencyRangesSet" elementtype="WorldpayCurrencyRange" type="set"/>
-    </collectiontypes>
     <enumtypes>
         <enumtype code="OrderStatus" autocreate="false" generate="true" dynamic="true">
             <value code="PAYMENT_PENDING"/>
         </enumtype>
         <enumtype code="PaymentTransactionType" autocreate="false" generate="false">
             <value code="SETTLED"/>
+            <value code="REFUSED"/>
         </enumtype>
         <enumtype code="CreditCardType" autocreate="false" generate="false">
             <value code="jcb"/>
@@ -28,6 +24,24 @@
             <value code="token"/>
         </enumtype>
     </enumtypes>
+
+    <relations>
+        <relation code="ApmConfigurationCountries" localized="false">
+            <deployment table="apm_country" typecode="12110"/>
+            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many" qualifier="apmConfiguration"/>
+            <targetElement type="Country" collectiontype="set" cardinality="many" qualifier="countries"/>
+        </relation>
+        <relation code="ApmConfigurationCurrencies" localized="false">
+            <deployment table="apm_currency" typecode="12115"/>
+            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many" qualifier="apmConfiguration"/>
+            <targetElement type="Currency" collectiontype="set" cardinality="many" qualifier="currencies"/>
+        </relation>
+        <relation code="ApmConfigurationCurrencyRange" localized="false">
+            <deployment table="apm_currencyrange" typecode="12120"/>
+            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many" qualifier="apmConfiguration"/>
+            <targetElement type="WorldpayCurrencyRange" collectiontype="set" cardinality="many" qualifier="currencyRanges"/>
+        </relation>
+    </relations>
 
     <itemtypes>
         <itemtype code="AbstractOrder" autocreate="false" generate="false">
@@ -118,6 +132,10 @@
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
+                <attribute qualifier="transactionIdentifier" type="java.lang.String">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
             </attributes>
             <indexes>
                 <index name="worldpayOrderCodeIdx">
@@ -152,14 +170,20 @@
                 </attribute>
                 <attribute qualifier="signedMessage" type="java.lang.String">
                     <persistence type="property">
+                        <columntype>
+                            <value>HYBRIS.LONG_STRING</value>
+                        </columntype>
+                        <columntype database="mysql">
+                            <value>MEDIUMTEXT</value>
+                        </columntype>
                         <columntype database="oracle">
                             <value>CLOB</value>
                         </columntype>
+                        <columntype database="sqlserver">
+                            <value>TEXT</value>
+                        </columntype>
                         <columntype database="sap">
                             <value>NCLOB</value>
-                        </columntype>
-                        <columntype>
-                            <value>HYBRIS.LONG_STRING</value>
                         </columntype>
                     </persistence>
                 </attribute>
@@ -375,21 +399,6 @@
                     <description>The APM is used for bank transfers</description>
                     <defaultvalue>false</defaultvalue>
                 </attribute>
-                <attribute qualifier="countries" type="apmConfigurationCountriesSet">
-                    <modifiers read="true" write="true" search="true" optional="true"/>
-                    <persistence type="property"/>
-                    <description>Countries for which the APM is restricted to.</description>
-                </attribute>
-                <attribute qualifier="currencies" type="apmConfigurationCurrenciesSet">
-                    <modifiers read="true" write="true" search="true" optional="true"/>
-                    <persistence type="property"/>
-                    <description>Currencies for which the APM is restricted to.</description>
-                </attribute>
-                <attribute qualifier="currencyRanges" type="apmConfigurationCurrencyRangesSet">
-                    <modifiers read="true" write="true" search="true" optional="true"/>
-                    <persistence type="property"/>
-                    <description>Currency ranges for which the APM is restricted to.</description>
-                </attribute>
                 <attribute qualifier="automaticRefunds" type="java.lang.Boolean">
                     <modifiers read="true" write="true" search="true" optional="false" initial="true"/>
                     <persistence type="property"/>
@@ -413,12 +422,12 @@
             <deployment table="WorldpayBankConfig" typecode="19023"/>
             <attributes>
                 <attribute qualifier="code" type="java.lang.String">
-                    <modifiers write="true" search="true" read="true" optional="false"/>
+                    <modifiers write="true" search="true" read="true" optional="false" initial="true"/>
                     <persistence type="property"/>
                     <description>Bank code</description>
                 </attribute>
                 <attribute qualifier="apm" type="WorldpayAPMConfiguration">
-                    <modifiers write="true" search="true" read="true" optional="false"/>
+                    <modifiers write="true" search="true" read="true" optional="false" initial="true"/>
                     <persistence type="property"/>
                     <description>Bank APM</description>
                 </attribute>
@@ -439,6 +448,12 @@
                     <description>Defines if the bank is active or not</description>
                 </attribute>
             </attributes>
+            <indexes>
+                <index name="worldpayBankAPM_unique_IDX" unique="true">
+                    <key attribute="code"/>
+                    <key attribute="apm"/>
+                </index>
+            </indexes>
         </itemtype>
 
         <typegroup name="cms">

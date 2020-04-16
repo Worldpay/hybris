@@ -32,4 +32,9 @@
     <alias name="worldpayOrderManualCheckedAction" alias="orderManualCheckedAction"/>
     <bean id="worldpayOrderManualCheckedAction" class="com.worldpay.fulfilmentprocess.actions.order.WorldpayOrderManualCheckedAction" parent="worldpayAbstractOrderAction" />
 
+    <bean id="worldpayCancelWholeOrderDueToCancelNotificationAction" class="com.worldpay.orderprocess.actions.order.CancelWholeOrderDueToCancelNotificationAction" parent="abstractAction">
+        <constructor-arg name="worldpayCancelWholeOrderDueToCancelNotificationStrategy" ref="worldpayCancelWholeOrderDueToCancelNotificationStrategy"/>
+    </bean>
+
+
 </beans>

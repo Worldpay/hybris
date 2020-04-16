@@ -139,4 +139,13 @@ public interface WorldpayServiceGateway {
      * @throws WorldpayException if there have been issues making the request
      */
     OrderInquiryServiceResponse orderInquiry(AbstractServiceRequest request) throws WorldpayException;
+
+    /**
+     * Makes a second 3D secure request to Worldpay
+     *
+     * @param request Use the convenience method in {@link SecondThreeDSecurePaymentRequest} to create the request. Ensures the correct details are set before making the call
+     * @return {@link DirectAuthoriseServiceResponse} object with the reply details.
+     * @throws WorldpayException if there have been issues making the request
+     */
+    DirectAuthoriseServiceResponse sendSecondThreeDSecurePayment(SecondThreeDSecurePaymentRequest request) throws WorldpayException;
 }

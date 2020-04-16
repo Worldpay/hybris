@@ -1,8 +1,10 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
+import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
@@ -12,7 +14,6 @@ import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCh
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
-import de.hybris.platform.acceleratorstorefrontcommons.forms.PlaceOrderForm;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.commercefacades.order.data.CartData;
@@ -25,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,8 +34,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.THREEDSECURE_FLEX_DDC_URL;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.THREEDSECURE_JWT_FLEX_DDC;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.*;
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
@@ -44,11 +49,10 @@ import static java.text.MessageFormat.format;
  * Web controller to handle a summary in a checkout step
  */
 @Controller
-@RequestMapping (value = "/checkout/multi/worldpay/summary")
+@RequestMapping(value = "/checkout/multi/worldpay/summary")
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
-    private static final Logger LOGGER = Logger.getLogger(WorldpaySummaryCheckoutStepController.class);
-
+    protected static final Logger LOGGER = Logger.getLogger(WorldpaySummaryCheckoutStepController.class);
     protected static final String SUMMARY = "summary";
     protected static final String CART_SUFFIX = "/cart";
     protected static final String CART_DATA = "cartData";
@@ -57,13 +61,15 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected static final String DELIVERY_MODE = "deliveryMode";
     protected static final String PAYMENT_INFO = "paymentInfo";
     protected static final String REQUEST_SECURITY_CODE = "requestSecurityCode";
+    protected static final String SUBSCRIPTION_ID = "subscriptionId";
     protected static final String META_ROBOTS = "metaRobots";
     protected static final String CHECKOUT_MULTI_SUMMARY_BREADCRUMB = "checkout.multi.summary.breadcrumb";
     protected static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = REDIRECT_PREFIX + "/checkout/multi/worldpay/choose-payment-method";
+    protected static final String CSE_PAYMENT_FORM = "csePaymentForm";
 
-    @Resource (name = "worldpayCheckoutFacade")
+    @Resource(name = "worldpayCheckoutFacade")
     private AcceleratorCheckoutFacade checkoutFacade;
-    @Resource (name = "worldpayCheckoutFacade")
+    @Resource(name = "worldpayCheckoutFacade")
     private CheckoutFlowFacade checkoutFlowFacade;
     @Resource
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
@@ -75,11 +81,10 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     /**
      * {@inheritDoc}
      */
-    @RequestMapping (value = "/view", method = RequestMethod.GET)
+    @RequestMapping(value = "/view", method = RequestMethod.GET)
     @RequireHardLogIn
-    @Override
-    @PreValidateCheckoutStep (checkoutStep = SUMMARY)
-    public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
+    @PreValidateCheckoutStep(checkoutStep = SUMMARY)
+    public String enterStep(final Model model, final RedirectAttributes redirectAttributes, final HttpServletResponse response) throws CMSItemNotFoundException {
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
         if (CollectionUtils.isNotEmpty(cartData.getEntries())) {
             for (final OrderEntryData entry : cartData.getEntries()) {
@@ -94,8 +99,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         model.addAttribute(DELIVERY_ADDRESS, cartData.getDeliveryAddress());
         model.addAttribute(DELIVERY_MODE, cartData.getDeliveryMode());
         model.addAttribute(PAYMENT_INFO, cartData.getPaymentInfo());
-
-        model.addAttribute(new PlaceOrderForm());
+        model.addAttribute(CSE_PAYMENT_FORM, new CSEPaymentForm());
 
         final ContentPageModel contentPageForLabelOrId = getContentPageForLabelOrId(MULTI_CHECKOUT_SUMMARY_CMS_PAGE_LABEL);
         storeCmsPageInModel(model, contentPageForLabelOrId);
@@ -106,46 +110,50 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
         final String subscriptionId = cartData.getPaymentInfo().getSubscriptionId();
         model.addAttribute(REQUEST_SECURITY_CODE, StringUtils.isNotBlank(subscriptionId));
+        model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
     /**
      * Validates cart, creates an order and redirects to order confirmation page
      *
-     * @param placeOrderForm
+     * @param csePaymentForm
      * @param model
      * @param request
      * @param redirectAttributes
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping (value = "/placeOrder")
+    @RequestMapping(value = "/placeOrder")
     @RequireHardLogIn
-    public String placeOrder(@ModelAttribute ("placeOrderForm") final PlaceOrderForm placeOrderForm, final Model model,
-                             final HttpServletRequest request, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
+    public String placeOrder(@ModelAttribute("csePaymentForm") final CSEPaymentForm csePaymentForm, final Model model,
+                             final HttpServletRequest request, final RedirectAttributes redirectAttributes, final HttpServletResponse response) throws CMSItemNotFoundException {
 
         if (validateCart(redirectAttributes)) {
             // Invalid cart. Bounce back to the cart page.
             return REDIRECT_PREFIX + CART_SUFFIX;
         }
 
-        if (!isOrderFormValid(placeOrderForm, model)) {
+        if (!isOrderFormValid(csePaymentForm, model)) {
             // redirect to summary
-            return enterStep(model, redirectAttributes);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return enterStep(model, redirectAttributes, response);
         }
 
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, placeOrderForm.getSecurityCode());
+        final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSESubscriptionAdditionalAuthInfo(csePaymentForm);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, csePaymentForm.getSecurityCode(), cseAdditionalAuthInfo);
 
-        return handleResponse(model, worldpayAdditionalInfoData);
+        return authorisePayment(model, worldpayAdditionalInfoData, response);
     }
 
-    protected String handleResponse(final Model model, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws CMSItemNotFoundException {
+    protected String authorisePayment(final Model model, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final HttpServletResponse response) throws CMSItemNotFoundException {
         try {
             final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(worldpayAdditionalInfoData);
-            return handleDirectResponse(model, directResponseData);
+            return handleDirectResponse(model, directResponseData, response);
         } catch (final InvalidCartException | WorldpayException e) {
             addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
             LOGGER.error("There was an error authorising the transaction", e);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return getErrorView(model);
         }
     }
@@ -159,94 +167,105 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     /**
      * Validates the order form to filter out invalid order states
      *
-     * @param placeOrderForm The spring form of the order being submitted
-     * @param model          A spring Model
+     * @param form  The spring form of the order being submitted
+     * @param model A spring Model
      * @return True if the order form is invalid and false if everything is valid.
      */
-    protected boolean isOrderFormValid(final PlaceOrderForm placeOrderForm, final Model model) {
+    protected boolean isOrderFormValid(final CSEPaymentForm form, final Model model) {
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
         final String subscriptionId = cartData.getPaymentInfo().getSubscriptionId();
-        final String securityCode = placeOrderForm.getSecurityCode();
+        final String securityCode = form.getSecurityCode();
 
-        return !hasSubscriptionId(subscriptionId, securityCode, model) &&
-                !haveNoDeliveryAddress(model) &&
-                !haveNoDeliveryMethod(model) &&
-                !haveNoPaymentMethod(model) &&
-                !haveNoTermsAccepted(placeOrderForm, model) &&
-                !hasTaxCalculation(cartData, model) &&
-                !hasCalculateFlag(cartData, model);
+        return arePaymentInfoValid(model, subscriptionId, securityCode) &&
+                areDeliveryInfoValid(model) &&
+                hasTermsAccepted(form, model) &&
+                isCartValid(model, cartData);
     }
 
-    private boolean hasSubscriptionId(final String subscriptionId, final String securityCode, final Model model){
+    private boolean arePaymentInfoValid(final Model model, final String subscriptionId, final String securityCode) {
+        return isSubscriptionIdInValidCondition(subscriptionId, securityCode, model) &&
+                hasPaymentInfo(model);
+    }
+
+    private boolean areDeliveryInfoValid(final Model model) {
+        return hasDeliveryAddress(model) &&
+                hasDeliveryMode(model);
+    }
+
+    private boolean isCartValid(final Model model, final CartData cartData) {
+        return hasTaxCalculated(cartData, model) &&
+                isCartCalculated(cartData, model);
+    }
+
+    private boolean isSubscriptionIdInValidCondition(final String subscriptionId, final String securityCode, final Model model) {
         if (subscriptionId != null && StringUtils.isBlank(securityCode)) {
             addErrorMessage(model, "checkout.paymentMethod.noSecurityCode");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean haveNoDeliveryAddress(final Model model){
+    private boolean hasDeliveryAddress(final Model model) {
         if (getCheckoutFlowFacade().hasNoDeliveryAddress()) {
             addErrorMessage(model, "checkout.deliveryAddress.notSelected");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean haveNoDeliveryMethod(final Model model){
+    private boolean hasDeliveryMode(final Model model) {
         if (getCheckoutFlowFacade().hasNoDeliveryMode()) {
             addErrorMessage(model, "checkout.deliveryMethod.notSelected");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean haveNoPaymentMethod(final Model model){
+    private boolean hasPaymentInfo(final Model model) {
         if (getCheckoutFlowFacade().hasNoPaymentInfo()) {
             addErrorMessage(model, "checkout.paymentMethod.notSelected");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean haveNoTermsAccepted(final PlaceOrderForm placeOrderForm, final Model model){
-        if (!placeOrderForm.isTermsCheck()) {
+    private boolean hasTermsAccepted(final CSEPaymentForm form, final Model model) {
+        if (!form.isTermsCheck()) {
             addErrorMessage(model, "checkout.error.terms.not.accepted");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean hasTaxCalculation(final CartData cartData, final Model model){
+    private boolean hasTaxCalculated(final CartData cartData, final Model model) {
         if (!getCheckoutFacade().containsTaxValues()) {
             LOGGER.error(format(
-                    "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can't continue",
+                    "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
                     cartData.getCode()));
             addErrorMessage(model, "checkout.error.tax.missing");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private boolean hasCalculateFlag(final CartData cartData, final Model model){
+    private boolean isCartCalculated(final CartData cartData, final Model model) {
         if (!cartData.isCalculated()) {
-            LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can't continue", cartData.getCode()));
+            LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can\'t continue", cartData.getCode()));
             addErrorMessage(model, "checkout.error.cart.notcalculated");
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
-     *
-     * @param model             the {@Model} to be used
-     * @param redirectModel     the {@RedirectAttributes} to be used
+     * @param model         the {@Model} to be used
+     * @param redirectModel the {@RedirectAttributes} to be used
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping (value = "/express", method = RequestMethod.GET)
+    @RequestMapping(value = "/express", method = RequestMethod.GET)
     @RequireHardLogIn
-    public String performExpressCheckout(final Model model, final RedirectAttributes redirectModel)
+    public String performExpressCheckout(final Model model, final RedirectAttributes redirectModel, final HttpServletResponse response)
             throws CMSItemNotFoundException {
         if (getSessionService().getAttribute(WebConstants.CART_RESTORATION) != null
                 && CollectionUtils.isNotEmpty(((CartRestorationData) getSessionService().getAttribute(WebConstants.CART_RESTORATION))
@@ -259,7 +278,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         if (getCheckoutFlowFacade().hasValidCart()) {
             switch (getCheckoutFacade().performExpressCheckout()) {
                 case SUCCESS:
-                    returnCode = enterStep(model, redirectModel);
+                    returnCode = enterStep(model, redirectModel, response);
                     break;
                 case ERROR_DELIVERY_ADDRESS:
                     addFlashMessage(redirectModel, ERROR_MESSAGES_HOLDER, "checkout.express.error.deliveryAddress");
@@ -281,14 +300,46 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return returnCode;
     }
 
-    @RequestMapping (value = "/back", method = RequestMethod.GET)
+    /**
+     * Returns the DDC collection iframe for 3d secure 2 payments
+     *
+     * @param model
+     * @return the iframe
+     */
+    @GetMapping(value = "/DDCIframe")
+    @RequireHardLogIn
+    public String getDDCIframeContent(final Model model) {
+        setDDCIframeData(model);
+        return worldpayAddonEndpointService.getDdcIframe3dSecureFlex();
+    }
+
+    protected void setDDCIframeData(final Model model) {
+        model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDirectOrderFacade.createJsonWebTokenForDDC());
+        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData() != null &&
+                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings() != null ?
+                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings().getDdcUrl() : null);
+    }
+
+    /**
+     * Returns the DDC collection iframe for 3d secure 2 payments
+     *
+     * @param model
+     * @return the iframe
+     */
+    @GetMapping(value = "/challengeIframe")
+    @RequireHardLogIn
+    public String getChallengeIframeContent(final Model model) {
+        return worldpayAddonEndpointService.getChallengeIframe3dSecureFlex();
+    }
+
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
     @RequireHardLogIn
     @Override
     public String back(final RedirectAttributes redirectAttributes) {
         return getCheckoutStep().previousStep();
     }
 
-    @RequestMapping (value = "/next", method = RequestMethod.GET)
+    @RequestMapping(value = "/next", method = RequestMethod.GET)
     @RequireHardLogIn
     @Override
     public String next(final RedirectAttributes redirectAttributes) {
@@ -301,9 +352,12 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     }
 
     private WorldpayAdditionalInfoData getWorldpayAdditionalInfo(final HttpServletRequest request,
-                                                                 final String securityCode) {
+                                                                 final String securityCode, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
         final WorldpayAdditionalInfoData info = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         info.setSecurityCode(securityCode);
+        if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
+            info.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
+        }
         return info;
     }
 

@@ -1,6 +1,5 @@
 package com.worldpay.service.model.token;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.PaymentInstrument;
 import com.worldpay.internal.model.PaymentTokenID;
@@ -21,7 +20,7 @@ public class Token extends AbstractPayment {
 
     public Token(final String paymentTokenID, final boolean merchantToken) {
         this.paymentTokenID = paymentTokenID;
-        this.setPaymentType(TOKENSSL);
+        this.paymentType = TOKENSSL;
         this.merchantToken = merchantToken;
     }
 
@@ -29,7 +28,7 @@ public class Token extends AbstractPayment {
         this.paymentTokenID = paymentTokenID;
         this.paymentInstrument = paymentInstrument;
         this.merchantToken = merchantToken;
-        this.setPaymentType(TOKENSSL);
+        this.paymentType = TOKENSSL;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class Token extends AbstractPayment {
         if (paymentInstrument != null) {
             final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
             final com.worldpay.internal.model.CardDetails intCardDetails = (com.worldpay.internal.model.CardDetails) paymentInstrument.transformToInternalModel();
-            intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(intCardDetails);
+            intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(intCardDetails);
             tokenElements.add(intPaymentInstrument);
         }
 

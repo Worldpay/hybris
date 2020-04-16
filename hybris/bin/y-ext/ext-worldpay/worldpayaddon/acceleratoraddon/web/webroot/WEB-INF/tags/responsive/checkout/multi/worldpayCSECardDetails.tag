@@ -39,5 +39,10 @@
             <wp-multi-checkout:cseInputBox idKey="cvc" formPath="cvc" mandatory="false" labelKey="payment.cvn"/>
         </div>
         <input type="hidden" id="encryptedData" name="cseToken">
+        <input type="hidden" id="threeDSReferenceId" name="referenceId">
+        <input type="hidden" id="windowSizePreference" name="windowSizePreference">
     </fieldset>
+
+
+    <iframe src="DDCIframe" width="1" height="1" hidden="true" id="DDCIframe"></iframe>
 </div>

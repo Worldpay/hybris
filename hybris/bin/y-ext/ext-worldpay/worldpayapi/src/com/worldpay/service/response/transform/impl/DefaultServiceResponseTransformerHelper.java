@@ -1,13 +1,14 @@
 package com.worldpay.service.response.transform.impl;
 
 import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
-import com.worldpay.service.model.*;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.model.Address;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.Date;
 import com.worldpay.service.model.RiskScore;
+import com.worldpay.service.model.SchemeResponse;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.DeleteTokenReply;
 import com.worldpay.service.model.token.TokenReply;
@@ -31,17 +32,19 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     public boolean checkForError(final ServiceResponse response, final Reply reply) {
         final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
         if (replyType instanceof com.worldpay.internal.model.Error) {
-            final com.worldpay.internal.model.Error intError = (com.worldpay.internal.model.Error) replyType;
-            final ErrorDetail errorDtl = buildErrorDetail(intError);
-            response.setError(errorDtl);
+            response.setError(Optional.of(replyType)
+                    .map(com.worldpay.internal.model.Error.class::cast)
+                    .map(this::buildErrorDetail)
+                    .orElse(null));
             return true;
         } else if (replyType instanceof OrderStatus) {
-            final OrderStatus ordStatus = (OrderStatus) replyType;
-            final Object statusType = ordStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent().get(0);
+            final OrderStatus orderStatus = (OrderStatus) replyType;
+            final Object statusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse().get(0);
             if (statusType instanceof com.worldpay.internal.model.Error) {
-                final com.worldpay.internal.model.Error intError = (com.worldpay.internal.model.Error) statusType;
-                final ErrorDetail errorDtl = buildErrorDetail(intError);
-                response.setError(errorDtl);
+                response.setError(Optional.of(statusType)
+                        .map(com.worldpay.internal.model.Error.class::cast)
+                        .map(this::buildErrorDetail)
+                        .orElse(null));
                 return true;
             }
         }
@@ -49,11 +52,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     }
 
     private ErrorDetail buildErrorDetail(final com.worldpay.internal.model.Error intError) {
-        ErrorDetail errorDtl = null;
-        if (intError != null) {
-            errorDtl = new ErrorDetail(intError.getCode(), intError.getvalue());
-        }
-        return errorDtl;
+        return new ErrorDetail(intError.getCode(), intError.getvalue());
     }
 
     /**
@@ -62,21 +61,89 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     @Override
     public PaymentReply buildPaymentReply(final Payment intPayment) {
         final PaymentReply paymentReply = new PaymentReply();
-        paymentReply.setMethodCode(intPayment.getPaymentMethod());
-        final PaymentMethodDetail paymentMethodDetail = intPayment.getPaymentMethodDetail();
-        if (paymentMethodDetail != null) {
-            paymentReply.setCardDetails(transformCard(paymentMethodDetail.getCard(), intPayment.getCardHolderName()));
-        }
 
-        final com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
-        final Amount amount = transformAmount(intAmount);
-        paymentReply.setAmount(amount);
+        paymentReply.setMethodCode(intPayment.getPaymentMethod());
         paymentReply.setAuthStatus(AuthorisedStatus.valueOf(intPayment.getLastEvent()));
+
+        setPaymentMethodDetail(intPayment, paymentReply);
+        setAmount(intPayment, paymentReply);
+        setCvcResult(intPayment, paymentReply);
+        setBalanceList(intPayment, paymentReply);
+        setReturnCode(intPayment, paymentReply);
+        setRiskScore(intPayment, paymentReply);
+        setAAVCodes(intPayment, paymentReply);
+        setRefundReference(intPayment, paymentReply);
+        setAuthorisationId(intPayment, paymentReply);
+        setThreeDSecureResult(intPayment, paymentReply);
+        setSchemeResponse(intPayment, paymentReply);
+        return paymentReply;
+    }
+
+    private void setSchemeResponse(final Payment intPayment, final PaymentReply paymentReply) {
+        Optional.ofNullable(intPayment.getSchemeResponse())
+                .map(this::buildSchemeResponse)
+                .ifPresent(paymentReply::setSchemeResponse);
+    }
+
+    private SchemeResponse buildSchemeResponse(final com.worldpay.internal.model.SchemeResponse intSchemeResponse) {
+        final SchemeResponse schemeResponse = new SchemeResponse();
+
+        Optional.ofNullable(intSchemeResponse.getActionCode())
+                .ifPresent(schemeResponse::setActionCode);
+        Optional.ofNullable(intSchemeResponse.getResponseCode())
+                .ifPresent(schemeResponse::setResponseCode);
+        Optional.ofNullable(intSchemeResponse.getSchemeName())
+                .ifPresent(schemeResponse::setSchemeName);
+        Optional.ofNullable(intSchemeResponse.getTransactionIdentifier())
+                .ifPresent(schemeResponse::setTransactionIdentifier);
+
+        return schemeResponse;
+    }
+
+    private void setRefundReference(final Payment intPayment, final PaymentReply paymentReply) {
+        paymentReply.setRefundReference(intPayment.getRefundReference());
+    }
+
+    private void setRiskScore(final Payment intPayment, final PaymentReply paymentReply) {
+        Optional.ofNullable(intPayment.getRiskScore()).map(this::buildRiskScore).ifPresent(paymentReply::setRiskScore);
+    }
+
+    private void setCvcResult(final Payment intPayment, final PaymentReply paymentReply) {
         final CVCResultCode intCvcResultCode = intPayment.getCVCResultCode();
         if (intCvcResultCode != null) {
             final String cvcResultDescription = intCvcResultCode.getDescription().get(0);
             paymentReply.setCvcResultDescription(cvcResultDescription);
         }
+    }
+
+    private void setThreeDSecureResult(final Payment intPayment, final PaymentReply paymentReply) {
+        final ThreeDSecureResult threeDSecureResult = intPayment.getThreeDSecureResult();
+        if (threeDSecureResult != null) {
+            final String threeDSecureResultDescription = threeDSecureResult.getDescription().get(0);
+            paymentReply.setThreeDSecureResultDescription(threeDSecureResultDescription);
+        }
+    }
+
+    private void setAmount(final Payment intPayment, final PaymentReply paymentReply) {
+        final com.worldpay.internal.model.Amount intAmount = intPayment.getAmount();
+        final Amount amount = transformAmount(intAmount);
+        paymentReply.setAmount(amount);
+    }
+
+    private void setPaymentMethodDetail(final Payment intPayment, final PaymentReply paymentReply) {
+        final PaymentMethodDetail paymentMethodDetail = intPayment.getPaymentMethodDetail();
+        if (paymentMethodDetail != null) {
+            paymentReply.setCardDetails(transformCard(paymentMethodDetail.getCard(), intPayment.getCardHolderName()));
+        }
+    }
+
+    private void setReturnCode(final Payment intPayment, final PaymentReply paymentReply) {
+        if (intPayment.getISO8583ReturnCode() != null) {
+            paymentReply.setReturnCode(intPayment.getISO8583ReturnCode().getCode());
+        }
+    }
+
+    private void setBalanceList(final Payment intPayment, final PaymentReply paymentReply) {
         final List<Balance> balanceList = intPayment.getBalance();
         if (balanceList != null && !balanceList.isEmpty()) {
             final Balance balance = balanceList.get(0);
@@ -85,17 +152,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             final Amount balAmount = transformAmount(intBalAmount);
             paymentReply.setBalanceAmount(balAmount);
         }
+    }
 
-        if (intPayment.getISO8583ReturnCode() != null) {
-            paymentReply.setReturnCode(intPayment.getISO8583ReturnCode().getCode());
-        }
-
-        Optional.ofNullable(intPayment.getRiskScore()).map(this::buildRiskScore).ifPresent(paymentReply::setRiskScore);
-
-        setAAVCodes(intPayment, paymentReply);
-
-        paymentReply.setRefundReference(intPayment.getRefundReference());
-
+    private void setAuthorisationId(final Payment intPayment, final PaymentReply paymentReply) {
         final AuthorisationId authorisationId = intPayment.getAuthorisationId();
         if (authorisationId != null) {
             paymentReply.setAuthorisationId(authorisationId.getId());
@@ -104,8 +163,6 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 paymentReply.setAuthorisedBy(authorisedBy);
             }
         }
-
-        return paymentReply;
     }
 
     private RiskScore buildRiskScore(final com.worldpay.internal.model.RiskScore intRiskScore) {
@@ -151,7 +208,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         tokenReply.setAuthenticatedShopperID(intToken.getAuthenticatedShopperID());
         tokenReply.setTokenEventReference(intToken.getTokenEventReference());
 
-        final List<Object> tokenInformationFields = intToken.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenInformationFields = intToken.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
         for (final Object tokenInformationField : tokenInformationFields) {
             if (tokenInformationField instanceof TokenReason) {
                 tokenReply.setTokenReason(((TokenReason) tokenInformationField).getvalue());
@@ -159,7 +216,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 final com.worldpay.service.model.token.TokenDetails tokenDetails = transformTokenDetails((TokenDetails) tokenInformationField);
                 tokenReply.setTokenDetails(tokenDetails);
             } else if (tokenInformationField instanceof PaymentInstrument) {
-                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().get(0);
+                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0);
                 if (paymentInstrument instanceof CardDetails) {
                     final com.worldpay.service.model.payment.Card card = transformCard((CardDetails) paymentInstrument);
                     tokenReply.setPaymentInstrument(card);
@@ -173,20 +230,35 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return tokenReply;
     }
 
-    private com.worldpay.service.model.token.TokenDetails transformTokenDetails(final TokenDetails tokenInformationField) {
+    private com.worldpay.service.model.token.TokenDetails transformTokenDetails(final com.worldpay.internal.model.TokenDetails tokenInformationField) {
         final com.worldpay.service.model.token.TokenDetails tokenDetails = new com.worldpay.service.model.token.TokenDetails();
-        final TokenReason intTokenReason = tokenInformationField.getTokenReason();
-        if (intTokenReason != null) {
-            tokenDetails.setTokenReason(tokenInformationField.getTokenReason().getvalue());
-        }
-        tokenDetails.setTokenEventReference(tokenInformationField.getTokenEventReference());
-        tokenDetails.setTokenEvent(tokenInformationField.getTokenEvent());
-        tokenDetails.setPaymentTokenExpiry(transformDate(tokenInformationField.getPaymentTokenExpiry().getDate()));
-        tokenDetails.setPaymentTokenID(tokenInformationField.getPaymentTokenID().getvalue());
-        tokenDetails.setReportingTokenID(tokenInformationField.getReportingTokenID());
-        if (tokenInformationField.getReportingTokenExpiry() != null) {
-            tokenDetails.setReportingTokenExpiry(transformDate(tokenInformationField.getReportingTokenExpiry().getDate()));
-        }
+
+        Optional.ofNullable(tokenInformationField.getTokenReason())
+                .map(TokenReason::getvalue)
+                .ifPresent(tokenDetails::setTokenReason);
+
+        Optional.ofNullable(tokenInformationField.getTokenEventReference())
+                .ifPresent(tokenDetails::setTokenEventReference);
+
+        Optional.ofNullable(tokenInformationField.getTokenEvent())
+                .ifPresent(tokenDetails::setTokenEvent);
+
+        Optional.ofNullable(tokenInformationField.getPaymentTokenID())
+                .map(PaymentTokenID::getvalue)
+                .ifPresent(tokenDetails::setPaymentTokenID);
+
+        Optional.ofNullable(tokenInformationField.getReportingTokenID())
+                .ifPresent(tokenDetails::setReportingTokenID);
+
+        Optional.ofNullable(tokenInformationField.getPaymentTokenExpiry())
+                .map(PaymentTokenExpiry::getDate)
+                .map(this::transformDate)
+                .ifPresent(tokenDetails::setPaymentTokenExpiry);
+
+        Optional.ofNullable(tokenInformationField.getReportingTokenExpiry())
+                .map(ReportingTokenExpiry::getDate)
+                .map(this::transformDate)
+                .ifPresent(tokenDetails::setReportingTokenExpiry);
         return tokenDetails;
     }
 
@@ -377,10 +449,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     private void populateBookingDate(final Journal intJournal, final JournalReply journalReply) {
         Optional.ofNullable(intJournal.getBookingDate())
-                .ifPresent(bookingDate -> Optional.ofNullable(bookingDate.getDate()).ifPresent(intDate -> {
-                    final Date date = transformDate(intDate);
-                    journalReply.setBookingDate(date);
-                }));
+                .flatMap(bookingDate -> Optional.ofNullable(bookingDate.getDate()))
+                .map(this::transformDate)
+                .ifPresent(journalReply::setBookingDate);
     }
 
     private void populateAccountTransactions(final Journal intJournal, final JournalReply journalReply) {
