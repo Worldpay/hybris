@@ -13,6 +13,9 @@ import com.worldpay.service.model.token.Token;
  */
 public class PaymentBuilder {
 
+    private PaymentBuilder() {
+    }
+
     // Cards
 
     /**
@@ -1069,6 +1072,7 @@ public class PaymentBuilder {
     }
 
     // Envoy Transfer Payments
+
     /**
      * Create an AUD envoy transfer payment
      *

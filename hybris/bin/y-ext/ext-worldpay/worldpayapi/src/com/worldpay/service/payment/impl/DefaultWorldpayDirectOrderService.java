@@ -2,10 +2,11 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Address;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.SchemeResponse;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
@@ -18,19 +19,14 @@ import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
-import de.hybris.platform.commerceservices.customer.CustomerEmailResolutionService;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
-import de.hybris.platform.commerceservices.strategies.GenerateMerchantTransactionCodeStrategy;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
-import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.dto.converter.Converter;
-import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.user.AddressService;
 
 import java.math.BigDecimal;
@@ -44,13 +40,15 @@ import static com.worldpay.enums.token.TokenEvent.CONFLICT;
 public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderService implements WorldpayDirectOrderService {
     private final WorldpayRequestFactory worldpayRequestFactory;
     private final WorldpaySessionService worldpaySessionService;
+    private final WorldpayMerchantInfoService worldpayMerchantInfoService;
 
-    public DefaultWorldpayDirectOrderService(final WorldpayRequestFactory worldpayRequestFactory, final WorldpaySessionService worldpaySessionService, final CommonI18NService commonI18NService, final CommerceCheckoutService commerceCheckoutService, final CustomerEmailResolutionService customerEmailResolutionService, final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final Converter<AddressModel, Address> worldpayAddressConverter, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService) {
-        super(commonI18NService, commerceCheckoutService, customerEmailResolutionService, worldpayGenerateMerchantTransactionCodeStrategy, worldpayPaymentInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayAddressConverter, worldpayServiceGateway, addressService);
+
+    public DefaultWorldpayDirectOrderService(final WorldpayRequestFactory worldpayRequestFactory, final WorldpaySessionService worldpaySessionService, final CommerceCheckoutService commerceCheckoutService, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService, WorldpayMerchantInfoService worldpayMerchantInfoService) {
+        super(commerceCheckoutService, worldpayPaymentInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway, addressService);
         this.worldpayRequestFactory = worldpayRequestFactory;
         this.worldpaySessionService = worldpaySessionService;
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
-
 
     protected boolean createTokenRepliesWithConflict(final CreateTokenResponse createTokenResponse) {
         return CONFLICT.name().equals(createTokenResponse.getToken().getTokenDetails().getTokenEvent());
@@ -60,8 +58,9 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
+    public DirectAuthoriseServiceResponse authorise(final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
 
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRequestWithTokenForCSE(merchantInfo, cartModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
         worldpaySessionService.setSessionAttributesFor3DSecure(response, worldpayAdditionalInfoData);
@@ -70,7 +69,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
     }
 
     @Override
-    public DirectAuthoriseServiceResponse createTokenAndAuthorise(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException {
+    public DirectAuthoriseServiceResponse createTokenAndAuthorise(final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = worldpayRequestFactory.buildDirectTokenAndAuthorise(merchantInfo, cartModel, worldpayAdditionalInfoData, cseAdditionalAuthInfo);
         final DirectAuthoriseServiceResponse directAuthoriseServiceResponse = getWorldpayServiceGateway().directAuthorise(directAuthoriseServiceRequest);
         worldpaySessionService.setSessionAttributesFor3DSecure(directAuthoriseServiceResponse, worldpayAdditionalInfoData);
@@ -93,8 +93,9 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authoriseRecurringPayment(final MerchantInfo merchantInfo, final AbstractOrderModel abstractOrderModel,
+    public DirectAuthoriseServiceResponse authoriseRecurringPayment(final AbstractOrderModel abstractOrderModel,
                                                                     final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseRequest = worldpayRequestFactory.buildDirectAuthoriseRecurringPayment(merchantInfo, abstractOrderModel, worldpayAdditionalInfoData);
         final DirectAuthoriseServiceResponse response = getWorldpayServiceGateway().directAuthorise(directAuthoriseRequest);
 
@@ -107,7 +108,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authoriseKlarna(final MerchantInfo merchantInfo, final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
+    public DirectAuthoriseServiceResponse authoriseKlarna(final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseKlarnaRequest = worldpayRequestFactory.buildDirectAuthoriseKlarnaRequest(
                 merchantInfo, cartModel, worldpayAdditionalInfoData, additionalAuthInfo);
         return getWorldpayServiceGateway().directAuthorise(directAuthoriseKlarnaRequest);
@@ -117,9 +119,10 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authoriseBankTransfer(final MerchantInfo merchantInfo, final CartModel cartModel,
+    public DirectAuthoriseServiceResponse authoriseBankTransfer(final CartModel cartModel,
                                                                 final BankTransferAdditionalAuthInfo bankTransferAdditionalAuthInfo,
                                                                 final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseBankTransferRequest = worldpayRequestFactory.buildDirectAuthoriseBankTransferRequest(
                 merchantInfo, cartModel, bankTransferAdditionalAuthInfo, worldpayAdditionalInfoData);
         return getWorldpayServiceGateway().directAuthorise(directAuthoriseBankTransferRequest);
@@ -129,7 +132,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authoriseApplePay(final MerchantInfo merchantInfo, final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) throws WorldpayException {
+    public DirectAuthoriseServiceResponse authoriseApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseApplePayRequest = worldpayRequestFactory.buildApplePayDirectAuthorisationRequest(
                 merchantInfo, cartModel, applePayAdditionalAuthInfo);
         return getWorldpayServiceGateway().directAuthorise(directAuthoriseApplePayRequest);
@@ -139,17 +143,18 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authoriseGooglePay(final MerchantInfo merchantInfo, final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException {
+    public DirectAuthoriseServiceResponse authoriseGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseGooglePayRequest = worldpayRequestFactory.buildDirectAuthoriseGooglePayRequest(merchantInfo, cartModel, googlePayAdditionalAuthInfo);
         return getWorldpayServiceGateway().directAuthorise(directAuthoriseGooglePayRequest);
     }
 
     /**
      * {@inheritDoc}
-     * @return
      */
     @Override
-    public DirectAuthoriseServiceResponse authorise3DSecureAgain(final MerchantInfo merchantInfo, final String worldpayOrderCode) throws WorldpayException {
+    public DirectAuthoriseServiceResponse authorise3DSecureAgain(final String worldpayOrderCode) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final String cookie = worldpaySessionService.getAndRemoveThreeDSecureCookie();
         final String sessionId = worldpaySessionService.getAndRemoveAdditionalDataSessionId();
         final SecondThreeDSecurePaymentRequest request = worldpayRequestFactory.buildSecondThreeDSecurePaymentRequest(merchantInfo, worldpayOrderCode, sessionId, cookie);
@@ -160,8 +165,9 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public void createToken(final CartModel cartModel, final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
+    public void createToken(final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
             throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final CreateTokenServiceRequest createTokenRequest = worldpayRequestFactory.buildTokenRequest(merchantInfo, cartModel, cseAdditionalAuthInfo, worldpayAdditionalInfoData);
         final CreateTokenResponse createTokenResponse = getWorldpayServiceGateway().createToken(createTokenRequest);
         if (createTokenResponse.isError()) {
@@ -217,11 +223,11 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public DirectAuthoriseServiceResponse authorise3DSecure(final MerchantInfo merchantInfo,
-                                                            final String worldpayOrderCode,
+    public DirectAuthoriseServiceResponse authorise3DSecure(final String worldpayOrderCode,
                                                             final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                             final String paResponse) throws WorldpayException {
         final String cookie = worldpaySessionService.getAndRemoveThreeDSecureCookie();
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
 
         final DirectAuthoriseServiceRequest directAuthoriseServiceRequest = worldpayRequestFactory.build3dDirectAuthoriseRequest(
                 merchantInfo, worldpayOrderCode, worldpayAdditionalInfoData, paResponse, cookie);
@@ -232,7 +238,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode) {
+    public void completeAuthorise(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel) throws WorldpayConfigurationException {
+        final String merchantCode = worldpayMerchantInfoService.getCurrentSiteMerchant().getMerchantCode();
         final PaymentInfoModel paymentInfoModel = Optional.ofNullable(abstractOrderModel.getPaymentInfo())
                 .orElseGet(() -> createCreditCardPaymentInfo(serviceResponse, abstractOrderModel, merchantCode));
         final BigDecimal authorisationAmount = getWorldpayOrderService().convertAmount(serviceResponse.getPaymentReply().getAmount());
@@ -289,8 +296,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
-    public void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse, final MerchantInfo merchantInfo) {
-        completeAuthorise(serviceResponse, abstractOrderModel, merchantInfo.getMerchantCode());
+    public void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayConfigurationException {
+        completeAuthorise(serviceResponse, abstractOrderModel);
     }
 
     protected Optional<String> getTransactionIdentifier(final DirectAuthoriseServiceResponse serviceResponse) {

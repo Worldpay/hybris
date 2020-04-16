@@ -72,8 +72,8 @@ public class HttpRequestPaymentDetailsWsDTOPopulator extends AbstractHttpRequest
         target.setStartYear(updateStringValueFromRequest(request, START_YEAR, target.getStartYear()));
         target.setSubscriptionId(updateStringValueFromRequest(request, SUBSCRIPTION_ID, target.getSubscriptionId()));
         target.setId(updateStringValueFromRequest(request, ID, target.getId()));
-        target.setSaved(updateBooleanValueFromRequest(request, SAVED, target.getSaved() != null ? target.getSaved() : false));
-        target.setDefaultPayment(updateBooleanValueFromRequest(request, DEFAULT_PAYMENT_INFO, target.getDefaultPayment() != null ? target.getDefaultPayment() : false));
+        target.setSaved(updateBooleanValueFromRequest(request, SAVED, Boolean.TRUE.equals(target.getSaved())));
+        target.setDefaultPayment(updateBooleanValueFromRequest(request, DEFAULT_PAYMENT_INFO, Boolean.TRUE.equals(target.getDefaultPayment())));
 
         if (options.contains(PaymentDetailsWsDTOOption.BILLING_ADDRESS)) {
             final AddressWsDTO billingAddress = target.getBillingAddress() == null ? new AddressWsDTO() : target.getBillingAddress();

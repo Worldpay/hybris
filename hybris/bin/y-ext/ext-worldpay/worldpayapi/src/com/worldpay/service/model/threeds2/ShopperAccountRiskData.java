@@ -1,6 +1,8 @@
 package com.worldpay.service.model.threeds2;
 
-public class ShopperAccountRiskData {
+import java.io.Serializable;
+
+public class ShopperAccountRiskData implements Serializable {
     private String shopperAccountAgeIndicator;
 
     private String transactionsAttemptedLastDay;

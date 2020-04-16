@@ -42,7 +42,6 @@ public class OrderBuilderTest {
     private static final Amount AMOUNT = new Amount("100", "EUR", "2");
     private static final Payment PAYMENT = new Cse(ENCRYPTED_DATA, SHIPPING_ADDRESS);
     private static final StoredCredentials STORED_CREDENTIALS = new StoredCredentials();
-    private static final MerchantInfo MERCHANT_INFO = new MerchantInfo("MERCHANT1ECOM", "3l3ph4nt_&_c4st!3");
     private static final String ORDER_DESC = "Your Order & Order desc";
     private static final BasicOrderInfo BASIC_ORDER_INFO = new BasicOrderInfo(ORDER_CODE, ORDER_DESC, AMOUNT);
     private static final DynamicInteractionType DYNAMIC_INTERACTION_TYPE = DynamicInteractionType.ECOMMERCE;

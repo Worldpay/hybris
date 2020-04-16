@@ -1,6 +1,8 @@
 package com.worldpay.service.model.threeds2;
 
-public class AuthenticationRiskData {
+import java.io.Serializable;
+
+public class AuthenticationRiskData implements Serializable {
     private RiskDateData authenticationTimestamp;
 
     private String authenticationMethod;

@@ -6,6 +6,7 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
+import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.B2BCSEPaymentForm;
@@ -73,6 +74,8 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String RESOLVED_PAGE_TITLE = "resolvedPageTitle";
     private static final String REDIRECT_TO_SUMMARY_PAGE = "redirect:/checkout/multi/worldpay/summary/view";
     private static final String CSE_PAYMENT_DETAILS_PAGE = "CSEPaymentDetailsPage";
+    private static final String EVENT_ORIGIN_DOMAIN = "EVENT_ORIGIN_DOMAIN";
+    private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN = "originEventDomain3DSFlex";
 
     @Spy
     @InjectMocks
@@ -86,6 +89,9 @@ public class WorldpayCseCheckoutStepControllerTest {
     private SessionService sessionService;
     @Mock
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
+    @Mock
+    private WorldpayDDCFacade workdpayDDCFacadeMock;
+
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
@@ -144,12 +150,12 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
     @Mock
-    private PagePreviewCriteriaData pagePreiewCriteriaMock;
+    private PagePreviewCriteriaData pagePreviewCriteriaMock;
     @Mock
     private Session session;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws CMSItemNotFoundException {
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         doReturn(BILLING_ERROR_VIEW).when(testObj).handleFormErrors(modelMock, paymentDetailsFormMock);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
@@ -159,8 +165,8 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(true);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
-        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreiewCriteriaMock);
-        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreiewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
         doReturn(false).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
         when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
@@ -286,25 +292,15 @@ public class WorldpayCseCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddCMSContentForPageToModel() throws CMSItemNotFoundException {
-        testObj.getCseDataPage(modelMock);
-
-        verify(modelMock).addAttribute(CMS_PAGE_MODEL, contentPageModelMock);
-    }
-
-    @Test
-    public void shouldAddCartToModel() throws CMSItemNotFoundException {
-        testObj.getCseDataPage(modelMock);
-
-        verify(modelMock).addAttribute(CART_DATA, cartDataMock);
-    }
-
-    @Test
-    public void shouldPopulateCSEPublicKey() throws CMSItemNotFoundException {
+    public void getCseDataPage_ShouldAddNecessaryAttributes_pageModel_eventOriginDomain_cardData_csePublicKey() throws CMSItemNotFoundException {
+        when(workdpayDDCFacadeMock.getEventOriginDomainForDDC()).thenReturn(EVENT_ORIGIN_DOMAIN);
         when(worldpayMerchantConfigDataMock.getCsePublicKey()).thenReturn(CSE_PUBLIC_KEY_VALUE);
 
         testObj.getCseDataPage(modelMock);
 
+        verify(modelMock).addAttribute(CMS_PAGE_MODEL, contentPageModelMock);
+        verify(modelMock).addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, EVENT_ORIGIN_DOMAIN);
+        verify(modelMock).addAttribute(CART_DATA, cartDataMock);
         verify(modelMock).addAttribute(CSE_PUBLIC_KEY, CSE_PUBLIC_KEY_VALUE);
     }
 

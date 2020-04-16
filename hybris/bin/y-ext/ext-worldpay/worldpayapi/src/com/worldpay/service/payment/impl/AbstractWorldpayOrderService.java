@@ -2,20 +2,15 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Address;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
-import de.hybris.platform.commerceservices.customer.CustomerEmailResolutionService;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
-import de.hybris.platform.commerceservices.strategies.GenerateMerchantTransactionCodeStrategy;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
-import de.hybris.platform.servicelayer.dto.converter.Converter;
-import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.user.AddressService;
 
 import java.math.BigDecimal;
@@ -28,30 +23,26 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
  */
 public abstract class AbstractWorldpayOrderService {
 
-    private final CommonI18NService commonI18NService;
     private final CommerceCheckoutService commerceCheckoutService;
-    private final CustomerEmailResolutionService customerEmailResolutionService;
-    private final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy;
     private final WorldpayPaymentInfoService worldpayPaymentInfoService;
     private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     private final WorldpayOrderService worldpayOrderService;
-    private final Converter<AddressModel, Address> worldpayAddressConverter;
     private final WorldpayServiceGateway worldpayServiceGateway;
     private final AddressService addressService;
 
-    protected AbstractWorldpayOrderService(final CommonI18NService commonI18NService, final CommerceCheckoutService commerceCheckoutService, final CustomerEmailResolutionService customerEmailResolutionService, final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final Converter<AddressModel, Address> worldpayAddressConverter, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService) {
-        this.commonI18NService = commonI18NService;
+    protected AbstractWorldpayOrderService(final CommerceCheckoutService commerceCheckoutService,
+                                           final WorldpayPaymentInfoService worldpayPaymentInfoService,
+                                           final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                           final WorldpayOrderService worldpayOrderService,
+                                           final WorldpayServiceGateway worldpayServiceGateway,
+                                           final AddressService addressService) {
         this.commerceCheckoutService = commerceCheckoutService;
-        this.customerEmailResolutionService = customerEmailResolutionService;
-        this.worldpayGenerateMerchantTransactionCodeStrategy = worldpayGenerateMerchantTransactionCodeStrategy;
         this.worldpayPaymentInfoService = worldpayPaymentInfoService;
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
         this.worldpayOrderService = worldpayOrderService;
-        this.worldpayAddressConverter = worldpayAddressConverter;
         this.worldpayServiceGateway = worldpayServiceGateway;
         this.addressService = addressService;
     }
-
 
     /**
      * Creates a {@link CommerceCheckoutParameter} based on the passed {@link CartModel} and {@link PaymentInfoModel} given
@@ -100,15 +91,6 @@ public abstract class AbstractWorldpayOrderService {
         return commerceCheckoutService;
     }
 
-    public CustomerEmailResolutionService getCustomerEmailResolutionService() {
-        return customerEmailResolutionService;
-    }
-
-    public CommonI18NService getCommonI18NService() {
-        return commonI18NService;
-    }
-
-
     public WorldpayPaymentInfoService getWorldpayPaymentInfoService() {
         return worldpayPaymentInfoService;
     }
@@ -120,15 +102,6 @@ public abstract class AbstractWorldpayOrderService {
 
     public WorldpayOrderService getWorldpayOrderService() {
         return worldpayOrderService;
-    }
-
-    public Converter<AddressModel, Address> getWorldpayAddressConverter() {
-        return worldpayAddressConverter;
-    }
-
-
-    public GenerateMerchantTransactionCodeStrategy getWorldpayGenerateMerchantTransactionCodeStrategy() {
-        return worldpayGenerateMerchantTransactionCodeStrategy;
     }
 
 

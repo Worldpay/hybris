@@ -3,7 +3,6 @@ package com.worldpay.facades.payment.impl;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.payment.WorldpayAdditionalInfoService;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,7 +11,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DefaultWorldpayAdditionalInfoFacade implements WorldpayAdditionalInfoFacade {
 
-    private WorldpayAdditionalInfoService worldpayAdditionalInfoService;
+    private final WorldpayAdditionalInfoService worldpayAdditionalInfoService;
+
+    public DefaultWorldpayAdditionalInfoFacade(final WorldpayAdditionalInfoService worldpayAdditionalInfoService) {
+        this.worldpayAdditionalInfoService = worldpayAdditionalInfoService;
+    }
 
     /**
      * {@inheritDoc}
@@ -22,8 +25,4 @@ public class DefaultWorldpayAdditionalInfoFacade implements WorldpayAdditionalIn
         return worldpayAdditionalInfoService.createWorldpayAdditionalInfoData(request);
     }
 
-    @Required
-    public void setWorldpayAdditionalInfoService(final WorldpayAdditionalInfoService worldpayAdditionalInfoService) {
-        this.worldpayAdditionalInfoService = worldpayAdditionalInfoService;
-    }
 }

@@ -5,7 +5,6 @@ import com.worldpay.internal.model.*;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link RefundServiceRequest} into a {@link PaymentService} object
@@ -28,11 +27,15 @@ import org.springframework.beans.factory.annotation.Required;
 public class RefundRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
+
+    public RefundRequestTransformer(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     /* (non-Javadoc)
-                 * @see ServiceRequestTransformer#transform(ServiceRequest)
-                 */
+     * @see ServiceRequestTransformer#transform(ServiceRequest)
+     */
     @Override
     public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
@@ -52,7 +55,7 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
         orderModification.setOrderCode(request.getOrderCode());
         final Refund refund = new Refund();
         refund.setReference(refundRequest.getReference());
-        if (refundRequest.getShopperWebformRefund()) {
+        if (Boolean.TRUE.equals(refundRequest.getShopperWebformRefund())) {
             refund.setShopperWebformRefund(Boolean.TRUE.toString());
         }
         refund.setAmount((Amount) refundRequest.getAmount().transformToInternalModel());
@@ -60,10 +63,5 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 }

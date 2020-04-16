@@ -10,10 +10,8 @@ import com.worldpay.hostedorderpage.service.WorldpayURIService;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.mac.MacValidator;
-import com.worldpay.service.model.Address;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
@@ -21,16 +19,13 @@ import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
-import de.hybris.platform.commerceservices.customer.CustomerEmailResolutionService;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
-import de.hybris.platform.commerceservices.strategies.GenerateMerchantTransactionCodeStrategy;
+import de.hybris.platform.core.model.c2l.LanguageModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
-import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.dto.converter.Converter;
-import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import de.hybris.platform.servicelayer.internal.i18n.I18NConstants;
 import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.servicelayer.user.AddressService;
 import org.apache.commons.lang.StringUtils;
@@ -39,12 +34,10 @@ import org.apache.log4j.Logger;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
-import static java.util.Collections.singletonList;
 
 
 /**
@@ -75,15 +68,14 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     private final MacValidator macValidator;
     private final WorldpayRequestFactory worldpayRequestFactory;
 
-    public DefaultWorldpayRedirectOrderService(final SessionService sessionService, final WorldpayURIService worldpayURIService, final WorldpayUrlService worldpayUrlService, final MacValidator macValidator, final WorldpayRequestFactory worldpayRequestFactory, final CommonI18NService commonI18NService, final CommerceCheckoutService commerceCheckoutService, final CustomerEmailResolutionService customerEmailResolutionService, final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final Converter<AddressModel, Address> worldpayAddressConverter, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService) {
-        super(commonI18NService, commerceCheckoutService, customerEmailResolutionService, worldpayGenerateMerchantTransactionCodeStrategy, worldpayPaymentInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayAddressConverter, worldpayServiceGateway, addressService);
+    public DefaultWorldpayRedirectOrderService(final SessionService sessionService, final WorldpayURIService worldpayURIService, final WorldpayUrlService worldpayUrlService, final MacValidator macValidator, final WorldpayRequestFactory worldpayRequestFactory, final CommerceCheckoutService commerceCheckoutService, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService) {
+        super(commerceCheckoutService, worldpayPaymentInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway, addressService);
         this.sessionService = sessionService;
         this.worldpayURIService = worldpayURIService;
         this.worldpayUrlService = worldpayUrlService;
         this.macValidator = macValidator;
         this.worldpayRequestFactory = worldpayRequestFactory;
     }
-
 
     /**
      * {@inheritDoc}
@@ -106,17 +98,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
 
         sessionService.setAttribute(WORLDPAY_MERCHANT_CODE, merchantInfo.getMerchantCode());
         return buildHOPPageData(redirectReference, request.getOrder().getBillingAddress().getCountryCode());
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated use completePendingRedirectAuthorise
-     */
-    @Override
-    @Deprecated
-    public void completeRedirectAuthorise(final RedirectAuthoriseResult result, final String merchantCode, final CartModel cartModel) {
-        completePendingRedirectAuthorise(result, merchantCode, cartModel);
     }
 
     /**
@@ -183,10 +164,6 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
         }
     }
 
-    protected List<PaymentType> getIncludedPaymentTypeList(final AdditionalAuthInfo additionalAuthInfo) {
-        return singletonList(PaymentType.getPaymentType(additionalAuthInfo.getPaymentMethod()));
-    }
-
     private PaymentData buildPaymentData(final String redirectReferenceUrl, final Map<String, String> params) {
         final PaymentData data = new PaymentData();
         data.setPostUrl(redirectReferenceUrl);
@@ -216,7 +193,7 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
         final Map<String, String> params = new HashMap<>();
         worldpayURIService.extractUrlParamsToMap(redirectReferenceUrl, params);
         params.put(KEY_COUNTRY, countryCode);
-        params.put(KEY_LANGUAGE, getCommonI18NService().getCurrentLanguage().getIsocode());
+        params.put(KEY_LANGUAGE, ((LanguageModel) sessionService.getAttribute(I18NConstants.LANGUAGE_SESSION_ATTR_KEY)).getIsocode());
         params.put(KEY_SUCCESS_URL, worldpayUrlService.getFullSuccessURL());
         params.put(KEY_PENDING_URL, worldpayUrlService.getFullPendingURL());
         params.put(KEY_FAILURE_URL, worldpayUrlService.getFullFailureURL());
