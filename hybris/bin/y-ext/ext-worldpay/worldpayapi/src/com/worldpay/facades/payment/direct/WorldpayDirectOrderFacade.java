@@ -35,14 +35,6 @@ public interface WorldpayDirectOrderFacade {
      */
     DirectResponseData authorise(final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
 
-
-    /**
-     * Retrieves the origin event domain to verify the validity of the message received by DCC Iframe
-     *
-     * @return the origin event domain
-     */
-    String getEventOriginDomainForDDC();
-
     /**
      * Performs a request to Worldpay to retrieve the URL to redirect to when using authorisation using Bank transfer
      *
@@ -124,14 +116,7 @@ public interface WorldpayDirectOrderFacade {
      * @param paymentMethodUpdateRequest - update request
      * @return the updated total and line items
      */
-    ApplePayOrderUpdate updatePaymentMethod(ApplePayPaymentMethodUpdateRequest paymentMethodUpdateRequest);
-
-    /**
-     * Creates a json web token for DDC
-     *
-     * @return String - json from dcc
-     */
-    String createJsonWebTokenForDDC();
+    ApplePayOrderUpdate updatePaymentMethod(final ApplePayPaymentMethodUpdateRequest paymentMethodUpdateRequest);
 
     /**
      * Execute the second payment request for 3d secure flow

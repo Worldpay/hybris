@@ -72,7 +72,7 @@ public class DefaultWorldpayJsonWebTokenService implements WorldpayJsonWebTokenS
             jwt = Jwts.builder()
                     .setHeaderParam(TYP, JWT)
                     .setHeaderParam(ALG, alg)
-                    .setIssuedAt(Date.from(Instant.now()))
+                    .setIssuedAt(getIssuedAt())
                     .setIssuer(worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getIss())
                     .claim(JTI, UUID.randomUUID())
                     .claim(ORG_UNIT_ID, worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getOrgUnitId())
@@ -101,7 +101,7 @@ public class DefaultWorldpayJsonWebTokenService implements WorldpayJsonWebTokenS
             jwt = Jwts.builder()
                     .setHeaderParam(TYP, JWT)
                     .setHeaderParam(ALG, alg)
-                    .setIssuedAt(Date.from(Instant.now()))
+                    .setIssuedAt(getIssuedAt())
                     .setIssuer(worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getIss())
                     .claim(JTI, UUID.randomUUID())
                     .claim(ORG_UNIT_ID, worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getOrgUnitId())
@@ -115,5 +115,9 @@ public class DefaultWorldpayJsonWebTokenService implements WorldpayJsonWebTokenS
         LOG.info("Challenge JWT: [{}]", jwt);
 
         return jwt;
+    }
+
+    protected Date getIssuedAt() {
+        return Date.from(Instant.now());
     }
 }

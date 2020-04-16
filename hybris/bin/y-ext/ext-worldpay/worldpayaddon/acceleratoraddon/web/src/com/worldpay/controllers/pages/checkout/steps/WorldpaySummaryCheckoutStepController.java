@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.THREEDSECURE_FLEX_DDC_URL;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.THREEDSECURE_JWT_FLEX_DDC;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.*;
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
@@ -311,13 +309,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     public String getDDCIframeContent(final Model model) {
         setDDCIframeData(model);
         return worldpayAddonEndpointService.getDdcIframe3dSecureFlex();
-    }
-
-    protected void setDDCIframeData(final Model model) {
-        model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDirectOrderFacade.createJsonWebTokenForDDC());
-        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData() != null &&
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings() != null ?
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings().getDdcUrl() : null);
     }
 
     /**

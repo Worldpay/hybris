@@ -124,7 +124,7 @@
     </bean>
     <bean id="refundRequestTransformer"
           class="com.worldpay.service.request.transform.RefundRequestTransformer">
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
     <bean id="addBackOfficeCodeRequestTransformer"
           class="com.worldpay.service.request.transform.AddBackOfficeCodeRequestTransformer">
@@ -164,8 +164,8 @@
 
     <alias name="defaultWorldpayConnector" alias="worldpayConnector"/>
     <bean id="defaultWorldpayConnector" class="com.worldpay.service.http.impl.DefaultWorldpayConnector">
-        <property name="configurationService" ref="configurationService"/>
-        <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
-        <property name="restTemplate" ref="worldpayRestTemplate"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
+        <constructor-arg name="restTemplate" ref="worldpayRestTemplate"/>
     </bean>
 </beans>

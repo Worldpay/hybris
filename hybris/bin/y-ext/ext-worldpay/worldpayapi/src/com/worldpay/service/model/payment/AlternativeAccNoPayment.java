@@ -33,7 +33,7 @@ public class AlternativeAccNoPayment extends AlternativePayment {
     }
 
     @Override
-    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    protected void invokeExtraSetters(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         super.invokeExtraSetters(method, targetObject);
         final String methodName = method.getName();
         if ("setAccountNumber".equals(methodName) && getAccountNumber() != null) {

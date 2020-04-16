@@ -89,7 +89,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     }
 
     @Test
-    public void addPaymentDetailsShouldReturnIframePage() throws Exception {
+    public void addPaymentDetailsShouldReturnIframePage() throws WorldpayException, CMSItemNotFoundException {
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(additionalAuthInfoMock)).thenReturn(paymentDataMock);
 
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrbsMock);

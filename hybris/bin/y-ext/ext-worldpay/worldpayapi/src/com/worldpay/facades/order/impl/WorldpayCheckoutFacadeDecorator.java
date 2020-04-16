@@ -2,6 +2,7 @@ package com.worldpay.facades.order.impl;
 
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
+import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.*;
 import de.hybris.platform.commercefacades.storelocator.data.PointOfServiceData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
@@ -179,10 +180,10 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated since 1808. Please use {@link CheckoutFacade#getCountries(CountryType)} instead.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1808")
     public List<CountryData> getDeliveryCountries() {
         return getCheckoutFlowFacade().getDeliveryCountries();
     }
@@ -260,10 +261,10 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated since 1808. Please use {@link CheckoutFacade#getCountries(CountryType)} instead.
      */
     @Override
-    @Deprecated
+    @Deprecated(since = "1808")
     public List<CountryData> getBillingCountries() {
         return getCheckoutFlowFacade().getBillingCountries();
     }

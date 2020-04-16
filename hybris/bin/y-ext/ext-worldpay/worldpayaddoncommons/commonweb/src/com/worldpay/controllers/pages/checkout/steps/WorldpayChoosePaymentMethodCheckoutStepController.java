@@ -202,7 +202,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     }
 
     private AddressData getAddressData(final AddressForm billingAddress, final Boolean useDeliveryAddress) {
-        if (useDeliveryAddress) {
+        if (Boolean.TRUE.equals(useDeliveryAddress)) {
             final AddressData addressData = getCheckoutFacade().getCheckoutCart().getDeliveryAddress();
             addressData.setBillingAddress(true);
             return addressData;

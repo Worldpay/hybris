@@ -3,6 +3,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
+import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
@@ -93,6 +94,12 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Mock
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
     @Mock
+    private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
+    @Mock
+    private WorldpayDDCFacade worldpayDDCFacadeMock;
+
+
+    @Mock
     private RedirectAttributes redirectAttributesMock;
     @Mock
     private CSEPaymentForm formMock;
@@ -142,8 +149,6 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private CartRestorationData cartRestorationDataMock;
     @Mock
     private DirectResponseData directResponseDataMock;
-    @Mock
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
     @Mock
     private PagePreviewCriteriaData pagePreviewCriteriaMock;
     @Mock
@@ -396,10 +401,9 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void shouldPopulate3DSecureJsonWebToken() {
-        when(worldpayDirectOrderFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
-        when(worldpayDirectOrderFacadeMock.getEventOriginDomainForDDC()).thenReturn(THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE);
+        when(worldpayDDCFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
+        when(worldpayDDCFacadeMock.getEventOriginDomainForDDC()).thenReturn(THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE);
         when(worldpayAddonEndpointServiceMock.getDdcIframe3dSecureFlex()).thenReturn(THREDSFLEX_DDC_PAGE);
-        when(worldpayMerchantConfigDataMock.getThreeDSFlexJsonWebTokenSettings().getDdcUrl()).thenReturn(THREEDSECURE_FLEX_DDC_URL_VALUE);
 
         final String result = testObj.getDDCIframeContent(modelMock);
 

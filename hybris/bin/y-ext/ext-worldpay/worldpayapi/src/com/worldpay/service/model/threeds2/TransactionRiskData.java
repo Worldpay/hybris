@@ -1,6 +1,8 @@
 package com.worldpay.service.model.threeds2;
 
-public class TransactionRiskData {
+import java.io.Serializable;
+
+public class TransactionRiskData implements Serializable {
     private String deliveryTimeframe;
 
     private String deliveryEmailAddress;

@@ -132,14 +132,10 @@
     </bean>
 
     <bean id="abstractWorldpayOrderService" class="com.worldpay.service.payment.impl.AbstractWorldpayOrderService" abstract="true">
-        <constructor-arg name="commonI18NService" ref="commonI18NService"/>
         <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
-        <constructor-arg name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
         <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
         <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
         <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
-        <constructor-arg name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
-        <constructor-arg name="worldpayGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
         <constructor-arg name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
         <constructor-arg name="addressService" ref="addressService"/>
     </bean>
@@ -158,6 +154,7 @@
           parent="abstractWorldpayOrderService">
         <constructor-arg name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
         <constructor-arg name="worldpaySessionService" ref="worldpaySessionService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
     </bean>
 
     <alias name="defaultWorldpayRequestFactory" alias="worldpayRequestFactory"/>
@@ -428,8 +425,8 @@
 
     <alias name="defaultWorldpayKlarnaStrategy" alias="worldpayKlarnaStrategy"/>
     <bean id="defaultWorldpayKlarnaStrategy" class="com.worldpay.service.payment.impl.DefaultWorldpayKlarnaStrategy">
-        <property name="commonI18NService" ref="commonI18NService"/>
-        <property name="worldpayUrlService" ref="worldpayUrlService"/>
+        <constructor-arg name="commonI18NService" ref="commonI18NService"/>
+        <constructor-arg name="worldpayUrlService" ref="worldpayUrlService"/>
     </bean>
 
     <alias name="defaultWorldpaySupportEmailService" alias="worldpaySupportEmailService"/>
@@ -660,14 +657,14 @@
 
     <alias name="defaultWorldpayBankConfigurationFacade" alias="worldpayBankConfigurationFacade"/>
     <bean id="defaultWorldpayBankConfigurationFacade" class="com.worldpay.facades.impl.DefaultWorldpayBankConfigurationFacade">
-        <property name="worldpayBankConfigurationLookupService" ref="worldpayBankConfigurationLookupService"/>
-        <property name="bankConfigurationModelBankConfigurationDataConverter" ref="bankConfigurationModelBankConfigurationDataConverter"/>
-        <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+        <constructor-arg name="worldpayBankConfigurationLookupService" ref="worldpayBankConfigurationLookupService"/>
+        <constructor-arg name="bankConfigurationModelBankConfigurationDataConverter" ref="bankConfigurationModelBankConfigurationDataConverter"/>
+        <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
     </bean>
 
     <alias name="defaultWorldpayAdditionalInfoFacade" alias="worldpayAdditionalInfoFacade"/>
     <bean id="defaultWorldpayAdditionalInfoFacade" class="com.worldpay.facades.payment.impl.DefaultWorldpayAdditionalInfoFacade">
-        <property name="worldpayAdditionalInfoService" ref="worldpayAdditionalInfoService"/>
+        <constructor-arg name="worldpayAdditionalInfoService" ref="worldpayAdditionalInfoService"/>
     </bean>
 
     <alias name="defaultWorldpayCartFacade" alias="worldpayCartFacade"/>
@@ -678,15 +675,13 @@
 
     <alias name="defaultWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>
     <bean id="defaultWorldpayDirectOrderFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayDirectOrderFacade">
+        <constructor-arg name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
         <constructor-arg name="worldpayDirectOrderService" ref="worldpayDirectOrderService"/>
         <constructor-arg name="cartService" ref="cartService"/>
-        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
         <constructor-arg name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
-        <constructor-arg name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
         <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
         <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade" />
         <constructor-arg name="cartFacade" ref="cartFacade" />
-        <constructor-arg name="worldpayJsonWebTokenService" ref="worldpayJsonWebTokenService" />
     </bean>
 
     <!-- The defaultUserFacade uses directly the AddressReversePopulator -->
@@ -823,6 +818,12 @@
           class="com.worldpay.orderprocess.strategies.cancel.impl.DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy">
         <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
         <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
+    <alias name="defaultWorldpayDDCFacade" alias="worldpayDDCFacade"/>
+    <bean id="defaultWorldpayDDCFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayDDCFacade">
+        <constructor-arg name="worldpayJsonWebTokenService" ref="worldpayJsonWebTokenService" />
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade" />
     </bean>
 
 </beans>

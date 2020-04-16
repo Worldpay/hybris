@@ -31,7 +31,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultCapturedOrderNotificationProcessorStrategyTest {
 
-
     private DefaultCapturedOrderNotificationProcessorStrategy testObj;
 
     @Mock
@@ -39,7 +38,6 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
 
     @Mock
     private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
-
 
     private TransactionOperations transactionOperationsMock = new TransactionOperations() {
         @Override
@@ -63,7 +61,6 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
 
     private List<PaymentTransactionEntryModel> pendingCaptureTransactionEntries;
 
-
     @Before
     public void setUp() {
         testObj = new DefaultCapturedOrderNotificationProcessorStrategy(transactionOperationsMock, modelServiceMock, worldpayPaymentTransactionServiceMock);
@@ -76,19 +73,19 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void processNotificationMessage_shouldProcessOrderNotification_whenMessageIsANonAPM() {
+    public void processNotificationMessage_shouldNotCreateCapturedPaymentTransactionEntryAndUpdateEntriesAmount_whenMessageIsNotAPM() {
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(false);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
 
-        verify(worldpayPaymentTransactionServiceMock).createCapturedPaymentTransactionEntry(paymentTransactionModelMock, orderNotificationMessageMock);
-        verify(worldpayPaymentTransactionServiceMock, never()).updateEntriesStatus(pendingCaptureTransactionEntries, ACCEPTED.name());
-        verify(worldpayPaymentTransactionServiceMock, never()).updateEntriesAmount(pendingCaptureTransactionEntries, orderNotificationMessageMock.getPaymentReply().getAmount());
-        verify(modelServiceMock, never()).save(paymentTransactionModelMock);
+        verify(worldpayPaymentTransactionServiceMock, never()).createCapturedPaymentTransactionEntry(paymentTransactionModelMock, orderNotificationMessageMock);
+        verify(worldpayPaymentTransactionServiceMock).updateEntriesStatus(pendingCaptureTransactionEntries, ACCEPTED.name());
+        verify(worldpayPaymentTransactionServiceMock).updateEntriesAmount(pendingCaptureTransactionEntries, orderNotificationMessageMock.getPaymentReply().getAmount());
+        verify(modelServiceMock).save(paymentTransactionModelMock);
     }
 
     @Test
-    public void processNotificationMessage_shouldProcessOrderNotification_whenMessageIsAnAPMButIsNotKlarnaSSL() {
+    public void processNotificationMessage_shouldCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMButIsNotKlarnaSSL() {
         when(paymentReplyMock.getMethodCode()).thenReturn(PaymentType.CASHU.getMethodCode());
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(true);
 
@@ -101,7 +98,7 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void processNotificationMessage_shouldProcessOrderNotification_whenMessageIsAnAPMAndIsKlarnaSSL() {
+    public void processNotificationMessage_shouldNotCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMAndIsKlarnaSSL() {
         when(paymentReplyMock.getMethodCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(true);
 
@@ -109,6 +106,7 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
 
         verify(worldpayPaymentTransactionServiceMock, never()).createCapturedPaymentTransactionEntry(paymentTransactionModelMock, orderNotificationMessageMock);
         verify(worldpayPaymentTransactionServiceMock).updateEntriesStatus(pendingCaptureTransactionEntries, ACCEPTED.name());
+        verify(worldpayPaymentTransactionServiceMock).updateEntriesAmount(pendingCaptureTransactionEntries, orderNotificationMessageMock.getPaymentReply().getAmount());
         verify(modelServiceMock).save(paymentTransactionModelMock);
     }
 }

@@ -72,13 +72,8 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
             intOrderContent.setvalue(orderContent);
             childElements.add(intOrderContent);
         }
-        if (paymentMethodMask != null) {
-            childElements.add(paymentMethodMask.transformToInternalModel());
-        } else if (paymentDetails != null) {
-            childElements.add(paymentDetails.transformToInternalModel());
-        } else if (payAsOrder != null) {
-            childElements.add(payAsOrder.transformToInternalModel());
-        }
+        populatePaymentRequestDetails(childElements);
+
         if (shopper != null) {
             childElements.add(shopper.transformToInternalModel());
         }
@@ -105,6 +100,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
         if (tokenRequest != null) {
             childElements.add(tokenRequest.transformToInternalModel());
         }
+
         if (paResponse != null) {
             final Info3DSecure intInfo3dSecure = new Info3DSecure();
             final PaResponse intPaResponse = new PaResponse();
@@ -120,14 +116,34 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
             childElements.add(orderLines.transformToInternalModel());
         }
 
+        populateDynamicInteractionType(childElements);
+
+        populateRiskData(childElements);
+
+        populateAdditional3DSData(childElements);
+
+        return intOrder;
+    }
+
+    private void populatePaymentRequestDetails(List<Object> childElements) throws WorldpayModelTransformationException {
+        if (paymentMethodMask != null) {
+            childElements.add(paymentMethodMask.transformToInternalModel());
+        } else if (paymentDetails != null) {
+            childElements.add(paymentDetails.transformToInternalModel());
+        } else if (payAsOrder != null) {
+            childElements.add(payAsOrder.transformToInternalModel());
+        }
+    }
+
+    private void populateDynamicInteractionType(List<Object> childElements) {
         if (dynamicInteractionType != null) {
             final com.worldpay.internal.model.DynamicInteractionType internalDynamicInteractionType = new com.worldpay.internal.model.DynamicInteractionType();
             internalDynamicInteractionType.setType(dynamicInteractionType.name());
             childElements.add(internalDynamicInteractionType);
         }
+    }
 
-        populateRiskData(childElements);
-
+    private void populateAdditional3DSData(List<Object> childElements) {
         if (additional3DSData != null) {
             final com.worldpay.internal.model.Additional3DSData internalAdditional3DSData = new com.worldpay.internal.model.Additional3DSData();
             internalAdditional3DSData.setDfReferenceId(additional3DSData.getDfReferenceId());
@@ -140,8 +156,6 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
             }
             childElements.add(internalAdditional3DSData);
         }
-
-        return intOrder;
     }
 
     private void populateRiskData(final List<Object> childElements) {

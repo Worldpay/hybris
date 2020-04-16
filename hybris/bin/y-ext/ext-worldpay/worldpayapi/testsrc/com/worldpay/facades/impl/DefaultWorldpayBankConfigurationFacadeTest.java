@@ -30,7 +30,8 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
     private static final String PAYMENT_METHOD = "payment";
 
     @InjectMocks
-    private DefaultWorldpayBankConfigurationFacade testObj = new DefaultWorldpayBankConfigurationFacade();
+    private DefaultWorldpayBankConfigurationFacade testObj;
+    
     @Mock
     private WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupServiceMock;
     @Mock
@@ -55,23 +56,32 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
     }
 
     @Test
-    public void isBankTransferApmShouldReturnTrueIfPaymentMethodIsApmThatSupportsBankTransfer(){
+    public void isBankTransferApmShouldReturnTrueIfPaymentMethodIsApmThatSupportsBankTransfer() {
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(BANK_TRANSFER_APM)).thenReturn(apmConfigurationModelMock);
         when(apmConfigurationModelMock.getBank()).thenReturn(true);
-        assertTrue(testObj.isBankTransferApm(BANK_TRANSFER_APM));
+
+        final boolean result = testObj.isBankTransferApm(BANK_TRANSFER_APM);
+
+        assertTrue(result);
     }
 
     @Test
-    public void isBankTransferApmShouldReturnFalseIfPaymentMethodIsNotApmThatSupportsBankTransfer(){
+    public void isBankTransferApmShouldReturnFalseIfPaymentMethodIsNotApmThatSupportsBankTransfer() {
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(APM_CODE)).thenReturn(apmConfigurationModelMock);
         when(apmConfigurationModelMock.getBank()).thenReturn(false);
-        assertFalse(testObj.isBankTransferApm(APM_CODE));
+
+        final boolean result = testObj.isBankTransferApm(APM_CODE);
+
+        assertFalse(result);
     }
 
     @Test
-    public void isBankTransferApmShouldReturnFalseIfPaymentMethodIsNotApm(){
+    public void isBankTransferApmShouldReturnFalseIfPaymentMethodIsNotApm() {
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(PAYMENT_METHOD)).thenReturn(null);
-        assertFalse(testObj.isBankTransferApm(PAYMENT_METHOD));
+
+        final boolean result = testObj.isBankTransferApm(PAYMENT_METHOD);
+
+        assertFalse(result);
     }
 
 }

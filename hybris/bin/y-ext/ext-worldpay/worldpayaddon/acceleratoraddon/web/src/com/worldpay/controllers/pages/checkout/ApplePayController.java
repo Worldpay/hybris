@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 @RequestMapping(value = "/checkout/multi/worldpay/applepay")
 @Profile("applepay")
 public class ApplePayController extends AbstractCheckoutController {
+
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource

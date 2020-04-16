@@ -2,7 +2,9 @@ package com.worldpay.service.model.threeds2;
 
 import com.worldpay.service.model.Amount;
 
-public class TransactionRiskDataGiftCardAmount {
+import java.io.Serializable;
+
+public class TransactionRiskDataGiftCardAmount implements Serializable {
 
     private Amount amount;
 

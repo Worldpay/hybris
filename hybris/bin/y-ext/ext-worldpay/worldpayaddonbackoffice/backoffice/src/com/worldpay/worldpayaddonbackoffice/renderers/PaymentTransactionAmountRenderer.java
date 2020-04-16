@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.zkoss.zul.Listcell;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
@@ -60,7 +61,7 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
     }
 
     private String getPaymentTransactionAmountValue(final PaymentTransactionModel object, final Object amount) {
-        final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getEntries().get(0).getCurrency().getDigits(), BigDecimal.ROUND_HALF_DOWN);
+        final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getEntries().get(0).getCurrency().getDigits(), RoundingMode.HALF_UP);
         final String amountValue = labelService.getObjectLabel(paymentTransactionAmount);
         return defaultIfBlank(amountValue, amount.toString());
     }

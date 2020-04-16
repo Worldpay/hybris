@@ -32,13 +32,14 @@ public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderN
 
     /**
      * {@inheritDoc}
+     *
      * @see OrderNotificationProcessorStrategy#processNotificationMessage(PaymentTransactionModel, OrderNotificationMessage)
      */
     @Override
     public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
         final PaymentInfoModel paymentInfoModel = paymentTransactionModel.getInfo();
         final String paymentTypeCode = orderNotificationMessage.getPaymentReply().getMethodCode();
-        if (shouldCapture(paymentInfoModel, paymentTypeCode)) {
+        if (shouldCreateCapturePaymentTransactionEntry(paymentInfoModel, paymentTypeCode)) {
             transactionTemplate.execute(transactionStatus -> {
                 worldpayPaymentTransactionService.createCapturedPaymentTransactionEntry(paymentTransactionModel, orderNotificationMessage);
                 return null;
@@ -53,9 +54,8 @@ public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderN
         }
     }
 
-    private boolean shouldCapture(final PaymentInfoModel paymentInfoModel, final String paymentTypeCode) {
-        return paymentInfoModel != null && (!paymentInfoModel.getIsApm() ||
-                    (paymentInfoModel.getIsApm() && !paymentTypeCode.equals(PaymentType.KLARNASSL.getMethodCode())));
+    private boolean shouldCreateCapturePaymentTransactionEntry(final PaymentInfoModel paymentInfoModel, String paymentTypeCode) {
+        return paymentInfoModel != null && paymentInfoModel.getIsApm() && !paymentTypeCode.equals(PaymentType.KLARNASSL.getMethodCode());
     }
 
     protected void updatePaymentTransactionEntry(final PaymentTransactionModel transactionModel, final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus) {

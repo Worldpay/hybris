@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2017 SAP SE or an SAP affiliate company.  All rights reserved.
-
- This software is the confidential and proprietary information of SAP
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with SAP.
---><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+<extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
        
-    <extension abstractclassprefix="Generated" classprefix="Yhacext" managername="YhacextManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayhac" usemaven="false">
+    <extension abstractclassprefix="Generated" classprefix="WorldpayHac" managername="WorldpayHacManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayhac" usemaven="false">
               
         <requires-extension name="worldpayapi"/>
               
-        <coremodule generated="true" manager="worldpayhac.jalo.YhacextManager" packageroot="worldpayhac"/>
+        <coremodule generated="true" manager="worldpayhac.jalo.WorldpayHacManager" packageroot="worldpayhac"/>
               
         <meta key="hac-module" value="true"/>
            

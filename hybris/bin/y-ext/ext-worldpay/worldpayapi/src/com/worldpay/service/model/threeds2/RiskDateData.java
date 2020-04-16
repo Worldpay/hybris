@@ -2,7 +2,9 @@ package com.worldpay.service.model.threeds2;
 
 import com.worldpay.service.model.Date;
 
-public class RiskDateData {
+import java.io.Serializable;
+
+public class RiskDateData implements Serializable {
 
     private Date date;
 

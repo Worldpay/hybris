@@ -16,13 +16,11 @@ public class WorldpayRedirectMockController {
     public static final String STOREFRONT_PARAM = "storeFront";
 
     /**
-     *
-     *
      * @param model
      * @param request
      * @return
      */
-    @RequestMapping (value = "/redirect")
+    @RequestMapping(value = "/redirect")
     public String handleLightboxRequest(Model model, HttpServletRequest request) {
         model.addAttribute(STOREFRONT_PARAM, request.getParameter("successURL"));
 

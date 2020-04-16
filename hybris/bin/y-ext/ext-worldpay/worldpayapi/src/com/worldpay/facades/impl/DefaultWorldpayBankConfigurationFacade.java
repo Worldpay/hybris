@@ -8,18 +8,26 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.model.WorldpayBankConfigurationModel;
 import de.hybris.platform.converters.Converters;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@inheritDoc}
  */
 public class DefaultWorldpayBankConfigurationFacade implements WorldpayBankConfigurationFacade {
 
-    private APMConfigurationLookupService apmConfigurationLookupService;
-    private WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService;
-    private Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter;
+    private final APMConfigurationLookupService apmConfigurationLookupService;
+    private final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService;
+    private final Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter;
+
+    public DefaultWorldpayBankConfigurationFacade(final APMConfigurationLookupService apmConfigurationLookupService,
+                                                  final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService,
+                                                  final Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter) {
+        this.apmConfigurationLookupService = apmConfigurationLookupService;
+        this.worldpayBankConfigurationLookupService = worldpayBankConfigurationLookupService;
+        this.bankConfigurationModelBankConfigurationDataConverter = bankConfigurationModelBankConfigurationDataConverter;
+    }
 
     /**
      * {@inheritDoc}
@@ -35,22 +43,8 @@ public class DefaultWorldpayBankConfigurationFacade implements WorldpayBankConfi
      */
     @Override
     public boolean isBankTransferApm(final String paymentMethod) {
-        final WorldpayAPMConfigurationModel apmConfigurationForCode = apmConfigurationLookupService.getAPMConfigurationForCode(paymentMethod);
-        return apmConfigurationForCode == null ? false : apmConfigurationForCode.getBank();
-    }
-
-    @Required
-    public void setWorldpayBankConfigurationLookupService(final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService) {
-        this.worldpayBankConfigurationLookupService = worldpayBankConfigurationLookupService;
-    }
-
-    @Required
-    public void setBankConfigurationModelBankConfigurationDataConverter(final Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter) {
-        this.bankConfigurationModelBankConfigurationDataConverter = bankConfigurationModelBankConfigurationDataConverter;
-    }
-
-    @Required
-    public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
-        this.apmConfigurationLookupService = apmConfigurationLookupService;
+        return Optional.ofNullable(apmConfigurationLookupService.getAPMConfigurationForCode(paymentMethod))
+                .map(WorldpayAPMConfigurationModel::getBank)
+                .orElse(false);
     }
 }

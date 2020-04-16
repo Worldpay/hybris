@@ -529,10 +529,6 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return PaymentBuilder.createCSE(cseAdditionalAuthInfo.getEncryptedData(), billingAddress);
     }
 
-    public PayWithGoogleSSL createGooglePayPayment(final String protocolVersion, final String signature, final String signedMessage) {
-        return new PayWithGoogleSSL(protocolVersion, signature, signedMessage);
-    }
-
     protected DirectAuthoriseServiceRequest createDirect3DAuthoriseRequest(final AuthoriseRequestParameters requestParameters) {
         return DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(requestParameters);
     }

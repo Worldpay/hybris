@@ -124,15 +124,15 @@
 
     <alias alias="authorisedOrderNotificationProcessorStrategy" name="defaultAuthorisedOrderNotificationProcessorStrategy"/>
     <bean id="defaultAuthorisedOrderNotificationProcessorStrategy" class="com.worldpay.notification.processors.impl.DefaultAuthorisedOrderNotificationProcessorStrategy">
-        <property name="modelService" ref="modelService"/>
-        <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <property name="transactionTemplate">
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="txManager"/>
             </bean>
-        </property>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+        </constructor-arg>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias alias="capturedOrderNotificationProcessorStrategy" name="defaultCapturedOrderNotificationProcessorStrategy"/>
