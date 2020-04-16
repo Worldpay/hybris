@@ -1,10 +1,12 @@
 package com.worldpay.fulfilmentprocess.actions.order;
 
 
+import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.PaymentService;
 import de.hybris.platform.payment.dto.TransactionStatus;
@@ -14,6 +16,7 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -21,22 +24,23 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static de.hybris.platform.core.enums.OrderStatus.*;
+import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_CAPTURED;
+import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_NOT_CAPTURED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayTakePaymentActionTest {
 
-    private static final String WAIT = "WAIT";
-    private static final String NOK = "NOK";
     private static final String OK = "OK";
+    private static final String NOK = "NOK";
+    private static final String WAIT = "WAIT";
 
     @InjectMocks
-    private WorldpayTakePaymentAction testObj = new WorldpayTakePaymentAction();
+    private WorldpayTakePaymentAction testObj;
 
     @Mock
     private OrderProcessModel processMock;
@@ -56,6 +60,8 @@ public class WorldpayTakePaymentActionTest {
     private PaymentTransactionEntryModel paymentTransactionEntryModelMock2;
     @Mock
     private PaymentInfoModel paymentInfoMock;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private WorldpayAPMPaymentInfoModel worldpayAPMPaymentInfoModelMock;
 
     @Before
     public void setUp() {
@@ -67,7 +73,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void existingPendingCaptureEntryReturnsWAIT() throws Exception {
+    public void execute_WhenExistingPendingCaptureEntry_ShouldReturnWAIT(){
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderMock, CAPTURE)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isPaymentTransactionPending(paymentTransactionMock, CAPTURE)).thenReturn(true);
 
@@ -77,7 +83,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void captureNotAcceptedReturnsNOK() throws Exception {
+    public void execute_WhenCaptureIsNotAccepted_ShouldReturnNOK() {
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderMock, CAPTURE)).thenReturn(false);
 
         final String result = testObj.execute(processMock);
@@ -88,7 +94,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void captureNotPendingAndAcceptedReturnsOK() throws Exception {
+    public void execute_WhenCaptureNotPendingAndAccepted_ShouldReturnOK() {
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderMock, CAPTURE)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isPaymentTransactionPending(paymentTransactionMock, CAPTURE)).thenReturn(false);
         when(paymentServiceMock.capture(paymentTransactionMock)).thenReturn(paymentTransactionEntryModelMock);
@@ -102,7 +108,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void noCaptureReturnsWAITAndUpdatesOrderStatus() throws Exception {
+    public void execute_WhenThereIsNotCapture_ShouldReturnWAITAndUpdatesOrderStatus() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).thenReturn(Collections.emptyList());
         when(paymentServiceMock.capture(paymentTransactionMock)).thenReturn(paymentTransactionEntryModelMock);
         when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
@@ -114,7 +120,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void whenOverOneTransactionEntryThenReturnNOK() throws Exception {
+    public void execute_WhenThereIsMoreThanOneTransactionEntry_ShouldReturnNOK() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).
                 thenReturn(Arrays.asList(paymentTransactionEntryModelMock, paymentTransactionEntryModelMock2));
         when(paymentServiceMock.capture(paymentTransactionMock)).thenReturn(paymentTransactionEntryModelMock);
@@ -128,7 +134,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void executeShouldNotCaptureAndShouldWaitWhenNoCaptureEntriesAndPaymentInfoIsAPM() {
+    public void execute_WhenNoCaptureEntriesAndPaymentInfoIsAPM_ShouldNotCaptureAndShouldWait() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).thenReturn(Collections.emptyList());
         when(paymentTransactionMock.getInfo()).thenReturn(paymentInfoMock);
         when(paymentInfoMock.getIsApm()).thenReturn(true);
@@ -137,5 +143,17 @@ public class WorldpayTakePaymentActionTest {
 
         assertEquals(WAIT, result);
         verify(paymentServiceMock, never()).capture(anyObject());
+    }
+
+    @Test
+    public void execute_WhenPaymentInfoIsKlarna_ShouldIssueACapture() {
+        when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).thenReturn(Collections.emptyList());
+        when(paymentTransactionMock.getInfo()).thenReturn(worldpayAPMPaymentInfoModelMock);
+        when(worldpayAPMPaymentInfoModelMock.getApmConfiguration().getCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
+
+        final String result = testObj.execute(processMock);
+
+        assertEquals(WAIT, result);
+        verify(paymentServiceMock).capture(anyObject());
     }
 }

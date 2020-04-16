@@ -1,34 +1,40 @@
 package com.worldpay.service.payment.impl;
 
+import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.hostedorderpage.service.WorldpayURIService;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.mac.MacValidator;
-import com.worldpay.service.model.*;
+import com.worldpay.service.model.Address;
+import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.service.model.RedirectReference;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
-import com.worldpay.service.payment.WorldpayTokenEventReferenceCreationStrategy;
+import com.worldpay.service.payment.request.WorldpayRequestFactory;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
-import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
-import com.worldpay.strategy.WorldpayDeliveryAddressStrategy;
+import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
+import de.hybris.platform.commerceservices.customer.CustomerEmailResolutionService;
+import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
-import de.hybris.platform.core.model.c2l.CurrencyModel;
+import de.hybris.platform.commerceservices.strategies.GenerateMerchantTransactionCodeStrategy;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
-import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
+import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.session.SessionService;
+import de.hybris.platform.servicelayer.user.AddressService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -63,20 +69,28 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
     private static final String KEY_PAYMENT_CURRENCY = "paymentCurrency";
     private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
 
-    private SessionService sessionService;
-    private WorldpayURIService worldpayURIService;
-    private WorldpayUrlService worldpayUrlService;
-    private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
-    private WorldpayTokenEventReferenceCreationStrategy worldpayTokenEventReferenceCreationStrategy;
-    private WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy;
-    private MacValidator macValidator;
+    private final SessionService sessionService;
+    private final WorldpayURIService worldpayURIService;
+    private final WorldpayUrlService worldpayUrlService;
+    private final MacValidator macValidator;
+    private final WorldpayRequestFactory worldpayRequestFactory;
+
+    public DefaultWorldpayRedirectOrderService(final SessionService sessionService, final WorldpayURIService worldpayURIService, final WorldpayUrlService worldpayUrlService, final MacValidator macValidator, final WorldpayRequestFactory worldpayRequestFactory, final CommonI18NService commonI18NService, final CommerceCheckoutService commerceCheckoutService, final CustomerEmailResolutionService customerEmailResolutionService, final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final Converter<AddressModel, Address> worldpayAddressConverter, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService) {
+        super(commonI18NService, commerceCheckoutService, customerEmailResolutionService, worldpayGenerateMerchantTransactionCodeStrategy, worldpayPaymentInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayAddressConverter, worldpayServiceGateway, addressService);
+        this.sessionService = sessionService;
+        this.worldpayURIService = worldpayURIService;
+        this.worldpayUrlService = worldpayUrlService;
+        this.macValidator = macValidator;
+        this.worldpayRequestFactory = worldpayRequestFactory;
+    }
+
 
     /**
      * {@inheritDoc}
      */
     @Override
     public PaymentData redirectAuthorise(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
-        final RedirectAuthoriseServiceRequest request = buildRedirectAuthoriseRequest(merchantInfo, cartModel, additionalAuthInfo);
+        final RedirectAuthoriseServiceRequest request = worldpayRequestFactory.buildRedirectAuthoriseRequest(merchantInfo, cartModel, additionalAuthInfo);
         final RedirectAuthoriseServiceResponse redirectAuthorise = getWorldpayServiceGateway().redirectAuthorise(request);
 
         if (redirectAuthorise == null) {
@@ -169,73 +183,8 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
         }
     }
 
-    /**
-     * Build the Redirect Authorise Request from the provided information
-     *
-     * @param merchantInfo       The {@link MerchantInfo} to use in the communication with Worldpay
-     * @param cartModel          The {@link CartModel} to get the information about the current order
-     * @param additionalAuthInfo The {@link AdditionalAuthInfo} to use in the communication with Worldpay
-     * @return RedirectAuthoriseServiceRequest object
-     */
-    private RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo) {
-        final String orderCode = getWorldpayGenerateMerchantTransactionCodeStrategy().generateCode(cartModel);
-
-        final CurrencyModel currencyModel = cartModel.getCurrency();
-        final Amount amount = getWorldpayOrderService().createAmount(currencyModel, cartModel.getTotalPrice());
-        final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(orderCode, orderCode, amount);
-
-        final List<PaymentType> includedPTs = getIncludedPaymentTypeList(additionalAuthInfo);
-
-        final AddressModel shippingAddressModel = worldpayDeliveryAddressStrategy.getDeliveryAddress(cartModel);
-        final Address shippingAddress = getWorldpayAddressConverter().convert(shippingAddressModel);
-        final Address billingAddress = getBillingAddress(cartModel, additionalAuthInfo.getUsingShippingAsBilling());
-        final CustomerModel customerModel = (CustomerModel) cartModel.getUser();
-        final String customerEmail = getCustomerEmailResolutionService().getEmailForCustomer(customerModel);
-        if (additionalAuthInfo.getSaveCard()) {
-            final String authenticatedShopperId = worldpayAuthenticatedShopperIdStrategy.getAuthenticatedShopperId(customerModel);
-            final Shopper shopper = getWorldpayOrderService().createAuthenticatedShopper(customerEmail, authenticatedShopperId, null, null);
-            final String tokenEventReference = worldpayTokenEventReferenceCreationStrategy.createTokenEventReference();
-            final TokenRequest tokenRequest = getWorldpayOrderService().createTokenRequest(tokenEventReference, null);
-            return createRedirectTokenAndAuthoriseRequest(merchantInfo, additionalAuthInfo, shopper, orderInfo, includedPTs, null, shippingAddress, billingAddress, tokenRequest);
-        } else {
-            final Shopper shopper = getWorldpayOrderService().createShopper(customerEmail, null, null);
-            return createRedirectAuthoriseRequest(merchantInfo, additionalAuthInfo, shopper, orderInfo, includedPTs, null, shippingAddress, billingAddress);
-        }
-    }
-
     protected List<PaymentType> getIncludedPaymentTypeList(final AdditionalAuthInfo additionalAuthInfo) {
         return singletonList(PaymentType.getPaymentType(additionalAuthInfo.getPaymentMethod()));
-    }
-
-    private Address getBillingAddress(final CartModel cartModel, final Boolean useShippingAsBilling) {
-        final AddressModel shippingAddress = cartModel.getDeliveryAddress();
-        if (shippingAddress != null && useShippingAsBilling) {
-            return getWorldpayAddressConverter().convert(shippingAddress);
-        } else {
-            return getWorldpayAddressConverter().convert(cartModel.getPaymentAddress());
-        }
-    }
-
-    protected RedirectAuthoriseServiceRequest createRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final AdditionalAuthInfo additionalAuthInfo,
-                                                                             final Shopper shopper,
-                                                                             final BasicOrderInfo orderInfo, final List<PaymentType> includedPaymentTypes,
-                                                                             final List<PaymentType> excludedPaymentTypes, final Address shippingAddress,
-                                                                             final Address billingAddress) {
-        return RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(
-                merchantInfo, orderInfo, additionalAuthInfo.getInstallationId(),
-                additionalAuthInfo.getOrderContent(), includedPaymentTypes,
-                excludedPaymentTypes, shopper, shippingAddress, billingAddress, additionalAuthInfo.getStatementNarrative());
-    }
-
-    protected RedirectAuthoriseServiceRequest createRedirectTokenAndAuthoriseRequest(final MerchantInfo merchantInfo, final AdditionalAuthInfo additionalAuthInfo,
-                                                                                     final Shopper shopper,
-                                                                                     final BasicOrderInfo basicOrderInfo, final List<PaymentType> includedPaymentTypes,
-                                                                                     final List<PaymentType> excludedPaymentTypes, final Address shippingAddress,
-                                                                                     final Address billingAddress, final TokenRequest tokenRequest) {
-        return RedirectAuthoriseServiceRequest.createTokenAndRedirectAuthoriseRequest(
-                merchantInfo, basicOrderInfo, additionalAuthInfo.getInstallationId(),
-                additionalAuthInfo.getOrderContent(), includedPaymentTypes, excludedPaymentTypes,
-                shopper, shippingAddress, billingAddress, additionalAuthInfo.getStatementNarrative(), tokenRequest);
     }
 
     private PaymentData buildPaymentData(final String redirectReferenceUrl, final Map<String, String> params) {
@@ -276,42 +225,8 @@ public class DefaultWorldpayRedirectOrderService extends AbstractWorldpayOrderSe
         return params;
     }
 
-    @Required
-    public void setSessionService(SessionService sessionService) {
-        this.sessionService = sessionService;
-    }
-
-    @Required
-    public void setWorldpayURIService(WorldpayURIService worldpayURIService) {
-        this.worldpayURIService = worldpayURIService;
-    }
-
-    @Required
-    public void setWorldpayUrlService(WorldpayUrlService worldpayUrlService) {
-        this.worldpayUrlService = worldpayUrlService;
-    }
-
-    @Required
-    public void setWorldpayTokenEventReferenceCreationStrategy(WorldpayTokenEventReferenceCreationStrategy worldpayTokenEventReferenceCreationStrategy) {
-        this.worldpayTokenEventReferenceCreationStrategy = worldpayTokenEventReferenceCreationStrategy;
-    }
-
-    @Required
-    public void setWorldpayAuthenticatedShopperIdStrategy(WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy) {
-        this.worldpayAuthenticatedShopperIdStrategy = worldpayAuthenticatedShopperIdStrategy;
-    }
-
-    @Required
-    public void setWorldpayDeliveryAddressStrategy(final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy) {
-        this.worldpayDeliveryAddressStrategy = worldpayDeliveryAddressStrategy;
-    }
-
     public MacValidator getMacValidator() {
         return macValidator;
     }
 
-    @Required
-    public void setMacValidator(final MacValidator macValidator) {
-        this.macValidator = macValidator;
-    }
 }

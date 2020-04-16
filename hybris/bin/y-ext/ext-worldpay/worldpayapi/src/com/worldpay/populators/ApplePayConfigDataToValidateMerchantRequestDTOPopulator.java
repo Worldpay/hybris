@@ -5,8 +5,8 @@ import com.worldpay.payment.applepay.ValidateMerchantRequestDTO;
 import com.worldpay.service.WorldpayUrlService;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
 import java.net.MalformedURLException;
@@ -14,7 +14,7 @@ import java.net.URL;
 
 public class ApplePayConfigDataToValidateMerchantRequestDTOPopulator implements Populator<ApplePayConfigData, ValidateMerchantRequestDTO> {
     private static final String WEB = "web";
-    private static final Logger LOG = LoggerFactory.getLogger(ApplePayConfigDataToValidateMerchantRequestDTOPopulator.class);
+    private static final Logger LOG = LogManager.getLogger(ApplePayConfigDataToValidateMerchantRequestDTOPopulator.class);
 
     private WorldpayUrlService worldpayUrlService;
 
@@ -30,12 +30,10 @@ public class ApplePayConfigDataToValidateMerchantRequestDTOPopulator implements 
         } catch (MalformedURLException e) {
             LOG.error("Malformed URL {}", currentWebSiteURL, e);
         }
-
     }
 
     @Required
     public void setWorldpayUrlService(WorldpayUrlService worldpayUrlService) {
         this.worldpayUrlService = worldpayUrlService;
     }
-
 }

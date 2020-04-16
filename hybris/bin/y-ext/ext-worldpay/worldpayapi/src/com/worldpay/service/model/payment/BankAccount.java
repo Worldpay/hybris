@@ -37,7 +37,7 @@ public class BankAccount extends AbstractPayment {
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
     public BankAccount(final PaymentType paymentType, final String accountHolderName, final String accountNumber, final String bankName, final String bankLocation, final String bankLocationId, final Date birthDate, final Address address) {
-        this.setPaymentType(paymentType);
+        this.paymentType = paymentType;
         this.accountHolderName = accountHolderName;
         this.accountNumber = accountNumber;
         this.bankName = bankName;

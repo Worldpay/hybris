@@ -1,7 +1,10 @@
 package com.worldpay.service.payment.impl;
 
+import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.ApplePayHeader;
+import com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason;
+import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Header;
@@ -12,15 +15,21 @@ import com.worldpay.service.model.applepay.ApplePay;
 import com.worldpay.service.model.klarna.KlarnaPayment;
 import com.worldpay.service.model.payment.AlternativeShopperBankCodePayment;
 import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.model.payment.StoredCredentials;
+import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
+import com.worldpay.threedsecureflexenums.ChallengePreferenceEnum;
+import com.worldpay.threedsecureflexenums.ChallengeWindowSizeEnum;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -64,6 +73,10 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String DATA = "data";
     private static final String SIGNATURE = "signature";
     private static final String VERSION = "version";
+    private static final String REFERENCE_ID = "referenceId";
+    private static final String WINDOW_SIZE = "390x400";
+    private static final String NO_PREFERENCE = "noPreference";
+    private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -91,6 +104,10 @@ public class DefaultWorldpayOrderServiceTest {
     private TokenRequest tokenRequestMock;
     @Mock
     private CardDetails cardDetailsMock;
+    @Mock
+    private Additional3DS2Info additional3DS2InfoMock;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private AbstractOrderModel abstractOrderModelMock;
 
     @Test
     public void shouldFormatValue() {
@@ -343,4 +360,60 @@ public class DefaultWorldpayOrderServiceTest {
         assertThat(header.getTransactionId()).isEqualTo(TRANSACTION_ID);
 
     }
+
+    @Test
+    public void shouldCreateAdditional3DSData() {
+        when(worldpayAdditionalInfoDataMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
+        when(additional3DS2InfoMock.getDfReferenceId()).thenReturn(REFERENCE_ID);
+        when(additional3DS2InfoMock.getChallengeWindowSize()).thenReturn(WINDOW_SIZE);
+        when(additional3DS2InfoMock.getChallengePreference()).thenReturn(NO_PREFERENCE);
+
+        final Additional3DSData result = testObj.createAdditional3DSData(worldpayAdditionalInfoDataMock);
+
+        assertThat(result.getDfReferenceId()).isEqualTo(REFERENCE_ID);
+        assertThat(result.getChallengeWindowSize()).isEqualTo(ChallengeWindowSizeEnum.getEnum(WINDOW_SIZE));
+        assertThat(result.getChallengePreference()).isEqualTo(ChallengePreferenceEnum.getEnum(NO_PREFERENCE));
+    }
+
+    @Test
+    public void shouldCreateAdditional3DSDataEvenIfWithChallengePreferenceAsEmptyBeingNoPreferenceAsDefault() {
+        when(worldpayAdditionalInfoDataMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
+        when(additional3DS2InfoMock.getDfReferenceId()).thenReturn(REFERENCE_ID);
+        when(additional3DS2InfoMock.getChallengeWindowSize()).thenReturn(null);
+        when(additional3DS2InfoMock.getChallengePreference()).thenReturn(null);
+
+        final Additional3DSData result = testObj.createAdditional3DSData(worldpayAdditionalInfoDataMock);
+
+        assertThat(result.getDfReferenceId()).isEqualTo(REFERENCE_ID);
+        assertThat(result.getChallengeWindowSize()).isEqualTo(ChallengeWindowSizeEnum.getEnum(WINDOW_SIZE));
+        assertThat(result.getChallengePreference()).isNull();
+    }
+
+    @Test
+    public void createStoreCredentials_ShouldCreateAStoredCredentials_WhenAllParametersAreProvided() {
+        when(abstractOrderModelMock.getPaymentInfo().getTransactionIdentifier()).thenReturn(TRANSACTION_IDENTIFIER);
+
+        final StoredCredentials result = testObj.createStoredCredentials(Usage.USED, MerchantInitiatedReason.RECURRING, TRANSACTION_IDENTIFIER);
+
+        assertThat(result.getUsage()).isEqualTo(Usage.USED);
+        assertThat(result.getMerchantInitiatedReason()).isEqualTo(MerchantInitiatedReason.RECURRING);
+        assertThat(result.getSchemeTransactionIdentifier()).isEqualTo(TRANSACTION_IDENTIFIER);
+    }
+
+    @Test
+    public void createStoreCredentials_ShouldCreateAStoredCredentials_WhenOnlyUsageParameterIsProvided() {
+        when(abstractOrderModelMock.getPaymentInfo().getTransactionIdentifier()).thenReturn(TRANSACTION_IDENTIFIER);
+
+        final StoredCredentials result = testObj.createStoredCredentials(Usage.USED, null, null);
+
+        assertThat(result.getUsage()).isEqualTo(Usage.USED);
+        assertThat(result.getMerchantInitiatedReason()).isNull();
+        assertThat(result.getSchemeTransactionIdentifier()).isNull();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createStoreCredentials_ShouldThrowAnIlegalArgumentException_WhenUsageArgumentIsNull() {
+        testObj.createStoredCredentials(null, null, null);
+    }
+
 }

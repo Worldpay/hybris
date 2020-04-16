@@ -21,11 +21,11 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.session.SessionService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Default implementation for {@link WorldpayHostedOrderFacade}
@@ -35,15 +35,33 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayHostedOrderFacade.class);
     private static final String WORLDPAY_MERCHANT_CODE = "worldpayMerchantCode";
 
-    private SessionService sessionService;
-    private WorldpayRedirectOrderService worldpayRedirectOrderService;
-    private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    private CartService cartService;
-    private WorldpayOrderInfoStrategy worldpayOrderInfoStrategy;
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
-    private OrderInquiryService orderInquiryService;
-    private APMConfigurationLookupService apmConfigurationLookupService;
-    private WorldpayOrderService worldpayOrderService;
+    private final SessionService sessionService;
+    private final WorldpayRedirectOrderService worldpayRedirectOrderService;
+    private final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    private final CartService cartService;
+    private final WorldpayOrderInfoStrategy worldpayOrderInfoStrategy;
+    private final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    private final OrderInquiryService orderInquiryService;
+    private final APMConfigurationLookupService apmConfigurationLookupService;
+    private final WorldpayOrderService worldpayOrderService;
+
+    public DefaultWorldpayHostedOrderFacade(final SessionService sessionService, final WorldpayRedirectOrderService worldpayRedirectOrderService,
+                                            final WorldpayMerchantInfoService worldpayMerchantInfoService, final CartService cartService,
+                                            final WorldpayOrderInfoStrategy worldpayOrderInfoStrategy,
+                                            final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade,
+                                            final OrderInquiryService orderInquiryService,
+                                            final APMConfigurationLookupService apmConfigurationLookupService,
+                                            final WorldpayOrderService worldpayOrderService) {
+        this.sessionService = sessionService;
+        this.worldpayRedirectOrderService = worldpayRedirectOrderService;
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
+        this.cartService = cartService;
+        this.worldpayOrderInfoStrategy = worldpayOrderInfoStrategy;
+        this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
+        this.orderInquiryService = orderInquiryService;
+        this.apmConfigurationLookupService = apmConfigurationLookupService;
+        this.worldpayOrderService = worldpayOrderService;
+    }
 
     /**
      * {@inheritDoc}
@@ -52,10 +70,10 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
      */
     @Override
     public PaymentData redirectAuthorise(final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException {
-        final CartModel cart = getCartService().getSessionCart();
+        final CartModel cart = cartService.getSessionCart();
         final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         populateAdditionalAuthInfo(additionalAuthInfo);
-        return getWorldpayRedirectOrderService().redirectAuthorise(merchantInfo, cart, additionalAuthInfo);
+        return worldpayRedirectOrderService.redirectAuthorise(merchantInfo, cart, additionalAuthInfo);
     }
 
     protected void populateAdditionalAuthInfo(final AdditionalAuthInfo additionalAuthInfo) {
@@ -68,9 +86,12 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
      */
     @Override
     public void completeRedirectAuthorise(final RedirectAuthoriseResult result) {
-        final String merchantCode = sessionService.getAttribute(WORLDPAY_MERCHANT_CODE);
-        final CartModel cart = getCartService().getSessionCart();
-        getWorldpayRedirectOrderService().completePendingRedirectAuthorise(result, merchantCode, cart);
+        String merchantCode = sessionService.getAttribute(WORLDPAY_MERCHANT_CODE);
+        if (Objects.isNull(merchantCode)) {
+            merchantCode = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCode();
+        }
+        final CartModel cart = cartService.getSessionCart();
+        worldpayRedirectOrderService.completePendingRedirectAuthorise(result, merchantCode, cart);
     }
 
     /**
@@ -80,8 +101,8 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
     public boolean validateRedirectResponse(final Map<String, String> worldpayResponse) {
         final String merchantCode = sessionService.getAttribute(WORLDPAY_MERCHANT_CODE);
         try {
-            final MerchantInfo merchantInfo = getWorldpayMerchantInfoService().getMerchantInfoByCode(merchantCode);
-            return getWorldpayRedirectOrderService().validateRedirectResponse(merchantInfo, worldpayResponse);
+            final MerchantInfo merchantInfo = worldpayMerchantInfoService.getMerchantInfoByCode(merchantCode);
+            return worldpayRedirectOrderService.validateRedirectResponse(merchantInfo, worldpayResponse);
         } catch (final WorldpayConfigurationException e) {
             LOG.error(MessageFormat.format("There was an error getting the configuration for the merchants: [{0}]", e.getMessage()), e);
         }
@@ -100,63 +121,5 @@ public class DefaultWorldpayHostedOrderFacade implements WorldpayHostedOrderFaca
         redirectAuthoriseResult.setPaymentAmount(paymentAmount);
         redirectAuthoriseResult.setPending(apmConfigurationLookupService.getAPMConfigurationForCode(paymentReply.getMethodCode()) != null);
         return redirectAuthoriseResult;
-    }
-
-    public WorldpayRedirectOrderService getWorldpayRedirectOrderService() {
-        return worldpayRedirectOrderService;
-    }
-
-    @Required
-    public void setWorldpayRedirectOrderService(final WorldpayRedirectOrderService worldpayRedirectOrderService) {
-        this.worldpayRedirectOrderService = worldpayRedirectOrderService;
-    }
-
-    public WorldpayMerchantInfoService getWorldpayMerchantInfoService() {
-        return worldpayMerchantInfoService;
-    }
-
-    @Required
-    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
-        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
-    }
-
-    protected CartService getCartService() {
-        return cartService;
-    }
-
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
-    }
-
-
-    @Required
-    public void setSessionService(final SessionService sessionService) {
-        this.sessionService = sessionService;
-    }
-
-    @Required
-    public void setWorldpayOrderInfoStrategy(final WorldpayOrderInfoStrategy worldpayOrderInfoStrategy) {
-        this.worldpayOrderInfoStrategy = worldpayOrderInfoStrategy;
-    }
-
-    @Required
-    public void setWorldpayMerchantConfigDataFacade(final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade) {
-        this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
-    }
-
-    @Required
-    public void setOrderInquiryService(final OrderInquiryService orderInquiryService) {
-        this.orderInquiryService = orderInquiryService;
-    }
-
-    @Required
-    public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
-        this.apmConfigurationLookupService = apmConfigurationLookupService;
-    }
-
-    @Required
-    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
     }
 }

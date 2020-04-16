@@ -1,11 +1,14 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
+import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
@@ -57,6 +60,9 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
 
     @Resource
     private WorldpayHostedOrderFacade worldpayHostedOrderFacade;
+
+    @Resource
+    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
 
     @ModelAttribute("billingCountries")
     public Collection<CountryData> getBillingCountries() {
@@ -125,12 +131,32 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     }
 
     protected CSEAdditionalAuthInfo createCSEAdditionalAuthInfo(final CSEPaymentForm csePaymentForm) {
+        final WorldpayMerchantConfigData currentSiteMerchantConfigData = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData();
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = new CSEAdditionalAuthInfo();
+
         populateAdditionalAuthInfo(csePaymentForm.isSaveInAccount(), null, cseAdditionalAuthInfo);
         cseAdditionalAuthInfo.setEncryptedData(csePaymentForm.getCseToken());
         cseAdditionalAuthInfo.setCardHolderName(csePaymentForm.getNameOnCard());
         cseAdditionalAuthInfo.setExpiryYear(csePaymentForm.getExpiryYear());
         cseAdditionalAuthInfo.setExpiryMonth(csePaymentForm.getExpiryMonth());
+
+        final Additional3DS2Info additional3DS2Info = new Additional3DS2Info();
+        additional3DS2Info.setDfReferenceId(csePaymentForm.getReferenceId());
+        additional3DS2Info.setChallengeWindowSize(csePaymentForm.getWindowSizePreference());
+        additional3DS2Info.setChallengePreference(currentSiteMerchantConfigData.getThreeDSFlexChallengePreference());
+        cseAdditionalAuthInfo.setAdditional3DS2(additional3DS2Info);
+        return cseAdditionalAuthInfo;
+    }
+
+    protected CSEAdditionalAuthInfo createCSESubscriptionAdditionalAuthInfo(final CSEPaymentForm placeOrderForm) {
+        final WorldpayMerchantConfigData currentSiteMerchantConfigData = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData();
+        final CSEAdditionalAuthInfo cseAdditionalAuthInfo = new CSEAdditionalAuthInfo();
+
+        final Additional3DS2Info additional3DS2Info = new Additional3DS2Info();
+        additional3DS2Info.setDfReferenceId(placeOrderForm.getReferenceId());
+        additional3DS2Info.setChallengeWindowSize(placeOrderForm.getWindowSizePreference());
+        additional3DS2Info.setChallengePreference(currentSiteMerchantConfigData.getThreeDSFlexChallengePreference());
+        cseAdditionalAuthInfo.setAdditional3DS2(additional3DS2Info);
         return cseAdditionalAuthInfo;
     }
 
@@ -166,4 +192,9 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     public WorldpayAdditionalInfoFacade getWorldpayAdditionalInfoFacade() {
         return worldpayAdditionalInfoFacade;
     }
+
+    public WorldpayMerchantConfigDataFacade getWorldpayMerchantConfigDataFacade() {
+        return worldpayMerchantConfigDataFacade;
+    }
+
 }

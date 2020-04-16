@@ -5,8 +5,8 @@ import de.hybris.platform.util.JspContext;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.worldpay.constants.WorldpayaddoncommonsConstants;
 
@@ -18,7 +18,7 @@ public class WorldpayaddoncommonsManager extends GeneratedWorldpayaddoncommonsMa
     /**
      * Edit the local|project.properties to change logging behavior (properties 'log4j.*').
      */
-    private static final Logger LOG = LoggerFactory.getLogger(WorldpayaddoncommonsManager.class);
+    private static final Logger LOG = LogManager.getLogger(WorldpayaddoncommonsManager.class);
 
 	/*
      * Some important tips for development: Do NEVER use the default constructor of manager's or items. => If you want to
