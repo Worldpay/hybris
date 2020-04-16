@@ -15,8 +15,8 @@ import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction;
 import de.hybris.platform.processengine.model.BusinessProcessParameterModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
@@ -26,7 +26,7 @@ import static com.worldpay.payment.TransactionStatus.AUTHORISED;
  */
 public class WorldpayAuthorizePaymentAction extends AbstractSimpleDecisionAction<ReplenishmentProcessModel> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorldpayAuthorizePaymentAction.class);
+    private static final Logger LOG = LogManager.getLogger(WorldpayAuthorizePaymentAction.class);
 
     private ImpersonationService impersonationService;
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;

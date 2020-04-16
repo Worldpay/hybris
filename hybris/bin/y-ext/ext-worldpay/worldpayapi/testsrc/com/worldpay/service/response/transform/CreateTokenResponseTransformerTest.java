@@ -64,8 +64,7 @@ public class CreateTokenResponseTransformerTest {
     public void shouldRaiseErrorIfPaymentServiceReplyIsNull() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("No reply message in Worldpay create token response");
-        final Reply reply = null;
-        when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
+        when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(null));
 
         testObj.transform(paymentServiceReplyMock);
     }
@@ -124,14 +123,14 @@ public class CreateTokenResponseTransformerTest {
 
         responses.add(token);
 
-        final List<Object> tokenResponses = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenResponses = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
         final TokenDetails tokenDetails = createTokenDetails(date);
         tokenResponses.add(createTokenReason());
         tokenResponses.add(tokenDetails);
 
         final CardDetails cardDetails = createCardDetails(date);
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(cardDetails);
         tokenResponses.add(paymentInstrument);
 
         when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
@@ -146,7 +145,7 @@ public class CreateTokenResponseTransformerTest {
 
         responses.add(token);
 
-        final List<Object> tokenResponses = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenResponses = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
         final TokenDetails tokenDetails = createTokenDetails(date);
         tokenResponses.add(createTokenReason());
         tokenResponses.add(tokenDetails);
@@ -154,7 +153,7 @@ public class CreateTokenResponseTransformerTest {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
         paypal.setvalue(PAYPAL_TOKEN);
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(paypal);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(paypal);
         tokenResponses.add(paymentInstrument);
 
         when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));

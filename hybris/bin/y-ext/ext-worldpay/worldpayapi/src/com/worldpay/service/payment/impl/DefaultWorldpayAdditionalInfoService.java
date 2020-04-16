@@ -3,7 +3,7 @@ package com.worldpay.service.payment.impl;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.payment.WorldpayAdditionalInfoService;
 import com.worldpay.strategy.WorldpayCustomerIpAddressStrategy;
-import org.springframework.beans.factory.annotation.Required;
+import de.hybris.platform.servicelayer.session.SessionService;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,24 +15,28 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
  */
 public class DefaultWorldpayAdditionalInfoService implements WorldpayAdditionalInfoService {
 
-    private WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy;
+    private static final String WORLDPAY_ADDITIONAL_DATA_SESSION_ID = "worldpay_additional_data_session_id";
+
+    private final WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy;
+    private final SessionService sessionService;
+
+    public DefaultWorldpayAdditionalInfoService(final WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy, final SessionService sessionService) {
+        this.worldpayCustomerIpAddressStrategy = worldpayCustomerIpAddressStrategy;
+        this.sessionService = sessionService;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public WorldpayAdditionalInfoData createWorldpayAdditionalInfoData(final HttpServletRequest request) {
-        final WorldpayAdditionalInfoData info = new WorldpayAdditionalInfoData();
-        info.setSessionId(request.getSession().getId());
-        info.setCustomerIPAddress(worldpayCustomerIpAddressStrategy.getCustomerIp(request));
-        info.setAcceptHeader(request.getHeader(ACCEPT));
-        info.setUserAgentHeader(request.getHeader(USER_AGENT));
-        return info;
+        final WorldpayAdditionalInfoData additionalInfoData = new WorldpayAdditionalInfoData();
+        final String sessionId = request.getSession().getId();
+        additionalInfoData.setSessionId(sessionId);
+        sessionService.setAttribute(WORLDPAY_ADDITIONAL_DATA_SESSION_ID, sessionId);
+        additionalInfoData.setCustomerIPAddress(worldpayCustomerIpAddressStrategy.getCustomerIp(request));
+        additionalInfoData.setAcceptHeader(request.getHeader(ACCEPT));
+        additionalInfoData.setUserAgentHeader(request.getHeader(USER_AGENT));
+        return additionalInfoData;
     }
-
-    @Required
-    public void setWorldpayCustomerIpAddressStrategy(WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy) {
-        this.worldpayCustomerIpAddressStrategy = worldpayCustomerIpAddressStrategy;
-    }
-
 }

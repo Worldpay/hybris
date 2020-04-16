@@ -7,8 +7,8 @@ import com.hybris.cockpitng.widgets.common.WidgetComponentRenderer;
 import de.hybris.platform.omsbackoffice.renderers.InvalidNestedAttributeException;
 import de.hybris.platform.omsbackoffice.renderers.NestedAttributeUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.zkoss.zul.Listcell;
 
@@ -21,12 +21,13 @@ import java.util.List;
  */
 public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorldpayNullSafeCellRenderer.class);
+    private static final Logger LOG = LogManager.getLogger(WorldpayNullSafeCellRenderer.class);
     private WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer;
     private NestedAttributeUtils nestedAttributeUtils;
 
     /**
      * Null safe rendering of a cell in a list
+     *
      * @param parent
      * @param columnConfiguration
      * @param object
@@ -42,8 +43,8 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
             final List tokenMap = this.getNestedAttributeUtils().splitQualifier(qualifier);
 
             int e;
-            for(e = 0; e < tokenMap.size() - 1; ++e) {
-                nestedObject = this.getNestedAttributeUtils().getNestedObject(nestedObject, (String)tokenMap.get(e));
+            for (e = 0; e < tokenMap.size() - 1; ++e) {
+                nestedObject = this.getNestedAttributeUtils().getNestedObject(nestedObject, (String) tokenMap.get(e));
             }
 
             if (nestedObject != null) {
@@ -52,13 +53,13 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
                 }
             }
 
-            if(nestedObject != null && targetField != null && !this.checkIfObjectIsEmptyCollection(targetField)) {
+            if (nestedObject != null && targetField != null && !this.checkIfObjectIsEmptyCollection(targetField)) {
                 this.getDefaultListCellRenderer().render(parent, columnConfiguration, object, dataType, widgetInstanceManager);
-            } else if(LOG.isWarnEnabled()) {
+            } else if (LOG.isWarnEnabled()) {
                 LOG.warn("Either Property " + nestedObject + " is null or the field " + qualifier + " is null, skipping render of " + qualifier);
             }
         } catch (final IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InvalidNestedAttributeException e) {
-            if(LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info(e.getMessage(), e);
             }
         }

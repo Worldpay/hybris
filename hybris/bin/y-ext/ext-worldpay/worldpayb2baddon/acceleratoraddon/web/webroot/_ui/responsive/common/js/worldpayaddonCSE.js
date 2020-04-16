@@ -4,12 +4,16 @@ ACC.worldpayCSE = {
         "bindSubmitBillingAddressForm",
         "populateErrorCodeMap",
         "bindSubmitCseForm",
-        "bindPaymentButtons"
+        "bindPaymentButtons",
+        "fillResolutionForWindowChallenge",
+        "bindMessageEventListener",
+        "bindPlaceOrderForm"
     ],
 
     errorCodeMap: {},
 
     encryptCardDetails: function () {
+        ACC.worldpayCSE.clearCSEErrorFields();
         var data = {
             cvc: $("#cvc").val(),
             cardHolderName: $("#nameOnCard").val(),
@@ -20,6 +24,7 @@ ACC.worldpayCSE = {
         var encryptedData = Worldpay.encrypt(data, this.errorHandler);
         if (encryptedData) {
             $("#encryptedData").val(encryptedData);
+            $("#DDCIframe").contents().find('#collectionForm').submit();
             return true;
         } else {
             return false;
@@ -57,12 +62,22 @@ ACC.worldpayCSE = {
     },
 
     hideError: function (errorMessageField) {
-        errorMessageField.addClass("hidden");
+        errorMessageField.parent().addClass("hidden");
         errorMessageField.closest(".form-group").removeClass("has-error");
     },
 
     clearCSEErrorFields: function () {
-        this.hideError($('div[id^="error-"]'));
+        ACC.worldpayCSE.hideError($('span[id^="error-"]'));
+    },
+
+    fillResolutionForWindowChallenge: function () {
+        /* Empty value uses as resolution 390x400
+           When the 3Ds Version is 1, the unique possibility is 390x400
+           When the 3Ds Version is 2, the possibilities are:
+           250x400, 390x400, 500x600, 600x400, fullPage
+           https://beta.developer.worldpay.com/docs/wpg/directintegration/3ds2
+         */
+        $("#windowSizePreference").val("fullPage");
     },
 
     bindSubmitBillingAddressForm: function () {
@@ -84,14 +99,85 @@ ACC.worldpayCSE = {
                 var container = $(".checkout-headline").parent();
                 container.find(".global-alerts").remove();
 
-                ACC.worldpayCSE.clearCSEErrorFields();
-
                 var submit = ACC.worldpayCSE.encryptCardDetails();
                 if (submit) {
                     $("#worldpayCsePaymentForm").submit();
                 }
             }
         );
+    },
+
+    bindMessageEventListener: function () {
+        window.addEventListener('message', function (event) {
+            console.log(event);
+            if (event.origin === ACC.worldpayCSE.originEventDomain3DSFlex) {
+                var data = JSON.parse(event.data);
+                //TODO Remove this warn console log line whenever you go PROD
+                console.warn('Merchant received a message:', data);
+                if (data !== undefined && data.Status) {
+                    // Extract the ReferenceId and store it in your data to submit back to Worldpay.
+                    $('#threeDSReferenceId').val(data.SessionId);
+                }
+                ACC.worldpayCSE.submitCSEForm();
+            }
+        }, false);
+    },
+
+    submitCSEForm: function () {
+        const container = $(".checkout-headline").parent();
+        container.find(".global-alerts").remove();
+
+        const submit = ACC.worldpayCSE.encryptCardDetails();
+        if (!$("#Terms1").is(':checked')) {
+            container.prepend(
+                "<div class='global-alerts'>" +
+                "<div class='alert alert-danger alert-dismissable'>" +
+                "<button class='close' aria-hidden='true' data-dismiss='alert' type='button'>&times;</button>" +
+                ACC.addons.worldpayaddon["worldpayaddon.checkout.error.terms.not.accepted"] +
+                "</div></div>"
+            );
+        } else if (submit) {
+            ACC.worldpayCSE.submitCSEFormAjax('#placeOrderForm1');
+        }
+    },
+
+    bindPlaceOrderForm: function () {
+        $('#placeOrderForm1').on('submit', function (e) {
+            e.preventDefault();
+            ACC.worldpayCSE.submitCSEFormAjax('#placeOrderForm1');
+        })
+    },
+
+    submitCSEFormAjax: function (selector) {
+        var $form = $(selector);
+        var xhr = new XMLHttpRequest();
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            xhr: function() {
+                return xhr;
+            },
+            success: function (res) {
+                if (xhr.getResponseHeader('3D-Secure-Flow')  === "false" || !xhr.getResponseHeader('3D-Secure-Flow')) {
+                    $('body').html(res);
+                    window.scrollTo(0, 0);
+                } else {
+                    ACC.colorbox.open("", {
+                        html: res,
+                        onComplete: function () {
+                            if (xhr.getResponseHeader('3D-Secure-Flex-Flow') === "false" || !xhr.getResponseHeader('3D-Secure-Flex-Flow')) {
+                                submitLegacy3dForm();
+                            }
+                        }
+                    });
+                }
+            },
+            error: function (err) {
+                $('body').html(err.responseText);
+                window.scrollTo(0, 0);
+            }
+        });
     },
 
     populateErrorCodeMap: function () {

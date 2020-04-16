@@ -7,9 +7,11 @@
 	<classpathentry exported="true" kind="src" path="/acceleratorservices" />
 	<classpathentry exported="true" kind="src" path="/assistedserviceservices" />
 	<classpathentry exported="true" kind="src" path="/cms2" />
-	<classpathentry exported="true" kind="lib" path="lib/jjwt-0.9.1.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/jjwt-api-0.10.8.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/jjwt-impl-0.10.8.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/jjwt-jackson-0.10.8.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/retry4j-0.15.0.jar" />
-	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-2.4.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-2.6.jar" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />

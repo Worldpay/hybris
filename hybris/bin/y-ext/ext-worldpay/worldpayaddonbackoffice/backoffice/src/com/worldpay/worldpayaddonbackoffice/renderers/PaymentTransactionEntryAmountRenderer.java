@@ -10,12 +10,13 @@ import com.hybris.cockpitng.engine.WidgetInstanceManager;
 import com.hybris.cockpitng.labels.LabelService;
 import com.hybris.cockpitng.widgets.common.WidgetComponentRenderer;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 import org.zkoss.zul.Listcell;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
@@ -24,8 +25,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfBlank;
  * Backoffice amount render for PaymentTransactionEntry
  */
 public class PaymentTransactionEntryAmountRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
-    private static final Logger LOG = LoggerFactory.getLogger(PaymentTransactionEntryAmountRenderer.class);
-    private static final String PAYMENT_TRANSACTION_ENTRY = "PaymentTransactionEntry";
+    private static final Logger LOG = LogManager.getLogger(PaymentTransactionEntryAmountRenderer.class);
 
     private TypeFacade typeFacade;
     private PropertyValueService propertyValueService;
@@ -45,7 +45,7 @@ public class PaymentTransactionEntryAmountRenderer implements WidgetComponentRen
         final String qualifier = columnConfiguration.getQualifier();
 
         try {
-            final DataType paymentTransactionEntryDataType = typeFacade.load(PAYMENT_TRANSACTION_ENTRY);
+            final DataType paymentTransactionEntryDataType = typeFacade.load(PaymentTransactionEntryModel._TYPECODE);
             if (paymentTransactionEntryDataType != null && permissionFacade.canReadProperty(paymentTransactionEntryDataType.getCode(), qualifier)) {
                 final Object amount = propertyValueService.readValue(object, qualifier);
                 if (amount == null) {
@@ -60,7 +60,7 @@ public class PaymentTransactionEntryAmountRenderer implements WidgetComponentRen
     }
 
     private String getPaymentTransactionEntryAmountValue(final PaymentTransactionEntryModel object, final Object amount) {
-        final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getCurrency().getDigits(), BigDecimal.ROUND_HALF_DOWN);
+        final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getCurrency().getDigits(), RoundingMode.HALF_UP);
         final String amountValue = labelService.getObjectLabel(paymentTransactionAmount);
         return defaultIfBlank(amountValue, amount.toString());
     }

@@ -46,6 +46,7 @@ public final class PaymentBuilder {
     private String creditCardPaymentMethod = VISA_SSL;
     private String apmPaymentMethod;
     private String refundReference;
+    private String transactionIdentifier;
 
     private PaymentBuilder() {
     }
@@ -239,6 +240,16 @@ public final class PaymentBuilder {
     }
 
     /**
+     * Build with this given value
+     * @param transactionIdentifier
+     * @return this builder
+     */
+    public PaymentBuilder withTransactionIdentifier(final String transactionIdentifier) {
+        this.transactionIdentifier = transactionIdentifier;
+        return this;
+    }
+
+    /**
      * Build the Payment object based on the builders internal state
      * @return the internal Payment model
      */
@@ -316,6 +327,11 @@ public final class PaymentBuilder {
         payment.setISO8583ReturnCode(iso8583ReturnCode);
 
         payment.setLastEvent(this.lastEvent);
+
+        final SchemeResponse schemeResponse = new SchemeResponse();
+        schemeResponse.setTransactionIdentifier(transactionIdentifier);
+        payment.setSchemeResponse(schemeResponse);
+
         return payment;
     }
 }

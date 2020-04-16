@@ -124,6 +124,14 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
         return (OrderInquiryServiceResponse) service(request);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DirectAuthoriseServiceResponse sendSecondThreeDSecurePayment(final SecondThreeDSecurePaymentRequest request) throws WorldpayException {
+        return (DirectAuthoriseServiceResponse) service(request);
+    }
+
     private ServiceResponse service(final ServiceRequest request) throws WorldpayException {
         final ServiceRequestTransformer requestTransformer = requestTransformerStrategyMap.get(request.getClass().getName());
         final PaymentService paymentService = requestTransformer.transform(request);

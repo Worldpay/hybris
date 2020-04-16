@@ -3,6 +3,7 @@ package com.worldpay.core.services.impl;
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.enums.order.AuthorisedStatus;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
@@ -24,7 +25,7 @@ public class DefaultOrderNotificationService implements OrderNotificationService
     private Map<AuthorisedStatus, OrderNotificationProcessorStrategy> journalTypeToNotificationProcessorStrategyMap;
 
     @Override
-    public void processOrderNotificationMessage(final OrderNotificationMessage orderNotificationMessage) {
+    public void processOrderNotificationMessage(final OrderNotificationMessage orderNotificationMessage) throws WorldpayConfigurationException {
         final AuthorisedStatus journalTypeCode = orderNotificationMessage.getJournalReply().getJournalType();
         final OrderNotificationProcessorStrategy orderNotificationProcessorStrategy = journalTypeToNotificationProcessorStrategyMap.get(journalTypeCode);
 

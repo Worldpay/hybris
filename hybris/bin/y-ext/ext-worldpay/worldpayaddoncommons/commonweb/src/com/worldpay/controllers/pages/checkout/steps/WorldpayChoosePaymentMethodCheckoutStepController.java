@@ -143,8 +143,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
     protected void populateAddressForm(final AddressData addressData, final AddressForm addressForm) {
         final RegionData region = addressData.getRegion();
-        if (region != null && !StringUtils.isEmpty(region.getIsocode())) {
-            addressForm.setRegionIso(region.getIsocode());
+        if (region != null && !StringUtils.isEmpty(region.getIsocodeShort())) {
+            addressForm.setRegionIso(region.getIsocodeShort());
         }
         addressForm.setTitleCode(addressData.getTitle());
         addressForm.setFirstName(addressData.getFirstName());
@@ -329,8 +329,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         final AddressForm addressForm = new AddressForm();
 
         final RegionData region = deliveryAddress.getRegion();
-        if (region != null && !StringUtils.isEmpty(region.getIsocode())) {
-            addressForm.setRegionIso(region.getIsocode());
+        if (region != null && !StringUtils.isEmpty(region.getIsocodeShort())) {
+            addressForm.setRegionIso(region.getIsocodeShort());
         }
         addressForm.setTitleCode(deliveryAddress.getTitleCode());
         addressForm.setFirstName(deliveryAddress.getFirstName());

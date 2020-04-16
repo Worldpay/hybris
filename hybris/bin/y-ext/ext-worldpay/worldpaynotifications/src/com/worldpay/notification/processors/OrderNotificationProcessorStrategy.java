@@ -1,5 +1,6 @@
 package com.worldpay.notification.processors;
 
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 
@@ -15,6 +16,6 @@ public interface OrderNotificationProcessorStrategy {
      * @param paymentTransactionModel  the {@link PaymentTransactionModel}
      * @param orderNotificationMessage the {@link OrderNotificationMessage} to be processed
      */
-    void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage);
+    void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) throws WorldpayConfigurationException;
 
 }

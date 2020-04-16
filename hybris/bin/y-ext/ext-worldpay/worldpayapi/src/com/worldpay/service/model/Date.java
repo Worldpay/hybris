@@ -5,7 +5,6 @@ import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
 /**
  * POJO representation of a date

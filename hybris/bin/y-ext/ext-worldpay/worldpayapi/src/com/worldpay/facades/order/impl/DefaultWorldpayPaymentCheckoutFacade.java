@@ -4,24 +4,28 @@ import com.worldpay.core.checkout.WorldpayCheckoutService;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
-import de.hybris.platform.commerceservices.delivery.DeliveryService;
+import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.core.model.order.CartModel;
-import de.hybris.platform.core.model.user.AddressModel;
+import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.order.CartService;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.util.Assert;
 
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Worldpay checkout facade to ensure Worldpay details are included in correct place
  */
 public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentCheckoutFacade {
-    private CheckoutFacade checkoutFacade;
-    private WorldpayCheckoutService worldpayCheckoutService;
-    private CartService cartService;
-    private DeliveryService deliveryService;
+    private final CheckoutFacade checkoutFacade;
+    private final WorldpayCheckoutService worldpayCheckoutService;
+    private final CartService cartService;
+    private final CustomerAccountService customerAccountService;
+
+    public DefaultWorldpayPaymentCheckoutFacade(final CheckoutFacade checkoutFacade, final WorldpayCheckoutService worldpayCheckoutService, final CartService cartService, final CustomerAccountService customerAccountService) {
+        this.checkoutFacade = checkoutFacade;
+        this.worldpayCheckoutService = worldpayCheckoutService;
+        this.cartService = cartService;
+        this.customerAccountService = customerAccountService;
+    }
 
     /**
      * {@inheritDoc}
@@ -30,8 +34,8 @@ public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentChec
     public void setBillingDetails(final AddressData addressData) {
         final CartModel cartModel = getCart();
         if (cartModel != null && addressData != null) {
-            final AddressModel addressModel = getDeliveryAddressModelForCode(addressData.getId());
-            worldpayCheckoutService.setPaymentAddress(cartModel, addressModel);
+            Optional.ofNullable(customerAccountService.getAddressForCode((CustomerModel) cartModel.getUser(), addressData.getId()))
+                    .ifPresent(addressModel -> worldpayCheckoutService.setPaymentAddress(cartModel, addressModel));
         }
     }
 
@@ -46,50 +50,5 @@ public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentChec
 
     protected CartModel getCart() {
         return checkoutFacade.hasCheckoutCart() ? cartService.getSessionCart() : null;
-    }
-
-    protected AddressModel getDeliveryAddressModelForCode(final String code) {
-        Assert.notNull(code, "Parameter code cannot be null.");
-        final CartModel cartModel = getCart();
-        if (cartModel != null) {
-            final List<AddressModel> addresses = deliveryService.getSupportedDeliveryAddressesForOrder(cartModel, false);
-            if (CollectionUtils.isNotEmpty(addresses)) {
-                return getMatchingAddressModel(code, addresses);
-            }
-        }
-        return null;
-    }
-
-    protected AddressModel getMatchingAddressModel(final String code, final List<AddressModel> addresses) {
-        for (final AddressModel address : addresses) {
-            if (code.equals(address.getPk().toString())) {
-                return address;
-            }
-        }
-        return null;
-    }
-
-    @Required
-    public void setCheckoutFacade(final CheckoutFacade checkoutFacade) {
-        this.checkoutFacade = checkoutFacade;
-    }
-
-    public CartService getCartService() {
-        return cartService;
-    }
-
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
-    }
-
-    @Required
-    public void setDeliveryService(final DeliveryService deliveryService) {
-        this.deliveryService = deliveryService;
-    }
-
-    @Required
-    public void setWorldpayCheckoutService(final WorldpayCheckoutService worldpayCheckoutService) {
-        this.worldpayCheckoutService = worldpayCheckoutService;
     }
 }

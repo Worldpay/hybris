@@ -46,7 +46,8 @@ public enum ReturnCode implements Serializable {
     TRANSACTION_TIMED_OUT("68", "TRANSACTION TIMED OUT"),
     AMOUNT_NO_LONGER_AVAILABLE_AUTHORISATION_EXPIRED("80", "AMOUNT NO LONGER AVAILABLE, AUTHORISATION EXPIRED"),
     CREDITCARD_TYPE_NOT_PROCESSED_BY_ACQUIRER("92", "CREDITCARD TYPE NOT PROCESSED BY ACQUIRER"),
-    DUPLICATE_REQUEST_ERROR("94", "DUPLICATE REQUEST ERROR"),;
+    DUPLICATE_REQUEST_ERROR("94", "DUPLICATE REQUEST ERROR"),
+    ;
 
     private static final Map<String, ReturnCode> lookup = new HashMap<>();
 
@@ -56,10 +57,10 @@ public enum ReturnCode implements Serializable {
         }
     }
 
-    private String code;
-    private String description;
-    
-    ReturnCode(String code, String description) {
+    private final String code;
+    private final String description;
+
+    ReturnCode(final String code, final String description) {
         this.code = code;
         this.description = description;
     }
@@ -68,16 +69,8 @@ public enum ReturnCode implements Serializable {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     /**

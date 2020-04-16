@@ -1,10 +1,17 @@
 package com.worldpay.service.payment;
 
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
+import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason;
+import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.model.*;
+import com.worldpay.service.model.payment.Cse;
+import com.worldpay.service.model.payment.PayWithGoogleSSL;
 import com.worldpay.service.model.payment.Payment;
+import com.worldpay.service.model.payment.StoredCredentials;
+import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.model.token.TokenRequest;
@@ -179,5 +186,42 @@ public interface WorldpayOrderService {
      * @param worldpayAdditionalInfoApplePayData
      * @return
      */
-    Payment createApplePayPayment(ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData);
+    Payment createApplePayPayment(final ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData);
+
+    /**
+     * Creates an Payment of type CSE with the requested details
+     *
+     * @param cseAdditionalAuthInfo
+     * @param billingAddress
+     * @return
+     */
+    Cse createCsePayment(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final Address billingAddress);
+
+    /**
+     * Creates an Payment of type GooglePay with the requested details
+     *
+     * @param protocolVersion
+     * @param signature
+     * @param signedMessage
+     * @return
+     */
+    PayWithGoogleSSL createGooglePayPayment(final String protocolVersion, final String signature, final String signedMessage);
+
+    /**
+     * Creates a additional 3DS Data element to be used in request
+     *
+     * @param worldpayAdditionalInfoData The additional info to build the object
+     * @return Additional3DSData object
+     */
+    Additional3DSData createAdditional3DSData(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
+
+    /**
+     * Creates stored credentials element to be used in request.
+     *
+     * @param usage
+     * @param merchantInitiatedReason
+     * @param transactionIdentifier
+     * @return
+     */
+    StoredCredentials createStoredCredentials(final Usage usage, final MerchantInitiatedReason merchantInitiatedReason, final String transactionIdentifier);
 }
