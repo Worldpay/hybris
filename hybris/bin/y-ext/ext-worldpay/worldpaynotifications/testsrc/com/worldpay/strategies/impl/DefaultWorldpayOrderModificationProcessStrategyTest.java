@@ -4,6 +4,7 @@ import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.dao.OrderModificationDao;
 import com.worldpay.dao.ProcessDefinitionDao;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -91,7 +92,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     @Mock
     private WorldpayOrderModificationModel orderModificationModelMock;
     @Mock
-    private BusinessProcessModel captureWaitingProcessMock, authoriseWaitingProcessMock;
+    private BusinessProcessModel captureWaitingProcessMock, authoriseWaitingProcessMock, cancelWaitingProcessMock;
     @Mock
     private PaymentTransactionModel paymentTransactionModelMock;
     @Mock
@@ -113,13 +114,10 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     public void setUp() {
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
         when(nonTriggeringOrderStatusesMock.contains(CANCELLED)).thenReturn(true);
-        when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(CAPTURE)).thenReturn(singletonList(orderModificationModelMock));
-        when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(CANCEL)).thenReturn(singletonList(orderModificationModelMock));
-        when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(AUTHORIZATION)).thenReturn(singletonList(orderModificationModelMock));
-        when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(REFUND_FOLLOW_ON)).thenReturn(singletonList(orderModificationModelMock));
-        when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(SETTLED)).thenReturn(singletonList(orderModificationModelMock));
+        when(orderModificationDaoMock.findUnprocessedOrderModificationsByType(any(PaymentTransactionType.class))).thenReturn(singletonList(orderModificationModelMock));
         when(processDefinitionDaoMock.findWaitingOrderProcesses(ORDER_CODE, CAPTURE)).thenReturn(singletonList(captureWaitingProcessMock));
         when(processDefinitionDaoMock.findWaitingOrderProcesses(ORDER_CODE, AUTHORIZATION)).thenReturn(singletonList(authoriseWaitingProcessMock));
+        when(processDefinitionDaoMock.findWaitingOrderProcesses(ORDER_CODE, CANCEL)).thenReturn(singletonList(cancelWaitingProcessMock));
         when(orderModificationModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderModificationModelMock.getOrderNotificationMessage()).thenReturn(SERIALIZED_JSON_STRING);
         when(captureWaitingProcessMock.getCode()).thenReturn(CAPTURE_BPM_PROCESS_CODE);
@@ -133,7 +131,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void processOrderModificationMessagesShouldProcessIfWorldpayOrderCodeRelatesToOrder() {
+    public void processOrderModificationMessagesShouldProcessIfWorldpayOrderCodeRelatesToOrder() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, CAPTURE, orderModelMock)).thenReturn(true);
 
         final boolean result = testObj.processOrderModificationMessages(CAPTURE);
@@ -145,7 +143,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void processOrderModificationMessagesShouldMarkOrderNotificationAsProcessedAndNotTriggerABusinessProcessEventWhenOrderModificationTypeIsSETTLED() {
+    public void processOrderModificationMessagesShouldMarkOrderNotificationAsProcessedAndNotTriggerABusinessProcessEventWhenOrderModificationTypeIsSETTLED() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, SETTLED, orderModelMock)).thenReturn(Boolean.TRUE);
 
         final boolean result = testObj.processOrderModificationMessages(SETTLED);
@@ -226,9 +224,9 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
         final boolean result = testObj.processOrderModificationMessages(CAPTURE);
 
-        verify(businessProcessServiceMock).triggerEvent(anyString());
+        verify(businessProcessServiceMock).triggerEvent(endsWith(CAPTURE.getCode()));
         verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(orderModificationModelMock);
-        verify(processDefinitionDaoMock).findWaitingOrderProcesses(anyString(), any(PaymentTransactionType.class));
+        verify(processDefinitionDaoMock).findWaitingOrderProcesses(eq(ORDER_CODE), any(PaymentTransactionType.class));
         assertTrue(result);
     }
 
@@ -245,18 +243,18 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void processOrderModificationMessageShouldProcessCancelPaymentTransaction() {
-        when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, CANCEL, orderModelMock)).thenReturn(Boolean.TRUE);
+    public void processOrderModificationMessageShouldProcessRefusedPaymentTransaction() {
+        when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, REFUSED, orderModelMock)).thenReturn(Boolean.TRUE);
         when(authoriseWaitingProcessMock.getCode()).thenReturn(AUTHORISE_PROCESS_CODE);
 
-        final boolean result = testObj.processOrderModificationMessages(CANCEL);
+        final boolean result = testObj.processOrderModificationMessages(REFUSED);
 
         assertTrue(result);
         verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(orderModificationModelMock);
     }
 
     @Test
-    public void processOrderModificationMessageShouldSetOrderModificationAsDefectiveWhenAnyExceptionIsThrown() {
+    public void processOrderModificationMessageShouldSetOrderModificationAsDefectiveWhenAnyExceptionIsThrown() throws WorldpayConfigurationException {
         doThrow(new IllegalArgumentException(EXCEPTION_MESSAGE)).when(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
@@ -284,11 +282,11 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
 
         testObj.processOrderModificationMessages(CAPTURE);
 
-        verify(businessProcessServiceMock).triggerEvent(anyString());
+        verify(businessProcessServiceMock).triggerEvent(endsWith(CAPTURE.getCode()));
     }
 
     @Test
-    public void shouldMarkAsProcessedWhenOrderNotificationIsAUTHAndTransactionEntryIsNotPending() {
+    public void shouldMarkAsProcessedWhenOrderNotificationIsAUTHAndTransactionEntryIsNotPending() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.getNotPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(singletonList(paymentTransactionEntryMock));
 
         testObj.processOrderModificationMessages(AUTHORIZATION);
@@ -298,7 +296,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void markNotificationAsDefectiveWhenContainsTokenReplyWithNonMatchingAuthenticatedShopperId() {
+    public void markNotificationAsDefectiveWhenContainsTokenReplyWithNonMatchingAuthenticatedShopperId() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
@@ -312,7 +310,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void markNotificationAsDefectiveWithInvalidAuthenticatedShopperIdReasonWhenContainsTokenReplyWithNonMatchingAuthenticatedShopperId() {
+    public void markNotificationAsDefectiveWithInvalidAuthenticatedShopperIdReasonWhenContainsTokenReplyWithNonMatchingAuthenticatedShopperId() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
@@ -327,7 +325,7 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
     }
 
     @Test
-    public void notificationShouldNotBeMarkedAsDefectiveWhenTokenReplyDoesNotContainAuthenticatedShopperIdAsOrderWasMadeUsingAMerchantToken() {
+    public void notificationShouldNotBeMarkedAsDefectiveWhenTokenReplyDoesNotContainAuthenticatedShopperIdAsOrderWasMadeUsingAMerchantToken() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
@@ -337,12 +335,12 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         testObj.processOrderModificationMessages(AUTHORIZATION);
 
         verify(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));
-        verify(businessProcessServiceMock).triggerEvent(anyString());
+        verify(businessProcessServiceMock).triggerEvent(endsWith(AUTHORIZATION.getCode()));
         verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(orderModificationModelMock);
     }
 
     @Test
-    public void markNotificationAsProcessedWhenContainsTokenReplyContainsNonMatchingAuthenticatedShopperId() {
+    public void markNotificationAsProcessedWhenContainsTokenReplyContainsNonMatchingAuthenticatedShopperId() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
@@ -352,12 +350,12 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         testObj.processOrderModificationMessages(AUTHORIZATION);
 
         verify(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));
-        verify(businessProcessServiceMock).triggerEvent(anyString());
+        verify(businessProcessServiceMock).triggerEvent(endsWith(AUTHORIZATION.getCode()));
         verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(orderModificationModelMock);
     }
 
     @Test
-    public void markNotificationAsProcessedWhenDoesNotContainTokenReply() {
+    public void markNotificationAsProcessedWhenDoesNotContainTokenReply() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, AUTHORIZATION, orderModelMock)).thenReturn(Boolean.TRUE);
 
         when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
@@ -366,12 +364,12 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         testObj.processOrderModificationMessages(AUTHORIZATION);
 
         verify(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));
-        verify(businessProcessServiceMock).triggerEvent(anyString());
+        verify(businessProcessServiceMock).triggerEvent(endsWith(AUTHORIZATION.getCode()));
         verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(orderModificationModelMock);
     }
 
     @Test
-    public void shouldProcessRefundNotification() {
+    public void shouldProcessRefundNotification() throws WorldpayConfigurationException {
         when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, REFUND_FOLLOW_ON, orderModelMock)).thenReturn(Boolean.TRUE);
         when(worldpayOrderModificationRefundProcessStrategyMock.processRefundFollowOn(orderModelMock, orderNotificationMessageMock)).thenReturn(Boolean.TRUE);
 
@@ -389,5 +387,17 @@ public class DefaultWorldpayOrderModificationProcessStrategyTest {
         testObj.processOrderModificationMessages(REFUND_FOLLOW_ON);
 
         verify(worldpayOrderNotificationHandlerMock).setDefectiveModification(orderModificationModelMock, null, true);
+    }
+
+    @Test
+    public void processOrderModificationMessages_ShouldMarkNotificationAsProcessed_WhenItIsACancelNotification() throws WorldpayConfigurationException {
+        when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, CANCEL, orderModelMock)).thenReturn(Boolean.TRUE);
+        when(orderModificationSerialiserMock.deserialise(orderModificationModelMock.getOrderNotificationMessage())).thenReturn(orderNotificationMessageMock);
+
+        testObj.processOrderModificationMessages(CANCEL);
+
+        verify(orderNotificationServiceMock).processOrderNotificationMessage(any(OrderNotificationMessage.class));
+        verify(businessProcessServiceMock).triggerEvent(endsWith(CANCEL.getCode()));
+        verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(orderModificationModelMock);
     }
 }

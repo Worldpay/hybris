@@ -11,11 +11,11 @@ import java.util.UUID;
  */
 public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.worldpayresponsemock.responses.WorldpayTokenCreateResponseBuilder {
 
-    protected static final String CC_OWNER = "ccOwner";
-    protected static final String CARD_BRAND = "VISA";
-    protected static final String CARD_SUB_BRAND = "VISA_CREDIT";
-    protected static final String ISSUER_COUNTRY_CODE = "N/A";
-    protected static final String OBFUSCATED_PAN = "4444********1111";
+    private static final String CC_OWNER = "ccOwner";
+    private static final String CARD_BRAND = "VISA";
+    private static final String CARD_SUB_BRAND = "VISA_CREDIT";
+    private static final String ISSUER_COUNTRY_CODE = "N/A";
+    private static final String OBFUSCATED_PAN = "4444********1111";
 
     /**
      * {@inheritDoc}
@@ -27,7 +27,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
 
         final Submit submit = (Submit) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.
-                getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+                getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
         final String authenticatedShopperID = paymentTokenCreate.getAuthenticatedShopperID();
         final String tokenEventReference = paymentTokenCreate.getCreateToken().getTokenEventReference();
 
@@ -50,7 +50,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         final PaymentTokenID paymentTokenId = new PaymentTokenID();
         paymentTokenId.setvalue(UUID.randomUUID().toString());
         tokenDetails.setPaymentTokenID(paymentTokenId);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(tokenDetails);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenDetails);
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final CardDetails cardDetails = new CardDetails();
         final ExpiryDate expiryDate = new ExpiryDate();
@@ -68,8 +68,8 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         derived.setObfuscatedPAN(OBFUSCATED_PAN);
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(cardDetails);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError().add(paymentInstrument);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(cardDetails);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(paymentInstrument);
         reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().add(token);
         response.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
 

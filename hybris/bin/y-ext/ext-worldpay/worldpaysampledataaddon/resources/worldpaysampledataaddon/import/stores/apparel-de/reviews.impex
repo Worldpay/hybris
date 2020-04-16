@@ -4,4 +4,4 @@ $productCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$product-cat
 $passwordEncoding=md5
 $defaultPassword=password
 $setPassword=@password[translator=de.hybris.platform.impex.jalo.translators.ConvertPlaintextToEncodedUserPasswordTranslator][default='$passwordEncoding:$defaultPassword']
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Online'])[unique=true,default=$productCatalog:Online]
+$catalogVersion=catalogversion(catalog(id[default=$product-catalog]),version[default='Online'])[unique=true,default=$product-catalog:Online]

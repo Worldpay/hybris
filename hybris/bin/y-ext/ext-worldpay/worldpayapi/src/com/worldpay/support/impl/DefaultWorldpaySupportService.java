@@ -6,8 +6,8 @@ import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.util.mail.MailUtils;
 import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class DefaultWorldpaySupportService implements WorldpaySupportService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpaySupportService.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpaySupportService.class);
 
     protected static final String WORLDPAY_SUPPORT_EMAIL_CONFIG_KEY = "worldpay.support.email.address";
     protected static final String WORLDPAY_SUPPORT_EMAIL_DISPLAY_NAME_KEY = "worldpay.support.email.display.name";

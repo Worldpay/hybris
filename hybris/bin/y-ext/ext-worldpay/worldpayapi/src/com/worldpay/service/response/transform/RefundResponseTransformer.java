@@ -22,14 +22,14 @@ public class RefundResponseTransformer extends AbstractServiceResponseTransforme
     public ServiceResponse transform(PaymentService reply) throws WorldpayModelTransformationException {
         RefundServiceResponse refundResponse = new RefundServiceResponse();
 
-        Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         if (responseType == null) {
             throw new WorldpayModelTransformationException("No reply message in Worldpay response");
         }
         if (!(responseType instanceof Reply)) {
             throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
         }
-        Reply intReply = (Reply) responseType;
+        final Reply intReply = (Reply) responseType;
         if (getServiceResponseTransformerHelper().checkForError(refundResponse, intReply)) {
             return refundResponse;
         }

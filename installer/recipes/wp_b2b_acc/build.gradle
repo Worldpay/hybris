@@ -1,24 +1,36 @@
-// Hybris b2b_acc recipe extended with Worldpay addon
+// Hybris b2b_acc_plus recipe extended with Worldpay addon
+apply plugin: 'installer-platform-plugin'
+apply plugin: 'installer-addon2-plugin'
 
-def config = {
+def pl = platform {
     localProperties {
+        property 'recaptcha.publickey', ''
+        property 'recaptcha.privatekey', ''
         property 'googleApiKey', ''
         property 'website.powertools.http', 'http://powertools.local:9001/yb2bacceleratorstorefront'
         property 'website.powertools.https', 'https://powertools.local:9002/yb2bacceleratorstorefront'
+	    property 'yb2bacceleratorstorefront.illegalrequirementstest.excluded', 'true'
         property 'testclasses.addonname', 'yb2bacceleratorstorefront'
+        property 'ansi.colors', 'true'
+    }
+
+    afterSetup {
+        ensureAdminPasswordSet()
     }
 
     extensions {
-        scanPathWithAutoLoad '${HYBRIS_BIN_DIR}/y-ext/ext-worldpayfulfilment'
 
-        extName 'commercesearchbackoffice'
+        extName 'adaptivesearchsolr'
+        extName 'adaptivesearchbackoffice'
+        extName 'adaptivesearchsamplesaddon'
+        extName 'adaptivesearchwebservices'
         extName 'b2bcommercebackoffice'
         extName 'solrfacetsearchbackoffice'
 
+        extName 'yacceleratorbackoffice'
         extName 'yacceleratorinitialdata'
         extName 'yacceleratorfulfilmentprocess'
         extName 'ycommercewebservices'
-        extName 'ycommercewebservicestest'
         extName 'orderselfserviceaddon'
 
         extName 'powertoolsstore'
@@ -26,16 +38,24 @@ def config = {
 
         extName 'acceleratorwebservicesaddon'
         extName 'b2bacceleratoraddon'
-        extName 'commerceorgaddon'
         extName 'commerceorgsamplesaddon'
+        extName 'b2bpunchoutaddon'
+        extName 'secureportaladdon'
+        extName 'savedorderformsoccaddon'
+        extName 'b2boccaddon'
+        extName 'accountsummaryaddon'
+        extName 'assistedservicestorefront'
+        extName 'assistedservicewebservices'
+        extName 'captchaaddon'
 
-        extName 'customersupportbackoffice'
         extName 'customerticketingaddon'
+        extName 'customersupportbackoffice'
 
         extName 'rulebuilderbackoffice'
         extName 'couponbackoffice'
         extName 'droolsruleengineservices'
         extName 'couponfacades'
+        extName 'couponservices'
         extName 'promotionenginesamplesaddon'
 
         extName 'textfieldconfiguratortemplatebackoffice'
@@ -43,79 +63,121 @@ def config = {
 
         extName 'cmswebservices'
         extName 'smarteditwebservices'
-        extName 'cmssmarteditwebservices'
         extName 'permissionswebservices'
         extName 'smarteditaddon'
         extName 'cmssmartedit'
-        extName 'assistedservicestorefront'
+        extName 'cmsbackoffice'
+        extName 'previewwebservices'
+        extName 'cmssmarteditwebservices'
+        extName 'cmsoccaddon'
 
         extName 'previewpersonalizationweb'
         extName 'personalizationcmsweb'
         extName 'personalizationsmartedit'
+        extName 'personalizationpromotionssmartedit'
         extName 'personalizationsampledataaddon'
+        extName 'personalizationpromotionssampledataaddon'
         extName 'personalizationpromotions'
         extName 'personalizationpromotionsweb'
         extName 'personalizationservicesbackoffice'
         extName 'personalizationpromotionsbackoffice'
         extName 'personalizationcmsbackoffice'
+        extName 'personalizationsearchbackoffice'
+        extName 'personalizationsearchsmartedit'
+        extName 'personalizationsearchweb'
+        extName 'personalizationsearchsamplesaddon'
 
-        extName 'assistedserviceatddtests'
-        extName 'promotionengineatddtests'
-        extName 'commercesearchatddtests'
-        extName 'textfieldconfiguratortemplateatddtests'
+        extName 'consignmenttrackingaddon'
+        extName 'consignmenttrackingmock'
+        extName 'consignmenttrackingbackoffice'
 
+        extName 'pcmbackofficesamplesaddon'
+
+        extName 'configurablebundleaddon'
+
+        extName 'consignmenttrackingoccaddon'
+
+        /* integration-apis */
+        extName 'outboundservices'
+        extName 'odata2webservices'
+        extName 'odata2webservicesfeaturetests'
+
+        extName 'kymaintegrationbackoffice'
+
+        extName 'yb2bacceleratorstorefront'
+
+        /* Worldpay extensions */
         extName 'worldpayaddonbackoffice'
         extName 'worldpayapi'
         extName 'worldpayb2baddon'
         extName 'worldpaynotifications'
         extName 'worldpaysampledataaddon'
         extName 'worldpayhac'
+        extName 'worldpayfulfilment'
     }
-}
 
-task setup {
-    doLast {
-        apply plugin: 'installer-platform-plugin'
-        apply plugin: 'installer-addon-plugin'
-        def pl = platform(config)
-        pl.setup()
-
-        pl.executeAntTarget 'extgen -Dinput.template=yacceleratorstorefront -Dinput.name=yb2bacceleratorstorefront -Dinput.package=de.hybris.platform.yb2bacceleratorstorefront'
-
-        pl.extensions {
-            extName 'yb2bacceleratorstorefront'
-        }
-        pl.setup()
-
-        pl.project.addons {
-            names "worldpayb2baddon,worldpaysampledataaddon,b2bacceleratoraddon,commerceorgaddon,commerceorgsamplesaddon,promotionenginesamplesaddon,textfieldconfiguratortemplateaddon,smarteditaddon,assistedservicestorefront,customerticketingaddon,orderselfserviceaddon"
-            template "yacceleratorstorefront"
-            storeFronts "yb2bacceleratorstorefront"
-            platform pl
+    addons {
+        forStoreFronts('yb2bacceleratorstorefront') {
+            names('worldpayb2baddon','worldpaysampledataaddon','b2bacceleratoraddon', 'commerceorgaddon', 'commerceorgsamplesaddon', 'b2bpunchoutaddon', 'secureportaladdon',
+                    'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon', 'promotionenginesamplesaddon',
+                    'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
+                    'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'personalizationsearchsamplesaddon')
+            template 'yacceleratorstorefront'
         }
 
-        pl.project.addons {
-            names "acceleratorwebservicesaddon"
-            template "ycommercewebservices"
-            storeFronts "ycommercewebservices"
-            platform pl
+        forStoreFronts('ycommercewebservices') {
+            names 'acceleratorwebservicesaddon', 'b2boccaddon', 'savedorderformsoccaddon', 'consignmenttrackingoccaddon', 'cmsoccaddon'
+            template 'ycommercewebservices'
         }
     }
 }
 
-task initialize {
+task createStoreFrontExt {
     doLast {
-        apply plugin: 'installer-platform-plugin'
-        def pl = platform(config)
+        def prePlatform = platformFactory.createPlatform()
+        prePlatform.createConfigDirIfNotExist()
+        prePlatform.resetConfig()
+
+        prePlatform.createExtension {
+            templateName 'yacceleratorstorefront'
+            extensionName 'yb2bacceleratorstorefront'
+            packageName 'de.hybris.platform.yb2bacceleratorstorefront'
+        }
+    }
+}
+
+task setup(dependsOn: createStoreFrontExt) {
+    doLast {
+        pl.setup()
+    }
+}
+
+task buildSystem(dependsOn: setup) {
+    doLast {
         pl.build()
+    }
+}
+
+task initialize(dependsOn: buildSystem) {
+    doLast {
         pl.initialize()
     }
 }
 
 task start {
     doLast {
-        apply plugin: 'installer-platform-plugin'
-        def pl = platform(config)
         pl.start()
+    }
+}
+
+task startInBackground {
+    doLast {
+        pl.startInBackground()
+    }
+}
+
+task stopInBackground {
+    doLast {
+        pl.stopInBackground()
     }
 }

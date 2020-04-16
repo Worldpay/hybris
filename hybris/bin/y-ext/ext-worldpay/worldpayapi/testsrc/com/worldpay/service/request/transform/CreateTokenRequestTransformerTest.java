@@ -69,8 +69,8 @@ public class CreateTokenRequestTransformerTest {
     public void transformShouldRaiseErrorWhenRequestIsNull() throws WorldpayModelTransformationException {
         expectedException.expect(WorldpayModelTransformationException.class);
         expectedException.expectMessage("Request provided to create token is invalid.");
-        final ServiceRequest serviceRequest = null;
-        testObj.transform(serviceRequest);
+
+        testObj.transform(null);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CreateTokenRequestTransformerTest {
         final PaymentService result = testObj.transform(serviceRequest);
 
         final Submit submit = (Submit) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
         final CSEDATA cseData = (CSEDATA) paymentTokenCreate.getPaymentInstrumentOrCSEDATA().get(0);
 
         assertEquals(MERCHANT_INFO.getMerchantCode(), result.getMerchantCode());
@@ -97,7 +97,7 @@ public class CreateTokenRequestTransformerTest {
         final PaymentService result = testObj.transform(serviceRequest);
 
         final Submit submit = (Submit) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().get(0);
+        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
         final CSEDATA cseData = (CSEDATA) paymentTokenCreate.getPaymentInstrumentOrCSEDATA().get(0);
 
         assertEquals(MERCHANT_INFO.getMerchantCode(), result.getMerchantCode());

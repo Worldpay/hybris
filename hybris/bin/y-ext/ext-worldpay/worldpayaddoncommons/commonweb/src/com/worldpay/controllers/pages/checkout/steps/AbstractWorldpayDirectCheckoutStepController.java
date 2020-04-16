@@ -1,47 +1,59 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.facades.WorldpayDirectResponseFacade;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
-import com.worldpay.service.WorldpayUrlService;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import org.springframework.ui.Model;
 
 import javax.annotation.Resource;
-
-import static com.worldpay.payment.TransactionStatus.*;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public abstract class AbstractWorldpayDirectCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     protected static final String CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID = "checkout.error.paymentethod.formentry.invalid";
+    private static final String THREED_SECURE_FLEX_FLOW = "3D-Secure-Flex-Flow";
+    private static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
 
-    private static final String TERM_URL_PARAM_NAME = "termURL";
-    private static final String PA_REQUEST_PARAM_NAME = "paRequest";
-    private static final String ISSUER_URL_PARAM_NAME = "issuerURL";
-    private static final String MERCHANT_DATA_PARAM_NAME = "merchantData";
-
-    @Resource
-    private WorldpayUrlService worldpayUrlService;
     @Resource
     private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    @Resource
+    private WorldpayDirectResponseFacade worldpayDirectResponseFacade;
 
-    public String handleDirectResponse(final Model model, final DirectResponseData directResponseData) throws CMSItemNotFoundException, WorldpayConfigurationException {
-        if (AUTHORISED == directResponseData.getTransactionStatus()) {
+    public String handleDirectResponse(final Model model, final DirectResponseData directResponseData, final HttpServletResponse response) throws CMSItemNotFoundException, WorldpayConfigurationException {
+        if (worldpayDirectResponseFacade.isAuthorised(directResponseData)) {
             return redirectToOrderConfirmationPage(directResponseData.getOrderData());
-        } else if (AUTHENTICATION_REQUIRED == directResponseData.getTransactionStatus()) {
-            model.addAttribute(ISSUER_URL_PARAM_NAME, directResponseData.getIssuerURL());
-            model.addAttribute(PA_REQUEST_PARAM_NAME, directResponseData.getPaRequest());
-            model.addAttribute(TERM_URL_PARAM_NAME, worldpayUrlService.getFullThreeDSecureTermURL());
-            model.addAttribute(MERCHANT_DATA_PARAM_NAME, getCheckoutFacade().getCheckoutCart().getWorldpayOrderCode());
+        }
+
+        if (worldpayDirectResponseFacade.is3DSecureLegacyFlow(directResponseData)) {
+            final Map<String, String> attributes = worldpayDirectResponseFacade.retrieveAttributesForLegacy3dSecure(directResponseData);
+            model.addAllAttributes(attributes);
+            response.addHeader(THREED_SECURE_FLOW, Boolean.TRUE.toString());
+            response.addHeader(THREED_SECURE_FLEX_FLOW, Boolean.FALSE.toString());
             return worldpayAddonEndpointService.getAutoSubmit3DSecure();
-        } else if (CANCELLED == directResponseData.getTransactionStatus()) {
+        }
+
+        if (worldpayDirectResponseFacade.is3DSecureFlexFlow(directResponseData)) {
+            final Map<String, String> attributes = worldpayDirectResponseFacade.retrieveAttributesForFlex3dSecure(directResponseData);
+            model.addAllAttributes(attributes);
+            response.addHeader(THREED_SECURE_FLOW, Boolean.TRUE.toString());
+            response.addHeader(THREED_SECURE_FLEX_FLOW, Boolean.TRUE.toString());
+            return worldpayAddonEndpointService.getAutoSubmit3DSecureFlex();
+        }
+
+        if (worldpayDirectResponseFacade.isCancelled(directResponseData)) {
             GlobalMessages.addErrorMessage(model, CHECKOUT_MULTI_WORLD_PAY_DECLINED_MESSAGE_DEFAULT);
-            return getErrorView(model);
-        } else {
-            GlobalMessages.addErrorMessage(model, getLocalisedDeclineMessage(directResponseData.getReturnCode()));
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return getErrorView(model);
         }
+
+        GlobalMessages.addErrorMessage(model, getLocalisedDeclineMessage(directResponseData.getReturnCode()));
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return getErrorView(model);
+
     }
 
     protected abstract String getErrorView(Model model) throws CMSItemNotFoundException;

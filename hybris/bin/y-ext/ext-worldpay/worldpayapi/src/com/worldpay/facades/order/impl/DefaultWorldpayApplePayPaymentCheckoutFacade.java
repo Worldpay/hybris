@@ -14,15 +14,15 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.UnknownIdentifierException;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Worldpay apple pay checkout facade to ensure Worldpay applepay details are included in correct place
  */
 public class DefaultWorldpayApplePayPaymentCheckoutFacade implements WorldpayApplePayPaymentCheckoutFacade {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayApplePayPaymentCheckoutFacade.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpayApplePayPaymentCheckoutFacade.class);
 
     private Converter<ApplePayConfigData, ValidateMerchantRequestDTO> applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter;
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;

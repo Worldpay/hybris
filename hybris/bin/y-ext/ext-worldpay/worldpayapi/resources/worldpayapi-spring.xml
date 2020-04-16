@@ -58,10 +58,10 @@
 
     <!-- Worldpay Commands (Direct Authorise) -->
     <bean name="worldpayCommand" abstract="true" class="com.worldpay.commands.impl.WorldpayCommand">
-        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
-        <property name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
     </bean>
 
     <bean name="worldpayCommandFactory" class="de.hybris.platform.payment.commands.factory.impl.DefaultCommandFactoryImpl">
@@ -73,7 +73,8 @@
                         <value type="java.lang.Class">de.hybris.platform.payment.commands.CaptureCommand</value>
                     </key>
                     <bean class="com.worldpay.commands.impl.DefaultWorldpayCaptureCommand" parent="worldpayCommand">
-                        <property name="captureServiceResponseConverter" ref="captureServiceResponseConverter"/>
+                        <constructor-arg name="captureServiceResponseConverter" ref="captureServiceResponseConverter"/>
+                        <constructor-arg name="worldpayHybrisOrderService" ref="worldpayHybrisOrderService"/>
                     </bean>
                 </entry>
                 <entry>
@@ -81,7 +82,8 @@
                         <value type="java.lang.Class">de.hybris.platform.payment.commands.PartialCaptureCommand</value>
                     </key>
                     <bean class="com.worldpay.commands.impl.DefaultWorldpayCaptureCommand" parent="worldpayCommand">
-                        <property name="captureServiceResponseConverter" ref="captureServiceResponseConverter"/>
+                        <constructor-arg name="captureServiceResponseConverter" ref="captureServiceResponseConverter"/>
+                        <constructor-arg name="worldpayHybrisOrderService" ref="worldpayHybrisOrderService"/>
                     </bean>
                 </entry>
                 <entry>
@@ -89,7 +91,7 @@
                         <value type="java.lang.Class">de.hybris.platform.payment.commands.VoidCommand</value>
                     </key>
                     <bean class="com.worldpay.commands.impl.DefaultWorldpayVoidCommand" parent="worldpayCommand">
-                        <property name="voidServiceResponseConverter" ref="voidServiceResponseConverter"/>
+                        <constructor-arg name="voidServiceResponseConverter" ref="voidServiceResponseConverter"/>
                     </bean>
                 </entry>
                 <entry>
@@ -97,7 +99,7 @@
                         <value type="java.lang.Class">de.hybris.platform.payment.commands.FollowOnRefundCommand</value>
                     </key>
                     <bean class="com.worldpay.commands.impl.DefaultWorldpayFollowOnRefundCommand" parent="worldpayCommand">
-                        <property name="refundServiceResponseConverter" ref="refundServiceResponseConverter"/>
+                        <constructor-arg name="refundServiceResponseConverter" ref="refundServiceResponseConverter"/>
                     </bean>
                 </entry>
                 <entry>
@@ -105,9 +107,9 @@
                         <value type="java.lang.Class">de.hybris.platform.payment.commands.SubscriptionAuthorizationCommand</value>
                     </key>
                     <bean class="com.worldpay.commands.impl.DefaultWorldpayTokenisedAuthorizationCommand" parent="worldpayCommand">
-                        <property name="worldpayAuthorizationResultConverter" ref="worldpayTokenisedDirectAuthorizationResponseConverter"/>
-                        <property name="worldpayBillingInfoAddressConverter" ref="worldpayBillingInfoAddressConverter"/>
-                        <property name="worldpayDynamicInteractionResolverService" ref="worldpayDynamicInteractionResolverService"/>
+                        <constructor-arg name="worldpayAuthorizationResultConverter" ref="worldpayTokenisedDirectAuthorizationResponseConverter"/>
+                        <constructor-arg name="worldpayBillingInfoAddressConverter" ref="worldpayBillingInfoAddressConverter"/>
+                        <constructor-arg name="worldpayDynamicInteractionResolverService" ref="worldpayDynamicInteractionResolverService"/>
                     </bean>
                 </entry>
             </map>
@@ -130,47 +132,47 @@
     </bean>
 
     <bean id="abstractWorldpayOrderService" class="com.worldpay.service.payment.impl.AbstractWorldpayOrderService" abstract="true">
-        <property name="commonI18NService" ref="commonI18NService"/>
-        <property name="commerceCheckoutService" ref="commerceCheckoutService"/>
-        <property name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
-        <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
-        <property name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
-        <property name="worldpayGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
-        <property name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
-        <property name="addressService" ref="addressService"/>
+        <constructor-arg name="commonI18NService" ref="commonI18NService"/>
+        <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
+        <constructor-arg name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
+        <constructor-arg name="worldpayGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
+        <constructor-arg name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
+        <constructor-arg name="addressService" ref="addressService"/>
     </bean>
 
     <alias name="defaultWorldpayRedirectOrderService" alias="worldpayRedirectOrderService"/>
     <bean id="defaultWorldpayRedirectOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService" parent="abstractWorldpayOrderService">
-        <property name="sessionService" ref="sessionService"/>
-        <property name="worldpayURIService" ref="worldpayURIService"/>
-        <property name="worldpayUrlService" ref="worldpayUrlService"/>
-        <property name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
-        <property name="worldpayTokenEventReferenceCreationStrategy" ref="worldpayTokenEventReferenceCreationStrategy"/>
-        <property name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
-        <property name="macValidator" ref="macValidator"/>
+        <constructor-arg name="sessionService" ref="sessionService"/>
+        <constructor-arg name="worldpayURIService" ref="worldpayURIService"/>
+        <constructor-arg name="worldpayUrlService" ref="worldpayUrlService"/>
+        <constructor-arg name="macValidator" ref="macValidator"/>
+        <constructor-arg name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
     </bean>
 
     <alias name="defaultWorldpayDirectOrderService" alias="worldpayDirectOrderService"/>
     <bean id="defaultWorldpayDirectOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService"
           parent="abstractWorldpayOrderService">
-        <property name="sessionService" ref="sessionService"/>
-        <property name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
+        <constructor-arg name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
+        <constructor-arg name="worldpaySessionService" ref="worldpaySessionService"/>
     </bean>
 
     <alias name="defaultWorldpayRequestFactory" alias="worldpayRequestFactory"/>
     <bean id="defaultWorldpayRequestFactory" class="com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory">
-        <property name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
-        <property name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
-        <property name="recurringGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
-        <property name="worldpayTokenEventReferenceCreationStrategy" ref="worldpayTokenEventReferenceCreationStrategy"/>
-        <property name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
-        <property name="commerceCommonI18NService" ref="commerceCommonI18NService"/>
-        <property name="worldpayKlarnaStrategy" ref="worldpayKlarnaStrategy"/>
-        <property name="worldpayDynamicInteractionResolverService" ref="worldpayDynamicInteractionResolverService"/>
+        <constructor-arg name="customerEmailResolutionService" ref="customerEmailResolutionService"/>
+        <constructor-arg name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="recurringGenerateMerchantTransactionCodeStrategy" ref="recurringGenerateMerchantTransactionCodeStrategy"/>
+        <constructor-arg name="worldpayTokenEventReferenceCreationStrategy" ref="worldpayTokenEventReferenceCreationStrategy"/>
+        <constructor-arg name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
+        <constructor-arg name="commerceCommonI18NService" ref="commerceCommonI18NService"/>
+        <constructor-arg name="worldpayKlarnaStrategy" ref="worldpayKlarnaStrategy"/>
+        <constructor-arg name="worldpayDynamicInteractionResolverService" ref="worldpayDynamicInteractionResolverService"/>
+        <constructor-arg name="worldpayRiskDataService" ref="worldpayRiskDataService"/>
+        <constructor-arg name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
     </bean>
 
     <bean id="abstractWorldpayUrlService" class="com.worldpay.service.impl.AbstractWorldpayUrlService" abstract="true">
@@ -180,6 +182,10 @@
         <property name="errorPath" value="/checkout/multi/worldpay/error"/>
         <property name="cancelPath" value="/checkout/multi/worldpay/hop-cancel"/>
         <property name="threeDSecureTermPath" value="/checkout/multi/worldpay/3dsecure/sop/response"/>
+        <property name="threeDSecureFlexFlowReturnUrl"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.returnurl')}"/>
+        <property name="threeDSecureFlexAuthSubmit"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.secondauthorisation.submit.url')}"/>
         <property name="threeDSecureQuoteTermPath" value="/my-account/worldpay/3dsecure/sop/response"/>
         <property name="termsPath" value="/checkout/multi/termsAndConditions" />
         <property name="klarnaConfirmationPath" value="/checkout/multi/worldpay/klarna/confirmation" />
@@ -206,10 +212,10 @@
     <alias name="worldpayTransactionInfoService" alias="transactionInfoService"/>
     <bean name="worldpayTransactionInfoService" class="com.worldpay.payment.impl.WorldpayTransactionInfoService" parent="defaultTransactionInfoService"/>
 
-
     <alias name="defaultWorldpayAdditionalInfoService" alias="worldpayAdditionalInfoService"/>
     <bean id="defaultWorldpayAdditionalInfoService" class="com.worldpay.service.payment.impl.DefaultWorldpayAdditionalInfoService">
-        <property name="worldpayCustomerIpAddressStrategy" ref="worldpayCustomerIpAddressStrategy"/>
+        <constructor-arg name="worldpayCustomerIpAddressStrategy" ref="worldpayCustomerIpAddressStrategy"/>
+        <constructor-arg name="sessionService" ref="sessionService"/>
     </bean>
 
     <!-- Converters and populators -->
@@ -316,6 +322,11 @@
         <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
     </bean>
 
+    <alias name="worldpayDynamicAttributesOrderStatusDisplayByMap" alias="dynamicAttributesOrderStatusDisplay"/>
+    <bean id="worldpayDynamicAttributesOrderStatusDisplayByMap" class="com.worldpay.core.checkout.attribute.WorldpayOrderStatusDisplayDynamicAttributeHandler" parent="acceleratorDynamicAttributesOrderStatusDisplayByMap">
+        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    </bean>
+
     <bean id="worldpayAPMConfigurationDao" class="com.worldpay.core.dao.WorldpayAPMConfigurationDao"/>
     <bean id="worldpayEntryCodeStrategy" class="com.worldpay.transaction.impl.WorldpayEntryCodeStrategyImpl"/>
 
@@ -398,18 +409,22 @@
 
     <alias name="defaultPaymentInfoService" alias="worldpayPaymentInfoService"/>
     <bean id="defaultPaymentInfoService" class="com.worldpay.core.services.impl.DefaultWorldpayPaymentInfoService">
-        <property name="modelService" ref="modelService"/>
-        <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
-        <property name="enumerationService" ref="enumerationService"/>
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="enumerationService" ref="enumerationService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
     </bean>
 
     <alias name="defaultWorldpayOrderService" alias="worldpayOrderService"/>
     <bean id="defaultWorldpayOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayOrderService">
-        <property name="commonI18NService" ref="commonI18NService"/>
-        <property name="worldpayUrlService" ref="bankTransferWorldpayUrlService"/>
-        <property name="siteConfigService" ref="siteConfigService"/>
+        <constructor-arg name="commonI18NService" ref="commonI18NService"/>
+        <constructor-arg name="worldpayUrlService" ref="bankTransferWorldpayUrlService"/>
+        <constructor-arg name="siteConfigService" ref="siteConfigService"/>
     </bean>
+
+    <alias name="defaultWorldpayRiskDataService" alias="worldpayRiskDataService"/>
+    <bean id="defaultWorldpayRiskDataService" class="com.worldpay.service.payment.impl.DefaultWorldpayRiskDataService"/>
 
     <alias name="defaultWorldpayKlarnaStrategy" alias="worldpayKlarnaStrategy"/>
     <bean id="defaultWorldpayKlarnaStrategy" class="com.worldpay.service.payment.impl.DefaultWorldpayKlarnaStrategy">
@@ -516,7 +531,8 @@
               key-type="com.worldpay.enums.order.AuthorisedStatus" value-type="de.hybris.platform.payment.enums.PaymentTransactionType">
         <entry key="AUTHORISED" value="AUTHORIZATION"/>
         <entry key="CAPTURED" value="CAPTURE"/>
-        <entry key="REFUSED" value="CANCEL"/>
+        <entry key="REFUSED" value="REFUSED"/>
+        <entry key="CANCELLED" value="CANCEL"/>
     </util:map>
 
     <util:map id="dependingPaymentTransaction"
@@ -584,16 +600,17 @@
         <property name="listPropertyDescriptor" value="cancelDenialStrategies"/>
     </bean>
 
+    <alias name="defaultWorldpayCheckoutService" alias="worldpayCheckoutService"/>
     <bean id="defaultWorldpayCheckoutService" class="com.worldpay.core.checkout.impl.DefaultWorldpayCheckoutService">
         <property name="modelService" ref="modelService"/>
     </bean>
 
     <alias name="defaultWorldpayPaymentCheckoutFacade" alias="worldpayPaymentCheckoutFacade"/>
     <bean id="defaultWorldpayPaymentCheckoutFacade" class="com.worldpay.facades.order.impl.DefaultWorldpayPaymentCheckoutFacade">
-        <property name="checkoutFacade" ref="checkoutFacade"/>
-        <property name="cartService" ref="cartService"/>
-        <property name="deliveryService" ref="deliveryService"/>
-        <property name="worldpayCheckoutService" ref="defaultWorldpayCheckoutService"/>
+        <constructor-arg name="checkoutFacade" ref="checkoutFacade"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="customerAccountService" ref="customerAccountService"/>
+        <constructor-arg name="worldpayCheckoutService" ref="worldpayCheckoutService"/>
     </bean>
 
     <alias name="defaultWorldpayApplePayPaymentCheckoutFacade" alias="worldpayApplePayPaymentCheckoutFacade"/>
@@ -630,15 +647,15 @@
 
     <alias name="defaultWorldpayHostedOrderFacade" alias="worldpayHostedOrderFacade"/>
     <bean id="defaultWorldpayHostedOrderFacade" class="com.worldpay.facades.payment.hosted.impl.DefaultWorldpayHostedOrderFacade">
-        <property name="worldpayRedirectOrderService" ref="worldpayRedirectOrderService"/>
-        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
-        <property name="cartService" ref="cartService"/>
-        <property name="worldpayOrderInfoStrategy" ref="worldpayOrderInfoStrategy"/>
-        <property name="sessionService" ref="sessionService"/>
-        <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
-        <property name="orderInquiryService" ref="orderInquiryService"/>
-        <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayRedirectOrderService" ref="worldpayRedirectOrderService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="worldpayOrderInfoStrategy" ref="worldpayOrderInfoStrategy"/>
+        <constructor-arg name="sessionService" ref="sessionService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="orderInquiryService" ref="orderInquiryService"/>
+        <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias name="defaultWorldpayBankConfigurationFacade" alias="worldpayBankConfigurationFacade"/>
@@ -661,14 +678,15 @@
 
     <alias name="defaultWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>
     <bean id="defaultWorldpayDirectOrderFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayDirectOrderFacade">
-        <property name="worldpayDirectOrderService" ref="worldpayDirectOrderService"/>
-        <property name="cartService" ref="cartService"/>
-        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
-        <property name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
-        <property name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
-        <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
-        <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade" />
-        <property name="cartFacade" ref="cartFacade" />
+        <constructor-arg name="worldpayDirectOrderService" ref="worldpayDirectOrderService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
+        <constructor-arg name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade" />
+        <constructor-arg name="cartFacade" ref="cartFacade" />
+        <constructor-arg name="worldpayJsonWebTokenService" ref="worldpayJsonWebTokenService" />
     </bean>
 
     <!-- The defaultUserFacade uses directly the AddressReversePopulator -->
@@ -751,15 +769,6 @@
         <property name="value" ref="contentPageModelConverter"/>
     </bean>
 
-    <alias name="worldpaySupportedPagesSetFactoryBean" alias="cmsSupportedPages" />
-    <bean id="worldpaySupportedPagesSetFactoryBean" parent="defaultCmsSupportedPages">
-        <property name="sourceSet">
-            <set merge="true">
-                <value type="java.lang.Class">com.worldpay.model.WorldpayPaymentPageModel</value>
-            </set>
-        </property>
-    </bean>
-
     <alias name="defaultWorldpayDynamicInteractionResolverService" alias="worldpayDynamicInteractionResolverService"/>
     <bean id="defaultWorldpayDynamicInteractionResolverService" class="com.worldpay.service.interaction.impl.DefaultWorldpayDynamicInteractionResolverService">
         <property name="assistedServiceService" ref="assistedServiceService"/>
@@ -777,5 +786,43 @@
 
     <alias name="defaultBankConfigurationPopulator" alias="bankConfigurationPopulator"/>
     <bean id="defaultBankConfigurationPopulator" class="com.worldpay.converters.populators.WorldpayBankConfigurationPopulator"/>
+
+    <alias name="defaultWorldpayJsonWebTokenService" alias="worldpayJsonWebTokenService"/>
+    <bean id="defaultWorldpayJsonWebTokenService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayJsonWebTokenService">
+        <constructor-arg ref="worldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultWorldpayDirectResponseService" alias="worldpayDirectResponseService"/>
+    <bean id="defaultWorldpayDirectResponseService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayDirectResponseService"/>
+
+    <alias name="defaultWorldpayAddonEndpointService" alias="worldpayAddonEndpointService"/>
+    <bean id="defaultWorldpayAddonEndpointService"
+          class="com.worldpay.service.impl.DefaultWorldpayAddonEndpointService"/>
+
+    <alias name="defaultWorldpayDirectResponseFacade" alias="worldpayDirectResponseFacade"/>
+    <bean id="defaultWorldpayDirectResponseFacade"
+          class="com.worldpay.facades.impl.DefaultWorldpayDirectResponseFacade">
+        <constructor-arg ref="worldpayDirectResponseService"/>
+        <constructor-arg ref="worldpayCheckoutFacade"/>
+        <constructor-arg ref="worldpayUrlService"/>
+        <constructor-arg ref="worldpayJsonWebTokenService"/>
+        <constructor-arg ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg ref="worldpaySessionService"/>
+    </bean>
+
+    <alias name="defaultWorldpaySessionService" alias="worldpaySessionService"/>
+    <bean name="defaultWorldpaySessionService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpaySessionService">
+        <constructor-arg ref="sessionService"/>
+    </bean>
+
+    <alias name="defaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy" alias="worldpayCancelWholeOrderDueToCancelNotificationStrategy"/>
+    <bean id="defaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy"
+          class="com.worldpay.orderprocess.strategies.cancel.impl.DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy">
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
 
 </beans>

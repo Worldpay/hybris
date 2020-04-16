@@ -1,1 +1,4 @@
 .DS_Store
+hybris/bin/y-ext/ext-worldpay/worldpayaddon/project.properties
+.idea
+hybris/bin/y-ext/ext-worldpay/worldpayoccaddon/project.properties

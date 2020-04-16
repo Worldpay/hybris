@@ -28,7 +28,7 @@ public class AlternativePayment extends AbstractPayment {
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
     public AlternativePayment(final PaymentType paymentType, final String shopperCountryCode, final String successURL, final String failureURL, final String cancelURL, final String pendingURL) {
-        this.setPaymentType(paymentType);
+        this.paymentType = paymentType;
         this.shopperCountryCode = shopperCountryCode;
         this.successURL = successURL;
         this.failureURL = failureURL;

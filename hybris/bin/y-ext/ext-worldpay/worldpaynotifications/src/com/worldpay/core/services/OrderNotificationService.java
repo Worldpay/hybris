@@ -1,5 +1,6 @@
 package com.worldpay.core.services;
 
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.notification.OrderNotificationMessage;
 
 
@@ -16,5 +17,5 @@ public interface OrderNotificationService {
      *
      * @param orderNotificationMessage - The order notification message from worldpay.
      */
-    void processOrderNotificationMessage(final OrderNotificationMessage orderNotificationMessage);
+    void processOrderNotificationMessage(final OrderNotificationMessage orderNotificationMessage) throws WorldpayConfigurationException;
 }

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.worldpay.enums.order.AuthorisedStatus.*;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -67,7 +68,8 @@ public class WorldpayOrderModificationListenerTest {
     @Before
     public void setup() {
         paymentTransactionTypeMap.put(AUTHORISED, AUTHORIZATION);
-        paymentTransactionTypeMap.put(REFUSED, CANCEL);
+        paymentTransactionTypeMap.put(REFUSED, PaymentTransactionType.REFUSED);
+        paymentTransactionTypeMap.put(CANCELLED, CANCEL);
         paymentTransactionTypeMap.put(CAPTURED, CAPTURE);
         testObj.setPaymentTransactionTypeMap(paymentTransactionTypeMap);
         when(orderModificationEventMock.getOrderNotificationMessage()).thenReturn(orderNotificationMessageMock);
@@ -99,7 +101,7 @@ public class WorldpayOrderModificationListenerTest {
 
         verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
         verify(modelServiceMock).save(worldpayOrderModificationModelMock);
-        verify(worldpayOrderModificationModelMock).setType(CANCEL);
+        verify(worldpayOrderModificationModelMock).setType(PaymentTransactionType.REFUSED);
         verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(worldpayOrderModificationModelMock).setOrderNotificationMessage(SERIALIZED);
     }
@@ -150,6 +152,32 @@ public class WorldpayOrderModificationListenerTest {
     public void onEventREFUSEDShouldSaveModificationModelWhenTransactionBelongsToAnOrder() {
         when(journalReplyMock.getJournalType()).thenReturn(REFUSED);
         when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn("0");
+
+        testObj.onEvent(orderModificationEventMock);
+
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
+        verify(modelServiceMock).save(worldpayOrderModificationModelMock);
+        verify(worldpayOrderModificationModelMock).setType(PaymentTransactionType.REFUSED);
+        verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        verify(worldpayOrderModificationModelMock).setOrderNotificationMessage(SERIALIZED);
+    }
+
+    @Test
+    public void onEventCANCELLEDShouldSaveModificationModelWhenTransactionBelongsToACart() {
+        when(journalReplyMock.getJournalType()).thenReturn(CANCELLED);
+
+        testObj.onEvent(orderModificationEventMock);
+
+        verify(worldpayCartServiceMock, never()).setWorldpayDeclineCodeOnCart(anyString(), anyString());
+        verify(modelServiceMock).save(worldpayOrderModificationModelMock);
+        verify(worldpayOrderModificationModelMock).setType(CANCEL);
+        verify(worldpayOrderModificationModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
+        verify(worldpayOrderModificationModelMock).setOrderNotificationMessage(SERIALIZED);
+    }
+
+    @Test
+    public void onEventCANCELLEDShouldSaveModificationModelWhenTransactionBelongsToAnOrder() {
+        when(journalReplyMock.getJournalType()).thenReturn(CANCELLED);
 
         testObj.onEvent(orderModificationEventMock);
 

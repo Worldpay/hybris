@@ -1,7 +1,9 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
@@ -61,6 +63,9 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String EXPIRY_YEAR = "expiryYear";
     private static final String EXPIRY_MONTH = "expiryMonth";
     private static final String CARD_HOLDER_NAME = "cardHolderName";
+    private static final String REFERENCE_ID = "referenceId";
+    private static final String WINDOW_SIZE = "windowSize";
+    private static final String CHALLENGE_PREFERENCE = "challengePreference";
 
     @InjectMocks
     private final AbstractWorldpayPaymentMethodCheckoutStepController testObj = new TestWorldpayPaymentMethodCheckoutStepController();
@@ -97,6 +102,10 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
     @Mock
     private CMSPreviewService cmsPreviewService;
+    @Mock
+    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
+    @Mock
+    private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
 
     private final List<CountryData> billingCountries = emptyList();
     private final List<CardTypeData> supportedCardTypes = emptyList();
@@ -198,15 +207,22 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldPopulateCCFieldsToCseAdditionalAuthInfo() {
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(worldpayMerchantConfigDataMock.getThreeDSFlexChallengePreference()).thenReturn(CHALLENGE_PREFERENCE);
         when(csePaymentFormMock.getNameOnCard()).thenReturn(CARD_HOLDER_NAME);
         when(csePaymentFormMock.getExpiryMonth()).thenReturn(EXPIRY_MONTH);
         when(csePaymentFormMock.getExpiryYear()).thenReturn(EXPIRY_YEAR);
+        when(csePaymentFormMock.getReferenceId()).thenReturn(REFERENCE_ID);
+        when(csePaymentFormMock.getWindowSizePreference()).thenReturn(WINDOW_SIZE);
 
         final CSEAdditionalAuthInfo result = testObj.createCSEAdditionalAuthInfo(csePaymentFormMock);
 
         assertEquals(CARD_HOLDER_NAME, result.getCardHolderName());
         assertEquals(EXPIRY_MONTH, result.getExpiryMonth());
         assertEquals(EXPIRY_YEAR, result.getExpiryYear());
+        assertEquals(REFERENCE_ID, result.getAdditional3DS2().getDfReferenceId());
+        assertEquals(WINDOW_SIZE, result.getAdditional3DS2().getChallengeWindowSize());
+        assertEquals(CHALLENGE_PREFERENCE, result.getAdditional3DS2().getChallengePreference());
     }
 
     private class TestWorldpayPaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {

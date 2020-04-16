@@ -9,7 +9,7 @@
 
 	<!-- New transition WAIT to wait for authorisation from worldpay -->
 	<action id="checkAuthorizeOrderPayment" bean="checkAuthorizeOrderPaymentAction">
-		<transition name="OK" to="reserveAmount"/>
+		<transition name="OK" to="waitFor_CANCEL"/>
 		<transition name="NOK" to="authorizationFailedNotification"/>
 		<transition name="WAIT" to="waitFor_AUTHORIZATION"/>
 	</action>
@@ -18,6 +18,16 @@
 	<wait id="waitFor_AUTHORIZATION" then="checkAuthorizeOrderPayment" prependProcessCode="false">
 		<event>${process.code}_AUTHORIZATION</event>
 	</wait>
+
+	<wait id="waitFor_CANCEL" then="cancelOrderDueToCancelWorldpayNotification" prependProcessCode="false">
+		<event>${process.code}_CANCEL</event>
+		<timeout delay="PT15M" then="reserveAmount"/>
+	</wait>
+
+	<action id="cancelOrderDueToCancelWorldpayNotification"
+			bean="worldpayCancelWholeOrderDueToCancelNotificationAction">
+		<transition name="OK" to="failed"/>
+	</action>
 
 	<action id="reserveAmount" bean="reserveOrderAmountAction">
 		<transition name="OK" to="checkTransactionReviewStatus"/>
@@ -68,20 +78,8 @@
 	</action>
 
 	<action id="sendOrderPlacedNotification" bean="sendOrderPlacedNotificationAction">
-		<transition name="OK" to="takePayment"/>
-	</action>
-	
-	<!-- New transition WAIT to wait for capture from worldpay -->
-	<action id="takePayment" bean="takePaymentAction">
 		<transition name="OK" to="splitOrder"/>
-		<transition name="NOK" to="sendPaymentFailedNotification"/>
-		<transition name="WAIT" to="waitFor_CAPTURE"/>
 	</action>
-
-	<!-- New WAIT to be kicked off by worldpay when transaction is captured by worldpay -->
-	<wait id="waitFor_CAPTURE" then="takePayment" prependProcessCode="false">
-		<event>${process.code}_CAPTURE</event>
-	</wait>
 
 	<action id="cancelOrder" bean="cancelWholeOrderAuthorizationAction">
 		<transition name="OK" to="failed"/>
@@ -104,9 +102,21 @@
 	</wait>
 
 	<action id="isProcessCompleted" bean="subprocessesCompletedAction">
-		<transition name="OK" to="setOrderExpirationTime"/>
+		<transition name="OK" to="takePayment"/>
 		<transition name="NOK" to="waitForWarehouseSubprocessEnd"/>
 	</action>
+
+	<!-- New transition WAIT to wait for capture from worldpay -->
+	<action id="takePayment" bean="takePaymentAction">
+		<transition name="OK" to="setOrderExpirationTime"/>
+		<transition name="NOK" to="sendPaymentFailedNotification"/>
+		<transition name="WAIT" to="waitFor_CAPTURE"/>
+	</action>
+
+	<!-- New WAIT to be kicked off by worldpay when transaction is captured by worldpay -->
+	<wait id="waitFor_CAPTURE" then="takePayment" prependProcessCode="false">
+		<event>${process.code}_CAPTURE</event>
+	</wait>
 
 	<action id="setOrderExpirationTime" bean="setOrderExpirationTimeAction">
 		<transition name="OK" to="sendOrderCompletedNotification"/>

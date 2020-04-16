@@ -3,6 +3,7 @@ package com.worldpay.transaction;
 import com.worldpay.service.model.Amount;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
@@ -189,8 +190,17 @@ public interface WorldpayPaymentTransactionService {
      * Matching order total against sum of amounts from PaymentTransactionEntries with
      * type {@link PaymentTransactionType#AUTHORIZATION}.
      *
-     * @param order                  The current order {@link OrderModel}
+     * @param order The current order {@link OrderModel}
      * @return true if sum of amounts are equal to order total. Otherwise false.
      */
     boolean isAuthorisedAmountCorrect(OrderModel order);
+
+    /**
+     * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#CANCEL}
+     * associated to {@param paymentTransaction} with {@link PaymentTransactionEntryModel#getPending()} = false
+     *
+     * @param paymentTransactionModel              The {@link PaymentTransactionModel} to associate the paymentTransactionEntry to
+     * @return the new {@link PaymentTransactionType#SETTLED} PaymentTransactionEntry created
+     */
+    PaymentTransactionEntryModel createNotPendingCancelOrderTransactionEntry(final PaymentTransactionModel paymentTransactionModel);
 }

@@ -3,6 +3,7 @@ package com.worldpay.service.payment.impl;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.strategy.WorldpayCustomerIpAddressStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.servicelayer.session.SessionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.USER_AGENT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -25,6 +27,7 @@ public class DefaultWorldpayAdditionalInfoServiceTest {
     private static final String CUSTOMER_IP = "customerIp";
     private static final String ACCEPT_HEADER_VALUE = "acceptHeader";
     private static final String USER_AGENT_VALUE = "userAgentValue";
+    private static final String WORLDPAY_ADDITIONAL_DATA_SESSION_ID = "worldpay_additional_data_session_id";
 
     @InjectMocks
     private DefaultWorldpayAdditionalInfoService testObj;
@@ -34,6 +37,8 @@ public class DefaultWorldpayAdditionalInfoServiceTest {
 
     @Mock
     private WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategyMock;
+    @Mock
+    private SessionService sessionServiceMock;
 
     @Test
     public void createWorldpayAdditionalInfoDataShouldSetSessionIdFromHttpRequest() {
@@ -69,5 +74,14 @@ public class DefaultWorldpayAdditionalInfoServiceTest {
         final WorldpayAdditionalInfoData result = testObj.createWorldpayAdditionalInfoData(httpServletRequestMock);
 
         assertEquals(USER_AGENT_VALUE, result.getUserAgentHeader());
+    }
+
+    @Test
+    public void createWorldpayAdditionalInfoData_ShouldStoreInSessionTheRequestSessionId() {
+        when(httpServletRequestMock.getSession().getId()).thenReturn(SESSION_ID);
+
+        testObj.createWorldpayAdditionalInfoData(httpServletRequestMock);
+
+        verify(sessionServiceMock).setAttribute(WORLDPAY_ADDITIONAL_DATA_SESSION_ID, SESSION_ID);
     }
 }

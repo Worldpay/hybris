@@ -6,4 +6,3 @@
 #######
 
 $contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$jarResourceCmsCockpit=jar:com.worldpay.constants.WorldpayaddonConstants&/worldpayaddon/import/cockpit/cmscockpit

@@ -120,6 +120,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
                 .withFinalScore(responseForm.getFinalScore())
                 .withLastEvent(responseForm.getLastEvent())
                 .withRefundReference(responseForm.getReference())
+                .withTransactionIdentifier(responseForm.getTransactionIdentifier())
                 .build();
         populateAavFields(responseForm, payment);
         return payment;
