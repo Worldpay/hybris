@@ -40,7 +40,7 @@ public class AchPayment extends AbstractPayment {
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
     public AchPayment(final PaymentType paymentType, final AchType achType, final String firstName, final String lastName, final Address address, final String bankAccountType, final String routingNumber, final String accountNumber) {
-        this.setPaymentType(paymentType);
+        this.paymentType = paymentType;
         this.achType = achType;
         this.firstName = firstName;
         this.lastName = lastName;

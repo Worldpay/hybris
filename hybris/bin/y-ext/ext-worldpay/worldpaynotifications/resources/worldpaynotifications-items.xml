@@ -2,9 +2,6 @@
 <items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:noNamespaceSchemaLocation="items.xsd">
 
-	<collectiontypes>
-		<collectiontype code="TransactionToProcessSet" elementtype="PaymentTransactionType" type="set"/>
-	</collectiontypes>
 	<enumtypes>
 		<enumtype code="DefectiveReason">
 			<value code="NOT_APPLICABLE"/>
@@ -15,6 +12,12 @@
 			<value code="ERROR_PLACING_ORDER"/>
 		</enumtype>
 	</enumtypes>
+	<relations>
+		<relation code="OrderModificationCronJobToTransactionToProcess" localized="false">
+			<sourceElement type="OrderModificationCronJob" cardinality="one" qualifier="orderModificationCronJob"/>
+			<targetElement type="PaymentTransactionType" cardinality="many" collectiontype="set" qualifier="paymentTransactionTypes"/>
+		</relation>
+	</relations>
 	<itemtypes>
 		<itemtype code="WorldpayOrderModification">
 			<deployment table="WPOrderModification" typecode="19030"/>
@@ -93,15 +96,7 @@
 			</indexes>
 		</itemtype>
 
-		<itemtype code="OrderModificationCronJob" extends="CronJob">
-			<attributes>
-				<attribute qualifier="typeOfPaymentTransactionToProcessSet" type="TransactionToProcessSet">
-					<description>List of payment transaction types that will be processed</description>
-					<modifiers/>
-					<persistence type="property"/>
-				</attribute>
-			</attributes>
-		</itemtype>
+		<itemtype code="OrderModificationCronJob" extends="CronJob"/>
 
 		<itemtype code="NotifyUnprocessedOrderModificationsCronJob" extends="CronJob">
 			<attributes>

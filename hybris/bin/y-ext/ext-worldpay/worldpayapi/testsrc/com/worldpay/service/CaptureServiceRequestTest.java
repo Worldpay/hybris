@@ -9,7 +9,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
+import static com.worldpay.service.request.CaptureServiceRequest.createCaptureRequest;
 import static org.junit.Assert.assertEquals;
 
 @UnitTest
@@ -21,16 +24,27 @@ public class CaptureServiceRequestTest {
     private static final MerchantInfo MERCHANT_INFO = new MerchantInfo(MERCHANT_CODE, MERCHANT_PASSWORD);
     private static final String ORDER_CODE = "orderCode";
     private static final Amount AMOUNT = new Amount("100", "EUR", "2");
+    private static final List<String> TRACKING_IDS = Arrays.asList("trackingId1", "trackingId2");
 
     @Rule
-    @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testCaptureFullAmount() {
-
+    public void createCaptureRequest_ShouldCreateWithNoErrorsAnCaptureServiceRequest_WhenUsingMandatoryFieldsAndTrackingIds() {
         final com.worldpay.service.model.Date date = new com.worldpay.service.model.Date(LocalDateTime.now());
-        final CaptureServiceRequest request = CaptureServiceRequest.createCaptureRequest(MERCHANT_INFO, ORDER_CODE, AMOUNT, date);
+        final CaptureServiceRequest request = createCaptureRequest(MERCHANT_INFO, ORDER_CODE, AMOUNT, date, TRACKING_IDS);
+
+        assertEquals(MERCHANT_INFO, request.getMerchantInfo());
+        assertEquals(ORDER_CODE, request.getOrderCode());
+        assertEquals(date, request.getDate());
+        assertEquals(AMOUNT, request.getAmount());
+        assertEquals(TRACKING_IDS, request.getTrackingIds());
+    }
+
+    @Test
+    public void createCaptureRequest_ShouldCreateWithNoErrorsAnCaptureServiceRequest_WhenUsingMandatoryFieldsAndNoTrackingIds() {
+        final com.worldpay.service.model.Date date = new com.worldpay.service.model.Date(LocalDateTime.now());
+        final CaptureServiceRequest request = createCaptureRequest(MERCHANT_INFO, ORDER_CODE, AMOUNT, date, null);
 
         assertEquals(MERCHANT_INFO, request.getMerchantInfo());
         assertEquals(ORDER_CODE, request.getOrderCode());
@@ -38,24 +52,18 @@ public class CaptureServiceRequestTest {
         assertEquals(AMOUNT, request.getAmount());
     }
 
-    @Test
-    public void createCaptureRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        CaptureServiceRequest.createCaptureRequest(null, ORDER_CODE, AMOUNT, null);
+    @Test(expected = IllegalArgumentException.class)
+    public void createCaptureRequest_ShouldRaiseIllegalArgumentException_WhenMerchantInfoIsNull() {
+        createCaptureRequest(null, ORDER_CODE, AMOUNT, null, null);
     }
 
-    @Test
-    public void createCaptureRequestShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        CaptureServiceRequest.createCaptureRequest(MERCHANT_INFO, null, AMOUNT, null);
+    @Test(expected = IllegalArgumentException.class)
+    public void createCaptureRequest_ShouldRaiseIllegalArgumentException_WhenTheOrderCodeIsNull() {
+        createCaptureRequest(MERCHANT_INFO, null, AMOUNT, null, null);
     }
 
-    @Test
-    public void createCaptureRequestShouldRaiseIllegalArgumentExceptionWhenAmountIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        CaptureServiceRequest.createCaptureRequest(MERCHANT_INFO, ORDER_CODE, null, null);
+    @Test(expected = IllegalArgumentException.class)
+    public void createCaptureRequest_ShouldRaiseIllegalArgumentException_WhenAmountIsNull() {
+        createCaptureRequest(MERCHANT_INFO, ORDER_CODE, null, null, null);
     }
 }

@@ -1,6 +1,7 @@
 // Hybris b2c_acc_oms recipe extended with Worldpay addon
 
 apply plugin: 'installer-platform-plugin'
+apply plugin: 'installer-addon-plugin'
 
 buildscript {
     repositories {
@@ -100,8 +101,6 @@ def config = {
 
 task setup {
     doLast {
-        apply plugin: 'installer-platform-plugin'
-        apply plugin: 'installer-addon-plugin'
 
         def pl = platform(config)
         pl.setup()

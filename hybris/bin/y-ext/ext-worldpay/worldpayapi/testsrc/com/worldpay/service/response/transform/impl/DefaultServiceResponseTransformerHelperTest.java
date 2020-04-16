@@ -266,7 +266,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(TOKEN_REASON);
@@ -289,7 +289,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("VISA", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -336,10 +336,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithCartebleueVisa() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("VISA", "CARTEBLEUE"));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("VISA", "CARTEBLEUE"));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -350,10 +350,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithCarteBancaireMasterCard() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("ECMC", "CB"));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("ECMC", "CB"));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -364,10 +364,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithVisa() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("VISA", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -378,10 +378,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithAirplus() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("AIRPLUS", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("AIRPLUS", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -392,10 +392,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithAMEX() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("AMEX", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("AMEX", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -406,10 +406,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithDankort() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("DANKORT", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("DANKORT", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -420,10 +420,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithDiners() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("DINERS", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("DINERS", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -434,10 +434,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithDiscover() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("DISCOVER", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("DISCOVER", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -448,10 +448,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithJCB() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("JCB", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("JCB", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -462,10 +462,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithMaestro() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("MAESTRO", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("MAESTRO", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -476,10 +476,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithUATP() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("UATP", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("UATP", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -490,10 +490,10 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithUnknownBrand() {
         final Token token = new Token();
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetails("MONZO", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("MONZO", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -507,7 +507,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(TOKEN_REASON);
@@ -530,7 +530,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetailsWithoutCardHolderName());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutCardHolderName());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -581,7 +581,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(TOKEN_REASON);
@@ -604,7 +604,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetailsWithoutAddress());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutAddress());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -641,7 +641,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(TOKEN_REASON);
@@ -664,7 +664,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetailsWithoutExpiryDate());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutExpiryDate());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -710,7 +710,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrError();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(TOKEN_REASON);
@@ -733,7 +733,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetails().add(createCardDetailsWithoutDerived());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutDerived());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();

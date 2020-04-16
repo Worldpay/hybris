@@ -4,101 +4,87 @@ import com.worldpay.core.checkout.WorldpayCheckoutService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
-import de.hybris.platform.commerceservices.delivery.DeliveryService;
-import de.hybris.platform.core.PK;
+import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
+import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.order.CartService;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayPaymentCheckoutFacadeTest {
 
-    private static final String ADDRESS_DATA_ID = "0";
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
+    private static final String ADDRESS_DATA_ID = "1234";
 
     @InjectMocks
     private DefaultWorldpayPaymentCheckoutFacade testObj;
 
     @Mock
-    private AddressData addressDataMock;
+    private WorldpayCheckoutService worldpayCheckoutServiceMock;
     @Mock
     private CheckoutFacade checkoutFacade;
     @Mock
     private CartService cartServiceMock;
     @Mock
-    private CartModel cartModelMock;
+    private CustomerAccountService customerAccountServiceMock;
+
     @Mock
-    private WorldpayCheckoutService worldpayCheckoutServiceMock;
+    private AddressData addressDataMock;
+    @Mock
+    private CartModel cartModelMock;
     @Mock
     private AddressModel addressModelMock;
     @Mock
-    private DeliveryService deliveryServiceMock;
-    @Mock
     private AddressModel paymentAddressMock;
+    @Mock
+    private CustomerModel customerModelMock;
 
     @Before
     public void setUp() {
         when(checkoutFacade.hasCheckoutCart()).thenReturn(true);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
-        when(deliveryServiceMock.getSupportedDeliveryAddressesForOrder(cartModelMock, false)).thenReturn(Collections.singletonList(addressModelMock));
+        when(cartModelMock.getUser()).thenReturn(customerModelMock);
+        when(customerAccountServiceMock.getAddressForCode(customerModelMock, ADDRESS_DATA_ID)).thenReturn(addressModelMock);
     }
 
     @Test
     public void setBillingDetailsSetsPaymentAddressWhenPkMatchesAddressDataId() {
         when(addressDataMock.getId()).thenReturn(ADDRESS_DATA_ID);
-        when(addressModelMock.getPk()).thenReturn(PK.NULL_PK);
+        when(customerAccountServiceMock.getAddressForCode(customerModelMock, ADDRESS_DATA_ID)).thenReturn(addressModelMock);
 
         testObj.setBillingDetails(addressDataMock);
 
-        Mockito.verify(worldpayCheckoutServiceMock).setPaymentAddress(cartModelMock, addressModelMock);
+        verify(worldpayCheckoutServiceMock).setPaymentAddress(cartModelMock, addressModelMock);
     }
 
     @Test
     public void setBillingDetailsDoesNotSetPaymentAddressWhenPkDoesNotMatchesAddressDataId() {
         when(addressDataMock.getId()).thenReturn(ADDRESS_DATA_ID);
-        when(addressModelMock.getPk()).thenReturn(PK.BIG_PK);
+        when(customerAccountServiceMock.getAddressForCode(customerModelMock, ADDRESS_DATA_ID)).thenReturn(null);
 
         testObj.setBillingDetails(addressDataMock);
 
-        Mockito.verify(worldpayCheckoutServiceMock, never()).setPaymentAddress(cartModelMock, addressModelMock);
+        verify(worldpayCheckoutServiceMock, never()).setPaymentAddress(cartModelMock, addressModelMock);
     }
 
     @Test
     public void setBillingDetailsDoesNotSetPaymentAddressWhenNoDeliveryAddressesReturned() {
         when(addressDataMock.getId()).thenReturn(ADDRESS_DATA_ID);
-        when(deliveryServiceMock.getSupportedDeliveryAddressesForOrder(cartModelMock, false)).thenReturn(Collections.emptyList());
+        when(customerAccountServiceMock.getAddressForCode(customerModelMock, ADDRESS_DATA_ID)).thenReturn(null);
 
         testObj.setBillingDetails(addressDataMock);
 
-        Mockito.verify(worldpayCheckoutServiceMock, never()).setPaymentAddress(cartModelMock, addressModelMock);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setBillingDetailsThrowsIllegalArgumentExceptionWhenAddressDataIdIsNull() {
-        when(addressDataMock.getId()).thenReturn(null);
-        when(addressModelMock.getPk()).thenReturn(PK.BIG_PK);
-
-        testObj.setBillingDetails(addressDataMock);
+        verify(worldpayCheckoutServiceMock, never()).setPaymentAddress(cartModelMock, addressModelMock);
     }
 
     @Test

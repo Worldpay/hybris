@@ -11,7 +11,8 @@ import java.util.Map;
 public enum DebitCreditIndicator implements Serializable {
 
     DEBIT("debit"),
-    CREDIT("credit"),;
+    CREDIT("credit"),
+    ;
 
     private static final Map<String, DebitCreditIndicator> lookup = new HashMap<>();
 
@@ -21,18 +22,14 @@ public enum DebitCreditIndicator implements Serializable {
         }
     }
 
-    private String code;
+    private final String code;
 
-    DebitCreditIndicator(String code) {
+    DebitCreditIndicator(final String code) {
         this.code = code;
     }
 
     public String getCode() {
         return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     /**

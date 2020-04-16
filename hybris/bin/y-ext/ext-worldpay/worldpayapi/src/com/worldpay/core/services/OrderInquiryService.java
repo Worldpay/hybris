@@ -1,5 +1,6 @@
 package com.worldpay.core.services;
 
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
@@ -26,7 +27,7 @@ public interface OrderInquiryService {
      * @param paymentTransactionModel     The {@link PaymentTransactionModel} object to be updated
      * @param orderInquiryServiceResponse The {@link OrderInquiryServiceResponse} with updated information
      */
-    void processOrderInquiryServiceResponse(final PaymentTransactionModel paymentTransactionModel, final OrderInquiryServiceResponse orderInquiryServiceResponse);
+    void processOrderInquiryServiceResponse(final PaymentTransactionModel paymentTransactionModel, final OrderInquiryServiceResponse orderInquiryServiceResponse) throws WorldpayConfigurationException;
 
     /**
      * Inquires the payment status of an order

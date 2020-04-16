@@ -4,12 +4,14 @@ import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.Exclude;
 import com.worldpay.internal.model.Include;
 import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.model.payment.StoredCredentials;
 import com.worldpay.service.request.transform.InternalModelTransformer;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 
 /**
  * POJO representation of the payment method mask
@@ -18,6 +20,7 @@ public class PaymentMethodMask implements InternalModelTransformer, Serializable
 
     private List<PaymentType> includes;
     private List<PaymentType> excludes;
+    private StoredCredentials storedCredentials;
 
     public PaymentMethodMask() {
     }
@@ -28,29 +31,31 @@ public class PaymentMethodMask implements InternalModelTransformer, Serializable
      * @param includes
      * @param excludes
      */
-    public PaymentMethodMask(List<PaymentType> includes, List<PaymentType> excludes) {
+    public PaymentMethodMask(final List<PaymentType> includes, final List<PaymentType> excludes, final StoredCredentials storedCredentials) {
         this.includes = includes;
         this.excludes = excludes;
+        this.storedCredentials = storedCredentials;
     }
 
     @Override
     public InternalModelObject transformToInternalModel() {
-        com.worldpay.internal.model.PaymentMethodMask intPaymentMethodMask = new com.worldpay.internal.model.PaymentMethodMask();
-        List<Object> includeOrExclude = intPaymentMethodMask.getStoredCredentialsOrIncludeOrExclude();
-        if (includes != null) {
-            for (PaymentType paymentType : includes) {
-                Include include = new Include();
-                include.setCode(paymentType.getMethodCode());
-                includeOrExclude.add(include);
-            }
-        }
-        if (excludes != null) {
-            for (PaymentType paymentType : excludes) {
-                Exclude exclude = new Exclude();
-                exclude.setCode(paymentType.getMethodCode());
-                includeOrExclude.add(exclude);
-            }
-        }
+        final com.worldpay.internal.model.PaymentMethodMask intPaymentMethodMask = new com.worldpay.internal.model.PaymentMethodMask();
+        final List<Object> includeOrExclude = intPaymentMethodMask.getStoredCredentialsOrIncludeOrExclude();
+
+        Optional.ofNullable(storedCredentials)
+                .map(StoredCredentials::transformToInternalModel)
+                .ifPresent(includeOrExclude::add);
+
+        CollectionUtils.emptyIfNull(excludes).stream()
+                .map(PaymentType::getMethodCode)
+                .map(this::createIntExclude)
+                .forEach(includeOrExclude::add);
+
+        CollectionUtils.emptyIfNull(includes).stream()
+                .map(PaymentType::getMethodCode)
+                .map(this::createIntInclude)
+                .forEach(includeOrExclude::add);
+
         return intPaymentMethodMask;
     }
 
@@ -94,13 +99,32 @@ public class PaymentMethodMask implements InternalModelTransformer, Serializable
         this.excludes = excludes;
     }
 
-    /**
-     * (non-Javadoc)
-     *
-     * @see Object#toString()
-     */
+    public StoredCredentials getStoredCredentials() {
+        return storedCredentials;
+    }
+
+    public void setStoredCredentials(final StoredCredentials storedCredentials) {
+        this.storedCredentials = storedCredentials;
+    }
+
+    protected Exclude createIntExclude(final String methodCode) {
+        final Exclude intExclude = new Exclude();
+        intExclude.setCode(methodCode);
+        return intExclude;
+    }
+
+    protected Include createIntInclude(final String methodCode) {
+        final Include intInclude = new Include();
+        intInclude.setCode(methodCode);
+        return intInclude;
+    }
+
     @Override
     public String toString() {
-        return "PaymentMethodMask [includes=" + includes + ", excludes=" + excludes + "]";
+        return "PaymentMethodMask{" +
+                "includes=" + includes +
+                ", excludes=" + excludes +
+                ", storedCredentials=" + storedCredentials +
+                '}';
     }
 }

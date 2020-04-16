@@ -2,7 +2,9 @@ package com.worldpay.core.services;
 
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import com.worldpay.service.response.CreateTokenResponse;
@@ -46,7 +48,7 @@ public interface WorldpayPaymentInfoService {
      * @param paymentTransactionModel the {@link PaymentTransactionModel} to be updated
      * @return newly created {@link WorldpayAPMPaymentInfoModel}
      */
-    WorldpayAPMPaymentInfoModel createWorldpayApmPaymentInfo(final PaymentTransactionModel paymentTransactionModel);
+    WorldpayAPMPaymentInfoModel createWorldpayApmPaymentInfo(final PaymentTransactionModel paymentTransactionModel) throws WorldpayConfigurationException;
 
     /**
      * Sets {@link PaymentInfoModel} for the {@link PaymentTransactionModel} and the {@link AbstractOrderModel} depending on the information from {@link OrderNotificationMessage}
@@ -55,7 +57,7 @@ public interface WorldpayPaymentInfoService {
      * @param orderModel               the {@link AbstractOrderModel} to be updated
      * @param orderNotificationMessage the {@link OrderNotificationMessage} from the notification message from Worldpay
      */
-    void setPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final OrderNotificationMessage orderNotificationMessage);
+    void setPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final OrderNotificationMessage orderNotificationMessage) throws WorldpayConfigurationException;
 
     /**
      * Creates a paymentInfo based on the passed cart {@link CartModel}
@@ -72,17 +74,6 @@ public interface WorldpayPaymentInfoService {
      * @return
      */
     PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo);
-
-    /**
-     * Creates a CreditCardPaymentInfo based on the passed cart {@link CartModel} and {@link CreateTokenResponse}
-     *
-     * @param cartModel           the session cart
-     * @param createTokenResponse the {@link CreateTokenResponse} from Worldpay
-     * @param saveCard            the flag to display card in user account
-     * @param merchantId          the merchant id for the payment info
-     * @return
-     */
-    CreditCardPaymentInfoModel createCreditCardPaymentInfo(final CartModel cartModel, final CreateTokenResponse createTokenResponse, final boolean saveCard, final String merchantId);
 
     /**
      * Converts and sets the {@link CreditCardType} on the {@link CreditCardPaymentInfoModel} based on the methodCode of the {@link PaymentReply}
@@ -110,4 +101,21 @@ public interface WorldpayPaymentInfoService {
      */
     PaymentInfoModel createPaymentInfoApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo);
 
+    /**
+     * Creates a CreditCardPaymentInfo based on the passed cart {@link AbstractOrderModel} and {@link CreateTokenResponse}
+     *
+     * @param abstractOrderModel the session cart
+     * @param tokenReply         the {@link TokenReply} from Worldpay
+     * @param saveCard           the flag to display card in user account
+     * @param merchantId         the merchant id for the payment info
+     * @return
+     */
+    CreditCardPaymentInfoModel createCreditCardPaymentInfo(final AbstractOrderModel abstractOrderModel, final TokenReply tokenReply, final boolean saveCard, final String merchantId);
+
+    /**
+     * Updates the transaction identifier received from worldpay response into the paymentInfoModel
+     * @param paymentInfo
+     * @param transactionIdentifier
+     */
+    void setTransactionIdentifierOnPaymentInfo(final PaymentInfoModel paymentInfo, final String transactionIdentifier);
 }

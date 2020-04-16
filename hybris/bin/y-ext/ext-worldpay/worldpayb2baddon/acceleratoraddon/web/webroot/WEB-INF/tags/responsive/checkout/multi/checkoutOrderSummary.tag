@@ -4,7 +4,6 @@
 <%@ attribute name="showPaymentInfo" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="showTax" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="showTaxEstimate" required="false" type="java.lang.Boolean" %>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -16,7 +15,6 @@
 
 <spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl"/>
 <spring:url value="/checkout/multi/termsAndConditions" var="getTermsAndConditionsUrl"/>
-
 
 <div class="checkout-order-summary checkout-review-xs">
     <ycommerce:testId code="orderSummary">
@@ -44,7 +42,7 @@
 </div>
 
 <div class="place-order-form visible-xs">
-    <form:form action="${placeOrderUrl}" id="placeOrderForm1" commandName="placeOrderForm">
+    <form:form action="${placeOrderUrl}" id="placeOrderForm1" modelAttribute="b2bCSEPaymentForm">
         <wp-multi-checkout:securityCode/>
         <div class="checkbox">
             <label> <form:checkbox id="Terms1" path="termsCheck" />
@@ -61,5 +59,6 @@
         <button id="requestQuote" type="button" class="btn btn-default btn-block requestQuoteButton checkoutSummaryButton" disabled="disabled">
             <spring:theme code="checkout.summary.requestQuote"/>
         </button>
+        <wp-multi-checkout:worldpayCSESavedCardDetails/>
     </form:form>
 </div>

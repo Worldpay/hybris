@@ -63,6 +63,8 @@ public class ResponseForm implements java.io.Serializable {
     private String refundId;
     private String reference;
     private boolean merchantToken;
+    private String selectStoredCredentials;
+    private String transactionIdentifier;
 
     public String getSelectedPaymentMethod() {
         return selectedPaymentMethod;
@@ -551,4 +553,21 @@ public class ResponseForm implements java.io.Serializable {
     public void setMerchantToken(final boolean merchantToken) {
         this.merchantToken = merchantToken;
     }
+
+    public String getSelectStoredCredentials() {
+        return selectStoredCredentials;
+    }
+
+    public void setSelectStoredCredentials(final String selectStoredCredentials) {
+        this.selectStoredCredentials = selectStoredCredentials;
+    }
+
+    public String getTransactionIdentifier() {
+        return transactionIdentifier;
+    }
+
+    public void setTransactionIdentifier(final String transactionIdentifier) {
+        this.transactionIdentifier = transactionIdentifier;
+    }
+
 }

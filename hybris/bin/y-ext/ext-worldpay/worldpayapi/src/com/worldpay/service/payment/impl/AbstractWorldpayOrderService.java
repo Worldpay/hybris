@@ -17,7 +17,6 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.user.AddressService;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 
@@ -29,16 +28,30 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
  */
 public abstract class AbstractWorldpayOrderService {
 
-    private CommonI18NService commonI18NService;
-    private CommerceCheckoutService commerceCheckoutService;
-    private CustomerEmailResolutionService customerEmailResolutionService;
-    private GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy;
-    private WorldpayPaymentInfoService worldpayPaymentInfoService;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private WorldpayOrderService worldpayOrderService;
-    private Converter<AddressModel, Address> worldpayAddressConverter;
-    private WorldpayServiceGateway worldpayServiceGateway;
-    private AddressService addressService;
+    private final CommonI18NService commonI18NService;
+    private final CommerceCheckoutService commerceCheckoutService;
+    private final CustomerEmailResolutionService customerEmailResolutionService;
+    private final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy;
+    private final WorldpayPaymentInfoService worldpayPaymentInfoService;
+    private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    private final WorldpayOrderService worldpayOrderService;
+    private final Converter<AddressModel, Address> worldpayAddressConverter;
+    private final WorldpayServiceGateway worldpayServiceGateway;
+    private final AddressService addressService;
+
+    protected AbstractWorldpayOrderService(final CommonI18NService commonI18NService, final CommerceCheckoutService commerceCheckoutService, final CustomerEmailResolutionService customerEmailResolutionService, final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy, final WorldpayPaymentInfoService worldpayPaymentInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final Converter<AddressModel, Address> worldpayAddressConverter, final WorldpayServiceGateway worldpayServiceGateway, final AddressService addressService) {
+        this.commonI18NService = commonI18NService;
+        this.commerceCheckoutService = commerceCheckoutService;
+        this.customerEmailResolutionService = customerEmailResolutionService;
+        this.worldpayGenerateMerchantTransactionCodeStrategy = worldpayGenerateMerchantTransactionCodeStrategy;
+        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.worldpayOrderService = worldpayOrderService;
+        this.worldpayAddressConverter = worldpayAddressConverter;
+        this.worldpayServiceGateway = worldpayServiceGateway;
+        this.addressService = addressService;
+    }
+
 
     /**
      * Creates a {@link CommerceCheckoutParameter} based on the passed {@link CartModel} and {@link PaymentInfoModel} given
@@ -87,85 +100,39 @@ public abstract class AbstractWorldpayOrderService {
         return commerceCheckoutService;
     }
 
-    @Required
-    public void setCommerceCheckoutService(final CommerceCheckoutService commerceCheckoutService) {
-        this.commerceCheckoutService = commerceCheckoutService;
-    }
-
     public CustomerEmailResolutionService getCustomerEmailResolutionService() {
         return customerEmailResolutionService;
-    }
-
-    @Required
-    public void setCustomerEmailResolutionService(final CustomerEmailResolutionService customerEmailResolutionService) {
-        this.customerEmailResolutionService = customerEmailResolutionService;
     }
 
     public CommonI18NService getCommonI18NService() {
         return commonI18NService;
     }
 
-    @Required
-    public void setCommonI18NService(CommonI18NService commonI18NService) {
-        this.commonI18NService = commonI18NService;
-    }
 
     public WorldpayPaymentInfoService getWorldpayPaymentInfoService() {
         return worldpayPaymentInfoService;
     }
 
-    @Required
-    public void setWorldpayPaymentInfoService(WorldpayPaymentInfoService worldpayPaymentInfoService) {
-        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
-    }
 
     public WorldpayPaymentTransactionService getWorldpayPaymentTransactionService() {
         return worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }
 
     public WorldpayOrderService getWorldpayOrderService() {
         return worldpayOrderService;
     }
 
-    @Required
-    public void setWorldpayOrderService(WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
-    }
-
     public Converter<AddressModel, Address> getWorldpayAddressConverter() {
         return worldpayAddressConverter;
     }
 
-    @Required
-    public void setWorldpayAddressConverter(Converter<AddressModel, Address> worldpayAddressConverter) {
-        this.worldpayAddressConverter = worldpayAddressConverter;
-    }
 
     public GenerateMerchantTransactionCodeStrategy getWorldpayGenerateMerchantTransactionCodeStrategy() {
         return worldpayGenerateMerchantTransactionCodeStrategy;
     }
 
-    @Required
-    public void setWorldpayGenerateMerchantTransactionCodeStrategy(final GenerateMerchantTransactionCodeStrategy worldpayGenerateMerchantTransactionCodeStrategy) {
-        this.worldpayGenerateMerchantTransactionCodeStrategy = worldpayGenerateMerchantTransactionCodeStrategy;
-    }
 
     public WorldpayServiceGateway getWorldpayServiceGateway() {
         return worldpayServiceGateway;
-    }
-
-    @Required
-    public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
-        this.worldpayServiceGateway = worldpayServiceGateway;
-    }
-
-    @Required
-    public void setAddressService(final AddressService addressService) {
-        this.addressService = addressService;
     }
 }

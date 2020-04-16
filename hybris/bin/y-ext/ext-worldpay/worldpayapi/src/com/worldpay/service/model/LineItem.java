@@ -42,7 +42,7 @@ public class LineItem implements InternalModelTransformer, Serializable {
             intLineItem.setReference((Reference) lineItemReference.transformToInternalModel());
         }
 
-        intLineItem.getPhysicalOrDiscountOrShippingFee().add(getIntLineItemType());
+        intLineItem.getPhysicalOrDiscountOrShippingFeeOrDigitalOrGiftCardOrStoreCreditOrSurcharge().add(getIntLineItemType());
         return intLineItem;
     }
 

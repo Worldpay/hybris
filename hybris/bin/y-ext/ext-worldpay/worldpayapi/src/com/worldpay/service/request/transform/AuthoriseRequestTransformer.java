@@ -39,7 +39,8 @@ import org.springframework.beans.factory.annotation.Required;
  *                      &lt;address1&gt;Shopperstreet&lt;/address1&gt;
  *                      &lt;address2&gt;Shopperaddress2&lt;/address2&gt;
  *                      &lt;address3&gt;Shopperaddress3&gt;&lt;/address3&gt;
- *                      &lt;postalCode&gt;1234&lt;/postalCode&gt;
+ *                      &lt;postalCode&gt;1234&lt;/postalCode&gt;merchantInfo, orderInfo, ORDER_CONTENT, null,
+                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT
  *                      &lt;city&gt;Shoppercity&lt;/city&gt;
  *                      &lt;countryCode&gt;NL&lt;/countryCode&gt;
  *                      &lt;telephoneNumber&gt;0123456789&lt;/telephoneNumber&gt;
@@ -77,7 +78,7 @@ public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
         }
         final Submit submit = new Submit();
         final Order order = (Order) authRequest.getOrder().transformToInternalModel();
-        submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate().add(order);
+        submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().add(order);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;
     }

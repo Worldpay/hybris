@@ -45,7 +45,7 @@ public class DefaultWorldpayResponseBuilderTest {
     public void shouldCreateRedirectResponse() {
         when(paymentServiceMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(submitMock));
-        when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreate()).thenReturn(singletonList(orderMock));
+        when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge()).thenReturn(singletonList(orderMock));
         when(orderMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
 
         final PaymentService result = testObj.buildRedirectResponse(paymentServiceMock, request);
@@ -60,7 +60,7 @@ public class DefaultWorldpayResponseBuilderTest {
                     if (replyElement instanceof OrderStatus) {
                         final OrderStatus orderStatus = (OrderStatus) replyElement;
                         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
-                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrOrderModificationOrJournalOrRequestInfoOrFxApprovalRequiredOrZappRTPOrContent();
+                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
                         assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
                         for (final Object orderStatusElement : orderStatusElements) {
                             if (orderStatusElement instanceof Reference) {

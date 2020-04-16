@@ -1,3 +1,6 @@
+INSERT_UPDATE UserGroup;uid[unique=true];locname[lang=de];locname[lang=en];groups(uid)
+;customermanagergroup;Kunden Manager-Gruppe;Customer Manager Group;employeegroup
+
 INSERT_UPDATE ComponentTypeGroup;code[unique=true]
 ;worldpaypaymentbuttons;
 

@@ -7,10 +7,12 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.user.AddressService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -25,22 +27,29 @@ import static org.mockito.Mockito.when;
 public class TestAbstractWorldpayOrderServiceTest {
 
     private static final String PAYMENT_PROVIDER = "paymentProvider";
+    private AbstractWorldpayOrderService testObj;
+
+    @Mock
+    private AddressService addressServiceMock;
+    @Mock
+    private CommerceCheckoutService commerceCheckoutServiceMock;
 
     @Mock
     private AddressModel paymentAddressModelMock, clonedAddressModelMock;
-    @InjectMocks
-    private AbstractWorldpayOrderService testObj = new TestAbstractWorldpayOrderService();
     @Mock
     private CartModel cartModelMock;
     @Mock
     private PaymentInfoModel paymentInfoModelMock;
-    @Mock
-    private CommerceCheckoutService commerceCheckoutServiceMock;
-    @Mock
-    private AddressService addressServiceMock;
+
+    @Before
+    public void setUp() throws Exception {
+        testObj = Mockito.mock(AbstractWorldpayOrderService.class, Mockito.CALLS_REAL_METHODS);
+        Whitebox.setInternalState(testObj, "commerceCheckoutService", commerceCheckoutServiceMock);
+        Whitebox.setInternalState(testObj, "addressService", addressServiceMock);
+    }
 
     @Test
-    public void shouldCreateCommerceCheckoutParameter() {
+    public void createCommerceCheckoutParameter_shouldCreateCommerceCheckoutParameter_WhenItIsCalled() {
         when(commerceCheckoutServiceMock.getPaymentProvider()).thenReturn(PAYMENT_PROVIDER);
 
         final CommerceCheckoutParameter result = testObj.createCommerceCheckoutParameter(cartModelMock, paymentInfoModelMock, BigDecimal.ONE);
@@ -53,19 +62,16 @@ public class TestAbstractWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCloneAndSetBillingAddressFromCart() throws Exception {
+    public void cloneAndSetBillingAddressFromCart_ShouldCloneAndSetBillingAddressFromCart_WhenItIsCalled() {
         when(cartModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
         when(addressServiceMock.cloneAddressForOwner(paymentAddressModelMock, paymentInfoModelMock)).thenReturn(clonedAddressModelMock);
 
         final AddressModel result = testObj.cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoModelMock);
 
+        assertEquals(result, clonedAddressModelMock);
         verify(clonedAddressModelMock).setBillingAddress(true);
         verify(clonedAddressModelMock).setShippingAddress(false);
-        paymentInfoModelMock.setBillingAddress(clonedAddressModelMock);
-        assertEquals(clonedAddressModelMock, result);
-    }
-
-    public class TestAbstractWorldpayOrderService extends AbstractWorldpayOrderService {
+        verify(paymentInfoModelMock).setBillingAddress(clonedAddressModelMock);
     }
 
 }

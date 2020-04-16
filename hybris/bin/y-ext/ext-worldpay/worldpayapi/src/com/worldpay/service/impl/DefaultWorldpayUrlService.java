@@ -1,4 +1,3 @@
-
 package com.worldpay.service.impl;
 
 import com.worldpay.exception.WorldpayConfigurationException;
@@ -124,6 +123,16 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
     }
 
 
+    @Override
+    public String getFullThreeDSecureFlexFlowReturnUrl() throws WorldpayConfigurationException {
+        return getFullUrl(getThreeDSecureFlexFlowReturnUrl(), true);
+    }
+
+    @Override
+    public String getFullThreeDSecureFlexAutosubmitUrl() throws WorldpayConfigurationException {
+        return getFullUrl(getThreeDSecureFlexAuthSubmit(), true);
+    }
+
     public BaseSiteService getBaseSiteService() {
         return baseSiteService;
     }
@@ -137,4 +146,5 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
     public void setSiteBaseUrlResolutionService(final SiteBaseUrlResolutionService siteBaseUrlResolutionService) {
         this.siteBaseUrlResolutionService = siteBaseUrlResolutionService;
     }
+
 }
