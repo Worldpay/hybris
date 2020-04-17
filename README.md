@@ -1,119 +1,27 @@
+# Worldpay Connector for the SAP Commerce Cloud
+
+The Worldpay Connector for SAP Commerce Cloud is a seamless extension to the Commerce storefront, enabling retailers to implement their global payment strategy through a single integration in a secure, compliant and unified approach. The extensive WorldPay extension enables retailers to gain access to: Global and regional payment methods, a variety of integration options, customisable hosted payment pages, 3D Secure and market leading fraud screening (RiskGuardian™).
+The Connector is SAP Premium Certified.
+About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company. The company provides payment services for mail order and Internet retailers, as well as point of sale transactions. Customers are a mix of multinational, multichannel retailers, with the majority being small business merchants. It also provides loans to small businesses.
+
+## Introduction
+## SAP Commerce Cloud
+The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
+
+## Release Information
+This release is tailored for SAP Commerce Cloud 1808. Functionalities of fixed of newer release (1811, 1905) are not backported into this release. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
+
 # Installation and Usage
-
-## Installing the Plugin into hybris with fulfilment functionality
-
-First ensure that the version of hybris being used is supported for the plugin. Please view the Compatibility section for the current list of supported versions.
-
-The plugin contains several hybris extensions. Take the following steps to include the full plugin into your hybris application:
-
-1. Unzip the supplied plugin zip file
-
-2. Copy the extracted folders to the ${HYBRIS_BIN_DIR} of your hybris installation.
-
-3. Remove conflicting AddOn:
-- If you are installing the B2C AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are only installing the OCC AddOn: Delete the worldpayaddon and the worldpayb2baddon extensions ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are installing the B2C AddOn and the OCC AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are installing the B2B AddOn: Delete the worldpayaddon extension from ${HYBRIS_BIN_DIR}/ext-worldpay
-
-4. Run the ‘ant clean’ command from within your hybris bin/platform directory.
-
-5. Copy the following lines into your localextensions.xml after <path dir="${HYBRIS_BIN_DIR}"/>. The extensions do not rely on any absolute paths so it is also possible to place the extensions in a different location (such as ${HYBRIS_BIN_DIR}/custom).
-- &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpay"/>
-- &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpayfulfilment"/>
-
-6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant)
-or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommercewebservices" with your OCC extension if relevant):
-
-- If you are installing the B2C AddOn:
-- ant addoninstall -Daddonnames="worldpayaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-- If you are installing the B2B AddOn:
-- ant addoninstall -Daddonnames="worldpayb2caddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-- If you are installing the OCC AddOn:
-- ant addoninstall -Daddonnames="worldpayoccaddon" -DaddonStorefront.ycommercewebservices="ycommercewebservices"
-
-
-### Optional
-
-1. The worldpaysampledataaddon is optional, and can be installed by running:
-
-- ant addoninstall -Daddonnames="worldpaysampledataaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-2. Run the ‘ant clean all’ command from within your hybris bin/platform directory.
-
-3. Run the hybrisserver.sh to startup the hybris server.
-
-4. Update your running system.using "ant updatesystem"
-
-Except for setting up your hosts file, the Worldpay AddOn will work initally without any external setup needed.
-
-The AddOn's are independent and can be installed on separate server instances.
-
-## Installing the Plugin into hybris with OMS functionality
-
-First ensure that the version of hybris being used is supported for the plugin. Please view the Compatibility section for the current list of supported versions.
-
-As the OMS extension cannot co-exist with the fulfilment extension (i.e. any fulfilment process generated through modulegen - yfulfilmentprocess), if the functionality has been extended, all customisations will need to be applied in the OMS extension and the fulfilment extension removed from the installation.
-
-The plugin is supplied as a zip file with several hybris extensions inside. Take the following steps to include the full plugin into your hybris application:
-
-1. Unzip the supplied plugin zip file
-
-2. Copy the extracted folders to the ${HYBRIS_BIN_DIR} of your hybris installation.
-
-3. Remove conflicting AddOn:
-- If you are installing the B2C AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are only installing the OCC AddOn: Delete the worldpayaddon and the worldpayb2baddon extensions ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are installing the B2C AddOn and the OCC AddOn: Delete the worldpayb2baddon extension ${HYBRIS_BIN_DIR}/ext-worldpay
-- If you are installing the B2B AddOn: Delete the worldpayaddon extension from ${HYBRIS_BIN_DIR}/ext-worldpay
-
-4. Run the ‘ant clean’ command from within your hybris bin/platform directory.
-
-5. Copy the following lines into your localextensions.xml after <path dir="${HYBRIS_BIN_DIR}"/>. The extensions do not rely on any absolute paths so it is also possible to place the extensions in a different location (such as ${HYBRIS_BIN_DIR}/custom).
-
-- &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpay"/>
-
-- &lt;path autoload="true" dir="${HYBRIS_BIN_DIR}/ext-worldpayoms"/>
-
-6. Run the following commands to install the AddOn's on the yaccelatorstorefront (replace "yacceleratorstorefront" with your custom storefront if relevant)
-or on the ycommercewebservices for the OCC AddOn (replace the bold "ycommercewebservices" with your OCC extension if relevant):
-
-- If you are installing the B2C AddOn:
-- ant addoninstall -Daddonnames="worldpayaddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-- If you are installing the B2B AddOn:
-- ant addoninstall -Daddonnames="worldpayb2baddon,ordermanagementaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-- If you are installing the OCC AddOn:
-- ant addoninstall -Daddonnames="worldpayoccaddon" -DaddonStorefront.ycommercewebservices="ycommercewebservices"
-
-### Optional
-
-1. The worldpaysampledataaddon is optional, and can be installed by running:
-
-- ant addoninstall -Daddonnames="worldpaysampledataaddon" -DaddonStorefront.yacceleratorstorefront="yacceleratorstorefront"
-
-2. Run the ‘ant clean all’ command from within your hybris bin/platform directory.
-
-3. Run the hybrisserver.sh to startup the hybris server.
-
-4. Update your running system.using "ant updatesystem"
-
-Except for setting up your hosts file, the Worldpay AddOn will work initally without any external setup needed.
-
-The AddOn's are independent and can be installed on separate server instances. For example, the worldpaynotificationaddon AddOn can be running on server instances dedicated for listening to Worldpay Order Modification messages.
 
 ## Installing the Plugin using the provided recipes
 
 The AddOn provides three gradle recipes to be used with the hybris installer.
 
-1. wp_b2c_acc with fulfilment functionality for both accelerator storefront and OCC web service.
+1. wp_b2c_acc with fulfilment functionality for both accelerator storefront and OCC.
 
-2. wp_b2c_acc_oms with OMS functionality for both accelerator storefront and OCC web service.
+2. wp_b2c_acc_oms with OMS functionality for both accelerator storefront and OCC.
 
-3. wp_b2b_acc with fulfilment functionality for only accelerator storefront.
+3. wp_b2b_acc with fulfilment functionality for b2b accelerator storefront.
 
 The recipes are based on the b2c_acc, b2c_acc_oms and b2b_acc recipes provided by hybris.
 
@@ -124,9 +32,17 @@ To use the recipes on a clean hybris installation, copy the folder hybris to you
 Since the recipe generates the local.properties file with the properties defined in the recipe, optionally you can add your local.properties to the customconfig folder.
 
 In order to install the AddOn using one of the recipes, run the following commands:
-- This will create a solution from the accelerator templates, and install the addons.
-HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] setup
-- This will build and initialize the platform
-HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] initialize
-- This will start a commerce suite instance
-HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] start
+- This will run setup, build, initialize and start
+HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
+
+## RELEASE NOTES
+- New functionalities
+  - Integrated 3DS2 (https://developer.worldpay.com/docs/wpg/directintegration/3ds2)
+  - New step on the fulfilment process to wait for a Cancelled order notification
+  - Include BillingAddress in the Direct XML request when paying with GooglePay
+  - Added Sofort-ch-ssl and giropay-ssl as APM
+  - Stored Credentials
+  - Send the tracking information on capture requests and when paid with Klarna
+  - Applying SAP certification changes
+- Bugfix
+  - Error on checkout auto-filling billing address same as shipping on US
