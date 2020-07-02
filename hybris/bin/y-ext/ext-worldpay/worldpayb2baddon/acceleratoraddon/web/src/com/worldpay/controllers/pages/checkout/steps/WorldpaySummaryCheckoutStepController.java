@@ -59,6 +59,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected static final String REDIRECT_URL_REPLENISHMENT_CONFIRMATION = REDIRECT_PREFIX + "/checkout/replenishment/confirmation/";
     protected static final String TEXT_STORE_DATEFORMAT_KEY = "text.store.dateformat";
     protected static final String DEFAULT_DATEFORMAT = "MM/dd/yyyy";
+    protected static final String BIN = "bin";
     protected static final int NDAYS_END = 30;
     protected static final int NTHDAYOFMONTH_END = 31;
     protected static final int NTHWEEK_END = 12;
@@ -125,6 +126,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
         final String subscriptionId = cartData.getPaymentInfo() != null ? cartData.getPaymentInfo().getSubscriptionId() : null;
         model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
+        model.addAttribute(BIN, cartData.getPaymentInfo().getBin());
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 

@@ -1,11 +1,11 @@
 #Ant properties
-#Thu Apr 16 17:03:59 UTC 2020
+#Thu Jul 02 12:06:18 UTC 2020
 version.api=1905
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayoms
 description=worldpayoms
-builddate=20200416 1703
+builddate=20200702 1206
 releasedate=20200402 1419
 version=1905.13
 module.name=platform-module
