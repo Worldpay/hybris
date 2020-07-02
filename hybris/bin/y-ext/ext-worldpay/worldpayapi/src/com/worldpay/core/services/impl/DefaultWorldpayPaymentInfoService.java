@@ -196,6 +196,10 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setWorldpayOrderCode(abstractOrderModel.getWorldpayOrderCode());
         creditCardPaymentInfoModel.setUser(abstractOrderModel.getUser());
         creditCardPaymentInfoModel.setMerchantId(merchantId);
+        Optional.ofNullable(tokenReply)
+            .map(TokenReply::getPaymentInstrument)
+            .map(Card::getBin)
+            .ifPresent(creditCardPaymentInfoModel::setBin);
         setPaymentTypeAndCreditCardType(creditCardPaymentInfoModel, tokenReply.getPaymentInstrument());
         updateCreditCardModel(creditCardPaymentInfoModel, tokenReply, saveCard);
         return creditCardPaymentInfoModel;

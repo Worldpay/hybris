@@ -138,3 +138,7 @@ HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] setup
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] initialize
 - This will start a commerce suite instance
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] start
+
+## RELEASE NOTES
+- Bugfix
+  - Using bin number while paying with a tokenized card on 3DS2Flex

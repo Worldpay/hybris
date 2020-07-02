@@ -93,6 +93,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     private static final String AUTHORISATION_ID_BY = "AuthorisationIdBy";
     private static final String AUTHORISATION_ID = "authorisationId";
     private static final String RISK_SCORE_VALUE = "riskScoreValue";
+    private static final String BIN = "bin";
 
     private DefaultServiceResponseTransformerHelper testObj = new DefaultServiceResponseTransformerHelper();
 
@@ -321,6 +322,8 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(ADDRESS_1, tokenReply.getPaymentInstrument().getCardAddress().getAddress1());
         assertEquals(ADDRESS_2, tokenReply.getPaymentInstrument().getCardAddress().getAddress2());
         assertEquals(ADDRESS_3, tokenReply.getPaymentInstrument().getCardAddress().getAddress3());
+
+        assertEquals(BIN, tokenReply.getPaymentInstrument().getBin());
 
         assertEquals(EXPIRY_YEAR, tokenReply.getPaymentInstrument().getExpiryDate().getYear());
         assertEquals(EXPIRY_MONTH, tokenReply.getPaymentInstrument().getExpiryDate().getMonth());
@@ -889,6 +892,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(ISSUER_COUNTRY_CODE);
         derived.setObfuscatedPAN(CARD_NUMBER);
+        derived.setBin(BIN);
         return derived;
     }
 
