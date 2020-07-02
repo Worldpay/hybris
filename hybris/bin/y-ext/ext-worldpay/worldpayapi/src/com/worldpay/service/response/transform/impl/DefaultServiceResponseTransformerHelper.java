@@ -317,7 +317,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             setCardBrand(derived);
             final String cardHolderName = transformCardHolderName(intCardDetails.getCardHolderName());
             return new com.worldpay.service.model.payment.Card(PaymentType.getPaymentType(derived.getCardBrand()),
-                    derived.getObfuscatedPAN(), cvc, expiryDate, cardHolderName, address, null, null, null);
+                    derived.getObfuscatedPAN(), cvc, expiryDate, cardHolderName, address, null, null, null, derived.getBin());
         }
         return null;
     }
@@ -377,7 +377,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             transformedDate = transformDate(intCard.getExpiryDate().getDate());
         }
         return new com.worldpay.service.model.payment.Card(PaymentType.getPaymentType(intCard.getType()),
-                intCard.getNumber(), null, transformedDate, cardHolderNameValue, null, null, null, null);
+                intCard.getNumber(), null, transformedDate, cardHolderNameValue, null, null, null, null, null);
     }
 
     private String transformCardHolderName(final CardHolderName cardHolderName) {
