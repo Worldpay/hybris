@@ -762,7 +762,18 @@
         <property name="add" ref="worldpayEmailAddressPopulator"/>
     </bean>
 
-    <bean id="pageModelPopulatingConvertersMapMergeDirective" depends-on="pageModelConverterFactory" parent="mapMergeDirective">
+    <alias name="defaultWorldpayCCpaymentInfoPopulator" alias="worldpayCCpaymentInfoPopulator"/>
+    <bean name="defaultWorldpayCCpaymentInfoPopulator"
+          class="com.worldpay.converters.populators.WorldpayCCPaymentInfoPopulator">
+    </bean>
+
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="creditCardPaymentInfoConverter"/>
+        <property name="add" ref="worldpayCCpaymentInfoPopulator"/>
+    </bean>
+
+    <bean id="pageModelPopulatingConvertersMapMergeDirective" depends-on="pageModelConverterFactory"
+          parent="mapMergeDirective">
         <property name="key">
             <value type="java.lang.Class">com.worldpay.model.WorldpayPaymentPageModel</value>
         </property>

@@ -107,6 +107,10 @@
         <property name="additionalInfo" type="com.worldpay.order.data.WorldpayAdditionalInfoData"/>
     </bean>
 
+    <bean class="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
+        <property name="bin" type="java.lang.String"/>
+    </bean>
+
     <bean class="com.worldpay.order.data.WorldpayAdditionalInfoData">
         <property name="sessionId" type="java.lang.String"/>
         <property name="customerIPAddress" type="java.lang.String"/>

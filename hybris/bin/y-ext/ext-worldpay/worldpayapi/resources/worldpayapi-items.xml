@@ -144,6 +144,15 @@
             </indexes>
         </itemtype>
 
+        <itemtype code="CreditCardPaymentInfo" autocreate="false" generate="false">
+            <attributes>
+                <attribute qualifier="bin" type="java.lang.String">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
+            </attributes>
+        </itemtype>
+
         <itemtype code="WorldpayAPMPaymentInfo"
                   extends="PaymentInfo"
                   jaloclass="de.hybris.platform.jalo.order.payment.PaymentInfo"
@@ -159,6 +168,7 @@
                 </attribute>
             </attributes>
         </itemtype>
+
 
         <itemtype code="GooglePayPaymentInfo" extends="WorldpayAPMPaymentInfo">
             <attributes>

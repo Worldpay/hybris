@@ -27,7 +27,7 @@ public class CardTest {
         final Address address = new Address();
         address.setFirstName(FIRST_NAME);
         final Date expiryDate = new Date("01", "1974");
-        final Card card = new Card(PaymentType.VISA, CARD_NUMBER, CVC, expiryDate, CARDHOLDER_NAME, address, null, null, null);
+        final Card card = new Card(PaymentType.VISA, CARD_NUMBER, CVC, expiryDate, CARDHOLDER_NAME, address, null, null, null, null);
 
         final VISASSL result = (VISASSL) card.transformToInternalModel();
 

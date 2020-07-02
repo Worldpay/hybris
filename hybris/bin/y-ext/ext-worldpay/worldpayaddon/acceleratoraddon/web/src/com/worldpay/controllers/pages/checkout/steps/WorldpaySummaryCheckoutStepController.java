@@ -57,6 +57,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected static final String CART_SUFFIX = "/cart";
     protected static final String CART_DATA = "cartData";
     protected static final String ALL_ITEMS = "allItems";
+    protected static final String BIN = "bin";
     protected static final String DELIVERY_ADDRESS = "deliveryAddress";
     protected static final String DELIVERY_MODE = "deliveryMode";
     protected static final String PAYMENT_INFO = "paymentInfo";
@@ -111,6 +112,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final String subscriptionId = cartData.getPaymentInfo().getSubscriptionId();
         model.addAttribute(REQUEST_SECURITY_CODE, StringUtils.isNotBlank(subscriptionId));
         model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
+        model.addAttribute(BIN, cartData.getPaymentInfo().getBin());
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
