@@ -93,6 +93,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String TRANSACTION_ID = "4ff0a4c2833b41144591ca2230eb44a5dab1373433b829125cc9099a46c53908";
     private static final String VERSION = "EC_v1";
     private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
+    private static final String BIN = "bin";
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -459,6 +460,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(NEW);
         when(tokenReplyMock.getPaymentInstrument().getPaymentType()).thenReturn(PaymentType.VISA);
+        when(tokenReplyMock.getPaymentInstrument().getBin()).thenReturn(BIN);
 
         testObj.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, false, MERCHANT_ID);
 
@@ -471,6 +473,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setType(CreditCardType.VISA);
         verify(creditCardPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(creditCardPaymentInfoModelMock).setMerchantId(MERCHANT_ID);
+        verify(creditCardPaymentInfoModelMock).setBin(BIN);
     }
 
     @Test

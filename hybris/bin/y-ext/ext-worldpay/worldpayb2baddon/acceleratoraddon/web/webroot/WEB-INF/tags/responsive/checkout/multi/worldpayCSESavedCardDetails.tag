@@ -6,7 +6,7 @@
 
 <div id="cardDetailsFieldSet">
     <fieldset class="cardForm">
-        <input type="hidden" id="number" name="number" value="${subscriptionId}">
+        <input type="hidden" id="number" name="number" value="${not empty bin ? bin : subscriptionId}">
         <input type="hidden" id="encryptedData" name="cseToken">
         <input type="hidden" id="threeDSReferenceId" name="referenceId">
         <input type="hidden" id="windowSizePreference" name="windowSizePreference">

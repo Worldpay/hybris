@@ -37,7 +37,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createVISASSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.VISA, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.VISA, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -51,7 +51,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createECMCSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.MASTERCARD, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.MASTERCARD, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -65,7 +65,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createBHSSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.BHS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.BHS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -79,7 +79,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createIKEASSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.IKEA, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.IKEA, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -93,7 +93,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createAMEXSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.AMERICAN_EXPRESS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.AMERICAN_EXPRESS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -107,7 +107,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createDINERSSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.DINERS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.DINERS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -121,7 +121,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createCBSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.CARTE_BANCAIRE, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.CARTE_BANCAIRE, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -135,7 +135,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createAIRPLUSSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.AIRPLUS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.AIRPLUS, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -149,7 +149,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createUATPSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.UATP, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.UATP, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -163,7 +163,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createCARTEBLEUESSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.CARTE_BLEUE, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.CARTE_BLEUE, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -179,7 +179,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createSOLOGBSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final String issueNumber, final Date startDate) {
-        return new Card(PaymentType.SOLO, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber);
+        return new Card(PaymentType.SOLO, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber, null);
     }
 
     /**
@@ -194,7 +194,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createLASERSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final Date startDate) {
-        return new Card(PaymentType.LASER_CARD, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, null);
+        return new Card(PaymentType.LASER_CARD, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, null, null);
     }
 
     /**
@@ -208,7 +208,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createDANKORTSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.DANKORT, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.DANKORT, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -222,7 +222,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createDISCOVERSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.DISCOVER, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.DISCOVER, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -236,7 +236,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createJCBSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.JCB, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.JCB, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -250,7 +250,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createAURORESSL(final String cardNumber, final Date birthDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.AURORE, cardNumber, cvc, null, cardHolderName, cardAddress, birthDate, null, null);
+        return new Card(PaymentType.AURORE, cardNumber, cvc, null, cardHolderName, cardAddress, birthDate, null, null, null);
     }
 
     /**
@@ -264,7 +264,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createGECAPITALSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.GE_CAPITAL, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.GE_CAPITAL, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -280,7 +280,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createMAESTROSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final String issueNumber, final Date startDate) {
-        return new Card(PaymentType.MAESTRO, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber);
+        return new Card(PaymentType.MAESTRO, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber, null);
     }
 
     /**
@@ -296,7 +296,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createSWITCHSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress, final String issueNumber, final Date startDate) {
-        return new Card(PaymentType.SWITCH, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber);
+        return new Card(PaymentType.SWITCH, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, startDate, issueNumber, null);
     }
 
     /**
@@ -310,7 +310,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createNCPB2BSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.NCPB2B, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.NCPB2B, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -324,7 +324,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createNCPSEASONSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.NCPSEASON, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.NCPSEASON, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     /**
@@ -338,7 +338,7 @@ public class PaymentBuilder {
      * @return Card object
      */
     public static Card createCARDSSL(final String cardNumber, final Date expiryDate, final String cardHolderName, final String cvc, final Address cardAddress) {
-        return new Card(PaymentType.CARD_SSL, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null);
+        return new Card(PaymentType.CARD_SSL, cardNumber, cvc, expiryDate, cardHolderName, cardAddress, null, null, null, null);
     }
 
     // Bank Accounts

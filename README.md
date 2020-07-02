@@ -36,13 +36,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-- New functionalities
-  - Integrated 3DS2 (https://developer.worldpay.com/docs/wpg/directintegration/3ds2)
-  - New step on the fulfilment process to wait for a Cancelled order notification
-  - Include BillingAddress in the Direct XML request when paying with GooglePay
-  - Added Sofort-ch-ssl and giropay-ssl as APM
-  - Stored Credentials
-  - Send the tracking information on capture requests and when paid with Klarna
-  - Applying SAP certification changes
 - Bugfix
-  - Error on checkout auto-filling billing address same as shipping on US
+  - Using bin number while paying with a tokenized card on 3DS2Flex

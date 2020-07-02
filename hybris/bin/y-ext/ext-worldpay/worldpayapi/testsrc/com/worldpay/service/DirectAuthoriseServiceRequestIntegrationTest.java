@@ -30,7 +30,6 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
 
     private static final String SHOPPER_EMAIL = "jshopper@myprovider.com";
     private static final String STATEMENT_NARRATIVE = "STATEMENT NARRATIVE TEXT";
-    private static final String TOKEN_REASON = "tokenReason";
     private static final String FAKED_PA_RESPONSE = "fakedPaResponse";
 
     private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
@@ -48,14 +47,12 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
     private BasicOrderInfo basicOrderInfo;
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway testObj;
-    private Additional3DSData additional3DSData;
 
     @Before
     public void setUp() {
         merchantInfo = new MerchantInfo("MERCHANT1ECOM", "3l3ph4nt_&_c4st!3");
         orderCode = String.valueOf(new java.util.Date().getTime());
         basicOrderInfo = new BasicOrderInfo(orderCode, "Your Order & Order desc", new Amount("100", "EUR", "2"));
-        additional3DSData = new Additional3DSData("referenceId");
     }
 
     @Test
@@ -63,14 +60,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         thrown.expect(IllegalArgumentException.class);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(null)
-                .withPayment(null)
-                .withShopper(null)
-                .withShippingAddress(null)
-                .withBillingAddress(null)
-                .withStatementNarrative(null)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(null)
+            .withPayment(null)
+            .withShopper(null)
+            .withShippingAddress(null)
+            .withBillingAddress(null)
+            .withStatementNarrative(null)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -82,14 +79,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -114,14 +111,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "REFUSED", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -146,14 +143,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "REFERRED", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -178,14 +175,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "FRAUD", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -210,14 +207,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "ERROR", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -237,14 +234,14 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "3D", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -275,14 +272,15 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "3D", "123", BILLING_ADDRESS);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
-                .withShopper(SHOPPER)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(payment)
+            .withShopper(SHOPPER)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+            .build();
 
         final DirectAuthoriseServiceRequest request = DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
 
@@ -306,17 +304,16 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         assertNotNull("paRequest cannot be null", paRequest);
 
         final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-                .withMerchantInfo(merchantInfo)
-                .withOrderInfo(basicOrderInfo)
-                .withPayment(null)
-                .withShopper(SHOPPER)
-                .withShippingAddress(null)
-                .withBillingAddress(null)
-                .withStatementNarrative(null)
-                .withDynamicInteractionType(null)
-
-
-                .withPaRes(FAKED_PA_RESPONSE).build();
+            .withMerchantInfo(merchantInfo)
+            .withOrderInfo(basicOrderInfo)
+            .withPayment(null)
+            .withShopper(SHOPPER)
+            .withShippingAddress(null)
+            .withBillingAddress(null)
+            .withStatementNarrative(null)
+            .withDynamicInteractionType(null)
+            .withPaRes(FAKED_PA_RESPONSE)
+            .build();
 
         final DirectAuthoriseServiceRequest direct3DAuthoriseRequest = DirectAuthoriseServiceRequest.createDirect3DAuthoriseRequest(requestParameters3D);
 
@@ -326,6 +323,5 @@ public class DirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBa
         // We have to assert that this response actually has errors, as 3d secure hasn't actually been checked (redirect)
         assertTrue("Expect errors returned", directAuthoriseServiceResponse.isError());
         assertEquals("Expect error code 7, verification of PaRes failed", "7", directAuthoriseServiceResponse.getErrorDetail().getCode());
-        assertEquals("Expect error code 7, verification of PaRes failed", "verification of PaRes failed", directAuthoriseServiceResponse.getErrorDetail().getMessage());
     }
 }

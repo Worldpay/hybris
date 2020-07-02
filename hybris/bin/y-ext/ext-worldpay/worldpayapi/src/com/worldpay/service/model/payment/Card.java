@@ -23,6 +23,7 @@ public class Card extends AbstractPayment {
     private Date birthDate;
     private Date startDate;
     private String issueNumber;
+    private String bin;
 
     /**
      * Constructor with full list of fields
@@ -36,10 +37,12 @@ public class Card extends AbstractPayment {
      * @param birthDate
      * @param startDate
      * @param issueNumber
+     * @param bin
      * @see PaymentBuilder PaymentBuilder for simple static creation methods
      */
     public Card(final PaymentType paymentType, final String cardNumber, final String cvc, final Date expiryDate, final String cardHolderName, final Address cardAddress,
-                final Date birthDate, final Date startDate, final String issueNumber) {
+                final Date birthDate, final Date startDate, final String issueNumber, final String bin) {
+        this.bin = bin;
         this.paymentType = paymentType;
         this.cardNumber = cardNumber;
         this.cvc = cvc;
@@ -103,6 +106,10 @@ public class Card extends AbstractPayment {
                 final IssueNumber intIssueNumber = new IssueNumber();
                 intIssueNumber.setvalue(issueNumber);
                 method.invoke(targetObject, intIssueNumber);
+                methodInvoked = true;
+            }
+            if ("setBin".equals(methodName) && bin != null) {
+                method.invoke(targetObject, cvc);
                 methodInvoked = true;
             }
         } else if ("getIssueNumberOrStartDate".equals(methodName) && (issueNumber != null || startDate != null)) {
@@ -203,6 +210,14 @@ public class Card extends AbstractPayment {
         this.issueNumber = issueNumber;
     }
 
+    public String getBin() {
+        return bin;
+    }
+
+    public void setBin(final String bin) {
+        this.bin = bin;
+    }
+
     @Override
     public String toString() {
         return "Card{" +
@@ -214,6 +229,7 @@ public class Card extends AbstractPayment {
                 ", birthDate=" + birthDate +
                 ", startDate=" + startDate +
                 ", issueNumber='" + issueNumber + '\'' +
+                ", bin='" + bin + '\'' +
                 '}';
     }
 }
