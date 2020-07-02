@@ -83,6 +83,8 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private static final String THREEDSFLEX_JSON_WEB_TOKEN_VALUE = "THREEDSFLEX_JSON_WEB_TOKEN_VALUE";
     private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE = "EVENT_ORIGIN_DOMAIN_VALUE";
     private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
+    private static final String BIN = "bin";
+    private static final String BIN_VALUE = "78954";
 
     @Spy
     @InjectMocks
@@ -179,6 +181,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
         when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
         when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
         when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
         when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
@@ -208,6 +211,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         assertEquals(deliveryAddressMock, modelMock.asMap().get(DELIVERY_ADDRESS));
         assertEquals(deliveryModeDataMock, modelMock.asMap().get(DELIVERY_MODE));
+        assertEquals(BIN_VALUE, modelMock.asMap().get(BIN));
         assertEquals(paymentInfoMock, modelMock.asMap().get(PAYMENT_INFO));
 
         assertEquals(true, modelMock.asMap().get(REQUEST_SECURITY_CODE));

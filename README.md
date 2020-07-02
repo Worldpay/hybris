@@ -36,7 +36,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-- Improvements
-  - Code clean up
 - Bugfix
-  - Capture notifications are created twice when they shouldn't
+  - Using bin number while paying with a tokenized card on 3DS2Flex
