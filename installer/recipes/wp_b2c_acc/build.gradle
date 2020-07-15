@@ -69,7 +69,7 @@ def pl = platform {
         extName 'smarteditaddon'
         extName 'cmssmartedit'
         extName 'cmsbackoffice'
-        extName 'cmsoccaddon'
+        extName 'cmsocc'
 
         extName 'consignmenttrackingaddon'
         extName 'consignmenttrackingmock'
@@ -109,9 +109,9 @@ def pl = platform {
         extName 'xyformsweb'
         extName 'platformbackoffice'
         extName 'orbeonweb'
-        extName 'consignmenttrackingoccaddon'
-        extName 'customerinterestsoccaddon'
-        extName 'notificationoccaddon'
+        extName 'consignmenttrackingocc'
+        extName 'customerinterestsocc'
+        extName 'notificationocc'
 
         extName 'kymaintegrationbackoffice'
 
@@ -137,7 +137,7 @@ def pl = platform {
         extName 'worldpayapi'
         extName 'worldpaynotifications'
         extName 'worldpaysampledataaddon'
-        extName 'worldpayoccaddon'
+        extName 'worldpayextocc'
         extName 'worldpayhac'
         extName 'worldpayfulfilment'
     }
@@ -150,11 +150,6 @@ def pl = platform {
                     'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons', 'personalizationsearchsamplesaddon',
                     'personalizationyprofilesampledataaddon', 'personalizationaddon', 'profiletagaddon', 'merchandisingaddon', 'merchandisingstorefrontsampledataaddon')
             template 'yacceleratorstorefront'
-        }
-
-        forStoreFronts('ycommercewebservices') {
-            names 'worldpayoccaddon', 'acceleratorwebservicesaddon', 'consignmenttrackingoccaddon', 'customerinterestsoccaddon', 'notificationoccaddon', 'cmsoccaddon'
-            template 'ycommercewebservices'
         }
     }
 }

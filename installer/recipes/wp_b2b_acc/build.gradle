@@ -41,8 +41,8 @@ def pl = platform {
         extName 'commerceorgsamplesaddon'
         extName 'b2bpunchoutaddon'
         extName 'secureportaladdon'
-        extName 'savedorderformsoccaddon'
-        extName 'b2boccaddon'
+        extName 'savedorderformsocc'
+        extName 'b2bocc'
         extName 'accountsummaryaddon'
         extName 'assistedservicestorefront'
         extName 'assistedservicewebservices'
@@ -95,7 +95,7 @@ def pl = platform {
 
         extName 'configurablebundleaddon'
 
-        extName 'consignmenttrackingoccaddon'
+        extName 'consignmenttrackingocc'
 
         /* integration-apis */
         extName 'outboundservices'
@@ -123,11 +123,6 @@ def pl = platform {
                     'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
                     'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'personalizationsearchsamplesaddon')
             template 'yacceleratorstorefront'
-        }
-
-        forStoreFronts('ycommercewebservices') {
-            names 'acceleratorwebservicesaddon', 'b2boccaddon', 'savedorderformsoccaddon', 'consignmenttrackingoccaddon', 'cmsoccaddon'
-            template 'ycommercewebservices'
         }
     }
 }

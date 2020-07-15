@@ -87,7 +87,7 @@ def platform = platform {
 
                 'pcmbackofficesamplesaddon',
 
-                'consignmenttrackingoccaddon',
+                'consignmenttrackingocc',
 
                 'outboundservices',
 		        'outboundsync',
@@ -116,7 +116,7 @@ def platform = platform {
                 'smarteditaddon',
                 'cmssmartedit',
                 'cmsbackoffice',
-                'cmsoccaddon',
+                'cmsocc',
                 'multicountrysampledataaddon',
 
                 'worldpayaddon',
@@ -124,7 +124,7 @@ def platform = platform {
                 'worldpayapi',
                 'worldpaynotifications',
                 'worldpaysampledataaddon',
-                'worldpayoccaddon',
+                'worldpayextocc',
                 'worldpayhac',
                 'worldpayoms'
     }
@@ -136,11 +136,6 @@ def platform = platform {
                     'xyformssamples', 'xyformsstorefrontcommons', 'smarteditaddon', 'multicountrysampledataaddon'
             template 'yacceleratorstorefront'
 
-        }
-
-        forStoreFronts('ycommercewebservices') {
-            names 'worldpayoccaddon', 'acceleratorwebservicesaddon', 'consignmenttrackingoccaddon', 'cmsoccaddon'
-            template 'ycommercewebservices'
         }
     }
 }

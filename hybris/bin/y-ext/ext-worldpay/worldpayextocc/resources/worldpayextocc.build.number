@@ -1,0 +1,11 @@
+#Ant properties
+#Wed Jul 15 09:41:48 UTC 2020
+version.api=2005
+vendor=hybris
+group.id=de.hybris.platform
+name=worldpayextocc
+description=worldpayextocc
+builddate=20200715 0941
+releasedate=20200511 1122
+version=2005.0
+module.name=platform-module
