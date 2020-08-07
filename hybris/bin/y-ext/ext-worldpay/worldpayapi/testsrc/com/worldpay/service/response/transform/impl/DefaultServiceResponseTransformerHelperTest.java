@@ -790,6 +790,48 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(PAYMENT_TOKEN_ID, result.getPaymentTokenId());
     }
 
+    @Test
+    public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsNotInPaymentTypeNameMethods() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("ECMC",null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MASTERCARD);
+    }
+
+    @Test
+    public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsInPaymentTypeNameMethods() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("ECMC-SSL",null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MASTERCARD);
+    }
+
+    @Test
+    public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsEmpty() {
+        final Token token = new Token();
+        final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
+
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails(null,null));
+        tokenElements.add(paymentInstrument);
+
+        final TokenReply tokenReply = testObj.buildTokenReply(token);
+
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL);
+    }
+
     private CardDetails createCardDetails(final String cartBrand, final String cardSubBrand) {
         final CardDetails cardDetails = new CardDetails();
         cardDetails.setDerived(createDerived(cartBrand, cardSubBrand));
