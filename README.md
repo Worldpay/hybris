@@ -37,4 +37,4 @@ HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
 - Bugfix
-  - Using bin number while paying with a tokenized card on 3DS2Flex
+  - Correcting the mapping of credit cards when tokenising.
