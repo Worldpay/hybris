@@ -16,7 +16,9 @@ import com.worldpay.service.model.token.UpdateTokenReply;
 import com.worldpay.service.response.ServiceResponse;
 import com.worldpay.service.response.transform.ServiceResponseTransformerHelper;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -314,7 +316,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 expiryDate = transformDate(intCardDetails.getExpiryDate().getDate());
             }
             final Address address = transformAddress(intCardDetails.getCardAddress());
-            setCardBrand(derived);
+            if (StringUtils.isBlank(derived.getCardBrand()) || Arrays.stream(PaymentType.values()).map(PaymentType::getMethodCode).noneMatch(derived.getCardBrand()::equals)) {
+                setCardBrand(derived);
+            }
             final String cardHolderName = transformCardHolderName(intCardDetails.getCardHolderName());
             return new com.worldpay.service.model.payment.Card(PaymentType.getPaymentType(derived.getCardBrand()),
                     derived.getObfuscatedPAN(), cvc, expiryDate, cardHolderName, address, null, null, null, derived.getBin());
@@ -331,7 +335,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             if ("ECMC".equals(derived.getCardBrand()) && "CB".equals(derived.getCardCoBrand())) {
                 derived.setCardBrand(PaymentType.CARTE_BANCAIRE.getMethodCode());
             }
-        } else {
+        } else if (StringUtils.isNotEmpty(derived.getCardBrand())){
             switch (derived.getCardBrand()) {
                 case "VISA":
                     derived.setCardBrand(PaymentType.VISA.getMethodCode());
@@ -367,6 +371,9 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                     derived.setCardBrand(PaymentType.CARD_SSL.getMethodCode());
                     break;
             }
+        }
+        else{
+            derived.setCardBrand(PaymentType.CARD_SSL.getMethodCode());
         }
     }
 
