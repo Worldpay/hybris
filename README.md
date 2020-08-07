@@ -9,7 +9,7 @@ About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company
 The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
 
 ## Release Information
-This release is tailored for SAP Commerce Cloud 1811. Functionalities of fixed of newer release (1905) are not backported into this release. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
+This release is tailored for SAP Commerce Cloud 1808. Functionalities of fixed of newer release (1905) are not backported into this release. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
 
 # Installation and Usage
 
@@ -37,4 +37,4 @@ HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
 - Bugfix
-  - Using bin number while paying with a tokenized card on 3DS2Flex
+  - Correcting the mapping of credit cards when tokenising.
