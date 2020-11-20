@@ -28,18 +28,22 @@
     <relations>
         <relation code="ApmConfigurationCountries" localized="false">
             <deployment table="apm_country" typecode="12110"/>
-            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many" qualifier="apmConfiguration"/>
+            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many"
+                           qualifier="apmConfiguration"/>
             <targetElement type="Country" collectiontype="set" cardinality="many" qualifier="countries"/>
         </relation>
         <relation code="ApmConfigurationCurrencies" localized="false">
             <deployment table="apm_currency" typecode="12115"/>
-            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many" qualifier="apmConfiguration"/>
+            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many"
+                           qualifier="apmConfiguration"/>
             <targetElement type="Currency" collectiontype="set" cardinality="many" qualifier="currencies"/>
         </relation>
         <relation code="ApmConfigurationCurrencyRange" localized="false">
             <deployment table="apm_currencyrange" typecode="12120"/>
-            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many" qualifier="apmConfiguration"/>
-            <targetElement type="WorldpayCurrencyRange" collectiontype="set" cardinality="many" qualifier="currencyRanges"/>
+            <sourceElement type="WorldpayAPMConfiguration" collectiontype="set" cardinality="many"
+                           qualifier="apmConfiguration"/>
+            <targetElement type="WorldpayCurrencyRange" collectiontype="set" cardinality="many"
+                           qualifier="currencyRanges"/>
         </relation>
     </relations>
 
@@ -69,6 +73,29 @@
                 <attribute qualifier="shopperBankCode" type="java.lang.String" generate="true" autocreate="true">
                     <persistence type="property"/>
                     <description>Bank code</description>
+                </attribute>
+
+                <attribute qualifier="threeDSChallengeSession" type="WorldpayCartThreeDSChallengeSession">
+                    <persistence type="property"/>
+                    <description>3DS Challenge session data</description>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <itemtype code="WorldpayCartThreeDSChallengeSession" jaloclass="com.worldpay.jalo.WorldpayCartThreeDSChallengeSession">
+            <deployment table="Worldpay3dsSession" typecode="19024"/>
+            <attributes>
+                <attribute qualifier="echoData" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="cookie" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="challengeWindowSize" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="sessionId" type="java.lang.String">
+                    <persistence type="property"/>
                 </attribute>
             </attributes>
         </itemtype>
@@ -158,6 +185,15 @@
                   jaloclass="de.hybris.platform.jalo.order.payment.PaymentInfo"
                   generate="false">
             <attributes>
+                <attribute qualifier="obfuscatedCardNumber" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="subscriptionId" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Subscription ID is the reference information for the credit cart data stored in the
+                        external payment provider.
+                    </description>
+                </attribute>
                 <attribute qualifier="apmConfiguration" autocreate="true" type="WorldpayAPMConfiguration">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
@@ -166,9 +202,13 @@
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
+                <attribute qualifier="klarnaPaymentType" type="boolean">
+                    <persistence type="dynamic"
+                                 attributeHandler="worldpayAPMPaymentInfoIsKlarnaPaymentTypeCodeDynamicAttributeHandler"/>
+                    <modifiers write="false"/>
+                </attribute>
             </attributes>
         </itemtype>
-
 
         <itemtype code="GooglePayPaymentInfo" extends="WorldpayAPMPaymentInfo">
             <attributes>
@@ -469,13 +509,6 @@
         <typegroup name="cms">
             <itemtype code="WorldpayPaymentPage" jaloclass="com.worldpay.jalo.WorldpayPaymentPage"
                       autocreate="true" generate="true" extends="ContentPage">
-                <attributes>
-                    <attribute qualifier="debug" type="boolean">
-                        <modifiers optional="false"/>
-                        <persistence type="property"/>
-                        <defaultvalue>Boolean.FALSE</defaultvalue>
-                    </attribute>
-                </attributes>
             </itemtype>
         </typegroup>
     </itemtypes>

@@ -2,14 +2,13 @@ package com.worldpay.service.model;
 
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.*;
 import com.worldpay.service.model.payment.PayAsOrder;
 import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.threeds2.RiskData;
-import com.worldpay.service.model.threeds2.RiskDateData;
 import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.transform.InternalModelTransformer;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -17,6 +16,7 @@ import java.util.List;
 /**
  * POJO representation of an order
  */
+@SuppressWarnings("squid:S3776")
 public class Order extends BasicOrderInfo implements InternalModelTransformer, Serializable {
 
     private String installationId;
@@ -36,6 +36,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
     private DynamicInteractionType dynamicInteractionType;
     private Additional3DSData additional3DSData;
     private RiskData riskData;
+    private List<PaymentMethodAttribute> paymentMethodAttributes;
 
     /**
      * Constructor with full list of fields
@@ -49,54 +50,70 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
-        com.worldpay.internal.model.Order intOrder = new com.worldpay.internal.model.Order();
-        List<Object> childElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
+    public com.worldpay.internal.model.Order transformToInternalModel() throws WorldpayModelTransformationException {
+        var intOrder = new com.worldpay.internal.model.Order();
+        final List<Object> childElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
 
         if (getOrderCode() != null) {
             intOrder.setOrderCode(getOrderCode());
         }
+
         if (getDescription() != null) {
             final Description intDescription = new Description();
             intDescription.setvalue(getDescription());
             childElements.add(intDescription);
         }
+
         if (getAmount() != null) {
             childElements.add(getAmount().transformToInternalModel());
         }
+
         if (installationId != null) {
             intOrder.setInstallationId(installationId);
         }
+
         if (orderContent != null) {
             final OrderContent intOrderContent = new OrderContent();
             intOrderContent.setvalue(orderContent);
             childElements.add(intOrderContent);
         }
+
         populatePaymentRequestDetails(childElements);
 
         if (shopper != null) {
             childElements.add(shopper.transformToInternalModel());
         }
+
         if (shippingAddress != null) {
             final ShippingAddress intShippingAddress = new ShippingAddress();
             intShippingAddress.setAddress((com.worldpay.internal.model.Address) shippingAddress.transformToInternalModel());
             childElements.add(intShippingAddress);
         }
+
         if (billingAddress != null) {
             final BillingAddress intBillingAddress = new BillingAddress();
             intBillingAddress.setAddress((com.worldpay.internal.model.Address) billingAddress.transformToInternalModel());
             childElements.add(intBillingAddress);
         }
+
+        if (CollectionUtils.isNotEmpty(paymentMethodAttributes)) {
+            paymentMethodAttributes.stream()
+                .map(PaymentMethodAttribute::transformToInternalModel)
+                .forEach(childElements::add);
+        }
+
         if (statementNarrative != null) {
             final StatementNarrative intStatementNarrative = new StatementNarrative();
             intStatementNarrative.setvalue(statementNarrative);
             childElements.add(intStatementNarrative);
         }
+
         if (echoData != null) {
             final EchoData intEchoData = new EchoData();
             intEchoData.setvalue(echoData);
             childElements.add(intEchoData);
         }
+
         if (tokenRequest != null) {
             childElements.add(tokenRequest.transformToInternalModel());
         }
@@ -108,6 +125,7 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
             intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEci().add(intPaResponse);
             childElements.add(intInfo3dSecure);
         }
+
         if (session != null) {
             childElements.add(session.transformToInternalModel());
         }
@@ -118,14 +136,17 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
 
         populateDynamicInteractionType(childElements);
 
-        populateRiskData(childElements);
+        if (riskData != null) {
+            childElements.add(riskData.transformToInternalModel());
+        }
 
-        populateAdditional3DSData(childElements);
-
+        if (additional3DSData != null) {
+            childElements.add(additional3DSData.transformToInternalModel());
+        }
         return intOrder;
     }
 
-    private void populatePaymentRequestDetails(List<Object> childElements) throws WorldpayModelTransformationException {
+    private void populatePaymentRequestDetails(final List<Object> childElements) throws WorldpayModelTransformationException {
         if (paymentMethodMask != null) {
             childElements.add(paymentMethodMask.transformToInternalModel());
         } else if (paymentDetails != null) {
@@ -135,170 +156,12 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
         }
     }
 
-    private void populateDynamicInteractionType(List<Object> childElements) {
+    private void populateDynamicInteractionType(final List<Object> childElements) {
         if (dynamicInteractionType != null) {
-            final com.worldpay.internal.model.DynamicInteractionType internalDynamicInteractionType = new com.worldpay.internal.model.DynamicInteractionType();
+            final var internalDynamicInteractionType = new com.worldpay.internal.model.DynamicInteractionType();
             internalDynamicInteractionType.setType(dynamicInteractionType.name());
             childElements.add(internalDynamicInteractionType);
         }
-    }
-
-    private void populateAdditional3DSData(List<Object> childElements) {
-        if (additional3DSData != null) {
-            final com.worldpay.internal.model.Additional3DSData internalAdditional3DSData = new com.worldpay.internal.model.Additional3DSData();
-            internalAdditional3DSData.setDfReferenceId(additional3DSData.getDfReferenceId());
-            if (additional3DSData.getChallengeWindowSize() != null) {
-                internalAdditional3DSData.setChallengeWindowSize(additional3DSData.getChallengeWindowSize().toString());
-            }
-
-            if (additional3DSData.getChallengePreference() != null) {
-                internalAdditional3DSData.setChallengePreference(additional3DSData.getChallengePreference().toString());
-            }
-            childElements.add(internalAdditional3DSData);
-        }
-    }
-
-    private void populateRiskData(final List<Object> childElements) {
-        if (riskData != null) {
-            final com.worldpay.internal.model.RiskData internalRiskData = new com.worldpay.internal.model.RiskData();
-            populateAuthenticationRiskData(internalRiskData);
-            populateShopperAccountRiskData(internalRiskData);
-            populateTransactionRiskData(internalRiskData);
-            childElements.add(internalRiskData);
-        }
-    }
-
-    private void populateTransactionRiskData(final com.worldpay.internal.model.RiskData internalRiskData) {
-        if (riskData.getTransactionRiskData() != null) {
-            final com.worldpay.service.model.threeds2.TransactionRiskData transactionRiskData = riskData.getTransactionRiskData();
-            final TransactionRiskData internalTransactionRiskData = new TransactionRiskData();
-            internalTransactionRiskData.setDeliveryEmailAddress(transactionRiskData.getDeliveryEmailAddress());
-            internalTransactionRiskData.setDeliveryTimeframe(transactionRiskData.getDeliveryTimeframe());
-            internalTransactionRiskData.setGiftCardCount(transactionRiskData.getGiftCardCount());
-            internalTransactionRiskData.setPreOrderPurchase(transactionRiskData.getPreOrderPurchase());
-            internalTransactionRiskData.setReorderingPreviousPurchases(transactionRiskData.getReorderingPreviousPurchases());
-            internalTransactionRiskData.setShippingMethod(transactionRiskData.getShippingMethod());
-            populateTransactionRiskDataGiftCardAmount(transactionRiskData, internalTransactionRiskData);
-            populateTransactionRiskDataPreOrderDate(transactionRiskData, internalTransactionRiskData);
-            internalRiskData.setTransactionRiskData(internalTransactionRiskData);
-        }
-    }
-
-    private void populateTransactionRiskDataPreOrderDate(final com.worldpay.service.model.threeds2.TransactionRiskData transactionRiskData, final TransactionRiskData internalTransactionRiskData) {
-        if (transactionRiskData.getTransactionRiskDataPreOrderDate() != null) {
-            final TransactionRiskDataPreOrderDate internalTransactionRiskDataPreOrderDate = new TransactionRiskDataPreOrderDate();
-            internalTransactionRiskDataPreOrderDate.setDate(createInternalDate(transactionRiskData.getTransactionRiskDataPreOrderDate().getDate()));
-            internalTransactionRiskData.setTransactionRiskDataPreOrderDate(internalTransactionRiskDataPreOrderDate);
-        }
-    }
-
-    private void populateTransactionRiskDataGiftCardAmount(final com.worldpay.service.model.threeds2.TransactionRiskData transactionRiskData, final TransactionRiskData internalTransactionRiskData) {
-        if (transactionRiskData.getTransactionRiskDataGiftCardAmount() != null && transactionRiskData.getTransactionRiskDataGiftCardAmount().getAmount() != null) {
-            final Amount amount = transactionRiskData.getTransactionRiskDataGiftCardAmount().getAmount();
-            final TransactionRiskDataGiftCardAmount internalTransactionRiskDataGiftCardAmount = new TransactionRiskDataGiftCardAmount();
-            populateAmount(amount, internalTransactionRiskDataGiftCardAmount);
-            internalTransactionRiskData.setTransactionRiskDataGiftCardAmount(internalTransactionRiskDataGiftCardAmount);
-        }
-    }
-
-    private void populateAmount(final Amount amount, final TransactionRiskDataGiftCardAmount internalTransactionRiskDataGiftCardAmount) {
-        final com.worldpay.internal.model.Amount internalAmount = new com.worldpay.internal.model.Amount();
-        internalAmount.setValue(amount.getValue());
-        internalAmount.setCurrencyCode(amount.getCurrencyCode());
-        internalAmount.setDebitCreditIndicator(amount.getDebitCreditIndicator() != null ? amount.getDebitCreditIndicator().getCode() : null);
-        internalAmount.setExponent(amount.getExponent());
-        internalTransactionRiskDataGiftCardAmount.setAmount(internalAmount);
-    }
-
-    private void populateShopperAccountRiskData(final com.worldpay.internal.model.RiskData internalRiskData) {
-        if (riskData.getShopperAccountRiskData() != null) {
-            final com.worldpay.service.model.threeds2.ShopperAccountRiskData shopperAccountRiskData = riskData.getShopperAccountRiskData();
-            final ShopperAccountRiskData internalShopperAccountRiskData = new ShopperAccountRiskData();
-            internalShopperAccountRiskData.setTransactionsAttemptedLastDay(shopperAccountRiskData.getTransactionsAttemptedLastDay());
-            internalShopperAccountRiskData.setTransactionsAttemptedLastYear(shopperAccountRiskData.getTransactionsAttemptedLastYear());
-            internalShopperAccountRiskData.setPurchasesCompletedLastSixMonths(shopperAccountRiskData.getPurchasesCompletedLastSixMonths());
-            internalShopperAccountRiskData.setAddCardAttemptsLastDay(shopperAccountRiskData.getAddCardAttemptsLastDay());
-            internalShopperAccountRiskData.setPreviousSuspiciousActivity(shopperAccountRiskData.getPreviousSuspiciousActivity());
-            internalShopperAccountRiskData.setShippingNameMatchesAccountName(shopperAccountRiskData.getShippingNameMatchesAccountName());
-            internalShopperAccountRiskData.setShopperAccountAgeIndicator(shopperAccountRiskData.getShopperAccountAgeIndicator());
-            internalShopperAccountRiskData.setShopperAccountChangeIndicator(shopperAccountRiskData.getShopperAccountChangeIndicator());
-            internalShopperAccountRiskData.setShopperAccountPasswordChangeIndicator(shopperAccountRiskData.getShopperAccountPasswordChangeIndicator());
-            internalShopperAccountRiskData.setShopperAccountShippingAddressUsageIndicator(shopperAccountRiskData.getShopperAccountShippingAddressUsageIndicator());
-            internalShopperAccountRiskData.setShopperAccountPaymentAccountIndicator(shopperAccountRiskData.getShopperAccountPaymentAccountIndicator());
-            populateShopperAccountCreationDate(shopperAccountRiskData, internalShopperAccountRiskData);
-            populateShopperAccountModificationDate(shopperAccountRiskData, internalShopperAccountRiskData);
-            populateShopperAccountPasswordChangeDate(shopperAccountRiskData, internalShopperAccountRiskData);
-            populateShopperAccountShippingAddressFirstUseDate(shopperAccountRiskData, internalShopperAccountRiskData);
-            populateShopperAccountPaymentAccountFirstUseDate(shopperAccountRiskData, internalShopperAccountRiskData);
-            internalRiskData.setShopperAccountRiskData(internalShopperAccountRiskData);
-        }
-    }
-
-    private void populateShopperAccountPaymentAccountFirstUseDate(final com.worldpay.service.model.threeds2.ShopperAccountRiskData shopperAccountRiskData, final ShopperAccountRiskData internalShopperAccountRiskData) {
-        if (shopperAccountRiskData.getShopperAccountPaymentAccountFirstUseDate() != null) {
-            final ShopperAccountPaymentAccountFirstUseDate internalShopperAccountPaymentAccountFirstUseDate = new ShopperAccountPaymentAccountFirstUseDate();
-            internalShopperAccountPaymentAccountFirstUseDate.setDate(createInternalDate(shopperAccountRiskData.getShopperAccountPaymentAccountFirstUseDate().getDate()));
-            internalShopperAccountRiskData.setShopperAccountPaymentAccountFirstUseDate(internalShopperAccountPaymentAccountFirstUseDate);
-        }
-    }
-
-    private void populateShopperAccountShippingAddressFirstUseDate(final com.worldpay.service.model.threeds2.ShopperAccountRiskData shopperAccountRiskData, final ShopperAccountRiskData internalShopperAccountRiskData) {
-        if (shopperAccountRiskData.getShopperAccountShippingAddressFirstUseDate() != null) {
-            final ShopperAccountShippingAddressFirstUseDate internalShopperAccountShippingAddressFirstUseDate = new ShopperAccountShippingAddressFirstUseDate();
-            internalShopperAccountShippingAddressFirstUseDate.setDate(createInternalDate(shopperAccountRiskData.getShopperAccountShippingAddressFirstUseDate().getDate()));
-            internalShopperAccountRiskData.setShopperAccountShippingAddressFirstUseDate(internalShopperAccountShippingAddressFirstUseDate);
-        }
-    }
-
-    private void populateShopperAccountPasswordChangeDate(final com.worldpay.service.model.threeds2.ShopperAccountRiskData shopperAccountRiskData, final ShopperAccountRiskData internalShopperAccountRiskData) {
-        if (shopperAccountRiskData.getShopperAccountPasswordChangeDate() != null) {
-            ShopperAccountPasswordChangeDate internalShopperAccountPasswordChangeDate = new ShopperAccountPasswordChangeDate();
-            internalShopperAccountPasswordChangeDate.setDate(createInternalDate(shopperAccountRiskData.getShopperAccountPasswordChangeDate().getDate()));
-            internalShopperAccountRiskData.setShopperAccountPasswordChangeDate(internalShopperAccountPasswordChangeDate);
-        }
-    }
-
-    private void populateShopperAccountModificationDate(final com.worldpay.service.model.threeds2.ShopperAccountRiskData shopperAccountRiskData, final ShopperAccountRiskData internalShopperAccountRiskData) {
-        if (shopperAccountRiskData.getShopperAccountModificationDate() != null) {
-            final ShopperAccountModificationDate internalShopperAccountModificationDate = new ShopperAccountModificationDate();
-            internalShopperAccountModificationDate.setDate(createInternalDate(shopperAccountRiskData.getShopperAccountModificationDate().getDate()));
-            internalShopperAccountRiskData.setShopperAccountModificationDate(internalShopperAccountModificationDate);
-        }
-    }
-
-    private void populateShopperAccountCreationDate(final com.worldpay.service.model.threeds2.ShopperAccountRiskData shopperAccountRiskData, final ShopperAccountRiskData internalShopperAccountRiskData) {
-        if (shopperAccountRiskData.getShopperAccountCreationDate() != null) {
-            final ShopperAccountCreationDate internalShopperAccountCreationDate = new ShopperAccountCreationDate();
-            internalShopperAccountCreationDate.setDate(createInternalDate(shopperAccountRiskData.getShopperAccountCreationDate().getDate()));
-            internalShopperAccountRiskData.setShopperAccountCreationDate(internalShopperAccountCreationDate);
-        }
-    }
-
-    private void populateAuthenticationRiskData(final com.worldpay.internal.model.RiskData internalRiskData) {
-        if (riskData.getAuthenticationRiskData() != null) {
-            final AuthenticationRiskData internalAuthenticationRiskData = new AuthenticationRiskData();
-            internalAuthenticationRiskData.setAuthenticationMethod(riskData.getAuthenticationRiskData().getAuthenticationMethod());
-            if (riskData.getAuthenticationRiskData().getAuthenticationTimestamp() != null) {
-                final RiskDateData authenticationTimestamp = riskData.getAuthenticationRiskData().getAuthenticationTimestamp();
-                final AuthenticationTimestamp internalAuthenticationTimestamp = new AuthenticationTimestamp();
-                internalAuthenticationTimestamp.setDate(createInternalDate(authenticationTimestamp.getDate()));
-                internalAuthenticationRiskData.setAuthenticationTimestamp(internalAuthenticationTimestamp);
-            }
-            internalRiskData.setAuthenticationRiskData(internalAuthenticationRiskData);
-        }
-    }
-
-    private com.worldpay.internal.model.Date createInternalDate(final Date date) {
-        final com.worldpay.internal.model.Date internalDate = new com.worldpay.internal.model.Date();
-        if (date != null) {
-            internalDate.setDayOfMonth(date.getDayOfMonth());
-            internalDate.setMonth(date.getMonth());
-            internalDate.setYear(date.getYear());
-            internalDate.setHour(date.getHour());
-            internalDate.setMinute(date.getMinute());
-            internalDate.setSecond(date.getSecond());
-        }
-        return internalDate;
     }
 
     public String getInstallationId() {
@@ -435,5 +298,13 @@ public class Order extends BasicOrderInfo implements InternalModelTransformer, S
 
     public void setRiskData(final RiskData riskData) {
         this.riskData = riskData;
+    }
+
+    public List<PaymentMethodAttribute> getPaymentMethodAttributes() {
+        return paymentMethodAttributes;
+    }
+
+    public void setPaymentMethodAttributes(List<PaymentMethodAttribute> paymentMethodAttributes) {
+        this.paymentMethodAttributes = paymentMethodAttributes;
     }
 }

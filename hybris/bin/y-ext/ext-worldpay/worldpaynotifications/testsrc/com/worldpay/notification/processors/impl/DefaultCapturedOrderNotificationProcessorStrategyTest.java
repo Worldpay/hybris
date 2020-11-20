@@ -1,5 +1,6 @@
 package com.worldpay.notification.processors.impl;
 
+import com.worldpay.klarna.WorldpayKlarnaUtils;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -39,7 +40,7 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     @Mock
     private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
 
-    private TransactionOperations transactionOperationsMock = new TransactionOperations() {
+    private final TransactionOperations transactionOperationsMock = new TransactionOperations() {
         @Override
         public <T> T execute(final TransactionCallback<T> transactionCallback) throws TransactionException {
             return transactionCallback.doInTransaction(transactionStatusMock);
@@ -58,18 +59,20 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     private PaymentTransactionEntryModel paymentTransactionEntryModelMock;
     @Mock
     private PaymentReply paymentReplyMock;
+    @Mock
+    private WorldpayKlarnaUtils worldpayKlarnaUtilsMock;
 
     private List<PaymentTransactionEntryModel> pendingCaptureTransactionEntries;
 
     @Before
     public void setUp() {
-        testObj = new DefaultCapturedOrderNotificationProcessorStrategy(transactionOperationsMock, modelServiceMock, worldpayPaymentTransactionServiceMock);
+        testObj = new DefaultCapturedOrderNotificationProcessorStrategy(transactionOperationsMock, modelServiceMock, worldpayPaymentTransactionServiceMock, worldpayKlarnaUtilsMock);
         pendingCaptureTransactionEntries = singletonList(paymentTransactionEntryModelMock);
 
         when(worldpayPaymentTransactionServiceMock.getPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, CAPTURE)).thenReturn(pendingCaptureTransactionEntries);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
         when(orderNotificationMessageMock.getPaymentReply()).thenReturn(paymentReplyMock);
-        when(paymentReplyMock.getMethodCode()).thenReturn(PaymentType.VISA.getMethodCode());
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.VISA.getMethodCode());
     }
 
     @Test
@@ -86,7 +89,7 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
 
     @Test
     public void processNotificationMessage_shouldCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMButIsNotKlarnaSSL() {
-        when(paymentReplyMock.getMethodCode()).thenReturn(PaymentType.CASHU.getMethodCode());
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.CASHU.getMethodCode());
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(true);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
@@ -99,8 +102,9 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
 
     @Test
     public void processNotificationMessage_shouldNotCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMAndIsKlarnaSSL() {
-        when(paymentReplyMock.getMethodCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(true);
+        when(worldpayKlarnaUtilsMock.isKlarnaPaymentType(PaymentType.KLARNASSL.getMethodCode())).thenReturn(true);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
 

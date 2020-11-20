@@ -4,6 +4,7 @@ import com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethod
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
@@ -44,19 +45,21 @@ public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodChe
     private static final Logger LOGGER = Logger.getLogger(WorldpayPaymentAPIController.class);
 
     @Resource
-    private Validator cseFormValidator;
+    protected Validator cseFormValidator;
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource(name = "addressDataUtil")
-    private AddressDataUtil addressDataUtil;
+    protected AddressDataUtil addressDataUtil;
     @Resource
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
+    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
     @Resource(name = "guestValidator")
-    private GuestValidator guestValidator;
+    protected GuestValidator guestValidator;
     @Resource(name = "guidCookieStrategy")
-    private GUIDCookieStrategy guidCookieStrategy;
+    protected GUIDCookieStrategy guidCookieStrategy;
+    @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     /**
      * Validates and saves form details on submit of the payment details form for Client Side Encryption flow and redirects to payment form
@@ -194,7 +197,7 @@ public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodChe
     }
 
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc) {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfo = getWorldpayAdditionalInfoFacade().createWorldpayAdditionalInfoData(request);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSecurityCode(cvc);
         return worldpayAdditionalInfo;
     }

@@ -15,16 +15,20 @@ public class WorldpayRiskScoreConverter extends AbstractConverter<RiskScore, Wor
 
     /**
      * Creates a {@link WorldpayRiskScoreModel} with the information from the {@link RiskScore}. Handles RMM and RiskGuardian(tm) RiskScores.
+     *
      * @param riskScore the {@link RiskScore} received from Worldpay
      * @return a created {@link WorldpayRiskScoreModel} with the information received.
      */
     @Override
     public WorldpayRiskScoreModel convert(final RiskScore riskScore) {
         final WorldpayRiskScoreModel worldpayRiskScoreModel = modelService.create(WorldpayRiskScoreModel.class);
-        populate(riskScore,worldpayRiskScoreModel);
+        populate(riskScore, worldpayRiskScoreModel);
         return worldpayRiskScoreModel;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void populate(final RiskScore riskScore, final WorldpayRiskScoreModel worldpayRiskScoreModel) {
         worldpayRiskScoreModel.setFinalScore(riskScore.getFinalScore() != null ? Double.valueOf(riskScore.getFinalScore()) : null);

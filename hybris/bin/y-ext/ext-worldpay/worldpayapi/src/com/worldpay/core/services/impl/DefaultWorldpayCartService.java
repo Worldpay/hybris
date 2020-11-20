@@ -2,12 +2,13 @@ package com.worldpay.core.services.impl;
 
 import com.worldpay.core.dao.WorldpayCartDao;
 import com.worldpay.core.services.WorldpayCartService;
+import com.worldpay.service.payment.WorldpaySessionService;
+import com.worldpay.service.payment.impl.OccWorldpaySessionService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
 import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.text.MessageFormat;
 
@@ -17,8 +18,18 @@ import java.text.MessageFormat;
 public class DefaultWorldpayCartService implements WorldpayCartService {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayCartService.class);
-    private WorldpayCartDao worldpayCartDao;
-    private CartService cartService;
+
+    protected final WorldpayCartDao worldpayCartDao;
+    protected final CartService cartService;
+    protected final WorldpaySessionService worldpaySessionService;
+
+    public DefaultWorldpayCartService(final WorldpayCartDao worldpayCartDao,
+                                      final CartService cartService,
+                                      final WorldpaySessionService worldpaySessionService) {
+        this.worldpayCartDao = worldpayCartDao;
+        this.cartService = cartService;
+        this.worldpaySessionService = worldpaySessionService;
+    }
 
     /**
      * {@inheritDoc}
@@ -37,7 +48,7 @@ public class DefaultWorldpayCartService implements WorldpayCartService {
      * {@inheritDoc}
      */
     @Override
-    public void setWorldpayDeclineCodeOnCart(String worldpayOrderCode, String declineCode) {
+    public void setWorldpayDeclineCodeOnCart(final String worldpayOrderCode, final String declineCode) {
         try {
             final CartModel cart = findCartByWorldpayOrderCode(worldpayOrderCode);
             cart.setWorldpayDeclineCode(declineCode);
@@ -49,18 +60,21 @@ public class DefaultWorldpayCartService implements WorldpayCartService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CartModel findCartByWorldpayOrderCode(final String worldpayOrderCode) {
         return worldpayCartDao.findCartByWorldpayOrderCode(worldpayOrderCode);
     }
 
-    @Required
-    public void setWorldpayCartDao(final WorldpayCartDao worldpayCartDao) {
-        this.worldpayCartDao = worldpayCartDao;
-    }
-
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setSessionId(final String sessionId) {
+        if (worldpaySessionService instanceof OccWorldpaySessionService) {
+            ((OccWorldpaySessionService) worldpaySessionService).setSessionIdFor3dSecure(sessionId);
+        }
     }
 }

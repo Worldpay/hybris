@@ -169,8 +169,9 @@ ACC.googlePay = {
         const paymentMethodData = paymentData.paymentMethodData;
         const billingAddress = paymentMethodData.info.billingAddress;
         const token = JSON.parse(paymentMethodData.tokenizationData.token);
+        const saved = ($('#SaveDetails').is(':checked'));
 
-        this.performAuthorizePaymentRequest({billingAddress: billingAddress, token: token})
+        this.performAuthorizePaymentRequest({billingAddress: billingAddress, token: token, saved : saved})
             .then(function(order) {
                 ACC.worldpay.redirectToConfirmationPage(order);
             })

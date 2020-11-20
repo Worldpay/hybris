@@ -2,6 +2,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.forms.ThreeDSecureForm;
 import com.worldpay.payment.DirectResponseData;
@@ -31,10 +32,11 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
     private static final Logger LOG = Logger.getLogger(WorldpayThreeDSecureEndpointController.class);
 
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-
+    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private WorldpayCartService worldpayCartService;
+    protected WorldpayCartService worldpayCartService;
+    @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     /**
      *
@@ -50,7 +52,7 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
         TransactionStatus transactionStatus = ERROR;
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.authorise3DSecure(threeDSecureForm.getPaRes(),
-                    getWorldpayAdditionalInfoFacade().createWorldpayAdditionalInfoData(request));
+                    worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
             transactionStatus = responseData.getTransactionStatus();
             if (AUTHORISED.equals(transactionStatus)) {
                 return redirectToOrderConfirmationPage(responseData.getOrderData());

@@ -65,5 +65,11 @@
         </property>
     </bean>
 
-    <import resource="v2-web-spring-worldpayoccaddon.xml"/>
+    <bean id="defaultWorldpayOCCStringMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter"/>
+
+    <bean depends-on="messageConvertersV2" parent="listMergeDirective">
+        <property name="add" ref="defaultWorldpayOCCStringMessageConverter"/>
+    </bean>
+
+    <import resource="v2-web-spring-worldpayextocc.xml"/>
 </beans>

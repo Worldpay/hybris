@@ -25,11 +25,11 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
     protected static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
 
     @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
-    private WorldpayDirectResponseFacade worldpayDirectResponseFacade;
+    protected WorldpayDirectResponseFacade worldpayDirectResponseFacade;
     @Resource
-    private WorldpayDDCFacade worldpayDDCFacade;
+    protected WorldpayDDCFacade worldpayDDCFacade;
 
     public String handleDirectResponse(final Model model, final DirectResponseData directResponseData, final HttpServletResponse response) throws CMSItemNotFoundException, WorldpayConfigurationException {
         if (worldpayDirectResponseFacade.isAuthorised(directResponseData)) {
@@ -65,7 +65,7 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
     }
 
     public void setDDCIframeData(final Model model) {
-        final String ddcUrl = Optional.ofNullable(getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData())
+        final String ddcUrl = Optional.ofNullable(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData())
                 .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
                 .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
                 .orElse(null);

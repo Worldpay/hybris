@@ -12,7 +12,7 @@ public enum ChallengeWindowSizeEnum {
     private static final String R_PREFIX = "R";
     private static final String ONE_HUNDRED_PER_CENT = "100%";
 
-    private final String realValue;
+    protected final String realValue;
 
     ChallengeWindowSizeEnum(final String realValue) {
         this.realValue = realValue;

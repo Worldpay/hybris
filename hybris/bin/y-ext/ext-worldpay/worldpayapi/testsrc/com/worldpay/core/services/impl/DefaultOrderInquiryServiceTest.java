@@ -92,7 +92,7 @@ public class DefaultOrderInquiryServiceTest {
     public void setUp() throws Exception {
         doReturn(orderInquiryServiceRequestMock).when(testObj).createOrderInquiryServiceRequest(merchantInfoMock, WORLDPAY_ORDER_CODE);
         when(orderInquiryServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
-        when(paymentReplyMock.getMethodCode()).thenReturn(PAYMENT_METHOD_CODE);
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PAYMENT_METHOD_CODE);
         when(paymentTransactionModelMock.getInfo()).thenReturn(paymentTransactionPaymentInfoModelMock);
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
         when(paymentTransactionAPMPaymentInfoModelMock.getIsApm()).thenReturn(Boolean.TRUE);

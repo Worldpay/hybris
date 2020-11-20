@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DefaultWorldpayAdditionalInfoFacade implements WorldpayAdditionalInfoFacade {
 
-    private final WorldpayAdditionalInfoService worldpayAdditionalInfoService;
+    protected final WorldpayAdditionalInfoService worldpayAdditionalInfoService;
 
     public DefaultWorldpayAdditionalInfoFacade(final WorldpayAdditionalInfoService worldpayAdditionalInfoService) {
         this.worldpayAdditionalInfoService = worldpayAdditionalInfoService;

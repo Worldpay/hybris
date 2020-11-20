@@ -60,3 +60,7 @@
     max-width: 50%;
     height: 46px;
 }
+
+.save_payment_details label {
+    font-weight: normal;
+}

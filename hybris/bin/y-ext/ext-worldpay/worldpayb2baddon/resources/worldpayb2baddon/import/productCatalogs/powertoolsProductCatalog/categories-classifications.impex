@@ -1,4 +1,0 @@
-$productCatalog=powertoolsProductCatalog
-$productCatalogName=Powertools Product Catalog
-$classCatalogVersion=catalogversion(catalog(id[default='PowertoolsClassification']),version[default='1.0'])[unique=true,default='PowertoolsClassification:1.0']
-$classSystemVersion=systemVersion(catalog(id[default='PowertoolsClassification']),version[default='1.0'])[unique=true]

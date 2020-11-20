@@ -1,6 +1,0 @@
-$productCatalog=powertoolsProductCatalog
-$productCatalogName=Powertools Product Catalog
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
-$media=@media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator]
-$siteResource=jar:com.worldpay.constants.Worldpayb2baddonConstants&/worldpayb2baddon/import/stores/powertools
-$medias=medias(code, $catalogVersion)
