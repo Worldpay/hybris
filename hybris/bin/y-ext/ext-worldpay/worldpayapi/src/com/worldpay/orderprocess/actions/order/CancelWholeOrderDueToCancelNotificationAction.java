@@ -6,7 +6,7 @@ import de.hybris.platform.processengine.action.AbstractProceduralAction;
 
 public class CancelWholeOrderDueToCancelNotificationAction extends AbstractProceduralAction<OrderProcessModel> {
 
-    private final WorldpayCancelWholeOrderDueToCancelNotificationStrategy worldpayCancelWholeOrderDueToCancelNotificationStrategy;
+    protected final WorldpayCancelWholeOrderDueToCancelNotificationStrategy worldpayCancelWholeOrderDueToCancelNotificationStrategy;
 
     public CancelWholeOrderDueToCancelNotificationAction(final WorldpayCancelWholeOrderDueToCancelNotificationStrategy worldpayCancelWholeOrderDueToCancelNotificationStrategy) {
         this.worldpayCancelWholeOrderDueToCancelNotificationStrategy = worldpayCancelWholeOrderDueToCancelNotificationStrategy;

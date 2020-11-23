@@ -9,7 +9,6 @@ import com.worldpay.service.model.threeds2.RiskData;
 import com.worldpay.service.model.token.TokenRequest;
 import org.apache.commons.collections4.CollectionUtils;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +31,7 @@ public class OrderBuilder {
     private List<PaymentType> includedPaymentMethods;
     private List<PaymentType> excludedPaymentMethods;
     private StoredCredentials storedCredentials;
-
+    private List<PaymentMethodAttribute> paymentMethodAttributes;
 
     public OrderBuilder withOrderContent(String orderContent) {
         this.orderContent = orderContent;
@@ -114,11 +113,15 @@ public class OrderBuilder {
         return this;
     }
 
-    OrderBuilder withStoredCredentials(final StoredCredentials storedCredentials){
+    OrderBuilder withStoredCredentials(final StoredCredentials storedCredentials) {
         this.storedCredentials = storedCredentials;
         return this;
     }
 
+    OrderBuilder withPaymentMethodAttribute(final List<PaymentMethodAttribute> paymentMethodAttributes) {
+        this.paymentMethodAttributes = paymentMethodAttributes;
+        return this;
+    }
 
     public Order build() {
         final Order order = new Order(orderInfo.getOrderCode(), orderInfo.getDescription(), orderInfo.getAmount());
@@ -136,9 +139,10 @@ public class OrderBuilder {
         Optional.ofNullable(additional3DSData).ifPresent(order::setAdditional3DSData);
         Optional.ofNullable(installationId).ifPresent(order::setInstallationId);
         Optional.ofNullable(orderContent).ifPresent(order::setOrderContent);
-        Optional.ofNullable(includedPaymentMethods).ifPresent(includedPTs -> addPaymentTypesIncluded(order,includedPTs));
+        Optional.ofNullable(includedPaymentMethods).ifPresent(includedPTs -> addPaymentTypesIncluded(order, includedPTs));
         Optional.ofNullable(excludedPaymentMethods).ifPresent(excludedPTs -> addPaymentTypesExcluded(order, excludedPTs));
-        Optional.ofNullable(storedCredentials).ifPresent(storedCredentials1 -> addStoredCredentials(order, storedCredentials1));
+        Optional.ofNullable(storedCredentials).ifPresent(credentials -> addStoredCredentials(order, credentials));
+        Optional.ofNullable(paymentMethodAttributes).ifPresent(order::setPaymentMethodAttributes);
 
         return order;
     }

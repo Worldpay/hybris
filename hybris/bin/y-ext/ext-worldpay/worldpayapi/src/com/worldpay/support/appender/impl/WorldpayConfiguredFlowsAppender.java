@@ -8,7 +8,6 @@ import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
 import de.hybris.platform.cms2.servicelayer.daos.CMSPageDao;
 import de.hybris.platform.cms2.servicelayer.services.CMSSiteService;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,13 +18,18 @@ import static java.util.stream.Collectors.toList;
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the list of configured flows
  */
-public class WorldpayConfiguredFlowsAppender implements WorldpaySupportEmailAppender {
+public class WorldpayConfiguredFlowsAppender extends WorldpaySupportEmailAppender {
 
     protected static final String PAYMENT_AND_BILLING_LABEL = "worldpayPaymentAndBillingCheckoutStep";
     public static final String ONLINE_FLAG = "online";
 
-    private CMSSiteService cmsSiteService;
-    private CMSPageDao cmsPageDao;
+    protected final CMSSiteService cmsSiteService;
+    protected final CMSPageDao cmsPageDao;
+
+    public WorldpayConfiguredFlowsAppender(final CMSSiteService cmsSiteService, final CMSPageDao cmsPageDao) {
+        this.cmsSiteService = cmsSiteService;
+        this.cmsPageDao = cmsPageDao;
+    }
 
     /**
      * {@inheritDoc}
@@ -60,15 +64,5 @@ public class WorldpayConfiguredFlowsAppender implements WorldpaySupportEmailAppe
                 .filter(contentCatalog -> contentCatalog.getVersion().equalsIgnoreCase(ONLINE_FLAG))
                 .map(ContentCatalogModel::getActiveCatalogVersion)
                 .collect(toList());
-    }
-
-    @Required
-    public void setCmsSiteService(CMSSiteService cmsSiteService) {
-        this.cmsSiteService = cmsSiteService;
-    }
-
-    @Required
-    public void setCmsPageDao(CMSPageDao cmsPageDao) {
-        this.cmsPageDao = cmsPageDao;
     }
 }

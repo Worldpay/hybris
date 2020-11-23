@@ -9,7 +9,7 @@ About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company
 The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
 
 ## Release Information
-This release is tailored for SAP Commerce Cloud 1811. Functionalities of fixed of newer release (1905, 2005) are not backported into this release. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
+This release is tailored for SAP Commerce Cloud 1811. Functionalities of fixed of newer release (2005) may not be backported into this release. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
 
 # Installation and Usage
 
@@ -22,6 +22,9 @@ The AddOn provides three gradle recipes to be used with the hybris installer.
 2. wp_b2c_acc_oms with OMS functionality for both accelerator storefront and OCC.
 
 3. wp_b2b_acc with fulfilment functionality for b2b accelerator storefront.
+
+4. wp_b2c_acc_occ with fulfilment functionality for b2c accelerator storefront and OCC with specific properties for Spartacus.
+
 
 The recipes are based on the b2c_acc, b2c_acc_oms and b2b_acc recipes provided by hybris.
 
@@ -36,5 +39,12 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-- Bugfix
-  - Correcting the mapping of credit cards when tokenising 
+- OCC new endpoints to support 3DS Flex, Apple Pay and Google Pay under Spartacus frontend
+
+- Tokenisation for Google Pay and Paypal
+
+- Support for Klarna PayNow, Klarna PayLater, Klarna SliceIt (https://developer.worldpay.com/docs/wpg/apms/klarnakp)
+
+- RiskData information added for credit card payments under redirect implementation
+
+- New recipe wp_b2c_acc_occ to support the Spartacus storefront application

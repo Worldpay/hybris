@@ -40,7 +40,7 @@ public class APMOrderTimeoutJobPerformable extends AbstractJobPerformable {
         LOG.debug("Executing Order Timeout cronjob for timed out pending payment transactions");
         final List<PaymentTransactionModel> cancellablePendingAPMPaymentTransactions = worldpayPaymentTransactionDao.findCancellablePendingAPMPaymentTransactions();
         CronJobResult cronJobResult = CronJobResult.SUCCESS;
-        for (PaymentTransactionModel paymentTransactionModel : cancellablePendingAPMPaymentTransactions) {
+        for (final PaymentTransactionModel paymentTransactionModel : cancellablePendingAPMPaymentTransactions) {
             transactionTemplate.execute(transactionStatus -> {
                 worldpayPaymentTransactionService.updateEntriesStatus(paymentTransactionModel.getEntries(), REVIEW.name());
                 modelService.save(paymentTransactionModel);

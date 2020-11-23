@@ -10,7 +10,6 @@
 
 $contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
 $defaultLanguage=en
-$webServiceSiteUid=$siteUidWS
 $paymentProvider=Worldpay
 
 # Base Store

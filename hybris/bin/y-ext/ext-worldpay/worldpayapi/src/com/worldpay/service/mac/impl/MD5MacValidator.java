@@ -35,7 +35,7 @@ public class MD5MacValidator implements MacValidator {
             final String hashString = StringUtils.join(asList(orderKey, paymentAmount, currency, status != null ? status.name() : null, macSecret), "");
 
             final MessageDigest digester = MessageDigest.getInstance("MD5");
-            byte[] digestedMac = digester.digest(hashString.getBytes(StandardCharsets.UTF_8.name()));
+            final byte[] digestedMac = digester.digest(hashString.getBytes(StandardCharsets.UTF_8.name()));
 
             return worldpayMac.equalsIgnoreCase(Hex.encodeHexString(digestedMac));
         } catch (final NoSuchAlgorithmException | UnsupportedEncodingException e) {

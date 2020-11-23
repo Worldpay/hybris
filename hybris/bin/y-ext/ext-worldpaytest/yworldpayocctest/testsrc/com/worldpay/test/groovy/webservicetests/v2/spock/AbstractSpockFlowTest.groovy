@@ -34,24 +34,24 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
         def password = CUSTOMER_PASSWORD_STRONG
 
         HttpResponseDecorator response = client.post(
-                path: basePathWithSite + '/users',
-                body: [
-                        'login'    : username,
-                        'password' : password,
-                        'titleCode': CUSTOMER_TITLE_CODE,
-                        'firstName': CUSTOMER_FIRST_NAME,
-                        'lastName' : CUSTOMER_LAST_NAME
-                ],
-                contentType: format,
-                requestContentType: APPLICATION_FORM_URLENCODED)
+            path: basePathWithSite + '/users',
+            body: [
+                'login'    : username,
+                'password' : password,
+                'titleCode': CUSTOMER_TITLE_CODE,
+                'firstName': CUSTOMER_FIRST_NAME,
+                'lastName' : CUSTOMER_LAST_NAME
+            ],
+            contentType: format,
+            requestContentType: APPLICATION_FORM_URLENCODED)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_CREATED
         }
         return [
-                'id'      : username,
-                'password': password
+            'id'      : username,
+            'password': password
         ]
     }
     /**
@@ -62,18 +62,18 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      */
     def registerCustomer(customer, RESTClient client, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
-                path: basePathWithSite + '/users',
-                body: [
-                        'login'    : customer.login,
-                        'password' : customer.password,
-                        'titleCode': customer.titleCode,
-                        'firstName': customer.firstName,
-                        'lastName' : customer.lastName,
-                        'currency' : customer.currency,
-                        'language' : customer.language
-                ],
-                contentType: format,
-                requestContentType: APPLICATION_FORM_URLENCODED)
+            path: basePathWithSite + '/users',
+            body: [
+                'login'    : customer.login,
+                'password' : customer.password,
+                'titleCode': customer.titleCode,
+                'firstName': customer.firstName,
+                'lastName' : customer.lastName,
+                'currency' : customer.currency,
+                'language' : customer.language
+            ],
+            contentType: format,
+            requestContentType: APPLICATION_FORM_URLENCODED)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
@@ -90,20 +90,20 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      */
     def createAddress(RESTClient client, user, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
-                path: basePathWithSite + '/users/' + user.id + '/addresses',
-                body: [
-                        'titleCode'      : CUSTOMER_TITLE_CODE,
-                        'firstName'      : CUSTOMER_FIRST_NAME,
-                        'lastName'       : CUSTOMER_LAST_NAME,
-                        'line1'          : CUSTOMER_ADDRESS_LINE1,
-                        'line2'          : CUSTOMER_ADDRESS_LINE2,
-                        'postalCode'     : CUSTOMER_ADDRESS_POSTAL_CODE,
-                        'town'           : CUSTOMER_ADDRESS_TOWN,
-                        'country.isocode': CUSTOMER_ADDRESS_COUNTRY_ISO_CODE,
-                        'fields'         : FIELD_SET_LEVEL_FULL
-                ],
-                contentType: format,
-                requestContentType: APPLICATION_FORM_URLENCODED)
+            path: basePathWithSite + '/users/' + user.id + '/addresses',
+            body: [
+                'titleCode'      : CUSTOMER_TITLE_CODE,
+                'firstName'      : CUSTOMER_FIRST_NAME,
+                'lastName'       : CUSTOMER_LAST_NAME,
+                'line1'          : CUSTOMER_ADDRESS_LINE1,
+                'line2'          : CUSTOMER_ADDRESS_LINE2,
+                'postalCode'     : CUSTOMER_ADDRESS_POSTAL_CODE,
+                'town'           : CUSTOMER_ADDRESS_TOWN,
+                'country.isocode': CUSTOMER_ADDRESS_COUNTRY_ISO_CODE,
+                'fields'         : FIELD_SET_LEVEL_FULL
+            ],
+            contentType: format,
+            requestContentType: APPLICATION_FORM_URLENCODED)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
@@ -140,10 +140,10 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      */
     protected createCart(RESTClient client, customer, format, basePathWithSite = getBasePathWithSite()) {
         def cart = returningWith(client.post(
-                path: basePathWithSite + '/users/' + customer.id + '/carts',
-                query: ['fields': FIELD_SET_LEVEL_FULL],
-                contentType: format,
-                requestContentType: APPLICATION_FORM_URLENCODED), {
+            path: basePathWithSite + '/users/' + customer.id + '/carts',
+            query: ['fields': FIELD_SET_LEVEL_FULL],
+            contentType: format,
+            requestContentType: APPLICATION_FORM_URLENCODED), {
             if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
             status == SC_OK
         }).data

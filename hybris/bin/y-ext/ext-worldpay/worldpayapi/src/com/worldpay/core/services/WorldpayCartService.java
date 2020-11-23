@@ -32,4 +32,10 @@ public interface WorldpayCartService {
      */
     CartModel findCartByWorldpayOrderCode(final String worldpayOrderCode);
 
+    /**
+     * Store the session id from the initial payment request on the cart
+     *
+     * @param sessionId
+     */
+    void setSessionId(final String sessionId);
 }

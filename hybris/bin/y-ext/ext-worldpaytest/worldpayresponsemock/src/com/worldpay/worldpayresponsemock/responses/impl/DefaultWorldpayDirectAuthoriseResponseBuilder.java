@@ -39,9 +39,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
         return paymentService;
     }
 
-    // Needed because of false positive caused by java8 semantics
-    @SuppressWarnings("squid:S2583")
-    private OrderStatus createOrderStatus(final Submit submitRequest) {
+    protected OrderStatus createOrderStatus(final Submit submitRequest) {
         boolean shouldCreateToken = false;
         String tokenReason = "tokenReason";
         String authenticatedShopperId = null;
@@ -50,7 +48,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
 
         final List<Object> requestElements = submitRequest.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
         final List<Object> orderStatusElements = orderStatus.
-                getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
+            getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
         for (Object requestElement : requestElements) {
             if (requestElement instanceof Shopper) {
                 final Shopper shopper = (Shopper) requestElement;
@@ -59,10 +57,16 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
 
             if (requestElement instanceof Order) {
                 final Order requestOrder = (Order) requestElement;
-                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
-                final Amount intAmount = orderElements.stream().filter(Amount.class::isInstance).map(Amount.class::cast).findAny().orElseThrow(() -> new IllegalStateException("There is no amount"));
+                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
+                final Amount intAmount = orderElements.stream()
+                    .filter(Amount.class::isInstance)
+                    .map(Amount.class::cast)
+                    .findAny()
+                    .orElseThrow(() -> new IllegalStateException("There is no amount"));
                 final Payment payment = aPaymentBuilder()
-                        .withTransactionAmount(intAmount.getValue()).withLastEvent(AUTHORISED).build();
+                    .withTransactionAmount(intAmount.getValue())
+                    .withLastEvent(AUTHORISED)
+                    .build();
                 orderStatus.setOrderCode(requestOrder.getOrderCode());
                 orderStatusElements.add(payment);
 
@@ -77,17 +81,17 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
         if (shouldCreateToken) {
             final Address addressForCardDetails = anAddressBuilder().build();
             final Token token = aTokenBuilder()
-                    .withTokenEvent(NEW_TOKEN_EVENT)
-                    .withCardBrand(VISA_SSL)
-                    .withCardSubBrand("CREDIT")
-                    .withIssuerCountryCode("GB")
-                    .withObfuscatedPAN(OBFUSCATED_PAN)
-                    .withCardHolderName("TEST_NAME")
-                    .withCardAddress(addressForCardDetails)
-                    .withAuthenticatedShopperId(authenticatedShopperId)
-                    .withTokenDetailsTokenReason(tokenReason)
-                    .withTokenReason(tokenReason)
-                    .build();
+                .withTokenEvent(NEW_TOKEN_EVENT)
+                .withCardBrand(VISA_SSL)
+                .withCardSubBrand("CREDIT")
+                .withIssuerCountryCode("GB")
+                .withObfuscatedPAN(OBFUSCATED_PAN)
+                .withCardHolderName("TEST_NAME")
+                .withCardAddress(addressForCardDetails)
+                .withAuthenticatedShopperId(authenticatedShopperId)
+                .withTokenDetailsTokenReason(tokenReason)
+                .withTokenReason(tokenReason)
+                .build();
 
             orderStatusElements.add(token);
         }

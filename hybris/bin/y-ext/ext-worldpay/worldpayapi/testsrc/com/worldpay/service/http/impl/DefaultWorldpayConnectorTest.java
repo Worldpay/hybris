@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayConnectorTest {
 
-    private static final String WORLDPAY_CONFIG_ENDPOINT = "worldpay.config.endpoint";
     private static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
     private static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
     private static final String WORLDPAY_CONFIG_CONTEXT = "worldpay.config.context";

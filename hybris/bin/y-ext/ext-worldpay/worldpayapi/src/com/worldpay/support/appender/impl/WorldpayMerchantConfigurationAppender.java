@@ -13,7 +13,7 @@ import static org.apache.commons.lang.StringUtils.join;
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the merchants configured
  */
-public class WorldpayMerchantConfigurationAppender implements WorldpaySupportEmailAppender {
+public class WorldpayMerchantConfigurationAppender extends WorldpaySupportEmailAppender {
 
     /**
      * {@inheritDoc}

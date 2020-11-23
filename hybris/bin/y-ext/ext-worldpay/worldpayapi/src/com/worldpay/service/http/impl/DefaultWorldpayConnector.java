@@ -12,16 +12,18 @@ import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import rx.Observable;
+import rx.Single;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Implementation class to make HTTP Post of messages to Worldpay. Implements the {@link WorldpayConnector} interface.
@@ -34,29 +36,41 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     protected static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
     protected static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
 
-    private PaymentServiceMarshaller paymentServiceMarshaller;
-    private ConfigurationService configurationService;
-    private RestTemplate restTemplate;
+    protected final PaymentServiceMarshaller paymentServiceMarshaller;
+    protected final ConfigurationService configurationService;
+    protected final RestTemplate restTemplate;
 
-    @Override
-    public ServiceReply send(final PaymentService paymentService, final MerchantInfo merchantInfo, final String cookie) throws WorldpayException {
-        final ResponseEntity<String> responseEntity = sendXML(paymentService, merchantInfo, cookie);
-        return receiveXML(responseEntity);
+    public DefaultWorldpayConnector(final PaymentServiceMarshaller paymentServiceMarshaller, final ConfigurationService configurationService, final RestTemplate restTemplate) {
+        this.paymentServiceMarshaller = paymentServiceMarshaller;
+        this.configurationService = configurationService;
+        this.restTemplate = restTemplate;
     }
 
-    private ResponseEntity<String> sendXML(final PaymentService paymentService,
-                                           final MerchantInfo merchantInfo,
-                                           final String cookie) throws WorldpayException {
+    @Override
+    public ServiceReply send(final PaymentService outboundPaymentService, final MerchantInfo merchantInfo, final String cookie) throws WorldpayException {
+        final AtomicReference<ResponseEntity<String>> responseXML = new AtomicReference<>();
+        final Single<ResponseEntity<String>> response = sendOutboundXML(outboundPaymentService, merchantInfo, cookie);
+        response.subscribe(responseXML::set);
+        return processResponseXML(responseXML.get());
+    }
+
+    private Single<ResponseEntity<String>> sendOutboundXML(final PaymentService paymentService,
+                                                           final MerchantInfo merchantInfo,
+                                                           final String cookie) throws WorldpayException {
         final String environment = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT);
         final String domain = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_DOMAIN + "." + environment);
-        final String context = configurationService.getConfiguration().getString( WORLDPAY_CONFIG_CONTEXT + "." + environment);
+        final String context = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_CONTEXT + "." + environment);
         final String endpoint = domain + context;
 
 
         final URI uri = URI.create(endpoint);
         final HttpHeaders headers = configureHttpHeaders(merchantInfo, cookie, uri.getHost());
         final HttpEntity<String> request = configureRequest(paymentService, headers);
-        return restTemplate.postForEntity(uri, request, String.class);
+
+        return Observable.just(restTemplate)
+                .map(template -> template.postForEntity(uri, request, String.class))
+                .retry(2)
+                .toSingle();
     }
 
     private HttpHeaders configureHttpHeaders(final MerchantInfo merchantInfo, final String cookie, final String host) {
@@ -75,10 +89,10 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
         return new HttpEntity<>(WorldpayConstants.XML_HEADER + marshaledXML, headers);
     }
 
-    private ServiceReply receiveXML(final ResponseEntity<String> responseXML) throws WorldpayException {
+    private ServiceReply processResponseXML(final ResponseEntity<String> responseXML) throws WorldpayException {
         final ServiceReply serviceReply = new ServiceReply();
         serviceReply.setCookie(Iterables.getFirst(responseXML.getHeaders().get("Set-Cookie"), ""));
-        serviceReply.setPaymentService(paymentServiceMarshaller.unmarshal(IOUtils.toInputStream(responseXML.getBody())));
+        serviceReply.setPaymentService(paymentServiceMarshaller.unmarshal(IOUtils.toInputStream(responseXML.getBody(), StandardCharsets.UTF_8)));
         return serviceReply;
     }
 
@@ -91,20 +105,5 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
         } catch (final WorldpayException e) {
             LOG.debug("There was an error marshalling the paymentService for debug logging", e);
         }
-    }
-
-    @Required
-    public void setPaymentServiceMarshaller(final PaymentServiceMarshaller paymentServiceMarshaller) {
-        this.paymentServiceMarshaller = paymentServiceMarshaller;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-    }
-
-    @Required
-    public void setRestTemplate(final RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
     }
 }

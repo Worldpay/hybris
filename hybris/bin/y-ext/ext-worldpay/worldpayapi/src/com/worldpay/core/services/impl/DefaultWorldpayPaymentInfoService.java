@@ -16,20 +16,25 @@ import com.worldpay.service.model.SchemeResponse;
 import com.worldpay.service.model.payment.Card;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.model.token.CardDetails;
+import com.worldpay.service.model.token.TokenDetails;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
+import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
+import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.enums.CreditCardType;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
+import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.user.AddressService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -57,18 +62,28 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     private static final String WORLDPAY_CREDIT_CARD_MAPPINGS = "worldpay.creditCard.mappings.";
     private static final String CART_MODEL_CANNOT_BE_NULL = "CartModel cannot be null";
 
-    private final ModelService modelService;
-    private final EnumerationService enumerationService;
-    private final APMConfigurationLookupService apmConfigurationLookupService;
-    private final ConfigurationService configurationService;
-    private final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    protected final ModelService modelService;
+    protected final EnumerationService enumerationService;
+    protected final APMConfigurationLookupService apmConfigurationLookupService;
+    protected final ConfigurationService configurationService;
+    protected final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    protected final CommerceCheckoutService commerceCheckoutService;
+    protected final AddressService addressService;
 
-    public DefaultWorldpayPaymentInfoService(final ModelService modelService, final EnumerationService enumerationService, final APMConfigurationLookupService apmConfigurationLookupService, final ConfigurationService configurationService, final WorldpayMerchantInfoService worldpayMerchantInfoService) {
+    public DefaultWorldpayPaymentInfoService(final ModelService modelService,
+                                             final EnumerationService enumerationService,
+                                             final APMConfigurationLookupService apmConfigurationLookupService,
+                                             final ConfigurationService configurationService,
+                                             final WorldpayMerchantInfoService worldpayMerchantInfoService,
+                                             final CommerceCheckoutService commerceCheckoutService,
+                                             final AddressService addressService) {
         this.modelService = modelService;
         this.enumerationService = enumerationService;
         this.apmConfigurationLookupService = apmConfigurationLookupService;
         this.configurationService = configurationService;
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
+        this.commerceCheckoutService = commerceCheckoutService;
+        this.addressService = addressService;
     }
 
     /**
@@ -92,8 +107,9 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     public void setPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final OrderNotificationMessage orderNotificationMessage) throws WorldpayConfigurationException {
         final PaymentInfoModel paymentInfo = getPaymentInfoModel(paymentTransactionModel, orderNotificationMessage);
         attachPaymentInfoModel(paymentTransactionModel, orderModel, paymentInfo);
-        updateStoredCredentialsOnPaymentInfo(paymentInfo,orderNotificationMessage);
+        updateStoredCredentialsOnPaymentInfo(paymentInfo, orderNotificationMessage);
         removePaymentInfoWhenCreatingNewOneFromNotification(orderModel);
+        modelService.save(paymentInfo);
     }
 
     /**
@@ -103,6 +119,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     public void updateAndAttachPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final PaymentInfoModel paymentInfoModel) {
         updatePaymentInfo(orderModel, paymentInfoModel);
         attachPaymentInfoModel(paymentTransactionModel, orderModel, paymentInfoModel);
+        modelService.save(paymentInfoModel);
     }
 
     /**
@@ -118,7 +135,6 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         apmPaymentInfoModel.setSaved(false);
         apmPaymentInfoModel.setMerchantId(worldpayMerchantInfoService.getMerchantInfoFromTransaction(paymentTransactionModel).getMerchantCode());
         apmPaymentInfoModel.setTimeoutDate(calculateAPMTimeoutDate(paymentTransactionModel.getCreationtime(), apmPaymentInfoModel.getApmConfiguration()));
-        modelService.save(apmPaymentInfoModel);
         return apmPaymentInfoModel;
     }
 
@@ -141,18 +157,22 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      * {@inheritDoc}
      */
     @Override
-    public PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo) {
+    public PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo,
+                                                       final String paymentTokenId, final String obfuscatedCardNumber) {
         validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         validateParameterNotNull(googleAuthInfo, "GooglePayAdditionalAuthInfo cannot be null");
-        final GooglePayPaymentInfoModel paymentInfoModel = modelService.create(GooglePayPaymentInfoModel.class);
-        paymentInfoModel.setUser(cartModel.getUser());
-        paymentInfoModel.setSaved(false);
-        paymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
-        paymentInfoModel.setProtocolVersion(googleAuthInfo.getProtocolVersion());
-        paymentInfoModel.setSignature(googleAuthInfo.getSignature());
-        paymentInfoModel.setSignedMessage(googleAuthInfo.getSignedMessage());
-        cartModel.setPaymentInfo(paymentInfoModel);
-        modelService.save(cartModel);
+
+        if (StringUtils.isNotEmpty(paymentTokenId)) {
+            final WorldpayAPMPaymentInfoModel foundWorldpayAPMPaymentInfoModel = findMatchingTokenisedAPM(cartModel.getUser(), paymentTokenId);
+            if (foundWorldpayAPMPaymentInfoModel != null) {
+                cartModel.setPaymentInfo(foundWorldpayAPMPaymentInfoModel);
+                modelService.save(cartModel);
+                return foundWorldpayAPMPaymentInfoModel;
+            }
+        }
+
+        final GooglePayPaymentInfoModel paymentInfoModel = createGooglePaymentInfoModel(cartModel, googleAuthInfo, paymentTokenId, obfuscatedCardNumber);
+
         return updatePaymentInfo(cartModel, paymentInfoModel);
     }
 
@@ -170,9 +190,9 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setVersion(applePayAdditionalAuthInfo.getVersion());
         paymentInfoModel.setTransactionId(applePayAdditionalAuthInfo.getHeader().getTransactionId());
         cartModel.setPaymentInfo(paymentInfoModel);
-        modelService.save(cartModel);
-        return updatePaymentInfo(cartModel, paymentInfoModel);
-
+        updatePaymentInfo(cartModel, paymentInfoModel);
+        modelService.saveAll(cartModel,paymentInfoModel);
+        return paymentInfoModel;
     }
 
     /**
@@ -185,7 +205,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         validateParameterNotNull(abstractOrderModel, CART_MODEL_CANNOT_BE_NULL);
 
         final Optional<CreditCardPaymentInfoModel> customerSavedCard = Optional.ofNullable(tokenReply)
-                .map(existentTokenReply -> getCreditCardPaymentInfoModelBasedOnTokenReply(abstractOrderModel, existentTokenReply, saveCard));
+            .map(existentTokenReply -> getCreditCardPaymentInfoModelBasedOnTokenReply(abstractOrderModel, existentTokenReply, saveCard));
 
         if (customerSavedCard.isPresent()) {
             return customerSavedCard.get();
@@ -218,15 +238,18 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      * {@inheritDoc}
      */
     @Override
-    public Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest) {
+    public Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest, final Boolean saveCard) {
         final String paymentTokenId = updateTokenServiceRequest.getUpdateTokenRequest().getPaymentTokenId();
 
-        final CreditCardPaymentInfoModel matchingTokenisedCard = findMatchingTokenisedCard(cartModel.getUser(), paymentTokenId);
+        final CreditCardPaymentInfoModel matchingTokenisedCard = findMatchingTokenizedCard(cartModel.getUser(), paymentTokenId);
         if (matchingTokenisedCard != null) {
             final CardDetails cardDetails = updateTokenServiceRequest.getUpdateTokenRequest().getCardDetails();
             matchingTokenisedCard.setCcOwner(cardDetails.getCardHolderName());
             matchingTokenisedCard.setValidToMonth(cardDetails.getExpiryDate().getMonth());
             matchingTokenisedCard.setValidToYear(cardDetails.getExpiryDate().getYear());
+            if (!matchingTokenisedCard.isSaved()) {
+                matchingTokenisedCard.setSaved(saveCard);
+            }
             modelService.save(matchingTokenisedCard);
             return Optional.of(matchingTokenisedCard);
         }
@@ -241,10 +264,69 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setTransactionIdentifier(transactionIdentifier);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void createPaymentInfoModelOnCart(final CartModel cartModel, final boolean isSaved) {
+        final PaymentInfoModel paymentInfoModel = createPaymentInfo(cartModel);
+        paymentInfoModel.setSaved(isSaved);
+        cartModel.setPaymentInfo(paymentInfoModel);
+        getOptionalPaymentTransactionFromCart(cartModel)
+            .ifPresent(paymentTransactionModel -> savePaymentInfoOnPaymentTransaction(paymentInfoModel, paymentTransactionModel));
+        modelService.saveAll(paymentInfoModel, cartModel);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setPaymentInfoOnCart(final CartModel cartModel, final CreditCardPaymentInfoModel creditCardPaymentInfo) {
+        Optional.ofNullable(creditCardPaymentInfo).ifPresent(creditCardPaymentInfoModel -> {
+            final CommerceCheckoutParameter commerceCheckoutParameter = new CommerceCheckoutParameter();
+            commerceCheckoutParameter.setCart(cartModel);
+            commerceCheckoutParameter.setPaymentInfo(creditCardPaymentInfoModel);
+            commerceCheckoutService.setPaymentInfo(commerceCheckoutParameter);
+        });
+    }
+
+    /**
+     * Workaround: Extra address created when an order is placed
+     * Potential bug in class: DefaultCommercePlaceOrderStrategy
+     * Method: public CommerceOrderResult placeOrder(CommerceCheckoutParameter parameter) throws InvalidCartException {...}
+     * Logic: if(cartModel.getPaymentInfo() != null && cartModel.getPaymentInfo().getBillingAddress() != null) {...}
+     *
+     * @param cartModel        holding the source address
+     * @param paymentInfoModel holding the address owner
+     * @return the cloned address model
+     */
+    public AddressModel cloneAndSetBillingAddressFromCart(final CartModel cartModel, final PaymentInfoModel paymentInfoModel) {
+        final AddressModel paymentAddress = cartModel.getPaymentAddress();
+        validateParameterNotNull(paymentAddress, "Payment Address cannot be null.");
+        final AddressModel clonedAddress = addressService.cloneAddressForOwner(paymentAddress, paymentInfoModel);
+        clonedAddress.setBillingAddress(true);
+        clonedAddress.setShippingAddress(false);
+        clonedAddress.setOwner(paymentInfoModel);
+        paymentInfoModel.setBillingAddress(clonedAddress);
+        return clonedAddress;
+    }
+    private void savePaymentInfoOnPaymentTransaction(final PaymentInfoModel paymentInfoModel, final PaymentTransactionModel paymentTransactionModel) {
+        paymentTransactionModel.setInfo(paymentInfoModel);
+        modelService.save(paymentTransactionModel);
+    }
+
+    private Optional<PaymentTransactionModel> getOptionalPaymentTransactionFromCart(final CartModel cartModel) {
+        final String worldpayOrderCode = cartModel.getWorldpayOrderCode();
+        return cartModel.getPaymentTransactions().stream()
+            .filter(paymentTransactionModel ->
+                paymentTransactionModel.getCode().equals(worldpayOrderCode))
+            .findAny();
+    }
+
     protected CreditCardPaymentInfoModel getCreditCardPaymentInfoModelBasedOnTokenReply(final AbstractOrderModel abstractOrderModel, final TokenReply tokenReply, final boolean saveCard) {
         final TokenEvent tokenEvent = TokenEvent.valueOf(tokenReply.getTokenDetails().getTokenEvent().toUpperCase());
         if (tokenEvent.equals(TokenEvent.MATCH)) {
-            final CreditCardPaymentInfoModel customerSavedCard = findMatchingTokenisedCard(abstractOrderModel.getUser(), tokenReply.getTokenDetails().getPaymentTokenID());
+            final CreditCardPaymentInfoModel customerSavedCard = findMatchingTokenizedCard(abstractOrderModel.getUser(), tokenReply.getTokenDetails().getPaymentTokenID());
             if (customerSavedCard != null) {
                 if (!customerSavedCard.isSaved()) {
                     customerSavedCard.setSaved(saveCard);
@@ -260,19 +342,18 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     protected void updateStoredCredentialsOnPaymentInfo(final PaymentInfoModel paymentInfoModel, final OrderNotificationMessage orderNotificationMessage) {
         Optional.ofNullable(orderNotificationMessage.getPaymentReply().getSchemeResponse())
-                .ifPresent(schemeResponse -> setTransactionIdentifier(paymentInfoModel, schemeResponse));
+            .ifPresent(schemeResponse -> setTransactionIdentifier(paymentInfoModel, schemeResponse));
     }
 
     private void setTransactionIdentifier(final PaymentInfoModel paymentInfoModel, final SchemeResponse schemeResponse) {
         paymentInfoModel.setTransactionIdentifier(schemeResponse.getTransactionIdentifier());
-        modelService.save(paymentInfoModel);
     }
 
     protected void removePaymentInfoWhenCreatingNewOneFromNotification(final AbstractOrderModel orderModel) {
         orderModel.getUser().getPaymentInfos().stream()
-                .filter(paymentInfoModel -> paymentInfoModel.getWorldpayOrderCode().equals(orderModel.getWorldpayOrderCode()))
-                .filter(paymentInfoModel -> paymentInfoModel.getClass().equals(PaymentInfoModel.class))
-                .findAny().ifPresent(modelService::remove);
+            .filter(paymentInfoModel -> paymentInfoModel.getWorldpayOrderCode().equals(orderModel.getWorldpayOrderCode()))
+            .filter(paymentInfoModel -> paymentInfoModel.getClass().equals(PaymentInfoModel.class))
+            .findAny().ifPresent(modelService::remove);
     }
 
     protected void setPaymentTypeAndCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final Card paymentInstrument) {
@@ -283,24 +364,58 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         }
     }
 
-    protected PaymentInfoModel getPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage)
-            throws WorldpayConfigurationException {
+    protected PaymentInfoModel getPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel,
+                                                   final OrderNotificationMessage orderNotificationMessage)
+        throws WorldpayConfigurationException {
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
-        savePaymentType(paymentTransactionModel, paymentReply.getMethodCode());
+        savePaymentType(paymentTransactionModel, paymentReply.getPaymentMethodCode());
         final PaymentInfoModel paymentTransactionModelInfo = paymentTransactionModel.getInfo();
         if (paymentTransactionModelInfo.getIsApm()) {
+            final TokenReply tokenReply = orderNotificationMessage.getTokenReply();
+            if (tokenReply != null && orderNotificationMessage.getPaymentReply().getPaymentMethodCode().equalsIgnoreCase(PaymentType.PAYPAL.getMethodCode())) {
+                return createPaypalTokenisedPaymentInfo(paymentTransactionModel, orderNotificationMessage, tokenReply);
+            }
             return createWorldpayApmPaymentInfo(paymentTransactionModel);
         }
-        return createAndSaveCreditCard(paymentTransactionModel, orderNotificationMessage);
+        return createCreditCardPaymentInfo(paymentTransactionModel, orderNotificationMessage);
     }
 
-    protected CreditCardPaymentInfoModel findMatchingTokenisedCard(final UserModel userModel, final String paymentTokenId) {
+    protected WorldpayAPMPaymentInfoModel createPaypalTokenisedPaymentInfo(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage, final TokenReply tokenReply) throws WorldpayConfigurationException {
+        final String paymentTokenID = orderNotificationMessage.getTokenReply().getTokenDetails().getPaymentTokenID();
+        final WorldpayAPMPaymentInfoModel foundWorldpayAPMPaymentInfoModel = findMatchingTokenisedAPM(paymentTransactionModel.getOrder().getUser(), paymentTokenID);
+        if (foundWorldpayAPMPaymentInfoModel == null) {
+            final WorldpayAPMPaymentInfoModel newWorldpayAPMPaymentInfo = createWorldpayApmPaymentInfo(paymentTransactionModel);
+            newWorldpayAPMPaymentInfo.setAuthenticatedShopperID(tokenReply.getAuthenticatedShopperID());
+            newWorldpayAPMPaymentInfo.setEventReference(tokenReply.getTokenDetails().getTokenEventReference());
+            final TokenDetails tokenDetails = orderNotificationMessage.getTokenReply().getTokenDetails();
+            newWorldpayAPMPaymentInfo.setSubscriptionId(tokenDetails.getPaymentTokenID());
+            newWorldpayAPMPaymentInfo.setSaved(true);
+            newWorldpayAPMPaymentInfo.setBillingAddress(paymentTransactionModel.getOrder().getPaymentAddress());
+            final LocalDate dt = getDateTime(tokenDetails.getPaymentTokenExpiry());
+            newWorldpayAPMPaymentInfo.setExpiryDate(java.util.Date.from(dt.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            return newWorldpayAPMPaymentInfo;
+        }
+
+        return foundWorldpayAPMPaymentInfoModel;
+    }
+
+    protected CreditCardPaymentInfoModel findMatchingTokenizedCard(final UserModel userModel, final String paymentTokenId) {
         return userModel.getPaymentInfos().stream()
-                .filter(CreditCardPaymentInfoModel.class::isInstance)
-                .map(CreditCardPaymentInfoModel.class::cast)
-                .filter(card -> paymentTokenId.equals(card.getSubscriptionId()))
-                .findAny()
-                .orElse(null);
+            .filter(CreditCardPaymentInfoModel.class::isInstance)
+            .map(CreditCardPaymentInfoModel.class::cast)
+            .filter(card -> paymentTokenId.equals(card.getSubscriptionId()))
+            .findAny()
+            .orElse(null);
+    }
+
+    protected WorldpayAPMPaymentInfoModel findMatchingTokenisedAPM(final UserModel userModel, final String paymentTokenId) {
+        return userModel.getPaymentInfos().stream()
+            .filter(WorldpayAPMPaymentInfoModel.class::isInstance)
+            .map(WorldpayAPMPaymentInfoModel.class::cast)
+            .filter(apmPaymentInfoModel -> Boolean.TRUE.equals(apmPaymentInfoModel.isSaved()))
+            .filter(apmPaymentInfoModel -> paymentTokenId.equals(apmPaymentInfoModel.getSubscriptionId()))
+            .findAny()
+            .orElse(null);
     }
 
     /**
@@ -316,7 +431,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      * @param orderNotificationMessage the {@OrderNotificationMessage} received from Worldpay in the Redirect/HOP flow
      * @return
      */
-    protected CreditCardPaymentInfoModel createAndSaveCreditCard(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
+    protected CreditCardPaymentInfoModel createCreditCardPaymentInfo(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
 
         final TokenReply tokenReply = orderNotificationMessage.getTokenReply();
@@ -330,7 +445,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
                     return creditCardPaymentInfoModel;
                 }
             }
-            return cloneAndSaveCreditCardWithPaymentInformation(paymentTransactionModel, paymentReply);
+            return cloneCreditCardWithPaymentInformation(paymentTransactionModel, paymentReply);
         }
     }
 
@@ -338,7 +453,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         final TokenEvent tokenEvent = TokenEvent.valueOf(tokenReply.getTokenDetails().getTokenEvent().toUpperCase());
         if (shouldSearchForExistingToken(tokenEvent)) {
             final String paymentTokenID = tokenReply.getTokenDetails().getPaymentTokenID();
-            final CreditCardPaymentInfoModel customerSavedCard = findMatchingTokenisedCard(paymentTransactionModel.getOrder().getUser(), paymentTokenID);
+            final CreditCardPaymentInfoModel customerSavedCard = findMatchingTokenizedCard(paymentTransactionModel.getOrder().getUser(), paymentTokenID);
             if (customerSavedCard != null) {
                 return customerSavedCard;
             }
@@ -350,7 +465,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         return tokenEvent.equals(TokenEvent.MATCH) || tokenEvent.equals(TokenEvent.CONFLICT);
     }
 
-    protected CreditCardPaymentInfoModel cloneAndSaveCreditCardWithPaymentInformation(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
+    protected CreditCardPaymentInfoModel cloneCreditCardWithPaymentInformation(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
         final CreditCardPaymentInfoModel creditCardPaymentInfoModel = modelService.clone(paymentTransactionModel.getInfo(), CreditCardPaymentInfoModel.class);
         creditCardPaymentInfoModel.setOriginal(null);
         creditCardPaymentInfoModel.setDuplicate(false);
@@ -358,10 +473,8 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         final Date expiryDate = card.getExpiryDate();
 
         setCardInformation(creditCardPaymentInfoModel, card.getCardNumber(), expiryDate.getMonth(), expiryDate.getYear(), card.getCardHolderName());
-
         updateCreditCardType(creditCardPaymentInfoModel, paymentReply);
 
-        modelService.save(creditCardPaymentInfoModel);
         return creditCardPaymentInfoModel;
     }
 
@@ -412,7 +525,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     }
 
     private void updateCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final PaymentReply paymentReply) {
-        doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, paymentReply.getMethodCode());
+        doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, paymentReply.getPaymentMethodCode());
     }
 
     private void attachPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final PaymentInfoModel paymentInfoModel) {
@@ -433,7 +546,6 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setEventReference(tokenReply.getTokenDetails().getTokenEventReference());
         final LocalDate dt = getDateTime(tokenReply.getTokenDetails().getPaymentTokenExpiry());
         creditCardPaymentInfoModel.setExpiryDate(java.util.Date.from(dt.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        modelService.save(creditCardPaymentInfoModel);
         return creditCardPaymentInfoModel;
     }
 
@@ -446,7 +558,23 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     private PaymentInfoModel updatePaymentInfo(final AbstractOrderModel cartModel, final PaymentInfoModel paymentInfoModel) {
         paymentInfoModel.setWorldpayOrderCode(cartModel.getWorldpayOrderCode());
-        modelService.save(paymentInfoModel);
+        return paymentInfoModel;
+    }
+
+    protected GooglePayPaymentInfoModel createGooglePaymentInfoModel(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo, final String paymentTokenId, final String obfuscatedCardNumber) {
+        final WorldpayAPMConfigurationModel worldpayAPMConfigurationModel = apmConfigurationLookupService.getAPMConfigurationForCode(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+        final GooglePayPaymentInfoModel paymentInfoModel = modelService.create(GooglePayPaymentInfoModel.class);
+        paymentInfoModel.setUser(cartModel.getUser());
+        paymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
+        paymentInfoModel.setProtocolVersion(googleAuthInfo.getProtocolVersion());
+        paymentInfoModel.setSignature(googleAuthInfo.getSignature());
+        paymentInfoModel.setSignedMessage(googleAuthInfo.getSignedMessage());
+        paymentInfoModel.setApmConfiguration(worldpayAPMConfigurationModel);
+        paymentInfoModel.setSubscriptionId(paymentTokenId);
+        paymentInfoModel.setObfuscatedCardNumber(obfuscatedCardNumber);
+        paymentInfoModel.setSaved(googleAuthInfo.getSaveCard());
+        cartModel.setPaymentInfo(paymentInfoModel);
+        modelService.save(cartModel);
         return paymentInfoModel;
     }
 

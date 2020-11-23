@@ -11,7 +11,10 @@ import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModification;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
+import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
+import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
+import de.hybris.platform.core.PK;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
@@ -21,18 +24,17 @@ import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.storelocator.model.PointOfServiceModel;
 import de.hybris.platform.storelocator.pos.PointOfServiceService;
+import io.netty.util.internal.StringUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -42,7 +44,7 @@ import static org.mockito.Mockito.*;
 public class WorldpayCheckoutFacadeDecoratorTest {
 
     private static final String PICKUP_POINT_OF_SERVICE_NAME = "pickupPointOfServiceName";
-    private static final String PAYMENT_INFO = "paymentInfo";
+    private static final String PAYMENT_INFO = "123456";
     private static final String DELIVERY_MODE_CODE = "deliveryModeCode";
     private static final String ADDRESS_CODE = "addressCode";
 
@@ -55,6 +57,8 @@ public class WorldpayCheckoutFacadeDecoratorTest {
 
     @Mock
     private AddressModel sourceMock;
+    @Mock
+    private CommerceCheckoutService commerceCheckoutServiceMock;
     @Mock
     private CheckoutFlowFacade checkoutFlowFacadeMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -89,6 +93,12 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     private CommerceCartModification commerceCartModificationMock;
     @Mock
     private PaymentInfoModel paymentInfoModelMock;
+    @Mock
+    private CustomerModel cartUserMock;
+    @Captor
+    private ArgumentCaptor<CommerceCheckoutParameter> commerceCheckoutParameterArgumentCaptor;
+
+    private PK pk = PK.fromLong(123456L);
 
     @Before
     public void setUp() throws CommerceCartModificationException {
@@ -104,7 +114,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getBillingAddressReturnsCartPaymentAddress() {
+    public void getBillingAddress_ShouldReturnCartPaymentAddress() {
         when(cartModelMock.getPaymentAddress()).thenReturn(sourceMock);
 
         final AddressData result = testObj.getBillingAddress();
@@ -114,7 +124,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getBillingAddressReturnsNullIfNoCartFound() {
+    public void getBillingAddress_IfNoCartFound_ShouldReturnNull() {
         when(cartModelMock.getPaymentAddress()).thenReturn(sourceMock);
         when(cartServiceMock.getSessionCart()).thenReturn(null);
 
@@ -125,7 +135,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getBillingAddressReturnsNullIfCartHasNoPaymentAddress() {
+    public void getBillingAddress_IfCartHasNoPaymentAddress_ShouldReturnNull() {
         when(cartModelMock.getPaymentAddress()).thenReturn(null);
 
         final AddressData result = testObj.getBillingAddress();
@@ -135,7 +145,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenCartIsNull() {
+    public void hasNoPaymentInfo_WhenCartIsNull_ShouldReturnTrue() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(null);
 
         final boolean result = testObj.hasNoPaymentInfo();
@@ -144,7 +154,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenCartIsNotNullAndHasNoPaymentInfos() {
+    public void hasNoPaymentInfo_WhenCartIsNotNullAndHasNoPaymentInfos_ShouldReturnTrue() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(null);
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
@@ -155,7 +165,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenCartDataIsNotNullAndHasPaymentInfoAndAPMPaymentInfo() {
+    public void hasNoPaymentInfo_WhenCartDataIsNotNullAndHasPaymentInfoAndAPMPaymentInfo_ShouldReturnFalse() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoDataMock);
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(apmPaymentInfoDataMock);
@@ -166,7 +176,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenCartHasNoCCPaymentInfoAndHasAPMPaymentInfo() {
+    public void hasNoPaymentInfo_WhenCartHasNoCCPaymentInfoAndHasAPMPaymentInfo_ShouldReturnFalse() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(null);
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(apmPaymentInfoDataMock);
@@ -177,7 +187,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenCartHasNoAPMPaymentInfo() {
+    public void hasNoPaymentInfo_WhenCartHasNoAPMPaymentInfo_ShouldReturnFalse() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
         when(cartDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoDataMock);
@@ -188,19 +198,19 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getBillingAddressReturnsNullIfCartModelIsNull() {
+    public void getBillingAddressIfCartModelIsNull_ShouldReturnNull() {
         final AddressData billingAddress = testObj.getBillingAddress();
         assertNull(billingAddress);
     }
 
     @Test
-    public void getBillingAddressReturnsNullIfAddressModelIsNull() {
+    public void getBillingAddress_IfAddressModelIsNull_ShouldReturnNull() {
         final AddressData billingAddress = testObj.getBillingAddress();
         assertNull(billingAddress);
     }
 
     @Test
-    public void getBillingAddressReturnsAddressDataIfCartAndAddressIsNotNull() {
+    public void getBillingAddress_IfCartAndAddressIsNotNull_ShouldReturnAddressData() {
         when(cartModelMock.getPaymentAddress()).thenReturn(addressModelMock);
         when(addressConverterMock.convert(addressModelMock)).thenReturn(addressDataMock);
 
@@ -212,7 +222,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getCartModelReturnsNullWhenThereIsNoSessionCart() {
+    public void getCartModel_WhenThereIsNoSessionCart_ShouldReturnNull() {
         when(checkoutFlowFacadeMock.hasCheckoutCart()).thenReturn(false);
 
         final CartModel cartModel = testObj.getSessionCart();
@@ -220,17 +230,57 @@ public class WorldpayCheckoutFacadeDecoratorTest {
         assertNull(cartModel);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void setPaymentDetails_ShouldThrowIllegalArgumentException_WhenPaymentInfoIsNull() {
+        testObj.setPaymentDetails(null);
+    }
+
     @Test
-    public void setPaymentDetailsShouldAddPaymentAddressToCart() {
-        when(cartModelMock.getPaymentInfo().getBillingAddress()).thenReturn(addressModelMock);
-        when(checkoutFlowFacadeMock.setPaymentDetails(PAYMENT_INFO)).thenReturn(true);
+    public void setPaymentDetails_ShouldReturnFalse_WhenCurrentUserIsNotTheCartUser() {
+        when(cartModelMock.getUser()).thenReturn(cartUserMock);
 
         final boolean result = testObj.setPaymentDetails(PAYMENT_INFO);
 
-        final InOrder inOrder = inOrder(checkoutFlowFacadeMock, cartModelMock, cartServiceMock);
-        inOrder.verify(checkoutFlowFacadeMock).setPaymentDetails(PAYMENT_INFO);
+        assertFalse(result);
+    }
+
+    @Test
+    public void setPaymentDetails_ShouldReturnFalse_WhenPaymentInfoIsEmpty() {
+        when(cartModelMock.getUser()).thenReturn(cartUserMock);
+
+        final boolean result = testObj.setPaymentDetails(StringUtil.EMPTY_STRING);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void setPaymentDetails_WhenCreditCartPaymentInfoNotFoundForCustomer_ShouldReturnFalse() {
+        when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(cartUserMock);
+        when(cartModelMock.getUser()).thenReturn(customerModelMock);
+
+        final boolean result = testObj.setPaymentDetails(PAYMENT_INFO);
+
+        assertFalse(result);
+    }
+
+    @Test
+    public void setPaymentDetails_WhenCreditCartPaymentInfoFoundForCustomer_ShouldAddPaymentAddressToCart() {
+        when(cartModelMock.getPaymentInfo().getBillingAddress()).thenReturn(addressModelMock);
+        when(checkoutFlowFacadeMock.setPaymentDetails(PAYMENT_INFO)).thenReturn(true);
+        when(cartModelMock.getUser()).thenReturn(customerModelMock);
+        when(customerModelMock.getPaymentInfos()).thenReturn(Collections.singletonList(paymentInfoModelMock));
+        when(paymentInfoModelMock.getPk()).thenReturn(pk);
+        when(commerceCheckoutServiceMock.setPaymentInfo(any())).thenReturn(Boolean.TRUE);
+
+        final boolean result = testObj.setPaymentDetails(PAYMENT_INFO);
+
+        final InOrder inOrder = inOrder(commerceCheckoutServiceMock, cartModelMock);
         inOrder.verify(cartModelMock).setPaymentAddress(addressModelMock);
-        inOrder.verify(cartServiceMock).saveOrder(cartModelMock);
+        inOrder.verify(commerceCheckoutServiceMock).setPaymentInfo(commerceCheckoutParameterArgumentCaptor.capture());
+
+        final CommerceCheckoutParameter parameter = commerceCheckoutParameterArgumentCaptor.getValue();
+
+        assertEquals(parameter.getPaymentInfo(), paymentInfoModelMock);
         assertTrue(result);
     }
 
@@ -445,13 +495,13 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getCountriesShouldUseMethodFromCheckoutFlowFacadeForTypeBilling() {
+    public void getCountries_ForTypeBilling_ShouldUseMethodFromCheckoutFlowFacade() {
         testObj.getCountries(CountryType.BILLING);
         verify(checkoutFlowFacadeMock).getCountries(CountryType.BILLING);
     }
 
     @Test
-    public void getCountriesShouldUseMethodFromCheckoutFlowFacadeForTypeDelivery() {
+    public void getCountries_ForTypeDelivery_ShouldUseMethodFromCheckoutFlowFacade() {
         testObj.getCountries(CountryType.SHIPPING);
         verify(checkoutFlowFacadeMock).getCountries(CountryType.SHIPPING);
     }

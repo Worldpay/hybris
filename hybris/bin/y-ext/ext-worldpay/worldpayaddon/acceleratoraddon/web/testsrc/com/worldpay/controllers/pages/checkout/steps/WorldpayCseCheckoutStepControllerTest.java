@@ -7,6 +7,7 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
+import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
@@ -92,6 +93,11 @@ public class WorldpayCseCheckoutStepControllerTest {
     private CMSPreviewService cmsPreviewServiceMock;
     @Mock
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
+    @Mock
+    private WorldpayDDCFacade worldpayDDCFacadeMock;
+    @Mock
+    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
+
     @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
     @Mock
@@ -110,8 +116,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     private PaymentDetailsForm paymentDetailsFormMock;
     @Mock
     private RedirectAttributes redirectAttrsMock;
-    @Mock
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
     @Mock
     private ContentPageModel contentPageModelMock;
     @Mock
@@ -325,8 +329,8 @@ public class WorldpayCseCheckoutStepControllerTest {
 
     @Test
     public void shouldPopulate3DSecureJsonWebToken() {
-        when(worldpayDirectOrderFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
-        when(worldpayDirectOrderFacadeMock.getEventOriginDomainForDDC()).thenReturn(THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE);
+        when(worldpayDDCFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
+        when(worldpayDDCFacadeMock.getEventOriginDomainForDDC()).thenReturn(THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE);
         when(worldpayAddonEndpointServiceMock.getDdcIframe3dSecureFlex()).thenReturn(THREDSFLEX_DDC_PAGE);
         when(worldpayMerchantConfigDataMock.getThreeDSFlexJsonWebTokenSettings().getDdcUrl()).thenReturn(THREEDSECURE_FLEX_DDC_URL_VALUE);
 

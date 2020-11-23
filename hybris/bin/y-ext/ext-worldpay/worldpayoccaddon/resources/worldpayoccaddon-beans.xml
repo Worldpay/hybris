@@ -9,6 +9,9 @@
     <bean class="de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO">
         <property name="cseToken" type="String"/>
         <property name="googlePayDetails" type="com.worldpay.dto.order.GooglePayRequestWsDTO"/>
+        <property name="challengeWindowSize" type="java.lang.String"/>
+        <property name="dfReferenceId" type="java.lang.String"/>
+        <property name="acceptedTermsAndConditions" type="java.lang.Boolean"/>
     </bean>
 
     <bean class="com.worldpay.dto.order.PlaceOrderResponseWsDTO">
@@ -23,6 +26,7 @@
         <property name="paRequest" type="String"/>
         <property name="merchantData" type="String"/>
         <property name="issuerURL" type="String"/>
+        <property name="threeDSFlexData" type="java.util.Map&lt;String, String>"/>
         <!-- Term url is not returned, this is handled by the storefront -->
     </bean>
 

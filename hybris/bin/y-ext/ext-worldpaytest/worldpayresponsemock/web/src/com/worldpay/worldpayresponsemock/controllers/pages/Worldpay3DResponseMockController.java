@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.worldpay.worldpayresponsemock.controllers.WorldpayResponseMockControllerConstants.Pages.Views.THREED_SECURE_RESPONSE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
@@ -30,7 +31,7 @@ public class Worldpay3DResponseMockController {
         model.put("paRes", paRes);
         model.put("merchantData", merchantData);
 
-        return "pages/threeDSecureResponse";
+        return THREED_SECURE_RESPONSE;
     }
 
 }

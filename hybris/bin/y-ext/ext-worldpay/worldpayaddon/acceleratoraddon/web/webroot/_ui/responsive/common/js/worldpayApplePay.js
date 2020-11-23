@@ -74,7 +74,6 @@ ACC.applePay = {
         }
 
         this.session.oncancel = function () {
-            console.log('cancelled payment');
             ACC.worldpay.pageSpinner.end();
             this.showPaymentError();
         }.bind(this);
@@ -88,11 +87,8 @@ ACC.applePay = {
         }.bind(this);
 
         this.session.onpaymentauthorized = function (event) {
-            console.log('Authorized payment by customer', event);
-
             this.performAuthorizePaymentRequest(event.payment)
                 .then(function (response) {
-                    console.log('Authorized payment by backend', response);
                     const statusCode = response.transactionStatus === 'AUTHORISED' ?
                         ApplePaySession.STATUS_SUCCESS :
                         ApplePaySession.STATUS_FAILURE;
@@ -112,7 +108,6 @@ ACC.applePay = {
 
         this.session.onpaymentmethodselected = function (event) {
             const paymentMethod = event.paymentMethod.type;
-            console.log('onpaymentmethodselected called', event, paymentMethod);
 
             this.performPaymentMethodUpdate(paymentMethod)
                 .then(function () {
@@ -122,13 +117,12 @@ ACC.applePay = {
                     this.session.completePaymentMethodSelection(update);
                 }.bind(this))
                 .catch(function (err) {
-                    console.log(err, this);
+                    console.log('Failed to update payment method', err);
                 });
         }.bind(this);
 
         this.session.onshippingmethodselected = function (event) {
             const shippingMethod = event.shippingMethod.identifier;
-            console.log('onshippingmethodselected called', event, shippingMethod);
 
             this.performShippingMethodUpdate(shippingMethod)
                 .then(function () {

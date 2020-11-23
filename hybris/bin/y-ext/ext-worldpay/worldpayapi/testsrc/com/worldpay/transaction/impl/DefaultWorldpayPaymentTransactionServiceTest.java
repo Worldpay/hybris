@@ -36,6 +36,7 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -139,7 +140,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     public void setUp() {
         paymentTransactionDependency.put(CAPTURE, AUTHORIZATION);
         paymentTransactionDependency.put(SETTLED, CAPTURE);
-        testObj.setPaymentTransactionDependency(paymentTransactionDependency);
+        Whitebox.setInternalState(testObj, "paymentTransactionDependency", paymentTransactionDependency);
 
         when(authorisedAndAcceptedAndNotPendingEntryMock.getType()).thenReturn(AUTHORIZATION);
         when(authorisedAndAcceptedAndNotPendingEntryMock.getTransactionStatus()).thenReturn(ACCEPTED.name());
@@ -583,21 +584,22 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         when(abstractOrderMock.getCurrency()).thenReturn(currencyModelMock);
         when(abstractOrderMock.getTotalPrice()).thenReturn(BigDecimal.TEN.doubleValue());
         when(paymentTransactionModelMock.getRequestToken()).thenReturn(REQUEST_TOKEN);
-        when(modelServiceMock.create(PaymentTransactionEntryModel.class)).thenReturn(new PaymentTransactionEntryModel());
+        when(modelServiceMock.create(PaymentTransactionEntryModel.class)).thenReturn(paymentTransactionEntryModelMock);
 
         final PaymentTransactionEntryModel result = testObj.createNotPendingCancelOrderTransactionEntry(paymentTransactionModelMock);
 
-        assertThat(result.getCode()).isEqualTo(TRANSACTION_ENTRY_CODE);
-        assertThat(result.getPaymentTransaction()).isEqualTo(paymentTransactionModelMock);
-        assertThat(result.getTime()).isNotNull();
-        assertThat(result.getRequestId()).isEqualTo(WORLDPAY_ORDER_CODE);
-        assertThat(result.getAmount().doubleValue()).isEqualTo(BigDecimal.TEN.doubleValue());
-        assertThat(result.getRequestToken()).isEqualTo(REQUEST_TOKEN);
-        assertThat(result.getTransactionStatus()).isEqualTo(REJECTED.name());
-        assertThat(result.getTransactionStatusDetails()).isEqualTo(PROCESSOR_DECLINE.name());
-        assertThat(result.getCurrency()).isEqualTo(currencyModelMock);
-        assertThat(result.getPending()).isFalse();
-        assertThat(result.getType()).isEqualTo(CANCEL);
+        assertThat(result).isEqualTo(paymentTransactionEntryModelMock);
+        verify(paymentTransactionEntryModelMock).setCode(TRANSACTION_ENTRY_CODE);
+        verify(paymentTransactionEntryModelMock).setPaymentTransaction(paymentTransactionModelMock);
+        verify(paymentTransactionEntryModelMock).setTime(any(Date.class));
+        verify(paymentTransactionEntryModelMock).setRequestId(WORLDPAY_ORDER_CODE);
+        verify(paymentTransactionEntryModelMock).setAmount(BigDecimal.valueOf(BigDecimal.TEN.doubleValue()));
+        verify(paymentTransactionEntryModelMock).setRequestToken(REQUEST_TOKEN);
+        verify(paymentTransactionEntryModelMock).setTransactionStatus(REJECTED.name());
+        verify(paymentTransactionEntryModelMock).setTransactionStatusDetails(PROCESSOR_DECLINE.name());
+        verify(paymentTransactionEntryModelMock).setCurrency(currencyModelMock);
+        verify(paymentTransactionEntryModelMock).setPending(false);
+        verify(paymentTransactionEntryModelMock).setType(CANCEL);
         verify(modelServiceMock).save(result);
     }
 

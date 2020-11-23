@@ -25,13 +25,13 @@ public class WorldpayExtensionListAppenderTest {
 
     @Spy
     @InjectMocks
-    private WorldpayExtensionListAppender testObj = new WorldpayExtensionListAppender();
+    private WorldpayExtensionListAppender testObj;
 
     @Mock
     private Tenant tenantMock;
 
     @Test
-    public void testAppendContent() {
+    public void appendContent_ShouldReturnListOfExtensions() {
         doReturn(Arrays.asList(EXTENSION_1, EXTENSION_2)).when(testObj).getTenantSpecificExtensionNames();
         final List<String> extensionNames = Arrays.asList(EXTENSION_1, EXTENSION_2);
         when(tenantMock.getTenantSpecificExtensionNames()).thenReturn(extensionNames);

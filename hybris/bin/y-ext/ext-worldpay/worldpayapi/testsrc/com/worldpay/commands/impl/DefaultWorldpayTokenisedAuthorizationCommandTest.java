@@ -7,10 +7,10 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.payment.WorldpayOrderService;
+import com.worldpay.service.payment.request.WorldpayRequestService;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
@@ -64,7 +64,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     @Mock
     private Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverterMock;
     @Mock
-    private WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverServiceMock;
+    private WorldpayRequestService worldpayRequestServiceMock;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
@@ -106,16 +106,16 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
 
     @Before
     public void setUp() throws WorldpayException {
-        final  DefaultWorldpayTokenisedAuthorizationCommand defaultWorldpayTokenisedAuthorizationCommand = new DefaultWorldpayTokenisedAuthorizationCommand(worldpayBillingInfoAddressConverterMock,worldpayAuthorizationResultConverterMock,worldpayDynamicInteractionResolverServiceMock,worldpayMerchantInfoServiceMock,worldpayPaymentTransactionServiceMock,worldpayOrderServiceMock,worldpayGatewayMock);
+        final DefaultWorldpayTokenisedAuthorizationCommand defaultWorldpayTokenisedAuthorizationCommand = new DefaultWorldpayTokenisedAuthorizationCommand(worldpayBillingInfoAddressConverterMock, worldpayAuthorizationResultConverterMock, worldpayMerchantInfoServiceMock, worldpayPaymentTransactionServiceMock, worldpayOrderServiceMock, worldpayGatewayMock, worldpayRequestServiceMock);
         testObj = spy(defaultWorldpayTokenisedAuthorizationCommand);
         doReturn(worldpayAdditionalInfoDataMock).when(testObj).getWorldpayAdditionalInfoData(CVV);
         when(worldpayAuthorizationResultConverterMock.convert(directAuthoriseServiceResponseMock)).thenReturn(authorizationResultMock);
         mockSubscriptionAuthorizationRequest();
         mockAdditionalInfo();
-        when(worldpayOrderServiceMock.createToken(PAYMENT_TOKEN_ID, SECURITY_CODE)).thenReturn(tokenMock);
+        when(worldpayRequestServiceMock.createToken(PAYMENT_TOKEN_ID, SECURITY_CODE)).thenReturn(tokenMock);
         when(worldpayOrderServiceMock.createAmount(CURRENCY, subscriptionAuthorizationRequestMock.getTotalAmount().doubleValue())).thenReturn(amountMock);
         when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), anyString(), eq(amountMock))).thenReturn(basicOrderInfoMock);
-        when(worldpayOrderServiceMock.createAuthenticatedShopper(eq(CUSTOMER_EMAIL), eq(AUTHENTICATED_SHOPPER_ID), any(Session.class), any(Browser.class))).thenReturn(shopperMock);
+        when(worldpayRequestServiceMock.createAuthenticatedShopper(eq(CUSTOMER_EMAIL), eq(AUTHENTICATED_SHOPPER_ID), any(Session.class), any(Browser.class))).thenReturn(shopperMock);
         when(shopperMock.getShopperEmailAddress()).thenReturn(CUSTOMER_EMAIL);
         when(basicOrderInfoMock.getAmount()).thenReturn(amountMock);
         when(basicOrderInfoMock.getDescription()).thenReturn(BASIC_ORDER_INFO_DESCRIPTION);
@@ -126,7 +126,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
         when(worldpayBillingInfoAddressConverterMock.convert(billingInfoMock)).thenReturn(addressMock);
         when(worldpayAdditionalInfoDataMock.getAuthenticatedShopperId()).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayAdditionalInfoDataMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
-        when(worldpayDynamicInteractionResolverServiceMock.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock)).thenReturn(DynamicInteractionType.ECOMMERCE);
+        when(worldpayRequestServiceMock.getDynamicInteractionType(worldpayAdditionalInfoDataMock)).thenReturn(DynamicInteractionType.ECOMMERCE);
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(paymentReplyMock.getAmount()).thenReturn(amountMock);
     }
