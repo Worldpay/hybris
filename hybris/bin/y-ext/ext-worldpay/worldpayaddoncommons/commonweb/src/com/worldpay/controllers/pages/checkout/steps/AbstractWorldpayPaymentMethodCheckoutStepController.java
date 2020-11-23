@@ -6,8 +6,7 @@ import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
-import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
-import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
+import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
@@ -17,6 +16,7 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.commercefacades.order.data.CardTypeData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
+import de.hybris.platform.commerceservices.enums.CountryType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -53,20 +54,15 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     protected static final String REQUEST = "request";
 
     @Resource
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
-
+    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
     @Resource
-    private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
-
+    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
-    private WorldpayHostedOrderFacade worldpayHostedOrderFacade;
-
-    @Resource
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
 
     @ModelAttribute("billingCountries")
     public Collection<CountryData> getBillingCountries() {
-        return getCheckoutFacade().getBillingCountries();
+        return getCheckoutFacade().getCountries(CountryType.BILLING);
     }
 
     @ModelAttribute("cardTypes")
@@ -96,16 +92,16 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     public List<SelectOption> getExpiryYears() {
         final LocalDate localDate = LocalDate.now();
         return IntStream.range(localDate.getYear(), localDate.getYear() + PLUS_YEARS)
-                .mapToObj(i -> new SelectOption(String.valueOf(i), String.valueOf(i)))
-                .collect(Collectors.toList());
+            .mapToObj(i -> new SelectOption(String.valueOf(i), String.valueOf(i)))
+            .collect(Collectors.toList());
     }
 
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         model.addAttribute("metaRobots", "noindex,nofollow");
-        model.addAttribute("hasNoPaymentInfo", getCheckoutFlowFacade().hasNoPaymentInfo());
+        model.addAttribute("hasNoPaymentInfo", worldpayCheckoutFacadeDecorator.hasNoPaymentInfo());
         prepareDataForPage(model);
         model.addAttribute(WebConstants.BREADCRUMBS_KEY,
-                getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.paymentMethod.breadcrumb"));
+            getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.paymentMethod.breadcrumb"));
 
         final ContentPageModel contentPage = getContentPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL);
         storeCmsPageInModel(model, contentPage);
@@ -162,7 +158,7 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
 
     private void populateAdditionalAuthInfo(final Boolean savePaymentInfo, final String paymentMethod, final AdditionalAuthInfo additionalAuthInfo) {
         additionalAuthInfo.setPaymentMethod(paymentMethod);
-        additionalAuthInfo.setUsingShippingAsBilling(!getWorldpayPaymentCheckoutFacade().hasBillingDetails());
+        additionalAuthInfo.setUsingShippingAsBilling(!worldpayPaymentCheckoutFacade.hasBillingDetails());
         additionalAuthInfo.setSaveCard(savePaymentInfo);
     }
 
@@ -178,23 +174,6 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     }
 
     protected Boolean getSavePaymentInfo(final Model model) {
-        return model.asMap().get(SAVE_PAYMENT_INFO) == null ? Boolean.FALSE : (Boolean) model.asMap().get(SAVE_PAYMENT_INFO);
+        return Optional.ofNullable((Boolean) model.asMap().get(SAVE_PAYMENT_INFO)).orElse(Boolean.FALSE);
     }
-
-    public WorldpayPaymentCheckoutFacade getWorldpayPaymentCheckoutFacade() {
-        return worldpayPaymentCheckoutFacade;
-    }
-
-    public WorldpayHostedOrderFacade getWorldpayHostedOrderFacade() {
-        return worldpayHostedOrderFacade;
-    }
-
-    public WorldpayAdditionalInfoFacade getWorldpayAdditionalInfoFacade() {
-        return worldpayAdditionalInfoFacade;
-    }
-
-    public WorldpayMerchantConfigDataFacade getWorldpayMerchantConfigDataFacade() {
-        return worldpayMerchantConfigDataFacade;
-    }
-
 }

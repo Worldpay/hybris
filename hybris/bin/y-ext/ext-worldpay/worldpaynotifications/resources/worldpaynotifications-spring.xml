@@ -48,24 +48,6 @@
         <property name="businessProcessService" ref="businessProcessService"/>
     </bean>
 
-    <bean id="worldpaynotificationsCoreDataImportedEventListener" parent="abstractCoreDataImportedEventListener">
-        <property name="supportedChannels">
-            <list value-type="de.hybris.platform.commerceservices.enums.SiteChannel">
-                <value>B2C</value>
-            </list>
-        </property>
-        <property name="addonExtensionMetadata">
-            <bean class="de.hybris.platform.addonsupport.data.AddonExtensionMetadata">
-                <property name="suffixChannel" value="false"/>
-                <property name="baseExtensionName" value="worldpaynotifications"/>
-            </bean>
-        </property>
-    </bean>
-
-    <bean id="worldpaynotificationsSampleDataEventListener" parent="abstractGenericAddOnSampleDataEventListener">
-        <property name="extensionName" value="worldpaynotifications"/>
-    </bean>
-
     <bean id="orderModificationListener" class="com.worldpay.worldpaynotifications.listener.WorldpayOrderModificationListener" parent="abstractEventListener">
         <property name="modelService" ref="modelService"/>
         <property name="paymentTransactionTypeMap" ref="paymentTransactionTypeMap"/>
@@ -124,15 +106,15 @@
 
     <alias alias="authorisedOrderNotificationProcessorStrategy" name="defaultAuthorisedOrderNotificationProcessorStrategy"/>
     <bean id="defaultAuthorisedOrderNotificationProcessorStrategy" class="com.worldpay.notification.processors.impl.DefaultAuthorisedOrderNotificationProcessorStrategy">
-        <property name="modelService" ref="modelService"/>
-        <property name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <property name="transactionTemplate">
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="txManager"/>
             </bean>
-        </property>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+        </constructor-arg>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias alias="capturedOrderNotificationProcessorStrategy" name="defaultCapturedOrderNotificationProcessorStrategy"/>
@@ -144,6 +126,7 @@
                 <property name="transactionManager" ref="txManager"/>
             </bean>
         </constructor-arg>
+        <constructor-arg name="worldpayKlarnaUtils" ref="worldpayKlarnaUtils"/>
     </bean>
 
     <alias alias="refusedOrderNotificationProcessorStrategy" name="defaultRefusedOrderNotificationProcessorStrategy"/>

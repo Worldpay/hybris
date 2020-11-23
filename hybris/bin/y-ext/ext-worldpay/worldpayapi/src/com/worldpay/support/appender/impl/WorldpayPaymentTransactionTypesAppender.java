@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the list of payment transactions processed.
  */
-public class WorldpayPaymentTransactionTypesAppender implements WorldpaySupportEmailAppender {
+public class WorldpayPaymentTransactionTypesAppender extends WorldpaySupportEmailAppender {
 
     private static final Logger LOG = Logger.getLogger(WorldpayPaymentTransactionTypesAppender.class);
 

@@ -1,7 +1,6 @@
 package com.worldpay.service.model;
 
 
-import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
@@ -46,8 +45,8 @@ public class Amount implements InternalModelTransformer, Serializable {
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() {
-        com.worldpay.internal.model.Amount intAmount = new com.worldpay.internal.model.Amount();
+    public com.worldpay.internal.model.Amount transformToInternalModel() {
+        final com.worldpay.internal.model.Amount intAmount = new com.worldpay.internal.model.Amount();
         intAmount.setValue(value);
         intAmount.setCurrencyCode(currencyCode);
         intAmount.setExponent(exponent);

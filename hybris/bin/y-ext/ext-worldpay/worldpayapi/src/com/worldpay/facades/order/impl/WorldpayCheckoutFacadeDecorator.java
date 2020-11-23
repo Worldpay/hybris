@@ -2,29 +2,56 @@ package com.worldpay.facades.order.impl;
 
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
+import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.*;
+import de.hybris.platform.commercefacades.order.impl.DefaultCheckoutFacade;
 import de.hybris.platform.commercefacades.storelocator.data.PointOfServiceData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
+import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
+import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
+import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
+import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+
+import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNullStandardMessage;
 
 /**
  * Adds Worldpay functionality by decorating the CheckoutFlowFacade
  */
 public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
 
-    private Converter<AddressModel, AddressData> addressConverter;
-    private CartService cartService;
-    private CheckoutFlowFacade checkoutFlowFacade;
+    private static final Logger LOG = LogManager.getLogger(DefaultCheckoutFacade.class);
+
+    protected final Converter<AddressModel, AddressData> addressConverter;
+    protected final CartService cartService;
+    protected final CheckoutFlowFacade checkoutFlowFacade;
+    protected final CheckoutCustomerStrategy checkoutCustomerStrategy;
+    protected final CommerceCheckoutService commerceCheckoutService;
+
+    public WorldpayCheckoutFacadeDecorator(final Converter<AddressModel, AddressData> addressConverter,
+                                           final CartService cartService,
+                                           final CheckoutFlowFacade checkoutFlowFacade,
+                                           final CheckoutCustomerStrategy checkoutCustomerStrategy,
+                                           final CommerceCheckoutService commerceCheckoutService) {
+        this.addressConverter = addressConverter;
+        this.cartService = cartService;
+        this.checkoutFlowFacade = checkoutFlowFacade;
+        this.checkoutCustomerStrategy = checkoutCustomerStrategy;
+        this.commerceCheckoutService = commerceCheckoutService;
+    }
 
     public AddressData getBillingAddress() {
         final CartModel cartModel = getSessionCart();
@@ -40,7 +67,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
 
     protected CartModel getSessionCart() {
         if (getCheckoutFlowFacade().hasCheckoutCart()) {
-            return getCartService().getSessionCart();
+            return cartService.getSessionCart();
         }
         return null;
     }
@@ -125,9 +152,26 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      */
     @Override
     public boolean setPaymentDetails(final String paymentInfoId) {
-        final boolean result = getCheckoutFlowFacade().setPaymentDetails(paymentInfoId);
-        setPaymentInfoBillingAddressOnSessionCart();
-        return result;
+        validateParameterNotNullStandardMessage("paymentInfoId", paymentInfoId);
+
+        if (checkIfCurrentUserIsTheCartUser() && StringUtils.isNotBlank(paymentInfoId)) {
+            final CustomerModel currentUserForCheckout = getCurrentUserForCheckout();
+            final PaymentInfoModel matchingPaymentInfoModel = currentUserForCheckout.getPaymentInfos().stream()
+                .filter(paymentInfoModel -> paymentInfoId.equalsIgnoreCase(paymentInfoModel.getPk().toString()))
+                .findFirst()
+                .orElse(null);
+            final CartModel cartModel = getCart();
+            if (matchingPaymentInfoModel != null) {
+                cartModel.setPaymentAddress(matchingPaymentInfoModel.getBillingAddress());
+                final CommerceCheckoutParameter parameter = createCommerceCheckoutParameter(cartModel, true);
+                parameter.setPaymentInfo(matchingPaymentInfoModel);
+                return commerceCheckoutService.setPaymentInfo(parameter);
+            }
+            LOG.warn(String.format(
+                "Did not find CreditCardPaymentInfoModel for user: %s, cart: %s &  paymentInfoId: %s. PaymentInfo Will not get set.",
+                currentUserForCheckout, cartModel.getCode(), paymentInfoId));
+        }
+        return false;
     }
 
     /**
@@ -179,7 +223,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated since 1808. Please use {@link CheckoutFacade#getCountries(CountryType)} instead.
      */
     @Override
     @Deprecated
@@ -260,7 +304,7 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     }
 
     /**
-     * {@inheritDoc}
+     * @deprecated since 1808. Please use {@link CheckoutFacade#getCountries(CountryType)} instead.
      */
     @Override
     @Deprecated
@@ -391,23 +435,17 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         return checkoutFlowFacade;
     }
 
-    @Required
-    public void setCheckoutFlowFacade(final CheckoutFlowFacade checkoutFlowFacade) {
-        this.checkoutFlowFacade = checkoutFlowFacade;
+    protected CartModel getCart() {
+        return hasCheckoutCart() ? cartService.getSessionCart() : null;
     }
 
-    public CartService getCartService() {
-        return cartService;
+    protected boolean checkIfCurrentUserIsTheCartUser() {
+        final CartModel cartModel = getCart();
+        return cartModel != null && cartModel.getUser().equals(getCurrentUserForCheckout());
     }
 
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
-    }
-
-    @Required
-    public void setAddressConverter(final Converter<AddressModel, AddressData> addressConverter) {
-        this.addressConverter = addressConverter;
+    protected CustomerModel getCurrentUserForCheckout() {
+        return checkoutCustomerStrategy.getCurrentUserForCheckout();
     }
 
     protected void setPaymentInfoBillingAddressOnSessionCart() {
@@ -416,4 +454,10 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         cartService.saveOrder(sessionCart);
     }
 
+    protected CommerceCheckoutParameter createCommerceCheckoutParameter(final CartModel cart, final boolean enableHooks) {
+        final CommerceCheckoutParameter parameter = new CommerceCheckoutParameter();
+        parameter.setEnableHooks(enableHooks);
+        parameter.setCart(cart);
+        return parameter;
+    }
 }

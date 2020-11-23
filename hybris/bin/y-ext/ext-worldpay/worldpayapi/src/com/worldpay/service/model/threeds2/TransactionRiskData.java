@@ -1,21 +1,51 @@
 package com.worldpay.service.model.threeds2;
 
-public class TransactionRiskData {
+import com.worldpay.internal.model.TransactionRiskDataPreOrderDate;
+import com.worldpay.service.model.Date;
+import com.worldpay.service.request.transform.InternalModelTransformer;
+
+import java.io.Serializable;
+import java.util.Optional;
+
+public class TransactionRiskData implements InternalModelTransformer, Serializable {
+
     private String deliveryTimeframe;
-
     private String deliveryEmailAddress;
-
     private String preOrderPurchase;
-
     private String shippingMethod;
-
-    private RiskDateData transactionRiskDataPreOrderDate;
-
     private String giftCardCount;
+    private String reorderingPreviousPurchases;
 
+    private Date transactionRiskDataPreOrderDate;
     private TransactionRiskDataGiftCardAmount transactionRiskDataGiftCardAmount;
 
-    private String reorderingPreviousPurchases;
+    @Override
+    public com.worldpay.internal.model.TransactionRiskData transformToInternalModel() {
+        final com.worldpay.internal.model.TransactionRiskData intTransactionRiskData = new com.worldpay.internal.model.TransactionRiskData();
+        intTransactionRiskData.setDeliveryEmailAddress(deliveryEmailAddress);
+        intTransactionRiskData.setDeliveryTimeframe(deliveryTimeframe);
+        intTransactionRiskData.setGiftCardCount(giftCardCount);
+        intTransactionRiskData.setPreOrderPurchase(preOrderPurchase);
+        intTransactionRiskData.setReorderingPreviousPurchases(reorderingPreviousPurchases);
+        intTransactionRiskData.setShippingMethod(shippingMethod);
+
+        Optional.ofNullable(transactionRiskDataPreOrderDate)
+            .map(Date::transformToInternalModel)
+            .map(this::createTransactionRiskDataPreorderDate)
+            .ifPresent(intTransactionRiskData::setTransactionRiskDataPreOrderDate);
+
+        Optional.ofNullable(transactionRiskDataGiftCardAmount)
+            .map(TransactionRiskDataGiftCardAmount::transformToInternalModel)
+            .ifPresent(intTransactionRiskData::setTransactionRiskDataGiftCardAmount);
+
+        return intTransactionRiskData;
+    }
+
+    private TransactionRiskDataPreOrderDate createTransactionRiskDataPreorderDate(final com.worldpay.internal.model.Date transactionDataPreorderDate) {
+        final TransactionRiskDataPreOrderDate intTransactionRiskDataPreOrderDate = new TransactionRiskDataPreOrderDate();
+        intTransactionRiskDataPreOrderDate.setDate(transactionDataPreorderDate);
+        return intTransactionRiskDataPreOrderDate;
+    }
 
     public String getDeliveryTimeframe() {
         return deliveryTimeframe;
@@ -49,11 +79,11 @@ public class TransactionRiskData {
         this.shippingMethod = shippingMethod;
     }
 
-    public RiskDateData getTransactionRiskDataPreOrderDate() {
+    public Date getTransactionRiskDataPreOrderDate() {
         return transactionRiskDataPreOrderDate;
     }
 
-    public void setTransactionRiskDataPreOrderDate(final RiskDateData transactionRiskDataPreOrderDate) {
+    public void setTransactionRiskDataPreOrderDate(final Date transactionRiskDataPreOrderDate) {
         this.transactionRiskDataPreOrderDate = transactionRiskDataPreOrderDate;
     }
 
@@ -94,4 +124,6 @@ public class TransactionRiskData {
                 ", reorderingPreviousPurchases='" + reorderingPreviousPurchases + '\'' +
                 '}';
     }
+
+
 }

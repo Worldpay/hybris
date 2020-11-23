@@ -40,8 +40,8 @@ import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICAT
 public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements CaptureCommand {
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayCaptureCommand.class);
 
-    private final Converter<CaptureServiceResponse, CaptureResult> captureServiceResponseConverter;
-    private final WorldpayHybrisOrderService worldpayHybrisOrderService;
+    protected final Converter<CaptureServiceResponse, CaptureResult> captureServiceResponseConverter;
+    protected final WorldpayHybrisOrderService worldpayHybrisOrderService;
 
     public DefaultWorldpayCaptureCommand(final Converter<CaptureServiceResponse, CaptureResult> captureServiceResponseConverter, final WorldpayHybrisOrderService worldpayHybrisOrderService, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
         super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);

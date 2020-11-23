@@ -17,8 +17,8 @@ import org.apache.logging.log4j.Logger;
 public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy implements WorldpayCancelWholeOrderDueToCancelNotificationStrategy {
 
     private static final Logger LOG = LogManager.getLogger(DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy.class);
-    private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private final ModelService modelService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final ModelService modelService;
 
     public DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy(final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
                                                                           final ModelService modelService) {

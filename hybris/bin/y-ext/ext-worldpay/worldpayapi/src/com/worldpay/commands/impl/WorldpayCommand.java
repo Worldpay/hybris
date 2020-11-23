@@ -13,10 +13,10 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
  */
 public class WorldpayCommand {
 
-    private final WorldpayMerchantInfoService worldpayMerchantInfoService;
-    private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private final WorldpayOrderService worldpayOrderService;
-    private final WorldpayServiceGateway worldpayServiceGateway;
+    protected final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final WorldpayOrderService worldpayOrderService;
+    protected final WorldpayServiceGateway worldpayServiceGateway;
 
     public WorldpayCommand(final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;

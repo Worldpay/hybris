@@ -1,5 +1,6 @@
 package com.worldpay.controllers.pages.checkout;
 
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.data.GooglePayAddressData;
 import com.worldpay.data.GooglePayAuthorisationRequest;
 import com.worldpay.exception.WorldpayException;
@@ -46,8 +47,9 @@ public class GooglePayController extends AbstractCheckoutController {
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public DirectResponseData authoriseOrder(@RequestBody final GooglePayAuthorisationRequest authorisationRequest) throws WorldpayException, InvalidCartException {
         saveBillingAddresses(authorisationRequest.getBillingAddress());
-
-        return worldpayDirectOrderFacade.authoriseGooglePayDirect(authorisationRequest.getToken());
+        final GooglePayAdditionalAuthInfo token = authorisationRequest.getToken();
+        token.setSaveCard(authorisationRequest.getSaved());
+        return worldpayDirectOrderFacade.authoriseGooglePayDirect(token);
     }
 
     protected void saveBillingAddresses(final GooglePayAddressData address) {

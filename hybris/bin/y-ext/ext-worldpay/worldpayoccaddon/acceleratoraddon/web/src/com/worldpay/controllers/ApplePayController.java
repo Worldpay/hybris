@@ -29,11 +29,11 @@ import javax.annotation.Resource;
 @Profile("applepay")
 public class ApplePayController extends AbstractWorldpayController {
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private WorldpayApplePayPaymentCheckoutFacade worldpayApplePayPaymentCheckoutFacade;
+    protected WorldpayApplePayPaymentCheckoutFacade worldpayApplePayPaymentCheckoutFacade;
     @Resource(name = "worldpayApplePayRestTemplate")
-    private RestTemplate restTemplate;
+    protected RestTemplate restTemplate;
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/request-session", consumes = {MediaType.APPLICATION_JSON_VALUE})

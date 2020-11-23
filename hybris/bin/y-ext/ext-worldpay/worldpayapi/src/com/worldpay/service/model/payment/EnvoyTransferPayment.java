@@ -30,7 +30,7 @@ public class EnvoyTransferPayment extends AbstractPayment {
      * @see com.worldpay.service.model.payment.AbstractPayment#invokeSetter(Method, Object)
      */
     @Override
-    public void invokeSetter(final Method method, final Object targetObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
         boolean methodInvoked = false;
         final String methodName = method.getName();
         if (methodName.startsWith("set") && "setShopperCountryCode".equals(methodName) && shopperCountryCode != null) {
