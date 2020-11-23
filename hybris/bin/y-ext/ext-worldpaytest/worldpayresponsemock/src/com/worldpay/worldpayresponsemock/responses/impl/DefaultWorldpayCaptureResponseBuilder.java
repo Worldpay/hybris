@@ -17,7 +17,7 @@ public class DefaultWorldpayCaptureResponseBuilder implements WorldpayCaptureRes
         final OrderModification orderModification = (OrderModification) modify.
                 getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0);
         final Capture captureRequest = (Capture) orderModification.
-                getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().get(0);
+                getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().get(0);
 
         final CaptureReceived capture = getCaptureReceived(orderModification.getOrderCode(), captureRequest.getAmount());
 

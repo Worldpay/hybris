@@ -13,4 +13,11 @@
             </map>
         </property>
     </bean>
+
+    <bean id="addressDTOAddressData" parent="fieldMapper">
+        <property name="sourceClass"
+                  value="de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO"/>
+        <property name="destClass"
+                  value="de.hybris.platform.commercefacades.user.data.AddressData"/>
+    </bean>
 </beans>

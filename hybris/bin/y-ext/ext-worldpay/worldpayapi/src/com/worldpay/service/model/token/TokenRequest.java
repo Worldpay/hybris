@@ -36,6 +36,8 @@ public class TokenRequest implements InternalModelTransformer, Serializable {
         intCreateToken.setTokenEventReference(tokenEventReference);
         if (merchantToken) {
             intCreateToken.setTokenScope("merchant");
+        } else {
+            intCreateToken.setTokenScope("shopper");
         }
         return intCreateToken;
     }

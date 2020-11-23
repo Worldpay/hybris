@@ -1,7 +1,10 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
+import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.facades.WorldpayDirectResponseFacade;
+import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
@@ -11,17 +14,22 @@ import org.springframework.ui.Model;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class AbstractWorldpayDirectCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     protected static final String CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID = "checkout.error.paymentethod.formentry.invalid";
-    private static final String THREED_SECURE_FLEX_FLOW = "3D-Secure-Flex-Flow";
-    private static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
+    protected static final String THREEDSECURE_JWT_FLEX_DDC = "jwt3DSecureFlexDDC";
+    protected static final String THREEDSECURE_FLEX_DDC_URL = "threeDSecureDDCUrl";
+    protected static final String THREED_SECURE_FLEX_FLOW = "3D-Secure-Flex-Flow";
+    protected static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
 
     @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
-    private WorldpayDirectResponseFacade worldpayDirectResponseFacade;
+    protected WorldpayDirectResponseFacade worldpayDirectResponseFacade;
+    @Resource
+    protected WorldpayDDCFacade worldpayDDCFacade;
 
     public String handleDirectResponse(final Model model, final DirectResponseData directResponseData, final HttpServletResponse response) throws CMSItemNotFoundException, WorldpayConfigurationException {
         if (worldpayDirectResponseFacade.isAuthorised(directResponseData)) {
@@ -54,6 +62,15 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return getErrorView(model);
 
+    }
+
+    public void setDDCIframeData(final Model model) {
+        final String ddcUrl = Optional.ofNullable(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData())
+                .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
+                .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
+                .orElse(null);
+        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, ddcUrl);
+        model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDDCFacade.createJsonWebTokenForDDC());
     }
 
     protected abstract String getErrorView(Model model) throws CMSItemNotFoundException;

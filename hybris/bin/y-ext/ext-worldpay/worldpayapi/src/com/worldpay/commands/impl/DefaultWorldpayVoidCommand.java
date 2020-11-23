@@ -28,7 +28,7 @@ import static java.text.MessageFormat.format;
 public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidCommand {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayVoidCommand.class);
-    private final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter;
+    protected final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter;
 
     public DefaultWorldpayVoidCommand(final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
         super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);

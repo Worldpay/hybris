@@ -17,12 +17,12 @@ public enum DebitCreditIndicator implements Serializable {
     private static final Map<String, DebitCreditIndicator> lookup = new HashMap<>();
 
     static {
-        for (DebitCreditIndicator code : EnumSet.allOf(DebitCreditIndicator.class)) {
+        for (final DebitCreditIndicator code : EnumSet.allOf(DebitCreditIndicator.class)) {
             lookup.put(code.getCode().toUpperCase(), code);
         }
     }
 
-    private final String code;
+    protected final String code;
 
     DebitCreditIndicator(final String code) {
         this.code = code;
@@ -38,7 +38,7 @@ public enum DebitCreditIndicator implements Serializable {
      * @param code to be looked up
      * @return DebitCreditIndicator representation of the supplied code, or null if it can't be found
      */
-    public static DebitCreditIndicator getDebitCreditIndicator(String code) {
+    public static DebitCreditIndicator getDebitCreditIndicator(final String code) {
         return code == null ? null : lookup.get(code.toUpperCase());
     }
 }

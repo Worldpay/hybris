@@ -64,8 +64,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected static final int NTHDAYOFMONTH_END = 31;
     protected static final int NTHWEEK_END = 12;
     protected static final String SUBSCRIPTION_ID = "subscriptionId";
-    protected static final String THREEDSECURE_JWT_FLEX_DDC = "jwt3DSecureFlexDDC";
-    protected static final String THREEDSECURE_FLEX_DDC_URL = "threeDSecureDDCUrl";
     private static final String CART_DATA = "cartData";
     private static final String ALL_ITEMS = "allItems";
     private static final String DELIVERY_ADDRESS = "deliveryAddress";
@@ -399,13 +397,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     public String getDDCIframeContent(final Model model) {
         setDDCIframeData(model);
         return worldpayAddonEndpointService.getDdcIframe3dSecureFlex();
-    }
-
-    protected void setDDCIframeData(final Model model) {
-        model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDirectOrderFacade.createJsonWebTokenForDDC());
-        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData() != null &&
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings() != null ?
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings().getDdcUrl() : null);
     }
 
     /**

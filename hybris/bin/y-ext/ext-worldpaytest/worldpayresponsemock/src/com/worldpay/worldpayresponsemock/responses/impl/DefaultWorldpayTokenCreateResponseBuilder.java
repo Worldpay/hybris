@@ -68,7 +68,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         derived.setObfuscatedPAN(OBFUSCATED_PAN);
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(cardDetails);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(paymentInstrument);
         reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().add(token);
         response.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);

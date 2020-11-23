@@ -1,32 +1,28 @@
 package com.worldpay.service.payment.impl;
 
-import com.worldpay.data.Additional3DS2Info;
+import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactionCodeStrategy;
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.ApplePayHeader;
-import com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason;
-import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Header;
-import com.worldpay.order.data.WorldpayAdditionalInfoData;
+import com.worldpay.klarna.WorldpayKlarnaUtils;
 import com.worldpay.service.WorldpayUrlService;
-import com.worldpay.service.model.*;
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.model.BasicOrderInfo;
 import com.worldpay.service.model.applepay.ApplePay;
 import com.worldpay.service.model.klarna.KlarnaPayment;
-import com.worldpay.service.model.payment.AlternativeShopperBankCodePayment;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.payment.StoredCredentials;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.token.CardDetails;
-import com.worldpay.service.model.token.TokenRequest;
-import com.worldpay.service.request.UpdateTokenServiceRequest;
-import com.worldpay.threedsecureflexenums.ChallengePreferenceEnum;
-import com.worldpay.threedsecureflexenums.ChallengeWindowSizeEnum;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.acceleratorservices.config.SiteConfigService;
+import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
+import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
+import de.hybris.platform.core.model.c2l.LanguageModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
+import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -36,9 +32,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,36 +45,30 @@ import static org.mockito.Mockito.when;
 public class DefaultWorldpayOrderServiceTest {
 
     private static final double AMOUNT = 19.3;
-    private static final String BANK_CODE = "bankCode";
-    private static final String FULL_SUCCESS_URL = "fullSuccessURL";
     private static final String KLARNA_CHECKOUT_URL = "klarnaCheckoutURL";
     private static final String KLARNA_CONFIRMATION_URL = "klarnaConfirmationURL";
-    private static final String SESSION_ID = "sessionId";
-    private static final String IP_ADDRESS = "ipAddress";
-    private static final String DEVICE_TYPE = "deviceType";
-    private static final String ACCEPT_HEADER = "acceptHeader";
-    private static final String USER_AGENT_HEADER = "userAgentHeader";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String ORDER_DESCRIPTION = "orderDescription";
     private static final String GBP = "GBP";
-    private static final String CUSTOMER_EMAIL = "customerEmail";
-    private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperID";
-    private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
-    private static final String TOKEN_REASON = "tokenReason";
     private static final String COUNTRY_CODE = "countryCode";
-    private static final String LANGUAGE_CODE = "languageCode";
     private static final String EXTRA_DATA = "extraData";
-    private static final String WORLDPAY_MERCHANT_TOKEN_ENABLED = "worldpay.merchant.token.enabled";
     private static final String EPHEMERAL_PUBLIC_KEY = "ephemeralPublicKey";
     private static final String PUBLIC_KEY_HASH = "publicKeyHash";
     private static final String TRANSACTION_ID = "transactionId";
     private static final String DATA = "data";
     private static final String SIGNATURE = "signature";
     private static final String VERSION = "version";
-    private static final String REFERENCE_ID = "referenceId";
-    private static final String WINDOW_SIZE = "390x400";
-    private static final String NO_PREFERENCE = "noPreference";
-    private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
+
+    private static final String KLARNA_SSL = "KLARNA-SSL";
+    private static final String KLARNA_PAYNOW_SSL = "KLARNA_PAYNOW-SSL";
+    private static final String KLARNA_SLICE_IT_SSL = "KLARNA_SLICEIT-SSL";
+    private static final String KLARNA_PAYLATER_SSL = "KLARNA_PAYLATER-SSL";
+    private static final String WRONG_KLARNA_PAYMMENT_METHOD = "WRONG-KLARNA-SSL";
+    private static final String SUCCESS_URL = "SUCCESS_URL";
+    private static final String PENDING_URL = "PENDING_URL";
+    private static final String FAILURE_URL = "FAILURE_URL";
+    private static final String CANCEL_URL = "CANCEL_URL";
+    private static final String PAYMENT_PROVIDER = "paymentProvider";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -86,28 +78,35 @@ public class DefaultWorldpayOrderServiceTest {
     @Mock
     private WorldpayUrlService worldpayUrlServiceMock;
     @Mock
-    private SiteConfigService siteConfigServiceMock;
+    private WorldpayKlarnaUtils worldpayKlarnaPaymentsMock;
+    @Mock
+    private CommerceCheckoutService commerceCheckoutServiceMock;
+    @Mock
+    private RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategyMock;
 
     @Mock
     private CurrencyModel currencyModelMock;
     @Mock
-    private Session sessionMock;
-    @Mock
-    private Browser browserMock;
-    @Mock
     private Amount amountMock;
-    @Mock
-    private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
-    @Mock
-    private MerchantInfo merchantInfoMock;
-    @Mock
-    private TokenRequest tokenRequestMock;
-    @Mock
-    private CardDetails cardDetailsMock;
-    @Mock
-    private Additional3DS2Info additional3DS2InfoMock;
+
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private AbstractOrderModel abstractOrderModelMock;
+    @Mock
+    private PaymentInfoModel paymentInfoModelMock;
+    @Mock
+    private CartModel cartMock;
+    @Mock
+    private LanguageModel languageMock;
+
+    @Before
+    public void setUp() throws Exception {
+        testObj = new DefaultWorldpayOrderService(commonI18NServiceMock, worldpayUrlServiceMock, worldpayKlarnaPaymentsMock, commerceCheckoutServiceMock, recurringGenerateMerchantTransactionCodeStrategyMock);
+        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_SSL)).thenReturn(true);
+        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_SLICE_IT_SSL)).thenReturn(true);
+        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_PAYNOW_SSL)).thenReturn(true);
+        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_PAYLATER_SSL)).thenReturn(true);
+        when(commonI18NServiceMock.getLocaleForLanguage(languageMock)).thenReturn(Locale.UK);
+    }
 
     @Test
     public void shouldFormatValue() {
@@ -144,133 +143,12 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateSession() {
-        when(worldpayAdditionalInfoDataMock.getSessionId()).thenReturn(SESSION_ID);
-        when(worldpayAdditionalInfoDataMock.getCustomerIPAddress()).thenReturn(IP_ADDRESS);
-
-        final Session result = testObj.createSession(worldpayAdditionalInfoDataMock);
-
-        assertEquals(SESSION_ID, result.getId());
-        assertEquals(IP_ADDRESS, result.getShopperIPAddress());
-    }
-
-    @Test
-    public void shouldCreateBrowser() {
-        when(worldpayAdditionalInfoDataMock.getDeviceType()).thenReturn(DEVICE_TYPE);
-        when(worldpayAdditionalInfoDataMock.getAcceptHeader()).thenReturn(ACCEPT_HEADER);
-        when(worldpayAdditionalInfoDataMock.getUserAgentHeader()).thenReturn(USER_AGENT_HEADER);
-
-        final Browser result = testObj.createBrowser(worldpayAdditionalInfoDataMock);
-
-        assertEquals(DEVICE_TYPE, result.getDeviceType());
-        assertEquals(ACCEPT_HEADER, result.getAcceptHeader());
-        assertEquals(USER_AGENT_HEADER, result.getUserAgentHeader());
-    }
-
-    @Test
     public void shouldCreateBasicOrderInfo() {
         final BasicOrderInfo result = testObj.createBasicOrderInfo(WORLDPAY_ORDER_CODE, ORDER_DESCRIPTION, amountMock);
 
         assertEquals(amountMock, result.getAmount());
         assertEquals(ORDER_DESCRIPTION, result.getDescription());
         assertEquals(WORLDPAY_ORDER_CODE, result.getOrderCode());
-    }
-
-    @Test
-    public void shouldCreateShopperWithoutAuthenticatedShopperID() {
-        final Shopper result = testObj.createShopper(CUSTOMER_EMAIL, sessionMock, browserMock);
-        assertEquals(CUSTOMER_EMAIL, result.getShopperEmailAddress());
-        assertEquals(sessionMock, result.getSession());
-        assertEquals(browserMock, result.getBrowser());
-        assertNull(result.getAuthenticatedShopperID());
-    }
-
-    @Test
-    public void shouldCreateShopperWithAuthenticatedShopperIDWhenMerchantTokenIsDisabled() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
-
-        final Shopper result = testObj.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, sessionMock, browserMock);
-
-        assertEquals(CUSTOMER_EMAIL, result.getShopperEmailAddress());
-        assertEquals(sessionMock, result.getSession());
-        assertEquals(browserMock, result.getBrowser());
-        assertEquals(AUTHENTICATED_SHOPPER_ID, result.getAuthenticatedShopperID());
-    }
-
-    @Test
-    public void shouldCreateShopperWithAuthenticatedShopperIDWhenMerchantTokenIsEnabled() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
-
-        final Shopper result = testObj.createAuthenticatedShopper(CUSTOMER_EMAIL, AUTHENTICATED_SHOPPER_ID, sessionMock, browserMock);
-
-        assertEquals(CUSTOMER_EMAIL, result.getShopperEmailAddress());
-        assertEquals(sessionMock, result.getSession());
-        assertEquals(browserMock, result.getBrowser());
-        assertNull(result.getAuthenticatedShopperID());
-    }
-
-    @Test
-    public void shouldCreateTokenRequestWithMerchantScope() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
-
-        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
-
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getTokenReason());
-        assertTrue(result.isMerchantToken());
-    }
-
-    @Test
-    public void shouldCreateTokenRequestWithoutTokenReasonWithMerchantScope() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
-
-        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, null);
-
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertNull(result.getTokenReason());
-        assertTrue(result.isMerchantToken());
-    }
-
-    @Test
-    public void shouldCreateTokenRequestWithShopperScope() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
-
-        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
-
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertEquals(TOKEN_REASON, result.getTokenReason());
-        assertThat(result.isMerchantToken()).isFalse();
-    }
-
-    @Test
-    public void shouldCreateTokenRequestWithoutTokenReasonWithShopperScope() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
-
-        final TokenRequest result = testObj.createTokenRequest(TOKEN_EVENT_REFERENCE, null);
-
-        assertEquals(TOKEN_EVENT_REFERENCE, result.getTokenEventReference());
-        assertNull(result.getTokenReason());
-        assertThat(result.isMerchantToken()).isFalse();
-    }
-
-    @Test
-    public void shouldCreatePaymentForIdealSSL() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(FULL_SUCCESS_URL);
-
-        final AlternativeShopperBankCodePayment result = (AlternativeShopperBankCodePayment) testObj.createBankPayment("IDEAL-SSL", BANK_CODE);
-
-        assertEquals(BANK_CODE, result.getShopperBankCode());
-        assertEquals(PaymentType.IDEAL, result.getPaymentType());
-        assertEquals(FULL_SUCCESS_URL, result.getSuccessURL());
-    }
-
-    @Test
-    public void shouldReturnNullWhenPaymentTypeIsNotFound() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(FULL_SUCCESS_URL);
-
-        final AlternativeShopperBankCodePayment result = (AlternativeShopperBankCodePayment) testObj.createBankPayment("notfound", BANK_CODE);
-
-        assertThat(result).isNull();
     }
 
     @Test
@@ -292,48 +170,92 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateKlarnaPayment() throws WorldpayConfigurationException {
+    public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaPayNowPaymentIsReceived() throws WorldpayConfigurationException {
         when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
         when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
+        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
+        when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
+        when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
+        when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
 
-        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, LANGUAGE_CODE, EXTRA_DATA);
+        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_PAYNOW_SSL);
+
+        assertEquals(PaymentType.KLARNAPAYNOWSSL, result.getPaymentType());
+        assertEquals(EXTRA_DATA, result.getExtraMerchantData());
+        assertEquals(SUCCESS_URL, result.getSuccessURL());
+        assertEquals(PENDING_URL, result.getPendingURL());
+        assertEquals(FAILURE_URL, result.getFailureURL());
+    }
+
+    @Test
+    public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaSliceITPaymentIsReceived() throws WorldpayConfigurationException {
+        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
+        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
+        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
+        when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
+        when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
+        when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
+
+        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_SLICE_IT_SSL);
+
+        assertEquals(PaymentType.KLARNASLICESSL, result.getPaymentType());
+        assertEquals(EXTRA_DATA, result.getExtraMerchantData());
+        assertEquals(SUCCESS_URL, result.getSuccessURL());
+        assertEquals(PENDING_URL, result.getPendingURL());
+        assertEquals(FAILURE_URL, result.getFailureURL());
+    }
+
+    @Test
+    public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaPayLaterPaymentIsReceived() throws WorldpayConfigurationException {
+        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
+        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
+        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
+        when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
+        when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
+        when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
+
+        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_PAYLATER_SSL);
+
+        assertEquals(PaymentType.KLARNAPAYLATERSSL, result.getPaymentType());
+        assertEquals(EXTRA_DATA, result.getExtraMerchantData());
+        assertEquals(SUCCESS_URL, result.getSuccessURL());
+        assertEquals(PENDING_URL, result.getPendingURL());
+        assertEquals(FAILURE_URL, result.getFailureURL());
+    }
+
+    @Test
+    public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaSSLPaymentIsReceived() throws WorldpayConfigurationException {
+        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
+        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
+        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
+        when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
+        when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
+        when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
+
+        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_SSL);
 
         assertEquals(PaymentType.KLARNASSL, result.getPaymentType());
         assertEquals(COUNTRY_CODE, result.getPurchaseCountry());
-        assertEquals(LANGUAGE_CODE, result.getShopperLocale());
+        assertEquals(Locale.UK.toLanguageTag(), result.getShopperLocale());
         assertEquals(KLARNA_CHECKOUT_URL, result.getMerchantUrls().getCheckoutURL());
         assertEquals(KLARNA_CONFIRMATION_URL, result.getMerchantUrls().getConfirmationURL());
         assertEquals(EXTRA_DATA, result.getExtraMerchantData());
     }
 
-    @Test
-    public void shouldCreateUpdateTokenServiceRequestWithShopperScope() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(false);
+    @Test(expected = WorldpayConfigurationException.class)
+    public void createKlarnaPayment_shouldThrowWorldpayConfigurationException_WhenIncorrectKlarnaPaymentMethodIsReceived() throws WorldpayConfigurationException {
+        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
+        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
 
-        final UpdateTokenServiceRequest result = testObj.createUpdateTokenServiceRequest(merchantInfoMock, worldpayAdditionalInfoDataMock, tokenRequestMock, "paymentTokenId", cardDetailsMock);
-
-        assertThat(result.getUpdateTokenRequest().isMerchantToken()).isFalse();
+        testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, WRONG_KLARNA_PAYMMENT_METHOD);
     }
 
-    @Test
-    public void shouldCreateUpdateTokenServiceRequestWithMerchantScope() {
-        when(siteConfigServiceMock.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false)).thenReturn(true);
+    @Test(expected = WorldpayConfigurationException.class)
+    public void createKlarnaPayment_shouldThrowWorldpayConfigurationException_WhenNULLPaymentMethodIsReceived() throws WorldpayConfigurationException {
+        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
+        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
 
-        final UpdateTokenServiceRequest result = testObj.createUpdateTokenServiceRequest(merchantInfoMock, worldpayAdditionalInfoDataMock, tokenRequestMock, "paymentTokenId", cardDetailsMock);
-
-        assertThat(result.getUpdateTokenRequest().isMerchantToken()).isTrue();
-    }
-
-    @Test
-    public void shouldCreateTokenForDeletionWithMerchantScope() {
-        final TokenRequest result = testObj.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_REASON, null);
-        assertThat(result.isMerchantToken()).isTrue();
-    }
-
-    @Test
-    public void shouldCreateTokenForDeletionWithShopperScope() {
-        final TokenRequest result = testObj.createTokenRequestForDeletion(TOKEN_EVENT_REFERENCE, TOKEN_REASON, AUTHENTICATED_SHOPPER_ID);
-        assertThat(result.isMerchantToken()).isFalse();
+        testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, null);
     }
 
     @Test
@@ -362,58 +284,28 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void shouldCreateAdditional3DSData() {
-        when(worldpayAdditionalInfoDataMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
-        when(additional3DS2InfoMock.getDfReferenceId()).thenReturn(REFERENCE_ID);
-        when(additional3DS2InfoMock.getChallengeWindowSize()).thenReturn(WINDOW_SIZE);
-        when(additional3DS2InfoMock.getChallengePreference()).thenReturn(NO_PREFERENCE);
+    public void createCommerceCheckoutParameter_WhenItIsCalled_shouldCreateCommerceCheckoutParameter() {
+        when(commerceCheckoutServiceMock.getPaymentProvider()).thenReturn(PAYMENT_PROVIDER);
 
-        final Additional3DSData result = testObj.createAdditional3DSData(worldpayAdditionalInfoDataMock);
+        final CommerceCheckoutParameter result = testObj.createCommerceCheckoutParameter(abstractOrderModelMock, paymentInfoModelMock, BigDecimal.ONE);
 
-        assertThat(result.getDfReferenceId()).isEqualTo(REFERENCE_ID);
-        assertThat(result.getChallengeWindowSize()).isEqualTo(ChallengeWindowSizeEnum.getEnum(WINDOW_SIZE));
-        assertThat(result.getChallengePreference()).isEqualTo(ChallengePreferenceEnum.getEnum(NO_PREFERENCE));
+        assertTrue(result.isEnableHooks());
+        assertEquals(BigDecimal.ONE, result.getAuthorizationAmount());
+        assertEquals(PAYMENT_PROVIDER, result.getPaymentProvider());
+        assertEquals(paymentInfoModelMock, result.getPaymentInfo());
+        assertEquals(abstractOrderModelMock, result.getOrder());
     }
 
     @Test
-    public void shouldCreateAdditional3DSDataEvenIfWithChallengePreferenceAsEmptyBeingNoPreferenceAsDefault() {
-        when(worldpayAdditionalInfoDataMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
-        when(additional3DS2InfoMock.getDfReferenceId()).thenReturn(REFERENCE_ID);
-        when(additional3DS2InfoMock.getChallengeWindowSize()).thenReturn(null);
-        when(additional3DS2InfoMock.getChallengePreference()).thenReturn(null);
+    public void createCommerceCheckoutParameter_WhenInstanceofCartModel_shouldCreateCommerceCheckoutParameterWithCartParam() {
+        when(commerceCheckoutServiceMock.getPaymentProvider()).thenReturn(PAYMENT_PROVIDER);
 
-        final Additional3DSData result = testObj.createAdditional3DSData(worldpayAdditionalInfoDataMock);
+        final CommerceCheckoutParameter result = testObj.createCommerceCheckoutParameter(cartMock, paymentInfoModelMock, BigDecimal.ONE);
 
-        assertThat(result.getDfReferenceId()).isEqualTo(REFERENCE_ID);
-        assertThat(result.getChallengeWindowSize()).isEqualTo(ChallengeWindowSizeEnum.getEnum(WINDOW_SIZE));
-        assertThat(result.getChallengePreference()).isNull();
+        assertTrue(result.isEnableHooks());
+        assertEquals(BigDecimal.ONE, result.getAuthorizationAmount());
+        assertEquals(PAYMENT_PROVIDER, result.getPaymentProvider());
+        assertEquals(paymentInfoModelMock, result.getPaymentInfo());
+        assertEquals(cartMock, result.getCart());
     }
-
-    @Test
-    public void createStoreCredentials_ShouldCreateAStoredCredentials_WhenAllParametersAreProvided() {
-        when(abstractOrderModelMock.getPaymentInfo().getTransactionIdentifier()).thenReturn(TRANSACTION_IDENTIFIER);
-
-        final StoredCredentials result = testObj.createStoredCredentials(Usage.USED, MerchantInitiatedReason.RECURRING, TRANSACTION_IDENTIFIER);
-
-        assertThat(result.getUsage()).isEqualTo(Usage.USED);
-        assertThat(result.getMerchantInitiatedReason()).isEqualTo(MerchantInitiatedReason.RECURRING);
-        assertThat(result.getSchemeTransactionIdentifier()).isEqualTo(TRANSACTION_IDENTIFIER);
-    }
-
-    @Test
-    public void createStoreCredentials_ShouldCreateAStoredCredentials_WhenOnlyUsageParameterIsProvided() {
-        when(abstractOrderModelMock.getPaymentInfo().getTransactionIdentifier()).thenReturn(TRANSACTION_IDENTIFIER);
-
-        final StoredCredentials result = testObj.createStoredCredentials(Usage.USED, null, null);
-
-        assertThat(result.getUsage()).isEqualTo(Usage.USED);
-        assertThat(result.getMerchantInitiatedReason()).isNull();
-        assertThat(result.getSchemeTransactionIdentifier()).isNull();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void createStoreCredentials_ShouldThrowAnIlegalArgumentException_WhenUsageArgumentIsNull() {
-        testObj.createStoredCredentials(null, null, null);
-    }
-
 }

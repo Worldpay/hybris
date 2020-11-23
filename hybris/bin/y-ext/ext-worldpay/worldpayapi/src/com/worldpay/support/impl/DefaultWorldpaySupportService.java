@@ -8,10 +8,9 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
- * {@inheritDoc}
+ * Default implementation of {@link WorldpaySupportService}
  */
 public class DefaultWorldpaySupportService implements WorldpaySupportService {
 
@@ -25,8 +24,19 @@ public class DefaultWorldpaySupportService implements WorldpaySupportService {
     protected static final String CUSTOMER_EMAIL_DISPLAY_NAME_KEY = "customer.support.email.display.name";
     protected static final String CUSTOMER_REPLY_TO_ADDRESS = "customer.support.email.address.reply.to";
 
-    private ConfigurationService configurationService;
-    private WorldpaySupportEmailService worldpaySupportEmailService;
+    protected final ConfigurationService configurationService;
+    protected final WorldpaySupportEmailService worldpaySupportEmailService;
+
+    /**
+     * Default constructor
+     *
+     * @param configurationService        injected
+     * @param worldpaySupportEmailService injected
+     */
+    public DefaultWorldpaySupportService(final ConfigurationService configurationService, final WorldpaySupportEmailService worldpaySupportEmailService) {
+        this.configurationService = configurationService;
+        this.worldpaySupportEmailService = worldpaySupportEmailService;
+    }
 
     /**
      * {@inheritDoc}
@@ -58,15 +68,5 @@ public class DefaultWorldpaySupportService implements WorldpaySupportService {
 
     protected Email getPreConfiguredEmail() throws EmailException {
         return MailUtils.getPreConfiguredEmail();
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-    }
-
-    @Required
-    public void setWorldpaySupportEmailService(final WorldpaySupportEmailService worldpaySupportEmailService) {
-        this.worldpaySupportEmailService = worldpaySupportEmailService;
     }
 }

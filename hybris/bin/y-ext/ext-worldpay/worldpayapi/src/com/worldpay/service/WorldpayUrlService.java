@@ -73,7 +73,6 @@ public interface WorldpayUrlService {
      */
     String getBaseWebsiteUrlForSite() throws WorldpayConfigurationException;
 
-
     /**
      * Get the Klarna confirmation url to confirm the order
      *
@@ -96,5 +95,10 @@ public interface WorldpayUrlService {
      */
     String getFullThreeDSecureFlexFlowReturnUrl() throws WorldpayConfigurationException;
 
+    /**
+     * Get the fully qualified Autosubmit url for Flex flow to provide to card issuer
+     *
+     * @return
+     */
     String getFullThreeDSecureFlexAutosubmitUrl() throws WorldpayConfigurationException;
 }

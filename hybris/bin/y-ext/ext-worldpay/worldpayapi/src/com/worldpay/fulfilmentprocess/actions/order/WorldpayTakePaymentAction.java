@@ -1,6 +1,5 @@
 package com.worldpay.fulfilmentprocess.actions.order;
 
-import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
@@ -11,7 +10,6 @@ import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.action.AbstractAction;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -104,18 +102,15 @@ public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel>
     protected boolean isKlarnaPayment(final PaymentInfoModel paymentInfoModel){
         if (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel) {
             final WorldpayAPMPaymentInfoModel worldpayAPMPaymentInfoModel = (WorldpayAPMPaymentInfoModel) paymentInfoModel;
-            final String paymentTypeCode = worldpayAPMPaymentInfoModel.getApmConfiguration().getCode();
-            return PaymentType.KLARNASSL.getMethodCode().equals(paymentTypeCode);
+            return worldpayAPMPaymentInfoModel.isKlarnaPaymentType();
         }
         return false;
     }
 
-    @Required
     public void setPaymentService(final PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
-    @Required
     public void setWorldpayPaymentTransactionService(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }

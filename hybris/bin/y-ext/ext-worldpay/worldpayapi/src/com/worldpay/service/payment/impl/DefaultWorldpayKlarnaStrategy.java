@@ -12,7 +12,6 @@ import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,14 +30,19 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
     private static final String ORDER_DISCOUNT = "ORDER_DISCOUNT";
     private static final String DISCOUNT_LINE_ITEM_REFERENCE = "DISCOUNT_LINE_ITEM_REFERENCE";
 
-    private CommonI18NService commonI18NService;
-    private WorldpayUrlService worldpayUrlService;
+    protected final CommonI18NService commonI18NService;
+    protected final WorldpayUrlService worldpayUrlService;
+
+    public DefaultWorldpayKlarnaStrategy(final CommonI18NService commonI18NService, final WorldpayUrlService worldpayUrlService) {
+        this.commonI18NService = commonI18NService;
+        this.worldpayUrlService = worldpayUrlService;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public OrderLines createOrderLines(CartModel cartModel) throws WorldpayConfigurationException {
+    public OrderLines createOrderLines(final CartModel cartModel) throws WorldpayConfigurationException {
         final Integer digits = cartModel.getCurrency().getDigits();
         final String orderTaxAmount = convertDoubleToStringFormat(digits, cartModel.getTotalTax());
         final String termsURL = worldpayUrlService.getFullTermsUrl();
@@ -68,21 +72,22 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
 
         if (BigDecimal.valueOf(totalTax).compareTo(BigDecimal.valueOf(roundedCalculatedTotalTaxAmount)) != 0) {
             final double taxRoundingDifference = Math.abs(totalTax - roundedCalculatedTotalTaxAmount);
-            final Optional<LineItem> discountLineItemOptional = orderLines.getLineItems().stream()
-                    .filter(lineItem1 -> DISCOUNT.equals(lineItem1.getLineItemType()))
-                    .findAny();
-            if (discountLineItemOptional.isPresent()) {
-                final LineItem lineItemDiscounted = discountLineItemOptional.get();
-                final double adjustedLineItemTaxAmount = lineItemDiscounted.getTotalTaxAmountValue() - taxRoundingDifference;
-                lineItemDiscounted.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
+            final Optional<LineItem> orderLine = orderLines.getLineItems().stream()
+                .filter(lineItem1 -> DISCOUNT.equals(lineItem1.getLineItemType()))
+                .findAny();
+
+            if (orderLine.isPresent()) {
+                final LineItem discountLine = orderLine.get();
+                final double adjustedLineItemTaxAmount = discountLine.getTotalTaxAmountValue() - taxRoundingDifference;
+                discountLine.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
             } else {
                 orderLines.getLineItems().stream()
-                        .filter(lineItem1 -> SHIPPING_FEE.equals(lineItem1.getLineItemType()))
-                        .findAny()
-                        .ifPresent(shippingLineItem -> {
-                            final double adjustedLineItemTaxAmount = shippingLineItem.getTotalTaxAmountValue() - taxRoundingDifference;
-                            shippingLineItem.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
-                        });
+                    .filter(lineItem1 -> SHIPPING_FEE.equals(lineItem1.getLineItemType()))
+                    .findAny()
+                    .ifPresent(shippingLineItem -> {
+                        final double adjustedLineItemTaxAmount = shippingLineItem.getTotalTaxAmountValue() - taxRoundingDifference;
+                        shippingLineItem.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
+                    });
             }
         }
     }
@@ -154,13 +159,13 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         final double totalDeliveryCost = cartModel.getDeliveryCost();
         final double shippingTaxAmount = totalDeliveryCost > 0 ? calculateVATAmount(totalDeliveryCost, taxRate, digits) : 0;
         final double calculatedTotalTax = calculatedEntriesTaxAmount + shippingTaxAmount - calculatedDiscountTaxAmount;
-        double taxAmountDifference = cartModel.getTotalTax() - calculatedTotalTax;
+        final double taxAmountDifference = cartModel.getTotalTax() - calculatedTotalTax;
         return (taxAmountDifference > 0) ? (calculatedDiscountTaxAmount - taxAmountDifference) : calculatedDiscountTaxAmount;
     }
 
     private double calculateVATAmount(final double amount, final double taxRate, final Integer digits) {
-        final BigDecimal vatRate = BigDecimal.ONE.add(BigDecimal.valueOf(taxRate).divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP));
-        final double calculatedVAT = BigDecimal.valueOf(amount).divide(vatRate, BigDecimal.ROUND_HALF_UP).subtract(BigDecimal.valueOf(amount)).negate().doubleValue();
+        final BigDecimal vatRate = BigDecimal.ONE.add(BigDecimal.valueOf(taxRate).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP));
+        final double calculatedVAT = BigDecimal.valueOf(amount).divide(vatRate, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(amount)).negate().doubleValue();
         return commonI18NService.roundCurrency(calculatedVAT, digits);
     }
 
@@ -169,7 +174,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         return prorateRelativeGlobalDiscount(entry, entryTotalAmount);
     }
 
-    private double calculateEntryTotalTaxAmount(AbstractOrderEntryModel entry) {
+    private double calculateEntryTotalTaxAmount(final AbstractOrderEntryModel entry) {
         final double entryTaxAmount = entry.getTaxValues().stream().mapToDouble(TaxValue::getAppliedValue).sum();
         return prorateRelativeGlobalDiscount(entry, entryTaxAmount);
     }
@@ -178,7 +183,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         if (entry.getOrder().getGlobalDiscountValues().stream().anyMatch(gv -> !gv.isAbsolute())) {
             final double discountValue = entry.getOrder().getGlobalDiscountValues().stream().filter(dv -> !dv.isAbsolute()).mapToDouble(DiscountValue::getValue).sum();
             final Integer digits = entry.getOrder().getCurrency().getDigits();
-            final double proratedAmount = BigDecimal.valueOf(amount).multiply(BigDecimal.valueOf(100 - discountValue).divide(BigDecimal.valueOf(100), BigDecimal.ROUND_HALF_UP)).setScale(digits, BigDecimal.ROUND_HALF_UP).doubleValue();
+            final double proratedAmount = BigDecimal.valueOf(amount).multiply(BigDecimal.valueOf(100 - discountValue).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)).setScale(digits, RoundingMode.HALF_UP).doubleValue();
             return commonI18NService.roundCurrency(proratedAmount, digits);
         } else {
             return amount;
@@ -186,16 +191,6 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
     }
 
     private String convertDoubleToStringFormat(final Integer digits, final double value) {
-        return BigDecimal.valueOf(value).movePointRight(digits).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-    }
-
-    @Required
-    public void setCommonI18NService(final CommonI18NService commonI18NService) {
-        this.commonI18NService = commonI18NService;
-    }
-
-    @Required
-    public void setWorldpayUrlService(final WorldpayUrlService worldpayUrlService) {
-        this.worldpayUrlService = worldpayUrlService;
+        return BigDecimal.valueOf(value).movePointRight(digits).setScale(0, RoundingMode.HALF_UP).toPlainString();
     }
 }
