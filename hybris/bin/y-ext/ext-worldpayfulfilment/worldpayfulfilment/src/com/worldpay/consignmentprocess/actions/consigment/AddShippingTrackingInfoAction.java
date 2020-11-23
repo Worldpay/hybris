@@ -10,7 +10,7 @@ import de.hybris.platform.task.RetryLaterException;
  */
 public class AddShippingTrackingInfoAction extends AbstractProceduralAction<ConsignmentProcessModel> {
 
-    private final AddShippingTrackingInfoToConsignmentStrategy addShippingTrackingInfoToConsignmentStrategy;
+    protected final AddShippingTrackingInfoToConsignmentStrategy addShippingTrackingInfoToConsignmentStrategy;
 
     /**
      * @param addShippingTrackingInfoToConsignmentStrategy

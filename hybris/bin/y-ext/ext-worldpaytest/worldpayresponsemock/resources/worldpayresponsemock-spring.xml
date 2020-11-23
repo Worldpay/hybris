@@ -22,7 +22,7 @@
     <bean id="worldpayDirectAuthoriseResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder"/>
     <bean id="worldpayCaptureResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayCaptureResponseBuilder"/>
     <bean id="worldpayNotificationResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder">
-        <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
+        <constructor-arg name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
     </bean>
     <bean id="worldpayTokenCreateResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder"/>
 
@@ -160,5 +160,4 @@
         <value>CONFLICT</value>
         <value>USE</value>
     </util:set>
-
 </beans>

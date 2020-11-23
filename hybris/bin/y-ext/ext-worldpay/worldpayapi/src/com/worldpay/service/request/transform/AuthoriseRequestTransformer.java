@@ -7,7 +7,6 @@ import com.worldpay.internal.model.Submit;
 import com.worldpay.service.request.AuthoriseServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link AuthoriseServiceRequest} into a {@link PaymentService} object
@@ -40,7 +39,7 @@ import org.springframework.beans.factory.annotation.Required;
  *                      &lt;address2&gt;Shopperaddress2&lt;/address2&gt;
  *                      &lt;address3&gt;Shopperaddress3&gt;&lt;/address3&gt;
  *                      &lt;postalCode&gt;1234&lt;/postalCode&gt;merchantInfo, orderInfo, ORDER_CONTENT, null,
-                includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT
+ * includedPTs, null, shopper, shippingAddress, billingAddress, STATEMENT_NARRATIVE_TEXT
  *                      &lt;city&gt;Shoppercity&lt;/city&gt;
  *                      &lt;countryCode&gt;NL&lt;/countryCode&gt;
  *                      &lt;telephoneNumber&gt;0123456789&lt;/telephoneNumber&gt;
@@ -55,7 +54,11 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
-    private ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
+
+    public AuthoriseRequestTransformer(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     /**
      * (non-Javadoc)
@@ -63,7 +66,7 @@ public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
      * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(ServiceRequest)
      */
     @Override
-    public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
+    public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the authorise is invalid.");
         }
@@ -81,10 +84,5 @@ public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
         submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().add(order);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 }

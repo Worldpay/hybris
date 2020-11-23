@@ -11,7 +11,8 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.math.BigDecimal;
@@ -19,20 +20,19 @@ import java.util.List;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
-import static java.text.MessageFormat.format;
 
 /**
  * The implementation of {@link OrderNotificationProcessorStrategy} that processes Authorised notifications.
  */
 public class DefaultAuthorisedOrderNotificationProcessorStrategy implements OrderNotificationProcessorStrategy {
 
-    private static final Logger LOG = Logger.getLogger(DefaultAuthorisedOrderNotificationProcessorStrategy.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultAuthorisedOrderNotificationProcessorStrategy.class);
 
-    private final ModelService modelService;
-    private final TransactionOperations transactionTemplate;
-    private final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private final WorldpayPaymentInfoService worldpayPaymentInfoService;
-    private final WorldpayOrderService worldpayOrderService;
+    protected final ModelService modelService;
+    protected final TransactionOperations transactionTemplate;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
+    protected final WorldpayOrderService worldpayOrderService;
 
     public DefaultAuthorisedOrderNotificationProcessorStrategy(final ModelService modelService,
                                                                final TransactionOperations transactionTemplate,
@@ -53,7 +53,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
      */
     @Override
     public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
-        LOG.debug(format("Message for order having code {0} is a success, saving card and changing transaction status to not pending.", orderNotificationMessage.getOrderCode()));
+        LOG.debug("Message for order having code {} is a success, saving card and changing transaction status to not pending.", orderNotificationMessage.getOrderCode());
 
         final BigDecimal plannedAmount = worldpayOrderService.convertAmount(orderNotificationMessage.getPaymentReply().getAmount());
         paymentTransactionModel.setPlannedAmount(plannedAmount);
@@ -72,7 +72,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
         });
     }
 
-    protected void updatePaymentTransactionEntry(PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage,
+    protected void updatePaymentTransactionEntry(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage,
                                                  final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus) {
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
         worldpayPaymentTransactionService.addRiskScore(paymentTransactionModel, paymentReply);

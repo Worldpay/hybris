@@ -17,8 +17,8 @@ public class DefaultWorldpayAdditionalInfoService implements WorldpayAdditionalI
 
     private static final String WORLDPAY_ADDITIONAL_DATA_SESSION_ID = "worldpay_additional_data_session_id";
 
-    private final WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy;
-    private final SessionService sessionService;
+    protected final WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy;
+    protected final SessionService sessionService;
 
     public DefaultWorldpayAdditionalInfoService(final WorldpayCustomerIpAddressStrategy worldpayCustomerIpAddressStrategy, final SessionService sessionService) {
         this.worldpayCustomerIpAddressStrategy = worldpayCustomerIpAddressStrategy;

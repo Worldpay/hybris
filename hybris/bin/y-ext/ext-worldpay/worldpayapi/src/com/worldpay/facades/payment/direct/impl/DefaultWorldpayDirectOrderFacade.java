@@ -1,6 +1,7 @@
 package com.worldpay.facades.payment.direct.impl;
 
 import com.google.common.base.Preconditions;
+import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
 import com.worldpay.enums.order.AuthorisedStatus;
@@ -8,12 +9,16 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
 import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.Request3DInfo;
+import com.worldpay.service.model.payment.Card;
+import com.worldpay.service.model.token.TokenDetails;
+import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
@@ -25,11 +30,13 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static java.text.MessageFormat.format;
@@ -37,6 +44,7 @@ import static java.text.MessageFormat.format;
 /**
  * Implementation of the authorise operations that enables the Client Side Encryption with Worldpay
  */
+@SuppressWarnings("java:S107")
 public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFacade {
 
     protected static final String ERROR_AUTHORISING_ORDER = "There was a problem authorising the order with worldpayOrderCode [{0}]";
@@ -46,13 +54,15 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     private static final String THERE_IS_NO_CONFIGURATION = "There is no configuration for the requested merchant. Please review your settings.";
     private static final String CANNOT_AUTHORIZE_PAYMENT_WHERE_THERE_IS_NO_CART_MESSAGE = "Cannot authorize payment where there is no cart";
 
-    private final WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
-    private final WorldpayDirectOrderService worldpayDirectOrderService;
-    private final CartService cartService;
-    private final AcceleratorCheckoutFacade acceleratorCheckoutFacade;
-    private final WorldpayPaymentInfoService worldpayPaymentInfoService;
-    private final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
-    private final CartFacade cartFacade;
+    protected final WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy;
+    protected final WorldpayDirectOrderService worldpayDirectOrderService;
+    protected final CartService cartService;
+    protected final AcceleratorCheckoutFacade acceleratorCheckoutFacade;
+    protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
+    protected final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected final CartFacade cartFacade;
+    protected final WorldpayCartService worldpayCartService;
+    protected final WorldpayMerchantInfoService worldpayMerchantInfoService;
 
     public DefaultWorldpayDirectOrderFacade(final WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy,
                                             final WorldpayDirectOrderService worldpayDirectOrderService,
@@ -60,7 +70,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
                                             final AcceleratorCheckoutFacade acceleratorCheckoutFacade,
                                             final WorldpayPaymentInfoService worldpayPaymentInfoService,
                                             final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade,
-                                            final CartFacade cartFacade) {
+                                            final CartFacade cartFacade, final WorldpayCartService worldpayCartService, final WorldpayMerchantInfoService worldpayMerchantInfoService) {
         this.worldpayAuthenticatedShopperIdStrategy = worldpayAuthenticatedShopperIdStrategy;
         this.worldpayDirectOrderService = worldpayDirectOrderService;
         this.cartService = cartService;
@@ -68,6 +78,8 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         this.worldpayPaymentInfoService = worldpayPaymentInfoService;
         this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
         this.cartFacade = cartFacade;
+        this.worldpayCartService = worldpayCartService;
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }
 
     /**
@@ -94,6 +106,19 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         setAuthenticatedShopperIdOnAdditionalInfoData(worldpayAdditionalInfoData, cartModel.getUser());
 
         tokenize(cartModel, cseAdditionalAuthInfo, worldpayAdditionalInfoData);
+    }
+
+    @Override
+    public DirectResponseData executeFirstPaymentAuthorisation3DSecure(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException {
+        final DirectResponseData directResponseData;
+        if (StringUtils.isEmpty(cseAdditionalAuthInfo.getEncryptedData())) {
+            final CartModel cart = cartService.getSessionCart();
+            final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
+            directResponseData = authoriseRecurringPayment(cart, worldpayAdditionalInfoData, merchantInfo);
+        } else {
+            directResponseData = authoriseAndTokenize(worldpayAdditionalInfoData, cseAdditionalAuthInfo);
+        }
+        return directResponseData;
     }
 
     /**
@@ -172,7 +197,16 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             final CartModel cart = cartService.getSessionCart();
             final DirectAuthoriseServiceResponse directAuthoriseServiceResponse = worldpayDirectOrderService.authoriseGooglePay(cart, googlePayAdditionalAuthInfo);
             if (directAuthoriseServiceResponse.getPaymentReply().getAuthStatus().equals(AUTHORISED)) {
-                worldpayPaymentInfoService.createPaymentInfoGooglePay(cart, googlePayAdditionalAuthInfo);
+                final String paymentTokenID = Optional.ofNullable(directAuthoriseServiceResponse.getToken())
+                    .map((TokenReply::getTokenDetails))
+                    .map(TokenDetails::getPaymentTokenID)
+                    .orElse(null);
+                final String obfuscatedCardNumber = Optional.ofNullable(directAuthoriseServiceResponse.getPaymentReply())
+                    .map(PaymentReply::getCardDetails)
+                    .map(Card::getCardNumber)
+                    .orElse(null);
+
+                worldpayPaymentInfoService.createPaymentInfoGooglePay(cart, googlePayAdditionalAuthInfo, paymentTokenID, obfuscatedCardNumber);
             }
             return handleDirectServiceResponse(directAuthoriseServiceResponse, cart);
         } catch (final WorldpayConfigurationException e) {
@@ -220,14 +254,13 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
      */
     @Override
     public DirectResponseData executeSecondPaymentAuthorisation3DSecure() throws WorldpayException, InvalidCartException {
-
         final DirectResponseData response = new DirectResponseData();
         if (cartService.hasSessionCart()) {
             final CartModel cartModel = cartService.getSessionCart();
             final DirectAuthoriseServiceResponse serviceResponse = worldpayDirectOrderService.authorise3DSecureAgain(cartModel.getWorldpayOrderCode());
             if (shouldProcessResponse(serviceResponse)) {
                 return processDirectResponseData(cartModel, serviceResponse, response);
-            } else if (serviceResponse.getErrorDetail() != null) {
+            } else if (Objects.nonNull(serviceResponse.getErrorDetail())) {
                 final String errorMessage = format(THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE, serviceResponse.getErrorDetail().getMessage());
                 LOG.error(errorMessage);
                 throw new WorldpayException(errorMessage);
@@ -240,6 +273,24 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return response;
     }
 
+    @Override
+    public DirectResponseData executeSecondPaymentAuthorisation3DSecure(final String worldpayOrderCode) throws WorldpayException, InvalidCartException {
+        final CartModel cartModel = worldpayCartService.findCartByWorldpayOrderCode(worldpayOrderCode);
+        cartService.setSessionCart(cartModel);
+
+        final DirectAuthoriseServiceResponse serviceResponse = worldpayDirectOrderService.authorise3DSecureAgain(cartModel.getWorldpayOrderCode());
+        if (shouldProcessResponse(serviceResponse)) {
+            return processDirectResponseData(cartModel, serviceResponse, new DirectResponseData());
+        } else if (Objects.nonNull(serviceResponse.getErrorDetail())) {
+            final String errorMessage = format(THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE, serviceResponse.getErrorDetail().getMessage());
+            LOG.error(errorMessage);
+            throw new WorldpayException(errorMessage);
+        }
+
+        throw new WorldpayException(THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY);
+    }
+
+
     /**
      * {@inheritDoc}
      */
@@ -247,7 +298,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     public DirectResponseData authoriseAndTokenize(final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException {
         final CartModel cart = cartService.getSessionCart();
         setAuthenticatedShopperIdOnAdditionalInfoData(worldpayAdditionalInfoData, cart.getUser());
-        if (cseAdditionalAuthInfo.getSaveCard()) {
+        if (Boolean.TRUE.equals(cseAdditionalAuthInfo.getSaveCard())) {
             return internalTokenizeAndAuthorise(cart, worldpayAdditionalInfoData, cseAdditionalAuthInfo);
         } else {
             tokenize(cart, cseAdditionalAuthInfo, worldpayAdditionalInfoData);
@@ -258,7 +309,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     protected String handleAuthoriseRedirectServiceResponse(final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayException {
         if (shouldProcessRedirect(serviceResponse)) {
             return serviceResponse.getRedirectReference().getValue();
-        } else if (serviceResponse.getErrorDetail() != null) {
+        } else if (Objects.nonNull(serviceResponse.getErrorDetail())) {
             final String errorMessage = format(THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE, serviceResponse.getErrorDetail().getMessage());
             LOG.error(errorMessage);
             throw new WorldpayException(errorMessage);
@@ -283,7 +334,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
                                                                    final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException {
         try {
             setAuthenticatedShopperIdOnAdditionalInfoData(worldpayAdditionalInfoData, abstractOrderModel.getUser());
-            var directAuthoriseServiceResponse = worldpayDirectOrderService.authoriseRecurringPayment(
+            final var directAuthoriseServiceResponse = worldpayDirectOrderService.authoriseRecurringPayment(
                     abstractOrderModel,
                     worldpayAdditionalInfoData);
             return handleDirectServiceResponse(directAuthoriseServiceResponse, abstractOrderModel);
@@ -341,7 +392,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
                 paResponse);
         if (shouldProcessResponse(serviceResponse)) {
             return handle3DSecureResponse(abstractOrderModel, serviceResponse);
-        } else if (serviceResponse.getErrorDetail() != null) {
+        } else if (Objects.nonNull(serviceResponse.getErrorDetail())) {
             final String errorMessage = format(THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE, serviceResponse.getErrorDetail().getMessage());
             LOG.error(errorMessage);
             throw new WorldpayException(errorMessage);
@@ -356,7 +407,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return processDirectResponseData(abstractOrderModel, serviceResponse, response);
     }
 
-    protected DirectResponseData processDirectResponseData(AbstractOrderModel abstractOrderModel, DirectAuthoriseServiceResponse serviceResponse, DirectResponseData response) throws InvalidCartException, WorldpayException {
+    protected DirectResponseData processDirectResponseData(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse, final DirectResponseData response) throws InvalidCartException, WorldpayException {
         final PaymentReply paymentReply = serviceResponse.getPaymentReply();
         final AuthorisedStatus authStatus = paymentReply.getAuthStatus();
         if (AUTHORISED.equals(authStatus)) {
@@ -428,7 +479,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     protected DirectResponseData handleErrorOnServiceResponse(final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayException {
-        if (serviceResponse.getErrorDetail() != null) {
+        if (Objects.nonNull(serviceResponse.getErrorDetail())) {
             final String errorMessage = format(THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE, serviceResponse.getErrorDetail().getMessage());
             LOG.error(errorMessage);
             throw new WorldpayException(errorMessage);

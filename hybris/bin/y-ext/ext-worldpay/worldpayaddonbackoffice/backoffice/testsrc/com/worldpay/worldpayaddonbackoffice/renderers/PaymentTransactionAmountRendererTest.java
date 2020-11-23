@@ -31,9 +31,9 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PaymentTransactionAmountRendererTest {
 
+    private static final String AMOUNT = "amount";
     private static final String QUALIFIER = "qualifier";
     private static final String DATA_TYPE_CODE = "dataTypeCode";
-    private static final String AMOUNT = "amount";
     private static final String PAYMENT_TRANSACTION = "PaymentTransaction";
 
     @InjectMocks

@@ -28,20 +28,23 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
         final PaymentDetails paymentDetails = new PaymentDetails(requestParameters.getPayment(), requestParameters.getShopper().getSession(), requestParameters.getStoredCredentials());
 
         final Order reqOrder = new OrderBuilder()
-                .withOrderInfo(requestParameters.getOrderInfo())
-                .withInstallationId(requestParameters.getInstallationId())
-                .withIncludedPaymentMethods(requestParameters.getIncludedPTs())
-                .withExcludedPaymentMethods(requestParameters.getExcludedPTs())
-                .withOrderContent(requestParameters.getOrderContent())
-                .withShopper(requestParameters.getShopper())
-                .withTokenRequest(requestParameters.getTokenRequest())
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withBillingAddress(requestParameters.getBillingAddress())
-                .withStatementNarrative(requestParameters.getStatementNarrative())
-                .withPaymentDetails(paymentDetails)
-                .withDynamicInteractionType(requestParameters.getDynamicInteractionType())
-                .withStoredCredentials(requestParameters.getStoredCredentials())
-                .build();
+            .withOrderInfo(requestParameters.getOrderInfo())
+            .withInstallationId(requestParameters.getInstallationId())
+            .withIncludedPaymentMethods(requestParameters.getIncludedPTs())
+            .withExcludedPaymentMethods(requestParameters.getExcludedPTs())
+            .withOrderContent(requestParameters.getOrderContent())
+            .withShopper(requestParameters.getShopper())
+            .withTokenRequest(requestParameters.getTokenRequest())
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withBillingAddress(requestParameters.getBillingAddress())
+            .withStatementNarrative(requestParameters.getStatementNarrative())
+            .withPaymentDetails(paymentDetails)
+            .withDynamicInteractionType(requestParameters.getDynamicInteractionType())
+            .withStoredCredentials(requestParameters.getStoredCredentials())
+            .withPaymentMethodAttribute(requestParameters.getPaymentMethodAttributes())
+            .withOrderLines(requestParameters.getOrderLines())
+            .withRiskData(requestParameters.getRiskData())
+            .build();
         authRequest.setOrder(reqOrder);
         return authRequest;
     }

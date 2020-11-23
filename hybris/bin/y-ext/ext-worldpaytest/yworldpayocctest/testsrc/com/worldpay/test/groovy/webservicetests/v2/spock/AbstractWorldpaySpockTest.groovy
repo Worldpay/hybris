@@ -181,6 +181,8 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
 
         browser.go autoSubmitUrl
 
+        Thread.sleep(3000)
+
         // The threeDSecureTest.html page auto submits and forwards to the
         // worldpay 3D simulator page (the issuer url)
         browser.$("form").paResMagicValues = authorisationResponse

@@ -36,12 +36,12 @@ public class DefaultWorldpayDirectResponseFacade implements WorldpayDirectRespon
     private static final String WINDOW_SIZE = "challengeWindowSize";
     private static final String AUTO_SUBMIT_THREE_D_SECURE_FLEX_URL_KEY = "autoSubmitThreeDSecureFlexUrl";
 
-    private final AcceleratorCheckoutFacade checkoutFacade;
-    private final WorldpayUrlService worldpayUrlService;
-    private final WorldpayDirectResponseService worldpayDirectResponseService;
-    private final WorldpayJsonWebTokenService worldpayJsonWebTokenService;
-    private final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
-    private final WorldpaySessionService worldpaySessionService;
+    protected final AcceleratorCheckoutFacade checkoutFacade;
+    protected final WorldpayUrlService worldpayUrlService;
+    protected final WorldpayDirectResponseService worldpayDirectResponseService;
+    protected final WorldpayJsonWebTokenService worldpayJsonWebTokenService;
+    protected final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected final WorldpaySessionService worldpaySessionService;
 
     /**
      * Default constructor

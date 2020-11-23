@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayClusterInformationAppenderTest {
 
     private static final long CLUSTER_ISLAND_ID = 0L;
@@ -22,13 +22,13 @@ public class WorldpayClusterInformationAppenderTest {
 
     @Spy
     @InjectMocks
-    private WorldpayClusterInformationAppender testObj = new WorldpayClusterInformationAppender();
+    private WorldpayClusterInformationAppender testObj;
 
     @Mock
     private DefaultBroadcastService broadcastServiceMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void appendContent_ShouldAppendClusterInformation() {
         doReturn(broadcastServiceMock).when(testObj).getBroadCastServiceInstance();
 
         when(broadcastServiceMock.getClusterIslandPK()).thenReturn(CLUSTER_ISLAND_ID);

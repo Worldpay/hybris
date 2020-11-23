@@ -2,8 +2,10 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
+import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
@@ -45,15 +47,19 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     protected static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN = "originEventDomain3DSFlex";
 
     @Resource
-    private Validator csePaymentDetailsFormValidator;
+    protected Validator csePaymentDetailsFormValidator;
     @Resource
-    private Validator cseFormValidator;
+    protected Validator cseFormValidator;
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
-    private WorldpayDDCFacade worldpayDDCFacade;
+    protected WorldpayDDCFacade worldpayDDCFacade;
+    @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
+    @Resource
+    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
 
     /**
      * Returns the CSE payment details page
@@ -102,6 +108,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         }
         redirectAttrs.addFlashAttribute(SHOPPER_BANK_CODE, paymentDetailsForm.getShopperBankCode());
         redirectAttrs.addFlashAttribute(PAYMENT_METHOD_PARAM, paymentDetailsForm.getPaymentMethod());
+        redirectAttrs.addFlashAttribute(SAVE_PAYMENT_INFO, paymentDetailsForm.getSaveInAccount());
         return getRedirectToPaymentMethod();
     }
 
@@ -169,7 +176,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     }
 
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfo = getWorldpayAdditionalInfoFacade().createWorldpayAdditionalInfoData(request);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSecurityCode(cvc);
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
@@ -184,7 +191,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
         model.addAttribute(CSE_PAYMENT_FORM, new CSEPaymentForm());
-        model.addAttribute(CSE_PUBLIC_KEY, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getCsePublicKey());
+        model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
         model.addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, worldpayDDCFacade.getEventOriginDomainForDDC());
     }
 

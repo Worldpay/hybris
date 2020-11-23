@@ -27,9 +27,9 @@ import de.hybris.platform.servicelayer.config.ConfigurationService;
 public class RefundRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private final ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
 
-    public RefundRequestTransformer(ConfigurationService configurationService) {
+    public RefundRequestTransformer(final ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
 
@@ -59,7 +59,7 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
             refund.setShopperWebformRefund(Boolean.TRUE.toString());
         }
         refund.setAmount((Amount) refundRequest.getAmount().transformToInternalModel());
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().add(refund);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(refund);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

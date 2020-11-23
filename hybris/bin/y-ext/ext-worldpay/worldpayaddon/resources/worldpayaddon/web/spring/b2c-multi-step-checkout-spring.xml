@@ -139,4 +139,11 @@
         <property name="key" value="worldpayB2CResponsiveCheckoutGroup"/>
         <property name="value" ref="worldpayB2CResponsiveCheckoutGroup"/>
     </bean>
+
+    <!-- Validators -->
+    <alias name="worldpayAbstractCheckoutStepValidator" alias="abstractCheckoutStepValidator"/>
+    <bean id="worldpayAbstractCheckoutStepValidator" class="de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.validation.AbstractCheckoutStepValidator" abstract="true">
+        <property name="checkoutFlowFacade" ref="worldpayCheckoutFacade"/>
+        <property name="checkoutFacade" ref="worldpayCheckoutFacade"/>
+    </bean>
 </beans>

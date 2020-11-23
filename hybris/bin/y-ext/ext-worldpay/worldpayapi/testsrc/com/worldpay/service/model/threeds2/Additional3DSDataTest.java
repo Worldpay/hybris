@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -19,10 +18,10 @@ public class Additional3DSDataTest {
         final Additional3DSData testObj = new Additional3DSData();
         testObj.setDfReferenceId("referenceId");
 
-        final com.worldpay.internal.model.Additional3DSData result = (com.worldpay.internal.model.Additional3DSData) testObj.transformToInternalModel();
+        final var result = (com.worldpay.internal.model.Additional3DSData) testObj.transformToInternalModel();
 
-        assertEquals("noPreference",result.getChallengePreference());
-        assertThat(result.getDfReferenceId()).isEqualTo(testObj.getDfReferenceId());
+        assertThat(result.getDfReferenceId()).isEqualTo("referenceId");
+        assertThat(result.getChallengePreference()).isEqualTo(ChallengePreferenceEnum.NO_PREFERENCE.toString());
         assertThat(result.getChallengeWindowSize()).isEqualTo(ChallengeWindowSizeEnum.R_390_400.toString());
     }
 
@@ -33,10 +32,10 @@ public class Additional3DSDataTest {
         testObj.setChallengePreference(ChallengePreferenceEnum.CHALLENGE_MANDATED);
         testObj.setChallengeWindowSize(ChallengeWindowSizeEnum.R_250_400);
 
-        final com.worldpay.internal.model.Additional3DSData result = (com.worldpay.internal.model.Additional3DSData) testObj.transformToInternalModel();
+        final var result = (com.worldpay.internal.model.Additional3DSData) testObj.transformToInternalModel();
 
-        assertThat(result.getChallengePreference()).isEqualTo(testObj.getChallengePreference().toString());
-        assertThat(result.getDfReferenceId()).isEqualTo(testObj.getDfReferenceId());
-        assertThat(result.getChallengeWindowSize()).isEqualTo(testObj.getChallengeWindowSize().toString());
+        assertThat(result.getDfReferenceId()).isEqualTo("referenceId");
+        assertThat(result.getChallengePreference()).isEqualTo(ChallengePreferenceEnum.CHALLENGE_MANDATED.toString());
+        assertThat(result.getChallengeWindowSize()).isEqualTo(ChallengeWindowSizeEnum.R_250_400.toString());
     }
 }
