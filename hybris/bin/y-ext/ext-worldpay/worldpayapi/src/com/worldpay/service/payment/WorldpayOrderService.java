@@ -2,22 +2,19 @@ package com.worldpay.service.payment;
 
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason;
-import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.*;
+import com.worldpay.service.model.Address;
+import com.worldpay.service.model.Amount;
+import com.worldpay.service.model.BasicOrderInfo;
 import com.worldpay.service.model.payment.Cse;
 import com.worldpay.service.model.payment.PayWithGoogleSSL;
 import com.worldpay.service.model.payment.Payment;
-import com.worldpay.service.model.payment.StoredCredentials;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.token.CardDetails;
-import com.worldpay.service.model.token.Token;
-import com.worldpay.service.model.token.TokenRequest;
-import com.worldpay.service.request.CreateTokenServiceRequest;
-import com.worldpay.service.request.UpdateTokenServiceRequest;
+import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
+import de.hybris.platform.core.model.c2l.LanguageModel;
+import de.hybris.platform.core.model.order.AbstractOrderModel;
+import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -62,21 +59,6 @@ public interface WorldpayOrderService {
      */
     BigDecimal convertAmount(final Amount amount);
 
-    /**
-     * Creates a Worldpay {@link Session} object
-     *
-     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
-     * @return Session object
-     */
-    Session createSession(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
-
-    /**
-     * Creates a Worldpay {@link Browser} object
-     *
-     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
-     * @return Browser object
-     */
-    Browser createBrowser(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
 
     /**
      * Creates a Worldpay {@link BasicOrderInfo} object
@@ -88,97 +70,18 @@ public interface WorldpayOrderService {
      */
     BasicOrderInfo createBasicOrderInfo(final String worldpayOrderCode, final String description, final Amount amount);
 
-    /**
-     * Creates a {@link Shopper} object to be used in the Requests
-     *
-     * @param customerEmail customer email
-     * @param session       session information
-     * @param browser       browser information
-     * @return Shopper object
-     */
-    Shopper createShopper(String customerEmail, final Session session, final Browser browser);
-
-    /**
-     * @param customerEmail          customer email
-     * @param authenticatedShopperID unique identifier for the shopper
-     * @param session                session information
-     * @param browser                browser information
-     * @return authenticated Shopper
-     */
-    Shopper createAuthenticatedShopper(final String customerEmail, final String authenticatedShopperID, final Session session, final Browser browser);
-
-    /**
-     * Creates a tokenRequest object with scope merchant or shopper depending on the configured property
-     *
-     * @param tokenEventReference unique identifier for the token transaction
-     * @param tokenReason         refers to the seller so they can be tracked to the site/web.
-     * @return Token Request with the appropiate scope
-     */
-    TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason);
-
-    /**
-     * Creates a tokenRequest object for token deletion with scope merchant or shopper depending on the authenticatedShopperId being null or not.
-     *
-     * @param tokenEventReference
-     * @param tokenReason
-     * @param authenticatedShopperId
-     * @return
-     */
-    TokenRequest createTokenRequestForDeletion(final String tokenEventReference, final String tokenReason, final String authenticatedShopperId);
-
-    /**
-     * Creates a CreateTokenServiceRequest. If merchant token is enabled, authenticatedShopperId is ignored and the create token request uses a null.
-     *
-     * @param merchantInfo
-     * @param authenticatedShopperId
-     * @param csePayment
-     * @param tokenRequest
-     * @return {@link CreateTokenServiceRequest}
-     */
-    CreateTokenServiceRequest createTokenServiceRequest(final MerchantInfo merchantInfo, final String authenticatedShopperId,
-                                                        final Payment csePayment, final TokenRequest tokenRequest);
-
-    /**
-     * Creates a payment element to be used in bank transfers
-     *
-     * @param paymentMethod   indicates which payment method for bank transfer is going to be used (IDEAL-SSL,...)
-     * @param shopperBankCode indicates the selected bank by the user
-     * @return Payment object
-     */
-    Payment createBankPayment(final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException;
 
     /**
      * Creates a payment element to be used in klarna
      *
-     * @param countryCode       indicates the shopper country code
-     * @param languageCode      indicates the session language code of the user
-     * @param extraMerchantData extra data to be filled by the merchant
+     * @param countryCode         indicates the shopper country code
+     * @param language            indicates the session language code of the user
+     * @param extraMerchantData   extra data to be filled by the merchant
+     * @param klarnaPaymentMethod indicates the klarna payment type
      * @return Payment object
      */
-    Payment createKlarnaPayment(final String countryCode, final String languageCode, final String extraMerchantData) throws WorldpayConfigurationException;
+    Payment createKlarnaPayment(final String countryCode, final LanguageModel language, final String extraMerchantData, final String klarnaPaymentMethod) throws WorldpayConfigurationException;
 
-    /**
-     * Creates token
-     *
-     * @param subscriptionId
-     * @param securityCode
-     * @return Token object
-     */
-    Token createToken(final String subscriptionId, final String securityCode);
-
-    /**
-     * Creates an UpdateTokenServiceRequest with merchant or shopper scope depending on the site configuration
-     *
-     * @param merchantInfo
-     * @param worldpayAdditionalInfoData
-     * @param tokenRequest
-     * @param paymentTokenID
-     * @param cardDetails
-     * @return
-     */
-    UpdateTokenServiceRequest createUpdateTokenServiceRequest(final MerchantInfo merchantInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                              final TokenRequest tokenRequest, final String paymentTokenID,
-                                                              final CardDetails cardDetails);
 
     /**
      * Creates an Payment of type ApplePay with the requested details
@@ -208,20 +111,28 @@ public interface WorldpayOrderService {
     PayWithGoogleSSL createGooglePayPayment(final String protocolVersion, final String signature, final String signedMessage);
 
     /**
-     * Creates a additional 3DS Data element to be used in request
-     *
-     * @param worldpayAdditionalInfoData The additional info to build the object
-     * @return Additional3DSData object
-     */
-    Additional3DSData createAdditional3DSData(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
-
-    /**
-     * Creates stored credentials element to be used in request.
-     *
-     * @param usage
-     * @param merchantInitiatedReason
-     * @param transactionIdentifier
+     * @param paymentInfoModel
+     * @param authorisationAmount
+     * @param cartModel
      * @return
      */
-    StoredCredentials createStoredCredentials(final Usage usage, final MerchantInitiatedReason merchantInitiatedReason, final String transactionIdentifier);
+    CommerceCheckoutParameter createCheckoutParameterAndSetPaymentInfo(final PaymentInfoModel paymentInfoModel, final BigDecimal authorisationAmount, final CartModel cartModel);
+
+    /**
+     * Creates a {@link CommerceCheckoutParameter} based on the passed {@link CartModel} and {@link PaymentInfoModel} given
+     *
+     * @param abstractOrderModel  The abstractOrderModel to base the commerceCheckoutParameter on
+     * @param paymentInfoModel    The paymentInfo to base the commerceCheckoutParameter on
+     * @param authorisationAmount The authorised amount by the payment provider
+     * @return the created parameters
+     */
+    CommerceCheckoutParameter createCommerceCheckoutParameter(final AbstractOrderModel abstractOrderModel, final PaymentInfoModel paymentInfoModel, final BigDecimal authorisationAmount);
+
+    /**
+     * Generates worldpay order code from the cart
+     *
+     * @param abstractOrderModel the cart
+     * @return the generated code
+     */
+    String generateWorldpayOrderCode(final AbstractOrderModel abstractOrderModel);
 }

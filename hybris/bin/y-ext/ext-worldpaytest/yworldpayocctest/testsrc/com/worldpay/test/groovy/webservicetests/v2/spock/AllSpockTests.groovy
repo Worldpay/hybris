@@ -10,14 +10,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.Suite
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses([ AddPaymentInfoTest, UserPaymentsTest, PlaceOrderTest ])
+@Suite.SuiteClasses([AddPaymentInfoTest, UserPaymentsTest, PlaceOrderTest])
 @IntegrationTest
 class AllSpockTests {
 
-	private static final Logger LOG = Logger.getLogger(AllSpockTests.class)
+    private static final Logger LOG = Logger.getLogger(AllSpockTests.class)
 
-	@Test
-	static void testing() {
-		//dummy test class
-	}
+    @Test
+    static void testing() {
+        //dummy test class
+    }
 }

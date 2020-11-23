@@ -14,6 +14,7 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
+import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 
 import java.util.Optional;
@@ -70,10 +71,14 @@ public interface WorldpayPaymentInfoService {
     /**
      * Creates a paymentInfo saving parameters from Google
      *
-     * @param cartModel cart to base the paymentInfo on
+     * @param cartModel            cart to base the paymentInfo on
+     * @param googleAuthInfo       authentication information
+     * @param paymentTokenId       the paymentTokenId from Worldpay
+     * @param obfuscatedCardNumber the hidden card number
      * @return
      */
-    PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo);
+    PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo,
+                                                final String paymentTokenId, final String obfuscatedCardNumber);
 
     /**
      * Converts and sets the {@link CreditCardType} on the {@link CreditCardPaymentInfoModel} based on the methodCode of the {@link PaymentReply}
@@ -88,9 +93,10 @@ public interface WorldpayPaymentInfoService {
      *
      * @param cartModel
      * @param updateTokenServiceRequest
+     * @param saveCard
      * @return Optional {@link Optional} that will contain the updated CreditCardPaymentInfoModel or empty if no matching tokenised card is found
      */
-    Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest);
+    Optional<CreditCardPaymentInfoModel> updateCreditCardPaymentInfo(final CartModel cartModel, final UpdateTokenServiceRequest updateTokenServiceRequest, final Boolean saveCard);
 
     /**
      * Creates an ApplePay payment info
@@ -114,8 +120,34 @@ public interface WorldpayPaymentInfoService {
 
     /**
      * Updates the transaction identifier received from worldpay response into the paymentInfoModel
+     *
      * @param paymentInfo
      * @param transactionIdentifier
      */
     void setTransactionIdentifierOnPaymentInfo(final PaymentInfoModel paymentInfo, final String transactionIdentifier);
+
+    /**
+     * Create a paymentInfoModel for the cartModel and its paymentTransaction, setting the isSaved attribute on the paymentInfoModel set to true
+     *
+     * @param cartModel
+     * @param isSaved
+     */
+    void createPaymentInfoModelOnCart(final CartModel cartModel, final boolean isSaved);
+
+    /**
+     * Sets credit card payment info on cart
+     *
+     * @param cartModel
+     * @param creditCardPaymentInfo
+     */
+    void setPaymentInfoOnCart(final CartModel cartModel, final CreditCardPaymentInfoModel creditCardPaymentInfo);
+
+    /**
+     * Clones the billing address
+     *
+     * @param cartModel        holding the source address
+     * @param paymentInfoModel holding the address owner
+     * @return the cloned address model
+     */
+    AddressModel cloneAndSetBillingAddressFromCart(final CartModel cartModel, final PaymentInfoModel paymentInfoModel);
 }

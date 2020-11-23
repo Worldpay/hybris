@@ -139,7 +139,7 @@ public class CaptureRequestTransformerTest {
 
     protected Capture getCaptureResult(final PaymentService result) {
         final OrderModification orderModificationResult = getOrderModificationResult(result);
-        return (Capture) orderModificationResult.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().get(0);
+        return (Capture) orderModificationResult.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().get(0);
     }
 
     protected OrderModification getOrderModificationResult(final PaymentService result) {

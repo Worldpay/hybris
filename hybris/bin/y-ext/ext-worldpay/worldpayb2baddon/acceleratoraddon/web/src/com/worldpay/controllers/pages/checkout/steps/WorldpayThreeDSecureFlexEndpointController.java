@@ -17,7 +17,8 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,9 +41,10 @@ import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.G
 @RequestMapping(value = "/checkout/multi/worldpay/3dsecureflex/sop")
 public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpayDirectCheckoutStepController {
 
+    private static final Logger LOG = LogManager.getLogger(WorldpayThreeDSecureFlexEndpointController.class);
+
     protected static final String REDIRECT_URL_QUOTE_ORDER_CONFIRMATION = REDIRECT_PREFIX + "/checkout/quote/orderConfirmation/";
     protected static final String REDIRECT_URL_REPLENISHMENT_CONFIRMATION = REDIRECT_PREFIX + "/checkout/replenishment/confirmation/";
-    private static final Logger LOG = Logger.getLogger(WorldpayThreeDSecureFlexEndpointController.class);
     private static final String WORLDPAY_ADDON_PREFIX = "worldpay.addon.prefix";
     private static final String CHECKOUT_3DSECUREFLEX_RESPONSE_AUTOSUBMIT = "pages/checkout/multi/threedsflex/autosubmitThreeDSecureFlexResponse";
     private static final String UNDEFINED_PREFIX = "undefined";

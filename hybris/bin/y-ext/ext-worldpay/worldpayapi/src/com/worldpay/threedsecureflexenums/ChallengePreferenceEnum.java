@@ -7,9 +7,9 @@ public enum ChallengePreferenceEnum {
 
     CHALLENGE_REQUESTED("challengeRequested"),
 
-    CHALLENGE_MANDATED("challangeMandated");
+    CHALLENGE_MANDATED("challengeMandated");
 
-    private final String realValue;
+    protected final String realValue;
 
     ChallengePreferenceEnum(final String realValue) {
         this.realValue = realValue;
@@ -23,10 +23,15 @@ public enum ChallengePreferenceEnum {
                 return NO_CHALLENGE_REQUESTED;
             case "challengeRequested":
                 return CHALLENGE_REQUESTED;
-            case "challangeMandated":
+            case "challengeMandated":
                 return CHALLENGE_MANDATED;
             default:
                 return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.realValue;
     }
 }

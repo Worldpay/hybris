@@ -1,0 +1,204 @@
+// Hybris b2c_acc_plus recipe extended with Worldpay addon
+apply plugin: 'installer-platform-plugin'
+apply plugin: 'installer-addon2-plugin'
+
+def pl = platform {
+    localProperties {
+        property 'recaptcha.publickey', ''
+        property 'recaptcha.privatekey', ''
+        property 'googleApiKey', ''
+        property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
+        property 'testclasses.addonname', 'yacceleratorstorefront'
+        property 'corsfilter.commercewebservices.allowedOrigins', 'http://localhost:4200 https://localhost:4200 https://secure-test.worldpay.com https://secure.worldpay.com'
+        property 'corsfilter.commercewebservices.allowedHeaders', 'origin content-type accept authorization x-anonymous-consents'
+        property 'xss.filter.header.Content-Security-Policy', 'frame-ancestors \'self\' http://localhost:4200 https://localhost:4200'
+    }
+
+    afterSetup {
+        ensureAdminPasswordSet()
+    }
+
+    extensions {
+
+        extName 'adaptivesearchsolr'
+        extName 'adaptivesearchbackoffice'
+        extName 'adaptivesearchsamplesaddon'
+        extName 'adaptivesearchwebservices'
+        extName 'commerceservicesbackoffice'
+        extName 'solrfacetsearchbackoffice'
+        extName 'solrserver'
+
+        extName 'yacceleratorbackoffice'
+        extName 'yacceleratorinitialdata'
+        extName 'yacceleratorfulfilmentprocess'
+        extName 'yacceleratorstorefront'
+        extName 'ycommercewebservices'
+        extName 'ycommercewebservicestest'
+
+        extName 'electronicsstore'
+        extName 'apparelstore'
+
+        extName 'captchaaddon'
+        extName 'acceleratorwebservicesaddon'
+        extName 'commerceorgsamplesaddon'
+        extName 'orderselfserviceaddon'
+
+        extName 'rulebuilderbackoffice'
+        extName 'couponbackoffice'
+        extName 'droolsruleengineservices'
+        extName 'couponfacades'
+        extName 'couponservices'
+        extName 'promotionenginesamplesaddon'
+
+        extName 'assistedservicestorefront'
+        extName 'assistedservicewebservices'
+        extName 'assistedserviceyprofileaddon'
+        extName 'assistedservicecustomerinterestsaddon'
+        extName 'assistedservicepromotionaddon'
+
+        extName 'customerticketingaddon'
+        extName 'customersupportbackoffice'
+
+        extName 'profiletagaddon'
+        extName 'profileservices'
+
+        extName 'textfieldconfiguratortemplatebackoffice'
+        extName 'textfieldconfiguratortemplateaddon'
+
+        extName 'cmswebservices'
+        extName 'smarteditwebservices'
+        extName 'cmssmarteditwebservices'
+        extName 'permissionswebservices'
+        extName 'smarteditaddon'
+        extName 'cmssmartedit'
+        extName 'cmsbackoffice'
+        extName 'cmsoccaddon'
+
+        extName 'consignmenttrackingaddon'
+        extName 'consignmenttrackingmock'
+        extName 'consignmenttrackingbackoffice'
+
+        extName 'notificationaddon'
+        extName 'customerinterestsaddon'
+        extName 'stocknotificationaddon'
+        extName 'configurablebundleaddon'
+
+        extName 'previewpersonalizationweb'
+        extName 'personalizationcmsweb'
+        extName 'personalizationsmartedit'
+        extName 'personalizationpromotionssmartedit'
+        extName 'personalizationsampledataaddon'
+        extName 'personalizationpromotionssampledataaddon'
+        extName 'personalizationyprofile'
+        extName 'personalizationpromotions'
+        extName 'personalizationpromotionsweb'
+        extName 'personalizationservicesbackoffice'
+        extName 'personalizationpromotionsbackoffice'
+        extName 'personalizationcmsbackoffice'
+        extName 'personalizationintegrationbackoffice'
+        extName 'personalizationsearchbackoffice'
+        extName 'personalizationsearchsmartedit'
+        extName 'personalizationsearchweb'
+        extName 'personalizationsearchsamplesaddon'
+        extName 'personalizationyprofilesampledataaddon'
+        extName 'personalizationaddon'
+
+
+        extName 'pcmbackofficesamplesaddon'
+
+        extName 'xyformsbackoffice'
+        extName 'xyformsstorefrontcommons'
+        extName 'xyformssamples'
+        extName 'xyformsweb'
+        extName 'platformbackoffice'
+        extName 'orbeonweb'
+        extName 'consignmenttrackingoccaddon'
+        extName 'customerinterestsoccaddon'
+        extName 'notificationoccaddon'
+
+        extName 'kymaintegrationbackoffice'
+
+        /* integration-apis */
+        extName 'outboundservices'
+        extName 'outboundsync'
+        extName 'odata2webservices'
+        extName 'odata2webservicesfeaturetests'
+        extName 'integrationbackoffice'
+        extName 'integrationmonitoringbackoffice'
+        extName 'outboundsyncbackoffice'
+
+        extName 'merchandisingaddon'
+        extName 'merchandisingcmswebservices'
+        extName 'merchandisingsmartedit'
+        extName 'merchandisingservices'
+        extName 'merchandisingservicesbackoffice'
+        extName 'merchandisingstorefrontsampledataaddon'
+
+        /* Worldpay extensions */
+        extName 'worldpayaddon'
+        extName 'worldpayaddonbackoffice'
+        extName 'worldpayapi'
+        extName 'worldpaynotifications'
+        extName 'worldpaysampledataaddon'
+        extName 'worldpayoccaddon'
+        extName 'yworldpayocctest'
+        extName 'worldpayhac'
+        extName 'worldpayfulfilment'
+        // Uncomment the following line if you want to add spartacussampledataaddon to your build
+        // 'spartacussampledataaddon',
+    }
+
+    addons {
+        forStoreFronts('yacceleratorstorefront') {
+            names('worldpayaddon', 'worldpaysampledataaddon', 'captchaaddon', 'commerceorgsamplesaddon', 'promotionenginesamplesaddon', 'assistedservicestorefront', 'assistedservicecustomerinterestsaddon',
+                    'assistedserviceyprofileaddon', 'assistedservicepromotionaddon', 'customerticketingaddon', 'textfieldconfiguratortemplateaddon', 'smarteditaddon',
+                    'consignmenttrackingaddon', 'notificationaddon', 'customerinterestsaddon', 'stocknotificationaddon', 'orderselfserviceaddon', 'adaptivesearchsamplesaddon',
+                    'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons', 'personalizationsearchsamplesaddon',
+                    'personalizationyprofilesampledataaddon', 'personalizationaddon', 'profiletagaddon', 'merchandisingaddon', 'merchandisingstorefrontsampledataaddon'
+                    // Uncomment the following line if you want to add spartacussampledataaddon to your build
+                    // ,'spartacussampledataaddon'
+                    )
+            template 'yacceleratorstorefront'
+        }
+        forStoreFronts("ycommercewebservices") {
+            names 'worldpayoccaddon', 'acceleratorwebservicesaddon', 'consignmenttrackingoccaddon', 'customerinterestsoccaddon', 'notificationoccaddon', 'cmsoccaddon'
+            template 'ycommercewebservices'
+        }
+    }
+}
+
+task setup {
+    doLast {
+        pl.setup()
+    }
+}
+
+task buildSystem(dependsOn: setup) {
+    doLast {
+        pl.build()
+    }
+}
+
+task initialize(dependsOn: buildSystem) {
+    doLast {
+        pl.initialize()
+    }
+}
+
+task start {
+    doLast {
+        pl.start()
+    }
+}
+
+task startInBackground {
+    doLast {
+        pl.startInBackground()
+    }
+}
+
+task stopInBackground {
+    doLast {
+        pl.stopInBackground()
+    }
+}

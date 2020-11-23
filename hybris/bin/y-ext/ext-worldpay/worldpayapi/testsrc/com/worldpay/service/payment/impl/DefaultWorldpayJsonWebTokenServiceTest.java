@@ -16,12 +16,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -44,7 +47,7 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
     private static final String ACS_URL = "ACSUrl";
     private static final String TRANSACTION_ID = "TransactionId";
 
-
+    @Spy
     @InjectMocks
     private DefaultWorldpayJsonWebTokenService testObj;
 
@@ -56,6 +59,8 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
     private DirectResponseData directResponseDataMock;
     @Mock
     private WorldpayUrlService worldpayUrlServiceMock;
+    @Mock
+    private Date dateMock;
 
     @Before
     public void setUp() {
@@ -64,7 +69,7 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
         when(threeDSJsonWebTokenCredentialsMock.getJwtMacKey()).thenReturn(JWT_MAC_KEY_VALUE);
         when(threeDSJsonWebTokenCredentialsMock.getOrgUnitId()).thenReturn(ORG_UNIT_ID_VALUE);
         when(threeDSJsonWebTokenCredentialsMock.getAlg()).thenReturn(HS_256);
-
+        doReturn(dateMock).when(testObj).getIssuedAt();
     }
 
     @Test
@@ -77,10 +82,11 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
         final Key signingKey = new SecretKeySpec(JWT_MAC_KEY_VALUE.getBytes(),
                 signatureAlgorithm.getJcaName());
         final Claims claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(result).getBody();
-        final JwsHeader headers = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(result).getHeader();
+        final JwsHeader<?> headers = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(result).getHeader();
         assertThat(headers.getAlgorithm()).isEqualTo(HS_256);
         assertThat(claims.get(ISS)).isEqualTo(ISS_VALUE);
         assertThat(claims.get(ORG_UNIT_ID)).isEqualTo(ORG_UNIT_ID_VALUE);
+        assertThat(claims.getIssuedAt()).isEqualTo(dateMock);
     }
 
     @Test
@@ -96,13 +102,13 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
         final Key signingKey = new SecretKeySpec(JWT_MAC_KEY_VALUE.getBytes(),
                 signatureAlgorithm.getJcaName());
         final Claims claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(result).getBody();
-        final JwsHeader headers = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(result).getHeader();
+        final JwsHeader<?> headers = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(result).getHeader();
         assertThat(headers.getAlgorithm()).isEqualTo(HS_256);
         assertThat(claims.get(ISS)).isEqualTo(ISS_VALUE);
         assertThat(claims.get(ORG_UNIT_ID)).isEqualTo(ORG_UNIT_ID_VALUE);
         assertThat(claims.get(RETURN_URL)).isEqualTo(RETURN_URL_VALUE);
         assertThat(claims.get(PAYLOAD)).isEqualTo(ImmutableMap.of(ACS_URL, ISSUER_URL_VALUE, PAYLOAD, ISSUER_PAYLOAD_VALUE, TRANSACTION_ID, TRANSACTION_ID_3DS_VALUE));
         assertThat(Boolean.valueOf(String.valueOf(claims.get(OBJECTIFY_PAYLOAD)))).isTrue();
-
+        assertThat(claims.getIssuedAt()).isEqualTo(dateMock);
     }
 }

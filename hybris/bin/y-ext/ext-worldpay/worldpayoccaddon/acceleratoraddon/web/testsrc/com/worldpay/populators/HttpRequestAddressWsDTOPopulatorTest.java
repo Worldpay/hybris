@@ -16,6 +16,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class HttpRequestAddressWsDTOPopulatorTest {
@@ -41,24 +45,24 @@ public class HttpRequestAddressWsDTOPopulatorTest {
         countryData.setIsocode(COUNTRY);
         regionData.setIsocode(REGION);
 
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.COMPANY_NAME)).thenReturn(HttpRequestAddressWsDTOPopulator.COMPANY_NAME);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.EMAIL)).thenReturn(HttpRequestAddressWsDTOPopulator.EMAIL);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.FIRST_NAME)).thenReturn(HttpRequestAddressWsDTOPopulator.FIRST_NAME);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS)).thenReturn(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.ADDRESS_ID)).thenReturn(HttpRequestAddressWsDTOPopulator.ADDRESS_ID);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.LAST_NAME)).thenReturn(HttpRequestAddressWsDTOPopulator.LAST_NAME);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.LINE1)).thenReturn(HttpRequestAddressWsDTOPopulator.LINE1);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.LINE2)).thenReturn(HttpRequestAddressWsDTOPopulator.LINE2);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.PHONE)).thenReturn(HttpRequestAddressWsDTOPopulator.PHONE);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.POSTCODE)).thenReturn(HttpRequestAddressWsDTOPopulator.POSTCODE);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.TITLE_CODE)).thenReturn(HttpRequestAddressWsDTOPopulator.TITLE_CODE);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.TITLE)).thenReturn(HttpRequestAddressWsDTOPopulator.TITLE);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.TOWN)).thenReturn(HttpRequestAddressWsDTOPopulator.TOWN);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.COUNTRY)).thenReturn(COUNTRY);
-        Mockito.when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.REGION)).thenReturn(REGION);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.COMPANY_NAME)).thenReturn(HttpRequestAddressWsDTOPopulator.COMPANY_NAME);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.EMAIL)).thenReturn(HttpRequestAddressWsDTOPopulator.EMAIL);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.FIRST_NAME)).thenReturn(HttpRequestAddressWsDTOPopulator.FIRST_NAME);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS)).thenReturn(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.ADDRESS_ID)).thenReturn(HttpRequestAddressWsDTOPopulator.ADDRESS_ID);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.LAST_NAME)).thenReturn(HttpRequestAddressWsDTOPopulator.LAST_NAME);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.LINE1)).thenReturn(HttpRequestAddressWsDTOPopulator.LINE1);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.LINE2)).thenReturn(HttpRequestAddressWsDTOPopulator.LINE2);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.PHONE)).thenReturn(HttpRequestAddressWsDTOPopulator.PHONE);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.POSTCODE)).thenReturn(HttpRequestAddressWsDTOPopulator.POSTCODE);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.TITLE_CODE)).thenReturn(HttpRequestAddressWsDTOPopulator.TITLE_CODE);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.TITLE)).thenReturn(HttpRequestAddressWsDTOPopulator.TITLE);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.TOWN)).thenReturn(HttpRequestAddressWsDTOPopulator.TOWN);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.COUNTRY)).thenReturn(COUNTRY);
+        when(httpServletRequestMock.getParameter(HttpRequestAddressWsDTOPopulator.REGION)).thenReturn(REGION);
 
-        Mockito.when(i18NFacade.getCountryForIsocode(COUNTRY)).thenReturn(countryData);
-        Mockito.when(i18NFacade.getRegion(COUNTRY, REGION)).thenReturn(regionData);
+        when(i18NFacade.getCountryForIsocode(COUNTRY)).thenReturn(countryData);
+        when(i18NFacade.getRegion(COUNTRY, REGION)).thenReturn(regionData);
     }
 
     @Test
@@ -68,24 +72,24 @@ public class HttpRequestAddressWsDTOPopulatorTest {
         testObject.populate(httpServletRequestMock, addressWsDTO);
 
         // Verify
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.COMPANY_NAME , addressWsDTO.getCompanyName());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.EMAIL, addressWsDTO.getEmail());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.FIRST_NAME, addressWsDTO.getFirstName());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS, addressWsDTO.getFormattedAddress());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.ADDRESS_ID, addressWsDTO.getId());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.LAST_NAME, addressWsDTO.getLastName());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.LINE1, addressWsDTO.getLine1());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.LINE2, addressWsDTO.getLine2());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.PHONE, addressWsDTO.getPhone());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.POSTCODE, addressWsDTO.getPostalCode());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.TITLE_CODE, addressWsDTO.getTitleCode());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.TITLE, addressWsDTO.getTitle());
-        Assert.assertEquals(HttpRequestAddressWsDTOPopulator.TOWN, addressWsDTO.getTown());
+        assertEquals(HttpRequestAddressWsDTOPopulator.COMPANY_NAME , addressWsDTO.getCompanyName());
+        assertEquals(HttpRequestAddressWsDTOPopulator.EMAIL, addressWsDTO.getEmail());
+        assertEquals(HttpRequestAddressWsDTOPopulator.FIRST_NAME, addressWsDTO.getFirstName());
+        assertEquals(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS, addressWsDTO.getFormattedAddress());
+        assertEquals(HttpRequestAddressWsDTOPopulator.ADDRESS_ID, addressWsDTO.getId());
+        assertEquals(HttpRequestAddressWsDTOPopulator.LAST_NAME, addressWsDTO.getLastName());
+        assertEquals(HttpRequestAddressWsDTOPopulator.LINE1, addressWsDTO.getLine1());
+        assertEquals(HttpRequestAddressWsDTOPopulator.LINE2, addressWsDTO.getLine2());
+        assertEquals(HttpRequestAddressWsDTOPopulator.PHONE, addressWsDTO.getPhone());
+        assertEquals(HttpRequestAddressWsDTOPopulator.POSTCODE, addressWsDTO.getPostalCode());
+        assertEquals(HttpRequestAddressWsDTOPopulator.TITLE_CODE, addressWsDTO.getTitleCode());
+        assertEquals(HttpRequestAddressWsDTOPopulator.TITLE, addressWsDTO.getTitle());
+        assertEquals(HttpRequestAddressWsDTOPopulator.TOWN, addressWsDTO.getTown());
 
-        Assert.assertFalse(addressWsDTO.getShippingAddress());
-        Assert.assertFalse(addressWsDTO.getVisibleInAddressBook());
+        assertFalse(addressWsDTO.getShippingAddress());
+        assertFalse(addressWsDTO.getVisibleInAddressBook());
 
-        Assert.assertEquals(COUNTRY, addressWsDTO.getCountry().getIsocode());
-        Assert.assertEquals(REGION, addressWsDTO.getRegion().getIsocode());
+        assertEquals(COUNTRY, addressWsDTO.getCountry().getIsocode());
+        assertEquals(REGION, addressWsDTO.getRegion().getIsocode());
     }
 }

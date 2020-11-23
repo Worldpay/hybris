@@ -13,13 +13,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayUserDisplayNameAppenderTest {
 
     private static final String USER_NAME = "userName";
 
     @InjectMocks
-    private WorldpayUserDisplayNameAppender testObj = new WorldpayUserDisplayNameAppender();
+    private WorldpayUserDisplayNameAppender testObj;
 
     @Mock
     private UserService userServiceMock;
@@ -27,7 +27,7 @@ public class WorldpayUserDisplayNameAppenderTest {
     private UserModel userMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void appendContent_ShouldAppendCurrentUserDisplayName() {
         when(userServiceMock.getCurrentUser()).thenReturn(userMock);
         when(userMock.getDisplayName()).thenReturn(USER_NAME);
 

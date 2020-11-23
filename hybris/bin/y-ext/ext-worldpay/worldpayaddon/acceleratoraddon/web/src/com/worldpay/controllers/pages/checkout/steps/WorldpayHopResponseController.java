@@ -1,7 +1,9 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
+import com.worldpay.facades.payment.hosted.WorldpayHOPNoReturnParamsStrategy;
+import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.WorldpayAddonEndpointService;
@@ -46,15 +48,21 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
     @Resource
-    private Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
+    protected Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
     @Resource
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     @Resource
-    private Converter<AbstractOrderModel, OrderData> orderConverter;
+    protected Converter<AbstractOrderModel, OrderData> orderConverter;
     @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
-    private Set<AuthorisedStatus> apmErrorResponseStatuses;
+    protected Set<AuthorisedStatus> apmErrorResponseStatuses;
+    @Resource
+    protected WorldpayHOPNoReturnParamsStrategy worldpayHOPNoReturnParamsStrategy;
+    @Resource
+    protected WorldpayHostedOrderFacade worldpayHostedOrderFacade;
+    @Resource
+    protected WorldpayAfterRedirectValidationFacade worldpayAfterRedirectValidationFacade;
 
     /**
      * Handles a successful HOP response
@@ -73,7 +81,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
             return handleHopResponseWithoutPaymentStatus(model, redirectAttributes, response);
         }
 
-        if (getWorldpayHostedOrderFacade().validateRedirectResponse(requestParameterMap)) {
+        if (worldpayAfterRedirectValidationFacade.validateRedirectResponse(requestParameterMap)) {
             return handleHopResponseWithPaymentStatus(model, redirectAttributes, response);
         }
         return doHostedOrderPageError(ERROR.name(), redirectAttributes);
@@ -90,12 +98,12 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     public String doHandlePendingHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         AuthorisedStatus paymentStatus = AuthorisedStatus.ERROR;
-        if (getWorldpayHostedOrderFacade().validateRedirectResponse(requestParameterMap)) {
+        if (worldpayAfterRedirectValidationFacade.validateRedirectResponse(requestParameterMap)) {
             final RedirectAuthoriseResult authoriseResult = extractAuthoriseResultFromRequest(request);
             authoriseResult.setPending(true);
             paymentStatus = authoriseResult.getPaymentStatus();
             if (!apmErrorResponseStatuses.contains(paymentStatus)) {
-                getWorldpayHostedOrderFacade().completeRedirectAuthorise(authoriseResult);
+                worldpayHostedOrderFacade.completeRedirectAuthorise(authoriseResult);
                 return placeOrderAndRedirect(model, redirectAttributes);
             } else {
                 LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-pending). Received {0}", paymentStatus.name()));
@@ -117,7 +125,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     public String doHandleBankTransferHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         final RedirectAuthoriseResult redirectAuthoriseResult = redirectAuthoriseResultConverter.convert(requestParameterMap);
-        getWorldpayHostedOrderFacade().completeRedirectAuthorise(redirectAuthoriseResult);
+        worldpayHostedOrderFacade.completeRedirectAuthorise(redirectAuthoriseResult);
         return placeOrderAndRedirect(model, redirectAttributes);
     }
 
@@ -203,18 +211,13 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
         if (!getCheckoutFacade().hasValidCart()) {
             return checkCart(response);
         }
-        try {
-            final RedirectAuthoriseResult redirectAuthoriseResult = getWorldpayHostedOrderFacade().inquiryPaymentStatus();
-            return processResponse(model, redirectAttributes, redirectAuthoriseResult, redirectAuthoriseResult.getPaymentStatus());
-        } catch (final WorldpayException e) {
-            LOG.error("Error inquiring order in Worldpay", e);
-            return doHostedOrderPageError(ERROR.name(), redirectAttributes);
-        }
+        final RedirectAuthoriseResult redirectAuthoriseResult = worldpayHOPNoReturnParamsStrategy.authoriseCart();
+        return processResponse(model, redirectAttributes, redirectAuthoriseResult, redirectAuthoriseResult.getPaymentStatus());
     }
 
     protected String processResponse(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response, final AuthorisedStatus paymentStatus) {
         if (AUTHORISED.equals(paymentStatus)) {
-            getWorldpayHostedOrderFacade().completeRedirectAuthorise(response);
+            worldpayHostedOrderFacade.completeRedirectAuthorise(response);
             return placeOrderAndRedirect(model, redirectAttributes);
         } else {
             LOG.error(format("Failed to create payment authorisation for successful hop-response (/hop-response). Received {0}", paymentStatus.name()));

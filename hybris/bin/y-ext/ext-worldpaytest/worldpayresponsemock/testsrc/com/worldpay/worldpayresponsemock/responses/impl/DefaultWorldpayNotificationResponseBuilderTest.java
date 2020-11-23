@@ -12,8 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static junit.framework.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +23,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String MERCHANT_CODE = "merchantCode";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String CC = "CC";
-    private static final String TOKEN = "Token";
     private static final String RMM = "RMM";
     private static final String RG = "RG";
     private static final String LAST_EVENT = "lastEvent";
@@ -76,6 +74,9 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String TOKEN_REASON_VALUE = "tokenReasonValue";
     private static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
     private static final String NO_RISK_SCORE = "NoRisk";
+    private static final String CARD_DETAILS = "CardDetails";
+    private static final String PAYPAL_TOKEN_TYPE = "Paypal";
+    private static final String NO_TOKEN = "NoToken";
 
     @Mock
     private ResponseForm responseFormMock;
@@ -109,7 +110,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void buildResponseShouldReturnAnXMLWithCreditCardDataAndNoRiskScore() throws WorldpayException {
+    public void buildResponse_ShouldReturnAnXMLWithCreditCardDataAndNoRiskScore() throws WorldpayException {
         when(responseFormMock.getSelectedRiskScore()).thenReturn(NO_RISK_SCORE);
         when(responseFormMock.getCcPaymentType()).thenReturn(CC_PAYMENT_TYPE);
         when(responseFormMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
@@ -136,7 +137,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void buildResponseShouldReturnAnXMLWithCreditCardDataAndRMMScore() throws WorldpayException {
+    public void buildResponse_ShouldReturnAnXMLWithCreditCardDataAndRMMScore() throws WorldpayException {
         when(responseFormMock.getCcPaymentType()).thenReturn(CC_PAYMENT_TYPE);
         when(responseFormMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
         when(responseFormMock.getCardMonth()).thenReturn(CARD_MONTH);
@@ -192,7 +193,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void buildResponseShouldReturnAnXMLWithAPM() throws WorldpayException {
+    public void buildResponse_ShouldReturnAnXMLWithAPM() throws WorldpayException {
         when(responseFormMock.getSelectedPaymentMethod()).thenReturn(APM);
         when(responseFormMock.getApmPaymentType()).thenReturn(APM_PAYMENT_TYPE);
         when(responseFormMock.getSelectedRiskScore()).thenReturn(StringUtils.EMPTY);
@@ -211,7 +212,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void buildResponseShouldReturnAnXMLWithAavResponse() throws WorldpayException {
+    public void buildResponse_ShouldReturnAnXMLWithAavResponse() throws WorldpayException {
         when(responseFormMock.getAavAddress()).thenReturn(AAV_ADDRESS_VALUE);
         when(responseFormMock.getAavCardholderName()).thenReturn(AAV_CARD_HOLDER);
         when(responseFormMock.getAavEmail()).thenReturn(AAV_EMAIL);
@@ -234,8 +235,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void shouldCreateAndPopulateToken() throws WorldpayException {
-        when(responseFormMock.getSelectToken()).thenReturn(TOKEN);
+    public void buildResponse_shouldCreateAndPopulateTokenForCard_WhenSelectedTokenTypeIsCardDetails() throws WorldpayException {
+        when(responseFormMock.getSelectToken()).thenReturn(CARD_DETAILS);
 
         when(responseFormMock.getTokenExpiryDay()).thenReturn(TOKEN_EXPIRY_DAY_VALUE);
         when(responseFormMock.getTokenExpiryMonth()).thenReturn(TOKEN_EXPIRY_MONTH_VALUE);
@@ -271,7 +272,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError()) {
             if (tokenElement instanceof TokenDetails) {
-                TokenDetails tokenDetails = (TokenDetails) tokenElement;
+                final TokenDetails tokenDetails = (TokenDetails) tokenElement;
                 assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
                 final PaymentTokenExpiry paymentTokenExpiry = tokenDetails.getPaymentTokenExpiry();
 
@@ -284,7 +285,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
                 final Derived derived = cardDetails.getDerived();
@@ -324,8 +325,58 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void shouldCreateAndPopulateTokenWithoutAuthenticatedShopperIdAndMerchantScope() throws WorldpayException {
-        when(responseFormMock.getSelectToken()).thenReturn(TOKEN);
+    public void buildResponse_shouldCreateAndPopulateTokenForPaypal_WhenSelectedTokenTypeIsPaypal() throws WorldpayException {
+        when(responseFormMock.getSelectToken()).thenReturn(PAYPAL_TOKEN_TYPE);
+
+        when(responseFormMock.getTokenExpiryDay()).thenReturn(TOKEN_EXPIRY_DAY_VALUE);
+        when(responseFormMock.getTokenExpiryMonth()).thenReturn(TOKEN_EXPIRY_MONTH_VALUE);
+        when(responseFormMock.getTokenExpiryYear()).thenReturn(TOKEN_EXPIRY_YEAR_VALUE);
+        when(responseFormMock.getTokenDetailsReason()).thenReturn(TOKEN_DETAILS_REASON_VALUE);
+        when(responseFormMock.getAuthenticatedShopperId()).thenReturn(AUTHENTICATED_SHOPPER_ID_VALUE);
+        when(responseFormMock.getTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE_VALUE);
+        when(responseFormMock.getTokenReason()).thenReturn(TOKEN_REASON_VALUE);
+        when(responseFormMock.getPaymentTokenId()).thenReturn(PAYMENT_TOKEN_ID_VALUE);
+        when(responseFormMock.getTokenEvent()).thenReturn(TOKEN_EVENT_VALUE);
+        when(responseFormMock.getTokenDetailsEventReference()).thenReturn(TOKEN_EVENT_DETAILS_REFERENCE_VALUE);
+
+        testObj.buildResponse(responseFormMock);
+
+        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
+        final PaymentService paymentService = paymentServiceCaptor.getValue();
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final Token token = orderStatusEvent.getToken();
+        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError()) {
+            if (tokenElement instanceof TokenDetails) {
+                final TokenDetails tokenDetails = (TokenDetails) tokenElement;
+                assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
+                final PaymentTokenExpiry paymentTokenExpiry = tokenDetails.getPaymentTokenExpiry();
+
+                assertEquals(TOKEN_EXPIRY_DAY_VALUE, paymentTokenExpiry.getDate().getDayOfMonth());
+                assertEquals(TOKEN_EXPIRY_MONTH_VALUE, paymentTokenExpiry.getDate().getMonth());
+                assertEquals(TOKEN_EXPIRY_YEAR_VALUE, paymentTokenExpiry.getDate().getYear());
+
+                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getvalue());
+                assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
+                assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
+            } else if (tokenElement instanceof PaymentInstrument) {
+                final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
+                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
+                assertNotNull(paypal);
+
+            } else if (tokenElement instanceof TokenReason) {
+                final TokenReason tokenReason = (TokenReason) tokenElement;
+                assertEquals(TOKEN_REASON_VALUE, tokenReason.getvalue());
+            }
+        }
+
+        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID());
+        assertEquals(TOKEN_EVENT_REFERENCE_VALUE, token.getTokenEventReference());
+    }
+
+    @Test
+    public void buildResponse_shouldCreateAndPopulateTokenWithoutAuthenticatedShopperIdAndMerchantScope() throws WorldpayException {
+        when(responseFormMock.getSelectToken()).thenReturn(CARD_DETAILS);
         when(responseFormMock.getAuthenticatedShopperId()).thenReturn("WeDontWantThisValue");
         when(responseFormMock.isMerchantToken()).thenReturn(true);
 
@@ -336,11 +387,13 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
-        assertEquals(null, token.getAuthenticatedShopperID());
+        assertNull(token.getAuthenticatedShopperID());
     }
 
     @Test
-    public void shouldNotCreateTokenWhenNoTokenInResponse() throws WorldpayException {
+    public void buildResponse_ShouldNotCreateTokenWhenNoTokenInResponse() throws WorldpayException {
+        when(responseFormMock.getSelectToken()).thenReturn(NO_TOKEN);
+
         testObj.buildResponse(responseFormMock);
 
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
@@ -353,7 +406,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     @Test
-    public void shouldAddWebformWhenJournalTypeIsWebform() throws WorldpayException {
+    public void buildResponse_ShouldAddWebformWhenJournalTypeIsWebform() throws WorldpayException {
         when(responseFormMock.getJournalType()).thenReturn(REFUND_WEBFORM_ISSUED);
 
         testObj.buildResponse(responseFormMock);

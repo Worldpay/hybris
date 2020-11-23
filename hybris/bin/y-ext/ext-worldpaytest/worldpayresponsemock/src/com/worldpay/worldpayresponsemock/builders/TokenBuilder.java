@@ -2,9 +2,12 @@ package com.worldpay.worldpayresponsemock.builders;
 
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.internal.model.*;
+import org.apache.commons.lang.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.worldpay.worldpayresponsemock.builders.AddressBuilder.anAddressBuilder;
 
@@ -24,10 +27,8 @@ public final class TokenBuilder {
     private String authenticatedShopperId;
     private String tokenReasonValue = TOKEN_REASON;
     private String tokenEventReference;
-    private Date tokenExpiryDate;
     private String tokenId = DATE_TIME.toString();
     private String tokenEvent = TokenEvent.NEW.toString();
-    private Date cardExpiryDate;
     private String cardHolderNameValue = CARDHOLDER_NAME;
     private String obfuscatedPAN = OBFUSCATED_PAN;
     private String cardBrand = VISA_SSL;
@@ -35,222 +36,154 @@ public final class TokenBuilder {
     private String issuerCountryCode = GB;
     private String tokenReasonForTokenDetails;
     private String tokenDetailsTokenEventReference;
+    private boolean paypalToken;
+    private Date tokenExpiryDate;
+    private Date cardExpiryDate;
     private Address cardAddress;
 
     private TokenBuilder() {
     }
 
-    /**
-     * Factory method to create a builder
-     *
-     * @return an Token builder object
-     */
     public static TokenBuilder aTokenBuilder() {
         return new TokenBuilder();
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param authenticatedShopperId
-     * @return this builder
-     */
     public TokenBuilder withAuthenticatedShopperId(final String authenticatedShopperId) {
         this.authenticatedShopperId = authenticatedShopperId;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param tokenReasonValue
-     * @return this builder
-     */
     public TokenBuilder withTokenReason(final String tokenReasonValue) {
         this.tokenReasonValue = tokenReasonValue;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param cardAddress
-     * @return this builder
-     */
     public TokenBuilder withCardAddress(final Address cardAddress) {
         this.cardAddress = cardAddress;
         return this;
     }
 
-
-    /**
-     * Build with these given values
-     *
-     * @param day
-     * @param month
-     * @param year
-     * @return this builder
-     */
     public TokenBuilder withTokenExpiryDate(final String day, final String month, final String year) {
         tokenExpiryDate = buildDate(day, month, year);
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param tokenId
-     * @return this builder
-     */
     public TokenBuilder withTokenId(final String tokenId) {
         this.tokenId = tokenId;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param tokenReasonForTokenDetails
-     * @return this builder
-     */
     public TokenBuilder withTokenDetailsTokenReason(final String tokenReasonForTokenDetails) {
         this.tokenReasonForTokenDetails = tokenReasonForTokenDetails;
         return this;
     }
 
-
-    /**
-     * Build with this given value
-     *
-     * @param tokenDetailsTokenEventReference
-     * @return this builder
-     */
     public TokenBuilder withTokenDetailsTokenEventReference(final String tokenDetailsTokenEventReference) {
         this.tokenDetailsTokenEventReference = tokenDetailsTokenEventReference;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param tokenEvent
-     * @return this builder
-     */
+
     public TokenBuilder withTokenEvent(final String tokenEvent) {
         this.tokenEvent = tokenEvent;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param tokenEventReference
-     * @return this builder
-     */
+
     public TokenBuilder withTokenEventReference(final String tokenEventReference) {
         this.tokenEventReference = tokenEventReference;
         return this;
     }
 
-    /**
-     * Build with these given values
-     *
-     * @param month
-     * @param year
-     * @return this builder
-     */
     public TokenBuilder withCardExpiryDate(final String month, final String year) {
         cardExpiryDate = buildDate(null, month, year);
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param cardHolderName
-     * @return this builder
-     */
+
     public TokenBuilder withCardHolderName(final String cardHolderName) {
         this.cardHolderNameValue = cardHolderName;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param obfuscatedPAN
-     * @return this builder
-     */
+
     public TokenBuilder withObfuscatedPAN(final String obfuscatedPAN) {
         this.obfuscatedPAN = obfuscatedPAN;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param cardBrand
-     * @return this builder
-     */
     public TokenBuilder withCardBrand(final String cardBrand) {
         this.cardBrand = cardBrand;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param cardSubBrand
-     * @return this builder
-     */
     public TokenBuilder withCardSubBrand(final String cardSubBrand) {
         this.cardSubBrand = cardSubBrand;
         return this;
     }
 
-    /**
-     * Build with this given value
-     *
-     * @param issuerCountryCode
-     * @return this builder
-     */
     public TokenBuilder withIssuerCountryCode(final String issuerCountryCode) {
         this.issuerCountryCode = issuerCountryCode;
         return this;
     }
 
+    public TokenBuilder withPaypalToken() {
+        this.paypalToken = true;
+        return this;
+    }
 
-    /**
-     * Build the Token object based on the builders internal state
-     *
-     * @return the internal Address model
-     */
     public Token build() {
         final Token token = new Token();
 
         final TokenDetails tokenDetails = new TokenDetails();
-        final TokenReason tokenDetailsReason = new TokenReason();
-        tokenDetailsReason.setvalue(tokenReasonForTokenDetails);
-        tokenDetails.setTokenReason(tokenDetailsReason);
-
-        if (tokenId == null) {
-            tokenId = String.valueOf(Instant.now().toEpochMilli());
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(tokenReasonForTokenDetails)) {
+            final TokenReason tokenDetailsReason = new TokenReason();
+            tokenDetailsReason.setvalue(tokenReasonForTokenDetails);
+            tokenDetails.setTokenReason(tokenDetailsReason);
         }
-        final PaymentTokenID paymentTokenId = new PaymentTokenID();
-        paymentTokenId.setvalue(tokenId);
 
+        final PaymentTokenID paymentTokenId = new PaymentTokenID();
+        paymentTokenId.setvalue(Optional.ofNullable(tokenId).orElseGet(() -> String.valueOf(Instant.now().toEpochMilli())));
         tokenDetails.setPaymentTokenID(paymentTokenId);
-        tokenDetails.setTokenEvent(tokenEvent);
-        tokenDetails.setTokenEventReference(tokenDetailsTokenEventReference);
+        Optional.ofNullable(tokenEvent).ifPresent(tokenDetails::setTokenEvent);
+        Optional.ofNullable(tokenDetailsTokenEventReference).ifPresent(tokenDetails::setTokenEventReference);
 
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
-        if (tokenExpiryDate == null) {
+        if (Objects.isNull(tokenExpiryDate) || StringUtils.isEmpty(tokenExpiryDate.getYear()) || StringUtils.isEmpty(tokenExpiryDate.getDayOfMonth()) || StringUtils.isEmpty(tokenExpiryDate.getMonth())) {
             tokenExpiryDate = buildDate(String.valueOf(LocalDate.from(DATE_TIME).getDayOfMonth()), String.valueOf(LocalDate.from(DATE_TIME).getMonthValue()), String.valueOf(LocalDate.from(DATE_TIME).plusYears(10).getYear()));
         }
         tokenExpiry.setDate(tokenExpiryDate);
 
         tokenDetails.setPaymentTokenExpiry(tokenExpiry);
 
+        Optional.ofNullable(authenticatedShopperId).ifPresent(token::setAuthenticatedShopperID);
+        Optional.ofNullable(tokenEventReference).ifPresent(token::setTokenEventReference);
+        final TokenReason tokenReason = new TokenReason();
+        tokenReason.setvalue(tokenReasonValue);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenReason);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenDetails);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(createPaymentInstrument());
+
+        return token;
+    }
+
+    private PaymentInstrument createPaymentInstrument() {
+        if (paypalToken) {
+            return addPaypalDetails();
+        } else {
+            return addCardDetails();
+        }
+    }
+
+    private PaymentInstrument addPaypalDetails() {
+        final PaymentInstrument paymentInstrument = new PaymentInstrument();
+        final Paypal paypal = new Paypal();
+        paypal.setvalue(StringUtils.EMPTY);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(paypal);
+        return paymentInstrument;
+    }
+
+    private PaymentInstrument addCardDetails() {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
 
         final CardDetails cardDetails = new CardDetails();
@@ -279,16 +212,8 @@ public final class TokenBuilder {
 
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(cardDetails);
-        token.setAuthenticatedShopperID(authenticatedShopperId);
-        token.setTokenEventReference(tokenEventReference);
-        final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(tokenReasonValue);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenReason);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenDetails);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(paymentInstrument);
-
-        return token;
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(cardDetails);
+        return paymentInstrument;
     }
 
     private Date buildDate(final String day, final String month, final String year) {

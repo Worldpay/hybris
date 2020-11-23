@@ -1,51 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- [y] hybris Platform
-
- Copyright (c) 2000-2016 SAP SE or an SAP affiliate company.
- All rights reserved.
-
- This software is the confidential and proprietary information of SAP
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with SAP.
-
-
+ Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved.
 -->
-
-
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
-           http://www.springframework.org/schema/aop
-           http://www.springframework.org/schema/aop/spring-aop.xsd
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd">
-           
-    <context:annotation-config/> 
 
-	<bean id="worldpayoccaddonCoreDataImportedEventListener" parent="abstractCoreDataImportedEventListener">
-		<property name="supportedChannels">
-			<list value-type="de.hybris.platform.commerceservices.enums.SiteChannel">
-				<value>B2C</value>
-				<!--
-								<value>B2B</value>
-				-->
-			</list>
-		</property>
-		<property name="addonExtensionMetadata">
-			<bean class="de.hybris.platform.addonsupport.data.AddonExtensionMetadata">
-				<property name="suffixChannel" value="false"/>
-				<property name="baseExtensionName" value="worldpayoccaddon"/>
-			</bean>
-		</property>
-	</bean>
+    <context:annotation-config/>
 
-	<bean id="worldpayoccaddonSampleDataEventListener" parent="abstractGenericAddOnSampleDataEventListener"  >
-		<property name="extensionName" value="worldpayoccaddon" />
-	</bean>
+    <alias name="defaultOCCWorldpayUrlService" alias="occWorldpayUrlService"/>
+    <bean id="defaultOCCWorldpayUrlService" class="com.worldpay.service.OCCWorldpayUrlService"
+          parent="abstractWorldpayUrlService">
+        <constructor-arg name="worldpayUrlService" ref="worldpayUrlService"/>
+        <property name="threeDSecureFlexFlowReturnUrl"
+                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.occ.returnurl')}"/>
+    </bean>
+
+    <alias name="defaultOCCWorldpayJsonWebTokenService" alias="occWorldpayJsonWebTokenService"/>
+    <bean id="defaultOCCWorldpayJsonWebTokenService"
+          class="com.worldpay.service.payment.impl.OCCWorldpayJsonWebTokenService">
+        <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultOCCWorldpayDirectResponseFacade" alias="occWorldpayDirectResponseFacade"/>
+    <bean id="defaultOCCWorldpayDirectResponseFacade"
+          class="com.worldpay.facades.impl.DefaultWorldpayDirectResponseFacade">
+        <constructor-arg ref="worldpayDirectResponseService"/>
+        <constructor-arg ref="worldpayCheckoutFacade"/>
+        <constructor-arg ref="occWorldpayUrlService"/>
+        <constructor-arg ref="occWorldpayJsonWebTokenService"/>
+        <constructor-arg ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="worldpaySessionService" ref="occWorldpaySessionService"/>
+    </bean>
 
 </beans>

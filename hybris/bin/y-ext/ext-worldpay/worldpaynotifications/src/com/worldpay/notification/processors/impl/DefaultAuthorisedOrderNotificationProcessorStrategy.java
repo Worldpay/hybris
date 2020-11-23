@@ -11,8 +11,8 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.math.BigDecimal;
@@ -20,20 +20,31 @@ import java.util.List;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
-import static java.text.MessageFormat.format;
 
 /**
  * The implementation of {@link OrderNotificationProcessorStrategy} that processes Authorised notifications.
  */
 public class DefaultAuthorisedOrderNotificationProcessorStrategy implements OrderNotificationProcessorStrategy {
 
-    private static final Logger LOG = Logger.getLogger(DefaultAuthorisedOrderNotificationProcessorStrategy.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultAuthorisedOrderNotificationProcessorStrategy.class);
 
-    private ModelService modelService;
-    private TransactionOperations transactionTemplate;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private WorldpayPaymentInfoService worldpayPaymentInfoService;
-    private WorldpayOrderService worldpayOrderService;
+    protected final ModelService modelService;
+    protected final TransactionOperations transactionTemplate;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
+    protected final WorldpayOrderService worldpayOrderService;
+
+    public DefaultAuthorisedOrderNotificationProcessorStrategy(final ModelService modelService,
+                                                               final TransactionOperations transactionTemplate,
+                                                               final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                                               final WorldpayPaymentInfoService worldpayPaymentInfoService,
+                                                               final WorldpayOrderService worldpayOrderService) {
+        this.modelService = modelService;
+        this.transactionTemplate = transactionTemplate;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
+        this.worldpayOrderService = worldpayOrderService;
+    }
 
     /**
      * {@inheritDoc}
@@ -41,9 +52,8 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
      * @see OrderNotificationProcessorStrategy#processNotificationMessage(PaymentTransactionModel, OrderNotificationMessage)
      */
     @Override
-
     public void processNotificationMessage(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
-        LOG.debug(format("Message for order having code {0} is a success, saving card and changing transaction status to not pending.", orderNotificationMessage.getOrderCode()));
+        LOG.debug("Message for order having code {} is a success, saving card and changing transaction status to not pending.", orderNotificationMessage.getOrderCode());
 
         final BigDecimal plannedAmount = worldpayOrderService.convertAmount(orderNotificationMessage.getPaymentReply().getAmount());
         paymentTransactionModel.setPlannedAmount(plannedAmount);
@@ -55,14 +65,14 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
             try {
                 worldpayPaymentInfoService.setPaymentInfoModel(paymentTransactionModel, orderModel, orderNotificationMessage);
             } catch (final WorldpayConfigurationException e) {
-                LOG.info("Could not set the paymentInfo to the order.",e);
+                LOG.info("Could not set the paymentInfo to the order.", e);
                 return null;
             }
             return null;
         });
     }
 
-    protected void updatePaymentTransactionEntry(PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage,
+    protected void updatePaymentTransactionEntry(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage,
                                                  final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus) {
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
         worldpayPaymentTransactionService.addRiskScore(paymentTransactionModel, paymentReply);
@@ -72,30 +82,5 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
         worldpayPaymentTransactionService.updateEntriesStatus(paymentTransactionEntries, transactionStatus);
         worldpayPaymentTransactionService.updateEntriesAmount(paymentTransactionEntries, orderNotificationMessage.getPaymentReply().getAmount());
         modelService.save(paymentTransactionModel);
-    }
-
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    @Required
-    public void setWorldpayPaymentInfoService(WorldpayPaymentInfoService worldpayPaymentInfoService) {
-        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setTransactionTemplate(TransactionOperations transactionTemplate) {
-        this.transactionTemplate = transactionTemplate;
-    }
-
-    @Required
-    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
     }
 }

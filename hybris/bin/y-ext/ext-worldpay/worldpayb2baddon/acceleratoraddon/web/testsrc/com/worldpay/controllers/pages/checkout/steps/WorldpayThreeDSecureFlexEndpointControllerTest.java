@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static de.hybris.platform.addonsupport.controllers.AbstractAddOnController.REDIRECT_PREFIX;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -112,7 +113,7 @@ public class WorldpayThreeDSecureFlexEndpointControllerTest {
         doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
         when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
         when(worldpayDirectOrderFacadeMock.executeSecondPaymentAuthorisation3DSecure()).thenReturn(directResponseDataMock);
-        when(testObj.getB2BCheckoutFacade().placeOrder(Mockito.any(PlaceOrderData.class))).thenReturn(orderDataMock);
+        when(testObj.getB2BCheckoutFacade().placeOrder(any(PlaceOrderData.class))).thenReturn(orderDataMock);
         when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
 
         final String result = testObj.doHandleThreeDSecureResponse(requestMock, b2bCSEPaymentFormMock, modelMock, responseMock);
@@ -123,7 +124,7 @@ public class WorldpayThreeDSecureFlexEndpointControllerTest {
     @Test
     public void testDoHandleThreeDSecureResponseWithException() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
         when(worldpayDirectOrderFacadeMock.executeSecondPaymentAuthorisation3DSecure()).thenThrow(new WorldpayException("errorMessage"));
-        Mockito.doNothing().when(testObj).setupAddPaymentPage(modelMock);
+        doNothing().when(testObj).setupAddPaymentPage(modelMock);
 
         final String result = testObj.doHandleThreeDSecureResponse(requestMock, b2bCSEPaymentFormMock, modelMock, responseMock);
 
