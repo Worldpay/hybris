@@ -32,6 +32,7 @@ public class WorldpayCaptureServiceResponseConverterTest {
 
     @InjectMocks
     private WorldpayCaptureServiceResponseConverter testObj = new WorldpayCaptureServiceResponseConverter();
+
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CaptureServiceResponse captureServiceResponseMock;
     @Mock
@@ -39,21 +40,21 @@ public class WorldpayCaptureServiceResponseConverterTest {
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
 
+    private Currency currency;
+
     @Before
     public void setUp() {
         testObj.setTargetClass(CaptureResult.class);
+        currency = Currency.getInstance(Locale.UK);
 
         when(captureServiceResponseMock.getAmount()).thenReturn(amountMock);
         when(captureServiceResponseMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(expectedAmount);
+        when(captureServiceResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
     }
 
     @Test
     public void convertShouldReturnCaptureResult() {
-        final Currency currency = Currency.getInstance(Locale.UK);
-
-        when(captureServiceResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
-
         final CaptureResult result = testObj.convert(captureServiceResponseMock);
 
         assertEquals(currency, result.getCurrency());
@@ -62,5 +63,20 @@ public class WorldpayCaptureServiceResponseConverterTest {
         assertEquals(expectedAmount, result.getTotalAmount());
         assertEquals(TransactionStatus.ACCEPTED, result.getTransactionStatus());
         assertEquals(TransactionStatusDetails.SUCCESFULL, result.getTransactionStatusDetails());
+    }
+
+    @Test
+    public void populate_whenResponseHasErrors_shouldSetTransactionStatusAndDetails() {
+        when(captureServiceResponseMock.isError()).thenReturn(true);
+        when(captureServiceResponseMock.getErrorDetail().getCode()).thenReturn("1");
+
+        final CaptureResult result = testObj.convert(captureServiceResponseMock);
+
+        assertEquals(currency, result.getCurrency());
+        assertEquals(ORDER_CODE, result.getRequestId());
+        assertNotNull(result.getRequestTime());
+        assertEquals(expectedAmount, result.getTotalAmount());
+        assertEquals(TransactionStatus.ERROR, result.getTransactionStatus());
+        assertEquals(TransactionStatusDetails.ERROR_INTERNAL, result.getTransactionStatusDetails());
     }
 }

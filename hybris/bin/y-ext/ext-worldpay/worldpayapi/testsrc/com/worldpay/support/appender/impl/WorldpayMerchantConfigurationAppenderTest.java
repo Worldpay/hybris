@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayMerchantConfigurationAppenderTest {
 
     private static final Boolean MAC_VALIDATION = Boolean.TRUE;
@@ -35,13 +35,13 @@ public class WorldpayMerchantConfigurationAppenderTest {
 
     @Spy
     @InjectMocks
-    private WorldpayMerchantConfigurationAppender testObj = new WorldpayMerchantConfigurationAppender();
+    private WorldpayMerchantConfigurationAppender testObj;
 
     @Mock
     private WorldpayMerchantConfigData webWorldpayMerchantConfigDataMock, mobileWorldpayMerchantConfigDataMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void appendContent_ShouldAppendMerchantConfiguration() {
         final ImmutableMap<String, WorldpayMerchantConfigData> configuredMerchants = ImmutableMap.of(WEB_BEAN_ID, webWorldpayMerchantConfigDataMock, MOBILE_BEAN_ID, mobileWorldpayMerchantConfigDataMock);
         doReturn(configuredMerchants).when(testObj).getConfiguredMerchants();
 
@@ -71,12 +71,12 @@ public class WorldpayMerchantConfigurationAppenderTest {
         assertEquals(2, StringUtils.countMatches(result, String.valueOf(MAC_VALIDATION)));
 
         assertTrue(result.contains("Included payment methods"));
-        assertEquals(2, StringUtils.countMatches(result, String.valueOf(PAYMENT_METHOD_1)));
-        assertEquals(2, StringUtils.countMatches(result, String.valueOf(PAYMENT_METHOD_2)));
+        assertEquals(2, StringUtils.countMatches(result, PAYMENT_METHOD_1));
+        assertEquals(2, StringUtils.countMatches(result, PAYMENT_METHOD_2));
 
         assertTrue(result.contains("Excluded payment methods"));
-        assertEquals(2, StringUtils.countMatches(result, String.valueOf(PAYMENT_METHOD_3)));
-        assertEquals(2, StringUtils.countMatches(result, String.valueOf(PAYMENT_METHOD_4)));
+        assertEquals(2, StringUtils.countMatches(result, PAYMENT_METHOD_3));
+        assertEquals(2, StringUtils.countMatches(result, PAYMENT_METHOD_4));
     }
 }
     

@@ -52,13 +52,13 @@ public enum ReturnCode implements Serializable {
     private static final Map<String, ReturnCode> lookup = new HashMap<>();
 
     static {
-        for (ReturnCode code : EnumSet.allOf(ReturnCode.class)) {
+        for (final ReturnCode code : EnumSet.allOf(ReturnCode.class)) {
             lookup.put(code.getCode(), code);
         }
     }
 
-    private final String code;
-    private final String description;
+    protected final String code;
+    protected final String description;
 
     ReturnCode(final String code, final String description) {
         this.code = code;
@@ -79,7 +79,7 @@ public enum ReturnCode implements Serializable {
      * @param code to be looked up
      * @return ReturnCode representation of the supplied code, or null if it can't be found
      */
-    public static ReturnCode getReturnCode(String code) {
+    public static ReturnCode getReturnCode(final String code) {
         return code == null ? null : lookup.get(code);
     }
 

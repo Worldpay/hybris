@@ -31,12 +31,9 @@ public final class AuthoriseRequestParameters {
     private List<PaymentType> excludedPTs;
     private String installationId;
     private String orderContent;
+    private List<PaymentMethodAttribute> paymentMethodAttributes;
 
     private AuthoriseRequestParameters() {
-    }
-
-    public StoredCredentials getStoredCredentials() {
-        return storedCredentials;
     }
 
     public MerchantInfo getMerchantInfo() {
@@ -127,6 +124,22 @@ public final class AuthoriseRequestParameters {
         this.excludedPTs = excludedPTs;
     }
 
+    public StoredCredentials getStoredCredentials() {
+        return storedCredentials;
+    }
+
+    public void setStoredCredentials(StoredCredentials storedCredentials) {
+        this.storedCredentials = storedCredentials;
+    }
+
+    public List<PaymentMethodAttribute> getPaymentMethodAttributes() {
+        return paymentMethodAttributes;
+    }
+
+    public void setPaymentMethodAttributes(List<PaymentMethodAttribute> paymentMethodAttributes) {
+        this.paymentMethodAttributes = paymentMethodAttributes;
+    }
+
     public interface AuthoriseRequestParametersCreator {
         AuthoriseRequestParametersCreator withOrderLines(OrderLines orderLines);
 
@@ -166,10 +179,12 @@ public final class AuthoriseRequestParameters {
 
         AuthoriseRequestParametersCreator withOrderContent(String orderContent);
 
+        AuthoriseRequestParametersCreator withPaymentMethodAttributes(List<PaymentMethodAttribute> paymentMethodAttributes);
+
         AuthoriseRequestParameters build();
     }
 
-    public static class AuthoriseRequestParametersBuilder implements  AuthoriseRequestParametersCreator {
+    public static class AuthoriseRequestParametersBuilder implements AuthoriseRequestParametersCreator {
 
         private MerchantInfo merchantInfo;
         private BasicOrderInfo orderInfo;
@@ -190,6 +205,7 @@ public final class AuthoriseRequestParameters {
         private String installationId;
         private List<PaymentType> excludedPTs;
         private String orderContent;
+        private List<PaymentMethodAttribute> paymentMethodAttributes;
 
         private AuthoriseRequestParametersBuilder() {
         }
@@ -318,6 +334,12 @@ public final class AuthoriseRequestParameters {
         }
 
         @Override
+        public AuthoriseRequestParametersCreator withPaymentMethodAttributes(final List<PaymentMethodAttribute> paymentMethodAttributes) {
+            this.paymentMethodAttributes = paymentMethodAttributes;
+            return this;
+        }
+
+        @Override
         public AuthoriseRequestParameters build() {
             AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
 
@@ -340,6 +362,7 @@ public final class AuthoriseRequestParameters {
             parameters.installationId = installationId;
             parameters.excludedPTs = excludedPTs;
             parameters.orderContent = orderContent;
+            parameters.paymentMethodAttributes = paymentMethodAttributes;
 
             return parameters;
         }
@@ -348,26 +371,26 @@ public final class AuthoriseRequestParameters {
     @Override
     public String toString() {
         return "AuthoriseRequestParameters{" +
-                "merchantInfo=" + merchantInfo +
-                ", orderInfo=" + orderInfo +
-                ", payment=" + payment +
-                ", shopper=" + shopper +
-                ", shippingAddress=" + shippingAddress +
-                ", billingAddress=" + billingAddress +
-                ", statementNarrative='" + statementNarrative + '\'' +
-                ", dynamicInteractionType=" + dynamicInteractionType +
-                ", orderLines=" + orderLines +
-                ", additional3DSData=" + additional3DSData +
-                ", riskData=" + riskData +
-                ", paRes='" + paRes + '\'' +
-                ", authenticatedShopperId='" + authenticatedShopperId + '\'' +
-                ", tokenRequest=" + tokenRequest +
-                ", storedCredentials=" + storedCredentials +
-                ", includedPTs=" + includedPTs +
-                ", excludedPTs=" + excludedPTs +
-                ", installationId='" + installationId + '\'' +
-                ", orderContent='" + orderContent + '\'' +
-                '}';
+            "merchantInfo=" + merchantInfo +
+            ", orderInfo=" + orderInfo +
+            ", payment=" + payment +
+            ", shopper=" + shopper +
+            ", shippingAddress=" + shippingAddress +
+            ", billingAddress=" + billingAddress +
+            ", statementNarrative='" + statementNarrative + '\'' +
+            ", dynamicInteractionType=" + dynamicInteractionType +
+            ", orderLines=" + orderLines +
+            ", additional3DSData=" + additional3DSData +
+            ", riskData=" + riskData +
+            ", paRes='" + paRes + '\'' +
+            ", authenticatedShopperId='" + authenticatedShopperId + '\'' +
+            ", tokenRequest=" + tokenRequest +
+            ", storedCredentials=" + storedCredentials +
+            ", includedPTs=" + includedPTs +
+            ", excludedPTs=" + excludedPTs +
+            ", installationId='" + installationId + '\'' +
+            ", orderContent='" + orderContent + '\'' +
+            ", paymentMethodAttributes=" + paymentMethodAttributes +
+            '}';
     }
-
 }

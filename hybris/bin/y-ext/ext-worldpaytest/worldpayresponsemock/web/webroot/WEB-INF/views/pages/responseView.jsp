@@ -6,8 +6,8 @@
 <html>
 <head>
     <title>Mock</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <style>
         body, html {
             height: 100%;
@@ -138,7 +138,7 @@
     </style>
 </head>
 <body>
-<form:form action="sendSelectedResponse" modelAttribute="responseForm" method="POST">
+<form:form action="responses" modelAttribute="responseForm" method="POST">
     <h3>Worldpay Response Mock - Developer's only</h3>
     <fieldset>
         <legend>General</legend>
@@ -209,6 +209,7 @@
         </label>
 
         <fieldset id="RG" class="hide">
+            <legend>Risk Guardian</legend>
             <label>Risk Guardian</label>
             <form:label path="finalScore">
                 <span>Final Score:</span>
@@ -216,6 +217,7 @@
             </form:label>
         </fieldset>
         <fieldset id="RMM" class="hide">
+            <legend>Risk Management Module</legend>
             <label>Risk Management Module</label>
             <form:label path="riskValue">
                 <span>Risk Value:</span>
@@ -230,13 +232,14 @@
             <span>Select Token</span>
             <form:select path="selectToken" id="selectToken">
                 <option value="NoToken">No Token</option>
-                <option value="Token">Token</option>
+                <option value="CardDetails">Card Details</option>
+                <option value="Paypal">Paypal</option>
             </form:select>
         </label>
 
-        <fieldset id="Token" class="hide">
+        <fieldset id="tokenDetails" class="hide">
             <legend>Token information</legend>
-            <form:label path="merchantToken">
+            <form:label path="merchantToken" id="merchantToken" cssClass="hide">
                 <span>Merchant token:</span>
                 <form:checkbox path="merchantToken"/>
             </form:label>
@@ -282,6 +285,10 @@
                 <span>Token Details Reason:</span>
                 <form:input path="tokenDetailsReason"/>
             </form:label>
+        </fieldset>
+
+        <fieldset id="CardDetails" class="hide">
+            <legend>Card information</legend>
             <form:label path="cardExpiryMonth">
                 <span>Card Expiry Month:</span>
                 <form:input path="cardExpiryMonth"/>
@@ -356,6 +363,7 @@
                 </form:select>
             </form:label>
             <fieldset id="storedCredentialsFields" class="hide">
+                <legend>Stored Credentials</legend>
                 <form:label path="transactionIdentifier">
                     <span>Transaction Identifier number:</span>
                     <form:input path="transactionIdentifier"/>
@@ -365,6 +373,7 @@
     </fieldset>
 
     <fieldset id="APMFields" class="hide">
+        <legend>APM</legend>
         <label>APM</label>
         <form:label path="apmPaymentType">
             <span>Payment method:</span>
@@ -375,6 +384,7 @@
     </fieldset>
 
     <fieldset id="creditCardFields">
+        <legend>Credit card</legend>
         <label>Credit card</label>
         <form:label path="testCreditCard">
             <span>Credit Card Number:</span>
@@ -421,6 +431,7 @@
     </fieldset>
 
     <fieldset id="AmExAdvancedVerification">
+        <legend>AAV</legend>
         <label>AAV</label>
         <responseMock:aavSelectBox path="aavAddress" labelText="Aav Address" />
         <responseMock:aavSelectBox path="aavPostcode" labelText="Aav Postcode" />
@@ -430,6 +441,7 @@
     </fieldset>
 
     <fieldset id="shopperWebformRefundDetails" class="hide">
+        <legend>Shopper Webform Refund</legend>
         <label>Shopper Webform Refund</label>
         <form:label path="webformId">
             <span>Webform Id:</span>
@@ -497,20 +509,27 @@
         }
     });
 
-    $("#selectToken").change(function(){
+    $("#selectToken").change(function () {
         const tokenHandler = $("#selectToken").val();
-        if (tokenHandler === "NoToken"){
-            $("#Token").addClass("hide");
-        } else if (tokenHandler === "Token"){
-            $("#Token").removeClass("hide");
+        if (tokenHandler === "NoToken") {
+            $("#tokenDetails").addClass("hide");
+            $("#CardDetails").addClass("hide");
+        } else if (tokenHandler === "CardDetails") {
+            $("#tokenDetails").removeClass("hide");
+            $("#CardDetails").removeClass("hide");
+            $("#merchantToken").removeClass("hide");
+        } else if (tokenHandler === "Paypal") {
+            $("#tokenDetails").removeClass("hide");
+            $("#CardDetails").addClass("hide");
+            $("#merchantToken").addClass("hide");
         }
     });
 
-    $("#selectStoredCredentials").change(function(){
+    $("#selectStoredCredentials").change(function () {
         const selectStoredCredentials = $("#selectStoredCredentials").val();
-        if (selectStoredCredentials === "noStoredCredentials"){
+        if (selectStoredCredentials === "noStoredCredentials") {
             $("#storedCredentialsFields").addClass("hide");
-        } else if (selectStoredCredentials === "storedCredentials"){
+        } else if (selectStoredCredentials === "storedCredentials") {
             $("#storedCredentialsFields").removeClass("hide");
         }
     });

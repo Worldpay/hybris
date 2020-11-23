@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the current time.
  */
-public class WorldpayCurrentTimeAppender implements WorldpaySupportEmailAppender {
+public class WorldpayCurrentTimeAppender extends WorldpaySupportEmailAppender {
     @Override
     public String appendContent() {
         final StringBuilder currentTime = new StringBuilder();

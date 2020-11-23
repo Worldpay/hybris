@@ -62,7 +62,7 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
     @Override
     public void processOrderInquiryServiceResponse(final PaymentTransactionModel paymentTransactionModel, final OrderInquiryServiceResponse orderInquiryServiceResponse) throws WorldpayConfigurationException {
         if (!orderInquiryServiceResponse.isError()) {
-            final String methodCode = orderInquiryServiceResponse.getPaymentReply().getMethodCode();
+            final String methodCode = orderInquiryServiceResponse.getPaymentReply().getPaymentMethodCode();
             worldpayPaymentInfoService.savePaymentType(paymentTransactionModel, methodCode);
             if (paymentTransactionModel.getInfo().getIsApm()) {
                 worldpayPaymentInfoService.createWorldpayApmPaymentInfo(paymentTransactionModel);

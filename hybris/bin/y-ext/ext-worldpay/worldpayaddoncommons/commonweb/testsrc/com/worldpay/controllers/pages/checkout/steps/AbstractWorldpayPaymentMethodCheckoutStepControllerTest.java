@@ -3,6 +3,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -106,6 +107,11 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
     @Mock
     private WorldpayMerchantConfigData worldpayMerchantConfigDataMock;
+    @Mock
+    private WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecoratorMock;
+    @Mock(name = "checkoutFacade")
+    private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
+
 
     private final List<CountryData> billingCountries = emptyList();
     private final List<CardTypeData> supportedCardTypes = emptyList();
@@ -115,6 +121,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Before
     public void setUp() {
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
         when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
         when(cartFacadeMock.getDeliveryCountries()).thenReturn(deliveryCountries);
         when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
@@ -180,7 +187,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldAddHasNoPaymentInfoToModel() throws CommerceCartModificationException, CMSItemNotFoundException {
-        when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
+        when(worldpayCheckoutFacadeDecoratorMock.hasNoPaymentInfo()).thenReturn(true);
 
         testObj.enterStep(model, redirectAttributes);
 

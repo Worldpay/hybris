@@ -19,13 +19,13 @@ import org.zkoss.zul.Listcell;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayNullSafeCellRendererTest {
 
     private static final String QUALIFIER = "aavResponse.aavAddressResultCode";
 
     @InjectMocks
-    private WorldpayNullSafeCellRenderer testObj = new WorldpayNullSafeCellRenderer();
+    private final WorldpayNullSafeCellRenderer testObj = new WorldpayNullSafeCellRenderer();
     @Mock
     private WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer;
     @Mock
@@ -45,8 +45,8 @@ public class WorldpayNullSafeCellRendererTest {
     }
 
     @Test
-    public void shouldNotRenderOnNullAavResponse() {
-        PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
+    public void render_ShouldNotRender_WhenAavResponseIsNull() {
+        final PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
 
         testObj.render(listCellMock, columnConfigurationMock, paymentTransactionEntryModel, dataTypeMock, widgetInstanceManagerMock);
 
@@ -54,9 +54,9 @@ public class WorldpayNullSafeCellRendererTest {
     }
 
     @Test
-    public void shouldNotRenderOnNullAavAddressResultCode() {
-        PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
-        WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
+    public void render_ShouldNotRender_WhenAavAddressResultCodeIsNull() {
+        final PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
+        final WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
         paymentTransactionEntryModel.setAavResponse(worldpayAavResponseModel);
 
         testObj.render(listCellMock, columnConfigurationMock, paymentTransactionEntryModel, dataTypeMock, widgetInstanceManagerMock);
@@ -65,9 +65,9 @@ public class WorldpayNullSafeCellRendererTest {
     }
 
     @Test
-    public void shouldRenderOnNonNullAavAddressResultCode() {
-        PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
-        WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
+    public void render_shouldRenderWhenAavAddressResultCodeIsNotNull() {
+        final PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
+        final WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
         worldpayAavResponseModel.setAavAddressResultCode("B");
         paymentTransactionEntryModel.setAavResponse(worldpayAavResponseModel);
 

@@ -20,14 +20,14 @@ public abstract class AbstractPayment implements Payment, Serializable {
     public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
         try {
             final Class<?> modelClass = paymentType.getModelClass();
-            final InternalModelObject instance = (InternalModelObject) modelClass.newInstance();
+            final InternalModelObject instance = (InternalModelObject) modelClass.getDeclaredConstructor().newInstance();
             final Method[] declaredMethods = modelClass.getDeclaredMethods();
             for (final Method method : declaredMethods) {
                 invokeSetter(method, instance);
             }
 
             return instance;
-        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new WorldpayModelTransformationException("Exception while attempting to transform Card", e);
         }
     }

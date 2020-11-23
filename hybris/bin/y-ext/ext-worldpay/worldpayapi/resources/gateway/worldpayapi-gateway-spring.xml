@@ -5,11 +5,11 @@
 
     <alias name="defaultWorldpayServiceGateway" alias="worldpayServiceGateway"/>
     <bean id="defaultWorldpayServiceGateway" class="com.worldpay.service.DefaultWorldpayServiceGateway">
-        <property name="worldpayConnector" ref="worldpayConnector"/>
-        <property name="woldpayXmlValidator" ref="worldpayXMLValidator"/>
-        <property name="responseTransformerStrategyMap" ref="responseTransformerStrategyMap"/>
-        <property name="requestTransformerStrategyMap" ref="requestTransformerStrategyMap"/>
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="worldpayConnector" ref="worldpayConnector"/>
+        <constructor-arg name="worldpayXMLValidator" ref="worldpayXMLValidator"/>
+        <constructor-arg name="responseTransformerStrategyMap" ref="responseTransformerStrategyMap"/>
+        <constructor-arg name="requestTransformerStrategyMap" ref="requestTransformerStrategyMap"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
 
     <alias name="defaultPaymentServiceMarshaller" alias="paymentServiceMarshaller"/>
@@ -112,7 +112,7 @@
     </bean>
     <bean id="authoriseRequestTransformer"
           class="com.worldpay.service.request.transform.AuthoriseRequestTransformer">
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
     <bean id="captureRequestTransformer"
           class="com.worldpay.service.request.transform.CaptureRequestTransformer">
@@ -124,7 +124,7 @@
     </bean>
     <bean id="refundRequestTransformer"
           class="com.worldpay.service.request.transform.RefundRequestTransformer">
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
     <bean id="addBackOfficeCodeRequestTransformer"
           class="com.worldpay.service.request.transform.AddBackOfficeCodeRequestTransformer">
@@ -139,7 +139,7 @@
         <property name="configurationService" ref="configurationService"/>
     </bean>
     <bean id="secondThreeDSecurePaymentRequestTransformer" class="com.worldpay.service.request.transform.SecondThreeDSecurePaymentRequestTransformer">
-        <property name="configurationService" ref="configurationService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
 
     <util:map id="requestTransformerStrategyMap" map-class="java.util.HashMap"
@@ -164,8 +164,8 @@
 
     <alias name="defaultWorldpayConnector" alias="worldpayConnector"/>
     <bean id="defaultWorldpayConnector" class="com.worldpay.service.http.impl.DefaultWorldpayConnector">
-        <property name="configurationService" ref="configurationService"/>
-        <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
-        <property name="restTemplate" ref="worldpayRestTemplate"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
+        <constructor-arg name="restTemplate" ref="worldpayRestTemplate"/>
     </bean>
 </beans>

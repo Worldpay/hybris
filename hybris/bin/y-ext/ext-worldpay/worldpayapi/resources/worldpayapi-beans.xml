@@ -81,6 +81,22 @@
         <value>NOSHOW</value>
     </enum>
 
+    <enum class="de.hybris.platform.payment.dto.TransactionStatusDetails">
+        <value>ERROR_INTERNAL</value>
+        <value>ERROR_PARSE</value>
+        <value>ERROR_ORDER_AMOUNT</value>
+        <value>ERROR_SECURITY</value>
+        <value>ERROR_INVALID_REQUEST</value>
+        <value>ERROR_INVALID_CONTENT</value>
+        <value>ERROR_PAYMENT_DETAILS</value>
+        <value>ERROR_NOT_AVAILABLE</value>
+        <value>ERROR_IDEMPOTENCY_SERVICE</value>
+        <value>ERROR_PRIME_ROUTING</value>
+        <value>ERROR_L2_L3_DATA</value>
+        <value>ERROR_LODGING_DATA</value>
+        <value>ERROR_SPLIT_AUTH</value>
+    </enum>
+
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
@@ -109,6 +125,8 @@
 
     <bean class="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData">
         <property name="bin" type="java.lang.String"/>
+        <property name="isAPM" type="java.lang.Boolean"/>
+        <property name="apmName" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.order.data.WorldpayAdditionalInfoData">
@@ -222,6 +240,7 @@
     <bean class="com.worldpay.data.GooglePayAuthorisationRequest">
         <property name="token" type="com.worldpay.data.GooglePayAdditionalAuthInfo"/>
         <property name="billingAddress" type="com.worldpay.data.GooglePayAddressData"/>
+        <property name="saved" type="java.lang.Boolean"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.ApplePayConfigData">
@@ -311,6 +330,61 @@
         <property name="eventOriginDomain" type="java.lang.String"/>
         <property name="challengeUrl" type="java.lang.String"/>
         <property name="ddcUrl" type="java.lang.String"/>
+    </bean>
+
+    <enum class="com.worldpay.payment.TransactionStatus">
+        <value>REFUSED</value>
+        <value>AUTHORISED</value>
+        <value>ERROR</value>
+        <value>CANCELLED</value>
+        <value>AUTHENTICATION_REQUIRED</value>
+    </enum>
+
+    <bean class="de.hybris.platform.commercefacades.order.data.CartData">
+        <property name="merchantCode" type="String"/>
+    </bean>
+
+    <bean class="com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData">
+        <property name="name" type="String"/>
+        <property name="subscriptionId" type="String"/>
+    </bean>
+
+    <bean class="de.hybris.platform.commercefacades.order.data.AbstractOrderData">
+        <property name="worldpayOrderCode" type="java.lang.String"/>
+        <property name="worldpayAPMPaymentInfo" type="com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData"/>
+        <property name="worldpayDeclineCode" type="java.lang.String"/>
+        <property name="isApmOpen" type="java.lang.Boolean"/>
+    </bean>
+
+    <bean class="com.worldpay.payment.DirectResponseData">
+        <property name="orderData" type="de.hybris.platform.commercefacades.order.data.OrderData"/>
+        <property name="transactionStatus" type="com.worldpay.payment.TransactionStatus"/>
+        <property name="returnCode" type="java.lang.String"/>
+        <property name="issuerURL" type="java.lang.String"/>
+        <property name="paRequest" type="java.lang.String"/>
+        <property name="transactionId3DS" type="java.lang.String"/>
+        <property name="major3DSVersion" type="java.lang.String"/>
+        <property name="issuerPayload" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.payment.applepay.ValidateMerchantRequestData">
+        <property name="validationURL" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.payment.applepay.ValidateMerchantRequestDTO">
+        <property name="displayName" type="java.lang.String"/>
+        <property name="merchantIdentifier" type="java.lang.String"/>
+        <property name="initiative" type="java.lang.String"/>
+        <property name="initiativeContext" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.ApplePayPaymentRequest">
+        <property name="merchantCapabilities" type="java.util.List&lt;java.lang.String>"/>
+        <property name="supportedNetworks" type="java.util.List&lt;java.lang.String>"/>
+        <property name="total" type="com.worldpay.data.ApplePayLineItem"/>
+        <property name="countryCode" type="java.lang.String"/>
+        <property name="currencyCode" type="java.lang.String"/>
+        <property name="requiredBillingContactFields" type="java.util.List&lt;java.lang.String>"/>
     </bean>
 
 </beans>

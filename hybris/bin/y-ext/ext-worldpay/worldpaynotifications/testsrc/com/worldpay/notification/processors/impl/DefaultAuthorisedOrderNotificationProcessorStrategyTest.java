@@ -36,7 +36,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
 
-    @InjectMocks
     private DefaultAuthorisedOrderNotificationProcessorStrategy testObj;
 
     @Mock
@@ -73,7 +72,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
 
     @Before
     public void setUp() {
-        testObj.setTransactionTemplate(transactionOperationsMock);
+        testObj = new DefaultAuthorisedOrderNotificationProcessorStrategy(modelServiceMock, transactionOperationsMock, worldpayPaymentTransactionServiceMock, worldpayPaymentInfoServiceMock, worldpayOrderServiceMock);
         pendingAuthorizationTransactionEntries = Arrays.asList(paymentTransactionEntryModelMock, paymentTransactionEntryModelMock);
         when(worldpayPaymentTransactionServiceMock.getPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(pendingAuthorizationTransactionEntries);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);

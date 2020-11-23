@@ -40,20 +40,21 @@ public class WorldpayRefundServiceResponseConverterTest {
     @Mock
     private Amount amountMock;
 
+    private Currency currency;
+
     @Before
     public void setUp() {
         testObj.setTargetClass(RefundResult.class);
+        currency = Currency.getInstance(Locale.UK);
 
         when(refundServiceResponseMock.getAmount()).thenReturn(amountMock);
         when(refundServiceResponseMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(BigDecimal.valueOf(10.99));
+        when(refundServiceResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
     }
 
     @Test
     public void convertShouldReturnCaptureResult() {
-        final Currency currency = Currency.getInstance(Locale.UK);
-
-        when(refundServiceResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
 
         final RefundResult result = testObj.convert(refundServiceResponseMock);
 
@@ -63,5 +64,20 @@ public class WorldpayRefundServiceResponseConverterTest {
         assertEquals(BigDecimal.valueOf(10.99), result.getTotalAmount());
         assertEquals(TransactionStatus.ACCEPTED, result.getTransactionStatus());
         assertEquals(TransactionStatusDetails.SUCCESFULL, result.getTransactionStatusDetails());
+    }
+
+    @Test
+    public void convert_whenResponseHasErrors_shouldSetTransactionStatusAndDetails() {
+        when(refundServiceResponseMock.isError()).thenReturn(true);
+        when(refundServiceResponseMock.getErrorDetail().getCode()).thenReturn("2");
+
+        final RefundResult result = testObj.convert(refundServiceResponseMock);
+
+        assertEquals(currency, result.getCurrency());
+        assertEquals(ORDER_CODE, result.getRequestId());
+        assertNotNull(result.getRequestTime());
+        assertEquals(BigDecimal.valueOf(10.99), result.getTotalAmount());
+        assertEquals(TransactionStatus.ERROR, result.getTransactionStatus());
+        assertEquals(TransactionStatusDetails.ERROR_PARSE, result.getTransactionStatusDetails());
     }
 }

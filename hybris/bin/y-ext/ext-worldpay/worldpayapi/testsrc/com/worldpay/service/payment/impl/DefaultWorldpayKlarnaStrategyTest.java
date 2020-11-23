@@ -1,5 +1,6 @@
 package com.worldpay.service.payment.impl;
 
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.LineItem;
 import com.worldpay.service.model.OrderLines;
@@ -11,6 +12,7 @@ import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -45,6 +47,9 @@ public class DefaultWorldpayKlarnaStrategyTest {
     private static final String SHIPPING = "shipping";
     private static final String PRODUCT_NAME_A = "BT Airhole Helgasons Facemask tiedie LXL";
     private static final String PRODUCT_NAME_B = "Shades Quiksilver Dinero black white red grey";
+    private static final String DELIVERY_MODE_NAME = "deliveryModeName";
+    private static final String PRODUCT_NAME = "productName";
+    private static final String UK_VAT_FULL = "uk-vat-full";
 
     @InjectMocks
     private DefaultWorldpayKlarnaStrategy testObj;
@@ -61,20 +66,24 @@ public class DefaultWorldpayKlarnaStrategyTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CartEntryModel cartEntryModel2Mock;
 
-    @Test
-    public void shouldPopulateOrderLines() throws Exception {
+    @Before
+    public void setUp() throws WorldpayConfigurationException {
         when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
+    }
+
+    @Test
+    public void shouldPopulateOrderLines() throws WorldpayConfigurationException {
         when(cartModelMock.getTotalTax()).thenReturn(14.16);
         when(cartModelMock.getEntries()).thenReturn(singletonList(cartEntryModelMock));
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
         when(cartEntryModelMock.getOrder().getCurrency().getDigits()).thenReturn(2);
         when(cartEntryModelMock.getEntryNumber()).thenReturn(1);
-        when(cartEntryModelMock.getProduct().getName()).thenReturn("productName");
+        when(cartEntryModelMock.getProduct().getName()).thenReturn(PRODUCT_NAME);
         when(cartEntryModelMock.getQuantity()).thenReturn(1L);
         when(cartEntryModelMock.getProduct().getUnit().getName()).thenReturn(PIECES);
         when(cartEntryModelMock.getBasePrice()).thenReturn(84.96);
         when(cartEntryModelMock.getTotalPrice()).thenReturn(84.96);
-        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 14.16D, "GBP")));
+        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 14.16D, "GBP")));
         when(cartEntryModelMock.getDiscountValues()).thenReturn(singletonList(new DiscountValue("dv", 0D, false, "GBP")));
 
         final OrderLines result = testObj.createOrderLines(cartModelMock);
@@ -84,7 +93,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
         assertThat(result.getOrderTaxAmount()).isEqualToIgnoringCase("1416");
         final LineItem lineItem = result.getLineItems().get(0);
         assertThat(lineItem.getLineItemReference().getValue()).isEqualToIgnoringCase("1");
-        assertThat(lineItem.getName()).isEqualToIgnoringCase("productName");
+        assertThat(lineItem.getName()).isEqualToIgnoringCase(PRODUCT_NAME);
         assertThat(lineItem.getQuantity()).isEqualToIgnoringCase("1");
         assertThat(lineItem.getTaxRate()).isEqualToIgnoringCase(EXPECTED_2000);
         assertThat(lineItem.getTotalTaxAmount()).isEqualToIgnoringCase("1416");
@@ -93,8 +102,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
     }
 
     @Test
-    public void shouldPopulateOrderLinesAndEscapeThemForXML() throws Exception {
-        when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
+    public void shouldPopulateOrderLinesAndEscapeThemForXML() throws WorldpayConfigurationException {
         when(cartModelMock.getTotalTax()).thenReturn(14.16);
         when(cartModelMock.getEntries()).thenReturn(singletonList(cartEntryModelMock));
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
@@ -105,7 +113,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
         when(cartEntryModelMock.getProduct().getUnit().getName()).thenReturn("Stück");
         when(cartEntryModelMock.getBasePrice()).thenReturn(84.96);
         when(cartEntryModelMock.getTotalPrice()).thenReturn(84.96);
-        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 14.16D, "GBP")));
+        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 14.16D, "GBP")));
         when(cartEntryModelMock.getDiscountValues()).thenReturn(singletonList(new DiscountValue("dv", 0D, false, "GBP")));
 
         final OrderLines result = testObj.createOrderLines(cartModelMock);
@@ -125,24 +133,23 @@ public class DefaultWorldpayKlarnaStrategyTest {
     }
 
     @Test
-    public void shouldPopulateOrderLinesFixedDiscountWithoutDelivery() throws Exception {
-        when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
+    public void shouldPopulateOrderLinesFixedDiscountWithoutDelivery() throws WorldpayConfigurationException {
         when(cartModelMock.getTotalTax()).thenReturn(9.66);
         when(cartModelMock.getEntries()).thenReturn(singletonList(cartEntryModelMock));
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
-        when(cartModelMock.getDeliveryMode().getName()).thenReturn("deliveryModeName");
-        when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 9.66D, "GBP")));
+        when(cartModelMock.getDeliveryMode().getName()).thenReturn(DELIVERY_MODE_NAME);
+        when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 9.66D, "GBP")));
         when(cartModelMock.getTotalDiscounts()).thenReturn(10D);
         when(cartModelMock.getGlobalDiscountValues()).thenReturn(singletonList(new DiscountValue("dv", 10D, true, 10D, "GBP")));
 
         when(cartEntryModelMock.getOrder().getCurrency().getDigits()).thenReturn(2);
         when(cartEntryModelMock.getEntryNumber()).thenReturn(1);
-        when(cartEntryModelMock.getProduct().getName()).thenReturn("productName");
+        when(cartEntryModelMock.getProduct().getName()).thenReturn(PRODUCT_NAME);
         when(cartEntryModelMock.getQuantity()).thenReturn(1L);
         when(cartEntryModelMock.getProduct().getUnit().getName()).thenReturn(PIECES);
         when(cartEntryModelMock.getBasePrice()).thenReturn(67.96);
         when(cartEntryModelMock.getTotalPrice()).thenReturn(67.96);
-        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 11.33D, "GBP")));
+        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 11.33D, "GBP")));
         when(commonI18NServiceMock.roundCurrency(anyDouble(), anyInt())).thenAnswer(invocationOnMock -> {
             final Double amount = (Double) invocationOnMock.getArguments()[0];
             final Integer digits = (Integer) invocationOnMock.getArguments()[1];
@@ -157,7 +164,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
         final LineItem lineItem = result.getLineItems().get(0);
         assertThat(lineItem.getLineItemType()).isEqualTo(LineItem.LINE_ITEM_TYPE.PHYSICAL);
         assertThat(lineItem.getLineItemReference().getValue()).isEqualToIgnoringCase("1");
-        assertThat(lineItem.getName()).isEqualToIgnoringCase("productName");
+        assertThat(lineItem.getName()).isEqualToIgnoringCase(PRODUCT_NAME);
         assertThat(lineItem.getQuantity()).isEqualToIgnoringCase("1");
         assertThat(lineItem.getUnitPrice()).isEqualToIgnoringCase("6796");
         assertThat(lineItem.getTaxRate()).isEqualToIgnoringCase(EXPECTED_2000);
@@ -178,13 +185,13 @@ public class DefaultWorldpayKlarnaStrategyTest {
     }
 
     @Test
-    public void shouldPopulateOrderLinesFixedAndPercentageDiscountDelivery() throws Exception {
+    public void shouldPopulateOrderLinesFixedAndPercentageDiscountDelivery() throws WorldpayConfigurationException {
         when(cartModelMock.getDeliveryCost()).thenReturn(5.99D);
         when(cartModelMock.getTotalTax()).thenReturn(27.85D);
         when(cartModelMock.getEntries()).thenReturn(Arrays.asList(cartEntryModelMock, cartEntryModel2Mock));
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
-        when(cartModelMock.getDeliveryMode().getName()).thenReturn("deliveryModeName");
-        when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 9.66D, "GBP")));
+        when(cartModelMock.getDeliveryMode().getName()).thenReturn(DELIVERY_MODE_NAME);
+        when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 9.66D, "GBP")));
         when(cartModelMock.getTotalDiscounts()).thenReturn(10D);
         when(cartModelMock.getGlobalDiscountValues()).thenReturn(Arrays.asList(
                 new DiscountValue("dv", 10D, true, 10D, "GBP"),
@@ -198,7 +205,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
         when(cartEntryModelMock.getProduct().getUnit().getName()).thenReturn(PIECES);
         when(cartEntryModelMock.getBasePrice()).thenReturn(84.96D);
         when(cartEntryModelMock.getTotalPrice()).thenReturn(169.92D);
-        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 28.32D, "GBP")));
+        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 28.32D, "GBP")));
 
         when(cartEntryModel2Mock.getOrder()).thenReturn(cartModelMock);
         when(cartEntryModel2Mock.getEntryNumber()).thenReturn(1);
@@ -207,7 +214,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
         when(cartEntryModel2Mock.getProduct().getUnit().getName()).thenReturn(PIECES);
         when(cartEntryModel2Mock.getBasePrice()).thenReturn(20.21D);
         when(cartEntryModel2Mock.getTotalPrice()).thenReturn(20.21D);
-        when(cartEntryModel2Mock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 3.37D, "GBP")));
+        when(cartEntryModel2Mock.getTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 3.37D, "GBP")));
 
         when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
         when(commonI18NServiceMock.roundCurrency(anyDouble(), anyInt())).thenAnswer(invocationOnMock -> {
@@ -268,14 +275,13 @@ public class DefaultWorldpayKlarnaStrategyTest {
     }
 
     @Test
-    public void shouldPopulateOrderLinesWithDeliveryCost() throws Exception {
+    public void shouldPopulateOrderLinesWithDeliveryCost() throws WorldpayConfigurationException {
         when(cartModelMock.getDeliveryCost()).thenReturn(5.99D);
-        when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
         when(cartModelMock.getTotalTax()).thenReturn(12.32);
         when(cartModelMock.getEntries()).thenReturn(singletonList(cartEntryModelMock));
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
-        when(cartModelMock.getDeliveryMode().getName()).thenReturn("deliveryModeName");
-        when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 12.32D, "GBP")));
+        when(cartModelMock.getDeliveryMode().getName()).thenReturn(DELIVERY_MODE_NAME);
+        when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 12.32D, "GBP")));
 
         when(cartEntryModelMock.getOrder().getCurrency().getDigits()).thenReturn(2);
         when(cartEntryModelMock.getEntryNumber()).thenReturn(0);
@@ -284,7 +290,7 @@ public class DefaultWorldpayKlarnaStrategyTest {
         when(cartEntryModelMock.getProduct().getUnit().getName()).thenReturn(PIECES);
         when(cartEntryModelMock.getBasePrice()).thenReturn(67.96);
         when(cartEntryModelMock.getTotalPrice()).thenReturn(67.96);
-        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue("uk-vat-full", 20, false, 11.33D, "GBP")));
+        when(cartEntryModelMock.getTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 11.33D, "GBP")));
         when(commonI18NServiceMock.roundCurrency(anyDouble(), anyInt())).thenAnswer(invocationOnMock -> {
             final Double amount = (Double) invocationOnMock.getArguments()[0];
             final Integer digits = (Integer) invocationOnMock.getArguments()[1];

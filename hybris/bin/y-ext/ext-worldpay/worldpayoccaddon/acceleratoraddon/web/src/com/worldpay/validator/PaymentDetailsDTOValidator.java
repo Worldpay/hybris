@@ -17,6 +17,7 @@ public class PaymentDetailsDTOValidator implements Validator {
     private static final String FIELD_REQUIRED_MESSAGE_ID = "field.required";
     private Validator paymentAddressValidator;
 
+    @SuppressWarnings("squid:S3740")
     @Override
     public boolean supports(final Class clazz) {
         return PaymentDetailsWsDTO.class.isAssignableFrom(clazz);
@@ -25,6 +26,9 @@ public class PaymentDetailsDTOValidator implements Validator {
     @Override
     public void validate(final Object target, final Errors errors) {
         final PaymentDetailsWsDTO paymentDetails = (PaymentDetailsWsDTO) target;
+        if (!paymentDetails.getAcceptedTermsAndConditions()) {
+            errors.rejectValue("acceptedTermsAndConditions", "field.payment.acceptedTermsAndConditions.false");
+        }
 
         if (StringUtils.isNotBlank(paymentDetails.getStartMonth()) && StringUtils.isNotBlank(paymentDetails.getStartYear())
                 && StringUtils.isNotBlank(paymentDetails.getExpiryMonth()) && StringUtils.isNotBlank(paymentDetails.getExpiryYear())) {
@@ -43,9 +47,14 @@ public class PaymentDetailsDTOValidator implements Validator {
             }
         }
 
+        boolean savedPayment = Boolean.TRUE.equals(paymentDetails.getSaved());
+        if ((savedPayment && StringUtils.isEmpty(paymentDetails.getCseToken()) && StringUtils.isEmpty(paymentDetails.getSubscriptionId()))
+        || !savedPayment && StringUtils.isEmpty(paymentDetails.getCseToken())) {
+            ValidationUtils.rejectIfEmptyOrWhitespace(errors, "cseToken", FIELD_REQUIRED_MESSAGE_ID);
+        }
+
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "accountHolderName", FIELD_REQUIRED_MESSAGE_ID);
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "cardType.code", FIELD_REQUIRED_MESSAGE_ID);
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "cseToken", FIELD_REQUIRED_MESSAGE_ID);
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "expiryMonth", FIELD_REQUIRED_MESSAGE_ID);
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "expiryYear", FIELD_REQUIRED_MESSAGE_ID);
 

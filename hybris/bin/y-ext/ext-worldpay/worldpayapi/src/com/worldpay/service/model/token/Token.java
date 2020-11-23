@@ -45,7 +45,7 @@ public class Token extends AbstractPayment {
         if (paymentInstrument != null) {
             final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
             final com.worldpay.internal.model.CardDetails intCardDetails = (com.worldpay.internal.model.CardDetails) paymentInstrument.transformToInternalModel();
-            intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(intCardDetails);
+            intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(intCardDetails);
             tokenElements.add(intPaymentInstrument);
         }
 

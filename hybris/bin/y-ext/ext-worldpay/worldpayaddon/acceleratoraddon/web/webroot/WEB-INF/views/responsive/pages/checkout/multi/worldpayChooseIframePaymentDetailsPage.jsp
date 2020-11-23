@@ -36,7 +36,6 @@
                     iframeBaseURL: "${currentServerUrl}",
                     url: '${paymentData.postUrl}',
                     target: 'custom-html',
-                    debug: ${cmsPage.debug},
                     language: '${currentLanguage.isocode}',
                     successURL: "${paymentData.parameters.successURL}",
                     cancelURL: "${paymentData.parameters.cancelURL}",

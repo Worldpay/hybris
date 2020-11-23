@@ -51,7 +51,7 @@ public class OrderBuilderTest {
     private static final String ORDER_TAX_AMOUNT = "orderTaxAmount";
     private static final String TERMS_URL = "termsUrl";
     private static final OrderLines ORDER_LINES = new OrderLines(ORDER_TAX_AMOUNT, TERMS_URL, singletonList(LINE_ITEM));
-
+    private static final List<PaymentMethodAttribute> PAYMENT_METHOD_ATTRIBUTES = singletonList(new PaymentMethodAttribute());
 
     @Test
     public void build_ShouldCreateOrderWithAllParameters_WhenAllRequestParametersAreProvided() {
@@ -80,25 +80,26 @@ public class OrderBuilderTest {
         assertEquals(DYNAMIC_INTERACTION_TYPE, order.getDynamicInteractionType());
         assertEquals(ECHO_DATA, order.getEchoData());
         assertEquals(ORDER_LINES, order.getOrderLines());
-
+        assertEquals(PAYMENT_METHOD_ATTRIBUTES, order.getPaymentMethodAttributes());
     }
 
     private Order createOrder() {
         return new OrderBuilder()
-                .withOrderInfo(BASIC_ORDER_INFO)
-                .withShopper(SHOPPER)
-                .withInstallationId(INSTALLATION_ID)
-                .withOrderContent(ORDER_CONTENT)
-                .withTokenRequest(TOKEN_REQUEST)
-                .withShippingAddress(SHIPPING_ADDRESS)
-                .withBillingAddress(BILLING_ADDRESS)
-                .withStatementNarrative(STATEMENT_NARRATIVE)
-                .withExcludedPaymentMethods(EXCLUDED_PAYMENT_TYPES)
-                .withIncludedPaymentMethods(INCLUDED_PAYMENT_TYPES)
-                .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
-                .withPaymentDetails(PAYMENT_DETAILS)
-                .withEchoData(ECHO_DATA)
-                .withOrderLines(ORDER_LINES)
-                .build();
+            .withOrderInfo(BASIC_ORDER_INFO)
+            .withShopper(SHOPPER)
+            .withInstallationId(INSTALLATION_ID)
+            .withOrderContent(ORDER_CONTENT)
+            .withTokenRequest(TOKEN_REQUEST)
+            .withShippingAddress(SHIPPING_ADDRESS)
+            .withBillingAddress(BILLING_ADDRESS)
+            .withStatementNarrative(STATEMENT_NARRATIVE)
+            .withExcludedPaymentMethods(EXCLUDED_PAYMENT_TYPES)
+            .withIncludedPaymentMethods(INCLUDED_PAYMENT_TYPES)
+            .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
+            .withPaymentDetails(PAYMENT_DETAILS)
+            .withEchoData(ECHO_DATA)
+            .withOrderLines(ORDER_LINES)
+            .withPaymentMethodAttribute(PAYMENT_METHOD_ATTRIBUTES)
+            .build();
     }
 }
