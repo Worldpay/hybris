@@ -2,6 +2,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
@@ -44,17 +45,19 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     protected static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN = "originEventDomain3DSFlex";
 
     @Resource
-    private Validator csePaymentDetailsFormValidator;
+    protected Validator csePaymentDetailsFormValidator;
     @Resource
-    private Validator cseFormValidator;
+    protected Validator cseFormValidator;
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
-    private WorldpayDDCFacade worldpayDDCFacade;
+    protected WorldpayDDCFacade worldpayDDCFacade;
+    @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     /**
      * Returns the CSE payment details page
@@ -171,7 +174,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     }
 
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfo = getWorldpayAdditionalInfoFacade().createWorldpayAdditionalInfoData(request);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSecurityCode(cvc);
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());

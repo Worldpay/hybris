@@ -12,7 +12,6 @@ import com.worldpay.service.request.validation.WorldpayXMLValidator;
 import com.worldpay.service.response.*;
 import com.worldpay.service.response.transform.ServiceResponseTransformer;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -30,11 +29,23 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
 
     private static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
 
-    private WorldpayConnector worldpayConnector;
-    private WorldpayXMLValidator woldpayXmlValidator;
-    private ConfigurationService configurationService;
-    private Map<String, ServiceResponseTransformer> responseTransformerStrategyMap;
-    private Map<String, ServiceRequestTransformer> requestTransformerStrategyMap;
+    protected final WorldpayConnector worldpayConnector;
+    protected final WorldpayXMLValidator worldpayXMLValidator;
+    protected final ConfigurationService configurationService;
+    protected final Map<String, ServiceResponseTransformer> responseTransformerStrategyMap;
+    protected final Map<String, ServiceRequestTransformer> requestTransformerStrategyMap;
+
+    public DefaultWorldpayServiceGateway(final WorldpayConnector worldpayConnector,
+                                         final WorldpayXMLValidator worldpayXMLValidator,
+                                         final ConfigurationService configurationService,
+                                         final Map<String, ServiceResponseTransformer> responseTransformerStrategyMap,
+                                         final Map<String, ServiceRequestTransformer> requestTransformerStrategyMap) {
+        this.worldpayConnector = worldpayConnector;
+        this.worldpayXMLValidator = worldpayXMLValidator;
+        this.configurationService = configurationService;
+        this.responseTransformerStrategyMap = responseTransformerStrategyMap;
+        this.requestTransformerStrategyMap = requestTransformerStrategyMap;
+    }
 
     /**
      * {@inheritDoc}
@@ -137,7 +148,7 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
         final PaymentService paymentService = requestTransformer.transform(request);
         try {
             logPaymentServiceXML(paymentService);
-            woldpayXmlValidator.validate(paymentService);
+            worldpayXMLValidator.validate(paymentService);
         } catch (final WorldpayValidationException e) {
             throw new WorldpayValidationException("Error validating XML: " + e.getMessage(), e);
         }
@@ -160,30 +171,5 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
                 throw new WorldpayValidationException(jaxbException.getMessage(), jaxbException);
             }
         }
-    }
-
-    @Required
-    public void setWorldpayConnector(final WorldpayConnector worldpayConnector) {
-        this.worldpayConnector = worldpayConnector;
-    }
-
-    @Required
-    public void setResponseTransformerStrategyMap(final Map<String, ServiceResponseTransformer> responseTransformerStrategyMap) {
-        this.responseTransformerStrategyMap = responseTransformerStrategyMap;
-    }
-
-    @Required
-    public void setRequestTransformerStrategyMap(final Map<String, ServiceRequestTransformer> requestTransformerStrategyMap) {
-        this.requestTransformerStrategyMap = requestTransformerStrategyMap;
-    }
-
-    @Required
-    public void setWoldpayXmlValidator(final WorldpayXMLValidator woldpayXmlValidator) {
-        this.woldpayXmlValidator = woldpayXmlValidator;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 }

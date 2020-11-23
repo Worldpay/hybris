@@ -14,13 +14,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayHybrisVersionAppenderTest {
 
     private static final String HYBRIS_VERSION_INFO = "hybrisVersionInfo";
 
     @InjectMocks
-    private WorldpayHybrisVersionAppender testObj = new WorldpayHybrisVersionAppender();
+    private WorldpayHybrisVersionAppender testObj;
 
     @Mock
     private ConfigurationService configurationServiceMock;
@@ -28,7 +28,7 @@ public class WorldpayHybrisVersionAppenderTest {
     private Configuration configurationMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void appendContent_ShouldAppendCurrentHybrisVersion() {
         when(configurationServiceMock.getConfiguration()).thenReturn(configurationMock);
         when(configurationMock.getString(HYBRIS_BUILD_VERSION_KEY)).thenReturn(HYBRIS_VERSION_INFO);
 

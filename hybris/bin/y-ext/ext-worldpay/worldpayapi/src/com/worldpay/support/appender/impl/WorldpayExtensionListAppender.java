@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the list of installed extensions
  */
-public class WorldpayExtensionListAppender implements WorldpaySupportEmailAppender {
+public class WorldpayExtensionListAppender extends WorldpaySupportEmailAppender {
 
     /**
      * {@inheritDoc}

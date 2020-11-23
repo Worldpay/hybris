@@ -63,6 +63,7 @@ public class GooglePayControllerTest {
         token.setSignature("lorem ipsum dolor");
         token.setSignedMessage("wop wop wop");
         authorisationRequest.setToken(token);
+        authorisationRequest.setSaved(Boolean.TRUE);
 
         final GooglePayAddressData billingAddress = new GooglePayAddressData();
         billingAddress.setAddress1("Av Aragon 30");
@@ -81,6 +82,7 @@ public class GooglePayControllerTest {
         verify(userFacadeMock).addAddress(any(AddressData.class));
         verify(worldpayDirectOrderFacadeMock).authoriseGooglePayDirect(authorisationRequest.getToken());
         verify(worldpayPaymentCheckoutFacadeMock).setBillingDetails(any(AddressData.class));
+        assertTrue(token.getSaveCard());
     }
 
     @Test

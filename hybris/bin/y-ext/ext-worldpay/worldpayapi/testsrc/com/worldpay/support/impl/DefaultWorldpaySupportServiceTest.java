@@ -18,7 +18,7 @@ import static com.worldpay.support.impl.DefaultWorldpaySupportService.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpaySupportServiceTest {
 
     private static final String WORLDPAY_SUPPORT_EMAIL_ADDRESS = "emailAddress";
@@ -31,7 +31,7 @@ public class DefaultWorldpaySupportServiceTest {
 
     @Spy
     @InjectMocks
-    private DefaultWorldpaySupportService testObj = new DefaultWorldpaySupportService();
+    private DefaultWorldpaySupportService testObj;
 
     @Mock
     private ConfigurationService configurationService;
@@ -60,7 +60,7 @@ public class DefaultWorldpaySupportServiceTest {
     }
 
     @Test
-    public void testSendSupportEmail() throws Exception {
+    public void sendSupportEmail_ShouldSendEmailPopulatingRequiredFields() throws Exception {
         testObj.sendSupportEmail();
 
         verify(emailMock).addTo(WORLDPAY_SUPPORT_EMAIL_ADDRESS, WORLDPAY_SUPPORT_EMAIL_DISPLAY_NAME);

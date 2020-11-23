@@ -6,6 +6,8 @@ import com.worldpay.service.http.ServiceReply;
 import com.worldpay.service.response.ServiceResponse;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.util.Optional;
+
 /**
  * Abstract implementation of the ServiceResponseTransformer to extract cookie information
  */
@@ -19,11 +21,10 @@ public abstract class AbstractServiceResponseTransformer implements ServiceRespo
      * @see com.worldpay.service.response.transform.ServiceResponseTransformer#transform(com.worldpay.service.http.ServiceReply)
      */
     @Override
-    public ServiceResponse transform(ServiceReply reply) throws WorldpayModelTransformationException {
-        ServiceResponse response = transform(reply.getPaymentService());
-        if (response != null) {
-            response.setCookie(reply.getCookie());
-        }
+    public ServiceResponse transform(final ServiceReply reply) throws WorldpayModelTransformationException {
+        final ServiceResponse response = transform(reply.getPaymentService());
+        Optional.ofNullable(response)
+            .ifPresent(serviceResponse -> serviceResponse.setCookie(reply.getCookie()));
         return response;
     }
 

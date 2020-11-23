@@ -160,6 +160,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
                 .withBillingAddress(requestParameters.getBillingAddress())
                 .withStatementNarrative(requestParameters.getStatementNarrative())
                 .withPaymentDetails(paymentDetails)
+                .withTokenRequest(requestParameters.getTokenRequest())
                 .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
                 .build();
         authRequest.setOrder(reqOrder);

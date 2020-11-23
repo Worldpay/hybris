@@ -37,7 +37,7 @@ public class DefaultWorldpayOrderNotificationHandler implements WorldpayOrderNot
      * {@inheritDoc}
      */
     @Override
-    public void setDefectiveReason(final WorldpayOrderModificationModel orderModificationModel, DefectiveReason defectiveReason) {
+    public void setDefectiveReason(final WorldpayOrderModificationModel orderModificationModel, final DefectiveReason defectiveReason) {
         orderModificationModel.setDefectiveReason(defectiveReason);
         final List<WorldpayOrderModificationModel> existingModifications = orderModificationDao.findExistingModifications(orderModificationModel);
 

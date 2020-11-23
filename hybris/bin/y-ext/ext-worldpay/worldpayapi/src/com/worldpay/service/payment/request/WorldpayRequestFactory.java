@@ -8,7 +8,8 @@ import com.worldpay.service.request.*;
 import com.worldpay.service.response.CreateTokenResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
-import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.core.model.user.AddressModel;
 
 
 /**
@@ -35,20 +36,25 @@ public interface WorldpayRequestFactory {
      * @param merchantInfo               the merchantInfo
      * @param cseAdditionalAuthInfo      contains cse form specific information for the request including encrypted payment information
      * @param worldpayAdditionalInfoData the worldpayAdditionalInfoData
+     * @param paymentAddress             the payment address
      * @param createTokenResponse        represents the response to the token creation request
      * @return Built {@link UpdateTokenServiceRequest}
      */
-    UpdateTokenServiceRequest buildTokenUpdateRequest(final MerchantInfo merchantInfo, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
-                                                      final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CreateTokenResponse createTokenResponse);
+    UpdateTokenServiceRequest buildTokenUpdateRequest(final MerchantInfo merchantInfo,
+                                                      final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                                      final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                      final AddressModel paymentAddress,
+                                                      final CreateTokenResponse createTokenResponse);
 
     /**
      * Builds an update token request to send to Worldpay
      *
      * @param merchantInfo               the merchantInfo
-     * @param creditCardPaymentInfoModel the creditCardPaymentInfoModel
+     * @param paymentInfoModel           the paymentInfoModel
+     * @param subscriptionId             the subscriptionId
      * @return Built {@link DeleteTokenServiceRequest}
      */
-    DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final CreditCardPaymentInfoModel creditCardPaymentInfoModel);
+    DeleteTokenServiceRequest buildTokenDeleteRequest(final MerchantInfo merchantInfo, final PaymentInfoModel paymentInfoModel, final String subscriptionId);
 
     /**
      * Builds an authorise request to send to Worldpay
@@ -157,10 +163,13 @@ public interface WorldpayRequestFactory {
 
     /**
      * Builds a redirect authorise request
+     *
      * @param merchantInfo
      * @param cartModel
      * @param additionalAuthInfo
+     * @param worldpayAdditionalInfoData
      * @return
+     * @throws WorldpayConfigurationException thrown when the URLs are not configured correctly
      */
-    RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo);
+    RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo, WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException;
 }

@@ -6,7 +6,7 @@ import de.hybris.platform.cluster.DefaultBroadcastService;
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the cluster information
  */
-public class WorldpayClusterInformationAppender implements WorldpaySupportEmailAppender {
+public class WorldpayClusterInformationAppender extends WorldpaySupportEmailAppender {
 
     @Override
     public String appendContent() {

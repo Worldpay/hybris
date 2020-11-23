@@ -27,7 +27,7 @@ public class WorldpayAddonVersionAppenderTest {
     private WorldpayAddonVersionAppender testObj;
 
     @Test
-    public void shouldReturnAddonVersionContentToAppend() {
+    public void appendContent_ShouldAppendAddonVersionContent() {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_ADDON_VERSION_KEY)).thenReturn(ADDON_VERSION);
 
         final String result = testObj.appendContent();
@@ -36,7 +36,7 @@ public class WorldpayAddonVersionAppenderTest {
     }
 
     @Test
-    public void shouldReturnNoContentToAppendWhenAddonVersionIsUnknown() {
+    public void appendContent_ShouldReturnEmptyContentToAppend_WhenAddonVersionIsUnknown() {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_ADDON_VERSION_KEY)).thenReturn(EMPTY);
 
         final String result = testObj.appendContent();

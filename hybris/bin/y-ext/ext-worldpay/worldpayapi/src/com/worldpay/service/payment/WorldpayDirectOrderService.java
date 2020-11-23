@@ -9,7 +9,7 @@ import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
-import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 
 /**
  * Interface that expose methods to authorise payments encrypted with the Worldpay CSE-library using the direct xml integration.
@@ -72,17 +72,18 @@ public interface WorldpayDirectOrderService {
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      */
     void createToken(final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
-            throws WorldpayException;
+        throws WorldpayException;
 
     /**
      * Builds the deleteTokenRequest.
      * The request is then sent to Worldpay
      *
-     * @param merchantInfo               Merchant configuration
-     * @param creditCardPaymentInfoModel {@link CreditCardPaymentInfoModel} saved payment information needed to be deleted
+     * @param merchantInfo     Merchant configuration
+     * @param paymentInfoModel {@link PaymentInfoModel} saved payment information needed to be deleted
+     * @param subscriptionId   String containing the subscriptionId.
      */
-    void deleteToken(final MerchantInfo merchantInfo, CreditCardPaymentInfoModel creditCardPaymentInfoModel)
-            throws WorldpayException;
+    void deleteToken(final MerchantInfo merchantInfo, final PaymentInfoModel paymentInfoModel, final String subscriptionId)
+        throws WorldpayException;
 
     /**
      * Recovers the original {@link DirectAuthoriseServiceRequest} and adds the paResponse from the 3dSecure issuer.
@@ -95,7 +96,7 @@ public interface WorldpayDirectOrderService {
      */
     DirectAuthoriseServiceResponse authorise3DSecure(final String worldpayOrderCode,
                                                      final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final String paResponse)
-            throws WorldpayException;
+        throws WorldpayException;
 
     /**
      * Updates/Creates the PaymentTransaction associated to the authorisation received from Worldpay. Updates/Creates a non-pending paymentTransactionEntry of type AUTHORISATION.

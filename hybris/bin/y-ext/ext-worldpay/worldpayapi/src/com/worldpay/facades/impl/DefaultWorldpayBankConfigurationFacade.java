@@ -17,9 +17,9 @@ import java.util.Optional;
  */
 public class DefaultWorldpayBankConfigurationFacade implements WorldpayBankConfigurationFacade {
 
-    private final APMConfigurationLookupService apmConfigurationLookupService;
-    private final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService;
-    private final Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter;
+    protected final APMConfigurationLookupService apmConfigurationLookupService;
+    protected final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService;
+    protected final Converter<WorldpayBankConfigurationModel, BankConfigurationData> bankConfigurationModelBankConfigurationDataConverter;
 
     public DefaultWorldpayBankConfigurationFacade(final APMConfigurationLookupService apmConfigurationLookupService,
                                                   final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService,

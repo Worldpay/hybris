@@ -1,7 +1,8 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
+import com.worldpay.facades.payment.hosted.WorldpayHOPNoReturnParamsStrategy;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
@@ -69,6 +70,8 @@ public class WorldpayHopResponseControllerTest {
     private static final String REDIRECT_URL_CHOOSE_DELIVERY_METHOD = REDIRECT_PREFIX + "/checkout/multi/delivery-method/choose";
     private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
+    private final MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+
     @Spy
     @InjectMocks
     private WorldpayHopResponseController testObj;
@@ -103,8 +106,8 @@ public class WorldpayHopResponseControllerTest {
     private ArgumentCaptor<PaymentDetailsForm> paymentDetailsFormArgumentCaptor;
     @Mock
     private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
-
-    private MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+    @Mock
+    private WorldpayHOPNoReturnParamsStrategy worldpayHOPNoReturnParamsStrategyMock;
     @Mock
     private PaymentTransactionModel paymentTransactionModelMock;
     @Mock
@@ -115,6 +118,8 @@ public class WorldpayHopResponseControllerTest {
     private Converter<AbstractOrderModel, OrderData> orderConverterMock;
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
+    @Mock
+    private WorldpayAfterRedirectValidationFacade worldpayAfterRedirectValidationFacadeMock;
 
     @Before
     public void setUp() {
@@ -125,7 +130,7 @@ public class WorldpayHopResponseControllerTest {
         when(checkoutFacadeMock.hasValidCart()).thenReturn(true);
         when(orderConverterMock.convert(orderModelMock)).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(worldpayHostedOrderFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(true);
+        when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn("hostedOrderPostPage");
         mockHttpServletRequest.setParameter(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
     }
@@ -156,7 +161,7 @@ public class WorldpayHopResponseControllerTest {
 
     @Test
     public void doHandleHopResponseShouldNOTCompleteRedirectAndNOTPlaceOrderWhenResponseIsNotValid() throws InvalidCartException {
-        when(worldpayHostedOrderFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(false);
+        when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(false);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
 
@@ -357,7 +362,7 @@ public class WorldpayHopResponseControllerTest {
         mockHttpServletRequest.removeParameter(PAYMENT_STATUS_PARAMETER_NAME);
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(null);
-        when(worldpayHostedOrderFacadeMock.inquiryPaymentStatus()).thenReturn(redirectAuthoriseResultFromInquiryMock);
+        when(worldpayHOPNoReturnParamsStrategyMock.authoriseCart()).thenReturn(redirectAuthoriseResultFromInquiryMock);
         when(redirectAuthoriseResultFromInquiryMock.getPaymentStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -372,7 +377,7 @@ public class WorldpayHopResponseControllerTest {
         mockHttpServletRequest.removeParameter(PAYMENT_STATUS_PARAMETER_NAME);
         when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
         when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(null);
-        when(worldpayHostedOrderFacadeMock.inquiryPaymentStatus()).thenReturn(redirectAuthoriseResultFromInquiryMock);
+        when(worldpayHOPNoReturnParamsStrategyMock.authoriseCart()).thenReturn(redirectAuthoriseResultFromInquiryMock);
         when(redirectAuthoriseResultFromInquiryMock.getPaymentStatus()).thenReturn(AuthorisedStatus.ERROR);
 
         final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
@@ -393,20 +398,5 @@ public class WorldpayHopResponseControllerTest {
 
         verify(worldpayPaymentTransactionServiceMock).getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE);
         assertEquals(ORDER_CONFIRMATION_PAGE, result);
-    }
-
-    @Test
-    public void shouldRedirectToErrorPageWhenInquiryCommunicationFails() throws Exception {
-        mockHttpServletRequest.removeParameter(PAYMENT_STATUS_PARAMETER_NAME);
-        when(checkoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(null);
-        when(worldpayHostedOrderFacadeMock.inquiryPaymentStatus()).thenThrow(new WorldpayException("There was an error"));
-
-        final String result = testObj.doHandleHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
-
-        verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
-        verify(checkoutFacadeMock, never()).placeOrder();
-        assertEquals(format(CHOOSE_PAYMENT_REDIRECT_URL, ERROR.name()), result);
-
     }
 }

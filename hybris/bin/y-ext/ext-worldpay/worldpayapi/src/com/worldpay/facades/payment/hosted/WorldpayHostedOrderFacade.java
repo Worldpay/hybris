@@ -3,9 +3,8 @@ package com.worldpay.facades.payment.hosted;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
-
-import java.util.Map;
 
 
 /**
@@ -19,10 +18,11 @@ public interface WorldpayHostedOrderFacade {
      * Worldpay Hosted Order Page
      *
      * @param additionalAuthInfo
+     * @param worldpayAdditionalInfoData
      * @return carry out the redirect to worldpay Hosted Order Page
      * @throws WorldpayException if there are any issues found communicating with Worldpay
      */
-    PaymentData redirectAuthorise(final AdditionalAuthInfo additionalAuthInfo) throws WorldpayException;
+    PaymentData redirectAuthorise(final AdditionalAuthInfo additionalAuthInfo, WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
 
     /**
      * Complete the redirectAuthorise if successful authorise response received. Create payment details and return back
@@ -33,16 +33,9 @@ public interface WorldpayHostedOrderFacade {
     void completeRedirectAuthorise(final RedirectAuthoriseResult redirectParameters);
 
     /**
-     * Checks that the response is authentic and sent from Worldpay
+     * Create a paymentInfoModel for the current cartModel, setting the isSaved attribute on the paymentInfoModel set to true
      *
-     * @param worldpayResponse
      * @return
      */
-    boolean validateRedirectResponse(final Map<String, String> worldpayResponse);
-
-    /**
-     * Inquiries the payment status of an order in Worldpay
-     * @return String representing the Authorisation status of the order in Worldpay
-     */
-    RedirectAuthoriseResult inquiryPaymentStatus() throws WorldpayException;
+    void createPaymentInfoModelOnCart(final boolean isSaved);
 }

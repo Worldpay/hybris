@@ -1,6 +1,8 @@
 package com.worldpay.core.services.impl;
 
 import com.worldpay.core.dao.WorldpayCartDao;
+import com.worldpay.service.payment.impl.DefaultWorldpaySessionService;
+import com.worldpay.service.payment.impl.OccWorldpaySessionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -24,9 +27,8 @@ public class DefaultWorldpayCartServiceTest {
     private static final String DECLINE_CODE = "A19";
     private static final String BANK_CODE = "bankCode";
 
-
     @InjectMocks
-    private DefaultWorldpayCartService testObj = new DefaultWorldpayCartService();
+    private DefaultWorldpayCartService testObj;
 
     @Mock
     private WorldpayCartDao worldpayCartDaoMock;
@@ -36,10 +38,14 @@ public class DefaultWorldpayCartServiceTest {
     private CartModel cartModelMock2;
     @Mock
     private CartService cartServiceMock;
-
+    @Mock
+    private OccWorldpaySessionService occWorldpaySessionServiceMock;
+    @Mock
+    private DefaultWorldpaySessionService worldpaySessionServiceMock;
 
     @Before
     public void setUp() throws Exception {
+        Whitebox.setInternalState(testObj, "worldpaySessionService", worldpaySessionServiceMock);
         when(worldpayCartDaoMock.findCartByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(cartModelMock);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
     }
@@ -105,5 +111,21 @@ public class DefaultWorldpayCartServiceTest {
 
         verifyZeroInteractions(cartModelMock);
         verify(cartServiceMock, never()).saveOrder(cartModelMock);
+    }
+
+    @Test
+    public void setSessionId_whenNotInstanceOfOccWorldpay_shouldDoNothig() {
+        testObj.setSessionId("sessionId");
+
+        verifyNoMoreInteractions(worldpaySessionServiceMock);
+    }
+
+    @Test
+    public void setSessionId_whenInstanceOfOccWorldpay_shouldDoNothig() {
+        Whitebox.setInternalState(testObj, "worldpaySessionService", occWorldpaySessionServiceMock);
+
+        testObj.setSessionId("sessionId");
+
+        verify(occWorldpaySessionServiceMock).setSessionIdFor3dSecure("sessionId");
     }
 }

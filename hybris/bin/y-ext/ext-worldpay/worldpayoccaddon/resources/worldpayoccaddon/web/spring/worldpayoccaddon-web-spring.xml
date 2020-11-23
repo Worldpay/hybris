@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2016 SAP SE or an SAP affiliate company.
- All rights reserved.
-
- This software is the confidential and proprietary information of SAP
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with SAP.
-
-
--->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -96,6 +82,18 @@
 			</list>
 		</property>
 	</bean>
+
+    <bean id="defaultWorldpayOCCStringMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter"/>
+
+    <bean depends-on="messageConvertersV2" parent="listMergeDirective">
+        <property name="add" ref="defaultWorldpayOCCStringMessageConverter"/>
+    </bean>
+
+    <bean id="worldpayAddressWsDTOAddressDataPopulator"
+          class="com.worldpay.populators.WorldpayAddressWsDTOAddressDataPopulator">
+        <constructor-arg name="i18NFacade" ref="i18NFacade"/>
+        <constructor-arg name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
+    </bean>
 
 	<import resource="v2-web-spring-worldpayoccaddon.xml"/>
 </beans>

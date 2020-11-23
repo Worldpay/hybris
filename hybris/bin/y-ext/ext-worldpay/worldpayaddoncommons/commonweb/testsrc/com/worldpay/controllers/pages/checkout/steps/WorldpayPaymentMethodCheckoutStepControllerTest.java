@@ -132,7 +132,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
         when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
         when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
         when(checkoutStepMapMock.get(anyString())).thenReturn(checkoutStepMock);
-        when(worldpayHostedOrderFacadeMock.redirectAuthorise(additionalAuthInfoMock)).thenReturn(paymentDataMock);
+        when(worldpayHostedOrderFacadeMock.redirectAuthorise(additionalAuthInfoMock, worldpayAdditionalInfoDataMock)).thenReturn(paymentDataMock);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_VALUE);
         when(modelMock.asMap().get(SAVE_PAYMENT_INFO)).thenReturn(true);
         when(modelMock.asMap().get(SHOPPER_BANK_CODE)).thenReturn(SHOPPER_BANK_CODE_VALUE);
@@ -195,7 +195,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldReturnToChoosePaymentMethodOnWorldpayException() throws WorldpayException, CMSItemNotFoundException {
-        doThrow(WorldpayException.class).when(worldpayHostedOrderFacadeMock).redirectAuthorise(any());
+        doThrow(WorldpayException.class).when(worldpayHostedOrderFacadeMock).redirectAuthorise(any(), any());
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
 

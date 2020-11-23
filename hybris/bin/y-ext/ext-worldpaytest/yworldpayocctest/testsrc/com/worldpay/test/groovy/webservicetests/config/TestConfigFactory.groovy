@@ -5,8 +5,8 @@ import de.hybris.platform.servicelayer.config.ConfigurationService
 
 class TestConfigFactory {
 
-    private static final String DEFAULT_WEBROOT = 'rest'
-    private static final String DEFAULT_AUTHORIZATION_WEBROOT = 'authorizationserver'
+    private static final String DEFAULT_WEBROOT = 'rest_junit_occ'
+    private static final String DEFAULT_AUTHORIZATION_WEBROOT = 'authorizationserver_junit'
 
     private static final String webroot = DEFAULT_WEBROOT
     private static Map<String, ConfigObject> configsCache = new HashMap<>()

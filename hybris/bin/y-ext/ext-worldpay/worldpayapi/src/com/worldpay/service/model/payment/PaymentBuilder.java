@@ -4,6 +4,7 @@ import com.worldpay.service.model.Address;
 import com.worldpay.service.model.Date;
 import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
 import com.worldpay.service.model.klarna.KlarnaPayment;
+import com.worldpay.service.model.klarna.KlarnaRedirectURLs;
 import com.worldpay.service.model.token.CardDetails;
 import com.worldpay.service.model.token.Token;
 
@@ -1279,8 +1280,23 @@ public class PaymentBuilder {
      * @param extraMerchantData
      * @return
      */
-    public static KlarnaPayment createKLARNASSL(final String purchaseCountry, final String shopperLocale, final KlarnaMerchantUrls merchantUrls, final String extraMerchantData) {
+    public static KlarnaPayment createKlarnaPayment(final String purchaseCountry, final String shopperLocale, final KlarnaMerchantUrls merchantUrls, final String extraMerchantData) {
         return new KlarnaPayment(purchaseCountry, shopperLocale, merchantUrls, extraMerchantData);
+    }
+
+    /**
+     * Creates a Klarna payment type
+     *
+     * @param purchaseCountry
+     * @param shopperLocale
+     * @param extraMerchantData
+     * @param klarnaPaymentMethod
+     * @param klarnaURL
+     * @return
+     */
+    public static KlarnaPayment createKlarnaPayment(final String purchaseCountry, final String shopperLocale, final String extraMerchantData,
+                                                    final String klarnaPaymentMethod, final KlarnaRedirectURLs klarnaURL) {
+        return new KlarnaPayment(purchaseCountry, shopperLocale, extraMerchantData, klarnaPaymentMethod, klarnaURL);
     }
 
 }

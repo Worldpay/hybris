@@ -42,6 +42,7 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
      * @param dataType
      * @param widgetInstanceManager
      */
+    @Override
     public void render(final Listcell listCell, final ListColumn columnConfiguration, final Object object, final DataType dataType, final WidgetInstanceManager widgetInstanceManager) {
         final String qualifier = columnConfiguration.getQualifier();
 
@@ -60,7 +61,7 @@ public class PaymentTransactionAmountRenderer implements WidgetComponentRenderer
         }
     }
 
-    private String getPaymentTransactionAmountValue(final PaymentTransactionModel object, final Object amount) {
+    protected String getPaymentTransactionAmountValue(final PaymentTransactionModel object, final Object amount) {
         final BigDecimal paymentTransactionAmount = ((BigDecimal) amount).setScale(object.getEntries().get(0).getCurrency().getDigits(), RoundingMode.HALF_UP);
         final String amountValue = labelService.getObjectLabel(paymentTransactionAmount);
         return defaultIfBlank(amountValue, amount.toString());

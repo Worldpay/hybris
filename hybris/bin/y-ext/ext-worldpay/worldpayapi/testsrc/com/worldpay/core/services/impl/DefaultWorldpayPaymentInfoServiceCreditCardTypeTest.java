@@ -1,7 +1,6 @@
 package com.worldpay.core.services.impl;
 
 import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.token.TokenReply;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.enums.CreditCardType;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
@@ -88,7 +87,7 @@ public class DefaultWorldpayPaymentInfoServiceCreditCardTypeTest {
 
     @Test
     public void shouldSetCorrectPaymentType() {
-        when(paymentReplyMock.getMethodCode()).thenReturn(paymentMethodCode);
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(paymentMethodCode);
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CREDIT_CARD_MAPPINGS + paymentMethodCode)).thenReturn(mappedValue);
         when(enumerationServiceMock.getEnumerationValue(CreditCardType.class.getSimpleName(), mappedValue)).thenReturn(creditCardType);
 

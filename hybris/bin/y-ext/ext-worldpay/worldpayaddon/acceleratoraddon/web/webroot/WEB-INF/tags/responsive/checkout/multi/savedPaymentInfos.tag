@@ -17,14 +17,25 @@
                 <c:forEach items="${paymentInfos}" var="paymentInfo" varStatus="status">
                     <form action="${chooseCard}" method="GET">
                         <input type="hidden" name="selectedPaymentMethodId" value="${fn:escapeXml(paymentInfo.id)}"/>
-                        <strong>${fn:escapeXml(paymentInfo.billingAddress.firstName)}&nbsp; ${fn:escapeXml(paymentInfo.billingAddress.lastName)}</strong><br/>
-                        ${fn:escapeXml(paymentInfo.cardTypeData.name)}<br/>
-                        ${fn:escapeXml(paymentInfo.accountHolderName)}<br/>
-                        ${fn:escapeXml(paymentInfo.cardNumber)}<br/>
-                        <spring:theme code="checkout.multi.paymentMethod.paymentDetails.expires" arguments="${fn:escapeXml(paymentInfo.expiryMonth)},${fn:escapeXml(paymentInfo.expiryYear)}"/><br/>
-                        ${fn:escapeXml(paymentInfo.billingAddress.line1)}<br/>
-                        ${fn:escapeXml(paymentInfo.billingAddress.town)}&nbsp; ${fn:escapeXml(paymentInfo.billingAddress.region.isocodeShort)}<br/>
-                        ${fn:escapeXml(paymentInfo.billingAddress.postalCode)}&nbsp; ${fn:escapeXml(paymentInfo.billingAddress.country.isocode)}<br/>
+                        <c:choose>
+                            <c:when test="${paymentInfo.isAPM}">
+                                <strong>${fn:escapeXml(paymentInfo.apmName)}</strong><br/>
+                                <c:if test="${!empty paymentInfo.cardNumber}">${paymentInfo.cardNumber}</c:if>
+                            </c:when>
+                            <c:otherwise>
+                                <strong>${fn:escapeXml(paymentInfo.billingAddress.firstName)}&nbsp; ${fn:escapeXml(paymentInfo.billingAddress.lastName)}</strong><br/>
+                                ${fn:escapeXml(paymentInfo.cardTypeData.name)}<br/>
+                                ${fn:escapeXml(paymentInfo.accountHolderName)}<br/>
+                                ${fn:escapeXml(paymentInfo.cardNumber)}<br/>
+                                <spring:theme code="checkout.multi.paymentMethod.paymentDetails.expires"
+                                              arguments="${fn:escapeXml(paymentInfo.expiryMonth)},${fn:escapeXml(paymentInfo.expiryYear)}"/><br/>
+                            </c:otherwise>
+                        </c:choose>
+                            ${fn:escapeXml(paymentInfo.billingAddress.line1)}<br/>
+                            ${fn:escapeXml(paymentInfo.billingAddress.town)}&nbsp; ${fn:escapeXml(paymentInfo.billingAddress.region.isocodeShort)}
+                        <br/>
+                            ${fn:escapeXml(paymentInfo.billingAddress.postalCode)}&nbsp; ${fn:escapeXml(paymentInfo.billingAddress.country.isocode)}
+                        <br/>
                         <button type="submit" class="btn btn-primary btn-block" tabindex="${(status.count * 2) - 1}">
                             <spring:theme code="checkout.multi.paymentMethod.addPaymentDetails.useThesePaymentDetails"/>
                         </button>

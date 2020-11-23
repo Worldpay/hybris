@@ -1,14 +1,10 @@
 package com.worldpay.service.request.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.*;
-import com.worldpay.service.model.BasicOrderInfo;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.Session;
+import com.worldpay.internal.model.Submit;
 import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.Shopper;
-import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.TokenRequest;
-import com.worldpay.service.request.AuthoriseServiceRequest;
-import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.request.SecondThreeDSecurePaymentRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
@@ -22,9 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -100,7 +94,7 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
         assertEquals("Incorrect orderCode", ORDER_CODE, orderCode);
         assertEquals(merchantInfo.getMerchantCode(), result.getMerchantCode());
         assertEquals(VERSION, result.getVersion());
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
         final Session session = (Session) orderElements.get(1);
         assertEquals(SESSION_ID, session.getId());
     }
