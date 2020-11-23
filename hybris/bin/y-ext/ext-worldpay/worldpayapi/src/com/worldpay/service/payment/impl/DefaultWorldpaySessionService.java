@@ -16,7 +16,7 @@ public class DefaultWorldpaySessionService implements WorldpaySessionService {
     private static final String THREED_SECURE_WINDOW_KEY = "challengeWindowSize";
     private static final String WORLDPAY_ADDITIONAL_DATA_SESSION_ID = "worldpay_additional_data_session_id";
 
-    private final SessionService sessionService;
+    protected final SessionService sessionService;
 
     public DefaultWorldpaySessionService(final SessionService sessionService) {
         this.sessionService = sessionService;

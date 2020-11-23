@@ -1,8 +1,8 @@
 package com.worldpay.service.response.transform.impl;
 
 import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.WebformRefundReply;
 import com.worldpay.service.model.payment.PaymentType;
@@ -95,7 +95,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     private static final String RISK_SCORE_VALUE = "riskScoreValue";
     private static final String BIN = "bin";
 
-    private DefaultServiceResponseTransformerHelper testObj = new DefaultServiceResponseTransformerHelper();
+    private final DefaultServiceResponseTransformerHelper testObj = new DefaultServiceResponseTransformerHelper();
 
     private Amount amount;
     private CVCResultCode cvcResultCode;
@@ -157,7 +157,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final PaymentReply paymentReply = testObj.buildPaymentReply(payment);
 
-        assertEquals(PAYMENT_METHOD, paymentReply.getMethodCode());
+        assertEquals(PAYMENT_METHOD, paymentReply.getPaymentMethodCode());
         assertEquals(EXPIRY_MONTH, paymentReply.getCardDetails().getExpiryDate().getMonth());
         assertEquals(EXPIRY_YEAR, paymentReply.getCardDetails().getExpiryDate().getYear());
         assertEquals(CARD_HOLDER_NAME, paymentReply.getCardDetails().getCardHolderName());
@@ -185,6 +185,47 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(AUTHORISATION_ID, paymentReply.getAuthorisationId());
         assertEquals(AUTHORISATION_ID_BY, paymentReply.getAuthorisedBy());
         assertEquals(REFUND_REFERENCE, paymentReply.getRefundReference());
+    }
+
+    @Test
+    public void buildPaymentReply_WhenCardHolderNameIsNull_ShouldSetItAsNullInPaymentReply() {
+        cardHolderName = null;
+        final Payment payment = new Payment();
+        final PaymentMethodDetail paymentMethodDetail = new PaymentMethodDetail();
+        paymentMethodDetail.setCard(createCard());
+        createAmount();
+        createCvcResultCode();
+        createBalance();
+        createIso8583ReturnCode();
+        createRiskScore();
+        createAavAddressResultCode();
+        createAavCardholderNameResultCode();
+        createAavEmailResultCode();
+        createAavPostcodeResultCode();
+        createAavTelephoneResultCode();
+        createAuthorisationId();
+
+        payment.setPaymentMethod(PAYMENT_METHOD);
+        payment.setPaymentMethodDetail(paymentMethodDetail);
+        payment.setAmount(amount);
+        payment.getBalance().add(balance);
+        payment.setLastEvent(LAST_EVENT);
+        payment.setCVCResultCode(cvcResultCode);
+        payment.getBalance().add(balance);
+        payment.setISO8583ReturnCode(iso8583ReturnCode);
+        payment.setRiskScore(riskScore);
+        payment.setCardHolderName(cardHolderName);
+        payment.setAAVAddressResultCode(aavAddressResultCode);
+        payment.setAAVCardholderNameResultCode(aavCardholderNameResultCode);
+        payment.setAAVEmailResultCode(aavEmailResultCode);
+        payment.setAAVPostcodeResultCode(aavPostcodeResultCode);
+        payment.setAAVTelephoneResultCode(aavTelephoneResultCode);
+        payment.setRefundReference(REFUND_REFERENCE);
+        payment.setAuthorisationId(authorisationId);
+
+        final PaymentReply paymentReply = testObj.buildPaymentReply(payment);
+
+        assertNull(paymentReply.getCardDetails().getCardHolderName());
     }
 
     @Test
@@ -223,7 +264,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final PaymentReply paymentReply = testObj.buildPaymentReply(payment);
 
-        assertEquals(PAYMENT_METHOD, paymentReply.getMethodCode());
+        assertEquals(PAYMENT_METHOD, paymentReply.getPaymentMethodCode());
         assertEquals(EXPIRY_MONTH, paymentReply.getCardDetails().getExpiryDate().getMonth());
         assertEquals(EXPIRY_YEAR, paymentReply.getCardDetails().getExpiryDate().getYear());
         assertEquals(CARD_HOLDER_NAME, paymentReply.getCardDetails().getCardHolderName());
@@ -290,7 +331,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("VISA", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -342,7 +383,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("VISA", "CARTEBLEUE"));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("VISA", "CARTEBLEUE"));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -356,7 +397,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("ECMC", "CB"));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("ECMC", "CB"));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -370,7 +411,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("VISA", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -384,7 +425,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("AIRPLUS", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("AIRPLUS", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -398,7 +439,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("AMEX", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("AMEX", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -412,7 +453,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("DANKORT", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("DANKORT", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -426,7 +467,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("DINERS", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("DINERS", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -440,7 +481,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("DISCOVER", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("DISCOVER", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -454,7 +495,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("JCB", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("JCB", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -468,7 +509,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("MAESTRO", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("MAESTRO", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -482,7 +523,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("UATP", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("UATP", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -496,7 +537,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("MONZO", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("MONZO", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -533,7 +574,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutCardHolderName());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetailsWithoutCardHolderName());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -607,7 +648,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutAddress());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetailsWithoutAddress());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -667,7 +708,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutExpiryDate());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetailsWithoutExpiryDate());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -736,7 +777,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetailsWithoutDerived());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetailsWithoutDerived());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -796,7 +837,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("ECMC", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("ECMC",null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -810,7 +851,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails("ECMC-SSL", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails("ECMC-SSL",null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -822,10 +863,13 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsEmpty() {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().add(createCardDetails(null,null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(createCardDetails(null,null));
         tokenElements.add(paymentInstrument);
+
         final TokenReply tokenReply = testObj.buildTokenReply(token);
+
         assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL);
     }
 

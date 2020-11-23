@@ -3,11 +3,14 @@ package com.worldpay.facades.order.impl;
 import com.worldpay.config.merchant.ApplePayConfigData;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.ApplePayPaymentContact;
+import com.worldpay.data.ApplePayPaymentRequest;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.payment.applepay.ValidateMerchantRequestDTO;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
+import de.hybris.platform.commercefacades.order.data.CartData;
+import de.hybris.platform.commercefacades.product.data.PriceData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
@@ -22,7 +25,10 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -53,7 +59,8 @@ public class DefaultWorldpayApplePayPaymentCheckoutFacadeTest {
     private Converter<ApplePayConfigData, ValidateMerchantRequestDTO> applePayConfigDataToValidateMerchantRequestDTOConverterMock;
     @Captor
     private ArgumentCaptor<AddressData> addressCaptor;
-
+    @Mock private CartData cartMock;
+    @Mock private PriceData totalPriceMock;
 
     @Before
     public void setup() {
@@ -140,5 +147,35 @@ public class DefaultWorldpayApplePayPaymentCheckoutFacadeTest {
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData().getApplePaySettings()).thenReturn(applePayConfigDataMock);
         testObj.getValidateMerchantRequestDTO();
         verify(applePayConfigDataToValidateMerchantRequestDTOConverterMock).convert(applePayConfigDataMock);
+    }
+
+    @Test
+    public void getApplePayPaymentRequest_shouldCreatePaymentRequest_whenGivenSessionCart() {
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData().getApplePaySettings()).thenReturn(applePayConfigDataMock);
+
+        final List<String> merchantCapabilities = List.of("supports3DS", "supportsDebit");
+        when(applePayConfigDataMock.getMerchantCapabilities())
+            .thenReturn(merchantCapabilities);
+
+        when(applePayConfigDataMock.getCountryCode()).thenReturn("ES");
+        when(applePayConfigDataMock.getMerchantName()).thenReturn("Merchant name");
+
+        final List<String> supportedNetworks = List.of("visa", "mastercard");
+        when(applePayConfigDataMock.getSupportedNetworks()).thenReturn(supportedNetworks);
+
+        when(totalPriceMock.getCurrencyIso()).thenReturn("EUR");
+        when(totalPriceMock.getValue()).thenReturn(BigDecimal.valueOf(66.66f).setScale(2, RoundingMode.HALF_UP));
+        when(cartMock.getTotalPrice()).thenReturn(totalPriceMock);
+
+        final ApplePayPaymentRequest result = testObj.getApplePayPaymentRequest(cartMock);
+
+        assertEquals("ES", result.getCountryCode());
+        assertEquals("EUR", result.getCurrencyCode());
+        assertEquals("66.66", result.getTotal().getAmount());
+        assertEquals("Merchant name", result.getTotal().getLabel());
+        assertEquals("final", result.getTotal().getType());
+
+        assertEquals(merchantCapabilities, result.getMerchantCapabilities());
+        assertEquals(supportedNetworks, result.getSupportedNetworks());
     }
 }

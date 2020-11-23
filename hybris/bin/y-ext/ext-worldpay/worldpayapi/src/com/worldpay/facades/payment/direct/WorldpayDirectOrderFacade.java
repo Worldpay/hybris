@@ -17,7 +17,6 @@ public interface WorldpayDirectOrderFacade {
     /**
      * Performs a tokenize with Worldpay
      *
-     *
      * @param cartModel
      * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
@@ -141,11 +140,30 @@ public interface WorldpayDirectOrderFacade {
     /**
      * Performs a tokenize with Worldpay
      *
-     *
      * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      * @throws WorldpayException - something went wrong
      */
     void tokenize(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException;
 
+
+    /**
+     * Performs the fist authorisation for 3d secure
+     *
+     * @param cseAdditionalAuthInfo      Object that contains additional authorisation information and the cseToken
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     * @return
+     * @throws WorldpayException    - something went wrong
+     * @throws InvalidCartException - Cart is not valid
+     */
+    DirectResponseData executeFirstPaymentAuthorisation3DSecure(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
+
+    /**
+     * Execute the second payment request for 3d secure flow for given worldpay order code
+     *
+     * @param worldpayOrderCode
+     * @return
+     * @throws WorldpayException
+     */
+    DirectResponseData executeSecondPaymentAuthorisation3DSecure(final String worldpayOrderCode) throws WorldpayException, InvalidCartException;
 }

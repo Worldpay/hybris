@@ -15,10 +15,10 @@ import java.util.Optional;
  * Worldpay checkout facade to ensure Worldpay details are included in correct place
  */
 public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentCheckoutFacade {
-    private final CheckoutFacade checkoutFacade;
-    private final WorldpayCheckoutService worldpayCheckoutService;
-    private final CartService cartService;
-    private final CustomerAccountService customerAccountService;
+    protected final CheckoutFacade checkoutFacade;
+    protected final WorldpayCheckoutService worldpayCheckoutService;
+    protected final CartService cartService;
+    protected final CustomerAccountService customerAccountService;
 
     public DefaultWorldpayPaymentCheckoutFacade(final CheckoutFacade checkoutFacade, final WorldpayCheckoutService worldpayCheckoutService, final CartService cartService, final CustomerAccountService customerAccountService) {
         this.checkoutFacade = checkoutFacade;

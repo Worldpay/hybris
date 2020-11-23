@@ -4,7 +4,6 @@ import com.worldpay.model.WorldpayPaymentPageModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.catalog.model.CatalogVersionModel;
 import de.hybris.platform.cms2.model.contents.ContentCatalogModel;
-import de.hybris.platform.cms2.model.pages.AbstractPageModel;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
 import de.hybris.platform.cms2.servicelayer.daos.CMSPageDao;
@@ -18,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collection;
-import java.util.List;
 
 import static com.worldpay.support.appender.impl.WorldpayConfiguredFlowsAppender.PAYMENT_AND_BILLING_LABEL;
 import static java.util.Arrays.asList;
@@ -28,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayConfiguredFlowsAppenderTest {
 
     private static final String ACTIVE_PAGE_TEMPLATE = "activeFlow";
@@ -38,7 +36,7 @@ public class WorldpayConfiguredFlowsAppenderTest {
     private static final String CATALOG_NAME = "catalogName";
 
     @InjectMocks
-    private WorldpayConfiguredFlowsAppender testObj = new WorldpayConfiguredFlowsAppender();
+    private WorldpayConfiguredFlowsAppender testObj;
 
     @Mock
     private CMSSiteService cmsSiteServiceMock;
@@ -49,17 +47,17 @@ public class WorldpayConfiguredFlowsAppenderTest {
     private ContentCatalogModel contentCatalogOnlineMock;
     @Mock
     private ContentCatalogModel contentCatalogStagedMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CatalogVersionModel contentCatalogVersionMock;
     @Mock
     private CMSPageDao cmsPageDao;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private WorldpayPaymentPageModel cmsPageDesktopMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private WorldpayPaymentPageModel cmsPageMobileMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void appendContent_shouldAppendCatalogInformation() {
         when(cmsSiteServiceMock.getSites()).thenReturn(asList(cmsSite1Mock, cmsSite2Mock));
 
         when(cmsSite1Mock.getName()).thenReturn(SITE_NAME);

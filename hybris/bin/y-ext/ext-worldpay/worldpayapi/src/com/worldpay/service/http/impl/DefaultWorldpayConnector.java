@@ -36,11 +36,11 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     protected static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
     protected static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
 
-    private final PaymentServiceMarshaller paymentServiceMarshaller;
-    private final ConfigurationService configurationService;
-    private final RestTemplate restTemplate;
+    protected final PaymentServiceMarshaller paymentServiceMarshaller;
+    protected final ConfigurationService configurationService;
+    protected final RestTemplate restTemplate;
 
-    public DefaultWorldpayConnector(PaymentServiceMarshaller paymentServiceMarshaller, ConfigurationService configurationService, RestTemplate restTemplate) {
+    public DefaultWorldpayConnector(final PaymentServiceMarshaller paymentServiceMarshaller, final ConfigurationService configurationService, final RestTemplate restTemplate) {
         this.paymentServiceMarshaller = paymentServiceMarshaller;
         this.configurationService = configurationService;
         this.restTemplate = restTemplate;

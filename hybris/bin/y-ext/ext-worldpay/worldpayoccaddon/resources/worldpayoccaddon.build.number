@@ -1,11 +1,11 @@
 #Ant properties
-#Fri Aug 07 10:23:45 UTC 2020
+#Mon Nov 23 14:54:06 UTC 2020
 version.api=1905
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayoccaddon
 description=worldpayoccaddon
-builddate=20200807 1023
-releasedate=20200508 1654
-version=1905.14
+builddate=20201123 1454
+releasedate=20200910 0922
+version=1905.19
 module.name=platform-module

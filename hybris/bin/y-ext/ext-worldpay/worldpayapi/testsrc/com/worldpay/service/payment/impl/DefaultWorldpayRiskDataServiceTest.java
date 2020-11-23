@@ -20,6 +20,7 @@ public class DefaultWorldpayRiskDataServiceTest {
 
     @InjectMocks
     private DefaultWorldpayRiskDataService testObj;
+
     @Mock(answer = RETURNS_DEEP_STUBS)
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
     @Mock

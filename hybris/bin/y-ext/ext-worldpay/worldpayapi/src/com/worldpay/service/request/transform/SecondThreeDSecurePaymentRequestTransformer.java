@@ -6,7 +6,6 @@ import com.worldpay.service.request.SecondThreeDSecurePaymentRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
 
@@ -32,7 +31,11 @@ public class SecondThreeDSecurePaymentRequestTransformer implements ServiceReque
 
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
+
+    public SecondThreeDSecurePaymentRequestTransformer(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     @Override
     public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
@@ -51,24 +54,19 @@ public class SecondThreeDSecurePaymentRequestTransformer implements ServiceReque
 
         final List<Object> submitList = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         final Submit submit = new Submit();
-        final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
-        Order order = new Order();
+        final List<Object> submitElements = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
+        final Order order = new Order();
         order.setOrderCode(request.getOrderCode());
-        orderList.add(order);
-        final List<Object> orderElementList = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
-        Info3DSecure info3DSecure = new Info3DSecure();
+        submitElements.add(order);
+        final List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
+        final Info3DSecure info3DSecure = new Info3DSecure();
         final List<Object> completedAuthenticationList = info3DSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEci();
         completedAuthenticationList.add(new CompletedAuthentication());
-        orderElementList.add(info3DSecure);
-        Session session = new Session();
+        orderElements.add(info3DSecure);
+        final Session session = new Session();
         session.setId(second3DSPaymentRequest.getSessionId());
-        orderElementList.add(session);
+        orderElements.add(session);
         submitList.add(submit);
         return paymentService;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 }

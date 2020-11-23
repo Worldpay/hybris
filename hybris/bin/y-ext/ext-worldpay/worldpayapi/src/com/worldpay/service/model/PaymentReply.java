@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public class PaymentReply implements Serializable {
 
-    private String methodCode;
+    private String paymentMethodCode;
     private Amount amount;
     private AuthorisedStatus authStatus;
     private String cvcResultDescription;
@@ -48,12 +48,12 @@ public class PaymentReply implements Serializable {
         this.cardHolderName = cardHolderName;
     }
 
-    public String getMethodCode() {
-        return methodCode;
+    public String getPaymentMethodCode() {
+        return paymentMethodCode;
     }
 
-    public void setMethodCode(String methodCode) {
-        this.methodCode = methodCode;
+    public void setPaymentMethodCode(String paymentMethodCode) {
+        this.paymentMethodCode = paymentMethodCode;
     }
 
     public Amount getAmount() {
@@ -203,7 +203,7 @@ public class PaymentReply implements Serializable {
     @Override
     public String toString() {
         return "PaymentReply{" +
-                "methodCode='" + methodCode + '\'' +
+                "methodCode='" + paymentMethodCode + '\'' +
                 ", amount=" + amount +
                 ", authStatus=" + authStatus +
                 ", cvcResultDescription='" + cvcResultDescription + '\'' +

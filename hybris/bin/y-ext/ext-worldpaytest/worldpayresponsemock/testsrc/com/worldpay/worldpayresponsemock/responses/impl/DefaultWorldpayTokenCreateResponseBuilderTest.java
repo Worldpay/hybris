@@ -55,7 +55,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         final TokenDetails tokenDetails = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().stream().filter(TokenDetails.class::isInstance).map(TokenDetails.class::cast).findAny().orElseThrow(() -> new IllegalStateException("TokenDetails not present"));
         final PaymentInstrument paymentInstrument = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().stream().filter(PaymentInstrument.class::isInstance).map(PaymentInstrument.class::cast).findAny().orElseThrow(() -> new IllegalStateException("PaymentDetails not present"));
 
-        final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0);
+        final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
         final Derived derived = cardDetails.getDerived();
         final Date expiryDate = cardDetails.getExpiryDate().getDate();
 

@@ -6,7 +6,7 @@
     <c:set var="hasAvailablePaymentMethods" value="true" scope="session"/>
     <spring:theme var="paymentMethodName" code="worldpay.paymentMethod.googlepay" />
 
-    <form:radiobutton id="paymentMethod_googlePay" path="paymentMethod" cssClass="available-true" value="GOOGLEPAY-SSL"/>
+    <form:radiobutton id="paymentMethod_googlePay" path="paymentMethod" cssClass="available-true" value="PAYWITHGOOGLE-SSL"/>
     <label class="available-true" for="paymentMethod_googlePay" style="display: none;">
         <img src="${media.url}" title="${paymentMethodName}" alt="${paymentMethodName}" />
         <span>${paymentMethodName}</span>

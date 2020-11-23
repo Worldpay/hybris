@@ -1,7 +1,0 @@
-$productCatalog=powertoolsProductCatalog
-$productCatalogName=Powertools Product Catalog
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
-$thumbnail=thumbnail(code, $catalogVersion)
-$picture=picture(code, $catalogVersion)
-$siteResource=jar:com.worldpay.constants.Worldpayb2baddonConstants&/worldpayb2baddon/import/productCatalogs/$productCatalog
-

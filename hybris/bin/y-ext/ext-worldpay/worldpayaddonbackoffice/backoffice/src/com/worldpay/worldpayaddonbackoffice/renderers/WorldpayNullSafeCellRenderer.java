@@ -34,34 +34,34 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
      * @param dataType
      * @param widgetInstanceManager
      */
+    @Override
     public void render(final Listcell parent, final ListColumn columnConfiguration, final Object object, final DataType dataType, final WidgetInstanceManager widgetInstanceManager) {
         final String qualifier = columnConfiguration.getQualifier();
         Object nestedObject = object;
         Object targetField = object;
 
         try {
-            final List tokenMap = this.getNestedAttributeUtils().splitQualifier(qualifier);
+            final List<String> tokenMap = this.getNestedAttributeUtils().splitQualifier(qualifier);
 
             int e;
             for (e = 0; e < tokenMap.size() - 1; ++e) {
-                nestedObject = this.getNestedAttributeUtils().getNestedObject(nestedObject, (String) tokenMap.get(e));
+                nestedObject = this.getNestedAttributeUtils().getNestedObject(nestedObject, tokenMap.get(e));
             }
 
             if (nestedObject != null) {
                 for (e = 0; e < tokenMap.size(); ++e) {
-                    targetField = this.getNestedAttributeUtils().getNestedObject(targetField, (String) tokenMap.get(e));
+                    targetField = this.getNestedAttributeUtils().getNestedObject(targetField, tokenMap.get(e));
                 }
             }
 
             if (nestedObject != null && targetField != null && !this.checkIfObjectIsEmptyCollection(targetField)) {
                 this.getDefaultListCellRenderer().render(parent, columnConfiguration, object, dataType, widgetInstanceManager);
-            } else if (LOG.isWarnEnabled()) {
+            } else {
                 LOG.warn("Either Property " + nestedObject + " is null or the field " + qualifier + " is null, skipping render of " + qualifier);
             }
         } catch (final IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InvalidNestedAttributeException e) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info(e.getMessage(), e);
-            }
+            LOG.info(e.getMessage(), e);
+
         }
     }
 
