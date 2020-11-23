@@ -27,10 +27,10 @@ public class WorldpayApplePayComponentController extends GenericCMSAddOnComponen
     protected void fillModel(final HttpServletRequest request, final Model model, final AbstractCMSComponentModel component) {
         invokeSuperFillModel(request, model, component);
 
-        model.addAttribute(APPLE_PAY_CONFIG, getGooglePaySettings());
+        model.addAttribute(APPLE_PAY_CONFIG, getApplePaySettings());
     }
 
-    protected ApplePayConfigData getGooglePaySettings() {
+    protected ApplePayConfigData getApplePaySettings() {
         final WorldpayMerchantConfigData config = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData();
 
         return config.getApplePaySettings();

@@ -1,4 +1,0 @@
-$contentCatalog=powertoolsContentCatalog
-$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$jarResourceCms=jar:com.worldpay.constants.Worldpayb2baddonConstants&/worldpayb2baddon/import/cockpits/cmscockpit
-

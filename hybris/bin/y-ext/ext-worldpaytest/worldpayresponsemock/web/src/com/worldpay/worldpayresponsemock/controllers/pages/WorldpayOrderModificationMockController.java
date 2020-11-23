@@ -9,6 +9,8 @@ import com.worldpay.worldpayresponsemock.mock.WorldpayMockConnector;
 import com.worldpay.worldpayresponsemock.responses.WorldpayNotificationResponseBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,7 +25,6 @@ import java.util.regex.Pattern;
 
 import static java.util.Calendar.*;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * Controller for page to post mocked order modifications into hybris.
@@ -102,7 +103,7 @@ public class WorldpayOrderModificationMockController {
      * @param model
      * @return
      */
-    @RequestMapping(value = "/responses", method = GET)
+    @GetMapping(value = "/responses")
     public ModelAndView getAllAnswers(ModelMap model) {
         populateModel(model);
         return new ModelAndView(WorldpayResponseMockControllerConstants.Pages.Views.RESPONSES, "responseForm", getResponseForm());
@@ -154,7 +155,7 @@ public class WorldpayOrderModificationMockController {
      * @return
      * @throws WorldpayException
      */
-    @RequestMapping(value = "/sendSelectedResponse", method = POST)
+    @PostMapping(value = "/responses")
     public String sendResponse(final ResponseForm responseForm, ModelMap model, final HttpServletRequest request) throws WorldpayException {
         responseForm.setResponseDescription(ISO8583ResponseCodes.get(responseForm.getResponseCode()));
         responseForm.setTestCreditCard(maskCreditCardNumber(responseForm.getTestCreditCard()));
@@ -187,7 +188,7 @@ public class WorldpayOrderModificationMockController {
         return creditCardNumber.substring(0, START_INDEX) + mask + creditCardNumber.substring(len - END_INDEX, len);
     }
 
-    private void populateModel(final ModelMap model) {
+    protected void populateModel(final ModelMap model) {
         final Set<String> allApmPaymentTypeCodes = apmConfigurationLookupService.getAllApmPaymentTypeCodes();
         // For testing non configured APMs. Could be adjusted for a Non-configured APM in your system.
         allApmPaymentTypeCodes.add("EKONTO-SSL");

@@ -65,6 +65,7 @@ public class ResponseForm implements java.io.Serializable {
     private boolean merchantToken;
     private String selectStoredCredentials;
     private String transactionIdentifier;
+    private String paypalToken;
 
     public String getSelectedPaymentMethod() {
         return selectedPaymentMethod;
@@ -570,4 +571,11 @@ public class ResponseForm implements java.io.Serializable {
         this.transactionIdentifier = transactionIdentifier;
     }
 
+    public String getPaypalToken() {
+        return paypalToken;
+    }
+
+    public void setPaypalToken(String paypalToken) {
+        this.paypalToken = paypalToken;
+    }
 }

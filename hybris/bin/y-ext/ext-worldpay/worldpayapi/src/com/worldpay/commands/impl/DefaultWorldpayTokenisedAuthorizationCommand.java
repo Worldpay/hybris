@@ -6,11 +6,11 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.token.Token;
 import com.worldpay.service.payment.WorldpayOrderService;
+import com.worldpay.service.payment.request.WorldpayRequestService;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
@@ -43,15 +43,21 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayTokenisedAuthorizationCommand.class);
     private static final String UNKNOWN_MERCHANT_CODE = "unknownMerchantCode";
 
-    private final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter;
-    private final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter;
-    private final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService;
+    protected final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter;
+    protected final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter;
+    protected final WorldpayRequestService worldpayRequestService;
 
-    public DefaultWorldpayTokenisedAuthorizationCommand(final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter, final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter, final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
+    public DefaultWorldpayTokenisedAuthorizationCommand(final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter,
+                                                        final Converter<DirectAuthoriseServiceResponse, AuthorizationResult> worldpayAuthorizationResultConverter,
+                                                        final WorldpayMerchantInfoService worldpayMerchantInfoService,
+                                                        final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                                        final WorldpayOrderService worldpayOrderService,
+                                                        final WorldpayServiceGateway worldpayServiceGateway,
+                                                        final WorldpayRequestService worldpayRequestService) {
         super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);
         this.worldpayBillingInfoAddressConverter = worldpayBillingInfoAddressConverter;
         this.worldpayAuthorizationResultConverter = worldpayAuthorizationResultConverter;
-        this.worldpayDynamicInteractionResolverService = worldpayDynamicInteractionResolverService;
+        this.worldpayRequestService = worldpayRequestService;
     }
 
     /**
@@ -123,15 +129,15 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
         final String worldpayOrderCode = subscriptionAuthorizationRequest.getMerchantTransactionCode();
         final Amount amount = getWorldpayOrderService().createAmount(subscriptionAuthorizationRequest.getCurrency(), subscriptionAuthorizationRequest.getTotalAmount().doubleValue());
         final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(worldpayOrderCode, worldpayOrderCode, amount);
-        final Session session = getWorldpayOrderService().createSession(additionalInfo);
-        final Browser browser = getWorldpayOrderService().createBrowser(additionalInfo);
+        final Session session = worldpayRequestService.createSession(additionalInfo);
+        final Browser browser = worldpayRequestService.createBrowser(additionalInfo);
         final Additional3DSData additional3DSData = new Additional3DSData(additionalInfo.getAdditional3DS2().getDfReferenceId());
         final String customerEmail = additionalInfo.getCustomerEmail();
         final String authenticatedShopperId = additionalInfo.getAuthenticatedShopperId();
-        final Shopper shopper = getWorldpayOrderService().createAuthenticatedShopper(customerEmail, authenticatedShopperId, session, browser);
-        final Token token = getWorldpayOrderService().createToken(subscriptionAuthorizationRequest.getSubscriptionID(), additionalInfo.getSecurityCode());
+        final Shopper shopper = worldpayRequestService.createAuthenticatedShopper(customerEmail, authenticatedShopperId, session, browser);
+        final Token token = worldpayRequestService.createToken(subscriptionAuthorizationRequest.getSubscriptionID(), additionalInfo.getSecurityCode());
         final Address shippingAddress = worldpayBillingInfoAddressConverter.convert(subscriptionAuthorizationRequest.getShippingInfo());
-        final DynamicInteractionType dynamicInteractionType = worldpayDynamicInteractionResolverService.resolveInteractionTypeForDirectIntegration(additionalInfo);
+        final DynamicInteractionType dynamicInteractionType = worldpayRequestService.getDynamicInteractionType(additionalInfo);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
                 .withMerchantInfo(merchantInfo)

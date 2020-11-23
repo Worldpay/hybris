@@ -29,10 +29,10 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
     private static final String ORDER_DISCOUNT = "ORDER_DISCOUNT";
     private static final String DISCOUNT_LINE_ITEM_REFERENCE = "DISCOUNT_LINE_ITEM_REFERENCE";
 
-    private final CommonI18NService commonI18NService;
-    private final WorldpayUrlService worldpayUrlService;
+    protected final CommonI18NService commonI18NService;
+    protected final WorldpayUrlService worldpayUrlService;
 
-    public DefaultWorldpayKlarnaStrategy(CommonI18NService commonI18NService, WorldpayUrlService worldpayUrlService) {
+    public DefaultWorldpayKlarnaStrategy(final CommonI18NService commonI18NService, final WorldpayUrlService worldpayUrlService) {
         this.commonI18NService = commonI18NService;
         this.worldpayUrlService = worldpayUrlService;
     }
@@ -41,7 +41,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
      * {@inheritDoc}
      */
     @Override
-    public OrderLines createOrderLines(CartModel cartModel) throws WorldpayConfigurationException {
+    public OrderLines createOrderLines(final CartModel cartModel) throws WorldpayConfigurationException {
         final Integer digits = cartModel.getCurrency().getDigits();
         final String orderTaxAmount = convertDoubleToStringFormat(digits, cartModel.getTotalTax());
         final String termsURL = worldpayUrlService.getFullTermsUrl();
@@ -154,7 +154,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         final double totalDeliveryCost = cartModel.getDeliveryCost();
         final double shippingTaxAmount = totalDeliveryCost > 0 ? calculateVATAmount(totalDeliveryCost, taxRate, digits) : 0;
         final double calculatedTotalTax = calculatedEntriesTaxAmount + shippingTaxAmount - calculatedDiscountTaxAmount;
-        double taxAmountDifference = cartModel.getTotalTax() - calculatedTotalTax;
+        final double taxAmountDifference = cartModel.getTotalTax() - calculatedTotalTax;
         return (taxAmountDifference > 0) ? (calculatedDiscountTaxAmount - taxAmountDifference) : calculatedDiscountTaxAmount;
     }
 
@@ -169,7 +169,7 @@ public class DefaultWorldpayKlarnaStrategy implements WorldpayKlarnaStrategy {
         return prorateRelativeGlobalDiscount(entry, entryTotalAmount);
     }
 
-    private double calculateEntryTotalTaxAmount(AbstractOrderEntryModel entry) {
+    private double calculateEntryTotalTaxAmount(final AbstractOrderEntryModel entry) {
         final double entryTaxAmount = entry.getTaxValues().stream().mapToDouble(TaxValue::getAppliedValue).sum();
         return prorateRelativeGlobalDiscount(entry, entryTaxAmount);
     }

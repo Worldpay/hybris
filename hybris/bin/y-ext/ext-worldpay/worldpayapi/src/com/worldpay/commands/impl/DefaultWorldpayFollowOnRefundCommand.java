@@ -33,7 +33,7 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayFollowOnRefundCommand.class);
 
-    private final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter;
+    protected final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter;
 
     public DefaultWorldpayFollowOnRefundCommand(final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
         super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);

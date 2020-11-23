@@ -25,10 +25,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
@@ -38,8 +35,6 @@ import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/choose-payment-method")
@@ -59,28 +54,39 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     protected static final String CHECKOUT_MULTI_TERMS_AND_CONDITIONS = "/checkout/multi/termsAndConditions";
 
     @Resource
-    private MessageSource themeSource;
+    protected MessageSource themeSource;
     @Resource
-    private String redirectToPaymentMethod;
+    protected String redirectToPaymentMethod;
 
     @Resource
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
+    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
     @Resource(name = "worldpayCheckoutFacade")
-    private AcceleratorCheckoutFacade checkoutFacade;
+    protected AcceleratorCheckoutFacade checkoutFacade;
     @Resource
-    private WorldpayCartFacade worldpayCartFacade;
+    protected WorldpayCartFacade worldpayCartFacade;
     @Resource
-    private PaymentDetailsFormValidator paymentDetailsFormValidator;
+    protected PaymentDetailsFormValidator paymentDetailsFormValidator;
     @Resource
-    private AddressDataUtil addressDataUtil;
+    protected AddressDataUtil addressDataUtil;
     @Resource
-    private APMConfigurationLookupService apmConfigurationLookupService;
+    protected APMConfigurationLookupService apmConfigurationLookupService;
+
+    /**
+     * Returns the configured Terms and Conditions URL.
+     *
+     * @param request
+     * @return
+     */
+    @ModelAttribute(value = "getTermsAndConditionsUrl")
+    public String getTermsAndConditionsUrl(final HttpServletRequest request) {
+        return request.getContextPath() + CHECKOUT_MULTI_TERMS_AND_CONDITIONS;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @RequestMapping(method = GET, value = {"", "/", "/add-cse-payment-details", "/add-payment-details"})
+    @GetMapping(value = {"", "/", "/add-cse-payment-details", "/add-payment-details"})
     @RequireHardLogIn
     @PreValidateCheckoutStep(checkoutStep = CHOOSE_PAYMENT_METHOD)
     public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
@@ -104,8 +110,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
-        model.addAttribute("cartData", cartData);
         model.addAttribute("deliveryAddress", cartData.getDeliveryAddress());
+        model.addAttribute("cartData", cartData);
         model.addAttribute(PAYMENT_INFOS, getUserFacade().getCCPaymentInfos(true));
         model.addAttribute(WebConstants.BREADCRUMBS_KEY, getResourceBreadcrumbBuilder().getBreadcrumbs(CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB));
     }
@@ -114,7 +120,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         final PaymentDetailsForm paymentDetailsForm = new PaymentDetailsForm();
         final AddressForm addressForm = new AddressForm();
 
-        if (getCheckoutFacade() instanceof WorldpayCheckoutFacadeDecorator) {
+        if (checkoutFacade instanceof WorldpayCheckoutFacadeDecorator) {
             final AddressData billingAddress = ((WorldpayCheckoutFacadeDecorator) getCheckoutFacade()).getBillingAddress();
             if (billingAddress != null) {
                 model.addAttribute(REGIONS, getI18NFacade().getRegionsForCountryIso(billingAddress.getCountry().getIsocode()));
@@ -131,7 +137,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
      *
      * @return The localized error-message to display.
      */
-    @RequestMapping(value = "/getDeclineMessage", method = GET)
+    @GetMapping(value = "/getDeclineMessage")
     @ResponseBody
     public String getDeclineMessage() {
         final String worldpayDeclineCode = getCheckoutFacade().getCheckoutCart().getWorldpayDeclineCode();
@@ -163,7 +169,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
      * @param selectedPaymentMethodId The id of the {@link CreditCardPaymentInfoModel} to use
      * @return
      */
-    @RequestMapping(value = "/choose", method = GET)
+    @GetMapping(value = "/choose")
     @RequireHardLogIn
     public String doSelectPaymentMethod(@RequestParam("selectedPaymentMethodId") final String selectedPaymentMethodId) {
         if (isNotBlank(selectedPaymentMethodId)) {
@@ -173,6 +179,66 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
             worldpayCartFacade.setBillingAddressFromPaymentInfo();
         }
         return getCheckoutStep().nextStep();
+    }
+
+
+    /**
+     * Removes a saved payment info from the customers account
+     *
+     * @param paymentMethodId
+     * @param redirectAttributes
+     * @return
+     */
+    @PostMapping(value = "/remove")
+    @RequireHardLogIn
+    public String remove(@RequestParam(value = "paymentInfoId") final String paymentMethodId,
+                         final RedirectAttributes redirectAttributes) {
+        getUserFacade().removeCCPaymentInfo(paymentMethodId);
+        GlobalMessages.addFlashMessage(redirectAttributes, GlobalMessages.CONF_MESSAGES_HOLDER,
+            TEXT_ACCOUNT_PROFILE_PAYMENT_CART_REMOVED);
+        return getCheckoutStep().currentStep();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("common-java:DuplicatedBlocks")
+    @GetMapping(value = "/back")
+    @RequireHardLogIn
+    @Override
+    public String back(final RedirectAttributes redirectAttributes) {
+        return getCheckoutStep().previousStep();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("common-java:DuplicatedBlocks")
+    @GetMapping(value = "/next")
+    @RequireHardLogIn
+    @Override
+    public String next(final RedirectAttributes redirectAttributes) {
+        return getCheckoutStep().nextStep();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected CheckoutStep getCheckoutStep() {
+        return getCheckoutStep(CHOOSE_PAYMENT_METHOD);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected AcceleratorCheckoutFacade getCheckoutFacade() {
+        return this.checkoutFacade;
+    }
+
+    public String getRedirectToPaymentMethod() {
+        return redirectToPaymentMethod;
     }
 
     protected String getLocalisedDeclineMessage(final String returnCode) {
@@ -197,11 +263,11 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         worldpayPaymentCheckoutFacade.setBillingDetails(addressData);
     }
 
-    private boolean shouldSaveAddressInProfile(final Boolean useDeliveryAddress) {
+    protected boolean shouldSaveAddressInProfile(final Boolean useDeliveryAddress) {
         return !useDeliveryAddress || getUserFacade().isAnonymousUser();
     }
 
-    private AddressData getAddressData(final AddressForm billingAddress, final Boolean useDeliveryAddress) {
+    protected AddressData getAddressData(final AddressForm billingAddress, final Boolean useDeliveryAddress) {
         if (Boolean.TRUE.equals(useDeliveryAddress)) {
             final AddressData addressData = getCheckoutFacade().getCheckoutCart().getDeliveryAddress();
             addressData.setBillingAddress(true);
@@ -248,82 +314,6 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         }
     }
 
-    /**
-     * Returns the configured Terms and Conditions URL.
-     *
-     * @param request
-     * @return
-     */
-    @ModelAttribute(value = "getTermsAndConditionsUrl")
-    public String getTermsAndConditionsUrl(final HttpServletRequest request) {
-        return request.getContextPath() + CHECKOUT_MULTI_TERMS_AND_CONDITIONS;
-    }
-
-    /**
-     * Removes a saved payment info from the customers account
-     *
-     * @param paymentMethodId
-     * @param redirectAttributes
-     * @return
-     */
-    @RequestMapping(value = "/remove", method = POST)
-    @RequireHardLogIn
-    public String remove(@RequestParam(value = "paymentInfoId") final String paymentMethodId,
-                         final RedirectAttributes redirectAttributes) {
-        getUserFacade().removeCCPaymentInfo(paymentMethodId);
-        GlobalMessages.addFlashMessage(redirectAttributes, GlobalMessages.CONF_MESSAGES_HOLDER,
-                TEXT_ACCOUNT_PROFILE_PAYMENT_CART_REMOVED);
-        return getCheckoutStep().currentStep();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @RequestMapping(value = "/back", method = GET)
-    @RequireHardLogIn
-    @Override
-    public String back(final RedirectAttributes redirectAttributes) {
-        return getCheckoutStep().previousStep();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @RequestMapping(value = "/next", method = GET)
-    @RequireHardLogIn
-    @Override
-    public String next(final RedirectAttributes redirectAttributes) {
-        return getCheckoutStep().nextStep();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected CheckoutStep getCheckoutStep() {
-        return getCheckoutStep(CHOOSE_PAYMENT_METHOD);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected AcceleratorCheckoutFacade getCheckoutFacade() {
-        return this.checkoutFacade;
-    }
-
-    public String getRedirectToPaymentMethod() {
-        return redirectToPaymentMethod;
-    }
-
-    public PaymentDetailsFormValidator getPaymentDetailsFormValidator() {
-        return paymentDetailsFormValidator;
-    }
-
-    public MessageSource getThemeSource() {
-        return themeSource;
-    }
-
     protected void populateAddressForm(final String countryIsoCode, final PaymentDetailsForm paymentDetailsForm) {
         final AddressData deliveryAddress = getCheckoutFacade().getCheckoutCart().getDeliveryAddress();
         final AddressForm addressForm = new AddressForm();
@@ -332,8 +322,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
         if (region != null && !StringUtils.isEmpty(region.getIsocodeShort())) {
             addressForm.setRegionIso(region.getIsocodeShort());
         }
-        addressForm.setTitleCode(deliveryAddress.getTitleCode());
         addressForm.setFirstName(deliveryAddress.getFirstName());
+        addressForm.setTitleCode(deliveryAddress.getTitleCode());
         addressForm.setLastName(deliveryAddress.getLastName());
         addressForm.setLine1(deliveryAddress.getLine1());
         addressForm.setLine2(deliveryAddress.getLine2());

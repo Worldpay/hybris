@@ -13,8 +13,8 @@ import java.util.Optional;
  */
 public class DefaultWorldpayDDCFacade implements WorldpayDDCFacade {
 
-    private final WorldpayJsonWebTokenService worldpayJsonWebTokenService;
-    private final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected final WorldpayJsonWebTokenService worldpayJsonWebTokenService;
+    protected final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
 
     /**
      * Default constructor

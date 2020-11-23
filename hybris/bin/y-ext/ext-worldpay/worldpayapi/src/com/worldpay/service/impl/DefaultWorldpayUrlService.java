@@ -122,7 +122,6 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
         return getFullUrl(getKlarnaConfirmationPath(), true);
     }
 
-
     @Override
     public String getFullThreeDSecureFlexFlowReturnUrl() throws WorldpayConfigurationException {
         return getFullUrl(getThreeDSecureFlexFlowReturnUrl(), true);

@@ -22,7 +22,6 @@ public class PaymentDetailsDTOValidatorTest {
     private PaymentDetailsDTOValidator testObj = new PaymentDetailsDTOValidator();
 
     @Mock
-    @SuppressWarnings("PMD.UnusedPrivateField")
     private Validator paymentAddressValidator;
 
     private PaymentDetailsWsDTO paymentDetailsWsDTO;
@@ -37,7 +36,7 @@ public class PaymentDetailsDTOValidatorTest {
     @Test
     public void shouldNotFailOnValid() {
         // Given valid data
-        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", "01", "2017", "01", "2019");
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", "01", "2017", "01", "2019", true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -49,7 +48,7 @@ public class PaymentDetailsDTOValidatorTest {
     @Test
     public void shouldFailOnMissingExpiryYear() {
         // Given no expiryYear
-        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, "01", null);
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, "01", null, true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -63,7 +62,7 @@ public class PaymentDetailsDTOValidatorTest {
     @Test
     public void shouldFailOnMissingExpiryMonth() {
         // Given no expiryMonth
-        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, null, "2016");
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, null, "2016", true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -77,7 +76,7 @@ public class PaymentDetailsDTOValidatorTest {
     @Test
     public void shouldFailOnMissingCseToken() {
         // Given missing card number
-        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), null, null, null, "01", "2016");
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), null, null, null, "01", "2016", true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -89,9 +88,53 @@ public class PaymentDetailsDTOValidatorTest {
     }
 
     @Test
+    public void shouldFailOnSavedCardWithoutCseTokenOrSubscriptionId() {
+        // Given missing card number
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), null, null, null, "01", "2016", true);
+        paymentDetailsWsDTO.setSaved(true);
+        paymentDetailsWsDTO.setSubscriptionId(null);
+
+        // When
+        testObj.validate(paymentDetailsWsDTO, errors);
+
+        // Then
+        Assert.assertEquals("Only errors is expected", 1, errors.getErrorCount());
+        String[] codes = errors.getAllErrors().get(0).getCodes();
+        Assert.assertTrue("The first code is expected to contain cseToken", codes[0].contains("cseToken"));
+    }
+
+    @Test
+    public void shouldNotFailOnSavedCardWithCseToken() {
+        // Given missing card number
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "cse-token", null, null, "01", "2016", true);
+        paymentDetailsWsDTO.setSaved(true);
+        paymentDetailsWsDTO.setSubscriptionId(null);
+
+        // When
+        testObj.validate(paymentDetailsWsDTO, errors);
+
+        // Then
+        Assert.assertEquals("No errors expected", 0, errors.getErrorCount());
+    }
+
+    @Test
+    public void shouldNotFailOnSavedCardWithSubscriptionId() {
+        // Given missing card number
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "", null, null, "01", "2016", true);
+        paymentDetailsWsDTO.setSaved(true);
+        paymentDetailsWsDTO.setSubscriptionId("subscriptionId");
+
+        // When
+        testObj.validate(paymentDetailsWsDTO, errors);
+
+        // Then
+        Assert.assertEquals("No errors expected", 0, errors.getErrorCount());
+    }
+
+    @Test
     public void shouldFailOnMissingCardTypeCode() {
         // Given no cardType.code
-        updatePaymentDetails("Bo Nielsen", new CardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, "01", "2016");
+        updatePaymentDetails("Bo Nielsen", new CardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, "01", "2016", true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -105,7 +148,7 @@ public class PaymentDetailsDTOValidatorTest {
     @Test
     public void shouldFailOnMissingAccountHolderName() {
         // Given no accountHolderName
-        updatePaymentDetails(null, createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, "01", "2016");
+        updatePaymentDetails(null, createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", null, null, "01", "2016", true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -119,7 +162,7 @@ public class PaymentDetailsDTOValidatorTest {
     @Test
     public void shouldFailOnStartDateAfterExpiration() {
         // Given start date after expiration
-        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", "04", "2016", "01", "2016");
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", "04", "2016", "01", "2016", true);
 
         // When
         testObj.validate(paymentDetailsWsDTO, errors);
@@ -130,8 +173,22 @@ public class PaymentDetailsDTOValidatorTest {
         Assert.assertTrue("The first code is expected to contain startMonth", codes[0].contains("startMonth"));
     }
 
+    @Test
+    public void shouldFailOnNotAcceptedTermsAndConditions() {
+        // Given start date after expiration
+        updatePaymentDetails("Bo Nielsen", createCardTypeWsDTO(), "ksdjhfskdfhsdkhfsdkfhsdkf", "04", "2016", "05", "2016", false);
+
+        // When
+        testObj.validate(paymentDetailsWsDTO, errors);
+
+        // Then
+        Assert.assertEquals("Only errors is expected", 1, errors.getErrorCount());
+        String[] codes = errors.getAllErrors().get(0).getCodes();
+        Assert.assertTrue("The first code is expected to contain startMonth", codes[0].contains("acceptedTermsAndConditions"));
+    }
+
     protected void updatePaymentDetails(final String name, final CardTypeWsDTO cardType, final String cseToken, final String startMonth,
-                                        final String startYear, final String expiryMonth, final String expiryYear) {
+                                        final String startYear, final String expiryMonth, final String expiryYear, boolean acceptedTermsAndConditions) {
         paymentDetailsWsDTO.setAccountHolderName(name);
         paymentDetailsWsDTO.setCardType(cardType);
         paymentDetailsWsDTO.setCseToken(cseToken);
@@ -139,6 +196,7 @@ public class PaymentDetailsDTOValidatorTest {
         paymentDetailsWsDTO.setExpiryYear(expiryYear);
         paymentDetailsWsDTO.setStartMonth(startMonth);
         paymentDetailsWsDTO.setStartYear(startYear);
+        paymentDetailsWsDTO.setAcceptedTermsAndConditions(acceptedTermsAndConditions);
     }
 
 

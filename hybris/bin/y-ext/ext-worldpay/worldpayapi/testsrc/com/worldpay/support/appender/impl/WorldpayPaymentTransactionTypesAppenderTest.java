@@ -17,18 +17,18 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayPaymentTransactionTypesAppenderTest {
 
     @Spy
     @InjectMocks
-    private WorldpayPaymentTransactionTypesAppender testObj = new WorldpayPaymentTransactionTypesAppender();
+    private WorldpayPaymentTransactionTypesAppender testObj;
 
     @Mock
     private WorldpayCronJobSupportInformationService worldpayCronJobSupportInformationServiceMock;
 
     @Test
-    public void testAppendContent() throws Exception {
+    public void appendContent_ShouldReturnListOfPaymentTransactions() {
         doReturn(worldpayCronJobSupportInformationServiceMock).when(testObj).getWorldpayCronJobSupportInformationService();
         when(worldpayCronJobSupportInformationServiceMock.getPaymentTransactionType()).thenReturn(singleton(AUTHORIZATION));
 
