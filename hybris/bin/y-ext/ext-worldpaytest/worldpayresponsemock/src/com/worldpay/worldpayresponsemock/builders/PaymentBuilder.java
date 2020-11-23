@@ -328,9 +328,11 @@ public final class PaymentBuilder {
 
         payment.setLastEvent(this.lastEvent);
 
-        final SchemeResponse schemeResponse = new SchemeResponse();
-        schemeResponse.setTransactionIdentifier(transactionIdentifier);
-        payment.setSchemeResponse(schemeResponse);
+        if (StringUtils.isNotEmpty(transactionIdentifier)) {
+            final SchemeResponse schemeResponse = new SchemeResponse();
+            schemeResponse.setTransactionIdentifier(transactionIdentifier);
+            payment.setSchemeResponse(schemeResponse);
+        }
 
         return payment;
     }

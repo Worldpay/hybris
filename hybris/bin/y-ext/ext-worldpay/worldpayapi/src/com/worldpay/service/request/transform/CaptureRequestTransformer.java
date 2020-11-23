@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class CaptureRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private final ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
 
     public CaptureRequestTransformer(final ConfigurationService configurationService) {
         this.configurationService = configurationService;
@@ -68,7 +68,7 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
 
         setShippingInfo(captureRequest.getTrackingIds(), capture);
 
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSale().add(capture);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(capture);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;

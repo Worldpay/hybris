@@ -1,6 +1,6 @@
 ACC.worldpay = {
 
-    _autoload:[
+    _autoload: [
         "bindUseDeliveryAddress",
         "bindCountrySelector",
         "bindCreditCardAddressForm",
@@ -14,19 +14,19 @@ ACC.worldpay = {
     spinner: $("<img src='" + ACC.config.commonResourcePath + "/images/spinner.gif' />"),
 
     pageSpinner: {
-        createSpinner: function() {
+        createSpinner: function () {
             const prefix = ACC.config.commonResourcePath.replace('/_ui/', '/_ui/addons/worldpayaddon/');
             return $('<img style="width: 32px; height: 32px; margin: auto;" src="' + prefix + '/images/oval-spinner.svg" />')
         },
 
-        start: function() {
+        start: function () {
             this.overlay = $('<div id="cboxOverlay" style="opacity: 0.7; cursor: pointer; visibility: visible; display: flex;" />');
             this.createSpinner().appendTo(ACC.worldpay.pageSpinner.overlay);
             this.overlay.appendTo($('body'));
         },
 
-        end: function() {
-            this.overlay.fadeOut(400, function() {
+        end: function () {
+            this.overlay.fadeOut(400, function () {
                 $(this).remove();
             });
         }
@@ -80,8 +80,7 @@ ACC.worldpay = {
         if (wpUseDeliveryAddress.is(":checked")) {
             $('select[id^="billingAddress\\.country"]').val(wpUseDeliveryAddress.data('countryisocode'));
             ACC.worldpay.disableAddressForm();
-        }
-        else {
+        } else {
             ACC.worldpay.clearAddressForm();
             ACC.worldpay.enableAddressForm();
         }
@@ -151,21 +150,49 @@ ACC.worldpay = {
         }
     },
 
+    /**
+     * Show the saved payment checkbox when we are on CSE
+     *  - google pay
+     *  - paypal
+     * Show the saved payment checkbox when we are not on CSE
+     *  - credit card
+     *  - paypal
+     *  - google pay
+     *  - ONLINE (no APM's configured)
+     *
+     * @returns {boolean}
+     */
+    shouldDisplaySavePaymentDetails: function () {
+        if ($("#paymentButtons").hasClass("cse")) {
+            return $("#paymentMethod_PAYPAL-EXPRESS").is(":checked") ||
+                $("#paymentMethod_googlePay").is(":checked");
+        }
+        return $("#paymentMethod_CC").is(":checked") ||
+            $("#paymentMethod_PAYPAL-EXPRESS").is(":checked") ||
+            $("#paymentMethod_googlePay").is(":checked") ||
+            $("#paymentMethod_ONLINE").val() === "ONLINE";
+    },
+
     hideOrShowSaveDetails: function () {
         $(".cms-payment-button").on("change", function () {
-            if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
-                $(".save_payment_details").removeClass("hidden");
-            }
-            else if (!$(".cms-payment-button").length) {
-                $(".save_payment_details").removeClass("hidden");
-            }
-            else {
+            var savedPaymentDetails$ = $(".save_payment_details");
+            if (ACC.worldpay.shouldDisplaySavePaymentDetails()) {
+                savedPaymentDetails$.removeClass("hidden");
+            } else if (!$(".cms-payment-button").length) {
+                savedPaymentDetails$.removeClass("hidden");
+            } else {
                 $("#SaveDetails").prop('checked', false);
-                $(".save_payment_details").addClass("hidden");
+                savedPaymentDetails$.addClass("hidden");
             }
         });
-        if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() === "ONLINE") {
-            $(".save_payment_details").removeClass("hidden");
+
+        if ($("#paymentButtons").length > 0) {
+            var savedPaymentDetails$ = $(".save_payment_details");
+            if (ACC.worldpay.shouldDisplaySavePaymentDetails()) {
+                savedPaymentDetails$.removeClass("hidden");
+            } else {
+                savedPaymentDetails$.addClass("hidden");
+            }
         }
     },
 
@@ -220,14 +247,14 @@ ACC.worldpay = {
         });
     },
 
-    onPaymentMethodChange: function() {
+    onPaymentMethodChange: function () {
         const checkboxes = $('[name="paymentMethod"]');
         checkboxes.on('change', function (event) {
-            switch(event.target.value) {
+            switch (event.target.value) {
                 case 'APPLEPAY-SSL':
                     ACC.applePay.enableApplePayFlow();
                     break;
-                case 'GOOGLEPAY-SSL':
+                case 'PAYWITHGOOGLE-SSL':
                     ACC.googlePay.enableGooglePayFlow();
                     break;
                 default:
@@ -254,15 +281,15 @@ ACC.worldpay = {
         $('#wpBillingAddress').show();
     },
 
-    requireTermsAndConditions: function() {
+    requireTermsAndConditions: function () {
         const terms = $('#termsAndConditions');
-        $('<div class="help-block"><span>' + 
-                ACC.addons.worldpayaddon["worldpayaddon.checkout.error.terms.not.accepted"] + 
-                '</span></div>').appendTo(terms);
+        $('<div class="help-block"><span>' +
+            ACC.addons.worldpayaddon["worldpayaddon.checkout.error.terms.not.accepted"] +
+            '</span></div>').appendTo(terms);
         terms.addClass('has-error');
 
-        terms.on('change', function(event) {
-            if ($(this).find('input[type=checkbox]').is(':checked')){
+        terms.on('change', function (event) {
+            if ($(this).find('input[type=checkbox]').is(':checked')) {
                 terms.find('.help-block').hide();
                 terms.removeClass('has-error');
             } else {
@@ -272,7 +299,7 @@ ACC.worldpay = {
         });
     },
 
-    redirectToConfirmationPage: function(order) {
+    redirectToConfirmationPage: function (order) {
         const orderId = order.guestCustomer ? order.guid : order.code;
 
         window.location.href = ACC.config.encodedContextPath + '/checkout/orderConfirmation/' + orderId;

@@ -70,7 +70,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
 
             if (tokenElement instanceof PaymentInstrument) {
                 PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSL().get(0));
+                final CardDetails cardDetails = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0));
                 assertNotNull(cardDetails);
                 assertNotNull(cardDetails.getCardAddress());
                 assertEquals(OBFUSCATED_PAN, cardDetails.getDerived().getObfuscatedPAN());
@@ -89,7 +89,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
     private static PaymentService buildAuthRequest(final boolean withToken) {
         final Order order = new Order();
         order.setOrderCode(WORLDPAY_ORDER_CODE);
-        final List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrDeviceSessionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
         orderElements.add(TRANSACTION_AMOUNT);
         if (withToken) {
             final CreateToken createToken = new CreateToken();

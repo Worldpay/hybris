@@ -36,13 +36,13 @@ public class HMAC256MacValidator implements MacValidator {
         }
         final String hashString = StringUtils.join(asList(orderKey, paymentAmount, paymentCurrency, paymentStatus.name()), ":");
         try {
-            Mac hmacSHA256 = Mac.getInstance(HMAC_SHA_256);
-            SecretKeySpec secretKeySpec = new SecretKeySpec(macSecret.getBytes(StandardCharsets.UTF_8.name()), HMAC_SHA_256);
+            final Mac hmacSHA256 = Mac.getInstance(HMAC_SHA_256);
+            final SecretKeySpec secretKeySpec = new SecretKeySpec(macSecret.getBytes(StandardCharsets.UTF_8.name()), HMAC_SHA_256);
             hmacSHA256.init(secretKeySpec);
             final byte[] hashValue = hmacSHA256.doFinal(hashString.getBytes(StandardCharsets.UTF_8.name()));
 
             return worldpayMac.equalsIgnoreCase(Hex.encodeHexString(hashValue));
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException e) {
+        } catch (final NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException e) {
             throw new WorldpayMacValidationException("Unable to validate mac as hash algorithm incorrectly specified", e);
         }
     }

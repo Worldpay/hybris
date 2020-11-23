@@ -52,18 +52,6 @@
 		<property name="add" ref="worldpayJsVariablesBeforeViewHandler"/>
 	</bean>
 
-	<bean id="worldpayDesktopPreviewUrlResolverPageMappingsMapMergeDirective" depends-on="previewUrlResolverPageMappings"
-		  parent="mapMergeDirective">
-		<property name="key" value="worldpayPaymentAndBillingCheckoutPage"/>
-		<property name="value" value="/checkout/multi/worldpay/choose-payment-method"/>
-	</bean>
-
-	<bean id="worldpayMobilePreviewUrlResolverPageMappingsMapMergeDirective" depends-on="previewUrlResolverPageMappings"
-		  parent="mapMergeDirective">
-		<property name="key" value="mobile-worldpayPaymentAndBillingCheckoutPage"/>
-		<property name="value" value="/checkout/multi/worldpay/choose-payment-method"/>
-	</bean>
-
 	<bean id="worldpayCCComponentRenderer" class="com.worldpay.renderers.WorldpayCCComponentRenderer" parent="addOnJspIncludeCMSComponentRenderer"/>
 
 	<bean id="WorldpayCCComponentRendererMapping" parent="addonCmsComponentRendererMapping">

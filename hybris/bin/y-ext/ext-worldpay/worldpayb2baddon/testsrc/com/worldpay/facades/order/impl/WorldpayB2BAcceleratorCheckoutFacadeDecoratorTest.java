@@ -52,7 +52,7 @@ import java.util.TimeZone;
 public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
 
     @InjectMocks
-    private WorldpayB2BAcceleratorCheckoutFacadeDecorator testObj = new WorldpayB2BAcceleratorCheckoutFacadeDecorator();
+    private WorldpayB2BAcceleratorCheckoutFacadeDecorator testObj;
     @Mock
     private DefaultB2BAcceleratorCheckoutFacade b2BAcceleratorCheckoutFacade;
     @Mock

@@ -28,14 +28,10 @@ import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
@@ -46,20 +42,45 @@ import static java.text.MessageFormat.format;
 /**
  * {@inheritDoc}
  */
+/* There is no obvious way of reducing the dependencies, the service is model oriented and the business logic enforces us
+to inject those services and reverse populators */
+@SuppressWarnings("java:S107")
 public class DefaultWorldpayPaymentTransactionService implements WorldpayPaymentTransactionService {
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayPaymentTransactionService.class);
 
-    private ModelService modelService;
-    private ConfigurationService configurationService;
-    private CommonI18NService commonI18NService;
-    private EntryCodeStrategy entryCodeStrategy;
-    private Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency;
-    private WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
-    private Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter;
-    private Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator;
-    private WorldpayOrderService worldpayOrderService;
-    private WorldpayBankConfigurationLookupService worldpayBankConfigurationService;
+    protected final ModelService modelService;
+    protected final ConfigurationService configurationService;
+    protected final CommonI18NService commonI18NService;
+    protected final EntryCodeStrategy entryCodeStrategy;
+    protected final Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency;
+    protected final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
+    protected final Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter;
+    protected final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator;
+    protected final WorldpayOrderService worldpayOrderService;
+    protected final WorldpayBankConfigurationLookupService worldpayBankConfigurationService;
+
+    public DefaultWorldpayPaymentTransactionService(final ModelService modelService,
+                                                    final ConfigurationService configurationService,
+                                                    final CommonI18NService commonI18NService,
+                                                    final EntryCodeStrategy entryCodeStrategy,
+                                                    final Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency,
+                                                    final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao,
+                                                    final Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter,
+                                                    final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator,
+                                                    final WorldpayOrderService worldpayOrderService,
+                                                    final WorldpayBankConfigurationLookupService worldpayBankConfigurationService) {
+        this.modelService = modelService;
+        this.configurationService = configurationService;
+        this.commonI18NService = commonI18NService;
+        this.entryCodeStrategy = entryCodeStrategy;
+        this.paymentTransactionDependency = paymentTransactionDependency;
+        this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
+        this.worldpayRiskScoreConverter = worldpayRiskScoreConverter;
+        this.worldpayAavResponsePopulator = worldpayAavResponsePopulator;
+        this.worldpayOrderService = worldpayOrderService;
+        this.worldpayBankConfigurationService = worldpayBankConfigurationService;
+    }
 
     /**
      * {@inheritDoc}
@@ -85,7 +106,9 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
      */
     @Override
     public boolean isAnyPaymentTransactionApmOpenForOrder(final OrderModel order) {
-        return order.getPaymentTransactions().stream().filter(Objects::nonNull).anyMatch(PaymentTransactionModel::getApmOpen);
+        return order.getPaymentTransactions().stream()
+                .filter(Objects::nonNull)
+                .anyMatch(PaymentTransactionModel::getApmOpen);
     }
 
     /**
@@ -94,7 +117,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public boolean isPaymentTransactionPending(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType) {
         return paymentTransaction.getEntries().stream()
-                .anyMatch(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()) && paymentTransactionEntry.getPending());
+                .filter(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()))
+                .anyMatch(PaymentTransactionEntryModel::getPending);
     }
 
     /**
@@ -249,12 +273,13 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
      */
     @Override
     public void addRiskScore(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
-        final RiskScore riskScore = paymentReply.getRiskScore();
-        if (riskScore != null) {
-            final WorldpayRiskScoreModel worldpayRiskScoreModel = worldpayRiskScoreConverter.convert(riskScore);
-            paymentTransactionModel.setRiskScore(worldpayRiskScoreModel);
-            modelService.save(paymentTransactionModel);
-        }
+        Optional.ofNullable(paymentReply.getRiskScore())
+                .map(worldpayRiskScoreConverter::convert)
+                .map(riskScore -> {
+                    paymentTransactionModel.setRiskScore(riskScore);
+                    return paymentTransactionModel;
+                })
+                .ifPresent(modelService::save);
     }
 
     /**
@@ -342,7 +367,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         return setCommonFieldsForPaymentTransactionEntries(paymentTransactionModel, orderNotificationMessage, transactionEntryModel);
     }
 
-    protected PaymentTransactionEntryModel setCommonFieldsForPaymentTransactionEntries(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage,
+    protected PaymentTransactionEntryModel setCommonFieldsForPaymentTransactionEntries(final PaymentTransactionModel paymentTransactionModel,
+                                                                                       final OrderNotificationMessage orderNotificationMessage,
                                                                                        final PaymentTransactionEntryModel transactionEntryModel) {
         transactionEntryModel.setPaymentTransaction(paymentTransactionModel);
         transactionEntryModel.setRequestId(orderNotificationMessage.getOrderCode());
@@ -390,55 +416,5 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         transactionEntryModel.setAmount(authorisedAmount);
         transactionEntryModel.setCurrency(abstractOrderModel.getCurrency());
         return transactionEntryModel;
-    }
-
-    @Required
-    public void setPaymentTransactionDependency(final Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency) {
-        this.paymentTransactionDependency = paymentTransactionDependency;
-    }
-
-    @Required
-    public void setCommonI18NService(final CommonI18NService commonI18NService) {
-        this.commonI18NService = commonI18NService;
-    }
-
-    @Required
-    public void setModelService(final ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    @Required
-    public void setEntryCodeStrategy(final EntryCodeStrategy entryCodeStrategy) {
-        this.entryCodeStrategy = entryCodeStrategy;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionDao(final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
-        this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
-    }
-
-    @Required
-    public void setWorldpayRiskScoreConverter(final Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter) {
-        this.worldpayRiskScoreConverter = worldpayRiskScoreConverter;
-    }
-
-    @Required
-    public void setWorldpayAavResponsePopulator(final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator) {
-        this.worldpayAavResponsePopulator = worldpayAavResponsePopulator;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-    }
-
-    @Required
-    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
-    }
-
-    @Required
-    public void setWorldpayBankConfigurationService(final WorldpayBankConfigurationLookupService worldpayBankConfigurationService) {
-        this.worldpayBankConfigurationService = worldpayBankConfigurationService;
     }
 }

@@ -9,6 +9,8 @@ import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 
+import java.util.Optional;
+
 /**
  * Populating AbstractOrderData from AbstractOrderModel
  */
@@ -26,6 +28,8 @@ public class WorldpayAPMPaymentInfoPopulator implements Populator<AbstractOrderM
             if (worldpayAPMConfigurationModel != null) {
                 final WorldpayAPMPaymentInfoData worldpayAPMPaymentInfoData = new WorldpayAPMPaymentInfoData();
                 worldpayAPMPaymentInfoData.setName(worldpayAPMConfigurationModel.getName());
+                Optional.ofNullable(worldpayAPMPaymentInfoModel.getSubscriptionId())
+                    .ifPresent(worldpayAPMPaymentInfoData::setSubscriptionId);
                 target.setWorldpayAPMPaymentInfo(worldpayAPMPaymentInfoData);
             }
         }

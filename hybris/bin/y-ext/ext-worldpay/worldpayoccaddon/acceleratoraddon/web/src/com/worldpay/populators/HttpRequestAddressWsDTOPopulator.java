@@ -91,8 +91,8 @@ public class HttpRequestAddressWsDTOPopulator extends AbstractHttpRequestWsDTOPo
 
         addressData.setCountry(updateCountryFromRequest(request, addressData.getCountry()));
         addressData.setRegion(updateRegionFromRequest(request, addressData.getRegion()));
-        addressData.setShippingAddress(updateBooleanValueFromRequest(request, SHIPPING_ADDRESS, addressData.getShippingAddress() != null ? addressData.getShippingAddress() : false));
-        addressData.setVisibleInAddressBook(updateBooleanValueFromRequest(request, VISIBLE_IN_ADDRESS_BOOK, addressData.getVisibleInAddressBook() != null ? addressData.getVisibleInAddressBook() : false));
+        addressData.setShippingAddress(updateBooleanValueFromRequest(request, SHIPPING_ADDRESS, Boolean.TRUE.equals(addressData.getShippingAddress())));
+        addressData.setVisibleInAddressBook(updateBooleanValueFromRequest(request, VISIBLE_IN_ADDRESS_BOOK, Boolean.TRUE.equals(addressData.getVisibleInAddressBook())));
     }
 
     protected I18NFacade getI18NFacade() {

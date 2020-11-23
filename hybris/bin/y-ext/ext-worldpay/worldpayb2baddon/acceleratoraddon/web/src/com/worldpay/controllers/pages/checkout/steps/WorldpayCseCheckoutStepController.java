@@ -2,6 +2,8 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
+import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.B2BCSEPaymentForm;
@@ -34,24 +36,28 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = "/checkout/multi/worldpay/cse")
 public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
+    private static final Logger LOGGER = Logger.getLogger(WorldpayCseCheckoutStepController.class);
+
     protected static final String CSE_PUBLIC_KEY = "csePublicKey";
     protected static final String B2B_CSE_PAYMENT_FORM = "b2bCSEPaymentForm";
     protected static final String REDIRECT_TO_CSE_PAGE = "redirect:/checkout/multi/worldpay/cse/cse-data";
     protected static final String REDIRECT_TO_SUMMARY_PAGE = "redirect:/checkout/multi/worldpay/summary/view";
-    protected static final String THREEDSECURE_JWT_FLEX_DDC = "jwt3DSecureFlexDDC";
     protected static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN = "originEventDomain3DSFlex";
-    protected static final String THREEDSECURE_FLEX_DDC_URL = "threeDSecureDDCUrl";
-    private static final Logger LOGGER = Logger.getLogger(WorldpayCseCheckoutStepController.class);
+
     @Resource
-    private Validator csePaymentDetailsFormValidator;
+    protected Validator csePaymentDetailsFormValidator;
     @Resource
-    private Validator cseFormValidator;
+    protected Validator cseFormValidator;
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
+    @Resource
+    protected WorldpayDDCFacade worldpayDDCFacade;
+    @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     /**
      * Returns the CSE payment details page
@@ -168,7 +174,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     }
 
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfo = getWorldpayAdditionalInfoFacade().createWorldpayAdditionalInfoData(request);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSecurityCode(cvc);
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
@@ -184,19 +190,12 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         super.setupAddPaymentPage(model);
         model.addAttribute(B2B_CSE_PAYMENT_FORM, new B2BCSEPaymentForm());
         model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
-        model.addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, worldpayDirectOrderFacade.getEventOriginDomainForDDC());
+        model.addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, worldpayDDCFacade.getEventOriginDomainForDDC());
     }
 
     @Override
     protected String getErrorView(final Model model) throws CMSItemNotFoundException {
         setupAddPaymentPage(model);
         return worldpayAddonEndpointService.getCSEPaymentDetailsPage();
-    }
-
-    protected void setDDCIframeData(final Model model) {
-        model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDirectOrderFacade.createJsonWebTokenForDDC());
-        model.addAttribute(THREEDSECURE_FLEX_DDC_URL, getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData() != null &&
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings() != null ?
-                getWorldpayMerchantConfigDataFacade().getCurrentSiteMerchantConfigData().getThreeDSFlexJsonWebTokenSettings().getDdcUrl() : null);
     }
 }

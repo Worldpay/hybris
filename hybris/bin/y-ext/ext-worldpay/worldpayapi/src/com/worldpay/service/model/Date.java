@@ -1,6 +1,5 @@
 package com.worldpay.service.model;
 
-import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
@@ -23,7 +22,7 @@ public class Date implements InternalModelTransformer, Serializable {
      *
      * @param localDateTime
      */
-    public Date(LocalDateTime localDateTime) {
+    public Date(final LocalDateTime localDateTime) {
         this.dayOfMonth = String.valueOf(localDateTime.getDayOfMonth());
         this.month = String.valueOf(localDateTime.getMonth().getValue());
         this.year = String.valueOf(localDateTime.getYear());
@@ -42,7 +41,7 @@ public class Date implements InternalModelTransformer, Serializable {
      * @param minute
      * @param second
      */
-    public Date(String dayOfMonth, String month, String year, String hour, String minute, String second) {
+    public Date(final String dayOfMonth, final String month, final String year, final String hour, final String minute, final String second) {
         this.dayOfMonth = dayOfMonth;
         this.month = month;
         this.year = year;
@@ -57,7 +56,7 @@ public class Date implements InternalModelTransformer, Serializable {
      * @param month
      * @param year
      */
-    public Date(String month, String year) {
+    public Date(final String month, final String year) {
         this.dayOfMonth = null;
         this.month = month;
         this.year = year;
@@ -67,7 +66,7 @@ public class Date implements InternalModelTransformer, Serializable {
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() {
+    public com.worldpay.internal.model.Date transformToInternalModel() {
         com.worldpay.internal.model.Date intDate = new com.worldpay.internal.model.Date();
         intDate.setDayOfMonth(dayOfMonth);
         intDate.setHour(hour);

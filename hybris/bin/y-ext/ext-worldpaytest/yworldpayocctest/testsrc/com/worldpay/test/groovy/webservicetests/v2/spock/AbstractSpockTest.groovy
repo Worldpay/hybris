@@ -114,15 +114,15 @@ abstract class AbstractSpockTest extends Specification {
 
     protected getOAuth2TokenUsingClientCredentials(RESTClient client, clientId, clientSecret) {
         HttpResponseDecorator response = client.post(
-                uri: getOAuth2TokenUri(),
-                path: getOAuth2TokenPath(),
-                body: [
-                        'grant_type'   : 'client_credentials',
-                        'client_id'    : clientId,
-                        'client_secret': clientSecret
-                ],
-                contentType: JSON,
-                requestContentType: URLENC)
+            uri: getOAuth2TokenUri(),
+            path: getOAuth2TokenPath(),
+            body: [
+                'grant_type'   : 'client_credentials',
+                'client_id'    : clientId,
+                'client_secret': clientSecret
+            ],
+            contentType: JSON,
+            requestContentType: URLENC)
 
         with(response) {
             if (isNotEmpty(data) && isNotEmpty(data.error)) println(data)
@@ -137,17 +137,17 @@ abstract class AbstractSpockTest extends Specification {
 
     protected getOAuth2TokenUsingPassword(RESTClient client, clientId, clientSecret, username, password, boolean doAssert = true) {
         HttpResponseDecorator response = client.post(
-                uri: getOAuth2TokenUri(),
-                path: getOAuth2TokenPath(),
-                body: [
-                        'grant_type'   : 'password',
-                        'client_id'    : clientId,
-                        'client_secret': clientSecret,
-                        'username'     : username,
-                        'password'     : password
-                ],
-                contentType: JSON,
-                requestContentType: URLENC)
+            uri: getOAuth2TokenUri(),
+            path: getOAuth2TokenPath(),
+            body: [
+                'grant_type'   : 'password',
+                'client_id'    : clientId,
+                'client_secret': clientSecret,
+                'username'     : username,
+                'password'     : password
+            ],
+            contentType: JSON,
+            requestContentType: URLENC)
 
         if (doAssert) {
             with(response) {

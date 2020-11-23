@@ -13,6 +13,9 @@ import java.util.Currency;
  */
 public class WorldpayCaptureServiceResponseConverter extends WorldpayAbstractServiceResponseConverter<CaptureServiceResponse, CaptureResult> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void populate(final CaptureServiceResponse captureServiceResponse, final CaptureResult captureResult) {
         final Amount amount = captureServiceResponse.getAmount();
@@ -23,7 +26,12 @@ public class WorldpayCaptureServiceResponseConverter extends WorldpayAbstractSer
         captureResult.setTotalAmount(getTotalAmount(amount));
         captureResult.setRequestId(captureServiceResponse.getOrderCode());
         captureResult.setRequestTime(new java.util.Date());
-        captureResult.setTransactionStatus(TransactionStatus.ACCEPTED);
-        captureResult.setTransactionStatusDetails(TransactionStatusDetails.SUCCESFULL);
+        if (captureServiceResponse.isError()) {
+            captureResult.setTransactionStatus(TransactionStatus.ERROR);
+            captureResult.setTransactionStatusDetails(getTransactionStatusDetails(captureServiceResponse.getErrorDetail()));
+        } else {
+            captureResult.setTransactionStatus(TransactionStatus.ACCEPTED);
+            captureResult.setTransactionStatusDetails(TransactionStatusDetails.SUCCESFULL);
+        }
     }
 }
