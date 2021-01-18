@@ -1,6 +1,5 @@
 package com.worldpay.service.model;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.helper.InternalModelObject;
 import com.worldpay.internal.model.Reference;
 import com.worldpay.service.request.transform.InternalModelTransformer;
@@ -8,8 +7,8 @@ import com.worldpay.service.request.transform.InternalModelTransformer;
 import java.io.Serializable;
 
 public class LineItemReference implements InternalModelTransformer, Serializable {
-    private String id;
-    private String value;
+    private final String id;
+    private final String value;
 
     public LineItemReference(final String id, final String value) {
         this.id = id;
@@ -17,8 +16,8 @@ public class LineItemReference implements InternalModelTransformer, Serializable
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
-        Reference intReference = new Reference();
+    public InternalModelObject transformToInternalModel() {
+        final Reference intReference = new Reference();
         intReference.setId(id);
         intReference.setvalue(value);
         return intReference;

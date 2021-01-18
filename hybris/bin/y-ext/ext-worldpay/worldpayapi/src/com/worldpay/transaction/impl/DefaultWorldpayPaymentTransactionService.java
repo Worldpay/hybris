@@ -182,6 +182,15 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         return setCommonFieldsForPaymentTransactionEntries(paymentTransaction, orderNotificationMessage, transactionEntryModel);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PaymentTransactionEntryModel createRefundedPaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final OrderNotificationMessage orderNotificationMessage) {
+        final PaymentTransactionEntryModel transactionEntryModel = modelService.create(PaymentTransactionEntryModel.class);
+        transactionEntryModel.setType(REFUND_FOLLOW_ON);
+        return setCommonFieldsForPaymentTransactionEntries(paymentTransaction, orderNotificationMessage, transactionEntryModel);
+    }
 
     /**
      * {@inheritDoc}

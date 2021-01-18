@@ -4,6 +4,7 @@ import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.model.PaymentReply;
+import com.worldpay.service.model.payment.Card;
 import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
@@ -71,14 +72,14 @@ public interface WorldpayPaymentInfoService {
     /**
      * Creates a paymentInfo saving parameters from Google
      *
-     * @param cartModel            cart to base the paymentInfo on
-     * @param googleAuthInfo       authentication information
-     * @param paymentTokenId       the paymentTokenId from Worldpay
-     * @param obfuscatedCardNumber the hidden card number
-     * @return
+     * @param cartModel      cart to base the paymentInfo on
+     * @param googleAuthInfo authentication information
+     * @param paymentTokenId the paymentTokenId from Worldpay
+     * @param cardResponse   the card response
+     * @return the payment info model
      */
     PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo,
-                                                final String paymentTokenId, final String obfuscatedCardNumber);
+                                                final String paymentTokenId, final Card cardResponse);
 
     /**
      * Converts and sets the {@link CreditCardType} on the {@link CreditCardPaymentInfoModel} based on the methodCode of the {@link PaymentReply}

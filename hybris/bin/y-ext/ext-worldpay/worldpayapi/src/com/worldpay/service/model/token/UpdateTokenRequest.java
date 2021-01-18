@@ -1,13 +1,11 @@
 package com.worldpay.service.model.token;
 
 import com.worldpay.internal.helper.InternalModelObject;
-import com.worldpay.internal.model.PaymentInstrument;
-import com.worldpay.internal.model.PaymentTokenID;
-import com.worldpay.internal.model.PaymentTokenUpdate;
-import com.worldpay.internal.model.TokenReason;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 public class UpdateTokenRequest implements InternalModelTransformer, Serializable {
 
@@ -32,7 +30,13 @@ public class UpdateTokenRequest implements InternalModelTransformer, Serializabl
             intPaymentTokenUpdate.setTokenScope("merchant");
             intPaymentTokenUpdate.setAuthenticatedShopperID(null);
         } else {
-            intPaymentTokenUpdate.setAuthenticatedShopperID(authenticatedShopperID);
+            Optional.ofNullable(authenticatedShopperID)
+                .map(shopperId -> {
+                    final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+                    intAuthenticatedShopperID.setvalue(shopperId);
+                    return intAuthenticatedShopperID;
+                })
+                .ifPresent(intPaymentTokenUpdate::setAuthenticatedShopperID);
         }
 
         final PaymentTokenID paymentTokenIDWrapper = new PaymentTokenID();
@@ -42,7 +46,7 @@ public class UpdateTokenRequest implements InternalModelTransformer, Serializabl
 
         final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
         final com.worldpay.internal.model.CardDetails intCardDetails = (com.worldpay.internal.model.CardDetails) cardDetails.transformToInternalModel();
-        intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(intCardDetails);
+        intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(intCardDetails);
         intPaymentTokenUpdate.setPaymentInstrument(intPaymentInstrument);
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(tokenRequest.getTokenReason());

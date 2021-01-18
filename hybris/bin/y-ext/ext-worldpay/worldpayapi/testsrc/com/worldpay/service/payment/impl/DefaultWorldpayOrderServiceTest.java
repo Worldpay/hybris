@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -71,6 +72,7 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String PAYMENT_PROVIDER = "paymentProvider";
 
     @InjectMocks
+    @Spy
     private DefaultWorldpayOrderService testObj;
 
     @Mock
@@ -97,6 +99,8 @@ public class DefaultWorldpayOrderServiceTest {
     private CartModel cartMock;
     @Mock
     private LanguageModel languageMock;
+    @Mock
+    private CommerceCheckoutParameter commerceCheckoutParameterMock;
 
     @Before
     public void setUp() throws Exception {
@@ -307,5 +311,12 @@ public class DefaultWorldpayOrderServiceTest {
         assertEquals(PAYMENT_PROVIDER, result.getPaymentProvider());
         assertEquals(paymentInfoModelMock, result.getPaymentInfo());
         assertEquals(cartMock, result.getCart());
+    }
+
+    @Test
+    public void generateWorldpayOrderCode_ShouldGenerateCode() {
+        testObj.generateWorldpayOrderCode(abstractOrderModelMock);
+
+        verify(recurringGenerateMerchantTransactionCodeStrategyMock).generateCode(abstractOrderModelMock);
     }
 }

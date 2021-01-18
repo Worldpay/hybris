@@ -31,7 +31,7 @@ public class WorldpayCaptureServiceResponseConverterTest {
     private final BigDecimal expectedAmount = BigDecimal.valueOf(10.99d);
 
     @InjectMocks
-    private WorldpayCaptureServiceResponseConverter testObj = new WorldpayCaptureServiceResponseConverter();
+    private WorldpayCaptureServiceResponseConverter testObj;
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CaptureServiceResponse captureServiceResponseMock;

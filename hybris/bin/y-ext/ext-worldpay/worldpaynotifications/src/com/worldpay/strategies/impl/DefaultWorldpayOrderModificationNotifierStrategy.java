@@ -11,7 +11,6 @@ import de.hybris.platform.ticket.enums.CsTicketPriority;
 import de.hybris.platform.ticket.service.TicketBusinessService;
 import de.hybris.platform.ticketsystem.data.CsTicketParameter;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
 
@@ -31,11 +30,23 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayOrderModificationNotifierStrategy.class);
 
-    private TicketBusinessService ticketBusinessService;
-    private ModelService modelService;
-    private OrderModificationDao orderModificationDao;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private L10NService l10nService;
+    protected final TicketBusinessService ticketBusinessService;
+    protected final ModelService modelService;
+    protected final OrderModificationDao orderModificationDao;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final L10NService l10nService;
+
+    public DefaultWorldpayOrderModificationNotifierStrategy(final TicketBusinessService ticketBusinessService,
+                                                            final ModelService modelService,
+                                                            final OrderModificationDao orderModificationDao,
+                                                            final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                                            final L10NService l10nService) {
+        this.ticketBusinessService = ticketBusinessService;
+        this.modelService = modelService;
+        this.orderModificationDao = orderModificationDao;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.l10nService = l10nService;
+    }
 
     /**
      * {@inheritDoc}
@@ -72,41 +83,16 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
         return ticketBusinessService;
     }
 
-    @Required
-    public void setTicketBusinessService(TicketBusinessService ticketBusinessService) {
-        this.ticketBusinessService = ticketBusinessService;
-    }
-
     public ModelService getModelService() {
         return modelService;
-    }
-
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
     }
 
     public OrderModificationDao getOrderModificationDao() {
         return orderModificationDao;
     }
 
-    @Required
-    public void setOrderModificationDao(OrderModificationDao orderModificationDao) {
-        this.orderModificationDao = orderModificationDao;
-    }
-
     public L10NService getL10nService() {
         return l10nService;
-    }
-
-    @Required
-    public void setL10nService(L10NService l10nService) {
-        this.l10nService = l10nService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }
 
     public WorldpayPaymentTransactionService getWorldpayPaymentTransactionService() {

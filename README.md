@@ -38,12 +38,14 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-- OCC new endpoints to support 3DS Flex, Apple Pay and Google Pay under Spartacus frontend
+- A read/write socket connection timeout was configured in the library
 
-- Tokenisation for Google Pay and Paypal
+- ypay-lib was updated to the latest DTD version
 
-- Support for Klarna PayNow, Klarna PayLater, Klarna SliceIt (https://developer.worldpay.com/docs/wpg/apms/klarnakp)
+- When upgrading to version 2011 redundant address converters were removed after ootb hybris populated the email
 
-- RiskData information added for credit card payments under redirect implementation
+- A bug was raised to fix hybris ootb causing an order process failure. Unnecessary user rights were removed and warehouse users were imported just for OMS. User rights were also moved to the common impex 
 
-- New recipe wp_b2c_acc_occ to support the Spartacus storefront application
+- Added obfuscated cart number, card expiry month and year in the order confirmation page and payment info for googlepay with spartacus
+
+- Fixed a bug related to saved cards for the b2b accelerator. The issue was caused by order placed with replenishment and card tokenized and saved in the step. The billing address was not saved in this case and it was causing the error when reusing the saved card.

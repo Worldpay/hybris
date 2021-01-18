@@ -11,9 +11,9 @@ import java.util.List;
 public class OrderLines implements InternalModelTransformer, Serializable {
     private static final Logger LOG = Logger.getLogger(OrderLines.class);
 
-    private String orderTaxAmount;
-    private String termsURL;
-    private List<LineItem> lineItems;
+    private final String orderTaxAmount;
+    private final String termsURL;
+    private final List<LineItem> lineItems;
 
     public OrderLines(final String orderTaxAmount, final String termsURL, final List<LineItem> lineItems) {
         this.orderTaxAmount = orderTaxAmount;
@@ -22,7 +22,7 @@ public class OrderLines implements InternalModelTransformer, Serializable {
     }
 
     @Override
-    public InternalModelObject transformToInternalModel() throws WorldpayModelTransformationException {
+    public InternalModelObject transformToInternalModel() {
         final com.worldpay.internal.model.OrderLines intOrderLines = new com.worldpay.internal.model.OrderLines();
         intOrderLines.setOrderTaxAmount(orderTaxAmount);
         intOrderLines.setTermsURL(termsURL);

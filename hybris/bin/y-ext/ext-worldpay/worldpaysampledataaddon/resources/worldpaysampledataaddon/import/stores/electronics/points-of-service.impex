@@ -1,6 +1,18 @@
 #% impex.setLocale( Locale.GERMAN );
 
-$storeUid=electronics
-$productCatalog=electronicsProductCatalog
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
-$storeImage=storeImage(qualifier, $catalogVersion)
+$storeUid = electronics
+$productCatalog = electronicsProductCatalog
+$catalogVersion = catalogversion(catalog(id[default=$productCatalog]), version[default='Staged'])[unique=true, default=$productCatalog:Staged]
+$storeImage = storeImage(qualifier, $catalogVersion)
+$defaultPassword = 1234
+
+"#% if: de.hybris.platform.jalo.extension.ExtensionManager.getInstance().isExtensionInstalled(""worldpayoms"")"
+INSERT_UPDATE Employee; uid[unique = true]            ; name                             ; groups(uid); password[default = $defaultPassword]; loginDisabled[default = false]; hmcLoginDisabled[default = false]
+                      ; NakanoWarehouseAgent          ; Nakano Warehouse Agent           ; warehouseagentgroup,nakanostoreemployees ;
+                      ; SecondaryNakanoWarehouseAgent ; Secondary Nakano Warehouse Agent ; warehouseagentgroup,nakanostoreemployees ;
+                      ; ShinbashiWarehouseAgent       ; Shinbashi Warehouse Agent        ; warehouseagentgroup,shinbashistoreemployees ;
+                      ; KotoWarehouseAgent            ; Koto Warehouse Agent             ; warehouseagentgroup,kotostoreemployees ;
+                      ; MisatoWarehouseAgent          ; Misato Warehouse Agent           ; warehouseagentgroup,misatostoreemployees ;
+                      ; MatsudoWarehouseAgent         ; Matsudo Warehouse Agent          ; warehouseagentgroup,matsudostoreemployees ;
+                      ; DefaultWarehouseAgent         ; Default Warehouse Agent          ; warehouseagentgroup,ichikawastoreemployees,choshistoreemployees,chibastoreemployees,yokosukastoreemployees,tokioceruleantowertokyuhotelstoreemployees,tokioflexstaynipporiinnstoreemployees,tokiohotelmetropolitantokyostoreemployees,tokiodormyinntokyohatchoboristoreemployees,tokioparkhoteltokyostoreemployees,yokohamasakuragichowashingtonhotelstoreemployees,yokohamashinyokohamaprincehotelstoreemployees,yokohamacomforthotelyokohamakannaistoreemployees,yokohamahotelnewgrandstoreemployees,yokohamahoteljalcitykannaiyokohamastoreemployees,osakahiltonosakahotelstoreemployees,osakacrowneplazahotelanaosakastoreemployees,osakaramadaosakastoreemployees,osakacrosshotelosakastoreemployees,osakabestwesternhotelfinoosakashinsaibashistoreemployees,nagoyahiltonnagoyahotelstoreemployees,nagoyamarriottnagoyastoreemployees,nagoyacrowneplazaanagrandcourtnagoyastoreemployees,nagoyathewestinnagoyacastlestoreemployees,nagoyaroyalparkinnnagoyastoreemployees,sapporoanahotelsapporostoreemployees,sapporobestwesternhotelsapporonakajimakoenstoreemployees,sapporosheratonsapporohotelstoreemployees,sapporohotelresoltrinitysapporostoreemployees,sapporohotelsunroutesapporostoreemployees,kobehotelmontereyamaliestoreemployees,kobehotelmontereykobestoreemployees,kobesannomiyaterminalhotelstoreemployees,kobebaysheratonhotelandtowersstoreemployees,kobethebstoreemployees,fukuokahotelmontereylasoeurfukuokastoreemployees,fukuokahiltonfukuokaseahawkstoreemployees,fukuokabestwesternfukuokanakasuinnstoreemployees,fukuokacanalcityfukuokawashingtonhotelstoreemployees,fukuokahotelnikkofukuokastoreemployees,kawasakimetskawasakihotelstoreemployees,kawasakimetsmizonokuchihotelstoreemployees,kawasakihotelsunroutekawasakistoreemployees,kawasakipearlhotelkawasakistoreemployees,kawasakigrandhotelstoreemployees ;
+#% endif:

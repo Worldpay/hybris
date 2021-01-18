@@ -28,7 +28,9 @@ import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
@@ -37,6 +39,7 @@ import de.hybris.platform.servicelayer.user.AddressService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -100,7 +103,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private Session sessionMock;
     @Mock
     private Browser browserMock;
-    @Spy
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private DirectAuthoriseServiceResponse directAuthoriseServiceResponseMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private DirectAuthoriseServiceRequest directAuthoriseServiceRequestMock, directAuthoriseForRedirectServiceRequestMock, directAuthoriseForApplePayServiceRequestMock;
@@ -130,6 +133,8 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private DeleteTokenServiceRequest deleteTokenServiceRequestMock;
     @Mock
     private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock, newlyCreatedCreditCardPaymentInfoModel;
+    @Mock
+    private PaymentInfoModel paymentInfoMock;
     @Mock
     private CreateTokenResponse createTokenResponseMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
@@ -164,6 +169,8 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private Card cardMock;
     @Mock
     private Additional3DS2Info aditional3DSInfoMock;
+    @Mock
+    private OrderModel orderMock;
 
     private Boolean saveCard = Boolean.FALSE;
 
@@ -198,6 +205,8 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(tokenReplyMock.getTokenDetails()).thenReturn(tokenDetailsMock);
         when(tokenDetailsMock.getTokenEvent()).thenReturn(TokenEvent.CONFLICT.name());
         when(worldpayMerchantInfoService.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
+        when(deleteTokenResponseMock.isError()).thenReturn(false);
+        when(directAuthoriseServiceResponseMock.getErrorDetail().getMessage()).thenReturn("something went wrong");
     }
 
     @Test
@@ -279,11 +288,20 @@ public class DefaultWorldpayDirectOrderServiceTest {
     public void deleteToken_ShouldCallDeleteTokenOnWorldpayServiceGateway_WhenItIsCalled() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildTokenDeleteRequest(merchantInfoMock, creditCardPaymentInfoModelMock, SUBSCRIPTION_ID)).thenReturn(deleteTokenServiceRequestMock);
         when(worldpayServiceGatewayMock.deleteToken(deleteTokenServiceRequestMock)).thenReturn(deleteTokenResponseMock);
-        when(deleteTokenResponseMock.isError()).thenReturn(false);
 
         testObj.deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock, SUBSCRIPTION_ID);
 
         verify(worldpayServiceGatewayMock).deleteToken(any(DeleteTokenServiceRequest.class));
+    }
+
+
+    @Test(expected = WorldpayException.class)
+    public void deleteToken_ShouldThrowException_WhenResponseHasError() throws WorldpayException {
+        when(worldpayRequestFactoryMock.buildTokenDeleteRequest(merchantInfoMock, creditCardPaymentInfoModelMock, SUBSCRIPTION_ID)).thenReturn(deleteTokenServiceRequestMock);
+        when(worldpayServiceGatewayMock.deleteToken(deleteTokenServiceRequestMock)).thenReturn(deleteTokenResponseMock);
+        when(deleteTokenResponseMock.isError()).thenReturn(true);
+
+        testObj.deleteToken(merchantInfoMock, creditCardPaymentInfoModelMock, SUBSCRIPTION_ID);
     }
 
     @Test(expected = WorldpayException.class)
@@ -376,6 +394,18 @@ public class DefaultWorldpayDirectOrderServiceTest {
     }
 
     @Test
+    public void completeAuthorise_ShouldCreateNonPendingAuthorisePaymentTransactionEntry_WhenAuthorisingOrderModel() throws WorldpayConfigurationException {
+        when(orderMock.getPaymentInfo()).thenReturn(creditCardPaymentInfoModelMock);
+        when(addressServiceMock.cloneAddressForOwner(paymentAddressModelMock, creditCardPaymentInfoModelMock)).thenReturn(deliveryAddressModelMock);
+        when(worldpayPaymentInfoServiceMock.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, false, MERCHANT_CODE)).thenReturn(creditCardPaymentInfoModelMock);
+        when(directAuthoriseServiceResponseMock.getToken()).thenReturn(tokenReplyMock);
+
+        testObj.completeAuthorise(directAuthoriseServiceResponseMock, orderMock);
+
+        verify(worldpayOrderServiceMock).createCommerceCheckoutParameter(orderMock, creditCardPaymentInfoModelMock, BigDecimal.TEN);
+    }
+
+    @Test
     public void completeAuthorise3DSecure_ShouldCompleteAuthorise_WhenComplete3DAuthorise() throws WorldpayConfigurationException {
         when(directAuthoriseServiceRequestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(worldpayPaymentTransactionServiceMock.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, BigDecimal.TEN)).thenReturn(paymentTransactionEntryModelMock);
@@ -459,7 +489,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     }
 
     @Test(expected = WorldpayException.class)
-    public void tokenAndAuthorise_ShouldThrowAWorldpayException_WhenWorldpayServiceGateWayThrowsIt() throws WorldpayException {
+    public void createTokenAndAuthorise_ShouldThrowAWorldpayException_WhenWorldpayServiceGateWayThrowsIt() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectTokenAndAuthorise(merchantInfoMock, cartModelMock,
             worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceRequestMock);
         when(worldpayServiceGatewayMock.directAuthorise(directAuthoriseServiceRequestMock)).thenThrow(new WorldpayException("Error during authorise"));
@@ -468,7 +498,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     }
 
     @Test
-    public void tokenAndAuthorise_ShouldReturnADirectAuthoriseServiceResponse_WhenItIsCall() throws WorldpayException {
+    public void createTokenAndAuthorise_ShouldReturnADirectAuthoriseServiceResponse_WhenItIsCall() throws WorldpayException {
         when(worldpayRequestFactoryMock.buildDirectTokenAndAuthorise(merchantInfoMock, cartModelMock,
             worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceRequestMock);
         when(worldpayServiceGatewayMock.directAuthorise(directAuthoriseServiceRequestMock)).thenReturn(directAuthoriseServiceResponseMock);
@@ -480,6 +510,16 @@ public class DefaultWorldpayDirectOrderServiceTest {
         verify(worldpayServiceGatewayMock).directAuthorise(directAuthoriseServiceRequestMock);
     }
 
+    @Test(expected = WorldpayException.class)
+    public void createTokenAndAuthorise_ShouldThrowException_WhenAuthServiceResponseHasError() throws WorldpayException {
+        when(worldpayRequestFactoryMock.buildDirectTokenAndAuthorise(merchantInfoMock, cartModelMock,
+            worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceRequestMock);
+        when(worldpayServiceGatewayMock.directAuthorise(directAuthoriseServiceRequestMock)).thenReturn(directAuthoriseServiceResponseMock);
+        when(directAuthoriseServiceResponseMock.isError()).thenReturn(true);
+
+        testObj.createTokenAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock);
+    }
+
     @Test
     public void authorise3DSecureAgain_ShouldGetSessionIdAndCookieValueFromSessionStorage() throws WorldpayException {
         when(worldpaySessionServiceMock.getAndRemoveAdditionalDataSessionId()).thenReturn(SESSION_ID);
@@ -489,5 +529,29 @@ public class DefaultWorldpayDirectOrderServiceTest {
         testObj.authorise3DSecureAgain(ORDER_CODE);
 
         verify(worldpayServiceGatewayMock).sendSecondThreeDSecurePayment(secondThreeDSecurePaymentRequest);
+    }
+
+    @Test
+    public void completeAuthoriseGooglePay_ShouldCreatePaymentTransaction_WhenCartModel() {
+        when(cartModelMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(worldpayOrderServiceMock.createCheckoutParameterAndSetPaymentInfo(paymentInfoMock, BigDecimal.TEN, cartModelMock)).thenReturn(commerceCheckoutParameterMock);
+        when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
+
+        testObj.completeAuthoriseGooglePay(directAuthoriseServiceResponseMock, cartModelMock, MERCHANT_CODE);
+
+        final InOrder inOrder = inOrder(worldpayPaymentInfoServiceMock, worldpayPaymentTransactionServiceMock);
+        inOrder.verify(worldpayPaymentInfoServiceMock).cloneAndSetBillingAddressFromCart(cartModelMock, paymentInfoMock);
+        inOrder.verify(worldpayPaymentTransactionServiceMock).createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, MERCHANT_CODE, cartModelMock, BigDecimal.TEN);
+        inOrder.verify(worldpayPaymentInfoServiceMock).updateAndAttachPaymentInfoModel(paymentTransactionModelMock, cartModelMock, paymentInfoMock);
+    }
+
+    @Test
+    public void completeAuthoriseGooglePay_ShouldDoNothing_WhenOrderModel() {
+        when(orderMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+
+        testObj.completeAuthoriseGooglePay(directAuthoriseServiceResponseMock, orderMock, MERCHANT_CODE);
+
+       verifyZeroInteractions(worldpayPaymentTransactionServiceMock);
+       verifyZeroInteractions(worldpayPaymentInfoServiceMock);
     }
 }

@@ -2,6 +2,7 @@ package com.worldpay.service.model;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.helper.InternalModelObject;
+import com.worldpay.internal.model.AuthenticatedShopperID;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
@@ -30,7 +31,9 @@ public class Shopper implements InternalModelTransformer, Serializable {
             intShopper.setShopperEmailAddress(shopperEmailAddress);
         }
         if (authenticatedShopperID != null) {
-            intShopper.setAuthenticatedShopperID(authenticatedShopperID);
+            final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+            intAuthenticatedShopperID.setvalue(authenticatedShopperID);
+            intShopper.setAuthenticatedShopperID(intAuthenticatedShopperID);
         }
         if (browser != null) {
             intShopper.setBrowser((com.worldpay.internal.model.Browser) browser.transformToInternalModel());
@@ -76,10 +79,10 @@ public class Shopper implements InternalModelTransformer, Serializable {
     @Override
     public String toString() {
         return "Shopper{" +
-                "shopperEmailAddress='" + shopperEmailAddress + '\'' +
-                ", authenticatedShopperID='" + authenticatedShopperID + '\'' +
-                ", browser=" + browser +
-                ", session=" + session +
-                '}';
+            "shopperEmailAddress='" + shopperEmailAddress + '\'' +
+            ", authenticatedShopperID='" + authenticatedShopperID + '\'' +
+            ", browser=" + browser +
+            ", session=" + session +
+            '}';
     }
 }
