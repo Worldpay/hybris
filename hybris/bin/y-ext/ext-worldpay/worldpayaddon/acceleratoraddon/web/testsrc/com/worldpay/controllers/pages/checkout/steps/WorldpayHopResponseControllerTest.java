@@ -7,6 +7,7 @@ import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.WorldpayAddonEndpointService;
+import com.worldpay.service.hop.WorldpayOrderCodeVerificationService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
@@ -120,6 +121,8 @@ public class WorldpayHopResponseControllerTest {
     private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
     @Mock
     private WorldpayAfterRedirectValidationFacade worldpayAfterRedirectValidationFacadeMock;
+    @Mock
+    private WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationServiceMock;
 
     @Before
     public void setUp() {
@@ -132,6 +135,7 @@ public class WorldpayHopResponseControllerTest {
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMapOf(String.class, String.class))).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn("hostedOrderPostPage");
+        when(worldpayOrderCodeVerificationServiceMock.isValidEncryptedOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(true);
         mockHttpServletRequest.setParameter(PAYMENT_STATUS_PARAMETER_NAME, ERROR.name());
     }
 
@@ -238,10 +242,20 @@ public class WorldpayHopResponseControllerTest {
         when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(false);
 
-        final String result = testObj.doHandleBankTransferHopResponse(mockHttpServletRequest, modelMock, redirectAttributesMock);
+        final String result = testObj.doHandleBankTransferHopResponse(WORLDPAY_ORDER_CODE, mockHttpServletRequest, modelMock, redirectAttributesMock);
 
         verify(worldpayHostedOrderFacadeMock).completeRedirectAuthorise(redirectAuthoriseResultMock);
         assertEquals(ORDER_CONF_PREFIX + ORDER_CODE, result);
+    }
+
+    @Test
+    public void doHandleBankTransferHopResponse_WhenOrderCodeDoesNotMatch_ShouldNotPlaceTheOrder() {
+        when(worldpayOrderCodeVerificationServiceMock.isValidEncryptedOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(false);
+
+        final String result = testObj.doHandleBankTransferHopResponse(WORLDPAY_ORDER_CODE, mockHttpServletRequest, modelMock, redirectAttributesMock);
+
+        assertEquals(REDIRECT_URL_CHOOSE_PAYMENT_METHOD, result);
+        verify(worldpayHostedOrderFacadeMock, never()).completeRedirectAuthorise(redirectAuthoriseResultMock);
     }
 
     @Test

@@ -98,7 +98,7 @@ public class AuthoriseRequestTransformerTest {
         final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
         final com.worldpay.internal.model.Order intOrder = (com.worldpay.internal.model.Order) orderList.get(0);
 
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrInfo3DSecureOrSession();
         final String description = orderElements.stream().filter(Description.class::isInstance).map(Description.class::cast).findFirst().map(Description::getvalue).orElse(null);
         assertEquals("Incorrect description", DESCRIPTION, description);
 
@@ -111,7 +111,7 @@ public class AuthoriseRequestTransformerTest {
 
         final com.worldpay.internal.model.Shopper intShopper = orderElements.stream().filter(com.worldpay.internal.model.Shopper.class::isInstance).map(com.worldpay.internal.model.Shopper.class::cast).findFirst().orElse(null);
         assertNotNull(intShopper);
-        assertEquals(AUTH_SHOPPER_ID, intShopper.getAuthenticatedShopperID());
+        assertEquals(AUTH_SHOPPER_ID, intShopper.getAuthenticatedShopperID().getvalue());
 
         final com.worldpay.internal.model.PaymentMethodAttribute intPaymentMethodAttribute = orderElements.stream().filter(com.worldpay.internal.model.PaymentMethodAttribute.class::isInstance).map(com.worldpay.internal.model.PaymentMethodAttribute.class::cast).findFirst().orElse(null);
         assertEquals(intPaymentMethodAttributeMock, intPaymentMethodAttribute);
@@ -150,7 +150,7 @@ public class AuthoriseRequestTransformerTest {
         final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
         final com.worldpay.internal.model.Order intOrder = (com.worldpay.internal.model.Order) orderList.get(0);
 
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrInfo3DSecureOrSession();
         final String description = orderElements.stream().filter(Description.class::isInstance).map(Description.class::cast).findFirst().map(Description::getvalue).orElse(null);
         assertEquals("Incorrect description", DESCRIPTION, description);
 

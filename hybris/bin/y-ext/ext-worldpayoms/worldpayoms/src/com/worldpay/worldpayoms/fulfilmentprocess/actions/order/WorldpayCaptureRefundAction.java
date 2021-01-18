@@ -10,7 +10,6 @@ import de.hybris.platform.returns.model.ReturnProcessModel;
 import de.hybris.platform.returns.model.ReturnRequestModel;
 import de.hybris.platform.warehousing.returns.service.RefundAmountCalculationService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,8 +26,13 @@ import static java.text.MessageFormat.format;
 public class WorldpayCaptureRefundAction extends AbstractSimpleDecisionAction<ReturnProcessModel> {
     private static final Logger LOG = Logger.getLogger(WorldpayCaptureRefundAction.class);
 
-    private PaymentService paymentService;
-    private RefundAmountCalculationService refundAmountCalculationService;
+    protected final PaymentService paymentService;
+    protected final RefundAmountCalculationService refundAmountCalculationService;
+
+    public WorldpayCaptureRefundAction(final PaymentService paymentService, final RefundAmountCalculationService refundAmountCalculationService) {
+        this.paymentService = paymentService;
+        this.refundAmountCalculationService = refundAmountCalculationService;
+    }
 
     @Override
     public Transition executeAction(final ReturnProcessModel process) {
@@ -85,15 +89,5 @@ public class WorldpayCaptureRefundAction extends AbstractSimpleDecisionAction<Re
 
     protected PaymentService getPaymentService() {
         return paymentService;
-    }
-
-    @Required
-    public void setPaymentService(final PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
-
-    @Required
-    public void setRefundAmountCalculationService(final RefundAmountCalculationService refundAmountCalculationService) {
-        this.refundAmountCalculationService = refundAmountCalculationService;
     }
 }

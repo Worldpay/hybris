@@ -15,14 +15,19 @@ import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import rx.Observable;
 import rx.Single;
+import rx.functions.Func1;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -40,7 +45,9 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     protected final ConfigurationService configurationService;
     protected final RestTemplate restTemplate;
 
-    public DefaultWorldpayConnector(final PaymentServiceMarshaller paymentServiceMarshaller, final ConfigurationService configurationService, final RestTemplate restTemplate) {
+    public DefaultWorldpayConnector(final PaymentServiceMarshaller paymentServiceMarshaller,
+                                    final ConfigurationService configurationService,
+                                    final RestTemplate restTemplate) {
         this.paymentServiceMarshaller = paymentServiceMarshaller;
         this.configurationService = configurationService;
         this.restTemplate = restTemplate;
@@ -54,9 +61,9 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
         return processResponseXML(responseXML.get());
     }
 
-    private Single<ResponseEntity<String>> sendOutboundXML(final PaymentService paymentService,
-                                                           final MerchantInfo merchantInfo,
-                                                           final String cookie) throws WorldpayException {
+    protected Single<ResponseEntity<String>> sendOutboundXML(final PaymentService paymentService,
+                                                             final MerchantInfo merchantInfo,
+                                                             final String cookie) throws WorldpayException {
         final String environment = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT);
         final String domain = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_DOMAIN + "." + environment);
         final String context = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_CONTEXT + "." + environment);
@@ -67,10 +74,20 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
         final HttpHeaders headers = configureHttpHeaders(merchantInfo, cookie, uri.getHost());
         final HttpEntity<String> request = configureRequest(paymentService, headers);
 
+        final AtomicInteger maxAttemptNumber = new AtomicInteger(0);
+
         return Observable.just(restTemplate)
-                .map(template -> template.postForEntity(uri, request, String.class))
-                .retry(2)
-                .toSingle();
+            .map(template -> template.postForEntity(uri, request, String.class))
+            .retryWhen(observable -> observable.flatMap((Func1<Throwable, Observable<?>>) throwable -> {
+                // Retry just if the number if attempt is lower than max number attempts and if is an IOException or ResourceAccessException
+                if ((throwable instanceof IOException || throwable instanceof ResourceAccessException) && maxAttemptNumber.getAndIncrement() < 3) {
+                    // Retry code
+                    return Observable.timer(200, TimeUnit.MILLISECONDS);
+                }
+                // Pass the throwable
+                return Observable.error(throwable);
+            }))
+            .toSingle();
     }
 
     private HttpHeaders configureHttpHeaders(final MerchantInfo merchantInfo, final String cookie, final String host) {

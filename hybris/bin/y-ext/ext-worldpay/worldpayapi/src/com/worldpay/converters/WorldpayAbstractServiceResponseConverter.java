@@ -8,7 +8,6 @@ import de.hybris.platform.converters.impl.AbstractConverter;
 import de.hybris.platform.payment.commands.result.AbstractResult;
 import de.hybris.platform.payment.dto.TransactionStatusDetails;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -24,7 +23,11 @@ import static de.hybris.platform.payment.dto.TransactionStatusDetails.*;
  */
 public abstract class WorldpayAbstractServiceResponseConverter<S extends ServiceResponse, T extends AbstractResult> extends AbstractConverter<S, T> {
 
-    private WorldpayOrderService worldpayOrderService;
+    protected final WorldpayOrderService worldpayOrderService;
+
+    protected WorldpayAbstractServiceResponseConverter(final WorldpayOrderService worldpayOrderService) {
+        this.worldpayOrderService = worldpayOrderService;
+    }
 
     /**
      * Returns a BigDecimal with the proper value after applying to the value returned from Worldpay the fraction digits from the {@link Currency} used.
@@ -34,11 +37,6 @@ public abstract class WorldpayAbstractServiceResponseConverter<S extends Service
      */
     protected BigDecimal getTotalAmount(final Amount amount) {
         return worldpayOrderService.convertAmount(amount);
-    }
-
-    @Required
-    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
     }
 
     /**

@@ -22,11 +22,11 @@
     <context:annotation-config/>
 
     <bean id="worldpayViewChangeBeforeViewHandlerAdaptee" class="com.worldpay.interceptors.beforeview.WorldpayViewChangeBeforeViewHandler">
-        <property name="viewMap">
+        <constructor-arg name="viewMap">
             <map>
                 <entry key="pages/checkout/checkoutConfirmationPage" value="addon:/worldpayaddon/pages/checkout/worldpayOrderConfirmationPage"/>
             </map>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean id="worldpayViewChangeBeforeViewHandler" parent="beforeViewHandlerAdapter">
@@ -40,7 +40,7 @@
 
     <bean id="worldpayJsVariablesBeforeViewHandlerAdaptee"
           class="com.worldpay.interceptors.beforeview.WorldpayJsVariablesBeforeViewHandler">
-        <property name="siteConfigService" ref="siteConfigService"/>
+        <constructor-arg name="siteConfigService" ref="siteConfigService"/>
     </bean>
 
     <bean id="worldpayJsVariablesBeforeViewHandler" parent="beforeViewHandlerAdapter">

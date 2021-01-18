@@ -26,9 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForMerchantToken;
 import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -83,7 +81,7 @@ public class CreateTokenRequestTransformerTest {
         final CSEDATA cseData = (CSEDATA) paymentTokenCreate.getPaymentInstrumentOrCSEDATA().get(0);
 
         assertEquals(MERCHANT_INFO.getMerchantCode(), result.getMerchantCode());
-        assertEquals(AUTH_SHOPPER_ID, paymentTokenCreate.getAuthenticatedShopperID());
+        assertEquals(AUTH_SHOPPER_ID, paymentTokenCreate.getAuthenticatedShopperID().getvalue());
         assertEquals(TOKEN_REFERENCE, paymentTokenCreate.getCreateToken().getTokenEventReference());
         assertEquals(TOKEN_REASON, paymentTokenCreate.getCreateToken().getTokenReason().getvalue());
         assertEquals(ENCRYPTED_DATA, cseData.getEncryptedData());

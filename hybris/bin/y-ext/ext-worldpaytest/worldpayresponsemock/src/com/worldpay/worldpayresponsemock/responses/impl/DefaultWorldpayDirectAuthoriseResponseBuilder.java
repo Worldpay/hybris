@@ -52,12 +52,14 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
         for (Object requestElement : requestElements) {
             if (requestElement instanceof Shopper) {
                 final Shopper shopper = (Shopper) requestElement;
-                authenticatedShopperId = shopper.getAuthenticatedShopperID();
+                authenticatedShopperId = Optional.ofNullable(shopper.getAuthenticatedShopperID())
+                    .map(AuthenticatedShopperID::getvalue)
+                    .orElse(null);
             }
 
             if (requestElement instanceof Order) {
                 final Order requestOrder = (Order) requestElement;
-                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
+                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrInfo3DSecureOrSession();
                 final Amount intAmount = orderElements.stream()
                     .filter(Amount.class::isInstance)
                     .map(Amount.class::cast)

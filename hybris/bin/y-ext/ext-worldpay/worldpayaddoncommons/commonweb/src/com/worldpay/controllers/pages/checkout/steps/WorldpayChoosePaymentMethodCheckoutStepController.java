@@ -21,6 +21,8 @@ import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +41,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/choose-payment-method")
 public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
+
+    protected static final Logger LOG = LogManager.getLogger(WorldpayChoosePaymentMethodCheckoutStepController.class);
 
     protected static final String REGIONS = "regions";
     protected static final String PAYMENT_INFOS = "paymentInfos";
@@ -171,16 +175,21 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
      */
     @GetMapping(value = "/choose")
     @RequireHardLogIn
-    public String doSelectPaymentMethod(@RequestParam("selectedPaymentMethodId") final String selectedPaymentMethodId) {
+    public String doSelectPaymentMethod(@RequestParam("selectedPaymentMethodId") final String selectedPaymentMethodId,
+                                        final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
         if (isNotBlank(selectedPaymentMethodId)) {
             getSessionService().setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, Boolean.TRUE);
             getCheckoutFacade().setPaymentDetails(selectedPaymentMethodId);
             // For B2B the payment address needs to be set from paymentInfo
             worldpayCartFacade.setBillingAddressFromPaymentInfo();
-        }
-        return getCheckoutStep().nextStep();
-    }
 
+            return getCheckoutStep().nextStep();
+        } else {
+            LOG.error("The payment id for the selected payment method null or empty.");
+            GlobalMessages.addErrorMessage(model, "worldpay.error.selected.payment.invalid");
+            return enterStep(model, redirectAttributes);
+        }
+    }
 
     /**
      * Removes a saved payment info from the customers account

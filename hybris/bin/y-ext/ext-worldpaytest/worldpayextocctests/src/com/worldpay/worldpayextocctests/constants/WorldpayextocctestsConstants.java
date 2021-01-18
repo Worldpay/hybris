@@ -1,14 +1,14 @@
 package com.worldpay.worldpayextocctests.constants;
 
-@SuppressWarnings({"deprecation","squid:CallToDeprecatedMethod"})
+@SuppressWarnings("java:S1874")
 public class WorldpayextocctestsConstants extends GeneratedWorldpayextocctestsConstants
 {
 	public static final String EXTENSIONNAME = "worldpayextocctests";
-	
+
 	private WorldpayextocctestsConstants()
 	{
 		//empty
 	}
-	
-	
+
+
 }

@@ -27,11 +27,10 @@ import static com.worldpay.worldpayresponsemock.controllers.pages.WorldpayOrderM
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayOrderModificationMockControllerTest {
 
     private static final Integer RESPONSE_CODE = 10;
@@ -42,7 +41,6 @@ public class WorldpayOrderModificationMockControllerTest {
     private static final String HTTP_SCHEME = "http";
     private static final int SERVER_PORT = 80;
     private static final String SERVER_NAME = "serverName";
-    private static final String SITEID = "siteid";
     private static final String CREDIT_CARD_NUMBER = "4444333322221111";
     private static final String CREDIT_CARD_NUMBER_2 = "630495060000000000";
     private static final String DEFAULT_AAV_RESULT = "B";
@@ -65,8 +63,8 @@ public class WorldpayOrderModificationMockControllerTest {
     private ModelMap modelMock;
     @Mock
     private HttpServletRequest requestMock;
-    @Mock (name = "ISO8583ResponseCodes")
-    private Map<Integer, String> isoResponseCodesMock;
+    @Mock(name = "iso8583ResponseCodes")
+    private Map<Integer, String> iso8583ResponseCodesMock;
     @Mock
     private WorldpayNotificationResponseBuilder worldpayResponseBuilderMock;
     @Mock
@@ -79,9 +77,9 @@ public class WorldpayOrderModificationMockControllerTest {
     private BaseSiteModel site2Mock;
     @Mock
     private WorldpayResponseMockMerchantInfoService worldpayMerchantMockServiceMock;
-    @Mock (name = "worldpayCreditCards")
+    @Mock(name = "worldpayCreditCards")
     private Map<String, String> worldpayCreditCardsMock;
-    @Mock (name = "worldpayPaymentMethods")
+    @Mock(name = "worldpayPaymentMethods")
     private Map<String, String> worldpayPaymentMethodsMock;
     @Mock
     private Set<String> possibleEventsMock;
@@ -93,7 +91,7 @@ public class WorldpayOrderModificationMockControllerTest {
     @Before
     public void setUp() throws WorldpayException {
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
-        when(isoResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
+        when(iso8583ResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
         when(responseFormMock.getTestCreditCard()).thenReturn(CREDIT_CARD_NUMBER);
         when(responseFormMock.getObfuscatedPAN()).thenReturn(CREDIT_CARD_NUMBER);
         when(worldpayResponseBuilderMock.buildResponse(responseFormMock)).thenReturn(SOME_RESPONSE);
@@ -133,7 +131,7 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(responseFormMock).setResponseDescription(RESPONSE_DESCRIPTION);
         verify(modelMock).put(eq(PAYMENT_METHOD_APMS), anySetOf(String.class));
         verify(modelMock).put(XML_RESPONSE, PRETTY_XML);
-        verify(modelMock).put(RESPONSE_CODES, isoResponseCodesMock);
+        verify(modelMock).put(RESPONSE_CODES, iso8583ResponseCodesMock);
         verify(modelMock).put(TEST_CREDIT_CARDS, worldpayCreditCardsMock);
         verify(modelMock).put(PAYMENT_METHODS, worldpayPaymentMethodsMock);
         verify(modelMock).put(POSSIBLE_EVENTS, possibleEventsMock);
@@ -147,7 +145,7 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(apmConfigurationLookupServiceMock).getAllApmPaymentTypeCodes();
         verify(modelMock).put(eq(PAYMENT_METHOD_APMS), anySetOf(String.class));
         verify(modelMock, never()).put(eq(XML_RESPONSE), anyString());
-        verify(modelMock).put(RESPONSE_CODES, isoResponseCodesMock);
+        verify(modelMock).put(RESPONSE_CODES, iso8583ResponseCodesMock);
         verify(modelMock).put(TEST_CREDIT_CARDS, worldpayCreditCardsMock);
         verify(modelMock).put(PAYMENT_METHODS, worldpayPaymentMethodsMock);
         verify(modelMock).put(POSSIBLE_EVENTS, possibleEventsMock);

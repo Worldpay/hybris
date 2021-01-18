@@ -64,3 +64,9 @@
 .save_payment_details label {
     font-weight: normal;
 }
+
+.payment-info-summary {
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 15px;
+    padding: 10px 0;
+}

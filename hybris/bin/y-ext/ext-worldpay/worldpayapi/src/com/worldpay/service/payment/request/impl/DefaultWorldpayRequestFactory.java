@@ -237,7 +237,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
 
         final Address billingAddress = worldpayRequestService.getBillingAddress(cartModel, bankTransferAdditionalAuthInfo);
 
-        final Payment payment = worldpayRequestService.createBankPayment(bankTransferAdditionalAuthInfo.getPaymentMethod(),
+        final Payment payment = worldpayRequestService.createBankPayment(orderCode, bankTransferAdditionalAuthInfo.getPaymentMethod(),
             bankTransferAdditionalAuthInfo.getShopperBankCode());
 
         final String shopperEmailAddress = worldpayRequestService.getEmailForCustomer((CustomerModel) cartModel.getUser());

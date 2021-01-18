@@ -28,7 +28,7 @@ public class CardTokenRequestTest {
     public void paymentTokenCreateShouldContainAnAuthenticatedShopperIdIfProvided() throws WorldpayModelTransformationException {
         final CardTokenRequest cardTokenRequest = new CardTokenRequest(TOKEN_REQUEST, AUTHENTICATED_SHOPPER_ID, PAYMENT);
         final PaymentTokenCreate result = (PaymentTokenCreate) cardTokenRequest.transformToInternalModel();
-        assertEquals(AUTHENTICATED_SHOPPER_ID, result.getAuthenticatedShopperID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID, result.getAuthenticatedShopperID().getvalue());
     }
 
     @Test

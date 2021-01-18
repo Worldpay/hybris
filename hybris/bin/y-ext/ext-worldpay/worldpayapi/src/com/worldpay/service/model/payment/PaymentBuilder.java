@@ -482,19 +482,6 @@ public class PaymentBuilder {
     }
 
     /**
-     * Create a BankLink Nordea alternative payment
-     *
-     * @param shopperCountryCode
-     * @param successURL
-     * @param cancelURL
-     * @param pendingURL
-     * @return AlternativePayment object
-     */
-    public static AlternativePayment createBANKLINKNORDEASSL(final String shopperCountryCode, final String successURL, final String cancelURL, final String pendingURL) {
-        return new AlternativePayment(PaymentType.BANKLINK_NORDEA, shopperCountryCode, successURL, null, cancelURL, pendingURL);
-    }
-
-    /**
      * Create a Billing Partner alternative payment
      *
      * @param shopperCountryCode

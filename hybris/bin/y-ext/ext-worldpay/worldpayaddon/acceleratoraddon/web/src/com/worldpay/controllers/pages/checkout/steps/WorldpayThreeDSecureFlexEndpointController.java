@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpayDirectCheckoutStepController {
 
     private static final Logger LOG = LogManager.getLogger(WorldpayThreeDSecureFlexEndpointController.class);
+
     private static final String WORLDPAY_ADDON_PREFIX = "worldpay.addon.prefix";
     private static final String CHECKOUT_3DSECUREFLEX_RESPONSE_AUTOSUBMIT = "pages/checkout/multi/threedsflex/autosubmitThreeDSecureFlexResponse";
     private static final String UNDEFINED_PREFIX = "undefined";
@@ -62,7 +63,7 @@ public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpay
     /**
      * It handles the the second request to authorize the order in flex 3d secure flow. It triggers also the place order
      *
-     * @param model   - the page model
+     * @param model - the page model
      * @return String
      */
     @PostMapping(value = "/response/autosubmit")
