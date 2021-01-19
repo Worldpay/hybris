@@ -5,13 +5,11 @@ import com.worldpay.data.*;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
+import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.model.Request3DInfo;
+import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Card;
 import com.worldpay.service.model.token.TokenDetails;
 import com.worldpay.service.model.token.TokenReply;
@@ -20,8 +18,11 @@ import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
+import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.OrderData;
+import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
@@ -30,10 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
@@ -69,10 +67,13 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
     private static final String CARD_NUMBER = "cardNumber";
 
+    final Date expiryDate = new Date("01", "2025");
+
     @Rule
     @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Spy
     @InjectMocks
     private DefaultWorldpayDirectOrderFacade testObj;
 
@@ -92,6 +93,8 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
     @Mock
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
+    @Mock
+    private Populator<WorldpayAPMPaymentInfoModel, CCPaymentInfoData> apmPaymentInfoPopulatorMock;
 
     @Mock
     private CartModel cartModelMock;
@@ -123,6 +126,12 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private TokenDetails tokenDetailsMock;
     @Mock
     private Card cardDetailsMock;
+    @Mock
+    private GooglePayPaymentInfoModel googlePayPaymentInfoMock;
+    @Mock
+    private CCPaymentInfoData ccPaymentInfoData;
+    @Captor
+    private ArgumentCaptor<DirectResponseData> directResponseDataArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -510,13 +519,14 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(directAuthoriseServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
         when(directAuthoriseServiceResponseMock.getPaymentReply().getCardDetails()).thenReturn(cardDetailsMock);
         when(cardDetailsMock.getCardNumber()).thenReturn(CARD_NUMBER);
+        when(cardDetailsMock.getExpiryDate()).thenReturn(expiryDate);
         when(directAuthoriseServiceResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails()).thenReturn(tokenDetailsMock);
         when(tokenDetailsMock.getPaymentTokenID()).thenReturn(PAYMENT_TOKEN_ID);
 
         testObj.authoriseGooglePayDirect(googlePayAdditionalAuthInfoMock);
 
-        verify(worldpayPaymentInfoServiceMock).createPaymentInfoGooglePay(cartModelMock, googlePayAdditionalAuthInfoMock, PAYMENT_TOKEN_ID, CARD_NUMBER);
+        verify(worldpayPaymentInfoServiceMock).createPaymentInfoGooglePay(cartModelMock, googlePayAdditionalAuthInfoMock, PAYMENT_TOKEN_ID, cardDetailsMock);
     }
 
     @Test
@@ -527,7 +537,7 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         testObj.authoriseGooglePayDirect(googlePayAdditionalAuthInfoMock);
 
-        verify(worldpayPaymentInfoServiceMock, never()).createPaymentInfoGooglePay(any(CartModel.class), any(GooglePayAdditionalAuthInfo.class), any(String.class), any(String.class));
+        verify(worldpayPaymentInfoServiceMock, never()).createPaymentInfoGooglePay(any(CartModel.class), any(GooglePayAdditionalAuthInfo.class), any(String.class), any(Card.class));
     }
 
     @Test
@@ -721,5 +731,32 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock);
 
         verifyNoMoreInteractions(worldpayDirectOrderServiceMock);
+    }
+
+    @Test
+    public void processDirectResponse_whenGooglePayPaymentInfoAuthorisation_ShouldPopulateApmAttributes() throws WorldpayException, InvalidCartException {
+        when(directAuthoriseServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
+        when(directAuthoriseServiceResponseMock.getPaymentReply().getCardDetails()).thenReturn(cardDetailsMock);
+        when(cardDetailsMock.getCardNumber()).thenReturn(CARD_NUMBER);
+        when(cardDetailsMock.getExpiryDate()).thenReturn(expiryDate);
+        when(cartModelMock.getPaymentInfo()).thenReturn(googlePayPaymentInfoMock);
+        when(acceleratorCheckoutFacadeMock.placeOrder()).thenReturn(orderDataMock);
+
+        testObj.processDirectResponse(directAuthoriseServiceResponseMock, cartModelMock);
+
+        verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock);
+        verify(testObj).populateApmAttributes(eq(cartModelMock), directResponseDataArgumentCaptor.capture());
+    }
+
+    @Test
+    public void populateApmAttributes_ShouldPopulateApmAttributes() {
+        final DirectResponseData responseData = new DirectResponseData();
+        responseData.setOrderData(orderDataMock);
+        when(orderDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoData);
+        when(cartModelMock.getPaymentInfo()).thenReturn(googlePayPaymentInfoMock);
+
+        testObj.populateApmAttributes(cartModelMock, responseData);
+
+        verify(apmPaymentInfoPopulatorMock).populate(googlePayPaymentInfoMock, ccPaymentInfoData);
     }
 }

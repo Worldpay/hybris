@@ -100,6 +100,16 @@ public interface WorldpayPaymentTransactionService {
     PaymentTransactionEntryModel createCapturedPaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final OrderNotificationMessage orderNotificationMessage);
 
     /**
+     * Creates a new PaymentTransactionEntry of the type {@link PaymentTransactionType#REFUND_FOLLOW_ON}
+     * associated to {@param paymentTransaction} {@link PaymentTransactionModel#getEntries()}
+     *
+     * @param paymentTransaction       The {@link PaymentTransactionModel} to add the new Refund {@link PaymentTransactionType#REFUND_FOLLOW_ON} paymentTransactionEntry
+     * @param orderNotificationMessage The {@link OrderNotificationMessage} to get the information from
+     * @return the new {@link PaymentTransactionType#REFUND_FOLLOW_ON} PaymentTransactionEntry created
+     */
+    PaymentTransactionEntryModel createRefundedPaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final OrderNotificationMessage orderNotificationMessage);
+
+    /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}
      * associated to {@param paymentTransaction} with {@link PaymentTransactionEntryModel#getPending()} = true
      *
@@ -198,7 +208,7 @@ public interface WorldpayPaymentTransactionService {
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#CANCEL}
      * associated to {@param paymentTransaction} with {@link PaymentTransactionEntryModel#getPending()} = false
      *
-     * @param paymentTransactionModel              The {@link PaymentTransactionModel} to associate the paymentTransactionEntry to
+     * @param paymentTransactionModel The {@link PaymentTransactionModel} to associate the paymentTransactionEntry to
      * @return the new {@link PaymentTransactionType#SETTLED} PaymentTransactionEntry created
      */
     PaymentTransactionEntryModel createNotPendingCancelOrderTransactionEntry(final PaymentTransactionModel paymentTransactionModel);

@@ -39,12 +39,15 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
     private Submit submitMock;
     @Mock (answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTokenCreate paymentTokenCreateMock;
+    @Mock
+    private AuthenticatedShopperID authenticatedShopperIDMock;
 
     @Test
     public void buildTokenResponse() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(Collections.singletonList(submitMock));
         when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge()).thenReturn(Collections.singletonList(paymentTokenCreateMock));
-        when(paymentTokenCreateMock.getAuthenticatedShopperID()).thenReturn(AUTHENTICATED_SHOPPER_ID);
+        when(paymentTokenCreateMock.getAuthenticatedShopperID()).thenReturn(authenticatedShopperIDMock);
+        when(authenticatedShopperIDMock.getvalue()).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(paymentTokenCreateMock.getCreateToken().getTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
 
         final PaymentService result = testObj.buildTokenResponse(paymentServiceMock);
@@ -55,11 +58,11 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         final TokenDetails tokenDetails = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().stream().filter(TokenDetails.class::isInstance).map(TokenDetails.class::cast).findAny().orElseThrow(() -> new IllegalStateException("TokenDetails not present"));
         final PaymentInstrument paymentInstrument = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().stream().filter(PaymentInstrument.class::isInstance).map(PaymentInstrument.class::cast).findAny().orElseThrow(() -> new IllegalStateException("PaymentDetails not present"));
 
-        final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
+        final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
         final Derived derived = cardDetails.getDerived();
         final Date expiryDate = cardDetails.getExpiryDate().getDate();
 
-        assertEquals(AUTHENTICATED_SHOPPER_ID, token.getAuthenticatedShopperID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID, token.getAuthenticatedShopperID().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, token.getTokenEventReference());
 
         assertEquals(CARD_BRAND, derived.getCardBrand());

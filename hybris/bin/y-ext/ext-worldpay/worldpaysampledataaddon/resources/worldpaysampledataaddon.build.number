@@ -1,11 +1,11 @@
 #Ant properties
-#Fri Nov 20 08:50:11 UTC 2020
+#Mon Jan 18 16:01:45 UTC 2021
 version.api=2005
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpaysampledataaddon
 description=worldpaysampledataaddon
-builddate=20201120 0850
-releasedate=20201105 1200
-version=2005.5
+builddate=20210118 1601
+releasedate=20201209 2017
+version=2005.6
 module.name=platform-module

@@ -5,6 +5,8 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="ycommerce" uri="http://hybris.com/tld/ycommercetags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="wp-multi-checkout" tagdir="/WEB-INF/tags/addons/worldpayaddon/responsive/checkout/multi" %>
 
 <spring:htmlEscape defaultHtmlEscape="true" />
@@ -23,6 +25,25 @@
                 <ycommerce:testId code="checkoutStepFour">
                     <div class="checkout-review hidden-xs">
                         <div class="checkout-order-summary">
+                            <div class="address payment-info-summary">
+                                <c:choose>
+                                    <c:when test="${cartData.paymentInfo != null}">
+                                        <strong>
+                                                ${fn:escapeXml(cartData.paymentInfo.accountHolderName)}
+                                        </strong>
+                                        <br>${fn:escapeXml(cartData.paymentInfo.cardTypeData.name)}, ${fn:escapeXml(cartData.paymentInfo.cardNumber)}
+                                        <br>
+                                        <c:if test="${cartData.paymentInfo.expiryMonth lt 10}">0</c:if>
+                                        ${fn:escapeXml(cartData.paymentInfo.expiryMonth)}&nbsp;/&nbsp;${fn:escapeXml(cartData.paymentInfo.expiryYear)}
+                                        <br>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <strong>
+                                                ${fn:escapeXml(cartData.worldpayAPMPaymentInfo.name)}
+                                        </strong>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                             <multi-checkout:orderTotals cartData="${cartData}" showTaxEstimate="${showTaxEstimate}" showTax="${showTax}" subtotalsCssClasses="dark"/>
                         </div>
                     </div>

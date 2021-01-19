@@ -43,7 +43,7 @@
 
     <bean id="worldpayResponseMockMerchantInfoService" class="com.worldpay.worldpayresponsemock.merchant.impl.DefaultWorldpayResponseMockMerchantInfoService" parent="worldpayMerchantInfoService"/>
 
-    <util:map id="ISO8583ResponseCodes" key-type="java.lang.Integer">
+    <util:map id="iso8583ResponseCodes" key-type="java.lang.Integer">
         <entry key="0" value="AUTHORISED"/>
         <entry key="2" value="REFERRED"/>
         <entry key="3" value="INVALID ACCEPTOR"/>

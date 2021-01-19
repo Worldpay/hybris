@@ -1,15 +1,13 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 
 /**
- * This class represents the details that are passed back from a call to {@link WorldpayServiceGateway#redirectAuthorise(RedirectAuthoriseServiceRequest) redirectAuthorise()} in the
- * WorldpayServiceGateway
+ * This class represents the details that are passed back from a call to
+ * {@link com.worldpay.service.WorldpayServiceGateway#redirectAuthorise(com.worldpay.service.request.RedirectAuthoriseServiceRequest) redirectAuthorise()} in the
+ * {@link com.worldpay.service.WorldpayServiceGateway}
  * <p/>
- * <p>On top of the standard parameters it provides a {@link RedirectReference} with details of the url that the user should be redirected to in order to take payment</p>
+ * <p>On top of the standard parameters it provides a {@link com.worldpay.service.model.RedirectReference} with details of the url that the user should be redirected to in order to take payment</p>
  */
 public class SecondThreeDSecurePaymentServiceResponse extends AbstractServiceResponse {
 
@@ -44,9 +42,9 @@ public class SecondThreeDSecurePaymentServiceResponse extends AbstractServiceRes
     @Override
     public String toString() {
         return "SecondThreeDSecurePaymentServiceResponse{" +
-                "merchantCode='" + merchantCode + '\'' +
-                ", version='" + version + '\'' +
-                ", paymentReply=" + paymentReply +
-                '}';
+            "merchantCode='" + merchantCode + '\'' +
+            ", version='" + version + '\'' +
+            ", paymentReply=" + paymentReply +
+            '}';
     }
 }

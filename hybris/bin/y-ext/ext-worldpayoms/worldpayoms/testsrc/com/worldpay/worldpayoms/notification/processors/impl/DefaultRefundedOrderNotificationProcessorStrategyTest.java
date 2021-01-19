@@ -1,6 +1,5 @@
 package com.worldpay.worldpayoms.notification.processors.impl;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -59,7 +58,7 @@ public class DefaultRefundedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldMarkPaymentTransactionEntriesAsNonPendingWhenTheRefundReferenceMatches() {
+    public void processNotificationMessage_WhenTheRefundReferenceMatches_ShouldMarkPaymentTransactionEntriesAsNonPending() {
         when(orderNotificationMessageMock.getPaymentReply().getRefundReference()).thenReturn(REFUND_REFERENCE);
         when(paymentTransactionEntryModelMock.getCode()).thenReturn(REFUND_REFERENCE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(singletonList(paymentTransactionEntryModelMock));
@@ -71,7 +70,7 @@ public class DefaultRefundedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void shouldNotMarkPaymentTransactionEntriesAsNonPendingWhenTheRefundReferenceDoesNotMatches() {
+    public void processNotificationMessage_WhenTheRefundReferenceDoesNotMatches_ShouldNotMarkPaymentTransactionEntriesAsNonPending() {
         when(orderNotificationMessageMock.getPaymentReply().getRefundReference()).thenReturn(REFUND_REFERENCE);
         when(paymentTransactionEntryModelMock.getCode()).thenReturn(REFUND_REFERENCE + "_INVALID");
         when(paymentTransactionModelMock.getEntries()).thenReturn(singletonList(paymentTransactionEntryModelMock));

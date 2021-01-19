@@ -33,13 +33,22 @@ import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayGooglePayControllerTest {
+
+    private final static String COUNTRY_CODE = "US";
+    private final static String REGION_CODE = "CA";
+
+    @Spy
+    @InjectMocks
+    public WorldpayGooglePayController testObj;
+
     @Mock
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
     @Mock
@@ -52,11 +61,6 @@ public class WorldpayGooglePayControllerTest {
     private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacadeMock;
     @Mock
     private CheckoutCustomerStrategy checkoutCustomerStrategyMock;
-
-    @Spy
-    @InjectMocks
-    public WorldpayGooglePayController testObj;
-
     @Mock
     private GooglePayConfigData googlePaySettingsMock;
     @Mock
@@ -70,6 +74,14 @@ public class WorldpayGooglePayControllerTest {
     private PlaceOrderResponseWsDTO placeOrderResponseMock;
     @Mock
     private DirectResponseData directResponseMock;
+    @Mock
+    private CountryData countryDataMock;
+    @Mock
+    private AddressData addressDataMock;
+    @Mock
+    private RegionData regionDataMock;
+
+    private GooglePayAddressData googlePayAddressData = new GooglePayAddressData();
 
     @Before
     public void setup() throws WorldpayConfigurationException {
@@ -79,6 +91,10 @@ public class WorldpayGooglePayControllerTest {
         doReturn(placeOrderResponseMock)
             .when(testObj)
             .handleDirectResponse(directResponseMock, responseMock, FieldSetLevelHelper.DEFAULT_LEVEL);
+        when(i18NFacadeMock.getRegion(COUNTRY_CODE, REGION_CODE)).thenReturn(regionDataMock);
+
+        googlePayAddressData.setCountryCode(COUNTRY_CODE);
+        googlePayAddressData.setAdministrativeArea(REGION_CODE);
     }
 
     @Test
@@ -92,77 +108,51 @@ public class WorldpayGooglePayControllerTest {
     @Test
     public void authoriseOrder_shouldPopulateBillingAddressAndAuthoriseOrder() throws WorldpayException, InvalidCartException {
         final GooglePayAuthorisationRequest authorisationRequest = new GooglePayAuthorisationRequest();
-        final GooglePayAdditionalAuthInfo token = new GooglePayAdditionalAuthInfo();
-        token.setProtocolVersion("2");
-        token.setSignature("lorem ipsum dolor");
-        token.setSignedMessage("wop wop wop");
-        authorisationRequest.setToken(token);
-        authorisationRequest.setSaved(Boolean.TRUE);
-
-        final GooglePayAddressData billingAddress = new GooglePayAddressData();
-        billingAddress.setAddress1("Av Aragon 30");
-        billingAddress.setAddress2("Planta 8 oficina 999");
-        billingAddress.setLocality("Valencia");
-        billingAddress.setAdministrativeArea("Valencia");
-        billingAddress.setCountryCode("ES");
-        billingAddress.setName("James Bond");
-        billingAddress.setPostalCode("46015");
-
-        final String email = "test@test.com";
-        when(customer.getContactEmail()).thenReturn(email);
-
-        final CountryData country = mock(CountryData.class);
-        when(i18NFacadeMock.getCountryForIsocode("ES")).thenReturn(country);
-
+        final GooglePayAddressData billingAddress = createGooglePayAddressData();
+        final GooglePayAdditionalAuthInfo token = createGooglePayAdditionalAuthInfo(authorisationRequest);
         authorisationRequest.setBillingAddress(billingAddress);
 
+        when(customer.getContactEmail()).thenReturn("test@test.com");
+        when(i18NFacadeMock.getCountryForIsocode(COUNTRY_CODE)).thenReturn(countryDataMock);
         when(worldpayDirectOrderFacadeMock.authoriseGooglePayDirect(token)).thenReturn(directResponseMock);
 
         testObj.authoriseOrder(authorisationRequest, FieldSetLevelHelper.DEFAULT_LEVEL, responseMock);
 
-        verify(i18NFacadeMock).getCountryForIsocode("ES");
+        verify(i18NFacadeMock).getCountryForIsocode(COUNTRY_CODE);
         verify(checkoutCustomerStrategyMock).getCurrentUserForCheckout();
         verify(userFacadeMock).addAddress(any(AddressData.class));
         verify(worldpayDirectOrderFacadeMock).authoriseGooglePayDirect(authorisationRequest.getToken());
         verify(worldpayPaymentCheckoutFacadeMock).setBillingDetails(any(AddressData.class));
         verify(userFacadeMock).addAddress(addressCaptor.capture());
-        verifyAddress(addressCaptor, country);
+        verifyAddress(addressCaptor, countryDataMock);
 
         assertTrue(token.getSaveCard());
     }
 
     @Test
     public void testSetRegion() {
-        final AddressData addressData = mock(AddressData.class);
-        final RegionData region = mock(RegionData.class);
-        final String countryCode = "US";
-        final String regionCode = "CA";
-        when(i18NFacadeMock.getRegion(countryCode, regionCode)).thenReturn(region);
+        testObj.setRegion(addressDataMock, googlePayAddressData);
 
-        final GooglePayAddressData address = new GooglePayAddressData();
-        address.setCountryCode(countryCode);
-        address.setAdministrativeArea(regionCode);
+        verify(addressDataMock).setRegion(regionDataMock);
+    }
 
-        testObj.setRegion(addressData, address);
+    @Test
+    public void testSetRegion_whenAdministrativeAreaIsEmpty() {
+        googlePayAddressData.setAdministrativeArea("");
 
-        verify(addressData).setRegion(region);
+        testObj.setRegion(addressDataMock, googlePayAddressData);
+
+        verifyZeroInteractions(i18NFacadeMock);
+        verify(addressDataMock, never()).setRegion(regionDataMock);
     }
 
     @Test
     public void testSetRegionNotFound() {
-        final String countryCode = "ES";
-        final String regionCode = "Valencia";
-        when(i18NFacadeMock.getRegion(countryCode, regionCode)).thenReturn(null);
+        when(i18NFacadeMock.getRegion(COUNTRY_CODE, REGION_CODE)).thenReturn(null);
 
-        final GooglePayAddressData address = new GooglePayAddressData();
-        address.setCountryCode(countryCode);
-        address.setAdministrativeArea(regionCode);
+        testObj.setRegion(addressDataMock, googlePayAddressData);
 
-        final AddressData addressData = mock(AddressData.class);
-
-        testObj.setRegion(addressData, address);
-
-        verifyZeroInteractions(addressData);
+        verifyZeroInteractions(addressDataMock);
     }
 
     private void verifyAddress(final ArgumentCaptor<AddressData> addressCaptor, final CountryData country) {
@@ -175,6 +165,28 @@ public class WorldpayGooglePayControllerTest {
         assertEquals("Planta 8 oficina 999", addressCaptor.getValue().getLine2());
         assertEquals("46015", addressCaptor.getValue().getPostalCode());
         assertEquals("Valencia", addressCaptor.getValue().getTown());
+    }
+
+    private GooglePayAddressData createGooglePayAddressData() {
+        final GooglePayAddressData billingAddress = new GooglePayAddressData();
+        billingAddress.setAddress1("Av Aragon 30");
+        billingAddress.setAddress2("Planta 8 oficina 999");
+        billingAddress.setLocality("Valencia");
+        billingAddress.setAdministrativeArea("CA");
+        billingAddress.setCountryCode("US");
+        billingAddress.setName("James Bond");
+        billingAddress.setPostalCode("46015");
+        return billingAddress;
+    }
+
+    private GooglePayAdditionalAuthInfo createGooglePayAdditionalAuthInfo(final GooglePayAuthorisationRequest authorisationRequest) {
+        final GooglePayAdditionalAuthInfo token = new GooglePayAdditionalAuthInfo();
+        token.setProtocolVersion("2");
+        token.setSignature("lorem ipsum dolor");
+        token.setSignedMessage("wop wop wop");
+        authorisationRequest.setToken(token);
+        authorisationRequest.setSaved(Boolean.TRUE);
+        return token;
     }
 }
 

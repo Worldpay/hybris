@@ -158,7 +158,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      */
     @Override
     public PaymentInfoModel createPaymentInfoGooglePay(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo,
-                                                       final String paymentTokenId, final String obfuscatedCardNumber) {
+                                                       final String paymentTokenId, final Card cardResponse) {
         validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         validateParameterNotNull(googleAuthInfo, "GooglePayAdditionalAuthInfo cannot be null");
 
@@ -171,7 +171,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             }
         }
 
-        final GooglePayPaymentInfoModel paymentInfoModel = createGooglePaymentInfoModel(cartModel, googleAuthInfo, paymentTokenId, obfuscatedCardNumber);
+        final GooglePayPaymentInfoModel paymentInfoModel = createGooglePaymentInfoModel(cartModel, googleAuthInfo, paymentTokenId, cardResponse);
 
         return updatePaymentInfo(cartModel, paymentInfoModel);
     }
@@ -191,7 +191,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setTransactionId(applePayAdditionalAuthInfo.getHeader().getTransactionId());
         cartModel.setPaymentInfo(paymentInfoModel);
         updatePaymentInfo(cartModel, paymentInfoModel);
-        modelService.saveAll(cartModel,paymentInfoModel);
+        modelService.saveAll(cartModel, paymentInfoModel);
         return paymentInfoModel;
     }
 
@@ -221,6 +221,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             .map(Card::getBin)
             .ifPresent(creditCardPaymentInfoModel::setBin);
         setPaymentTypeAndCreditCardType(creditCardPaymentInfoModel, tokenReply.getPaymentInstrument());
+        cloneAndSetBillingAddressFromCart((CartModel) abstractOrderModel, creditCardPaymentInfoModel);
         updateCreditCardModel(creditCardPaymentInfoModel, tokenReply, saveCard);
         return creditCardPaymentInfoModel;
     }
@@ -310,6 +311,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setBillingAddress(clonedAddress);
         return clonedAddress;
     }
+
     private void savePaymentInfoOnPaymentTransaction(final PaymentInfoModel paymentInfoModel, final PaymentTransactionModel paymentTransactionModel) {
         paymentTransactionModel.setInfo(paymentInfoModel);
         modelService.save(paymentTransactionModel);
@@ -561,7 +563,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         return paymentInfoModel;
     }
 
-    protected GooglePayPaymentInfoModel createGooglePaymentInfoModel(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo, final String paymentTokenId, final String obfuscatedCardNumber) {
+    protected GooglePayPaymentInfoModel createGooglePaymentInfoModel(final CartModel cartModel, final GooglePayAdditionalAuthInfo googleAuthInfo, final String paymentTokenId, final Card cardResponse) {
         final WorldpayAPMConfigurationModel worldpayAPMConfigurationModel = apmConfigurationLookupService.getAPMConfigurationForCode(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
         final GooglePayPaymentInfoModel paymentInfoModel = modelService.create(GooglePayPaymentInfoModel.class);
         paymentInfoModel.setUser(cartModel.getUser());
@@ -571,11 +573,19 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setSignedMessage(googleAuthInfo.getSignedMessage());
         paymentInfoModel.setApmConfiguration(worldpayAPMConfigurationModel);
         paymentInfoModel.setSubscriptionId(paymentTokenId);
-        paymentInfoModel.setObfuscatedCardNumber(obfuscatedCardNumber);
+        setGooglePayCardInformation(cardResponse, paymentInfoModel);
         paymentInfoModel.setSaved(googleAuthInfo.getSaveCard());
         cartModel.setPaymentInfo(paymentInfoModel);
         modelService.save(cartModel);
         return paymentInfoModel;
     }
 
+    private void setGooglePayCardInformation(final Card cardResponse, final GooglePayPaymentInfoModel paymentInfoModel) {
+        Optional.ofNullable(cardResponse).ifPresent(cardResponseDetails -> {
+            paymentInfoModel.setObfuscatedCardNumber(cardResponseDetails.getCardNumber());
+            final Date expiryDate = cardResponseDetails.getExpiryDate();
+            paymentInfoModel.setExpiryMonth(expiryDate.getMonth());
+            paymentInfoModel.setExpiryYear(expiryDate.getYear());
+        });
+    }
 }

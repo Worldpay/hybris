@@ -9,6 +9,7 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
+import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
@@ -24,9 +25,13 @@ import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.commercefacades.order.CartFacade;
+import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.OrderData;
+import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
@@ -63,6 +68,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     protected final CartFacade cartFacade;
     protected final WorldpayCartService worldpayCartService;
     protected final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    protected final Populator<WorldpayAPMPaymentInfoModel, CCPaymentInfoData> apmPaymentInfoPopulator;
 
     public DefaultWorldpayDirectOrderFacade(final WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategy,
                                             final WorldpayDirectOrderService worldpayDirectOrderService,
@@ -70,7 +76,10 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
                                             final AcceleratorCheckoutFacade acceleratorCheckoutFacade,
                                             final WorldpayPaymentInfoService worldpayPaymentInfoService,
                                             final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade,
-                                            final CartFacade cartFacade, final WorldpayCartService worldpayCartService, final WorldpayMerchantInfoService worldpayMerchantInfoService) {
+                                            final CartFacade cartFacade,
+                                            final WorldpayCartService worldpayCartService,
+                                            final WorldpayMerchantInfoService worldpayMerchantInfoService,
+                                            final Populator<WorldpayAPMPaymentInfoModel, CCPaymentInfoData> apmPaymentInfoPopulator) {
         this.worldpayAuthenticatedShopperIdStrategy = worldpayAuthenticatedShopperIdStrategy;
         this.worldpayDirectOrderService = worldpayDirectOrderService;
         this.cartService = cartService;
@@ -80,6 +89,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         this.cartFacade = cartFacade;
         this.worldpayCartService = worldpayCartService;
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
+        this.apmPaymentInfoPopulator = apmPaymentInfoPopulator;
     }
 
     /**
@@ -201,12 +211,11 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
                     .map((TokenReply::getTokenDetails))
                     .map(TokenDetails::getPaymentTokenID)
                     .orElse(null);
-                final String obfuscatedCardNumber = Optional.ofNullable(directAuthoriseServiceResponse.getPaymentReply())
+                final Card cardDetails = Optional.ofNullable(directAuthoriseServiceResponse.getPaymentReply())
                     .map(PaymentReply::getCardDetails)
-                    .map(Card::getCardNumber)
                     .orElse(null);
 
-                worldpayPaymentInfoService.createPaymentInfoGooglePay(cart, googlePayAdditionalAuthInfo, paymentTokenID, obfuscatedCardNumber);
+                worldpayPaymentInfoService.createPaymentInfoGooglePay(cart, googlePayAdditionalAuthInfo, paymentTokenID, cardDetails);
             }
             return handleDirectServiceResponse(directAuthoriseServiceResponse, cart);
         } catch (final WorldpayConfigurationException e) {
@@ -273,6 +282,9 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DirectResponseData executeSecondPaymentAuthorisation3DSecure(final String worldpayOrderCode) throws WorldpayException, InvalidCartException {
         final CartModel cartModel = worldpayCartService.findCartByWorldpayOrderCode(worldpayOrderCode);
@@ -335,8 +347,8 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         try {
             setAuthenticatedShopperIdOnAdditionalInfoData(worldpayAdditionalInfoData, abstractOrderModel.getUser());
             final var directAuthoriseServiceResponse = worldpayDirectOrderService.authoriseRecurringPayment(
-                    abstractOrderModel,
-                    worldpayAdditionalInfoData);
+                abstractOrderModel,
+                worldpayAdditionalInfoData);
             return handleDirectServiceResponse(directAuthoriseServiceResponse, abstractOrderModel);
         } catch (final WorldpayConfigurationException e) {
             LOG.error(THERE_IS_NO_CONFIGURATION);
@@ -373,7 +385,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     }
 
     protected DirectResponseData handleDirectServiceResponse(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel)
-            throws WorldpayException, InvalidCartException {
+        throws WorldpayException, InvalidCartException {
         if (shouldProcessResponse(serviceResponse)) {
             return processDirectResponse(serviceResponse, abstractOrderModel);
         } else {
@@ -387,9 +399,9 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         setAuthenticatedShopperIdOnAdditionalInfoData(worldpayAdditionalInfoData, abstractOrderModel.getUser());
 
         final DirectAuthoriseServiceResponse serviceResponse = worldpayDirectOrderService.authorise3DSecure(
-                abstractOrderModel.getWorldpayOrderCode(),
-                worldpayAdditionalInfoData,
-                paResponse);
+            abstractOrderModel.getWorldpayOrderCode(),
+            worldpayAdditionalInfoData,
+            paResponse);
         if (shouldProcessResponse(serviceResponse)) {
             return handle3DSecureResponse(abstractOrderModel, serviceResponse);
         } else if (Objects.nonNull(serviceResponse.getErrorDetail())) {
@@ -432,6 +444,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             if (AUTHORISED.equals(status)) {
                 worldpayDirectOrderService.completeAuthorise(serviceResponse, abstractOrderModel);
                 handleAuthorisedResponse(response);
+                populateApmAttributes(abstractOrderModel, response);
             } else if (REFUSED.equals(status)) {
                 handleRefusedResponse(response, paymentReply.getReturnCode());
             } else if (CANCELLED.equals(status)) {
@@ -444,6 +457,13 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             throwWorldpayException(errorMessage);
         }
         return response;
+    }
+
+    protected void populateApmAttributes(final AbstractOrderModel abstractOrderModel, final DirectResponseData response) {
+        final PaymentInfoModel paymentInfo = abstractOrderModel.getPaymentInfo();
+        if (paymentInfo instanceof GooglePayPaymentInfoModel) {
+            apmPaymentInfoPopulator.populate((WorldpayAPMPaymentInfoModel) paymentInfo, response.getOrderData().getPaymentInfo());
+        }
     }
 
     protected boolean shouldProcessResponse(final DirectAuthoriseServiceResponse serviceResponse) {

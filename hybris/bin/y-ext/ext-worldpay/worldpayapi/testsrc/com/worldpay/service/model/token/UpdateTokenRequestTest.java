@@ -47,7 +47,7 @@ public class UpdateTokenRequestTest {
         final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) result;
         assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID().getvalue());
         assertNull(paymentTokenUpdate.getAuthenticatedShopperID());
-        assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0));
+        assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0));
         assertEquals(TOKEN_REASON, paymentTokenUpdate.getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenUpdate.getTokenEventReference());
         assertEquals("merchant", paymentTokenUpdate.getTokenScope());
@@ -62,8 +62,8 @@ public class UpdateTokenRequestTest {
         assertTrue(result instanceof PaymentTokenUpdate);
         final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) result;
         assertEquals(PAYMENT_TOKEN_ID, paymentTokenUpdate.getPaymentTokenID().getvalue());
-        assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenUpdate.getAuthenticatedShopperID());
-        assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0));
+        assertEquals(AUTHENTICATED_SHOPPER_ID, paymentTokenUpdate.getAuthenticatedShopperID().getvalue());
+        assertEquals(intCardDetailsMock, paymentTokenUpdate.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0));
         assertEquals(TOKEN_REASON, paymentTokenUpdate.getTokenReason().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, paymentTokenUpdate.getTokenEventReference());
         assertEquals("shopper", paymentTokenUpdate.getTokenScope());

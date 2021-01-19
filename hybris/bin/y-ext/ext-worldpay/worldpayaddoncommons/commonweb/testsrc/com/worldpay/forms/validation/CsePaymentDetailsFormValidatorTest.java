@@ -11,18 +11,16 @@ import org.springframework.validation.Errors;
 
 import static com.worldpay.forms.validation.PaymentDetailsFormValidator.CHECKOUT_ERROR_TERMS_NOT_ACCEPTED;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CsePaymentDetailsFormValidatorTest {
 
     private static final String SOME_OTHER_METHOD_OF_PAYMENT = "someOtherMethodOfPayment";
 
     @InjectMocks
-    private CsePaymentDetailsFormValidator testObj = new CsePaymentDetailsFormValidator();
+    private CsePaymentDetailsFormValidator testObj;
 
     @Mock
     private PaymentDetailsForm paymentDetailsFormMock;
@@ -58,6 +56,6 @@ public class CsePaymentDetailsFormValidatorTest {
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
-        verify(errorsMock,never()).reject(CHECKOUT_ERROR_TERMS_NOT_ACCEPTED);
+        verify(errorsMock, never()).reject(CHECKOUT_ERROR_TERMS_NOT_ACCEPTED);
     }
 }
