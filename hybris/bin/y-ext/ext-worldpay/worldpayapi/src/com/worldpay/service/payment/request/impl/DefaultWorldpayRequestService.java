@@ -9,6 +9,7 @@ import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayUrlService;
+import com.worldpay.service.hop.WorldpayOrderCodeVerificationService;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.Payment;
@@ -30,9 +31,11 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
+import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 
+import java.security.GeneralSecurityException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -48,19 +51,22 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
     protected final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy;
     protected final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService;
     protected final CustomerEmailResolutionService customerEmailResolutionService;
+    protected final WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService;
 
     public DefaultWorldpayRequestService(final WorldpayUrlService bankWorldpayUrlService,
                                          final SiteConfigService siteConfigService,
                                          final Converter<AddressModel, Address> worldpayAddressConverter,
                                          final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy,
                                          final WorldpayDynamicInteractionResolverService worldpayDynamicInteractionResolverService,
-                                         final CustomerEmailResolutionService customerEmailResolutionService) {
+                                         final CustomerEmailResolutionService customerEmailResolutionService,
+                                         final WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService) {
         this.bankWorldpayUrlService = bankWorldpayUrlService;
         this.siteConfigService = siteConfigService;
         this.worldpayAddressConverter = worldpayAddressConverter;
         this.worldpayDeliveryAddressStrategy = worldpayDeliveryAddressStrategy;
         this.worldpayDynamicInteractionResolverService = worldpayDynamicInteractionResolverService;
         this.customerEmailResolutionService = customerEmailResolutionService;
+        this.worldpayOrderCodeVerificationService = worldpayOrderCodeVerificationService;
     }
 
     /**
@@ -137,9 +143,18 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
      * {@inheritDoc}
      */
     @Override
-    public Payment createBankPayment(final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException {
+    public Payment createBankPayment(final String worldpayOrderCode, final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException {
         if (IDEAL.getMethodCode().equals(paymentMethod)) {
-            return PaymentBuilder.createIDEALSSL(shopperBankCode, bankWorldpayUrlService.getFullSuccessURL(), bankWorldpayUrlService.getFullFailureURL(), bankWorldpayUrlService.getFullCancelURL());
+
+            String encryptedOrderCode;
+            try {
+                encryptedOrderCode = worldpayOrderCodeVerificationService.getEncryptedOrderCode(worldpayOrderCode);
+            } catch (final GeneralSecurityException e) {
+                throw new ConversionException(e.getMessage(), e);
+            }
+
+            final String successURL = bankWorldpayUrlService.getFullSuccessURL() + "?orderId=" + encryptedOrderCode;
+            return PaymentBuilder.createIDEALSSL(shopperBankCode, successURL, bankWorldpayUrlService.getFullFailureURL(), bankWorldpayUrlService.getFullCancelURL());
         }
         return null;
     }

@@ -43,7 +43,7 @@
     <bean id="worldpayAbstractServiceResponseConverter"
           class="com.worldpay.converters.WorldpayAbstractServiceResponseConverter" abstract="true"
           parent="abstractPopulatingConverter">
-        <property name="worldpayOrderService" ref="defaultWorldpayOrderService"/>
+        <constructor-arg name="worldpayOrderService" ref="defaultWorldpayOrderService"/>
     </bean>
 
     <alias name="worldpayVoidServiceResponseConverter" alias="voidServiceResponseConverter"/>
@@ -96,17 +96,8 @@
         <property name="worldpayAuthorisationResultService" ref="worldpayAuthorisationResultService"/>
     </bean>
 
-    <!-- The defaultUserFacade uses directly the AddressReversePopulator -->
-    <alias name="worldpayAddressEmailReversePopulator" alias="addressReversePopulator"/>
-    <bean id="worldpayAddressEmailReversePopulator"
-          class="com.worldpay.facades.order.converters.populators.WorldpayAddressEmailReversePopulator"
-          parent="defaultAddressReversePopulator"/>
-
     <bean id="worldpayAPMPaymentInfoPopulator"
           class="com.worldpay.facades.order.converters.populators.WorldpayAPMPaymentInfoPopulator"/>
-
-    <bean id="worldpayEmailAddressPopulator"
-          class="com.worldpay.facades.order.converters.populators.WorldpayEmailAddressPopulator"/>
 
     <bean id="worldpayOrderDataPopulator"
           class="com.worldpay.facades.order.converters.populators.WorldpayOrderDataPopulator">
@@ -166,11 +157,6 @@
         <property name="add" ref="worldpayAPMPaymentInfoPopulator"/>
     </bean>
 
-    <bean parent="modifyPopulatorList">
-        <property name="list" ref="addressConverter"/>
-        <property name="add" ref="worldpayEmailAddressPopulator"/>
-    </bean>
-
     <bean id="pageModelPopulatingConvertersMapMergeDirective" depends-on="pageModelConverterFactory"
           parent="mapMergeDirective">
         <property name="key">
@@ -215,12 +201,12 @@
         <property name="targetClass" value="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData"/>
         <property name="populators">
             <list>
-                <ref bean="APMPaymentInfoPopulator"/>
+                <ref bean="apmPaymentInfoPopulator"/>
             </list>
         </property>
     </bean>
 
-    <alias name="defaultWorldpayAPMPaymentInfoPopulator" alias="APMPaymentInfoPopulator"/>
+    <alias name="defaultWorldpayAPMPaymentInfoPopulator" alias="apmPaymentInfoPopulator"/>
     <bean id="defaultWorldpayAPMPaymentInfoPopulator"
           class="com.worldpay.converters.populators.DefaultWorldpayAPMPaymentInfoPopulator">
 

@@ -197,7 +197,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void allPaymentTransactionTypesAcceptedShouldReturnTrue() {
+    public void allPaymentTransactionTypesAcceptedForType_ShouldReturnTrue() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(authorisedAndAcceptedAndNotPendingEntryMock));
 
         final boolean result = testObj.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION);
@@ -206,7 +206,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void anyPaymentTransactionTypesOfWrongTypeShouldReturnFalse() {
+    public void areAllPaymentTransactionsAcceptedForType_WhenAnyPaymentTransactionTypesOfWrongType_ShouldReturnFalse() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(capturedEntryMock));
 
         final boolean result = testObj.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION);
@@ -215,7 +215,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void somePaymentTransactionTypesAcceptedAndSomeNotAcceptedShouldReturnFalse() {
+    public void areAllPaymentTransactionsAcceptedForType_WhenSomePaymentTransactionTypesAcceptedAndSomeNotAccepted_ShouldReturnFalse() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Arrays.asList(authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndAcceptedAndPendingEntryMock));
 
         final boolean result = testObj.areAllPaymentTransactionsAcceptedForType(orderModelMock, AUTHORIZATION);
@@ -224,7 +224,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void ifAllPaymentTransactionsPendingThenReturnTrue() {
+    public void isPaymentTransactionPending_WhenAllPaymentTransactionsPending_ShouldReturnTrue() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Arrays.asList(authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndAcceptedAndPendingEntryMock));
 
         final boolean result = testObj.isPaymentTransactionPending(paymentTransactionModelMock, AUTHORIZATION);
@@ -233,7 +233,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void ifAnyPaymentTransactionsNotPendingThenReturnTrue() {
+    public void isPaymentTransactionPending_WhenAnyPaymentTransactionsNotPending_ShouldReturnTrue() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Arrays.asList(authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndAcceptedAndPendingEntryMock));
 
         final boolean result = testObj.isPaymentTransactionPending(paymentTransactionModelMock, AUTHORIZATION);
@@ -242,7 +242,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void ifAllPaymentTransactionsNotPendingThenReturnFalse() {
+    public void isPaymentTransactionPending_WhenAllPaymentTransactionsNotPending_ShouldReturnFalse() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Arrays.asList(authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndRejectedAndPendingEntryMock));
 
         final boolean result = testObj.isPaymentTransactionPending(paymentTransactionModelMock, AUTHORIZATION);
@@ -251,7 +251,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void isPreviousTransactionCompletedShouldReturnTrueIfTheDependingTransactionEntryIsNotPending() {
+    public void isPreviousTransactionCompleted_WhenDependingTransactionEntryIsNotPending_ShouldReturnTrue() {
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(authorisedAndAcceptedAndNotPendingEntryMock));
 
@@ -261,7 +261,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void isPreviousTransactionCompletedShouldReturnTrueIfTheDependingTransactionEntryIsPending() {
+    public void isPreviousTransactionCompleted_WhenDependingTransactionEntryIsPending_ShouldReturnTrue() {
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(authorisedAndAcceptedAndPendingEntryMock));
 
@@ -271,7 +271,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void isPreviousTransactionCompletedShouldReturnFalseIfThereAreNoEntriesInTheTransaction() {
+    public void isPreviousTransactionCompleted_WhenNoEntriesInTheTransaction_ShouldReturnFalse() {
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.emptyList());
 
@@ -281,7 +281,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void isPreviousTransactionCompletedShouldReturnFalseIfThereAreNoEntriesOfDependingTypeInTheTransaction() {
+    public void isPreviousTransactionCompleted_WhenNoEntriesOfDependingTypeInTheTransaction_ShouldReturnFalse() {
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(authorisedAndAcceptedAndNotPendingEntryMock));
 
@@ -291,7 +291,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void whenTransactionIsNonDependantOnAPreviousOneThenReturnTrue() {
+    public void isPreviousTransactionCompleted_WhenTransactionIsNonDependantOnAPreviousOne_ShouldReturnTrue() {
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(authorisedAndAcceptedAndPendingEntryMock));
 
@@ -301,7 +301,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldCreatePendingAuthorizationPaymentTransactionEntry() {
+    public void createPendingAuthorisePaymentTransactionEntry_ShouldCreatePendingAuthorizationPaymentTransactionEntry() {
         when(paymentTransactionModelMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
 
         final PaymentTransactionEntryModel result = testObj.createPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, REQUEST_TOKEN, cartModelMock, bigDecimalMock);
@@ -318,7 +318,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldCreateNonPendingAuthorizationPaymentTransactionEntry() {
+    public void createNonPendingAuthorisePaymentTransactionEntry_ShouldCreateNonPendingAuthorizationPaymentTransactionEntry() {
         when(paymentTransactionModelMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
 
         final PaymentTransactionEntryModel result = testObj.createNonPendingAuthorisePaymentTransactionEntry(paymentTransactionModelMock, REQUEST_TOKEN, cartModelMock, bigDecimalMock);
@@ -335,8 +335,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldCreateCaptureEntry() {
-
+    public void createCapturedPaymentTransactionEntry_ShouldCreateCaptureEntry() {
         final PaymentTransactionEntryModel result = testObj.createCapturedPaymentTransactionEntry(paymentTransactionModelMock, orderNotificationMessageMock);
 
         verifyPaymentTransactionEntry(result, CAPTURE, false);
@@ -344,7 +343,14 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnTransactionWhenTransactionIsFound() {
+    public void createRefundedPaymentTransactionEntry_ShouldCreateRefundTransactionEntry() {
+        final PaymentTransactionEntryModel result = testObj.createRefundedPaymentTransactionEntry(paymentTransactionModelMock, orderNotificationMessageMock);
+
+        verifyPaymentTransactionEntry(result, REFUND_FOLLOW_ON, false);
+    }
+
+    @Test
+    public void getPaymentTransactionFromCode_WhenTransactionIsFound_ShouldReturnTransaction() {
         when(worldpayPaymentTransactionDaoMock.findPaymentTransactionByRequestId(WORLDPAY_ORDER_CODE)).thenReturn(paymentTransactionModelMock);
 
         testObj.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE);
@@ -353,7 +359,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTransactionIsNotFound() {
+    public void getPaymentTransactionFromCode_WhenTransactionIsNotFound_ShouldReturnNull() {
         when(worldpayPaymentTransactionDaoMock.findPaymentTransactionByRequestId(WORLDPAY_ORDER_CODE)).thenThrow(new ModelNotFoundException(EXCEPTION_MESSAGE));
 
         final PaymentTransactionModel result = testObj.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE);
@@ -363,7 +369,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldCreatePaymentTransaction() {
+    public void createPaymentTransaction_ShouldCreatePaymentTransaction() {
         testObj.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock);
 
         verify(paymentTransactionModelMock).setCode(WORLDPAY_ORDER_CODE);
@@ -380,7 +386,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldNotSetWorldpayBankIfNotACart() {
+    public void createPaymentTransaction_ShouldNotSetWorldpayBankIfNotACart() {
         when(commerceCheckoutParameterMock.getCart()).thenReturn(null);
         when(commerceCheckoutParameterMock.getOrder()).thenReturn(abstractOrderMock);
 
@@ -390,7 +396,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldCreateTransactionWillNullBankCodeIfMissing() {
+    public void createPaymentTransaction_ShouldCreateTransactionWillNullBankCodeIfMissing() {
         when(worldpayBankConfigurationServiceMock.getBankConfigurationForBankCode(null)).thenReturn(null);
 
         testObj.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock);
@@ -400,7 +406,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldUpdateTransactionStatus() {
+    public void updateEntriesStatus_ShouldUpdateTransactionStatus() {
         final List<PaymentTransactionEntryModel> paymentTransactionEntries = Collections.singletonList(authorisedAndAcceptedAndPendingEntryMock);
 
         testObj.updateEntriesStatus(paymentTransactionEntries, TRANSACTION_STATUS);
@@ -411,7 +417,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void isAnyPaymentTransactionApmOpenForOrderReturnsTrueWhenAnyPaymentTransactionIsApmOpen() {
+    public void isAnyPaymentTransactionApmOpenForOrder_WhenAnyPaymentTransactionIsApmOpen_WhenReturnsTrue() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(asList(notApmOpenPaymentTransactionModelMock, apmOpenPaymentTransactionModelMock));
 
         final boolean result = testObj.isAnyPaymentTransactionApmOpenForOrder(orderModelMock);
@@ -420,7 +426,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void isAnyPaymentTransactionApmOpenForOrderReturnsFalseWhenAllPaymentTransactionAreNotApmOpen() {
+    public void isAnyPaymentTransactionApmOpenForOrder_WhenAllPaymentTransactionAreNotApmOpen_ShouldReturnsFalse() {
         when(orderModelMock.getPaymentTransactions()).thenReturn(Collections.singletonList(notApmOpenPaymentTransactionModelMock));
 
         final boolean result = testObj.isAnyPaymentTransactionApmOpenForOrder(orderModelMock);
@@ -429,7 +435,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnPendingEntries() {
+    public void getPendingPaymentTransactionEntriesForType_ShouldReturnPendingEntries() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Arrays.asList(authorisedAndAcceptedAndPendingEntryMock, authorisedAndAcceptedAndNotPendingEntryMock));
 
         final List<PaymentTransactionEntryModel> result = testObj.getPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, AUTHORIZATION);
@@ -439,7 +445,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnNonPendingEntries() {
+    public void getNotPendingPaymentTransactionEntriesForType_ShouldReturnNonPendingEntries() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Arrays.asList(authorisedAndAcceptedAndPendingEntryMock, authorisedAndAcceptedAndNotPendingEntryMock));
 
         final List<PaymentTransactionEntryModel> result = testObj.getNotPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, AUTHORIZATION);
@@ -449,7 +455,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldDoNothingIfRiskScoreIsNull() {
+    public void addRiskScore_WhenRiskScoreIsNull_ShouldDoNothing() {
         when(paymentReplyMock.getRiskScore()).thenReturn(null);
 
         testObj.addRiskScore(paymentTransactionModelMock, paymentReplyMock);
@@ -458,7 +464,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldSaveRiskScoreOnTransaction() {
+    public void addRiskScore_ShouldSaveRiskScoreOnTransaction() {
         when(paymentReplyMock.getRiskScore()).thenReturn(riskScoreMock);
         when(worldpayRiskScoreConverterMock.convert(riskScoreMock)).thenReturn(worldpayRiskScoreModelMock);
 
@@ -469,7 +475,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldUpdateAavFields() {
+    public void addAavFields_ShouldUpdateAavFields() {
         when(modelServiceMock.create(WorldpayAavResponseModel.class)).thenReturn(worldpayAavResponseModelMock);
 
         testObj.addAavFields(paymentTransactionEntryModelMock, paymentReplyMock);
@@ -479,7 +485,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldUpdateTransactionEntryAmount() {
+    public void updateEntriesAmount_ShouldUpdateTransactionEntryAmount() {
         final List<PaymentTransactionEntryModel> paymentTransactionEntries = Collections.singletonList(pendingCaptureEntryMock);
 
         testObj.updateEntriesAmount(paymentTransactionEntries, amountMock);
@@ -490,7 +496,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldLogWarningForDifferentAmountsUpdated() {
+    public void updateEntriesAmount_ShouldLogWarningForDifferentAmountsUpdated() {
         final List<PaymentTransactionEntryModel> paymentTransactionEntries = Collections.singletonList(pendingCaptureEntryMock);
         when(pendingCaptureEntryMock.getAmount()).thenReturn(BigDecimal.TEN.add(BigDecimal.valueOf(50)));
         when(pendingCaptureEntryMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
@@ -502,7 +508,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldNotLogWarningWhenEntryAmountIsNull() {
+    public void updateEntriesAmount_WhenEntryAmountIsNull_ShouldNotLogWarning() {
         final List<PaymentTransactionEntryModel> paymentTransactionEntries = Collections.singletonList(pendingCaptureEntryMock);
         when(pendingCaptureEntryMock.getAmount()).thenReturn(null);
 
@@ -512,7 +518,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldCreateNonPendingSettledPaymentTransactionEntry() {
+    public void createNotPendingSettledPaymentTransactionEntry_ShouldCreateNonPendingSettledPaymentTransactionEntry() {
         when(paymentTransactionModelMock.getCode()).thenReturn(TRANSACTION_ENTRY_CODE);
 
         final PaymentTransactionEntryModel result = testObj.createNotPendingSettledPaymentTransactionEntry(paymentTransactionModelMock, orderNotificationMessageMock);
@@ -521,15 +527,16 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnFalseWrongAuthorizedAmountDiffHigherThanTolerance() {
+    public void isAuthorisedAmountCorrect_WhenWrongAuthorizedAmountDiffHigherThanTolerance_ShouldReturnFalse() {
         when(orderModelMock.getTotalPrice()).thenReturn(50.02);
+
         boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
 
         assertFalse(result);
     }
 
     @Test
-    public void shouldReturnTrueWithCorrectAuthorisedAmountDiffLowerThanTolerance() {
+    public void isAuthorisedAmountCorrect_WhenCorrectAuthorisedAmountDiffLowerThanTolerance_ShouldReturnTrue() {
         when(orderModelMock.getTotalPrice()).thenReturn(50.00);
 
         boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
@@ -538,7 +545,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueWithNoAmountOnPaymentTransactionEntry() {
+    public void isAuthorisedAmountCorrect_WhenNoAmountOnPaymentTransactionEntry_ShouldReturnTrue() {
         when(orderModelMock.getTotalPrice()).thenReturn(50.00);
         when(authorisedAndAcceptedAndNotPendingEntryMock.getAmount()).thenReturn(null);
 
@@ -548,7 +555,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueWithCorrectAuthorisedAmountDiffEqualToTolerance() {
+    public void isAuthorisedAmountCorrect_WhenCorrectAuthorisedAmountDiffEqualToTolerance_ShouldReturnTrue() {
         when(orderModelMock.getTotalPrice()).thenReturn(50.01);
 
         boolean result = testObj.isAuthorisedAmountCorrect(orderModelMock);
@@ -557,7 +564,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnFalseWithZeroToleranceAndDiffAboveZero() {
+    public void isAuthorisedAmountCorrect_WhenZeroToleranceAndDiffAboveZero_ShouldReturnFalse() {
         when(configurationMock.getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.00);
         when(orderModelMock.getTotalPrice()).thenReturn(50.01);
 
@@ -567,7 +574,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueWithZeroToleranceAndZeroDiff() {
+    public void isAuthorisedAmountCorrect_WhenZeroToleranceAndZeroDiff_ShouldReturnTrue() {
         when(configurationMock.getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.00);
         when(orderModelMock.getTotalPrice()).thenReturn(50.00);
 

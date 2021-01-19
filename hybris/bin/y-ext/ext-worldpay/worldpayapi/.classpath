@@ -11,7 +11,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jjwt-impl-0.10.8.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/jjwt-jackson-0.10.8.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/retry4j-0.15.0.jar" />
-	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-2.7.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/worldpay-core-2.8.jar" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />

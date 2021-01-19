@@ -1,6 +1,6 @@
 package com.worldpay.cronjob;
 
-import com.worldpay.strategies.WorldpayOrderModificationProcessStrategy;
+import com.worldpay.core.services.WorldpayOrderModificationProcessService;
 import com.worldpay.worldpaynotifications.model.OrderModificationCronJobModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.cronjob.enums.CronJobResult;
@@ -26,43 +26,43 @@ import static org.mockito.Mockito.when;
 public class OrderModificationProcessorJobPerformableTest {
 
     @InjectMocks
-    private OrderModificationProcessorJobPerformable testObj = new OrderModificationProcessorJobPerformable();
+    private OrderModificationProcessorJobPerformable testObj;
 
     @Mock
     private OrderModificationCronJobModel cronJobModelMock;
     @Mock
-    private WorldpayOrderModificationProcessStrategy worldpayOrderModificationProcessStrategyMock;
+    private WorldpayOrderModificationProcessService worldpayOrderModificationProcessServiceMock;
 
     private Set<PaymentTransactionType> paymentTransactionTypes = Set.of(AUTHORIZATION, CAPTURE, CANCEL);
 
     @Test
     public void performShouldProcessAllProcessableModifications() {
         when(cronJobModelMock.getPaymentTransactionTypes()).thenReturn(paymentTransactionTypes);
-        when(worldpayOrderModificationProcessStrategyMock.processOrderModificationMessages(any(PaymentTransactionType.class))).thenReturn(true);
+        when(worldpayOrderModificationProcessServiceMock.processOrderModificationMessages(any(PaymentTransactionType.class))).thenReturn(true);
 
         final PerformResult result = testObj.perform(cronJobModelMock);
 
         assertEquals(CronJobResult.SUCCESS, result.getResult());
         assertEquals(CronJobStatus.FINISHED, result.getStatus());
 
-        verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(AUTHORIZATION);
-        verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(CAPTURE);
-        verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(CANCEL);
+        verify(worldpayOrderModificationProcessServiceMock).processOrderModificationMessages(AUTHORIZATION);
+        verify(worldpayOrderModificationProcessServiceMock).processOrderModificationMessages(CAPTURE);
+        verify(worldpayOrderModificationProcessServiceMock).processOrderModificationMessages(CANCEL);
     }
 
     @Test
     public void performShouldMarkErrorWhenFalseReturnedFromStrategy() {
         when(cronJobModelMock.getPaymentTransactionTypes()).thenReturn(paymentTransactionTypes);
-        when(worldpayOrderModificationProcessStrategyMock.processOrderModificationMessages(any(PaymentTransactionType.class))).thenReturn(false);
+        when(worldpayOrderModificationProcessServiceMock.processOrderModificationMessages(any(PaymentTransactionType.class))).thenReturn(false);
 
         final PerformResult result = testObj.perform(cronJobModelMock);
 
         assertEquals(CronJobResult.ERROR, result.getResult());
         assertEquals(CronJobStatus.FINISHED, result.getStatus());
 
-        verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(AUTHORIZATION);
-        verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(CAPTURE);
-        verify(worldpayOrderModificationProcessStrategyMock).processOrderModificationMessages(CANCEL);
+        verify(worldpayOrderModificationProcessServiceMock).processOrderModificationMessages(AUTHORIZATION);
+        verify(worldpayOrderModificationProcessServiceMock).processOrderModificationMessages(CAPTURE);
+        verify(worldpayOrderModificationProcessServiceMock).processOrderModificationMessages(CANCEL);
     }
 
 }

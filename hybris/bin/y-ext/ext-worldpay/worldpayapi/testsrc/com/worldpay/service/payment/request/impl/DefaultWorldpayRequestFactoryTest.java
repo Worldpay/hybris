@@ -13,7 +13,9 @@ import com.worldpay.service.model.applepay.ApplePay;
 import com.worldpay.service.model.payment.*;
 import com.worldpay.service.model.threeds2.Additional3DSData;
 import com.worldpay.service.model.threeds2.RiskData;
-import com.worldpay.service.model.token.*;
+import com.worldpay.service.model.token.CardDetails;
+import com.worldpay.service.model.token.Token;
+import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.payment.WorldpayKlarnaStrategy;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRiskDataService;
@@ -45,8 +47,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -172,6 +173,8 @@ public class DefaultWorldpayRequestFactoryTest {
     private WorldpayAPMPaymentInfoModel wordpayPaymentInfoModelMock;
     @Mock
     private CardDetails cartDetailsMock;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private AuthoriseRequestParameters.AuthoriseRequestParametersCreator authoriseRequestParametersCreatorMock;
 
     @Captor
     private ArgumentCaptor<AuthoriseRequestParameters> authoriseRequestParametersArgumentCaptor;
@@ -210,7 +213,7 @@ public class DefaultWorldpayRequestFactoryTest {
         when(worldpayRequestServiceMock.createSession(worldpayAdditionalInfoDataMock)).thenReturn(sessionMock);
         when(worldpayRequestServiceMock.createAuthenticatedShopper(SHOPPER_EMAIL_ADDRESS, AUTHENTICATED_SHOPPER_ID, sessionMock, browserMock)).thenReturn(shopperMock);
         when(worldpayRequestServiceMock.createTokenRequest(TOKEN_EVENT_REFERENCE, null)).thenReturn(tokenRequestMockWithReasonNull);
-        when(worldpayRequestServiceMock.createBankPayment(PAYMENT_METHOD, SHOPPER_BANK_CODE)).thenReturn(paymentMock);
+        when(worldpayRequestServiceMock.createBankPayment(WORLDPAY_ORDER_CODE, PAYMENT_METHOD, SHOPPER_BANK_CODE)).thenReturn(paymentMock);
         when(worldpayRequestServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, sessionMock, browserMock)).thenReturn(shopperMock);
         when(worldpayRequestServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, null, null)).thenReturn(shopperWithoutSessionNorBrowserMock);
         when(worldpayRequestServiceMock.createAdditional3DSData(worldpayAdditionalInfoDataMock)).thenReturn(additional3DSDataMock);
@@ -599,6 +602,32 @@ public class DefaultWorldpayRequestFactoryTest {
         verify(wordpayPaymentInfoModelMock).getSubscriptionId();
 
         assertEquals(SUBSCRIPTION_ID, result);
+    }
+
+    @Test
+    public void internalGetRedirectAuthoriseServiceRequestForKlarna_ShouldReturnRedirectAuthoriseServiceRequest() throws WorldpayConfigurationException {
+        when(additionalAuthInfoMock.getPaymentMethod()).thenReturn(KLARNA_SSL);
+        when(billingAddressMock.getCountryCode()).thenReturn(COUNTRY_CODE);
+        when(customerModelMock.getSessionLanguage()).thenReturn(languageModelMock);
+        when(additionalAuthInfoMock.getStatementNarrative()).thenReturn(STATEMENT_NARRATIVE);
+        when(worldpayKlarnaStrategyMock.createOrderLines(cartModelMock)).thenReturn(orderLinesMock);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withShopper(shopperMock);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withStatementNarrative(STATEMENT_NARRATIVE);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withDynamicInteractionType(DynamicInteractionType.ECOMMERCE);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withOrderLines(orderLinesMock);
+        when(worldpayRequestServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, null, null)).thenReturn(shopperMock);
+        doReturn(getAuthoriseRequestParameters()).when(authoriseRequestParametersCreatorMock).build();
+        doReturn(redirectAuthoriseRequestMock).when(testObj).createRedirectAuthoriseRequest(getAuthoriseRequestParameters());
+
+        final RedirectAuthoriseServiceRequest result = testObj.internalGetRedirectAuthoriseServiceRequestForKlarna(cartModelMock, additionalAuthInfoMock, authoriseRequestParametersCreatorMock);
+
+        verify(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
+        verify(authoriseRequestParametersCreatorMock).withShopper(shopperMock);
+        verify(authoriseRequestParametersCreatorMock).withStatementNarrative(STATEMENT_NARRATIVE);
+        verify(authoriseRequestParametersCreatorMock).withDynamicInteractionType(DynamicInteractionType.ECOMMERCE);
+        verify(authoriseRequestParametersCreatorMock).withOrderLines(orderLinesMock);
+        assertThat(result).isNotNull();
     }
 
     protected AuthoriseRequestParameters getAuthoriseRequestParameters() {

@@ -3,6 +3,7 @@ package com.worldpay.service.model.token;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.helper.InternalModelObject;
+import com.worldpay.internal.model.AuthenticatedShopperID;
 import com.worldpay.internal.model.CreateToken;
 import com.worldpay.internal.model.PaymentTokenCreate;
 import com.worldpay.service.model.payment.Payment;
@@ -42,16 +43,21 @@ public class CardTokenRequest implements InternalModelTransformer, Serializable 
         final PaymentTokenCreate paymentTokenCreate = new PaymentTokenCreate();
 
         Optional.ofNullable(authenticatedShopperId)
-                .ifPresent(paymentTokenCreate::setAuthenticatedShopperID);
+            .map(shopperId -> {
+                final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+                intAuthenticatedShopperID.setvalue(shopperId);
+                return intAuthenticatedShopperID;
+            })
+            .ifPresent(paymentTokenCreate::setAuthenticatedShopperID);
 
         Optional.ofNullable(tokenRequest)
-                .map(TokenRequest::transformToInternalModel)
-                .map(CreateToken.class::cast)
-                .ifPresent(paymentTokenCreate::setCreateToken);
+            .map(TokenRequest::transformToInternalModel)
+            .map(CreateToken.class::cast)
+            .ifPresent(paymentTokenCreate::setCreateToken);
 
         Optional.ofNullable(storedCredentials)
-                .map(StoredCredentials::transformToInternalModel)
-                .ifPresent(paymentTokenCreate::setStoredCredentials);
+            .map(StoredCredentials::transformToInternalModel)
+            .ifPresent(paymentTokenCreate::setStoredCredentials);
 
         paymentTokenCreate.getPaymentInstrumentOrCSEDATA().add(payment.transformToInternalModel());
         return paymentTokenCreate;
@@ -92,10 +98,10 @@ public class CardTokenRequest implements InternalModelTransformer, Serializable 
     @Override
     public String toString() {
         return "CardTokenRequest{" +
-                "tokenRequest=" + tokenRequest +
-                ", authenticatedShopperId='" + authenticatedShopperId + '\'' +
-                ", payment=" + payment +
-                ", storedCredentials=" + storedCredentials +
-                '}';
+            "tokenRequest=" + tokenRequest +
+            ", authenticatedShopperId='" + authenticatedShopperId + '\'' +
+            ", payment=" + payment +
+            ", storedCredentials=" + storedCredentials +
+            '}';
     }
 }

@@ -27,7 +27,7 @@ public class WorldpayVoidServiceResponseConverterTest {
 
     @Spy
     @InjectMocks
-    private WorldpayVoidServiceResponseConverter testObj = new WorldpayVoidServiceResponseConverter();
+    private WorldpayVoidServiceResponseConverter testObj;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CancelServiceResponse cancelServiceRequestMock;

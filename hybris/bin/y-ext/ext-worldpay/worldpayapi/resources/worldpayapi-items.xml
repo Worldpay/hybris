@@ -82,7 +82,8 @@
             </attributes>
         </itemtype>
 
-        <itemtype code="WorldpayCartThreeDSChallengeSession" jaloclass="com.worldpay.jalo.WorldpayCartThreeDSChallengeSession">
+        <itemtype code="WorldpayCartThreeDSChallengeSession"
+                  jaloclass="com.worldpay.jalo.WorldpayCartThreeDSChallengeSession">
             <deployment table="Worldpay3dsSession" typecode="19024"/>
             <attributes>
                 <attribute qualifier="echoData" type="java.lang.String">
@@ -186,6 +187,12 @@
                   generate="false">
             <attributes>
                 <attribute qualifier="obfuscatedCardNumber" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="expiryMonth" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="expiryYear" type="java.lang.String">
                     <persistence type="property"/>
                 </attribute>
                 <attribute qualifier="subscriptionId" type="java.lang.String">

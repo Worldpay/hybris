@@ -1,5 +1,6 @@
 package com.worldpay.converters;
 
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.response.CancelServiceResponse;
 import de.hybris.platform.payment.commands.result.VoidResult;
 import de.hybris.platform.payment.dto.TransactionStatus;
@@ -13,6 +14,10 @@ import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL
  * Converter to be used to transform a {@link CancelServiceResponse} from Worldpay to an {@link VoidResult} in hybris in a payment transactions.
  */
 public class WorldpayVoidServiceResponseConverter extends WorldpayAbstractServiceResponseConverter<CancelServiceResponse, VoidResult> {
+
+    public WorldpayVoidServiceResponseConverter(final WorldpayOrderService worldpayOrderService) {
+        super(worldpayOrderService);
+    }
 
     /**
      * {@inheritDoc}

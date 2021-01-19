@@ -1,6 +1,7 @@
 package com.worldpay.converters;
 
 import com.worldpay.service.model.Amount;
+import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.response.CaptureServiceResponse;
 import de.hybris.platform.payment.commands.result.CaptureResult;
 import de.hybris.platform.payment.dto.TransactionStatus;
@@ -12,6 +13,10 @@ import java.util.Currency;
  * {@see WorldpayAbstractServiceResponseConverter}
  */
 public class WorldpayCaptureServiceResponseConverter extends WorldpayAbstractServiceResponseConverter<CaptureServiceResponse, CaptureResult> {
+
+    public WorldpayCaptureServiceResponseConverter(final WorldpayOrderService worldpayOrderService) {
+        super(worldpayOrderService);
+    }
 
     /**
      * {@inheritDoc}

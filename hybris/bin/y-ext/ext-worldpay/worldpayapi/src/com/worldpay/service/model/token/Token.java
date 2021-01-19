@@ -6,7 +6,6 @@ import com.worldpay.internal.model.PaymentTokenID;
 import com.worldpay.internal.model.TOKENSSL;
 import com.worldpay.service.model.payment.AbstractPayment;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class Token extends AbstractPayment {
         if (paymentInstrument != null) {
             final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
             final com.worldpay.internal.model.CardDetails intCardDetails = (com.worldpay.internal.model.CardDetails) paymentInstrument.transformToInternalModel();
-            intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(intCardDetails);
+            intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(intCardDetails);
             tokenElements.add(intPaymentInstrument);
         }
 
@@ -53,7 +52,7 @@ public class Token extends AbstractPayment {
     }
 
     @Override
-    public void invokeSetter(final Method method, final Object targetObject) throws IllegalAccessException, InvocationTargetException {
+    public void invokeSetter(final Method method, final Object targetObject) {
         // DO nothing
     }
 

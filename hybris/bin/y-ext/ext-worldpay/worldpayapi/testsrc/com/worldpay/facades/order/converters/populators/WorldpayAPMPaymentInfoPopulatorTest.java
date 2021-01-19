@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayAPMPaymentInfoPopulatorTest {
 
-    public static final String APM_NAME = "apmName";
+    private static final String APM_NAME = "apmName";
     private static final String SUBSCRIPTION_ID = "subscriptionId";
 
     @InjectMocks

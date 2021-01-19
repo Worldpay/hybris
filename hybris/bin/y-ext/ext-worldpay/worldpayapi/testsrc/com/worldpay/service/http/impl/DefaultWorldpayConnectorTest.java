@@ -16,6 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -25,9 +26,9 @@ import java.util.Collections;
 
 import static com.worldpay.util.WorldpayConstants.XML_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @UnitTest
@@ -73,13 +74,12 @@ public class DefaultWorldpayConnectorTest {
     }
 
     @Test
-    public void shouldSendThePaymentServiceTransformedInXML() throws Exception {
+    public void send_WhenThereAreNoErrors_ShouldSendThePaymentServiceTransformedInXML() throws Exception {
         when(responseEntityMock.getHeaders()).thenReturn(httpHeadersMock);
         when(httpHeadersMock.get("Set-Cookie")).thenReturn(ImmutableList.of("cookie"));
         when(responseEntityMock.getBody()).thenReturn("someValue");
         when(paymentServiceMarshallerMock.unmarshal(IOUtils.toInputStream("someValue"))).thenReturn(paymentServiceReplyMock);
         when(paymentServiceMarshallerMock.marshalAsFragment(paymentServiceRequestMock)).thenReturn("someXML");
-
         when(restTemplateMock.postForEntity(uriArgumentCaptor.capture(), httpEntityArgumentCaptor.capture(), eq(String.class))).thenReturn(responseEntityMock);
 
         testObj.send(paymentServiceRequestMock, merchantInfoMock, "cookie");
@@ -94,6 +94,21 @@ public class DefaultWorldpayConnectorTest {
         assertThat(request.getHeaders()).containsEntry(HttpHeaders.COOKIE, Collections.singletonList("cookie"));
         assertThat(request.getBody()).startsWith(XML_HEADER);
         assertThat(request.getBody()).contains("someXML");
+        verify(restTemplateMock).postForEntity(eq(URI.create(ENDPOINT)), anyObject(), eq(String.class));
+    }
+
+    @Test
+    public void send_WhenThereAreErrors_ShouldSendThePaymentServiceTransformedInXML3Times() throws Exception {
+        when(responseEntityMock.getHeaders()).thenReturn(httpHeadersMock);
+        when(httpHeadersMock.get("Set-Cookie")).thenReturn(ImmutableList.of("cookie"));
+        when(responseEntityMock.getBody()).thenReturn("someValue");
+        when(paymentServiceMarshallerMock.unmarshal(IOUtils.toInputStream("someValue"))).thenReturn(paymentServiceReplyMock);
+        when(paymentServiceMarshallerMock.marshalAsFragment(paymentServiceRequestMock)).thenReturn("someXML");
+        when(restTemplateMock.postForEntity(uriArgumentCaptor.capture(), httpEntityArgumentCaptor.capture(), eq(String.class))).thenThrow(new ResourceAccessException("error"));
+
+        testObj.sendOutboundXML(paymentServiceRequestMock, merchantInfoMock, "cookie");
+
+        verify(restTemplateMock, atMost(3)).postForEntity(eq(URI.create(ENDPOINT)), anyObject(), eq(String.class));
     }
 
     @Test

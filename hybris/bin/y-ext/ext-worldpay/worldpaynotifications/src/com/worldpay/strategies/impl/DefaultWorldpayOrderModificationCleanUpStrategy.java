@@ -6,7 +6,6 @@ import com.worldpay.util.WorldpayUtil;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -22,8 +21,14 @@ public class DefaultWorldpayOrderModificationCleanUpStrategy implements Worldpay
 
     private static final Logger LOG = Logger.getLogger(DefaultWorldpayOrderModificationCleanUpStrategy.class);
 
-    private ModelService modelService;
-    private OrderModificationDao orderModificationDao;
+    protected final ModelService modelService;
+    protected final OrderModificationDao orderModificationDao;
+
+    public DefaultWorldpayOrderModificationCleanUpStrategy(final ModelService modelService,
+                                                           final OrderModificationDao orderModificationDao) {
+        this.modelService = modelService;
+        this.orderModificationDao = orderModificationDao;
+    }
 
     /**
      * {@inheritDoc}
@@ -43,17 +48,8 @@ public class DefaultWorldpayOrderModificationCleanUpStrategy implements Worldpay
         return modelService;
     }
 
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
-    }
-
     public OrderModificationDao getOrderModificationDao() {
         return orderModificationDao;
     }
 
-    @Required
-    public void setOrderModificationDao(OrderModificationDao orderModificationDao) {
-        this.orderModificationDao = orderModificationDao;
-    }
 }

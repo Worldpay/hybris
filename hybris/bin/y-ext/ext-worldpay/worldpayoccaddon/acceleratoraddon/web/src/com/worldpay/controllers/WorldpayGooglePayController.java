@@ -86,7 +86,7 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
     protected void setRegion(final AddressData addressData, final GooglePayAddressData address) {
         final String administrativeArea = address.getAdministrativeArea();
 
-        if (StringUtils.isEmpty(administrativeArea)) {
+        if (StringUtils.isBlank(administrativeArea)) {
             return;
         }
 

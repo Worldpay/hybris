@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -29,9 +30,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * Web controller to handle a CSE checkout step
@@ -68,7 +66,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping(value = {"/cse-data", "/place-order"}, method = GET)
+    @GetMapping(value = {"/cse-data", "/place-order"})
     @RequireHardLogIn
     public String getCseDataPage(final Model model) throws CMSItemNotFoundException {
         if (getCheckoutFacade().hasCheckoutCart()) {
@@ -89,10 +87,10 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return The view to redirect to.
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping(value = "/add-payment-address", method = POST)
+    @PostMapping(value = "/add-payment-address")
     @RequireHardLogIn
     public String addPaymentAddress(final Model model, @Valid final PaymentDetailsForm paymentDetailsForm, final BindingResult bindingResult, final RedirectAttributes redirectAttrs)
-            throws CMSItemNotFoundException {
+        throws CMSItemNotFoundException {
         csePaymentDetailsFormValidator.validate(paymentDetailsForm, bindingResult);
 
         if (addGlobalErrors(model, bindingResult)) {
@@ -122,10 +120,10 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping(value = "/place-order", method = POST)
+    @PostMapping(value = "/place-order")
     @RequireHardLogIn
     public String addCseData(final HttpServletRequest request, final Model model, @Valid final CSEPaymentForm csePaymentForm, final BindingResult bindingResult, final HttpServletResponse response)
-            throws CMSItemNotFoundException {
+        throws CMSItemNotFoundException {
         cseFormValidator.validate(csePaymentForm, bindingResult);
 
         if (addGlobalErrors(model, bindingResult)) {

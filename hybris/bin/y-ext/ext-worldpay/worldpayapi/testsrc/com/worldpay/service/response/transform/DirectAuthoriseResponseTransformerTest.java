@@ -148,7 +148,9 @@ public class DirectAuthoriseResponseTransformerTest {
         orderStatusType.add(requestInfo);
 
         final Token token = new Token();
-        token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
+        final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(REFERENCE_VALUE);
         orderStatusType.add(token);
         final EchoData intEchoData = new EchoData();
@@ -263,7 +265,9 @@ public class DirectAuthoriseResponseTransformerTest {
         orderStatusType.add(reference);
 
         final Token token = new Token();
-        token.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
+        final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         orderStatusType.add(token);
 
         final EchoData echoData = new EchoData();
