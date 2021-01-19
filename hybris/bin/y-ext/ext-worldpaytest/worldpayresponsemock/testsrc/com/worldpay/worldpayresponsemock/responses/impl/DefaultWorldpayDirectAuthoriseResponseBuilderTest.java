@@ -16,7 +16,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
 
     private static final String AUTHENTICATED_SHOPPER_ID_VALUE = "authenticatedShopperIdValue";
@@ -70,7 +70,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
 
             if (tokenElement instanceof PaymentInstrument) {
                 PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0));
+                final CardDetails cardDetails = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0));
                 assertNotNull(cardDetails);
                 assertNotNull(cardDetails.getCardAddress());
                 assertEquals(OBFUSCATED_PAN, cardDetails.getDerived().getObfuscatedPAN());
@@ -78,7 +78,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
             }
         }
 
-        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getvalue());
         assertThat(tokenElements, hasItems(instanceOf(TokenDetails.class), instanceOf(PaymentInstrument.class)));
         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
         assertEquals(TRANSACTION_AMOUNT.getValue(), payment.getAmount().getValue());
@@ -89,7 +89,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
     private static PaymentService buildAuthRequest(final boolean withToken) {
         final Order order = new Order();
         order.setOrderCode(WORLDPAY_ORDER_CODE);
-        final List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = order.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrInfo3DSecureOrSession();
         orderElements.add(TRANSACTION_AMOUNT);
         if (withToken) {
             final CreateToken createToken = new CreateToken();
@@ -100,7 +100,9 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
         }
 
         final Shopper shopper = new Shopper();
-        shopper.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID_VALUE);
+        final AuthenticatedShopperID authenticatedShopperID = new AuthenticatedShopperID();
+        authenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID_VALUE);
+        shopper.setAuthenticatedShopperID(authenticatedShopperID);
 
         final Submit submit = new Submit();
         submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().add(order);

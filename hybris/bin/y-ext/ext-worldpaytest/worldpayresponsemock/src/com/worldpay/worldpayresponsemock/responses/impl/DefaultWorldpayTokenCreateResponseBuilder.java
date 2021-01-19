@@ -28,12 +28,15 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         final Submit submit = (Submit) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.
                 getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
-        final String authenticatedShopperID = paymentTokenCreate.getAuthenticatedShopperID();
+        final String authenticatedShopperID = paymentTokenCreate.getAuthenticatedShopperID().getvalue();
+
         final String tokenEventReference = paymentTokenCreate.getCreateToken().getTokenEventReference();
 
         final Reply reply = new Reply();
         final Token token = new Token();
-        token.setAuthenticatedShopperID(authenticatedShopperID);
+        final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+        intAuthenticatedShopperID.setvalue(authenticatedShopperID);
+        token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(tokenEventReference);
         final TokenDetails tokenDetails = new TokenDetails();
         tokenDetails.setTokenEventReference(tokenEventReference);
@@ -68,7 +71,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         derived.setObfuscatedPAN(OBFUSCATED_PAN);
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(cardDetails);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(paymentInstrument);
         reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().add(token);
         response.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);

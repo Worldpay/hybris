@@ -7,6 +7,7 @@ import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.service.WorldpayAddonEndpointService;
+import com.worldpay.service.hop.WorldpayOrderCodeVerificationService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
@@ -63,6 +64,8 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     protected WorldpayHostedOrderFacade worldpayHostedOrderFacade;
     @Resource
     protected WorldpayAfterRedirectValidationFacade worldpayAfterRedirectValidationFacade;
+    @Resource
+    protected WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService;
 
     /**
      * Handles a successful HOP response
@@ -115,6 +118,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     /**
      * Handles the non-failing responses from the bank transfer payment methods.
      *
+     * @param orderId            the encrypted worldpay order code
      * @param request            the {@link HttpServletRequest} coming from Worldpay/Bank
      * @param model              the {@link Model } to be used
      * @param redirectAttributes the {@link RedirectAttributes} to be used
@@ -122,7 +126,11 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      */
     @RequireHardLogIn
     @RequestMapping(value = "bank-transfer/hop-response", method = RequestMethod.GET)
-    public String doHandleBankTransferHopResponse(final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
+    public String doHandleBankTransferHopResponse(@RequestParam(value = "orderId") final String orderId, final HttpServletRequest request, final Model model, final RedirectAttributes redirectAttributes) {
+        if (!worldpayOrderCodeVerificationService.isValidEncryptedOrderCode(orderId)) {
+            redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, REFUSED.name());
+            return REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
+        }
         final Map<String, String> requestParameterMap = getRequestParameterMap(request);
         final RedirectAuthoriseResult redirectAuthoriseResult = redirectAuthoriseResultConverter.convert(requestParameterMap);
         worldpayHostedOrderFacade.completeRedirectAuthorise(redirectAuthoriseResult);

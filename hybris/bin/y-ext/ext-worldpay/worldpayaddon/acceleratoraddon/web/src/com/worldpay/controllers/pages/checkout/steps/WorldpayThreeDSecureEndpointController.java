@@ -11,6 +11,7 @@ import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLo
 import de.hybris.platform.order.InvalidCartException;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -20,13 +21,12 @@ import javax.servlet.http.HttpServletRequest;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static com.worldpay.payment.TransactionStatus.ERROR;
 import static java.text.MessageFormat.format;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * Web controller ot handle a secure endpoint in a checkout step
  */
 @Controller
-@RequestMapping (value = "/checkout/multi/worldpay/3dsecure/sop/response")
+@RequestMapping(value = "/checkout/multi/worldpay/3dsecure/sop/response")
 public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     private static final Logger LOG = Logger.getLogger(WorldpayThreeDSecureEndpointController.class);
@@ -39,20 +39,19 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
     protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     /**
-     *
-     * @param request               the {@HttpServletRequest} to be used
-     * @param threeDSecureForm      the ThreeDSecureForm to be used
-     * @param redirectAttributes    the {@RedirectAttributes} to be used
+     * @param request            the {@HttpServletRequest} to be used
+     * @param threeDSecureForm   the ThreeDSecureForm to be used
+     * @param redirectAttributes the {@RedirectAttributes} to be used
      * @return
      */
-    @RequestMapping (method = POST)
+    @PostMapping
     @RequireHardLogIn
     public String doHandleThreeDSecureResponse(final HttpServletRequest request, final ThreeDSecureForm threeDSecureForm, final RedirectAttributes redirectAttributes) {
         final String worldpayOrderCode = threeDSecureForm.getMD();
         TransactionStatus transactionStatus = ERROR;
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.authorise3DSecure(threeDSecureForm.getPaRes(),
-                    worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
+                worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
             transactionStatus = responseData.getTransactionStatus();
             if (AUTHORISED.equals(transactionStatus)) {
                 return redirectToOrderConfirmationPage(responseData.getOrderData());

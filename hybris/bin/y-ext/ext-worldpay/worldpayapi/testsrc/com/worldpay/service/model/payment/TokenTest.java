@@ -1,6 +1,5 @@
 package com.worldpay.service.model.payment;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentInstrument;
 import com.worldpay.internal.model.PaymentTokenID;
 import com.worldpay.internal.model.TOKENSSL;
@@ -23,7 +22,7 @@ public class TokenTest {
     private static final String MERCHANT = "merchant";
 
     @Test
-    public void shouldReturnTokenSSLWithPaymentTokenIDWithMerchantScope() throws WorldpayModelTransformationException {
+    public void shouldReturnTokenSSLWithPaymentTokenIDWithMerchantScope() {
         final Token token = new Token(PAYMENT_TOKEN_ID, true);
 
         final TOKENSSL result = (TOKENSSL) token.transformToInternalModel();
@@ -36,7 +35,7 @@ public class TokenTest {
     }
 
     @Test
-    public void shouldReturnTokenSSLWithPaymentTokenIDWithShopperScope() throws WorldpayModelTransformationException {
+    public void shouldReturnTokenSSLWithPaymentTokenIDWithShopperScope() {
         final Token token = new Token(PAYMENT_TOKEN_ID, false);
 
         final TOKENSSL result = (TOKENSSL) token.transformToInternalModel();
@@ -49,7 +48,7 @@ public class TokenTest {
     }
 
     @Test
-    public void shouldReturnTokenSSLWithPaymentTokenIDAndPaymentInstrumentWithMerchantScope() throws WorldpayModelTransformationException {
+    public void shouldReturnTokenSSLWithPaymentTokenIDAndPaymentInstrumentWithMerchantScope() {
         final CardDetails paymentInstrument = new CardDetails();
         paymentInstrument.setCardNumber(CARD_NUMBER);
 
@@ -62,12 +61,12 @@ public class TokenTest {
         assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
         assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(tokenElements.get(1)).isInstanceOf(PaymentInstrument.class);
-        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
+        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertEquals(MERCHANT, result.getTokenScope());
     }
 
     @Test
-    public void shouldReturnTokenSSLWithPaymentTokenIDAndPaymentInstrumentWithShopperScope() throws WorldpayModelTransformationException {
+    public void shouldReturnTokenSSLWithPaymentTokenIDAndPaymentInstrumentWithShopperScope() {
         final CardDetails paymentInstrument = new CardDetails();
         paymentInstrument.setCardNumber(CARD_NUMBER);
 
@@ -80,7 +79,7 @@ public class TokenTest {
         assertThat(tokenElements.get(0)).isInstanceOf(PaymentTokenID.class);
         assertThat(((PaymentTokenID) tokenElements.get(0)).getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(tokenElements.get(1)).isInstanceOf(PaymentInstrument.class);
-        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
+        assertThat((((com.worldpay.internal.model.CardDetails) ((PaymentInstrument) tokenElements.get(1)).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0))).getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertEquals(SHOPPER, result.getTokenScope());
     }
 }

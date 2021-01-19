@@ -285,7 +285,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
                 final Derived derived = cardDetails.getDerived();
@@ -320,7 +320,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
             }
         }
 
-        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE_VALUE, token.getTokenEventReference());
     }
 
@@ -361,7 +361,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
+                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
                 assertNotNull(paypal);
 
             } else if (tokenElement instanceof TokenReason) {
@@ -370,7 +370,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
             }
         }
 
-        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID());
+        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE_VALUE, token.getTokenEventReference());
     }
 

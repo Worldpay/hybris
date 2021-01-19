@@ -69,7 +69,7 @@ public class ApplePayControllerTest {
     @Before
     public void setup() {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, null)).thenReturn("https://electronics.ypay-automation-responsive.e2y.io/worlpaystorefront/en");
+        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, null)).thenReturn("https://electronics.ypay-daily-responsive.e2y.io/worlpaystorefront/en");
         when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(customerMock);
     }
 

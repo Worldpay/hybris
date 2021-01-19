@@ -1,0 +1,4 @@
+"#% if: de.hybris.platform.jalo.extension.ExtensionManager.getInstance().isExtensionInstalled(""worldpayb2baddon"")"
+INSERT_UPDATE BaseStore2DeliveryModeRel; source(uid)[unique = true]; target(code)[unique = true]
+                                       ; powertools                ; free-standard-shipping-net
+#% endif:

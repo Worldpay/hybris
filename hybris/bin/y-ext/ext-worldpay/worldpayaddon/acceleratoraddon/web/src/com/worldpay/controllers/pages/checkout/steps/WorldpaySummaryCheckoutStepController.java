@@ -17,7 +17,10 @@ import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutSt
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
-import de.hybris.platform.commercefacades.order.data.*;
+import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
+import de.hybris.platform.commercefacades.order.data.CartData;
+import de.hybris.platform.commercefacades.order.data.CartRestorationData;
+import de.hybris.platform.commercefacades.order.data.OrderEntryData;
 import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.order.InvalidCartException;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,7 +44,6 @@ import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConst
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.*;
 import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
 import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
-import static java.text.MessageFormat.format;
 
 /**
  * Web controller to handle a summary in a checkout step
@@ -50,7 +52,7 @@ import static java.text.MessageFormat.format;
 @RequestMapping(value = "/checkout/multi/worldpay/summary")
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
-    protected static final Logger LOGGER = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
+    protected static final Logger LOG = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
     protected static final String SUMMARY = "summary";
     protected static final String CART_SUFFIX = "/cart";
     protected static final String CART_DATA = "cartData";
@@ -112,7 +114,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
         Optional.ofNullable(cartData.getPaymentInfo())
             .map(CCPaymentInfoData::getBin)
-            .ifPresent(bin-> model.addAttribute(BIN, bin));
+            .ifPresent(bin -> model.addAttribute(BIN, bin));
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
@@ -236,7 +238,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
             return handleDirectResponse(model, directResponseData, response);
         } catch (final InvalidCartException | WorldpayException e) {
             addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
-            LOGGER.error("There was an error authorising the transaction", e);
+            LOG.error("There was an error authorising the transaction", e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return getErrorView(model);
         }
@@ -347,9 +349,9 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
     private boolean hasTaxCalculated(final CartData cartData, final Model model) {
         if (!getCheckoutFacade().containsTaxValues()) {
-            LOGGER.error(format(
-                "Cart {0} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
-                cartData.getCode()));
+            LOG.error(
+                "Cart {} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
+                cartData::getCode);
             addErrorMessage(model, "checkout.error.tax.missing");
             return false;
         }
@@ -358,7 +360,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
     private boolean isCartCalculated(final CartData cartData, final Model model) {
         if (!cartData.isCalculated()) {
-            LOGGER.error(format("Cart {0} has a calculated flag of FALSE, placement of order can\'t continue", cartData.getCode()));
+            LOG.error("Cart {} has a calculated flag of FALSE, placement of order can\'t continue", cartData::getCode);
             addErrorMessage(model, "checkout.error.cart.notcalculated");
             return false;
         }

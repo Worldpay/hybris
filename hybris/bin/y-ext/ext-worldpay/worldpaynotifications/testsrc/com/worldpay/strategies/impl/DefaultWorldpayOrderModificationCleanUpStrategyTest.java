@@ -1,7 +1,6 @@
 package com.worldpay.strategies.impl;
 
 import com.worldpay.dao.OrderModificationDao;
-import com.worldpay.strategies.impl.DefaultWorldpayOrderModificationCleanUpStrategy;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.model.ModelService;
@@ -18,11 +17,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayOrderModificationCleanUpStrategyTest {
 
     @InjectMocks
-    private DefaultWorldpayOrderModificationCleanUpStrategy testObj = new DefaultWorldpayOrderModificationCleanUpStrategy();
+    private DefaultWorldpayOrderModificationCleanUpStrategy testObj;
+
     @Mock
     private ModelService modelServiceMock;
     @Mock

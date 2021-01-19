@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -24,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.Calendar.*;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * Controller for page to post mocked order modifications into hybris.
@@ -74,7 +72,7 @@ public class WorldpayOrderModificationMockController {
     private WorldpayNotificationResponseBuilder worldpayNotificationResponseBuilder;
 
     @Resource
-    private Map<Integer, String> ISO8583ResponseCodes;
+    private Map<Integer, String> iso8583ResponseCodes;
 
     @Resource
     private Map<String, String> worldpayCreditCards;
@@ -157,7 +155,7 @@ public class WorldpayOrderModificationMockController {
      */
     @PostMapping(value = "/responses")
     public String sendResponse(final ResponseForm responseForm, ModelMap model, final HttpServletRequest request) throws WorldpayException {
-        responseForm.setResponseDescription(ISO8583ResponseCodes.get(responseForm.getResponseCode()));
+        responseForm.setResponseDescription(iso8583ResponseCodes.get(responseForm.getResponseCode()));
         responseForm.setTestCreditCard(maskCreditCardNumber(responseForm.getTestCreditCard()));
         responseForm.setObfuscatedPAN(maskCreditCardNumber(responseForm.getObfuscatedPAN()));
         final String responseXML = worldpayNotificationResponseBuilder.buildResponse(responseForm);
@@ -173,7 +171,7 @@ public class WorldpayOrderModificationMockController {
      *
      * @return
      */
-    @RequestMapping(value = "/merchants", method = GET)
+    @GetMapping(value = "/merchants")
     @ResponseBody
     public Set<String> getMerchants() {
         return worldpayResponseMockMerchantInfoService.getAllMerchantCodes();
@@ -193,7 +191,7 @@ public class WorldpayOrderModificationMockController {
         // For testing non configured APMs. Could be adjusted for a Non-configured APM in your system.
         allApmPaymentTypeCodes.add("EKONTO-SSL");
         model.put(PAYMENT_METHOD_APMS, allApmPaymentTypeCodes);
-        model.put(RESPONSE_CODES, ISO8583ResponseCodes);
+        model.put(RESPONSE_CODES, iso8583ResponseCodes);
         model.put(TEST_CREDIT_CARDS, worldpayCreditCards);
         model.put(PAYMENT_METHODS, worldpayPaymentMethods);
         model.put(POSSIBLE_EVENTS, possibleEvents);

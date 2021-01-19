@@ -65,6 +65,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpaySummaryCheckoutStepControllerTest {
 
+    private static final String NEXT_PAGE = "/nextPage";
+    private static final String PREVIOUS_PAGE = "/previousPage";
     private static final String SECURITY_CODE = "securityCode";
     private static final String SUBSCRIPTION_ID = "subscriptionId";
     private static final String MULTI_STEP_CHECKOUT_SUMMARY = "multiStepCheckoutSummary";
@@ -85,6 +87,8 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
     private static final String BIN = "bin";
     private static final String BIN_VALUE = "78954";
+    private static final String PREVIOUS = "previous";
+    private static final String NEXT = "next";
 
     @Spy
     @InjectMocks
@@ -162,10 +166,13 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Mock
     private HttpServletResponse responseMock;
 
+    private Map<String, String> transitions = Map.of(PREVIOUS, PREVIOUS_PAGE, NEXT, NEXT_PAGE);
+
     private Model modelMock = new ExtendedModelMap();
 
     @Before
     public void setUp() throws CMSItemNotFoundException {
+        when(checkoutStepMock.getTransitions()).thenReturn(transitions);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
@@ -380,7 +387,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsErrorDeliveryAddress_ShouldRedirectAddDeliveryAddress() throws
-            CMSItemNotFoundException {
+        CMSItemNotFoundException {
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_DELIVERY_ADDRESS);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -390,7 +397,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckoutShouldRedirectChooseDeliveryMethodWhenCartIsValidAndPerformExpressCheckoutIsErrorDeliveryMode() throws
-            CMSItemNotFoundException {
+        CMSItemNotFoundException {
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_DELIVERY_MODE);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -400,7 +407,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsCheapestDeliveryMode_ShouldRedirectChooseDeliveryMethod() throws
-            CMSItemNotFoundException {
+        CMSItemNotFoundException {
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_CHEAPEST_DELIVERY_MODE);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -410,7 +417,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsErrorPaymentInfo_ShouldRedirectChoosePaymentMethod() throws
-            CMSItemNotFoundException {
+        CMSItemNotFoundException {
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_PAYMENT_INFO);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -420,7 +427,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsErrorNotAvailable_ShouldRedirectCartPage() throws
-            CMSItemNotFoundException {
+        CMSItemNotFoundException {
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_NOT_AVAILABLE);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -437,5 +444,32 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         final String result = testObj.getDDCIframeContent(modelMock);
 
         assertThat(result).isEqualTo(THREDSFLEX_DDC_PAGE);
+    }
+
+    @Test
+    public void getChallengeIframeContent_ShouldReturnTheWorldpayChallengeIframe() {
+        testObj.getChallengeIframeContent(modelMock);
+
+        verify(worldpayAddonEndpointServiceMock).getChallengeIframe3dSecureFlex();
+    }
+
+    @Test
+    public void back_ShouldReturnThePreviousPage() {
+        doCallRealMethod().when(checkoutStepMock).previousStep();
+        doCallRealMethod().when(checkoutStepMock).go(PREVIOUS);
+
+        final String result = testObj.back(redirectAttributesMock);
+
+        assertThat(result).isEqualTo(PREVIOUS_PAGE);
+    }
+
+    @Test
+    public void next_ShouldReturnTheNextPage() {
+        doCallRealMethod().when(checkoutStepMock).nextStep();
+        doCallRealMethod().when(checkoutStepMock).go(NEXT);
+
+        final String result = testObj.next(redirectAttributesMock);
+
+        assertThat(result).isEqualTo(NEXT_PAGE);
     }
 }

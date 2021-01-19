@@ -4,7 +4,6 @@ import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.*;
-import de.hybris.platform.commercefacades.order.impl.DefaultCheckoutFacade;
 import de.hybris.platform.commercefacades.storelocator.data.PointOfServiceData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
@@ -33,7 +32,7 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
  */
 public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
 
-    private static final Logger LOG = LogManager.getLogger(DefaultCheckoutFacade.class);
+    private static final Logger LOG = LogManager.getLogger(WorldpayCheckoutFacadeDecorator.class);
 
     protected final Converter<AddressModel, AddressData> addressConverter;
     protected final CartService cartService;
@@ -167,9 +166,9 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
                 parameter.setPaymentInfo(matchingPaymentInfoModel);
                 return commerceCheckoutService.setPaymentInfo(parameter);
             }
-            LOG.warn(String.format(
-                "Did not find CreditCardPaymentInfoModel for user: %s, cart: %s &  paymentInfoId: %s. PaymentInfo Will not get set.",
-                currentUserForCheckout, cartModel.getCode(), paymentInfoId));
+            LOG.warn(
+                "Did not find CreditCardPaymentInfoModel for user: {}, cart: {} &  paymentInfoId: {}. PaymentInfo Will not get set.",
+                () -> currentUserForCheckout, cartModel::getCode, () -> paymentInfoId);
         }
         return false;
     }

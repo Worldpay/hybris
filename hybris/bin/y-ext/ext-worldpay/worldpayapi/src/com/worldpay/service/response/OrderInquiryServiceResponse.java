@@ -1,12 +1,11 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.model.RedirectReference;
 
 /**
- * This class represents the details that are passed back from a call to {@link WorldpayServiceGateway#orderInquiry(com.worldpay.service.request.AbstractServiceRequest) orderInquiry()} in the
- * WorldpayServiceGateway
+ * This class represents the details that are passed back from a call to {@link com.worldpay.service.WorldpayServiceGateway#orderInquiry(com.worldpay.service.request.AbstractServiceRequest) orderInquiry()} in the
+ * {@link com.worldpay.service.WorldpayServiceGateway}
  * <p/>
  * <p>On top of the standard parameters it provides a {@link PaymentReply} with details of the latest status of the payment</p>
  */

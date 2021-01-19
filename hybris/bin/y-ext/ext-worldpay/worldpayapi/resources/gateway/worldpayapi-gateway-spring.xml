@@ -160,7 +160,14 @@
         <entry key="com.worldpay.service.request.SecondThreeDSecurePaymentRequest" value-ref="secondThreeDSecurePaymentRequestTransformer"/>
     </util:map>
 
-    <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate"/>
+    <bean id="worldpayTimeOutBasedHttpClientFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+        <property name="readTimeout" value="${worldpay.restconfig.http.connectTimeout}"/>
+        <property name="connectTimeout" value="${worldpay.restconfig.http.readTimeout}"/>
+    </bean>
+
+    <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate">
+        <constructor-arg ref="worldpayTimeOutBasedHttpClientFactory"/>
+    </bean>
 
     <alias name="defaultWorldpayConnector" alias="worldpayConnector"/>
     <bean id="defaultWorldpayConnector" class="com.worldpay.service.http.impl.DefaultWorldpayConnector">

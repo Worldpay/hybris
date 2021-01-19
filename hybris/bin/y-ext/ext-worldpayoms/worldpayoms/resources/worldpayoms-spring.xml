@@ -1,26 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2013 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
--->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-
-    <alias name="defaultWorldpayomsOrderModificationRefundProcessStrategy" alias="worldpayOrderModificationRefundProcessStrategy"/>
-    <bean id="defaultWorldpayomsOrderModificationRefundProcessStrategy" class="com.worldpay.strategies.impl.DefaultWorldpayomsOrderModificationRefundProcessStrategy">
-        <property name="businessProcessService" ref="businessProcessService"/>
-        <property name="modelService" ref="modelService"/>
-    </bean>
 
     <!-- Process Definitions -->
     <alias name="worldpayOmsOrderProcessDefinitionResource" alias="orderProcessDefinitionResource"/>
@@ -39,15 +21,17 @@
     </bean>
 
     <!-- Custom actions -->
-    <bean name="worldpayCancelPaymentAction" class="com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction" parent="abstractAction">
-        <property name="paymentService" ref="paymentService"/>
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    <bean name="worldpayCancelPaymentAction"
+          class="com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCancelPaymentAction"
+          parent="abstractAction">
+        <constructor-arg name="paymentService" ref="paymentService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
     </bean>
 
     <alias name="worldpayCaptureRefundAction" alias="captureRefundAction"/>
     <bean name="worldpayCaptureRefundAction" class="com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCaptureRefundAction" parent="abstractAction">
-        <property name="paymentService" ref="paymentService"/>
-        <property name="refundAmountCalculationService" ref="refundAmountCalculationService"/>
+        <constructor-arg name="paymentService" ref="paymentService"/>
+        <constructor-arg name="refundAmountCalculationService" ref="refundAmountCalculationService"/>
     </bean>
 
     <!-- Journal Type Strategies -->
