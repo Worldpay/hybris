@@ -5,20 +5,18 @@ import de.hybris.platform.commercefacades.i18n.I18NFacade;
 import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -66,13 +64,13 @@ public class HttpRequestAddressWsDTOPopulatorTest {
     }
 
     @Test
-    public void testBasicPopulationOfAllFields() {
+    public void populate_ShouldPopulateAllFields() {
         // Setup
         // Execute
         testObject.populate(httpServletRequestMock, addressWsDTO);
 
         // Verify
-        assertEquals(HttpRequestAddressWsDTOPopulator.COMPANY_NAME , addressWsDTO.getCompanyName());
+        assertEquals(HttpRequestAddressWsDTOPopulator.COMPANY_NAME, addressWsDTO.getCompanyName());
         assertEquals(HttpRequestAddressWsDTOPopulator.EMAIL, addressWsDTO.getEmail());
         assertEquals(HttpRequestAddressWsDTOPopulator.FIRST_NAME, addressWsDTO.getFirstName());
         assertEquals(HttpRequestAddressWsDTOPopulator.FORMATTED_ADDRESS, addressWsDTO.getFormattedAddress());

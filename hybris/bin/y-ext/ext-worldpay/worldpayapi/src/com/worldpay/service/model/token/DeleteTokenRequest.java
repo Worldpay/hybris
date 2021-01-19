@@ -1,12 +1,14 @@
 package com.worldpay.service.model.token;
 
 import com.worldpay.internal.helper.InternalModelObject;
+import com.worldpay.internal.model.AuthenticatedShopperID;
 import com.worldpay.internal.model.PaymentTokenDelete;
 import com.worldpay.internal.model.PaymentTokenID;
 import com.worldpay.internal.model.TokenReason;
 import com.worldpay.service.request.transform.InternalModelTransformer;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 public class DeleteTokenRequest implements InternalModelTransformer, Serializable {
 
@@ -26,7 +28,13 @@ public class DeleteTokenRequest implements InternalModelTransformer, Serializabl
         if (tokenRequest.isMerchantToken()) {
             intPaymentTokenDelete.setTokenScope("merchant");
         }
-        intPaymentTokenDelete.setAuthenticatedShopperID(authenticatedShopperId);
+        Optional.ofNullable(authenticatedShopperId)
+            .map(shopperId -> {
+                final AuthenticatedShopperID authenticatedShopperID = new AuthenticatedShopperID();
+                authenticatedShopperID.setvalue(shopperId);
+                return authenticatedShopperID;
+            })
+            .ifPresent(intPaymentTokenDelete::setAuthenticatedShopperID);
 
         final PaymentTokenID paymentTokenIDWrapper = new PaymentTokenID();
         paymentTokenIDWrapper.setvalue(paymentTokenId);

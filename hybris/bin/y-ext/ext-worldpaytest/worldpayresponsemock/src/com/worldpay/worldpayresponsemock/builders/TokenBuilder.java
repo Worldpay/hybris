@@ -156,7 +156,11 @@ public final class TokenBuilder {
 
         tokenDetails.setPaymentTokenExpiry(tokenExpiry);
 
-        Optional.ofNullable(authenticatedShopperId).ifPresent(token::setAuthenticatedShopperID);
+        Optional.ofNullable(authenticatedShopperId).map(shopperId -> {
+            final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
+            intAuthenticatedShopperID.setvalue(shopperId);
+            return intAuthenticatedShopperID;
+        }).ifPresent(token::setAuthenticatedShopperID);
         Optional.ofNullable(tokenEventReference).ifPresent(token::setTokenEventReference);
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(tokenReasonValue);
@@ -179,7 +183,7 @@ public final class TokenBuilder {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
         paypal.setvalue(StringUtils.EMPTY);
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(paypal);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(paypal);
         return paymentInstrument;
     }
 
@@ -212,7 +216,7 @@ public final class TokenBuilder {
 
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(cardDetails);
         return paymentInstrument;
     }
 

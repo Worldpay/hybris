@@ -11,7 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -21,9 +22,12 @@ public class DefaultWorldpayAPMPaymentInfoPopulatorTest {
     private static final String SUBSCRIPTION_ID = "subscriptionId";
     private static final long PK = 1234L;
     private static final String OBFUSCATED_CART_NUMBER = "obfuscatedCartNumber";
+    private static final String EXPIRY_MONTH = "1";
+    private static final String EXPIRY_YEAR = "2025";
 
     @InjectMocks
     private DefaultWorldpayAPMPaymentInfoPopulator testObj;
+
     @Mock
     private CCPaymentInfoData targetMock;
     @Mock
@@ -32,11 +36,13 @@ public class DefaultWorldpayAPMPaymentInfoPopulatorTest {
     private WorldpayAPMConfigurationModel apmConfigurationMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(sourceMock.getApmConfiguration()).thenReturn(apmConfigurationMock);
         when(sourceMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
         when(sourceMock.getPk()).thenReturn(de.hybris.platform.core.PK.fromLong(PK));
         when(sourceMock.getObfuscatedCardNumber()).thenReturn(OBFUSCATED_CART_NUMBER);
+        when(sourceMock.getExpiryMonth()).thenReturn(EXPIRY_MONTH);
+        when(sourceMock.getExpiryYear()).thenReturn(EXPIRY_YEAR);
         when(apmConfigurationMock.getName()).thenReturn(APM_NAME);
     }
 
@@ -73,5 +79,13 @@ public class DefaultWorldpayAPMPaymentInfoPopulatorTest {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setCardNumber(OBFUSCATED_CART_NUMBER);
+    }
+
+    @Test
+    public void populate_ShouldAddExpiryDateAndYear() {
+        testObj.populate(sourceMock, targetMock);
+
+        verify(targetMock).setExpiryMonth(EXPIRY_MONTH);
+        verify(targetMock).setExpiryYear(EXPIRY_YEAR);
     }
 }

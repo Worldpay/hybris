@@ -27,7 +27,7 @@ import static com.worldpay.worldpayresponsemock.builders.TokenBuilder.aTokenBuil
  */
 public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotificationResponseBuilder {
 
-    private static final Logger LOG = LogManager.getLogger(WorldpayNotificationResponseBuilder.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpayNotificationResponseBuilder.class);
 
     private static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
     private static final String IN_PROCESS_AUTHORISED = "IN_PROCESS_AUTHORISED";

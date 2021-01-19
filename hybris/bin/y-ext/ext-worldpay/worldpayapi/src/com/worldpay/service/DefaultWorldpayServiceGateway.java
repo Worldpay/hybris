@@ -143,7 +143,7 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
         return (DirectAuthoriseServiceResponse) service(request);
     }
 
-    private ServiceResponse service(final ServiceRequest request) throws WorldpayException {
+    protected ServiceResponse service(final ServiceRequest request) throws WorldpayException {
         final ServiceRequestTransformer requestTransformer = requestTransformerStrategyMap.get(request.getClass().getName());
         final PaymentService paymentService = requestTransformer.transform(request);
         try {

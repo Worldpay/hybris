@@ -1,7 +1,17 @@
 #% impex.setLocale( Locale.GERMAN );
 
-$storeUid=apparel-de
-$productCatalog=apparelProductCatalog
-$productCatalogName=Apparel Product Catalog
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
-$storeImage=storeImage(qualifier, $catalogVersion)
+$storeUid = apparel-de
+$productCatalog = apparelProductCatalog
+$productCatalogName = Apparel Product Catalog
+$catalogVersion = catalogversion(catalog(id[default=$productCatalog]), version[default='Staged'])[unique=true, default=$productCatalog:Staged]
+$storeImage = storeImage(qualifier, $catalogVersion)
+$defaultPassword = 1234
+
+"#% if: de.hybris.platform.jalo.extension.ExtensionManager.getInstance().isExtensionInstalled(""worldpayoms"")"
+INSERT_UPDATE Employee; uid[unique = true]           ; name                            ; groups(uid); password[default = $defaultPassword]; loginDisabled[default = false]; hmcLoginDisabled[default = false]
+                      ; BerlinMuseumWarehouseAgent   ; Berlin Museum Warehouse Agent   ; warehouseagentgroup,berlinmuseumstoreemployees
+                      ; BerlinDomWarehouseAgent      ; Berlin Dom Warehouse Agent      ; warehouseagentgroup,berlindomstoreemployees
+                      ; BerlinZooWarehouseAgent      ; Berlin Zoo Warehouse Agent      ; warehouseagentgroup,berlinzoostoreemployees
+                      ; BerlinHospitalWarehouseAgent ; Berlin Hospital Warehouse Agent ; warehouseagentgroup,berlinhospitalstoreemployees
+                      ; MunichMuseumWarehouseAgent   ; Munich Museum Warehouse Agent   ; warehouseagentgroup,munichmuseumstoreemployees
+#% endif:

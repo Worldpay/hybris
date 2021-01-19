@@ -21,11 +21,12 @@
   		<property name="name" value="labels"/>
   	</bean>
 
-	<bean id="abstractAmountRenderer" abstract="true">
-		<property name="typeFacade" ref="typeFacade"/>
-		<property name="propertyValueService" ref="propertyValueService"/>
-		<property name="labelService" ref="labelService"/>
-		<property name="permissionFacade" ref="permissionFacade"/>
+	<bean id="abstractAmountRenderer" class="com.worldpay.worldpayaddonbackoffice.renderers.AbstractAmountRenderer"
+          abstract="true">
+		<constructor-arg name="typeFacade" ref="typeFacade"/>
+		<constructor-arg name="propertyValueService" ref="propertyValueService"/>
+		<constructor-arg name="labelService" ref="labelService"/>
+		<constructor-arg name="permissionFacade" ref="permissionFacade"/>
 	</bean>
 
 	<alias name="worldpayPaymentTransactionAmountRenderer" alias="paymentTransactionAmountRenderer"/>

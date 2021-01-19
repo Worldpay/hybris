@@ -1,14 +1,15 @@
-<%@ page trimDirectiveWhitespaces="true"%>
-<%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template"%>
-<%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags"%>
-<%@ taglib prefix="multi-checkout" tagdir="/WEB-INF/tags/responsive/checkout/multi"%>
+<%@ page trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="template" tagdir="/WEB-INF/tags/responsive/template" %>
+<%@ taglib prefix="cms" uri="http://hybris.com/tld/cmstags" %>
+<%@ taglib prefix="multi-checkout" tagdir="/WEB-INF/tags/responsive/checkout/multi" %>
 <%@ taglib prefix="wp-b2b-multi-checkout" tagdir="/WEB-INF/tags/addons/worldpayb2baddon/responsive/checkout/multi" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="ycommerce" uri="http://hybris.com/tld/ycommercetags" %>
 
-<spring:htmlEscape defaultHtmlEscape="true" />
+<spring:htmlEscape defaultHtmlEscape="true"/>
 
 <spring:url value="/checkout/multi/worldpay/summary/placeOrder" var="placeOrderUrl" htmlEscape="false"/>
 
@@ -17,14 +18,34 @@
         <div class="col-sm-6">
             <div class="checkout-headline">
                 <span class="glyphicon glyphicon-lock"></span>
-                <spring:theme code="checkout.multi.secure.checkout" />
+                <spring:theme code="checkout.multi.secure.checkout"/>
             </div>
 
             <multi-checkout:checkoutSteps checkoutSteps="${checkoutSteps}" progressBarId="${progressBarId}">
                 <ycommerce:testId code="checkoutStepFour">
                     <div class="checkout-review hidden-xs">
                         <div class="checkout-order-summary">
-                            <multi-checkout:orderTotals cartData="${cartData}" showTaxEstimate="${showTaxEstimate}" showTax="${showTax}" subtotalsCssClasses="dark"/>
+                            <div class="address payment-info-summary">
+                                <c:choose>
+                                    <c:when test="${cartData.paymentInfo != null}">
+                                        <strong>
+                                                ${fn:escapeXml(cartData.paymentInfo.accountHolderName)}
+                                        </strong>
+                                        <br>${fn:escapeXml(cartData.paymentInfo.cardTypeData.name)}, ${fn:escapeXml(cartData.paymentInfo.cardNumber)}
+                                        <br>
+                                        <c:if test="${cartData.paymentInfo.expiryMonth lt 10}">0</c:if>
+                                        ${fn:escapeXml(cartData.paymentInfo.expiryMonth)}&nbsp;/&nbsp;${fn:escapeXml(cartData.paymentInfo.expiryYear)}
+                                        <br>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <strong>
+                                                ${fn:escapeXml(cartData.worldpayAPMPaymentInfo.name)}
+                                        </strong>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <multi-checkout:orderTotals cartData="${cartData}" showTaxEstimate="${showTaxEstimate}"
+                                                        showTax="${showTax}" subtotalsCssClasses="dark"/>
                         </div>
                     </div>
                     <div class="place-order-form hidden-xs">
@@ -32,12 +53,16 @@
                             <wp-b2b-multi-checkout:securityCode/>
                             <wp-b2b-multi-checkout:worldpayCSESavedCardDetails/>
                             <wp-b2b-multi-checkout:termsAndConditions/>
-                            <button id="placeOrder" type="submit" class="btn btn-primary btn-block btn-place-order btn-block btn-lg checkoutSummaryButton" disabled="disabled">
+                            <button id="placeOrder" type="submit"
+                                    class="btn btn-primary btn-block btn-place-order btn-block btn-lg checkoutSummaryButton"
+                                    disabled="disabled">
                                 <spring:theme code="checkout.summary.placeOrder"/>
                             </button>
 
                             <c:if test="${cartData.quoteData eq null}">
-                                <button id="scheduleReplenishment" type="button" class="btn btn-default btn-block scheduleReplenishmentButton checkoutSummaryButton" disabled="disabled">
+                                <button id="scheduleReplenishment" type="button"
+                                        class="btn btn-default btn-block scheduleReplenishmentButton checkoutSummaryButton"
+                                        disabled="disabled">
                                     <spring:theme code="checkout.summary.scheduleReplenishment"/>
                                 </button>
                                 <wp-b2b-multi-checkout:replenishmentScheduleForm/>
@@ -50,7 +75,8 @@
         </div>
 
         <div class="col-sm-6">
-            <wp-b2b-multi-checkout:checkoutOrderSummary cartData="${cartData}" showDeliveryAddress="true" showPaymentInfo="true" showTaxEstimate="true" showTax="true" />
+            <wp-b2b-multi-checkout:checkoutOrderSummary cartData="${cartData}" showDeliveryAddress="true"
+                                                        showPaymentInfo="true" showTaxEstimate="true" showTax="true"/>
         </div>
 
         <div class="col-sm-12 col-lg-12">

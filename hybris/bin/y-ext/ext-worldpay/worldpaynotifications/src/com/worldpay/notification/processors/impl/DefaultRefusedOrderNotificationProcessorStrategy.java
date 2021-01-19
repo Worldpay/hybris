@@ -10,7 +10,6 @@ import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.text.MessageFormat;
@@ -25,13 +24,24 @@ public class DefaultRefusedOrderNotificationProcessorStrategy implements OrderNo
 
     private static final Logger LOG = Logger.getLogger(DefaultRefusedOrderNotificationProcessorStrategy.class);
 
-    private WorldpayPaymentInfoService worldpayPaymentInfoService;
-    private TransactionOperations transactionTemplate;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private ModelService modelService;
+    protected final TransactionOperations transactionTemplate;
+    protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final ModelService modelService;
+
+    public DefaultRefusedOrderNotificationProcessorStrategy(final TransactionOperations transactionTemplate,
+                                                            final WorldpayPaymentInfoService worldpayPaymentInfoService,
+                                                            final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                                            final ModelService modelService) {
+        this.transactionTemplate = transactionTemplate;
+        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.modelService = modelService;
+    }
 
     /**
      * {@inheritDoc}
+     *
      * @see OrderNotificationProcessorStrategy#processNotificationMessage(PaymentTransactionModel, OrderNotificationMessage)
      */
     @Override
@@ -52,25 +62,5 @@ public class DefaultRefusedOrderNotificationProcessorStrategy implements OrderNo
 
     protected boolean isOrderRefusable(final AbstractOrderModel orderModel) {
         return orderModel instanceof OrderModel && PAYMENT_PENDING.equals(orderModel.getStatus());
-    }
-
-    @Required
-    public void setWorldpayPaymentInfoService(WorldpayPaymentInfoService worldpayPaymentInfoService) {
-        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
-    }
-
-    @Required
-    public void setTransactionTemplate(TransactionOperations transactionTemplate) {
-        this.transactionTemplate = transactionTemplate;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
     }
 }

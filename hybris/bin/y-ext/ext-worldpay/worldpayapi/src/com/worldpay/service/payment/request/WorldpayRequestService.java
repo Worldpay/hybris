@@ -96,11 +96,12 @@ public interface WorldpayRequestService {
     /**
      * Creates a payment element to be used in bank transfers
      *
+     * @param worldpayOrderCode   worldpay order code
      * @param paymentMethod   indicates which payment method for bank transfer is going to be used (IDEAL-SSL,...)
      * @param shopperBankCode indicates the selected bank by the user
      * @return Payment object
      */
-    Payment createBankPayment(final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException;
+    Payment createBankPayment(final String worldpayOrderCode, final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException;
 
     /**
      * Creates token

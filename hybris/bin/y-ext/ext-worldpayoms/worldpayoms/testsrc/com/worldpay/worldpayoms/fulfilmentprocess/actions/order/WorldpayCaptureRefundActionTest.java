@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class WorldpayCaptureRefundActionTest {
     private static final BigDecimal CUSTOM_REFUND_AMOUNT = new BigDecimal(19);
     private static final BigDecimal ORIGINAL_REFUND_AMOUNT = new BigDecimal(17);
 
+    @Spy
     @InjectMocks
     private WorldpayCaptureRefundAction testObj;
 
@@ -58,6 +60,7 @@ public class WorldpayCaptureRefundActionTest {
     @Before
     public void setUp() {
         when(returnProcessModelMock.getReturnRequest()).thenReturn(returnRequestMock);
+        when(testObj.getModelService()).thenReturn(modelServiceMock);
     }
 
     @Test

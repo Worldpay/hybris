@@ -32,7 +32,7 @@ public class WorldpayCloneCartActionTest {
     public static final String GENERATED_GUID = "xxxxx-xxxxx-xxxxx-xxxxx";
 
     @InjectMocks
-    private WorldpayCloneCartAction testObj = new WorldpayCloneCartAction();
+    private WorldpayCloneCartAction testObj;
 
     @Mock
     private CartService cartService;

@@ -1,13 +1,13 @@
 package com.worldpay.worldpayoms.fulfilmentprocess.actions.order;
 
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
+import de.hybris.platform.core.model.ItemModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.PaymentService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.List;
 
@@ -21,8 +21,13 @@ import static org.fest.util.Collections.isEmpty;
  */
 public class WorldpayCancelPaymentAction extends AbstractSimpleDecisionAction<OrderProcessModel> {
 
-    private PaymentService paymentService;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final PaymentService paymentService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+
+    public WorldpayCancelPaymentAction(final PaymentService paymentService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
+        this.paymentService = paymentService;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+    }
 
     @Override
     public Transition executeAction(final OrderProcessModel orderProcessModel) {
@@ -40,24 +45,12 @@ public class WorldpayCancelPaymentAction extends AbstractSimpleDecisionAction<Or
         return Transition.NOK;
     }
 
-    protected boolean firstElementExists(List elements) {
+    protected boolean firstElementExists(final List<? extends ItemModel> elements) {
         return !isEmpty(elements) && elements.get(0) != null;
     }
 
-    protected boolean isSuccessful(PaymentTransactionEntryModel cancelledPaymentTransaction) {
+    protected boolean isSuccessful(final PaymentTransactionEntryModel cancelledPaymentTransaction) {
         return cancelledPaymentTransaction.getTransactionStatus().equalsIgnoreCase(ACCEPTED.name()) && cancelledPaymentTransaction.getTransactionStatusDetails()
-                .equalsIgnoreCase(SUCCESFULL.name());
+            .equalsIgnoreCase(SUCCESFULL.name());
     }
-
-    @Required
-    public void setPaymentService(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-
 }

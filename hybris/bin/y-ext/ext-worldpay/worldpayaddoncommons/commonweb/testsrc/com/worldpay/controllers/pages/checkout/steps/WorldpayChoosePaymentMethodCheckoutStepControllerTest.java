@@ -336,10 +336,10 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRedirectToNextStep() {
+    public void doSelectPaymentMethod_WhenPaymentIdValidAndPopulated_shouldRedirectToNextStep() throws CMSItemNotFoundException {
         when(checkoutStepMock.nextStep()).thenReturn(NEXT_PAGE);
 
-        final String result = testObj.doSelectPaymentMethod(SELECTED_PAYMENT_METHOD_ID);
+        final String result = testObj.doSelectPaymentMethod(SELECTED_PAYMENT_METHOD_ID, modelMock, redirectAttrsMock);
 
         verify(sessionServiceMock).setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, true);
         verify(checkoutFacadeMock).setPaymentDetails(SELECTED_PAYMENT_METHOD_ID);
@@ -348,13 +348,13 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRedirectToNextStepAndNotSetPaymentMethod() {
+    public void doSelectPaymentMethod_WhenPaymentIdNotValid_shouldRedirectToNextStepAndNotSetPaymentMethod() throws CMSItemNotFoundException {
         when(checkoutStepMock.nextStep()).thenReturn(NEXT_PAGE);
 
-        final String result = testObj.doSelectPaymentMethod("");
+        testObj.doSelectPaymentMethod("", modelMock, redirectAttrsMock);
 
         verify(checkoutFacadeMock, never()).setPaymentDetails(any());
-        assertEquals(NEXT_PAGE, result);
+        verify(testObj).enterStep(modelMock, redirectAttrsMock);
     }
 
     @Test

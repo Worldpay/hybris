@@ -68,6 +68,12 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String WINDOW_SIZE = "windowSize";
     private static final String CHALLENGE_PREFERENCE = "challengePreference";
 
+    private final List<CountryData> billingCountries = emptyList();
+    private final List<CardTypeData> supportedCardTypes = emptyList();
+    private final List<Breadcrumb> breadcrumbs = Collections.emptyList();
+    private final List<CountryData> deliveryCountries = Collections.emptyList();
+    private final Model model = new ExtendedModelMap();
+
     @InjectMocks
     private final AbstractWorldpayPaymentMethodCheckoutStepController testObj = new TestWorldpayPaymentMethodCheckoutStepController();
 
@@ -111,13 +117,6 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecoratorMock;
     @Mock(name = "checkoutFacade")
     private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
-
-
-    private final List<CountryData> billingCountries = emptyList();
-    private final List<CardTypeData> supportedCardTypes = emptyList();
-    private final List<Breadcrumb> breadcrumbs = Collections.emptyList();
-    private final List<CountryData> deliveryCountries = Collections.emptyList();
-    private final Model model = new ExtendedModelMap();
 
     @Before
     public void setUp() {

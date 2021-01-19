@@ -206,7 +206,10 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     @Override
     public TokenReply buildTokenReply(final Token intToken) {
         final TokenReply tokenReply = new TokenReply();
-        tokenReply.setAuthenticatedShopperID(intToken.getAuthenticatedShopperID());
+        Optional.ofNullable(intToken.getAuthenticatedShopperID())
+            .map(AuthenticatedShopperID::getvalue)
+            .ifPresent(tokenReply::setAuthenticatedShopperID);
+
         tokenReply.setTokenEventReference(intToken.getTokenEventReference());
 
         final List<Object> tokenInformationFields = intToken.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
@@ -217,7 +220,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 final com.worldpay.service.model.token.TokenDetails tokenDetails = transformTokenDetails((TokenDetails) tokenInformationField);
                 tokenReply.setTokenDetails(tokenDetails);
             } else if (tokenInformationField instanceof PaymentInstrument) {
-                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSL().get(0);
+                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
                 if (paymentInstrument instanceof CardDetails) {
                     final com.worldpay.service.model.payment.Card card = transformCard((CardDetails) paymentInstrument);
                     tokenReply.setPaymentInstrument(card);
