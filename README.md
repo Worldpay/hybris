@@ -42,7 +42,7 @@ HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
   
 -  ypay-lib was updated to the latest DTD version
   
--  When upgrading to version 2011 redundant address converters were removed after ootb hybris populated the email
+-  When upgrading to the latest version, redundant address converters were removed after ootb hybris populated the email
   
 -  A bug was raised to fix hybris ootb causing an order process failure. Unnecessary user rights were removed and warehouse users were imported just for OMS. User rights were also moved to the common impex 
   
