@@ -1,7 +1,7 @@
 package com.worldpay.service;
 
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.token.TokenRequest;
 import com.worldpay.service.request.DeleteTokenServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;

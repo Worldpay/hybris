@@ -1,6 +1,7 @@
 package com.worldpay.forms.validation;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
@@ -20,34 +21,21 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 import org.springframework.validation.Errors;
 
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.CHECKOUT_ERROR_TERMS_NOT_ACCEPTED;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_BILLING_ADDRESS_COUNTRY_ISO;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_BILLING_ADDRESS_FIRST_NAME;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_BILLING_ADDRESS_LAST_NAME;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_BILLING_ADDRESS_LINE1;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_BILLING_ADDRESS_POSTCODE;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_BILLING_ADDRESS_TOWN_CITY;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_PAYMENT_METHOD;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.FIELD_SHOPPER_BANK_CODE;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.GLOBAL_MISSING_DELIVERY_ADDRESS;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.WORLDPAY_PAYMENT_METHOD_INVALID;
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.WORLDPAY_PAYMENT_METHOD_NO_SHOPPER_BANK_CODE;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import static com.worldpay.forms.validation.PaymentDetailsFormValidator.*;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PaymentDetailsFormValidatorTest {
 
     private static final String APM_PAYMENT_METHOD = "apmPaymentMethod";
     private static final String BANK_CODE = "bankCode";
+    private static final String BIRTH_DAY_DATE_FORMAT = "dd/MM/yyyy";
 
     @Spy
     @InjectMocks
@@ -73,6 +61,8 @@ public class PaymentDetailsFormValidatorTest {
     private AddressData deliveryAddressMock;
     @Mock
     private CartData checkoutCartMock;
+    @Mock
+    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
 
     @Before
     public void setUp() {
@@ -82,6 +72,8 @@ public class PaymentDetailsFormValidatorTest {
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
         when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
         when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
     }
 
     @Test
@@ -201,6 +193,44 @@ public class PaymentDetailsFormValidatorTest {
         verify(errorsMock).reject(WORLDPAY_PAYMENT_METHOD_INVALID);
     }
 
+    @Test
+    public void validate_WhenFSIsEnabledAndBirthdayDateNull_ShouldAddTheError() {
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
+
+    @Test
+    public void validate_WhenFSIsEnabledAndBirthdayDateNotInThePast_ShouldAddTheError() throws ParseException {
+        final SimpleDateFormat df = new SimpleDateFormat(BIRTH_DAY_DATE_FORMAT);
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(df.parse("21/10/2100"));
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
+
+    @Test
+    public void validate_WhenFSIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
+
+    @Test
+    public void validate_WhenFSIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(false);
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
 
     protected void verifyBillingAddressValidation(VerificationMode verificationMode) {
         verify(testObj, verificationMode).validateField(eq(errorsMock), eq(FIELD_BILLING_ADDRESS_FIRST_NAME), anyString());

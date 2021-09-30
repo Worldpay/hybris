@@ -1,0 +1,31 @@
+$catalog1-id = testCatalog1
+$catalog1-version = Online
+$catalogversion1 = catalogversion(catalog(id), version)[unique=true, default=$catalog1-id:$catalog1-version]
+
+$catalog2-id = testCatalog2
+$catalog2-version = Online
+$catalogversion2 = catalogversion(catalog(id), version)[unique=true, default=$catalog2-id:$catalog2-version]
+
+INSERT_UPDATE Country; isocode[unique = true]; name[lang = en]          ; active
+                     ; DE                    ; Germany                  ; true
+                     ; US                    ; United States of America ; true
+
+INSERT_UPDATE Currency; isocode[unique = true]; name[lang = en]; active; base  ; conversion; digits; symbol; ;
+                      ; EUR                   ; Euro           ; true  ; true  ; 1         ; 2     ; E     ; ;
+                      ; USD                   ; US Dollar      ; true  ; false ; 1,38      ; 2     ; $     ; ;
+
+INSERT_UPDATE Catalog; id[unique = true]; name[lang = en]; defaultCatalog
+                     ; $catalog1-id     ; $catalog1-id   ; true
+                     ; $catalog2-id     ; $catalog2-id   ; true
+
+INSERT_UPDATE CatalogVersion; catalog(id)[unique = true]; version[unique = true]; active
+                            ; $catalog1-id              ; $catalog1-version     ; true
+                            ; $catalog2-id              ; $catalog2-version     ; true
+
+INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]; name[lang = en]; description[lang = en]; bank[default = false]; currencies(isocode); countries(isocode); automaticRefunds[default = false]; bankTransferRefunds[default = false]
+                                      ; GIROPAY-SSL        ; GIROPAY        ; GiroPay               ;                      ; EUR                ; DE                ; true                             ;
+                                      ; IDEAL-SSL          ; iDeal          ; iDeal                 ; true                 ; USD                ; US                ; true                             ;
+
+INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]; $catalogversion1[unique = true]; name      ; apmConfiguration(code)
+                                  ; giropayComponent  ;                                ; "Giropay" ; GIROPAY-SSL
+                                  ; idealComponent    ;                                ; "iDeal"   ; IDEAL-SSL

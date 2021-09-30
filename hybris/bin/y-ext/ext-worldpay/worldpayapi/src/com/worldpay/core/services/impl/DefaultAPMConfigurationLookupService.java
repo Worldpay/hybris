@@ -4,10 +4,9 @@ import com.worldpay.core.dao.WorldpayAPMConfigurationDao;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.payment.PaymentType;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -15,9 +14,13 @@ import java.util.*;
  */
 public class DefaultAPMConfigurationLookupService implements APMConfigurationLookupService {
 
-    private static final Logger LOG = Logger.getLogger(DefaultAPMConfigurationLookupService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultAPMConfigurationLookupService.class);
 
-    private WorldpayAPMConfigurationDao worldpayAPMConfigurationDao;
+    protected final WorldpayAPMConfigurationDao worldpayAPMConfigurationDao;
+
+    public DefaultAPMConfigurationLookupService(final WorldpayAPMConfigurationDao worldpayAPMConfigurationDao) {
+        this.worldpayAPMConfigurationDao = worldpayAPMConfigurationDao;
+    }
 
     /**
      * {@inheritDoc}
@@ -27,12 +30,12 @@ public class DefaultAPMConfigurationLookupService implements APMConfigurationLoo
         final Map<String, String> queryParams = Collections.singletonMap(WorldpayAPMConfigurationModel.CODE, paymentTypeCode);
         final List<WorldpayAPMConfigurationModel> worldpayAPMConfigurationModels = worldpayAPMConfigurationDao.find(queryParams);
         if (worldpayAPMConfigurationModels.isEmpty()) {
-            LOG.error(MessageFormat.format("Could not find unique WorldpayAlternativePaymentMethod with code [{0}]", paymentTypeCode));
+            LOG.error("Could not find unique WorldpayAlternativePaymentMethod with code [{}]", paymentTypeCode);
             return null;
         } else {
             final WorldpayAPMConfigurationModel worldpayAPMConfigurationModel = worldpayAPMConfigurationModels.get(0);
             if (worldpayAPMConfigurationModels.size() > 1) {
-                LOG.error(MessageFormat.format("Multiple WorldpayAPMConfiguration with code [{0}], returning first [{1}]", paymentTypeCode, worldpayAPMConfigurationModel.getCode()));
+                LOG.error("Multiple WorldpayAPMConfiguration with code [{}], returning first [{}]", paymentTypeCode, worldpayAPMConfigurationModel.getCode());
                 return worldpayAPMConfigurationModel;
             } else {
                 return worldpayAPMConfigurationModel;
@@ -55,8 +58,4 @@ public class DefaultAPMConfigurationLookupService implements APMConfigurationLoo
         return apmPaymentTypesCodes;
     }
 
-    @Required
-    public void setWorldpayAPMConfigurationDao(final WorldpayAPMConfigurationDao worldpayAPMConfigurationDao) {
-        this.worldpayAPMConfigurationDao = worldpayAPMConfigurationDao;
-    }
 }

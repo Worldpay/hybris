@@ -1,11 +1,11 @@
 package com.worldpay.worldpaynotifications.listener;
 
 import com.worldpay.core.event.OrderModificationEvent;
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.service.model.JournalReply;
+import com.worldpay.data.JournalReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.CartModel;
@@ -19,13 +19,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
+import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -40,7 +41,7 @@ public class WorldpayOrderModificationListenerTest {
     private static final String RETURN_CODE = "A19";
 
     @InjectMocks
-    private WorldpayOrderModificationListener testObj = new WorldpayOrderModificationListener();
+    private WorldpayOrderModificationListener testObj;
 
     @Mock
     private OrderModificationEvent orderModificationEventMock;
@@ -53,7 +54,7 @@ public class WorldpayOrderModificationListenerTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTransactionModel paymentTransactionModelMock;
     @Mock
-    private OrderModificationSerialiser orderModificationSerialiser;
+    private OrderNotificationService orderNotificationServiceMock;
     @Mock
     private WorldpayOrderModificationModel worldpayOrderModificationModelMock;
     @Mock
@@ -67,17 +68,17 @@ public class WorldpayOrderModificationListenerTest {
 
     @Before
     public void setup() {
+        Whitebox.setInternalState(testObj, "paymentTransactionTypeMap", paymentTransactionTypeMap);
         paymentTransactionTypeMap.put(AUTHORISED, AUTHORIZATION);
         paymentTransactionTypeMap.put(REFUSED, PaymentTransactionType.REFUSED);
         paymentTransactionTypeMap.put(CANCELLED, CANCEL);
         paymentTransactionTypeMap.put(CAPTURED, CAPTURE);
-        testObj.setPaymentTransactionTypeMap(paymentTransactionTypeMap);
         when(orderModificationEventMock.getOrderNotificationMessage()).thenReturn(orderNotificationMessageMock);
         when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn(RETURN_CODE);
         when(orderNotificationMessageMock.getJournalReply()).thenReturn(journalReplyMock);
         when(orderNotificationMessageMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderModelMock.getCode()).thenReturn(ORDER_CODE);
-        when(orderModificationSerialiser.serialise(orderNotificationMessageMock)).thenReturn(SERIALIZED);
+        when(orderNotificationServiceMock.serialiseNotification(orderNotificationMessageMock)).thenReturn(SERIALIZED);
         when(modelServiceMock.create(WorldpayOrderModificationModel.class)).thenReturn(worldpayOrderModificationModelMock);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
     }

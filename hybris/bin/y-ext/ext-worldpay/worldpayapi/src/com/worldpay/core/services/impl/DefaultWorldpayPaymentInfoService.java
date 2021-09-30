@@ -2,22 +2,18 @@ package com.worldpay.core.services.impl;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.*;
+import com.worldpay.data.payment.Card;
+import com.worldpay.data.token.CardDetails;
+import com.worldpay.data.token.TokenDetails;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.model.ApplePayPaymentInfoModel;
 import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
-import com.worldpay.service.model.Date;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.SchemeResponse;
-import com.worldpay.service.model.payment.Card;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.CardDetails;
-import com.worldpay.service.model.token.TokenDetails;
-import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
@@ -37,7 +33,8 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.user.AddressService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -58,7 +55,7 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
  */
 public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoService {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayPaymentInfoService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayPaymentInfoService.class);
     private static final String WORLDPAY_CREDIT_CARD_MAPPINGS = "worldpay.creditCard.mappings.";
     private static final String CART_MODEL_CANNOT_BE_NULL = "CartModel cannot be null";
 
@@ -360,7 +357,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     protected void setPaymentTypeAndCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final Card paymentInstrument) {
         if (paymentInstrument != null && paymentInstrument.getPaymentType() != null) {
-            doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, paymentInstrument.getPaymentType().getMethodCode());
+            doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, paymentInstrument.getPaymentType());
         } else {
             doSetCreditCardTypeAndPaymentType(creditCardPaymentInfoModel, PaymentType.CARD_SSL.getMethodCode());
         }
@@ -372,7 +369,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
         savePaymentType(paymentTransactionModel, paymentReply.getPaymentMethodCode());
         final PaymentInfoModel paymentTransactionModelInfo = paymentTransactionModel.getInfo();
-        if (paymentTransactionModelInfo.getIsApm()) {
+        if (Boolean.TRUE.equals(paymentTransactionModelInfo.getIsApm())) {
             final TokenReply tokenReply = orderNotificationMessage.getTokenReply();
             if (tokenReply != null && orderNotificationMessage.getPaymentReply().getPaymentMethodCode().equalsIgnoreCase(PaymentType.PAYPAL.getMethodCode())) {
                 return createPaypalTokenisedPaymentInfo(paymentTransactionModel, orderNotificationMessage, tokenReply);
@@ -499,7 +496,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     protected java.util.Date calculateAPMTimeoutDate(final java.util.Date creationTime, final WorldpayAPMConfigurationModel apmConfiguration) {
         final Integer autoCancelPendingTimeoutInMinutes = apmConfiguration.getAutoCancelPendingTimeoutInMinutes();
         if (autoCancelPendingTimeoutInMinutes == null) {
-            LOG.warn(MessageFormat.format("No auto cancel pending timeout found for APM configuration with code [{0}]", apmConfiguration.getCode()));
+            LOG.warn("No auto cancel pending timeout found for APM configuration with code [{}]", apmConfiguration.getCode());
             return null;
         }
         return addMinutesToDate(creationTime, autoCancelPendingTimeoutInMinutes);

@@ -2,9 +2,8 @@ package com.worldpay.facades.order;
 
 import de.hybris.platform.commercefacades.user.data.AddressData;
 
-
 /**
- * worldpay specific checkout facade interface. This is overridden from the standard to ensure the worldpay information
+ * Worldpay specific checkout facade interface. This is overridden from the standard to ensure the worldpay information
  * is included at the correct point. Adds convenience methods required for worldpay interaction
  */
 public interface WorldpayPaymentCheckoutFacade {
@@ -14,8 +13,14 @@ public interface WorldpayPaymentCheckoutFacade {
      *
      * @param addressData the address data
      */
-    void setBillingDetails(final AddressData addressData);
+    void setBillingDetails(AddressData addressData);
 
+    /**
+     * Sets shipping and billing details to the session cart
+     *
+     * @param addressData the address data
+     */
+    void setShippingAndBillingDetails(AddressData addressData);
 
     /**
      * Does the session cart have a billing details (payment address)
@@ -23,4 +28,11 @@ public interface WorldpayPaymentCheckoutFacade {
      * @return the boolean
      */
     boolean hasBillingDetails();
+
+    /**
+     * Return true if Fraud Sight is enabled, false otherwise
+     *
+     * @return true if enabled, false otherwise
+     */
+    boolean isFSEnabled();
 }

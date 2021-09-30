@@ -19,9 +19,17 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
     protected static final String CUSTOMER_ADDRESS_LINE2 = 'floor 2'
     protected static final String CUSTOMER_ADDRESS_POSTAL_CODE = '80331'
     protected static final String CUSTOMER_ADDRESS_TOWN = 'Muenchen'
-    protected static final String CUSTOMER_ADDRESS_COUNTRY_ISO_CODE = 'DE'
+    protected static final String DE_ISO_CODE = 'DE'
+    protected static final String NL_ISO_CODE = 'NL'
+    protected static final String UK_ISO_CODE = 'UK'
+    protected static final String SG_ISO_CODE = 'SG'
+    protected static final String AT_ISO_CODE = 'AT'
 
     protected static final String FIELD_SET_LEVEL_FULL = "FULL"
+
+    protected static final String EUR_CURRENCY = 'EUR'
+    protected static final String GBP_CURRENCY = 'GBP'
+    protected static final String SGD_CURRENCY = 'SGD'
 
     /**
      * This method registers customer without any kind of authorization beforehand.
@@ -88,7 +96,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
      * @param format Data format to be used, defaults to JSON, does not need to be provided
      * @return
      */
-    def createAddress(RESTClient client, user, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
+    def createAddress(RESTClient client, user, countryIsoCode = DE_ISO_CODE, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
             path: basePathWithSite + '/users/' + user.id + '/addresses',
             body: [
@@ -99,7 +107,7 @@ abstract class AbstractSpockFlowTest extends AbstractSpockTest {
                 'line2'          : CUSTOMER_ADDRESS_LINE2,
                 'postalCode'     : CUSTOMER_ADDRESS_POSTAL_CODE,
                 'town'           : CUSTOMER_ADDRESS_TOWN,
-                'country.isocode': CUSTOMER_ADDRESS_COUNTRY_ISO_CODE,
+                'country.isocode': countryIsoCode,
                 'fields'         : FIELD_SET_LEVEL_FULL
             ],
             contentType: format,

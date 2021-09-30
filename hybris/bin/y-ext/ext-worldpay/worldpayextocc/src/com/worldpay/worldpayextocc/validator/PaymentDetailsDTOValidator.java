@@ -26,7 +26,7 @@ public class PaymentDetailsDTOValidator implements Validator {
     @Override
     public void validate(final Object target, final Errors errors) {
         final PaymentDetailsWsDTO paymentDetails = (PaymentDetailsWsDTO) target;
-        if (!paymentDetails.getAcceptedTermsAndConditions()) {
+        if (Boolean.FALSE.equals(paymentDetails.getAcceptedTermsAndConditions())) {
             errors.rejectValue("acceptedTermsAndConditions", "field.payment.acceptedTermsAndConditions.false");
         }
 

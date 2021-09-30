@@ -53,9 +53,9 @@ public class DefaultRefusedOrderNotificationProcessorStrategyTest {
     @Mock
     private PaymentTransactionEntryModel paymentTransactionEntryModelMock;
     @Mock
-    private com.worldpay.service.model.PaymentReply paymentReplyMock;
+    private com.worldpay.data.PaymentReply paymentReplyMock;
     @Mock
-    private com.worldpay.service.model.Amount amountMock;
+    private com.worldpay.data.Amount amountMock;
 
     private TransactionOperations transactionOperationsMock = new TransactionOperations() {
         @Override

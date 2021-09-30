@@ -1,7 +1,7 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.RedirectReference;
 
 /**
  * This class represents the details that are passed back from a call to {@link com.worldpay.service.WorldpayServiceGateway#orderInquiry(com.worldpay.service.request.AbstractServiceRequest) orderInquiry()} in the

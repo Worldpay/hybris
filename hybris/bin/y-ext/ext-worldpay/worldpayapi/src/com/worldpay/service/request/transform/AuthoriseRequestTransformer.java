@@ -7,6 +7,7 @@ import com.worldpay.internal.model.Submit;
 import com.worldpay.service.request.AuthoriseServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 /**
  * Specific class for transforming an {@link AuthoriseServiceRequest} into a {@link PaymentService} object
@@ -53,11 +54,16 @@ import de.hybris.platform.servicelayer.config.ConfigurationService;
  * </p>
  */
 public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
-    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
-    protected final ConfigurationService configurationService;
 
-    public AuthoriseRequestTransformer(final ConfigurationService configurationService) {
+    private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
+
+    protected final ConfigurationService configurationService;
+    protected final Converter<com.worldpay.data.Order, Order> internalOrderConverter;
+
+    public AuthoriseRequestTransformer(final ConfigurationService configurationService,
+                                       final Converter<com.worldpay.data.Order, Order> internalOrderConverter) {
         this.configurationService = configurationService;
+        this.internalOrderConverter = internalOrderConverter;
     }
 
     /**
@@ -80,7 +86,7 @@ public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
             throw new WorldpayModelTransformationException("No order object to transform on the authorise request");
         }
         final Submit submit = new Submit();
-        final Order order = (Order) authRequest.getOrder().transformToInternalModel();
+        final Order order = internalOrderConverter.convert(authRequest.getOrder());
         submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().add(order);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;

@@ -15,7 +15,8 @@ import de.hybris.platform.util.JspContext;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import worldpayhac.constants.WorldpayHacConstants;
 
@@ -26,14 +27,14 @@ import worldpayhac.constants.WorldpayHacConstants;
 public class WorldpayHacManager extends GeneratedWorldpayHacManager
 {
 	/** Edit the local|project.properties to change logging behavior (properties 'log4j.*'). */
-	private static final Logger LOG = Logger.getLogger(WorldpayHacManager.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(WorldpayHacManager.class.getName());
 
 	/*
 	 * Some important tips for development:
-	 * 
+	 *
 	 * Do NEVER use the default constructor of manager's or items. => If you want to do something whenever the manger is
 	 * created use the init() or destroy() methods described below
-	 * 
+	 *
 	 * Do NEVER use STATIC fields in your manager or items! => If you want to cache anything in a "static" way, use an
 	 * instance variable in your manager, the manager is created only once in the lifetime of a "deployment" or tenant.
 	 */
@@ -41,7 +42,7 @@ public class WorldpayHacManager extends GeneratedWorldpayHacManager
 
 	/**
 	 * Get the valid instance of this manager.
-	 * 
+	 *
 	 * @return the current instance of this manager
 	 */
 	public static WorldpayHacManager getInstance()
@@ -94,10 +95,10 @@ public class WorldpayHacManager extends GeneratedWorldpayHacManager
 	/**
 	 * Implement this method to create initial objects. This method will be called by system creator during
 	 * initialization and system update. Be sure that this method can be called repeatedly.
-	 * 
+	 *
 	 * An example usage of this method is to create required cronjobs or modifying the type system (setting e.g some
 	 * default values)
-	 * 
+	 *
 	 * @param params
 	 *           the parameters provided by user for creation of objects for the extension
 	 * @param jspc
@@ -112,9 +113,9 @@ public class WorldpayHacManager extends GeneratedWorldpayHacManager
 	/**
 	 * Implement this method to create data that is used in your project. This method will be called during the system
 	 * initialization.
-	 * 
+	 *
 	 * An example use is to import initial data like currencies or languages for your project from an csv file.
-	 * 
+	 *
 	 * @param params
 	 *           the parameters provided by user for creation of objects for the extension
 	 * @param jspc

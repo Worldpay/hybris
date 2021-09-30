@@ -49,10 +49,15 @@
                         </div>
                     </div>
                     <div class="place-order-form hidden-xs">
-                        <form:form action="${placeOrderUrl}" id="placeOrderForm1" modelAttribute="b2bCSEPaymentForm">
+                        <form:form action="${placeOrderUrl}" id="placeOrderForm1"
+                                   modelAttribute="b2bCSEPaymentForm">
                             <wp-b2b-multi-checkout:securityCode/>
                             <wp-b2b-multi-checkout:worldpayCSESavedCardDetails/>
                             <wp-b2b-multi-checkout:termsAndConditions/>
+                            <form:input type="hidden" id="dateOfBirth" path="dateOfBirth"/>
+                            <form:input type="hidden" id="dobRequired" path="dobRequired" value="true"/>
+                            <form:input type="hidden" id="deviceSession" path="deviceSession"/>
+
                             <button id="placeOrder" type="submit"
                                     class="btn btn-primary btn-block btn-place-order btn-block btn-lg checkoutSummaryButton"
                                     disabled="disabled">
@@ -76,7 +81,8 @@
 
         <div class="col-sm-6">
             <wp-b2b-multi-checkout:checkoutOrderSummary cartData="${cartData}" showDeliveryAddress="true"
-                                                        showPaymentInfo="true" showTaxEstimate="true" showTax="true"/>
+                                                        showPaymentInfo="true" showTaxEstimate="true"
+                                                        showTax="true"/>
         </div>
 
         <div class="col-sm-12 col-lg-12">

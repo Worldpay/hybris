@@ -77,6 +77,9 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String CARD_DETAILS = "CardDetails";
     private static final String PAYPAL_TOKEN_TYPE = "Paypal";
     private static final String NO_TOKEN = "NoToken";
+    private static final String REVIEW_MESSAGE = "review";
+    private static final String REASON_VALUE_1 = "Unusual behaviour for card";
+    private static final String REASON_VALUE_2 = "Unusual transaction for merchant";
 
     @Mock
     private ResponseForm responseFormMock;

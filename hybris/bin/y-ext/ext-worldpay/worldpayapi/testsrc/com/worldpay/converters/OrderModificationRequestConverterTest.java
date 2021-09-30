@@ -1,10 +1,10 @@
 package com.worldpay.converters;
 
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.JournalReply;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.WebformRefundReply;
-import com.worldpay.service.model.token.TokenReply;
+import com.worldpay.data.JournalReply;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.WebformRefundReply;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.response.transform.ServiceResponseTransformerHelper;
 import de.hybris.bootstrap.annotations.UnitTest;

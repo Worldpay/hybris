@@ -9,9 +9,39 @@ def pl = platform {
         property 'googleApiKey', ''
         property 'website.powertools.http', 'http://powertools.local:9001/yb2bacceleratorstorefront'
         property 'website.powertools.https', 'https://powertools.local:9002/yb2bacceleratorstorefront'
-	    property 'yb2bacceleratorstorefront.illegalrequirementstest.excluded', 'true'
         property 'testclasses.addonname', 'yb2bacceleratorstorefront'
         property 'ansi.colors', 'true'
+
+        property 'worldpay.config.3dsecureflex.jwt.alg', 'hs256'
+        property 'worldpay.config.3dsecureflex.jwt.challengeurl', 'https://secure-test.worldpay.com/shopper/3ds/challenge.html'
+        property 'worldpay.config.3dsecureflex.jwt.ddcurl', 'https://secure-test.worldpay.com/shopper/3ds/ddc.html'
+        property 'worldpay.config.3dsecureflex.jwt.eventOriginDomain', 'https://secure-test.worldpay.com'
+        property 'worldpay.config.3dsecureflex.jwt.returnurl', '/checkout/multi/worldpay/3dsecureflex/sop/response'
+        property 'worldpay.config.3dsecureflex.challengepreference', 'noPreference'
+        property 'worldpay.config.3dsecureflex.secondauthorisation.submit.url', '/checkout/multi/worldpay/3dsecureflex/sop/response/autosubmit'
+        property 'worldpay.config.3dsecureflex.jwt.flowReturnUrl', '/checkout/multi/worldpay/3dsecureflex/sop/response'
+
+        property 'worldpay.config.web.merchant.card.acceptor.taxId', '123456789'
+
+        property 'worldpay.config.web.merchant.code.powertools', 'MERCHANTREL60ECOM'
+        property 'worldpay.config.web.merchant.password.powertools', '3l3ph4nt_and_c4st!3'
+        property 'worldpay.config.web.merchant.macSecret.powertools', '3l3ph4nt_AND_c4st!3s'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.powertools', ''
+        property 'worldpay.config.web.merchant.installationId.powertools', '1048564'
+        property 'worldpay.config.web.merchant.statementNarrative.powertools', ''
+        property 'worldpay.config.asm.merchant.code.powertools', 'MERCHANTREL60MOTO'
+        property 'worldpay.config.asm.merchant.password.powertools', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.macSecret.powertools', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.installationId.powertools', '1048564'
+        property 'worldpay.config.asm.merchant.statementNarrative.powertools', ''
+        property 'worldpay.config.replenishment.merchant.code.powertools', 'MERCHANTREL60RECUR'
+        property 'worldpay.config.replenishment.merchant.password.powertools', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.macSecret.powertools', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.installationId.powertools', '1048564'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.powertools', ''
+        property 'worldpay.config.3dsecureflex.jwt.iss.powertools', ''
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.powertools', ''
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.powertools', ''
     }
 
     afterSetup {
@@ -19,109 +49,129 @@ def pl = platform {
     }
 
     extensions {
-
-        extName 'adaptivesearchsolr'
-        extName 'adaptivesearchbackoffice'
-        extName 'adaptivesearchsamplesaddon'
-        extName 'adaptivesearchwebservices'
-        extName 'b2bcommercebackoffice'
-        extName 'solrfacetsearchbackoffice'
-
-        extName 'yacceleratorbackoffice'
-        extName 'yacceleratorinitialdata'
-        extName 'yacceleratorfulfilmentprocess'
-        extName 'ycommercewebservices'
-        extName 'orderselfserviceaddon'
-
-        extName 'powertoolsstore'
-        extName 'solrserver'
-
-        extName 'acceleratorwebservicesaddon'
-        extName 'b2bacceleratoraddon'
-        extName 'commerceorgsamplesaddon'
-        extName 'b2bpunchoutaddon'
-        extName 'secureportaladdon'
-        extName 'savedorderformsocc'
-        extName 'b2bocc'
-        extName 'accountsummaryaddon'
-        extName 'assistedservicestorefront'
-        extName 'assistedservicewebservices'
-        extName 'captchaaddon'
-
-        extName 'customerticketingaddon'
-        extName 'customersupportbackoffice'
-
-        extName 'rulebuilderbackoffice'
-        extName 'couponbackoffice'
-        extName 'droolsruleengineservices'
-        extName 'couponfacades'
-        extName 'couponservices'
-        extName 'promotionenginesamplesaddon'
-
-        extName 'textfieldconfiguratortemplatebackoffice'
-        extName 'textfieldconfiguratortemplateaddon'
-
-        extName 'cmswebservices'
-        extName 'smarteditwebservices'
-        extName 'permissionswebservices'
-        extName 'smarteditaddon'
-        extName 'cmssmartedit'
-        extName 'cmsbackoffice'
-        extName 'previewwebservices'
-        extName 'cmssmarteditwebservices'
-        extName 'cmsoccaddon'
-
-        extName 'previewpersonalizationweb'
-        extName 'personalizationcmsweb'
-        extName 'personalizationsmartedit'
-        extName 'personalizationpromotionssmartedit'
-        extName 'personalizationsampledataaddon'
-        extName 'personalizationpromotionssampledataaddon'
-        extName 'personalizationpromotions'
-        extName 'personalizationpromotionsweb'
-        extName 'personalizationservicesbackoffice'
-        extName 'personalizationpromotionsbackoffice'
-        extName 'personalizationcmsbackoffice'
-        extName 'personalizationsearchbackoffice'
-        extName 'personalizationsearchsmartedit'
-        extName 'personalizationsearchweb'
-        extName 'personalizationsearchsamplesaddon'
-
-        extName 'consignmenttrackingaddon'
-        extName 'consignmenttrackingmock'
-        extName 'consignmenttrackingbackoffice'
-
-        extName 'pcmbackofficesamplesaddon'
-
-        extName 'configurablebundleaddon'
-
-        extName 'consignmenttrackingocc'
-
+        /* extgened extensions*/
+            extName 'yb2bacceleratorstorefront'
+        /* adaptive-search*/
+            extName 'adaptivesearchsolr'
+            extName 'adaptivesearchbackoffice'
+            extName 'adaptivesearchsamplesaddon'
+            extName 'adaptivesearchwebservices'
+        /* assisted-services*/
+            extName 'assistedservicestorefront'
+            extName 'assistedservicewebservices'
+        /* b2b-accelerator*/
+            extName 'b2bacceleratoraddon'
+            extName 'powertoolsstore'
+            extName 'commerceorgaddon'
+            extName 'commerceorgsamplesaddon'
+        /* b2b-accelerator-addons*/
+            extName 'b2bpunchoutaddon'
+            extName 'secureportaladdon'
+            extName 'accountsummaryaddon'
+        /* b2b-commerce*/
+            extName 'b2bcommercebackoffice'
+        /* b2c-accelerator-addons*/
+            extName 'captchaaddon'
+        /* backoffice-addons*/
+            extName 'pcmbackofficesamplesaddon'
+        /* base-accelerator*/
+            extName 'yacceleratorbackoffice'
+            extName 'yacceleratorinitialdata'
+            extName 'yacceleratorfulfilmentprocess'
+        /* commerce-services*/
+            extName 'commercefacades'
+            extName 'commerceservices'
+            extName 'commerceservicesbackoffice'
+            extName 'commercewebservices'
+            extName 'commercewebservicescommons'
+            extName 'commercewebservicestests'
+        /* configurable-bundle*/
+            extName 'configurablebundleaddon'
+        /* configurator-complex-products*/
+            extName 'sapproductconfigb2baddon'
+            extName 'sapproductconfigb2bservices'
+            extName 'sapproductconfigfacades'
+            extName 'sapproductconfigrules'
+            extName 'sapproductconfigrulesbackoffice'
+            extName 'sapproductconfigruntimeinterface'
+            extName 'sapproductconfigruntimemock'
+            extName 'sapproductconfigservices'
+        /* consignment-tracking*/
+            extName 'consignmenttrackingaddon'
+            extName 'consignmenttrackingmock'
+            extName 'consignmenttrackingbackoffice'
+        /* coupon*/
+            extName 'couponbackoffice'
+            extName 'couponfacades'
+            extName 'couponservices'
+        /* customer-service*/
+            extName 'customerticketingaddon'
+            extName 'customersupportbackoffice'
+        /*  order-management*/
+            extName 'orderselfserviceaddon'
+        /* personalization*/
+            extName 'previewpersonalizationweb'
+            extName 'personalizationcmsweb'
+            extName 'personalizationsmartedit'
+            extName 'personalizationpromotionssmartedit'
+            extName 'personalizationsampledataaddon'
+            extName 'personalizationpromotionssampledataaddon'
+            extName 'personalizationpromotions'
+            extName 'personalizationpromotionsweb'
+            extName 'personalizationservicesbackoffice'
+            extName 'personalizationpromotionsbackoffice'
+            extName 'personalizationcmsbackoffice'
+            extName 'personalizationsearchbackoffice'
+            extName 'personalizationsearchsmartedit'
+            extName 'personalizationsearchweb'
+            extName 'personalizationsearchsamplesaddon'
+        /* promotion-engine*/
+            extName 'promotionenginesamplesaddon'
+        /* rule-engine*/
+            extName 'rulebuilderbackoffice'
+            extName 'droolsruleengineservices'
+        /* sap-btp-extensions-integration*/
+            extName 'kymaintegrationbackoffice'
+        /*  search-and-navigation*/
+            extName 'solrfacetsearchbackoffice'
+            extName 'solrserver'
+        /* smartedit*/
+            extName 'smarteditwebservices'
+            extName 'smarteditaddon'
+            extName 'cmssmartedit'
+            extName 'cmssmarteditwebservices'
+        /* text-field-configurator-template*/
+            extName 'textfieldconfiguratortemplatebackoffice'
+            extName 'textfieldconfiguratortemplateaddon'
+        /* web-content-management-system*/
+            extName 'cms2'
+            extName 'webservicescommons'
+            extName 'cmswebservices'
+            extName 'cmsbackoffice'
+            extName 'previewwebservices'
+        /* web-services-commons*/
+            extName 'permissionswebservices'
         /* integration-apis */
-        extName 'outboundservices'
-        extName 'odata2webservices'
-        extName 'odata2webservicesfeaturetests'
-
-        extName 'kymaintegrationbackoffice'
-
-        extName 'yb2bacceleratorstorefront'
-
+            extName 'outboundservices'
+            extName 'odata2webservices'
+            extName 'odata2webservicesfeaturetests'
         /* Worldpay extensions */
-        extName 'worldpayaddonbackoffice'
-        extName 'worldpayapi'
-        extName 'worldpayb2baddon'
-        extName 'worldpaynotifications'
-        extName 'worldpaysampledataaddon'
-        extName 'worldpayhac'
-        extName 'worldpayfulfilment'
+            extName 'worldpayaddonbackoffice'
+            extName 'worldpayapi'
+            extName 'worldpayb2baddon'
+            extName 'worldpaynotifications'
+            extName 'worldpaysampledataaddon'
+            extName 'worldpayhac'
+            extName 'worldpayfulfilment'
     }
+
 
     addons {
         forStoreFronts('yb2bacceleratorstorefront') {
-            names('worldpayb2baddon','worldpaysampledataaddon','b2bacceleratoraddon', 'commerceorgaddon', 'commerceorgsamplesaddon', 'b2bpunchoutaddon', 'secureportaladdon',
-                    'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon', 'promotionenginesamplesaddon',
-                    'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
-                    'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'personalizationsearchsamplesaddon')
+            names('worldpayb2baddon', 'worldpaysampledataaddon', 'b2bacceleratoraddon', 'commerceorgaddon', 'commerceorgsamplesaddon', 'b2bpunchoutaddon', 'secureportaladdon',
+                'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon',
+                'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
+                'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'sapproductconfigb2baddon')
             template 'yacceleratorstorefront'
         }
     }

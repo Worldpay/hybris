@@ -26,7 +26,7 @@ public class DefaultAPMConfigurationLookupServiceTest {
     private static final String PAYMENT_APM_NAME = "paymentAPMName";
 
     @InjectMocks
-    private DefaultAPMConfigurationLookupService testObj = new DefaultAPMConfigurationLookupService();
+    private DefaultAPMConfigurationLookupService testObj;
 
     @Mock
     private WorldpayAPMConfigurationDao worldpayAPMConfigurationDaoMock;

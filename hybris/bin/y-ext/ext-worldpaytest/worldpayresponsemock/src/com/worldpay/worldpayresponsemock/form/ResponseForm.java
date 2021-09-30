@@ -1,5 +1,7 @@
 package com.worldpay.worldpayresponsemock.form;
 
+import java.util.Set;
+
 public class ResponseForm implements java.io.Serializable {
 
     private String selectedPaymentMethod;
@@ -66,6 +68,10 @@ public class ResponseForm implements java.io.Serializable {
     private String selectStoredCredentials;
     private String transactionIdentifier;
     private String paypalToken;
+    private boolean useFraudSight;
+    private double fraudSightScore;
+    private String fraudSightMessage;
+    private Set<String> fraudSightReasonCodes;
 
     public String getSelectedPaymentMethod() {
         return selectedPaymentMethod;
@@ -577,5 +583,37 @@ public class ResponseForm implements java.io.Serializable {
 
     public void setPaypalToken(String paypalToken) {
         this.paypalToken = paypalToken;
+    }
+
+    public boolean isUseFraudSight() {
+        return useFraudSight;
+    }
+
+    public void setUseFraudSight(final boolean useFraudSight) {
+        this.useFraudSight = useFraudSight;
+    }
+
+    public double getFraudSightScore() {
+        return fraudSightScore;
+    }
+
+    public void setFraudSightScore(final double fraudSightScore) {
+        this.fraudSightScore = fraudSightScore;
+    }
+
+    public String getFraudSightMessage() {
+        return fraudSightMessage;
+    }
+
+    public void setFraudSightMessage(final String fraudSightMessage) {
+        this.fraudSightMessage = fraudSightMessage;
+    }
+
+    public Set<String> getFraudSightReasonCodes() {
+        return fraudSightReasonCodes;
+    }
+
+    public void setFraudSightReasonCodes(final Set<String> fraudSightReasonCodes) {
+        this.fraudSightReasonCodes = fraudSightReasonCodes;
     }
 }

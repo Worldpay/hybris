@@ -3,12 +3,13 @@ package com.worldpay.service.impl;
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.RedirectReference;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.payment.commands.result.AbstractResult;
 import de.hybris.platform.payment.dto.TransactionStatus;
 import de.hybris.platform.payment.dto.TransactionStatusDetails;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.*;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.*;
@@ -18,7 +19,7 @@ import static de.hybris.platform.payment.dto.TransactionStatusDetails.*;
  */
 public class DefaultWorldpayAuthorisationResultService implements WorldpayAuthorisationResultService {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayAuthorisationResultService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayAuthorisationResultService.class);
 
     /**
      * {@inheritDoc}
@@ -36,7 +37,7 @@ public class DefaultWorldpayAuthorisationResultService implements WorldpayAuthor
         switch (status) {
             case ERROR:
                 // Default Error response
-                LOG.warn("Error Response from worldpay for transaction: " + orderCode);
+                LOG.warn("Error Response from worldpay for transaction: {}", orderCode);
                 setSubscriptionAuthoriseResult(target, ERROR, GENERAL_SYSTEM_ERROR);
                 break;
             case AUTHORISED:
@@ -44,7 +45,7 @@ public class DefaultWorldpayAuthorisationResultService implements WorldpayAuthor
                 setSubscriptionAuthoriseResult(target, ACCEPTED, SUCCESFULL);
                 break;
             default:
-                LOG.debug(status + " Response from worldpay for transaction: " + orderCode);
+                LOG.debug("{} Response from worldpay for transaction: {}", status, orderCode);
                 setSubscriptionAuthoriseResult(target, REJECTED, UNKNOWN_CODE);
                 break;
         }

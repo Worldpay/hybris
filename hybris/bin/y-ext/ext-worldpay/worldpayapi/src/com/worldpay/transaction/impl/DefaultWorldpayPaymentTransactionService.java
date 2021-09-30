@@ -5,13 +5,13 @@ import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
 import com.worldpay.model.WorldpayAavResponseModel;
 import com.worldpay.model.WorldpayBankConfigurationModel;
 import com.worldpay.model.WorldpayRiskScoreModel;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RiskScore;
+import com.worldpay.data.Amount;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.RiskScore;
 import com.worldpay.service.notification.OrderNotificationMessage;
-import com.worldpay.service.payment.WorldpayOrderService;
-import com.worldpay.transaction.EntryCodeStrategy;
+import com.worldpay.service.payment.WorldpayFraudSightStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
+import com.worldpay.transaction.WorldpayPaymentTransactionUtils;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
@@ -22,16 +22,18 @@ import de.hybris.platform.payment.dto.TransactionStatusDetails;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
-import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
@@ -47,39 +49,30 @@ to inject those services and reverse populators */
 @SuppressWarnings("java:S107")
 public class DefaultWorldpayPaymentTransactionService implements WorldpayPaymentTransactionService {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayPaymentTransactionService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayPaymentTransactionService.class);
 
     protected final ModelService modelService;
-    protected final ConfigurationService configurationService;
-    protected final CommonI18NService commonI18NService;
-    protected final EntryCodeStrategy entryCodeStrategy;
-    protected final Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency;
     protected final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
     protected final Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter;
     protected final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator;
-    protected final WorldpayOrderService worldpayOrderService;
     protected final WorldpayBankConfigurationLookupService worldpayBankConfigurationService;
+    protected final WorldpayPaymentTransactionUtils worldpayPaymentTransactionUtils;
+    protected final WorldpayFraudSightStrategy worldpayFraudSightStrategy;
 
     public DefaultWorldpayPaymentTransactionService(final ModelService modelService,
-                                                    final ConfigurationService configurationService,
-                                                    final CommonI18NService commonI18NService,
-                                                    final EntryCodeStrategy entryCodeStrategy,
-                                                    final Map<PaymentTransactionType, PaymentTransactionType> paymentTransactionDependency,
                                                     final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao,
                                                     final Converter<RiskScore, WorldpayRiskScoreModel> worldpayRiskScoreConverter,
                                                     final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator,
-                                                    final WorldpayOrderService worldpayOrderService,
-                                                    final WorldpayBankConfigurationLookupService worldpayBankConfigurationService) {
+                                                    final WorldpayBankConfigurationLookupService worldpayBankConfigurationService,
+                                                    final WorldpayPaymentTransactionUtils worldpayPaymentTransactionUtils,
+                                                    final WorldpayFraudSightStrategy worldpayFraudSightStrategy) {
         this.modelService = modelService;
-        this.configurationService = configurationService;
-        this.commonI18NService = commonI18NService;
-        this.entryCodeStrategy = entryCodeStrategy;
-        this.paymentTransactionDependency = paymentTransactionDependency;
         this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
         this.worldpayRiskScoreConverter = worldpayRiskScoreConverter;
         this.worldpayAavResponsePopulator = worldpayAavResponsePopulator;
-        this.worldpayOrderService = worldpayOrderService;
         this.worldpayBankConfigurationService = worldpayBankConfigurationService;
+        this.worldpayPaymentTransactionUtils = worldpayPaymentTransactionUtils;
+        this.worldpayFraudSightStrategy = worldpayFraudSightStrategy;
     }
 
     /**
@@ -107,8 +100,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public boolean isAnyPaymentTransactionApmOpenForOrder(final OrderModel order) {
         return order.getPaymentTransactions().stream()
-                .filter(Objects::nonNull)
-                .anyMatch(PaymentTransactionModel::getApmOpen);
+            .filter(Objects::nonNull)
+            .anyMatch(PaymentTransactionModel::getApmOpen);
     }
 
     /**
@@ -117,8 +110,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public boolean isPaymentTransactionPending(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType) {
         return paymentTransaction.getEntries().stream()
-                .filter(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()))
-                .anyMatch(PaymentTransactionEntryModel::getPending);
+            .filter(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()))
+            .anyMatch(PaymentTransactionEntryModel::getPending);
     }
 
     /**
@@ -128,8 +121,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public List<PaymentTransactionEntryModel> filterPaymentTransactionEntriesOfType(final PaymentTransactionModel paymentTransaction,
                                                                                     final PaymentTransactionType paymentTransactionType) {
         return paymentTransaction.getEntries().stream()
-                .filter(entry -> entry.getType().equals(paymentTransactionType))
-                .collect(Collectors.toList());
+            .filter(entry -> entry.getType().equals(paymentTransactionType))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -139,8 +132,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public List<PaymentTransactionEntryModel> getPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
                                                                                          final PaymentTransactionType paymentTransactionType) {
         return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream()
-                .filter(PaymentTransactionEntryModel::getPending)
-                .collect(Collectors.toList());
+            .filter(PaymentTransactionEntryModel::getPending)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -150,8 +143,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public List<PaymentTransactionEntryModel> getNotPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
                                                                                             final PaymentTransactionType paymentTransactionType) {
         return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream()
-                .filter(entry -> !entry.getPending())
-                .collect(Collectors.toList());
+            .filter(entry -> !entry.getPending())
+            .collect(Collectors.toList());
     }
 
     /**
@@ -159,14 +152,15 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
      */
     @Override
     public boolean isPreviousTransactionCompleted(final String worldpayOrderCode, final PaymentTransactionType paymentTransactionType, final OrderModel orderModel) {
-        final PaymentTransactionType dependingTransactionType = paymentTransactionDependency.get(paymentTransactionType);
+        final PaymentTransactionType dependingTransactionType = worldpayPaymentTransactionUtils.getPaymentTransactionDependency().get(paymentTransactionType);
         if (dependingTransactionType == null) {
             return true;
         }
         boolean completed = false;
         for (final PaymentTransactionModel paymentTransactionModel : orderModel.getPaymentTransactions()) {
             if (paymentTransactionModel.getRequestId().equals(worldpayOrderCode)) {
-                completed = !getNotPendingPaymentTransactionEntriesForType(paymentTransactionModel, dependingTransactionType).isEmpty();
+                completed = !getNotPendingPaymentTransactionEntriesForType(paymentTransactionModel, dependingTransactionType).isEmpty()
+                    || isRefundForVoidOrder(paymentTransactionType, paymentTransactionModel);
             }
         }
         return completed;
@@ -272,7 +266,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         for (final PaymentTransactionEntryModel entry : paymentTransactionEntries) {
             entry.setTransactionStatus(transactionStatus);
             entry.setPending(Boolean.FALSE);
-            LOG.debug(format("Setting pending flag of PaymentTransactionEntry with code [{0}] to false", entry.getCode()));
+            LOG.debug("Setting pending flag of PaymentTransactionEntry with code [{}] to false", entry.getCode());
         }
         modelService.saveAll(paymentTransactionEntries);
     }
@@ -283,12 +277,12 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public void addRiskScore(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
         Optional.ofNullable(paymentReply.getRiskScore())
-                .map(worldpayRiskScoreConverter::convert)
-                .map(riskScore -> {
-                    paymentTransactionModel.setRiskScore(riskScore);
-                    return paymentTransactionModel;
-                })
-                .ifPresent(modelService::save);
+            .map(worldpayRiskScoreConverter::convert)
+            .map(riskScore -> {
+                paymentTransactionModel.setRiskScore(riskScore);
+                return paymentTransactionModel;
+            })
+            .ifPresent(modelService::save);
     }
 
     /**
@@ -309,10 +303,10 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public void updateEntriesAmount(final List<PaymentTransactionEntryModel> transactionEntries, final Amount amount) {
         for (final PaymentTransactionEntryModel entry : transactionEntries) {
-            final BigDecimal amountValue = worldpayOrderService.convertAmount(amount);
+            final BigDecimal amountValue = worldpayPaymentTransactionUtils.convertAmount(amount);
             checkAmountChanges(entry, amountValue);
             entry.setAmount(amountValue);
-            entry.setCurrency(commonI18NService.getCurrency(amount.getCurrencyCode()));
+            entry.setCurrency(worldpayPaymentTransactionUtils.getCurrencyFromAmount(amount));
             LOG.debug("Updating amount received value");
         }
         modelService.saveAll(transactionEntries);
@@ -337,7 +331,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
             }
         }
 
-        final double tolerance = configurationService.getConfiguration().getDouble("worldpayapi.authoriseamount.validation.tolerance");
+        final double tolerance = worldpayPaymentTransactionUtils.getAuthoriseAmountToleranceFromConfig();
 
         return Math.abs(order.getTotalPrice() - authorisedAmount.doubleValue()) <= tolerance;
     }
@@ -350,7 +344,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         final PaymentTransactionEntryModel paymentTransactionEntryModel = modelService.create(PaymentTransactionEntryModel.class);
         final AbstractOrderModel orderModel = paymentTransactionModel.getOrder();
 
-        paymentTransactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransactionModel));
+        paymentTransactionEntryModel.setCode(worldpayPaymentTransactionUtils.generatePaymentTransactionCode(paymentTransactionModel));
         paymentTransactionEntryModel.setType(CANCEL);
         paymentTransactionEntryModel.setPaymentTransaction(paymentTransactionModel);
         paymentTransactionEntryModel.setTime(Date.from(Instant.now()));
@@ -364,6 +358,16 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         modelService.save(paymentTransactionEntryModel);
 
         return paymentTransactionEntryModel;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addFraudSightToPaymentTransaction(final PaymentTransactionModel paymentTransaction, final PaymentReply paymentReply) {
+        if (worldpayFraudSightStrategy.isFraudSightEnabled()) {
+            worldpayFraudSightStrategy.addFraudSight(paymentTransaction, paymentReply);
+        }
     }
 
     /**
@@ -384,15 +388,15 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         transactionEntryModel.setRequestToken(orderNotificationMessage.getMerchantCode());
         transactionEntryModel.setTransactionStatus(ACCEPTED.name());
         transactionEntryModel.setTransactionStatusDetails(SUCCESFULL.name());
-        transactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransactionModel));
+        transactionEntryModel.setCode(worldpayPaymentTransactionUtils.generatePaymentTransactionCode(paymentTransactionModel));
         transactionEntryModel.setTime(Date.from(Instant.now()));
         transactionEntryModel.setPending(Boolean.FALSE);
 
         final Amount amount = orderNotificationMessage.getPaymentReply().getAmount();
 
-        final BigDecimal amountValue = worldpayOrderService.convertAmount(amount);
+        final BigDecimal amountValue = worldpayPaymentTransactionUtils.convertAmount(amount);
         transactionEntryModel.setAmount(amountValue);
-        transactionEntryModel.setCurrency(commonI18NService.getCurrency(amount.getCurrencyCode()));
+        transactionEntryModel.setCurrency(worldpayPaymentTransactionUtils.getCurrencyFromAmount(amount));
 
         modelService.save(transactionEntryModel);
         return transactionEntryModel;
@@ -405,7 +409,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     }
 
     protected void logAmountChanged(final PaymentTransactionEntryModel entry, final BigDecimal amountValue) {
-        LOG.warn(format("The amount for the transaction entry [{0}] has changed from [{1}] to [{2}] during [{3}]", entry.getCode(), entry.getAmount(), amountValue, entry.getType()));
+        LOG.warn("The amount for the transaction entry [{}] has changed from [{}] to [{}] during [{}]", entry.getCode(), entry.getAmount(), amountValue, entry.getType());
     }
 
     private PaymentTransactionEntryModel createAuthorizationPaymentTransactionEntryModel(final PaymentTransactionModel paymentTransaction,
@@ -418,12 +422,17 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         transactionEntryModel.setPaymentTransaction(paymentTransaction);
         transactionEntryModel.setRequestId(abstractOrderModel.getWorldpayOrderCode());
         transactionEntryModel.setRequestToken(merchantCode);
-        transactionEntryModel.setCode(entryCodeStrategy.generateCode(paymentTransaction));
+        transactionEntryModel.setCode(worldpayPaymentTransactionUtils.generatePaymentTransactionCode(paymentTransaction));
         transactionEntryModel.setTime(Date.from(Instant.now()));
         transactionEntryModel.setTransactionStatus(ACCEPTED.name());
         transactionEntryModel.setTransactionStatusDetails(SUCCESFULL.name());
         transactionEntryModel.setAmount(authorisedAmount);
         transactionEntryModel.setCurrency(abstractOrderModel.getCurrency());
         return transactionEntryModel;
+    }
+
+    private boolean isRefundForVoidOrder(final PaymentTransactionType paymentTransactionType, final PaymentTransactionModel paymentTransactionModel) {
+        final List<PaymentTransactionEntryModel> pendingCancelPaymentTransactionEntries = getPendingPaymentTransactionEntriesForType(paymentTransactionModel, CANCEL);
+        return REFUND_FOLLOW_ON.equals(paymentTransactionType) && !pendingCancelPaymentTransactionEntries.isEmpty();
     }
 }

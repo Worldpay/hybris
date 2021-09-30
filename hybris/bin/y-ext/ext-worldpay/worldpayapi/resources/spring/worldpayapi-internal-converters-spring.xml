@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <alias name="defaultInternalAddressPopulator" alias="internalAddressPopulator"/>
+    <bean id="defaultInternalAddressPopulator"
+          class="com.worldpay.converters.populators.internal.model.AddressPopulator"/>
+
+    <alias name="defaultInternalAddressConverter" alias="internalAddressConverter"/>
+    <bean id="defaultInternalAddressConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Address"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalAddressPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultAmountPopulator" alias="internalAmountPopulator"/>
+    <bean id="defaultAmountPopulator"
+          class="com.worldpay.converters.populators.internal.model.AmountPopulator"/>
+
+    <alias name="defaultAmountConverter" alias="internalAmountConverter"/>
+    <bean id="defaultAmountConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Amount"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalAmountPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultDatePopulator" alias="internalDatePopulator"/>
+    <bean id="defaultDatePopulator" class="com.worldpay.converters.populators.internal.model.DatePopulator"/>
+
+    <alias name="defaultDateConverter" alias="internalDateConverter"/>
+    <bean id="defaultDateConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Date"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalDatePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultItemPopulator" alias="internalItemPopulator"/>
+    <bean id="defaultItemPopulator" class="com.worldpay.converters.populators.internal.model.ItemPopulator">
+        <constructor-arg name="internalAmountConverter" ref="internalAmountConverter"/>
+    </bean>
+
+    <alias name="defaultItemConverter" alias="internalItemConverter"/>
+    <bean id="defaultItemConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Item"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalItemPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultShopperFieldsPopulator" alias="internalShopperFieldsPopulator"/>
+    <bean id="defaultShopperFieldsPopulator"
+          class="com.worldpay.converters.populators.internal.model.ShopperFieldsPopulator">
+        <constructor-arg name="internalDateConverter" ref="internalDateConverter"/>
+        <constructor-arg name="internalAddressConverter" ref="internalAddressConverter"/>
+    </bean>
+
+    <alias name="defaultShopperFieldsConverter" alias="internalShopperFieldsConverter"/>
+    <bean id="defaultShopperFieldsConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.ShopperFields"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalShopperFieldsPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPurchasePopulator" alias="internalPurchasePopulator"/>
+    <bean id="defaultPurchasePopulator"
+          class="com.worldpay.converters.populators.internal.model.PurchasePopulator">
+        <constructor-arg name="internalItemConverter" ref="internalItemConverter"/>
+        <constructor-arg name="internalDateConverter" ref="internalDateConverter"/>
+        <constructor-arg name="internalAmountConverter" ref="internalAmountConverter"/>
+    </bean>
+
+    <alias name="defaultPurchaseConverter" alias="internalPurchaseConverter"/>
+    <bean id="defaultPurchaseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Purchase"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPurchasePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultBranchSpecificExtensionPopulator" alias="internalBranchSpecificExtensionPopulator"/>
+    <bean id="defaultBranchSpecificExtensionPopulator"
+          class="com.worldpay.converters.populators.internal.model.BranchSpecificExtensionPopulator">
+        <constructor-arg name="internalPurchaseConverter" ref="internalPurchaseConverter"/>
+    </bean>
+
+    <alias name="defaultBranchSpecificExtensionConverter" alias="internalBranchSpecificExtensionConverter"/>
+    <bean id="defaultBranchSpecificExtensionConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.BranchSpecificExtension"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalBranchSpecificExtensionPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultCustomNumericFieldsPopulator" alias="internalCustomNumericFieldsPopulator"/>
+    <bean id="defaultCustomNumericFieldsPopulator"
+          class="com.worldpay.converters.populators.internal.model.CustomNumericFieldsPopulator"/>
+
+    <alias name="defaultCustomNumericFieldsConverter" alias="internalCustomNumericFieldsConverter"/>
+    <bean id="defaultCustomNumericFieldsConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.CustomNumericFields"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalCustomNumericFieldsPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultFraudSightDataPopulator" alias="internalFraudSightDataPopulator"/>
+    <bean id="defaultFraudSightDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.FraudSightDataPopulator">
+        <constructor-arg name="internalShopperFieldsConverter" ref="internalShopperFieldsConverter"/>
+        <constructor-arg name="internalCustomNumericFieldsConverter" ref="internalCustomNumericFieldsConverter"/>
+        <constructor-arg name="internalCustomStringFieldsConverter" ref="internalCustomStringFieldsConverter"/>
+    </bean>
+
+    <alias name="defaultFraudSightDataConverter" alias="internalFraudSightDataConverter"/>
+    <bean id="defaultFraudSightDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.FraudSightData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalFraudSightDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultBrowserPopulator" alias="internalBrowserPopulator"/>
+    <bean id="defaultBrowserPopulator"
+          class="com.worldpay.converters.populators.internal.model.BrowserPopulator">
+    </bean>
+
+    <alias name="defaultBrowserConverter" alias="internalBrowserConverter"/>
+    <bean id="defaultBrowserConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Browser"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalBrowserPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultCustomStringFieldsPopulator" alias="internalCustomStringFieldsPopulator"/>
+    <bean id="defaultCustomStringFieldsPopulator"
+          class="com.worldpay.converters.populators.internal.model.CustomStringFieldsPopulator">
+    </bean>
+
+    <alias name="defaultCustomStringFieldsConverter" alias="internalCustomStringFieldsConverter"/>
+    <bean id="defaultCustomStringFieldsConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.CustomStringFields"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalCustomStringFieldsPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultLineItemPopulator" alias="internalLineItemPopulator"/>
+    <bean id="defaultLineItemPopulator"
+          class="com.worldpay.converters.populators.internal.model.LineItemPopulator">
+        <constructor-arg name="internalReferenceConverter" ref="internalReferenceConverter"/>
+    </bean>
+
+    <alias name="defaultLineItemConverter" alias="internalLineItemConverter"/>
+    <bean id="defaultLineItemConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.LineItem"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalLineItemPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultReferencePopulator" alias="internalReferencePopulator"/>
+    <bean id="defaultReferencePopulator"
+          class="com.worldpay.converters.populators.internal.model.ReferencePopulator"/>
+
+    <alias name="defaultReferenceConverter" alias="internalReferenceConverter"/>
+    <bean id="defaultReferenceConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Reference"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalReferencePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultOrderLinesPopulator" alias="internalOrderLinesPopulator"/>
+    <bean id="defaultOrderLinesPopulator"
+          class="com.worldpay.converters.populators.internal.model.OrderLinesPopulator">
+        <constructor-arg name="internalLineItemConverter" ref="internalLineItemConverter"/>
+    </bean>
+
+    <alias name="defaultOrderLinesConverter" alias="internalOrderLinesConverter"/>
+    <bean id="defaultOrderLinesConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.OrderLines"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalOrderLinesPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentMethodAttributePopulator" alias="internalPaymentMethodAttributePopulator"/>
+    <bean id="defaultPaymentMethodAttributePopulator"
+          class="com.worldpay.converters.populators.internal.model.PaymentMethodAttributePopulator"/>
+
+    <alias name="defaultPaymentMethodAttributeConverter" alias="internalPaymentMethodAttributeConverter"/>
+    <bean id="defaultPaymentMethodAttributeConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PaymentMethodAttribute"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPaymentMethodAttributePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultStoredCredentialsPopulator" alias="internalStoredCredentialsPopulator"/>
+    <bean id="defaultStoredCredentialsPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.StoredCredentialsPopulator"/>
+
+    <alias name="defaultStoredCredentialsConverter" alias="internalStoredCredentialsConverter"/>
+    <bean id="defaultStoredCredentialsConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.StoredCredentials"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalStoredCredentialsPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultSessionPopulator" alias="internalSessionPopulator"/>
+    <bean id="defaultSessionPopulator"
+          class="com.worldpay.converters.populators.internal.model.SessionPopulator"/>
+
+    <alias name="defaultSessionConverter" alias="internalSessionConverter"/>
+    <bean id="defaultSessionConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Session"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalSessionPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentMethodMaskPopulator" alias="internalPaymentMethodMaskPopulator"/>
+    <bean id="defaultPaymentMethodMaskPopulator"
+          class="com.worldpay.converters.populators.internal.model.PaymentMethodMaskPopulator">
+        <constructor-arg name="internalStoredCredentialsConverter" ref="internalStoredCredentialsConverter"/>
+    </bean>
+
+    <alias name="defaultPaymentMethodMaskConverter" alias="internalPaymentMethodMaskConverter"/>
+    <bean id="defaultPaymentMethodMaskConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PaymentMethodMask"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPaymentMethodMaskPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentDetailsPopulator" alias="internalPaymentDetailsPopulator"/>
+    <bean id="defaultPaymentDetailsPopulator"
+          class="com.worldpay.converters.populators.internal.model.PaymentDetailsPopulator">
+        <constructor-arg name="internalSessionConverter" ref="internalSessionConverter"/>
+        <constructor-arg name="internalStoredCredentialsConverter" ref="internalStoredCredentialsConverter"/>
+        <constructor-arg name="internalPaymentConverterStrategy" ref="internalPaymentConverterStrategy"/>
+    </bean>
+
+    <alias name="defaultPaymentDetailsConverter" alias="internalPaymentDetailsConverter"/>
+    <bean id="defaultPaymentDetailsConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PaymentDetails"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPaymentDetailsPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPayAsOrderPopulator" alias="internalPayAsOrderPopulator"/>
+    <bean id="defaultPayAsOrderPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.PayAsOrderPopulator">
+        <constructor-arg name="internalAmountConverter" ref="internalAmountConverter"/>
+    </bean>
+
+    <alias name="defaultPayAsOrderConverter" alias="internalPayAsOrderConverter"/>
+    <bean id="defaultPayAsOrderConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PayAsOrder"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPayAsOrderPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultShopperPopulator" alias="internalShopperPopulator"/>
+    <bean id="defaultShopperPopulator"
+          class="com.worldpay.converters.populators.internal.model.ShopperPopulator">
+        <constructor-arg name="internalBrowserConverter" ref="internalBrowserConverter"/>
+        <constructor-arg name="internalSessionConverter" ref="internalSessionConverter"/>
+    </bean>
+
+    <alias name="defaultShopperConverter" alias="internalShopperConverter"/>
+    <bean id="defaultShopperConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Shopper"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalShopperPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultTokenRequestPopulator" alias="internalTokenRequestPopulator"/>
+    <bean id="defaultTokenRequestPopulator"
+          class="com.worldpay.converters.populators.internal.model.token.TokenRequestPopulator"/>
+
+    <alias name="defaultTokenRequestConverter" alias="internalTokenRequestConverter"/>
+    <bean id="defaultTokenRequestConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.CreateToken"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalTokenRequestPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultHeaderPopulator" alias="internalHeaderPopulator"/>
+    <bean id="defaultHeaderPopulator"
+          class="com.worldpay.converters.populators.internal.model.applepay.HeaderPopulator"/>
+
+    <alias name="defaultHeaderConverter" alias="internalHeaderConverter"/>
+    <bean id="defaultHeaderConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Header"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalHeaderPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultAdditional3DSDataPopulator" alias="internalAdditional3DSDataPopulator"/>
+    <bean id="defaultAdditional3DSDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.threeds2.Additional3DSDataPopulator"/>
+
+    <alias name="defaultAdditional3DSDataConverter" alias="internalAdditional3DSDataConverter"/>
+    <bean id="defaultAdditional3DSDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Additional3DSData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalAdditional3DSDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultAuthenticationRiskDataPopulator" alias="internalAuthenticationRiskDataPopulator"/>
+    <bean id="defaultAuthenticationRiskDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.threeds2.AuthenticationRiskDataPopulator">
+        <constructor-arg ref="internalDateConverter" name="internalDateConverter"/>
+    </bean>
+
+    <alias name="defaultAuthenticationRiskDataConverter" alias="internalAuthenticationRiskDataConverter"/>
+    <bean id="defaultAuthenticationRiskDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.AuthenticationRiskData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalAuthenticationRiskDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultShopperAccountRiskDataPopulator" alias="internalShopperAccountRiskDataPopulator"/>
+    <bean id="defaultShopperAccountRiskDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.threeds2.ShopperAccountRiskDataPopulator">
+        <constructor-arg ref="internalDateConverter" name="internalDateConverter"/>
+    </bean>
+
+    <alias name="defaultShopperAccountRiskDataConverter" alias="internalShopperAccountRiskDataConverter"/>
+    <bean id="defaultShopperAccountRiskDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.ShopperAccountRiskData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalShopperAccountRiskDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultTransactionRiskDataGiftCardAmountPopulator"
+           alias="internalTransactionRiskDataGiftCardAmountPopulator"/>
+    <bean id="defaultTransactionRiskDataGiftCardAmountPopulator"
+          class="com.worldpay.converters.populators.internal.model.threeds2.TransactionRiskDataGiftCardAmountPopulator">
+        <constructor-arg ref="internalAmountConverter" name="internalAmountConverter"/>
+    </bean>
+
+    <alias name="defaultTransactionRiskDataGiftCardAmountConverter"
+           alias="internalTransactionRiskDataGiftCardAmountConverter"/>
+    <bean id="defaultTransactionRiskDataGiftCardAmountConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.TransactionRiskDataGiftCardAmount"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalTransactionRiskDataGiftCardAmountPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultTransactionRiskDataPopulator" alias="internalTransactionRiskDataPopulator"/>
+    <bean id="defaultTransactionRiskDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.threeds2.TransactionRiskDataPopulator">
+        <constructor-arg ref="internalDateConverter" name="internalDateConverter"/>
+        <constructor-arg ref="internalTransactionRiskDataGiftCardAmountConverter"
+                         name="internalTransactionRiskDataGiftCardAmountConverter"/>
+    </bean>
+
+    <alias name="defaultTransactionRiskDataConverter" alias="internalTransactionRiskDataConverter"/>
+    <bean id="defaultTransactionRiskDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.TransactionRiskData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalTransactionRiskDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultRiskDataPopulator" alias="internalRiskDataPopulator"/>
+    <bean id="defaultRiskDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.threeds2.RiskDataPopulator">
+        <constructor-arg ref="internalAuthenticationRiskDataConverter" name="internalAuthenticationRiskDataConverter"/>
+        <constructor-arg ref="internalShopperAccountRiskDataConverter" name="internalShopperAccountRiskDataConverter"/>
+        <constructor-arg ref="internalTransactionRiskDataConverter" name="internalTransactionRiskDataConverter"/>
+    </bean>
+
+    <alias name="defaultRiskDataConverter" alias="internalRiskDataConverter"/>
+    <bean id="defaultRiskDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.RiskData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalRiskDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultCardDetailsPopulator" alias="internalCardDetailsPopulator"/>
+    <bean id="defaultCardDetailsPopulator"
+          class="com.worldpay.converters.populators.internal.model.token.CardDetailsPopulator">
+        <constructor-arg ref="internalAddressConverter" name="internalAddressConverter"/>
+        <constructor-arg ref="internalDateConverter" name="internalDateConverter"/>
+    </bean>
+
+    <alias name="defaultCardDetailsConverter" alias="internalCardDetailsConverter"/>
+    <bean id="defaultCardDetailsConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.CardDetails"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalCardDetailsPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentTokenCreatePopulator" alias="internalPaymentTokenCreatePopulator"/>
+    <bean id="defaultPaymentTokenCreatePopulator"
+          class="com.worldpay.converters.populators.internal.model.token.PaymentTokenCreatePopulator">
+        <constructor-arg ref="internalTokenRequestConverter" name="internalTokenRequestConverter"/>
+        <constructor-arg ref="internalStoredCredentialsConverter" name="internalStoredCredentialsConverter"/>
+        <constructor-arg ref="internalPaymentConverterStrategy" name="internalPaymentConverterStrategy"/>
+    </bean>
+
+    <alias name="defaultPaymentTokenCreateConverter" alias="internalPaymentTokenCreateConverter"/>
+    <bean id="defaultPaymentTokenCreateConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PaymentTokenCreate"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPaymentTokenCreatePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentTokenDeletePopulator" alias="internalPaymentTokenDeletePopulator"/>
+    <bean id="defaultPaymentTokenDeletePopulator"
+          class="com.worldpay.converters.populators.internal.model.token.PaymentTokenDeletePopulator"/>
+
+    <alias name="defaultPaymentTokenDeleteConverter" alias="internalPaymentTokenDeleteConverter"/>
+    <bean id="defaultPaymentTokenDeleteConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PaymentTokenDelete"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPaymentTokenDeletePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentOrderConvertersWrapper" alias="paymentOrderConvertersWrapper"/>
+    <bean id="defaultPaymentOrderConvertersWrapper"
+          class="com.worldpay.converters.populators.internal.model.PaymentOrderConvertersWrapper">
+        <constructor-arg name="internalPaymentMethodMaskConverter" ref="internalPaymentMethodMaskConverter"/>
+        <constructor-arg name="internalPaymentDetailsConverter" ref="internalPaymentDetailsConverter"/>
+        <constructor-arg name="internalPayAsOrderConverter" ref="internalPayAsOrderConverter"/>
+        <constructor-arg name="internalPaymentMethodAttributeConverter" ref="internalPaymentMethodAttributeConverter"/>
+    </bean>
+
+    <alias name="defaultThreeDS2OrderConvertersWrapper" alias="threeDS2OrderConvertersWrapper"/>
+    <bean id="defaultThreeDS2OrderConvertersWrapper"
+          class="com.worldpay.converters.populators.internal.model.ThreeDS2OrderConvertersWrapper">
+        <constructor-arg name="internalRiskDataConverter" ref="internalRiskDataConverter"/>
+        <constructor-arg name="internalAdditional3DSDataConverter" ref="internalAdditional3DSDataConverter"/>
+    </bean>
+
+    <alias name="defaultBasicOrderConvertersWrapper" alias="basicOrderConvertersWrapper"/>
+    <bean id="defaultBasicOrderConvertersWrapper"
+          class="com.worldpay.converters.populators.internal.model.BasicOrderConvertersWrapper">
+        <constructor-arg name="internalAmountConverter" ref="internalAmountConverter"/>
+        <constructor-arg name="internalShopperConverter" ref="internalShopperConverter"/>
+        <constructor-arg name="internalAddressConverter" ref="internalAddressConverter"/>
+        <constructor-arg name="internalSessionConverter" ref="internalSessionConverter"/>
+    </bean>
+
+    <alias name="defaultInternalOrderPopulator" alias="internalOrderPopulator"/>
+    <bean id="defaultInternalOrderPopulator" class="com.worldpay.converters.populators.internal.model.OrderPopulator">
+        <constructor-arg name="internalBranchSpecificExtensionConverter"
+                         ref="internalBranchSpecificExtensionConverter"/>
+        <constructor-arg name="internalTokenRequestConverter" ref="internalTokenRequestConverter"/>
+        <constructor-arg name="internalOrderLinesConverter" ref="internalOrderLinesConverter"/>
+        <constructor-arg name="internalFraudSightDataConverter" ref="internalFraudSightDataConverter"/>
+        <constructor-arg name="paymentOrderConvertersWrapper" ref="paymentOrderConvertersWrapper"/>
+        <constructor-arg name="threeDS2OrderConvertersWrapper" ref="threeDS2OrderConvertersWrapper"/>
+        <constructor-arg name="basicOrderConvertersWrapper" ref="basicOrderConvertersWrapper"/>
+    </bean>
+
+    <alias name="defaultInternalOrderConverter" alias="internalOrderConverter"/>
+    <bean id="defaultInternalOrderConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Order"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalOrderPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentTokenUpdatePopulator" alias="internalPaymentTokenUpdatePopulator"/>
+    <bean id="defaultPaymentTokenUpdatePopulator"
+          class="com.worldpay.converters.populators.internal.model.token.PaymentTokenUpdatePopulator">
+        <constructor-arg name="internalCardDetailsConverter" ref="internalCardDetailsConverter"/>
+    </bean>
+
+    <alias name="defaultPaymentTokenUpdateConverter" alias="internalPaymentTokenUpdateConverter"/>
+    <bean id="defaultPaymentTokenUpdateConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PaymentTokenUpdate"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPaymentTokenUpdatePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPaymentConverterStrategy" alias="internalPaymentConverterStrategy"/>
+    <bean id="defaultPaymentConverterStrategy"
+          class="com.worldpay.converters.internal.model.payment.impl.DefaultPaymentConverterStrategy">
+        <constructor-arg name="paymentConverters" ref="paymentConvertersStrategyMap"/>
+    </bean>
+
+    <util:map id="paymentConvertersStrategyMap" map-class="java.util.HashMap"
+              key-type="com.worldpay.service.model.payment.PaymentType"
+              value-type="de.hybris.platform.servicelayer.dto.converter.Converter">
+        <entry key="CSEDATA" value-ref="internalCsePaymentConverter"/>
+        <entry key="APPLEPAYSSL" value-ref="internalApplePayConverter"/>
+        <entry key="KLARNASSL" value-ref="internalKlarnaPaymentConverter"/>
+        <entry key="KLARNAPAYLATERSSL" value-ref="internalKlarnaPayLaterPaymentConverter"/>
+        <entry key="KLARNASLICESSL" value-ref="internalKlarnaSliceItPaymentConverter"/>
+        <entry key="KLARNAPAYNOWSSL" value-ref="internalKlarnaPayNowPaymentConverter"/>
+        <entry key="TOKENSSL" value-ref="internalTokenConverter"/>
+        <entry key="IDEAL" value-ref="internalIdealPaymentConverter"/>
+        <entry key="PAYWITHGOOGLESSL" value-ref="internalGooglePaymentConverter"/>
+    </util:map>
+
+    <alias name="defaultCsePaymentPopulator" alias="internalCsePaymentPopulator"/>
+    <bean id="defaultCsePaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.CsePaymentPopulator">
+        <constructor-arg name="internalAddressConverter" ref="internalAddressConverter"/>
+    </bean>
+
+    <alias name="defaultCsePaymentConverter" alias="internalCsePaymentConverter"/>
+    <bean id="defaultCsePaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.CSEDATA"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalCsePaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultApplePayPopulator" alias="internalApplePayPopulator"/>
+    <bean id="defaultApplePayPopulator"
+          class="com.worldpay.converters.populators.internal.model.applepay.ApplePayPopulator">
+        <constructor-arg name="internalHeaderConverter" ref="internalHeaderConverter"/>
+    </bean>
+
+    <alias name="defaultApplePayConverter" alias="internalApplePayConverter"/>
+    <bean id="defaultApplePayConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.APPLEPAYSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalApplePayPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaPaymentPopulator" alias="internalKlarnaPaymentPopulator"/>
+    <bean id="defaultKlarnaPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.klarna.KlarnaPaymentPopulator"/>
+
+    <alias name="defaultKlarnaPaymentConverter" alias="internalKlarnaPaymentConverter"/>
+    <bean id="defaultKlarnaPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.KLARNASSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalKlarnaPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaPayLaterPaymentPopulator" alias="internalKlarnaPayLaterPaymentPopulator"/>
+    <bean id="defaultKlarnaPayLaterPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.klarna.KlarnaPayLaterPaymentPopulator"/>
+
+    <alias name="defaultKlarnaPayLaterPaymentConverter" alias="internalKlarnaPayLaterPaymentConverter"/>
+    <bean id="defaultKlarnaPayLaterPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.KLARNAPAYLATERSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalKlarnaPayLaterPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaSliceItPaymentPopulator" alias="internalKlarnaSliceItPaymentPopulator"/>
+    <bean id="defaultKlarnaSliceItPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.klarna.KlarnaSliceItPaymentPopulator"/>
+
+    <alias name="defaultKlarnaSliceItPaymentConverter" alias="internalKlarnaSliceItPaymentConverter"/>
+    <bean id="defaultKlarnaSliceItPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.KLARNASLICEITSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalKlarnaSliceItPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaPayNowPaymentPopulator" alias="internalKlarnaPayNowPaymentPopulator"/>
+    <bean id="defaultKlarnaPayNowPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.klarna.KlarnaPayNowPaymentPopulator"/>
+
+    <alias name="defaultKlarnaPayNowPaymentConverter" alias="internalKlarnaPayNowPaymentConverter"/>
+    <bean id="defaultKlarnaPayNowPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.KLARNAPAYNOWSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalKlarnaPayNowPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultTokenPopulator" alias="internalTokenPopulator"/>
+    <bean id="defaultTokenPopulator"
+          class="com.worldpay.converters.populators.internal.model.token.TokenPopulator">
+        <constructor-arg name="internalCardDetailsConverter" ref="internalCardDetailsConverter"/>
+    </bean>
+
+    <alias name="defaultTokenConverter" alias="internalTokenConverter"/>
+    <bean id="defaultTokenConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.TOKENSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalTokenPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultIdealPaymentPopulator" alias="internalIdealPaymentPopulator"/>
+    <bean id="defaultIdealPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.IdealPaymentPopulator"/>
+
+    <alias name="defaultIdealPaymentConverter" alias="internalIdealPaymentConverter"/>
+    <bean id="defaultIdealPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.IDEALSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalIdealPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultGooglePaymentPopulator" alias="internalGooglePaymentPopulator"/>
+    <bean id="defaultGooglePaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.GooglePaymentPopulator"/>
+
+    <alias name="defaultGooglePaymentConverter" alias="internalGooglePaymentConverter"/>
+    <bean id="defaultGooglePaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PAYWITHGOOGLESSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalGooglePaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultAmountReversePopulator" alias="internalAmountReversePopulator"/>
+    <bean id="defaultAmountReversePopulator"
+          class="com.worldpay.converters.populators.reverse.internal.model.AmountReversePopulator"/>
+
+    <alias name="defaultAmountReverseConverter" alias="internalAmountReverseConverter"/>
+    <bean id="defaultAmountReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Amount"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalAmountReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultDateReversePopulator" alias="internalDateReversePopulator"/>
+    <bean id="defaultDateReversePopulator"
+          class="com.worldpay.converters.populators.reverse.internal.model.DateReversePopulator"/>
+
+    <alias name="defaultDateReverseConverter" alias="internalDateReverseConverter"/>
+    <bean id="defaultDateReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Date"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalDateReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+</beans>

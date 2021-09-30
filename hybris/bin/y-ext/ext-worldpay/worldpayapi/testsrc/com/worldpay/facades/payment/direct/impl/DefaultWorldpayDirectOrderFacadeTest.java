@@ -1,21 +1,19 @@
 package com.worldpay.facades.payment.direct.impl;
 
+import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
+import com.worldpay.data.payment.Card;
+import com.worldpay.data.token.TokenDetails;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.payment.Card;
-import com.worldpay.service.model.token.TokenDetails;
-import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
-import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
@@ -66,8 +64,10 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     private static final String TRANSACTION_ID_3DS = "transactionId3Ds";
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
     private static final String CARD_NUMBER = "cardNumber";
+    private static final String MONTH = "01";
+    private static final String YEAR = "2025";
 
-    final Date expiryDate = new Date("01", "2025");
+    Date expiryDate;
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -86,13 +86,11 @@ public class DefaultWorldpayDirectOrderFacadeTest {
     @Mock
     private WorldpayDirectOrderService worldpayDirectOrderServiceMock;
     @Mock
-    private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategyMock;
+    private WorldpayCartService worldpayCartServiceMock;
     @Mock
     private WorldpayPaymentInfoService worldpayPaymentInfoServiceMock;
     @Mock
     private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
-    @Mock
-    private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
     private Populator<WorldpayAPMPaymentInfoModel, CCPaymentInfoData> apmPaymentInfoPopulatorMock;
 
@@ -146,8 +144,12 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(directAuthoriseServiceResponse3dSecureMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
-        when(worldpayAuthenticatedShopperIdStrategyMock.getAuthenticatedShopperId(userModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
+        when(worldpayCartServiceMock.getAuthenticatedShopperId(cartModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayDirectOrderServiceMock.createTokenAndAuthorise(cartModelMock, worldpayAdditionalInfoDataMock, cseAdditionalAuthInfoMock)).thenReturn(directAuthoriseServiceResponseMock);
+        final Date date = new Date();
+        date.setMonth(MONTH);
+        date.setYear(YEAR);
+        this.expiryDate = date;
     }
 
     @Test
@@ -696,7 +698,6 @@ public class DefaultWorldpayDirectOrderFacadeTest {
         testObj.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfoMock, worldpayAdditionalInfoDataMock);
 
         // then
-        verify(worldpayMerchantInfoServiceMock).getCurrentSiteMerchant();
         verify(worldpayDirectOrderServiceMock).authoriseRecurringPayment(cartModelMock, worldpayAdditionalInfoDataMock);
         verify(worldpayDirectOrderServiceMock).completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock);
         verifyNoMoreInteractions(worldpayDirectOrderServiceMock);
@@ -759,4 +760,5 @@ public class DefaultWorldpayDirectOrderFacadeTest {
 
         verify(apmPaymentInfoPopulatorMock).populate(googlePayPaymentInfoMock, ccPaymentInfoData);
     }
+
 }

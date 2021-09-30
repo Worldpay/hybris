@@ -37,8 +37,9 @@
     </bean>
 
     <bean id="worldpayCancelFinishedEventListener" class="com.worldpay.voidprocess.listener.WorldpayCancelFinishedEventListener" parent="abstractEventListener">
-        <property name="businessProcessService" ref="businessProcessService"/>
-        <property name="modelService" ref="modelService"/>
+        <constructor-arg name="businessProcessService" ref="businessProcessService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="processDefinitionDao" ref="processDefinitionDao"/>
     </bean>
 
     <alias name="worldpayImmediateCancelRequestExecutor" alias="immediateCancelRequestExecutor"/>
@@ -48,6 +49,7 @@
         <property name="orderCancelRecordsHandler" ref="orderCancelRecordsHandler"/>
         <property name="completeCancelStatusChangeStrategy" ref="setCancellledStrategy"/>
         <property name="notificationServiceAdapter" ref="worldpayOrderCancelNotificationServiceAdapter"/>
+        <property name="calculationService" ref="calculationService"/>
     </bean>
 
     <bean id="worldpayOrderCancelNotificationServiceAdapter" class="com.worldpay.voidprocess.adapters.WorldpayOrderCancelNotificationServiceAdapter">

@@ -1,6 +1,6 @@
 package com.worldpay.converters;
 
-import com.worldpay.service.model.RiskScore;
+import com.worldpay.data.RiskScore;
 import com.worldpay.model.WorldpayRiskScoreModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.model.ModelService;

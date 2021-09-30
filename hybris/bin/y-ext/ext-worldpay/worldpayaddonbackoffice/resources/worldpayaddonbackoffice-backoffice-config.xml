@@ -4,6 +4,7 @@
         xmlns:explorer-tree="http://www.hybris.com/cockpitng/config/explorertree"
         xmlns:list-view="http://www.hybris.com/cockpitng/component/listView"
         xmlns:y="http://www.hybris.com/cockpit/config/hybris"
+        xmlns:simple-search="http://www.hybris.com/cockpitng/config/simplesearch"
         xmlns:editorArea="http://www.hybris.com/cockpitng/component/editorArea"
         xmlns:advanced-search="http://www.hybris.com/cockpitng/config/advancedsearch">
 
@@ -12,6 +13,7 @@
             <editorArea:tab name="customersupportbackoffice.tab.general" >
                 <editorArea:section name="customersupportbackoffice.section.order.general.properties">
                     <editorArea:attribute qualifier="riskScore"/>
+                    <editorArea:attribute qualifier="fraudSight"/>
                     <editorArea:attribute qualifier="info"/>
                     <editorArea:attribute qualifier="worldpayBank" readonly="true"/>
                 </editorArea:section>
@@ -39,6 +41,14 @@
         <y:base>
             <y:labels>
                 <y:label> description </y:label>
+            </y:labels>
+        </y:base>
+    </context>
+
+    <context type="WorldpayFraudSight" component="base" merge-by="type">
+        <y:base>
+            <y:labels>
+                <y:label>'risk=' + message + ' score=' + score</y:label>
             </y:labels>
         </y:base>
     </context>
@@ -102,16 +112,107 @@
     <context component="explorer-tree" merge-by="module">
         <explorer-tree:explorer-tree>
             <explorer-tree:navigation-node id="Worldpay">
+                <explorer-tree:type-node code="WorldpayMerchantConfiguration" id="worldpay.merchant.configuration"/>
                 <explorer-tree:type-node code="WorldpayOrderModification" id="worldpay.order.modifications"/>
                 <explorer-tree:type-node code="WorldpayAPMConfiguration" id="worldpay.apm.configuration"/>
                 <explorer-tree:type-node code="WorldpayBankConfiguration" id="worldpay.bank.configuration"/>
                 <explorer-tree:navigation-node id="CronJobs">
                     <explorer-tree:type-node code="OrderModificationCronJob" id="worldpay.cronjob.orderModification"/>
-                    <explorer-tree:type-node code="NotifyUnprocessedOrderModificationsCronJob" id="worldpay.cronjob.unprocessedordermodification"/>
-                    <explorer-tree:type-node code="CleanUpProcessedOrderModificationsCronJob" id="worldpay.cronjob.cleanupprocessedordermodifications"/>
+                    <explorer-tree:type-node code="NotifyUnprocessedOrderModificationsCronJob"
+                                             id="worldpay.cronjob.unprocessedordermodification"/>
+                    <explorer-tree:type-node code="CleanUpProcessedOrderModificationsCronJob"
+                                             id="worldpay.cronjob.cleanupprocessedordermodifications"/>
                 </explorer-tree:navigation-node>
             </explorer-tree:navigation-node>
         </explorer-tree:explorer-tree>
+    </context>
+
+    <!--  Merchant Configuration  -->
+
+    <context type="WorldpayMerchantConfiguration">
+        <!-- Base configuration -->
+        <context component="base" merge-by="type" type="WorldpayMerchantConfiguration">
+            <y:base>
+                <y:labels>
+                    <y:label>identifier + ' - ' + code</y:label>
+                </y:labels>
+            </y:base>
+        </context>
+
+        <context component="base" merge-by="type" type="EnvironmentType" parent="EnumerationValue">
+            <y:base>
+                <y:labels>
+                    <y:label>name</y:label>
+                </y:labels>
+            </y:base>
+        </context>
+
+        <context component="listview" type="WorldpayMerchantConfiguration" merge-by="type">
+            <list-view:list-view refresh-after-object-creation="true">
+                <list-view:column qualifier="identifier"/>
+                <list-view:column qualifier="code"/>
+            </list-view:list-view>
+        </context>
+
+        <context component="simple-search" type="WorldpayMerchantConfiguration">
+            <simple-search:simple-search>
+                <simple-search:field name="identifier"/>
+                <simple-search:field name="code"/>
+                <simple-search:sort-field name="code" asc="true"/>
+            </simple-search:simple-search>
+        </context>
+
+        <context type="WorldpayMerchantConfiguration" component="advanced-search" merge-by="type"
+                 parent="GenericItem">
+            <advanced-search:advanced-search>
+                <advanced-search:field-list>
+                    <advanced-search:field name="identifier"/>
+                    <advanced-search:field name="code"/>
+                    <advanced-search:field name="environment"/>
+                </advanced-search:field-list>
+            </advanced-search:advanced-search>
+        </context>
+
+        <context component="editor-area" type="WorldpayMerchantConfiguration" merge-by="type">
+            <editorArea:editorArea>
+                <editorArea:essentials>
+                    <editorArea:essentialSection name="hmc.essential">
+                        <editorArea:attribute qualifier="identifier"/>
+                    </editorArea:essentialSection>
+                </editorArea:essentials>
+                <editorArea:tab name="tab.configuration.worldpay.merchant.essential">
+                    <editorArea:section name="sec.configuration.worldpay.details">
+                        <editorArea:attribute qualifier="code"/>
+                        <editorArea:attribute qualifier="password"/>
+                        <editorArea:attribute qualifier="macValidation"/>
+                        <editorArea:attribute qualifier="macSecret"/>
+                        <editorArea:attribute qualifier="csePublicKey"/>
+                        <editorArea:attribute qualifier="installationId"/>
+                        <editorArea:attribute qualifier="statementNarrative"/>
+                        <editorArea:attribute qualifier="orderContent"/>
+                    </editorArea:section>
+                </editorArea:tab>
+                <editorArea:tab name="tab.configuration.worldpay.merchant.card.payments">
+                    <editorArea:section name="sec.configuration.worldpay.details">
+                        <editorArea:attribute qualifier="threeDSFlexJsonWebTokenSettings"/>
+                        <editorArea:attribute qualifier="threeDSFlexChallengePreference"/>
+                        <editorArea:attribute qualifier="excludedPaymentTypes"/>
+                        <editorArea:attribute qualifier="includedPaymentTypes"/>
+                        <editorArea:attribute qualifier="cardAcceptorTaxID"/>
+                    </editorArea:section>
+                </editorArea:tab>
+                <editorArea:tab name="tab.configuration.worldpay.merchant.applepay.payments">
+                    <editorArea:section name="sec.configuration.worldpay.details">
+                        <editorArea:attribute qualifier="applePayConfiguration"/>
+                    </editorArea:section>
+                </editorArea:tab>
+                <editorArea:tab name="tab.configuration.worldpay.merchant.googlepay.payments">
+                    <editorArea:section name="sec.configuration.worldpay.details">
+                        <editorArea:attribute qualifier="googlePayConfiguration"/>
+                    </editorArea:section>
+                </editorArea:tab>
+            </editorArea:editorArea>
+        </context>
     </context>
 
     <!-- WorldpayAPMConfiguration -->
@@ -251,5 +352,59 @@
     </context>
 
     <!-- WorldpayOrderModification end -->
+
+    <context type="CMSSite">
+        <context component="editor-area" type="CMSSite" merge-by="type">
+            <editorArea:editorArea>
+                <editorArea:tab name="tab.configuration.worldpay">
+                    <editorArea:section name="sec.configuration.worldpay.merchant.section">
+                        <editorArea:attribute qualifier="webMerchantConfiguration"/>
+                        <editorArea:attribute qualifier="asmMerchantConfiguration"/>
+                        <editorArea:attribute qualifier="replenishmentMerchantConfiguration"/>
+                    </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.pr.section">
+                        <editorArea:attribute qualifier="enablePR"/>
+                    </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.fs.section">
+                        <editorArea:attribute qualifier="enableFS"/>
+                    </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.level23Data.section">
+                        <editorArea:attribute qualifier="enableLevel2"/>
+                        <editorArea:attribute qualifier="enableLevel3"/>
+                    </editorArea:section>
+                </editorArea:tab>
+            </editorArea:editorArea>
+        </context>
+    </context>
+
+    <context type="AbstractOrder">
+        <context component="editor-area" type="AbstractOrder" merge-by="type">
+            <editorArea:editorArea>
+                <editorArea:tab name="tab.configuration.worldpay">
+                    <editorArea:section name="sec.configuration.worldpay.general.section">
+                        <editorArea:attribute qualifier="worldpayOrderCode"/>
+                        <editorArea:attribute qualifier="worldpayDeclineCode"/>
+                        <editorArea:attribute qualifier="isPrimeRouteAuth"/>
+                    </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.api.payload.section">
+                        <editorArea:attribute qualifier="requestsPayload" readonly="true"/>
+                        <editorArea:attribute qualifier="responsesPayload" readonly="true"/>
+                    </editorArea:section>
+                </editorArea:tab>
+            </editorArea:editorArea>
+        </context>
+    </context>
+
+    <context type="Product">
+        <context component="editor-area" type="Product" merge-by="type">
+            <editorArea:editorArea>
+                <editorArea:tab name="tab.configuration.worldpay">
+                    <editorArea:section name="sec.configuration.worldpay.level23Data.section">
+                        <editorArea:attribute qualifier="commodityCode"/>
+                    </editorArea:section>
+                </editorArea:tab>
+            </editorArea:editorArea>
+        </context>
+    </context>
 
 </config>

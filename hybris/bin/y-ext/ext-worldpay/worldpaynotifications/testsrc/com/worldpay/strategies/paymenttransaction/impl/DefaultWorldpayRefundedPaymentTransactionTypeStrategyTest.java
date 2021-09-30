@@ -5,7 +5,6 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.strategies.WorldpayOrderModificationRefundProcessStrategy;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -31,10 +30,6 @@ public class DefaultWorldpayRefundedPaymentTransactionTypeStrategyTest {
     private DefaultWorldpayRefundedPaymentTransactionTypeStrategy testObj;
 
     @Mock
-    private WorldpayOrderNotificationHandler worldpayOrderNotificationHandlerMock;
-    @Mock
-    private OrderModificationSerialiser orderModificationSerialiserMock;
-    @Mock
     private OrderNotificationService orderNotificationServiceMock;
     @Mock
     private WorldpayOrderModificationRefundProcessStrategy worldpayOrderModificationRefundProcessStrategyMock;
@@ -49,7 +44,7 @@ public class DefaultWorldpayRefundedPaymentTransactionTypeStrategyTest {
     @Before
     public void setUp() {
         when(worldpayOrderNotificationMock.getOrderNotificationMessage()).thenReturn(DESERIALISED_NOTIFICATION);
-        when(orderModificationSerialiserMock.deserialise(DESERIALISED_NOTIFICATION)).thenReturn(orderNotificationMock);
+        when(orderNotificationServiceMock.deserialiseNotification(DESERIALISED_NOTIFICATION)).thenReturn(orderNotificationMock);
         when(worldpayOrderModificationRefundProcessStrategyMock.processRefundFollowOn(orderMock, orderNotificationMock)).thenReturn(TRUE);
     }
 
@@ -66,7 +61,7 @@ public class DefaultWorldpayRefundedPaymentTransactionTypeStrategyTest {
 
         testObj.processModificationMessage(orderMock, worldpayOrderNotificationMock);
 
-        verify(worldpayOrderNotificationHandlerMock).setDefectiveModification(worldpayOrderNotificationMock, null, true);
+        verify(orderNotificationServiceMock).setDefectiveModification(worldpayOrderNotificationMock, null, true);
     }
 
     @Test
@@ -75,7 +70,7 @@ public class DefaultWorldpayRefundedPaymentTransactionTypeStrategyTest {
 
         testObj.processModificationMessage(orderMock, worldpayOrderNotificationMock);
 
-        verify(worldpayOrderNotificationHandlerMock).setDefectiveReason(worldpayOrderNotificationMock, INVALID_AUTHENTICATED_SHOPPER_ID);
-        verify(worldpayOrderNotificationHandlerMock).setDefectiveModification(worldpayOrderNotificationMock, null, true);
+        verify(orderNotificationServiceMock).setDefectiveReason(worldpayOrderNotificationMock, INVALID_AUTHENTICATED_SHOPPER_ID);
+        verify(orderNotificationServiceMock).setDefectiveModification(worldpayOrderNotificationMock, null, true);
     }
 }

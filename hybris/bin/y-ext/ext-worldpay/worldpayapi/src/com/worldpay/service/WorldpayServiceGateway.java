@@ -105,6 +105,15 @@ public interface WorldpayServiceGateway {
     CancelServiceResponse cancel(CancelServiceRequest request) throws WorldpayException;
 
     /**
+     * Make a void request with Worldpay
+     *
+     * @param request Use the convenience method in {@link VoidSaleServiceRequest} to create the request. Ensures the correct details are set before making the call
+     * @return {@link CancelServiceResponse} object with the reply details.
+     * @throws WorldpayException if there have been issues making the request
+     */
+    VoidSaleServiceResponse voidSale(VoidSaleServiceRequest request) throws WorldpayException;
+
+    /**
      * Make a refund request with Worldpay. Can only be invoked if the funds have been captured
      *
      * @param request Use the convenience method in {@link RefundServiceRequest} to create the request. Ensures the correct details are set before making the call

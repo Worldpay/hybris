@@ -19,6 +19,7 @@ import java.util.Optional;
 public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy implements WorldpayCancelWholeOrderDueToCancelNotificationStrategy {
 
     private static final Logger LOG = LogManager.getLogger(DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy.class);
+
     protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     protected final ModelService modelService;
 
@@ -36,17 +37,19 @@ public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy impl
     public void cancelOrder(final OrderProcessModel orderProcessModel) {
         final OrderModel orderModel = orderProcessModel.getOrder();
 
-        LOG.debug("The order {} is being cancelled.", orderModel::getCode);
+        if (!OrderStatus.CANCELLED.equals(orderModel.getStatus())) {
+            LOG.debug("The order {} is being cancelled.", orderModel::getCode);
 
-        Optional.ofNullable(worldpayPaymentTransactionService.getPaymentTransactionFromCode(orderModel.getWorldpayOrderCode()))
+            Optional.ofNullable(worldpayPaymentTransactionService.getPaymentTransactionFromCode(orderModel.getWorldpayOrderCode()))
                 .ifPresentOrElse(
-                        paymentTransactionModel -> {
-                            createAndSaveCancelTransactionEntry(paymentTransactionModel);
-                            orderModel.setStatus(OrderStatus.CANCELLED);
-                        },
-                        () -> orderModel.setStatus(OrderStatus.PROCESSING_ERROR)
+                    paymentTransactionModel -> {
+                        createAndSaveCancelTransactionEntry(paymentTransactionModel);
+                        orderModel.setStatus(OrderStatus.CANCELLED);
+                    },
+                    () -> orderModel.setStatus(OrderStatus.PROCESSING_ERROR)
                 );
-        modelService.save(orderModel);
+            modelService.save(orderModel);
+        }
     }
 
     protected void createAndSaveCancelTransactionEntry(final PaymentTransactionModel paymentTransactionModel) {

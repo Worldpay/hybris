@@ -12,35 +12,8 @@
 
     <context:annotation-config/>
 
-    <alias name="defaultOCCWorldpayUrlService" alias="occWorldpayUrlService"/>
-    <bean id="defaultOCCWorldpayUrlService" class="com.worldpay.service.OCCWorldpayUrlService"
-          parent="abstractWorldpayUrlService">
-        <constructor-arg name="worldpayUrlService" ref="worldpayUrlService"/>
-        <property name="threeDSecureFlexFlowReturnUrl"
-                  value="#{configurationService.configuration.getProperty('worldpay.config.3dsecureflex.jwt.occ.returnurl')}"/>
-    </bean>
-
-    <alias name="defaultOCCWorldpayJsonWebTokenService" alias="occWorldpayJsonWebTokenService"/>
-    <bean id="defaultOCCWorldpayJsonWebTokenService"
-          class="com.worldpay.service.payment.impl.OCCWorldpayJsonWebTokenService">
-        <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
-    </bean>
-
-    <alias name="defaultOCCWorldpayDirectResponseFacade" alias="occWorldpayDirectResponseFacade"/>
-    <bean id="defaultOCCWorldpayDirectResponseFacade"
-          class="com.worldpay.facades.impl.DefaultWorldpayDirectResponseFacade">
-        <constructor-arg ref="worldpayDirectResponseService"/>
-        <constructor-arg ref="worldpayCheckoutFacade"/>
-        <constructor-arg ref="occWorldpayUrlService"/>
-        <constructor-arg ref="occWorldpayJsonWebTokenService"/>
-        <constructor-arg ref="worldpayMerchantConfigDataFacade"/>
-        <constructor-arg name="worldpaySessionService" ref="occWorldpaySessionService"/>
-    </bean>
-
-    <bean id="worldpayAddressWsDTOAddressDataPopulator"
-          class="com.worldpay.worldpayextocc.populators.WorldpayAddressWsDTOAddressDataPopulator">
-        <constructor-arg name="i18NFacade" ref="i18NFacade"/>
-        <constructor-arg name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
-    </bean>
+    <import resource="classpath:/spring/worldpayextocc-services-spring.xml"/>
+    <import resource="classpath:/spring/worldpayextocc-facades-spring.xml"/>
+    <import resource="classpath:/spring/worldpayextocc-converters-spring.xml"/>
 
 </beans>

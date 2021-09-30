@@ -48,6 +48,7 @@
                                             </sec:authorize>
                                         </div>
 
+                                        <wp-multi-checkout:dateOfBirthInput/>
                                         <wp-multi-checkout:bankSelect/>
                                         <wp-multi-checkout:billingAddress/>
 

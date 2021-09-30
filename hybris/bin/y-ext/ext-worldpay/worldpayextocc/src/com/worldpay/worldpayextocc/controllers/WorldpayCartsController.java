@@ -1,14 +1,21 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
+import com.worldpay.dto.payment.PaymentDataWsDTO;
+import com.worldpay.dto.payment.PaymentRequestData;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.APMAvailabilityFacade;
+import com.worldpay.facades.WorldpayBankConfigurationFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
+import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.populator.options.PaymentDetailsWsDTOOption;
 import com.worldpay.worldpayextocc.exceptions.NoCheckoutCartException;
+import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
@@ -22,12 +29,14 @@ import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
-import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
+import de.hybris.platform.webservicescommons.swagger.ApiFieldsParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -38,6 +47,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
 
 /**
  * Controller for handling Worldpay specific payments
@@ -56,7 +67,7 @@ import java.util.Collection;
  * @security Anonymous user may access cart by its guid. Customer may access only own cart by its id. Trusted client or
  * customer manager may impersonate as any user and access cart on their behalf.
  */
-@Controller
+@RestController
 @SuppressWarnings("squid:S2387")
 @RequestMapping(value = "/{baseSiteId}/users/{userId}/carts")
 @CacheControl(directive = CacheControlDirective.NO_CACHE)
@@ -78,6 +89,13 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     private ConfigurablePopulator<HttpServletRequest, PaymentDetailsWsDTO, PaymentDetailsWsDTOOption> httpRequestPaymentDetailsWsDTOPopulator;
     @Resource(name = "worldpayAddressWsDTOAddressDataPopulator")
     private Populator<AddressWsDTO, AddressData> worldpayAdressWsDTOAddressDataPopulator;
+    @Resource(name = "occWorldpayHostedOrderFacade")
+    private WorldpayHostedOrderFacade worldpayHostedOrderFacade;
+    @Resource
+    private APMAvailabilityFacade apmAvailabilityFacade;
+    @Resource
+    protected WorldpayBankConfigurationFacade worldpayBankConfigurationFacade;
+
 
     /**
      * Defines details of a new credit card payment details and assigns the payment to the cart.
@@ -124,9 +142,8 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/worldpaypaymentdetails")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
-                                                 @RequestParam(required = false, defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
+                                                 @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields)
         throws WorldpayException, NoCheckoutCartException {
         final PaymentDetailsWsDTO paymentDetails = new PaymentDetailsWsDTO();
         final Collection<PaymentDetailsWsDTOOption> options = new ArrayList<>();
@@ -164,10 +181,9 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/worldpaypaymentdetails", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
                                                  @RequestBody final PaymentDetailsWsDTO paymentDetails,
-                                                 @RequestParam(required = false, defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
+                                                 @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields)
         throws NoCheckoutCartException, WorldpayException {
         return addPaymentDetailsInternal(request, paymentDetails, fields);
     }
@@ -175,7 +191,6 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/place-order")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public PlaceOrderResponseWsDTO addPaymentDetailsAndPlaceOrder(final HttpServletRequest request,
                                                                   final HttpServletResponse response,
                                                                   @RequestBody final PaymentDetailsWsDTO paymentDetails,
@@ -188,8 +203,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
 
-
-        return handleDirectResponse(directResponseData, response, FieldSetLevelHelper.DEFAULT_LEVEL);
+        return handleDirectResponse(directResponseData, response, DEFAULT_LEVEL);
     }
 
     /**
@@ -213,10 +227,68 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/worldpaybillingaddress", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public void addBillingAddressToCart(@RequestBody final AddressWsDTO address,
-                                        @RequestParam(required = false, defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields) {
-        saveBillingAddress(address);
+                                        @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields) {
+        saveBillingAddress(address, fields);
+    }
+
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_GUEST", "ROLE_TRUSTED_CLIENT"})
+    @PostMapping(value = "/{cartId}/addresses/worldpaydeliveryaddress", consumes = {
+        MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(nickname = "createCartDeliveryAndBillingAddress", value = "Creates a delivery and a payment address for the cart.", notes = "Creates an address and assigns it to the cart as the delivery address and the payment address.")
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    public AddressWsDTO createCartDeliveryAndBillingAddress(@ApiParam(required = true) @RequestBody final AddressWsDTO address,
+                                                            @ApiFieldsParam @RequestParam(defaultValue = DEFAULT_LEVEL) final String fields) {
+
+        final AddressData addressData = dataMapper.map(address, AddressData.class, fields);
+        worldpayAdressWsDTOAddressDataPopulator.populate(address, addressData);
+        userFacade.addAddress(addressData);
+        worldpayPaymentCheckoutFacade.setShippingAndBillingDetails(addressData);
+
+        return dataMapper.map(addressData, AddressWsDTO.class, fields);
+    }
+
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @GetMapping(value = "/{cartId}/payment-method/available")
+    @ResponseStatus(HttpStatus.CREATED)
+    public boolean isPaymentMethodAvailable(@RequestParam final String paymentMethod) {
+        return apmAvailabilityFacade.isAvailable(paymentMethod);
+    }
+
+    /**
+     * Endpoint for APM redirect authorise
+     *
+     * @param paymentRequest contains code of the apm, save, cvc
+     * @param request
+     * @return
+     */
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @PostMapping(value = "/{cartId}/payment-method/redirect-authorise")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PaymentDataWsDTO getRedirectAuthorise(@RequestBody final PaymentRequestData paymentRequest,
+                                                 final HttpServletRequest request) throws WorldpayException {
+        final String paymentMethod = paymentRequest.getPaymentMethod();
+
+        if (!apmAvailabilityFacade.isAvailable(paymentMethod)) {
+            throw new IllegalArgumentException("Payment method [" + paymentMethod + "] is not supported");
+        }
+
+        final BankTransferAdditionalAuthInfo additionalAuthInfo = new BankTransferAdditionalAuthInfo();
+        additionalAuthInfo.setPaymentMethod(paymentMethod);
+        additionalAuthInfo.setUsingShippingAsBilling(!worldpayPaymentCheckoutFacade.hasBillingDetails());
+        additionalAuthInfo.setSaveCard(paymentRequest.getSave());
+
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request);
+
+        if (worldpayBankConfigurationFacade.isBankTransferApm(paymentMethod)) {
+            additionalAuthInfo.setShopperBankCode(paymentRequest.getShopperBankCode());
+            final PaymentData paymentData = new PaymentData();
+            paymentData.setPostUrl(worldpayDirectOrderFacade.authoriseBankTransferRedirect(additionalAuthInfo, worldpayAdditionalInfoData));
+            return dataMapper.map(paymentData, PaymentDataWsDTO.class);
+        }
+
+        return dataMapper.map(worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, worldpayAdditionalInfoData), PaymentDataWsDTO.class);
     }
 
     protected PaymentDetailsWsDTO addPaymentDetailsInternal(final HttpServletRequest request,
@@ -227,12 +299,11 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, null);
         try {
-            saveBillingAddress(paymentDetails.getBillingAddress());
+            saveBillingAddress(paymentDetails.getBillingAddress(), fields);
 
             worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
         } catch (final WorldpayException e) {
-            LOG.error("There was an error tokenizing the payment details", e);
-            throw e;
+            throw new WorldpayException("There was an error tokenizing the payment details");
         }
 
         final CartData cartData = checkoutFacade.getCheckoutCart();
@@ -256,8 +327,9 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         }
     }
 
-    protected void saveBillingAddress(final AddressWsDTO address) {
-        final AddressData addressData = dataMapper.map(address, AddressData.class);
+    protected void saveBillingAddress(final AddressWsDTO address, final String fields) {
+        address.setVisibleInAddressBook(Boolean.FALSE);
+        final AddressData addressData = dataMapper.map(address, AddressData.class, fields);
         worldpayAdressWsDTOAddressDataPopulator.populate(address, addressData);
         userFacade.addAddress(addressData);
         worldpayPaymentCheckoutFacade.setBillingDetails(addressData);

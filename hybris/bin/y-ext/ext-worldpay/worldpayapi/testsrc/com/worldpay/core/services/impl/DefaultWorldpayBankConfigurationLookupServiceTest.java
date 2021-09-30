@@ -32,7 +32,7 @@ public class DefaultWorldpayBankConfigurationLookupServiceTest {
     private static final String APM_CODE = "apmCode";
     private static final String BANK_CODE = "ING";
     @InjectMocks
-    private DefaultWorldpayBankConfigurationLookupService testObj = new DefaultWorldpayBankConfigurationLookupService();
+    private DefaultWorldpayBankConfigurationLookupService testObj;
 
     @Mock
     private APMConfigurationLookupService apmConfigurationLookupService;
@@ -78,5 +78,5 @@ public class DefaultWorldpayBankConfigurationLookupServiceTest {
 
     }
 }
-    
+
 

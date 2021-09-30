@@ -26,6 +26,7 @@ public class WorldpayAddressWsDTOAddressDataPopulator implements Populator<Addre
         Optional.ofNullable(addressWsDTO.getRegion())
             .ifPresent(region -> addressData.setRegion(i18NFacade.getRegion(addressWsDTO.getCountry().getIsocode(), region.getIsocode())));
         addressData.setShippingAddress(Boolean.TRUE.equals(addressWsDTO.getShippingAddress()));
+        addressData.setBillingAddress(Boolean.TRUE.equals(addressWsDTO.getBillingAddress()));
         addressData.setEmail(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail());
     }
 }

@@ -9,10 +9,9 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionOperations;
-
-import java.text.MessageFormat;
 
 import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_PENDING;
 import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
@@ -22,7 +21,7 @@ import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
  */
 public class DefaultRefusedOrderNotificationProcessorStrategy implements OrderNotificationProcessorStrategy {
 
-    private static final Logger LOG = Logger.getLogger(DefaultRefusedOrderNotificationProcessorStrategy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultRefusedOrderNotificationProcessorStrategy.class);
 
     protected final TransactionOperations transactionTemplate;
     protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
@@ -56,7 +55,7 @@ public class DefaultRefusedOrderNotificationProcessorStrategy implements OrderNo
                 return null;
             });
         } else {
-            LOG.warn(MessageFormat.format("The order [{0}] is a cart or not in PAYMENT_PENDING status.", orderModel.getCode()));
+            LOG.warn("The order [{}] is a cart or not in PAYMENT_PENDING status.", orderModel.getCode());
         }
     }
 

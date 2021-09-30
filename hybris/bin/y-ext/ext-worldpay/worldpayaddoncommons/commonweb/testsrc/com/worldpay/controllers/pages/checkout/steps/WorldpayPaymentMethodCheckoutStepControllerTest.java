@@ -4,6 +4,7 @@ import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.WorldpayBankConfigurationFacade;
+import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
@@ -37,8 +38,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.*;
@@ -63,6 +67,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String KLARNA_RESPONSE = "klarnaContent";
     private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
     private static final String KLARNA_RESPONSE_PAGE = "pages/klarna/klarnaResponseContentPage";
+    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
 
     @Spy
     @InjectMocks
@@ -121,6 +126,8 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private AdditionalAuthInfo additionalAuthInfoMock;
     @Mock
     private CMSPreviewService cmsPreviewServiceMock;
+    @Mock
+    private WorldpayCartFacade worldpayCartFacadeMock;
 
     @Before
     public void setUp() throws Exception {
@@ -141,6 +148,8 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(siteConfigServiceMock.getBoolean(HOP_DEBUG_MODE_CONFIG, false)).thenReturn(false);
         when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn(HOSTED_ORDER_PAGE);
+        when(modelMock.asMap().get(BIRTHDAY_DATE)).thenReturn(BIRTHDAY_DATE_VALUE);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
     }
 
     @Test
@@ -159,6 +168,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
         verify(modelMock).addAttribute(HOP_DEBUG_MODE_PARAM, false);
         verify(paymentDataParametersMock, never()).put(eq(PREFERRED_PAYMENT_METHOD_PARAM), any());
         assertEquals(HOSTED_ORDER_PAGE, result);
+        verify(worldpayAdditionalInfoDataMock).setDateOfBirth(BIRTHDAY_DATE_VALUE);
     }
 
     @Test

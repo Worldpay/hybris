@@ -1,9 +1,10 @@
 package com.worldpay.service;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.CancelServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -15,19 +16,28 @@ public class CancelServiceRequestTest {
 
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
-    private static final MerchantInfo MERCHANT_INFO = new MerchantInfo(MERCHANT_CODE, MERCHANT_PASSWORD);
     private static final String ORDER_CODE = "orderCode";
+
+    private MerchantInfo merchantInfo;
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Before
+    public void setUp() throws Exception {
+        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
+        merchantInfo.setMerchantCode(MERCHANT_CODE);
+        this.merchantInfo = merchantInfo;
+    }
+
     @Test
     public void testCancel() throws WorldpayException {
 
-        final CancelServiceRequest request = CancelServiceRequest.createCancelRequest(MERCHANT_INFO, ORDER_CODE);
+        final CancelServiceRequest request = CancelServiceRequest.createCancelRequest(merchantInfo, ORDER_CODE);
 
-        assertEquals(MERCHANT_INFO, request.getMerchantInfo());
+        assertEquals(merchantInfo, request.getMerchantInfo());
         assertEquals(ORDER_CODE, request.getOrderCode());
     }
 
@@ -42,6 +52,6 @@ public class CancelServiceRequestTest {
     public void createCancelRequestShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
         expectedException.expect(IllegalArgumentException.class);
 
-        CancelServiceRequest.createCancelRequest(MERCHANT_INFO, null);
+        CancelServiceRequest.createCancelRequest(merchantInfo, null);
     }
 }

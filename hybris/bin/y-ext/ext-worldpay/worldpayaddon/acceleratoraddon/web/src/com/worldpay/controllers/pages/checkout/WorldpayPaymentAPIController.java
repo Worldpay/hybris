@@ -23,7 +23,8 @@ import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.DuplicateUidException;
 import de.hybris.platform.order.InvalidCartException;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -42,7 +43,7 @@ import java.util.List;
 @RequestMapping(value = "/checkout/worldpay/payment/api")
 public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
-    private static final Logger LOGGER = Logger.getLogger(WorldpayPaymentAPIController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorldpayPaymentAPIController.class);
 
     @Resource
     protected Validator cseFormValidator;

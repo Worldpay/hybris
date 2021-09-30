@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,6 +25,7 @@ import java.util.*;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.worldpay.worldpayresponsemock.controllers.WorldpayResponseMockControllerConstants.Pages.Views.RESPONSES;
 import static com.worldpay.worldpayresponsemock.controllers.pages.WorldpayOrderModificationMockController.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
@@ -53,6 +55,8 @@ public class WorldpayOrderModificationMockControllerTest {
     private static final String APM_1 = "apm1";
     private static final String APM_2 = "apm2";
     private static final String RESPONSE_FORM = "responseForm";
+    private static final String FRAUD_SIGHT_MESSAGES = "fraudSightMessages";
+    private static final String FRAUD_SIGHT_REASON_CODES = "fraudSightReasonCodes";
 
     @InjectMocks
     private WorldpayOrderModificationMockController testObj = new WorldpayOrderModificationMockController();
@@ -84,12 +88,20 @@ public class WorldpayOrderModificationMockControllerTest {
     @Mock
     private Set<String> possibleEventsMock;
     @Mock
+    private Set<String> fraudSightMessagesMock;
+    @Mock
+    private Set<String> fraudSightReasonCodesMock;
+    @Mock
     private WorldpayMockConnector worldpayMockConnectorMock;
 
     private Set<String> merchantSet;
 
     @Before
     public void setUp() throws WorldpayException {
+        Whitebox.setInternalState(testObj, "fraudSightMessages", fraudSightMessagesMock);
+        Whitebox.setInternalState(testObj, "fraudSightReasonCodes", fraudSightReasonCodesMock);
+        Whitebox.setInternalState(testObj, "possibleEvents", possibleEventsMock);
+
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(iso8583ResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
         when(responseFormMock.getTestCreditCard()).thenReturn(CREDIT_CARD_NUMBER);
@@ -151,6 +163,8 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(modelMock).put(POSSIBLE_EVENTS, possibleEventsMock);
         verify(worldpayMerchantMockServiceMock).getAllMerchantCodes();
         verify(modelMock).put(MERCHANTS, merchantSet);
+        verify(modelMock).put(FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
+        verify(modelMock).put(FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
     }
 
     @Test
@@ -174,6 +188,7 @@ public class WorldpayOrderModificationMockControllerTest {
         assertEquals(DEFAULT_AAV_RESULT, responseForm.getAavEmail());
         assertEquals(DEFAULT_AAV_RESULT, responseForm.getAavPostcode());
         assertEquals(DEFAULT_AAV_RESULT, responseForm.getAavTelephone());
+        assertThat(responseForm.getFraudSightScore()).isEqualTo(0.0d);
     }
 
     @Test

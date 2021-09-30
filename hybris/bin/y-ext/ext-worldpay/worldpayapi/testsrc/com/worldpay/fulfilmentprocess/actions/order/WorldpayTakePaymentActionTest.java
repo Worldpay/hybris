@@ -73,7 +73,7 @@ public class WorldpayTakePaymentActionTest {
     }
 
     @Test
-    public void execute_WhenExistingPendingCaptureEntry_ShouldReturnWAIT(){
+    public void execute_WhenExistingPendingCaptureEntry_ShouldReturnWAIT() {
         when(worldpayPaymentTransactionServiceMock.areAllPaymentTransactionsAcceptedForType(orderMock, CAPTURE)).thenReturn(true);
         when(worldpayPaymentTransactionServiceMock.isPaymentTransactionPending(paymentTransactionMock, CAPTURE)).thenReturn(true);
 
@@ -122,7 +122,7 @@ public class WorldpayTakePaymentActionTest {
     @Test
     public void execute_WhenThereIsMoreThanOneTransactionEntry_ShouldReturnNOK() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).
-                thenReturn(Arrays.asList(paymentTransactionEntryModelMock, paymentTransactionEntryModelMock2));
+            thenReturn(Arrays.asList(paymentTransactionEntryModelMock, paymentTransactionEntryModelMock2));
         when(paymentServiceMock.capture(paymentTransactionMock)).thenReturn(paymentTransactionEntryModelMock);
         when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
 

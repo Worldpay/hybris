@@ -2,12 +2,13 @@ package com.worldpay.service.request.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.Date;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.Amount;
+import com.worldpay.data.Date;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.CaptureServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,10 @@ public class CaptureRequestTransformerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
+    @Mock
+    private Converter<Amount, com.worldpay.internal.model.Amount> internalAmountConverter;
+    @Mock
+    private Converter<com.worldpay.data.Date, com.worldpay.internal.model.Date> internalDateConverter;
 
     @Mock
     private CaptureServiceRequest captureRequestMock;
@@ -55,13 +60,15 @@ public class CaptureRequestTransformerTest {
 
     @Before
     public void setUp() throws Exception {
+        testObj = new CaptureRequestTransformer(configurationServiceMock, internalAmountConverter, internalDateConverter);
+
         when(captureRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
         when(captureRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(captureRequestMock.getAmount()).thenReturn(amountMock);
         when(captureRequestMock.getDate()).thenReturn(dateMock);
         when(captureRequestMock.getTrackingIds()).thenReturn(List.of(TRACKING_ID_1, TRACKING_ID_2));
-        when(dateMock.transformToInternalModel()).thenReturn(internalDateMock);
-        when(amountMock.transformToInternalModel()).thenReturn(internalAmountMock);
+        when(internalDateConverter.convert(dateMock)).thenReturn(internalDateMock);
+        when(internalAmountConverter.convert(amountMock)).thenReturn(internalAmountMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(VERSION);
     }

@@ -8,16 +8,16 @@ import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.event.EventService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Set;
-
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 
 /**
@@ -33,7 +33,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class OrderModificationController {
     protected static final String WORLDPAY_RESPONSE_OK_VIEW = "pages/orderNotification/worldpayResponseOkView";
 
-    private static final Logger LOG = Logger.getLogger(OrderModificationController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OrderModificationController.class);
 
     @Resource
     private Set<AuthorisedStatus> processableJournalTypeCodes;
@@ -54,7 +54,7 @@ public class OrderModificationController {
      * @param request - the HttpServletRequest carrying the order notification XML from worldpay.
      * @return - the world pay response page containing the unconditional [OK].
      */
-    @RequestMapping(method = POST)
+    @PostMapping
     public String processOrderNotification(final HttpServletRequest request) {
         try {
             final OrderNotificationMessage orderNotificationMessage = createOrderModificationMessageFromRequest(request);
@@ -67,11 +67,17 @@ public class OrderModificationController {
         return WORLDPAY_RESPONSE_OK_VIEW;
     }
 
-    private OrderNotificationMessage createOrderModificationMessageFromRequest(HttpServletRequest request) throws WorldpayModelTransformationException, IOException {
+    private OrderNotificationMessage createOrderModificationMessageFromRequest(final HttpServletRequest request) throws WorldpayModelTransformationException, IOException {
         final PaymentService paymentService = paymentServiceMarshaller.unmarshal(request.getInputStream());
         return orderModificationRequestConverter.convert(paymentService);
     }
 
+    /**
+     * Checks if modification message should be process.
+     *
+     * @param journalTypeCode an {@link AuthorisedStatus}.
+     * @return true if processableJournalTypeCodes contains the journalTypeCode false in other case.
+     */
     protected boolean shouldProcessModificationMessage(final AuthorisedStatus journalTypeCode) {
         return getProcessableJournalTypeCodes().contains(journalTypeCode);
     }
@@ -80,7 +86,7 @@ public class OrderModificationController {
         return processableJournalTypeCodes;
     }
 
-    public void setProcessableJournalTypeCodes(Set<AuthorisedStatus> processableJournalTypeCodes) {
+    public void setProcessableJournalTypeCodes(final Set<AuthorisedStatus> processableJournalTypeCodes) {
         this.processableJournalTypeCodes = processableJournalTypeCodes;
     }
 }

@@ -1,15 +1,15 @@
 package com.worldpay.service.response;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Amount;
+import com.worldpay.data.Amount;
 import com.worldpay.service.request.CaptureServiceRequest;
 
 /**
  * This class represents the details that are passed back from a call to {@link WorldpayServiceGateway#capture(CaptureServiceRequest)}  capture()} in the
  * WorldpayServiceGateway
- * 
+ *
  * <p>On top of the standard parameters it provides the amount captured</p>
- * 
+ *
  */
 public class CaptureServiceResponse extends AbstractServiceResponse {
 
@@ -22,5 +22,5 @@ public class CaptureServiceResponse extends AbstractServiceResponse {
     public void setAmount(Amount amount) {
         this.amount = amount;
     }
-    
+
 }

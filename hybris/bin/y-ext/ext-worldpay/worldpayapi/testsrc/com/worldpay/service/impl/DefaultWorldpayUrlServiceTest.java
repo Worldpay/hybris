@@ -1,17 +1,21 @@
 package com.worldpay.service.impl;
 
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.model.WorldpayThreeDS2JsonWebTokenConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.urlresolver.SiteBaseUrlResolutionService;
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.site.BaseSiteService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -34,22 +38,29 @@ public class DefaultWorldpayUrlServiceTest {
     private BaseSiteService baseSiteServiceMock;
     @Mock
     private SiteBaseUrlResolutionService siteBaseUrlResolutionServiceMock;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private BaseSiteModel currentBaseSiteMock;
+    @Mock
+    private WorldpayThreeDS2JsonWebTokenConfigurationModel threeDSFlexSettingsMock;
 
-    @Test
-    public void testGetFullUrlSecure() throws Exception {
+    @Before
+    public void setUp() {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, URL)).thenReturn(FULL_SITE_URL);
+        when(currentBaseSiteMock.getWebMerchantConfiguration().getThreeDSFlexJsonWebTokenSettings()).thenReturn(threeDSFlexSettingsMock);
+        when(threeDSFlexSettingsMock.getAuthSubmit()).thenReturn(AUTOSUBMIT_URL);
+        when(threeDSFlexSettingsMock.getFlowReturnUrl()).thenReturn("threeDFlexPath");
+    }
 
+    @Test
+    public void getFullUrl_WhenSecure_ShouldReturnSecureFullSiteURL() throws Exception {
         final String result = testObj.getFullUrl(URL, true);
 
         assertEquals(FULL_SITE_URL, result);
     }
 
     @Test
-    public void testGetFullUrlUnSecure() throws Exception {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+    public void getFullUrl_WhenUnSecure_ShouldReturnUnSecureFullSiteURL() throws Exception {
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, false, URL)).thenReturn(FULL_SITE_URL);
 
         final String result = testObj.getFullUrl(URL, false);
@@ -58,8 +69,7 @@ public class DefaultWorldpayUrlServiceTest {
     }
 
     @Test
-    public void shouldReturnBaseURLForCurrentSite() throws Exception {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+    public void getBaseWebsiteUrlForSite_ShouldReturnBaseURLForCurrentSite() throws Exception {
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, EMPTY_URL)).thenReturn(FULL_SITE_URL);
 
         final String result = testObj.getBaseWebsiteUrlForSite();
@@ -68,8 +78,7 @@ public class DefaultWorldpayUrlServiceTest {
     }
 
     @Test
-    public void shouldReturnFullTermsUrl() throws Exception {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+    public void getFullTermsUrl_ShouldReturnFullTermsUrl() throws Exception {
         doReturn(TERMS_URL).when(testObj).getTermsPath();
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, TERMS_URL)).thenReturn(FULL_SITE_URL);
 
@@ -79,16 +88,14 @@ public class DefaultWorldpayUrlServiceTest {
     }
 
     @Test(expected = WorldpayConfigurationException.class)
-    public void testGetFullUrlShouldRaiseExceptionWhenServiceReturnsNull() throws Exception {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+    public void getFullUrl_WhenServiceReturnsNull_ShouldThrowException() throws Exception {
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, URL)).thenReturn(null);
 
         testObj.getFullUrl(URL, true);
     }
 
     @Test
-    public void testSetOfAddresses() throws WorldpayConfigurationException {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+    public void getFullCancelURL_ShouldReturnCorrectURLs() throws WorldpayConfigurationException {
         // Returns the 3rd argument of the invocation, the Url passed in the getFullUrl invocation
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(eq(currentBaseSiteMock), eq(true), anyString())).thenAnswer(invocationOnMOck -> {
             final Object[] args = invocationOnMOck.getArguments();
@@ -115,22 +122,22 @@ public class DefaultWorldpayUrlServiceTest {
         testObj.getFullThreeDSecureTermURL();
         verify(testObj).getFullUrl("threeDPath", true);
 
-        doReturn("threeDFlexPath").when(testObj).getThreeDSecureFlexFlowReturnUrl();
-        final String result = testObj.getFullThreeDSecureFlexFlowReturnUrl();
+        testObj.getFullThreeDSecureFlexFlowReturnUrl();
         verify(testObj).getFullUrl("threeDFlexPath", true);
     }
 
     @Test
-    public void testReturnCurrentBaseSiteDomain() {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+    public void getWebsiteUrlForCurrentSite_ShuldReturnSiteURL() {
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, null)).thenReturn(URL);
-        testObj.getWebsiteUrlForCurrentSite();
+
+        final String result = testObj.getWebsiteUrlForCurrentSite();
+
+        assertThat(result).isEqualTo(URL);
     }
 
     @Test
-    public void testGetFullThreeDSecureFlexFlowReturnUrl() throws Exception {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        doReturn(THREED_SECURE_FLEX_URL).when(testObj).getThreeDSecureFlexFlowReturnUrl();
+    public void getFullThreeDSecureFlexFlowReturnUrl_ShouldReturnFullFlexFlowURL() throws Exception {
+        when(threeDSFlexSettingsMock.getFlowReturnUrl()).thenReturn(THREED_SECURE_FLEX_URL);
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, THREED_SECURE_FLEX_URL)).thenReturn(FULL_SITE_URL + THREED_SECURE_FLEX_URL);
 
         final String result = testObj.getFullThreeDSecureFlexFlowReturnUrl();
@@ -139,9 +146,7 @@ public class DefaultWorldpayUrlServiceTest {
     }
 
     @Test
-    public void testGetFullThreeDSecureFlexAutosubmitUrl() throws Exception {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        doReturn(AUTOSUBMIT_URL).when(testObj).getThreeDSecureFlexAuthSubmit();
+    public void getFullThreeDSecureFlexAutosubmitUrl_ShouldReturnFullFlexAutoSubmitURL() throws Exception {
         when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, AUTOSUBMIT_URL)).thenReturn(FULL_SITE_URL + AUTOSUBMIT_URL);
 
         final String result = testObj.getFullThreeDSecureFlexAutosubmitUrl();

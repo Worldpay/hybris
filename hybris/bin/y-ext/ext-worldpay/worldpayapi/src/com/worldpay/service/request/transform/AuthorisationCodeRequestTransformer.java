@@ -8,7 +8,6 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.AuthorisationCodeServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link AuthorisationCodeServiceRequest} into a {@link PaymentService} object
@@ -29,7 +28,11 @@ import org.springframework.beans.factory.annotation.Required;
 public class AuthorisationCodeRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
+
+    public AuthorisationCodeRequestTransformer(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     /**
      * (non-Javadoc)
@@ -60,10 +63,5 @@ public class AuthorisationCodeRequestTransformer implements ServiceRequestTransf
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 }

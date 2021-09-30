@@ -5,6 +5,7 @@ import com.worldpay.internal.model.*;
 import com.worldpay.service.request.CaptureServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
@@ -33,9 +34,15 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
     protected final ConfigurationService configurationService;
+    protected final Converter<com.worldpay.data.Amount, Amount> internalAmountConverter;
+    protected final Converter<com.worldpay.data.Date, com.worldpay.internal.model.Date> internalDateConverter;
 
-    public CaptureRequestTransformer(final ConfigurationService configurationService) {
+    public CaptureRequestTransformer(final ConfigurationService configurationService,
+                                     final Converter<com.worldpay.data.Amount, Amount> internalAmountConverter,
+                                     final Converter<com.worldpay.data.Date, com.worldpay.internal.model.Date> internalDateConverter) {
         this.configurationService = configurationService;
+        this.internalAmountConverter = internalAmountConverter;
+        this.internalDateConverter = internalDateConverter;
     }
 
     /**
@@ -61,9 +68,9 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
         final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(request.getOrderCode());
         final Capture capture = new Capture();
-        capture.setAmount((Amount) captureRequest.getAmount().transformToInternalModel());
+        capture.setAmount(internalAmountConverter.convert(captureRequest.getAmount()));
         if (captureRequest.getDate() != null) {
-            capture.setDate((Date) captureRequest.getDate().transformToInternalModel());
+            capture.setDate(internalDateConverter.convert(captureRequest.getDate()));
         }
 
         setShippingInfo(captureRequest.getTrackingIds(), capture);
@@ -84,8 +91,8 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
 
     protected List<ShippingInfo> getShippingInfos(final List<String> trackingIds) {
         return trackingIds.stream()
-                .map(this::getShippingInfoWithTrackingId)
-                .collect(Collectors.toList());
+            .map(this::getShippingInfoWithTrackingId)
+            .collect(Collectors.toList());
     }
 
     protected ShippingInfo getShippingInfoWithTrackingId(final String trackingId) {
