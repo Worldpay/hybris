@@ -1,7 +1,7 @@
 package com.worldpay.converters.populators;
 
 import com.worldpay.model.WorldpayAavResponseModel;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.PaymentReply;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 

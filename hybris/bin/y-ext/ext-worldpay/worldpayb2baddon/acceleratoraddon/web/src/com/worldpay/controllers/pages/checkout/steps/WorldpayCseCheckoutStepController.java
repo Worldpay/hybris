@@ -13,12 +13,14 @@ import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -26,8 +28,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Worldpay controller to handle CSE
@@ -36,7 +38,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RequestMapping(value = "/checkout/multi/worldpay/cse")
 public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
-    private static final Logger LOGGER = Logger.getLogger(WorldpayCseCheckoutStepController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorldpayCseCheckoutStepController.class);
 
     protected static final String CSE_PUBLIC_KEY = "csePublicKey";
     protected static final String B2B_CSE_PAYMENT_FORM = "b2bCSEPaymentForm";
@@ -66,7 +68,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping(value = {"/cse-data", "/tokenize"}, method = GET)
+    @GetMapping(value = {"/cse-data", "/tokenize"})
     @RequireHardLogIn
     public String getCseDataPage(final Model model) throws CMSItemNotFoundException {
         if (getCheckoutFacade().hasCheckoutCart()) {
@@ -87,10 +89,10 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return The view to redirect to.
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping(value = "/add-payment-address", method = POST)
+    @PostMapping(value = "/add-payment-address")
     @RequireHardLogIn
     public String addPaymentAddress(final Model model, @Valid final PaymentDetailsForm paymentDetailsForm, final BindingResult bindingResult, final RedirectAttributes redirectAttrs)
-            throws CMSItemNotFoundException {
+        throws CMSItemNotFoundException {
         csePaymentDetailsFormValidator.validate(paymentDetailsForm, bindingResult);
 
         if (addGlobalErrors(model, bindingResult)) {
@@ -119,10 +121,11 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      * @return
      * @throws CMSItemNotFoundException
      */
-    @RequestMapping(value = "/tokenize", method = POST)
+    @PostMapping(value = "/tokenize")
     @RequireHardLogIn
-    public String addCseData(final HttpServletRequest request, final Model model, @Valid final B2BCSEPaymentForm b2bCSEPaymentForm, final BindingResult bindingResult)
-            throws CMSItemNotFoundException {
+    public String addCseData(final HttpServletRequest request, final Model model, @Valid final B2BCSEPaymentForm b2bCSEPaymentForm,
+                             final BindingResult bindingResult, final RedirectAttributes redirectAttributes)
+        throws CMSItemNotFoundException {
         cseFormValidator.validate(b2bCSEPaymentForm, bindingResult);
 
         getSessionService().setAttribute(SAVED_CARD_SELECTED_ATTRIBUTE, Boolean.FALSE);
@@ -132,13 +135,17 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         }
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSEAdditionalAuthInfo(b2bCSEPaymentForm);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, b2bCSEPaymentForm.getCvc(), cseAdditionalAuthInfo);
-        return handleResponse(model, cseAdditionalAuthInfo, worldpayAdditionalInfoData);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, b2bCSEPaymentForm, cseAdditionalAuthInfo);
+        return handleResponse(model, cseAdditionalAuthInfo, worldpayAdditionalInfoData, redirectAttributes);
     }
 
-    private String handleResponse(final Model model, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws CMSItemNotFoundException {
+    private String handleResponse(final Model model, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
         try {
             worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
+            if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
+                redirectAttributes.addFlashAttribute(BIRTHDAY_DATE, worldpayAdditionalInfoData.getDateOfBirth());
+                redirectAttributes.addFlashAttribute(DEVICE_SESSION, worldpayAdditionalInfoData.getDeviceSession());
+            }
             return REDIRECT_TO_SUMMARY_PAGE;
         } catch (WorldpayException e) {
             GlobalMessages.addErrorMessage(model, CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID);
@@ -173,9 +180,12 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         return worldpayAddonEndpointService.getChallengeIframe3dSecureFlex();
     }
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final B2BCSEPaymentForm b2BCSEPaymentForm, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        worldpayAdditionalInfo.setSecurityCode(cvc);
+        worldpayAdditionalInfo.setSecurityCode(b2BCSEPaymentForm.getSecurityCode());
+        worldpayAdditionalInfo.setDateOfBirth(b2BCSEPaymentForm.getDateOfBirth());
+        worldpayAdditionalInfo.setDeviceSession(b2BCSEPaymentForm.getDeviceSession());
+
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
         }
@@ -189,6 +199,9 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
         model.addAttribute(B2B_CSE_PAYMENT_FORM, new B2BCSEPaymentForm());
+        model.addAttribute(IS_FS_ENABLED, worldpayPaymentCheckoutFacade.isFSEnabled());
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(BIRTH_DAY_DATE_FORMAT);
+        model.addAttribute(CURRENT_DATE, dateFormat.format(new Date()));
         model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
         model.addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, worldpayDDCFacade.getEventOriginDomainForDDC());
     }

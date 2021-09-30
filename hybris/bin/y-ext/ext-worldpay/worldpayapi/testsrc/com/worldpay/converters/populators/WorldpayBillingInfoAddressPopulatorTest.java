@@ -1,6 +1,6 @@
 package com.worldpay.converters.populators;
 
-import com.worldpay.service.model.Address;
+import com.worldpay.data.Address;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.dto.BillingInfo;
 import org.junit.Before;

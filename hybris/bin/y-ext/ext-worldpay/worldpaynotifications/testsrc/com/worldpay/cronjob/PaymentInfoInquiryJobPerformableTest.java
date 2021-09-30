@@ -4,7 +4,7 @@ import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.OrderInquiryService;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import com.worldpay.strategies.PaymentTransactionRejectionStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;

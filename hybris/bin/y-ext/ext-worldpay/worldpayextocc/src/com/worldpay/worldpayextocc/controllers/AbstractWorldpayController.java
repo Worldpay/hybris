@@ -60,6 +60,19 @@ public class AbstractWorldpayController {
         return cseAdditionalAuthInfo;
     }
 
+    /**
+     * Creates a {@link WorldpayAdditionalInfoData} for the given request {@link HttpServletRequest}.
+     *
+     * @param request the request.
+     * @return a {@link WorldpayAdditionalInfoData}
+     */
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request) {
+        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
+        worldpayAdditionalInfo.setSessionId(getSessionId(request));
+        return worldpayAdditionalInfo;
+    }
+
+
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSessionId(getSessionId(request));

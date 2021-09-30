@@ -1,14 +1,15 @@
 package com.worldpay.service.request;
 
+import com.worldpay.data.*;
+import com.worldpay.data.payment.StoredCredentials;
+import com.worldpay.data.threeds2.Additional3DSData;
+import com.worldpay.data.threeds2.RiskData;
+import com.worldpay.data.token.TokenRequest;
 import com.worldpay.enums.order.DynamicInteractionType;
-import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.payment.StoredCredentials;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.threeds2.RiskData;
-import com.worldpay.service.model.token.TokenRequest;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,10 @@ public class OrderBuilder {
     private List<PaymentType> excludedPaymentMethods;
     private StoredCredentials storedCredentials;
     private List<PaymentMethodAttribute> paymentMethodAttributes;
+    private FraudSightData fraudSightData;
+    private String deviceSession;
+    private BranchSpecificExtension branchSpecificExtension;
+    private String mandateType;
 
     public OrderBuilder withOrderContent(String orderContent) {
         this.orderContent = orderContent;
@@ -123,8 +128,31 @@ public class OrderBuilder {
         return this;
     }
 
+    OrderBuilder withFraudSightAttribute(final FraudSightData fraudSightData) {
+        this.fraudSightData = fraudSightData;
+        return this;
+    }
+
+    OrderBuilder withDeviceSession(final String deviceSession) {
+        this.deviceSession = deviceSession;
+        return this;
+    }
+
+    OrderBuilder withLevel23Data(final BranchSpecificExtension branchSpecificExtension) {
+        this.branchSpecificExtension = branchSpecificExtension;
+        return this;
+    }
+
+    OrderBuilder withMandateType(final String mandateType) {
+        this.mandateType = mandateType;
+        return this;
+    }
+
     public Order build() {
-        final Order order = new Order(orderInfo.getOrderCode(), orderInfo.getDescription(), orderInfo.getAmount());
+        final Order order = new Order();
+        order.setOrderCode(orderInfo.getOrderCode());
+        order.setDescription(orderInfo.getDescription());
+        order.setAmount(orderInfo.getAmount());
         order.setPaymentDetails(paymentDetails);
         order.setShopper(shopper);
         order.setShippingAddress(shippingAddress);
@@ -143,6 +171,10 @@ public class OrderBuilder {
         Optional.ofNullable(excludedPaymentMethods).ifPresent(excludedPTs -> addPaymentTypesExcluded(order, excludedPTs));
         Optional.ofNullable(storedCredentials).ifPresent(credentials -> addStoredCredentials(order, credentials));
         Optional.ofNullable(paymentMethodAttributes).ifPresent(order::setPaymentMethodAttributes);
+        Optional.ofNullable(fraudSightData).ifPresent(order::setFraudSightData);
+        Optional.ofNullable(deviceSession).ifPresent(order::setDeviceSession);
+        Optional.ofNullable(branchSpecificExtension).ifPresent(order::setBranchSpecificExtension);
+        Optional.ofNullable(mandateType).ifPresent(order::setMandateType);
 
         return order;
     }
@@ -155,14 +187,40 @@ public class OrderBuilder {
 
     protected void addPaymentTypesExcluded(final Order reqOrder, final List<PaymentType> excludedPTs) {
         final PaymentMethodMask pmm = Optional.ofNullable(reqOrder.getPaymentMethodMask()).orElseGet(PaymentMethodMask::new);
-        CollectionUtils.emptyIfNull(excludedPTs).forEach(pmm::addExclude);
+        CollectionUtils.emptyIfNull(excludedPTs).forEach(paymentType -> addExclude(paymentType, pmm));
         reqOrder.setPaymentMethodMask(pmm);
     }
 
     protected void addPaymentTypesIncluded(final Order reqOrder, final List<PaymentType> includedPTs) {
         final PaymentMethodMask pmm = Optional.ofNullable(reqOrder.getPaymentMethodMask()).orElseGet(PaymentMethodMask::new);
-        CollectionUtils.emptyIfNull(includedPTs).forEach(pmm::addInclude);
+        CollectionUtils.emptyIfNull(includedPTs).forEach(paymentType -> addInclude(paymentType, pmm));
         reqOrder.setPaymentMethodMask(pmm);
+    }
+
+    /**
+     * Add an item to the list of payment methods that are included
+     *
+     * @param paymentType PaymentType to be included
+     */
+    private void addInclude(PaymentType paymentType, PaymentMethodMask pmm) {
+
+        if (pmm.getIncludes() == null) {
+            pmm.setIncludes(new ArrayList<>());
+        }
+        pmm.getIncludes().add(paymentType.getMethodCode());
+    }
+
+    /**
+     * Add an item to the list of payment methods that are excluded
+     *
+     * @param paymentType PaymentType to be excluded
+     */
+    private void addExclude(PaymentType paymentType, PaymentMethodMask pmm) {
+
+        if (pmm.getExcludes() == null) {
+            pmm.setExcludes(new ArrayList<>());
+        }
+        pmm.getExcludes().add(paymentType.getMethodCode());
     }
 }
 

@@ -16,10 +16,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayEntryCodeStrategyImplTest {
 
-    public static final String PAYMENT_TRANSACTION_CODE = "paymentTransactionCode";
+    private static final String PAYMENT_TRANSACTION_CODE = "paymentTransactionCode";
+
     @InjectMocks
     private EntryCodeStrategy testObj = new WorldpayEntryCodeStrategyImpl();
 
@@ -29,7 +30,7 @@ public class WorldpayEntryCodeStrategyImplTest {
     private PaymentTransactionEntryModel transactionEntry1Mock;
 
     @Test
-    public void generateNewEntryCodeShouldReturnCodeEndingInEntriesSizePlusOne() throws Exception {
+    public void generateCode_WhenNewEntryCode_ShouldReturnCodeEndingInEntriesSizePlusOne() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(transactionEntry1Mock));
         when(paymentTransactionModelMock.getCode()).thenReturn(PAYMENT_TRANSACTION_CODE);
 
@@ -39,7 +40,7 @@ public class WorldpayEntryCodeStrategyImplTest {
     }
 
     @Test
-    public void generateNewEntryCodeShouldReturnCodeEndingIn1WhenEntriesIsNull() throws Exception {
+    public void generateCode_WhenNoEntries_ShouldReturnCodeEndingIn1WhenEntriesIsNull() {
         when(paymentTransactionModelMock.getEntries()).thenReturn(null);
         when(paymentTransactionModelMock.getCode()).thenReturn(PAYMENT_TRANSACTION_CODE);
 

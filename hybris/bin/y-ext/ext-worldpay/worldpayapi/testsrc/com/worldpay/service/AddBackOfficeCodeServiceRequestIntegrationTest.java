@@ -1,11 +1,12 @@
 package com.worldpay.service;
 
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.model.MerchantInfo;
 import com.worldpay.service.request.AddBackOfficeCodeServiceRequest;
 import com.worldpay.service.response.AddBackOfficeCodeServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
 import de.hybris.platform.servicelayer.ServicelayerBaseTest;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Resource;
@@ -20,10 +21,19 @@ public class AddBackOfficeCodeServiceRequestIntegrationTest extends Servicelayer
     private static final String ORDER_CODE = String.valueOf(new Date().getTime());
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
-    private static final MerchantInfo merchantInfo = new MerchantInfo(MERCHANT_CODE, MERCHANT_PASSWORD);
+
+    private MerchantInfo merchantInfo;
 
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway gateway;
+
+    @Before
+    public void setUp() throws Exception {
+        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
+        merchantInfo.setMerchantCode(MERCHANT_CODE);
+        this.merchantInfo = merchantInfo;
+    }
 
     @Test
     public void testAddBackOfficeCode() throws WorldpayException {

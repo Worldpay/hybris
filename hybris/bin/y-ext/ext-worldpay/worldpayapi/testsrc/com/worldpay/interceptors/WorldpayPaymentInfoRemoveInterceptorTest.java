@@ -1,7 +1,7 @@
 package com.worldpay.interceptors;
 
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;

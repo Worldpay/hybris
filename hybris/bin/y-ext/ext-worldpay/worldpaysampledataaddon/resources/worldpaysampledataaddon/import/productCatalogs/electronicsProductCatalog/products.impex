@@ -1,6 +1,11 @@
-$productCatalog=electronicsProductCatalog
-$productCatalogName=Electronics Product Catalog
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
-$supercategories=supercategories(code, $catalogVersion)
-$baseProduct=baseProduct(code,$catalogVersion)
-$approved=approvalstatus(code)[default='check']
+$productCatalog = electronicsProductCatalog
+$productCatalogName = Electronics Product Catalog
+$catalogVersion = catalogversion(catalog(id[default=$productCatalog]), version[default='Staged'])[unique=true, default=$productCatalog:Staged]
+$supercategories = supercategories(code, $catalogVersion)
+$baseProduct = baseProduct(code, $catalogVersion)
+$approved = approvalstatus(code)[default='check']
+
+INSERT_UPDATE Product; code[unique = true]; $catalogVersion; commodityCode;
+                     ; 300938             ;                ; 300938
+                     ; 1934796            ;                ; 1934796
+                     ; 1641905            ;                ; 1641905

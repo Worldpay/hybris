@@ -4,7 +4,8 @@ import com.worldpay.model.WorldpayRiskScoreModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.fraud.impl.FraudServiceResponse;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Objects;
  */
 public class WorldpayRiskGuardianFraudSymptom extends AbstractWorldpayOrderFraudSymptomDetection {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayRiskGuardianFraudSymptom.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayRiskGuardianFraudSymptom.class);
 
     @Override
     public FraudServiceResponse recognizeSymptom(final FraudServiceResponse fraudServiceResponse, final AbstractOrderModel abstractOrderModel) {

@@ -4,10 +4,11 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Modify;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenUpdate;
+import com.worldpay.data.token.UpdateTokenRequest;
 import com.worldpay.service.request.ServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 /**
  * Transformer/Converter class that transforms a CreateTokenServiceRequest (abstraction) into a PaymentService (XML model)
@@ -16,7 +17,14 @@ import org.springframework.beans.factory.annotation.Required;
 public class UpdateTokenRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
+    protected final Converter<UpdateTokenRequest, PaymentTokenUpdate> internalPaymentTokenUpdateConverter;
+
+    public UpdateTokenRequestTransformer(final ConfigurationService configurationService,
+                                         final Converter<UpdateTokenRequest, PaymentTokenUpdate> internalPaymentTokenUpdateConverter) {
+        this.configurationService = configurationService;
+        this.internalPaymentTokenUpdateConverter = internalPaymentTokenUpdateConverter;
+    }
 
     @Override
     public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
@@ -30,7 +38,7 @@ public class UpdateTokenRequestTransformer implements ServiceRequestTransformer 
         paymentService.setMerchantCode(updateTokenRequest.getMerchantInfo().getMerchantCode());
         paymentService.setVersion(configurationService.getConfiguration().getString(WORLDPAY_CONFIG_VERSION));
 
-        final PaymentTokenUpdate updateToken = (PaymentTokenUpdate) updateTokenRequest.getUpdateTokenRequest().transformToInternalModel();
+        final PaymentTokenUpdate updateToken = internalPaymentTokenUpdateConverter.convert(updateTokenRequest.getUpdateTokenRequest());
 
         final Modify modify = new Modify();
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(updateToken);
@@ -39,8 +47,4 @@ public class UpdateTokenRequestTransformer implements ServiceRequestTransformer 
         return paymentService;
     }
 
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-    }
 }

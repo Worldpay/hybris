@@ -19,7 +19,6 @@ public class DefaultWorldpaySupportEmailServiceIntegrationTest extends Servicela
     private static final String TIME = "Time:";
     private static final String USER = "User:";
     private static final String MERCHANT_CONFIGURATION = "Merchant Configuration:";
-    private static final String CONFIGURED_MERCHANT_BEAN_NAME = "Configured Merchant Bean Name:";
     private static final String ACTIVE_PAYMENT_FLOW = "Active Payment Flow:";
     private static final String PAYMENT_TRANSACTION_TYPES = "Payment Transaction Types:";
     private static final String EXTENSIONS = "Extensions:";
@@ -46,7 +45,6 @@ public class DefaultWorldpaySupportEmailServiceIntegrationTest extends Servicela
         assertTrue(emailBody.contains(TIME));
         assertTrue(emailBody.contains(USER));
         assertTrue(emailBody.contains(MERCHANT_CONFIGURATION));
-        assertTrue(emailBody.contains(CONFIGURED_MERCHANT_BEAN_NAME));
         assertTrue(emailBody.contains(ACTIVE_PAYMENT_FLOW));
         assertTrue(emailBody.contains(PAYMENT_TRANSACTION_TYPES));
         assertTrue(emailBody.contains(EXTENSIONS));
@@ -54,9 +52,9 @@ public class DefaultWorldpaySupportEmailServiceIntegrationTest extends Servicela
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         configurationService.getConfiguration().clearProperty("worldpay.addon.version");
     }
 }
-    
+
 

@@ -6,12 +6,13 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.http.ServiceReply;
 import com.worldpay.service.http.WorldpayConnector;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.util.WorldpayConstants;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class DefaultWorldpayConnector implements WorldpayConnector {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayConnector.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpayConnector.class);
 
     protected static final String WORLDPAY_CONFIG_CONTEXT = "worldpay.config.context";
     protected static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
@@ -114,13 +115,16 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     }
 
     @Override
-    public void logXMLOut(final PaymentService paymentService) {
+    public String logXMLOut(final PaymentService paymentService) {
         try {
             LOG.info("*** XML OUT ***");
-            LOG.info(paymentServiceMarshaller.marshal(paymentService));
+            final String parsedPaymentService = paymentServiceMarshaller.marshal(paymentService);
+            LOG.info(parsedPaymentService);
             LOG.info("*** XML OUT END ***");
+            return parsedPaymentService;
         } catch (final WorldpayException e) {
             LOG.debug("There was an error marshalling the paymentService for debug logging", e);
         }
+        return null;
     }
 }

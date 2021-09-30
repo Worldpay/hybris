@@ -2,8 +2,8 @@ package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.model.Request3DInfo;
+import com.worldpay.data.RedirectReference;
+import com.worldpay.data.Request3DInfo;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
 
@@ -22,32 +22,32 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
     @Override
     public ServiceResponse transform(final PaymentService paymentServiceReply) throws WorldpayModelTransformationException {
 
-        final Object responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
-        }
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-        final Reply intReply = (Reply) responseType;
+        final Reply intReply = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
         final DirectAuthoriseServiceResponse authResponse = new DirectAuthoriseServiceResponse();
         if (getServiceResponseTransformerHelper().checkForError(authResponse, intReply)) {
             return authResponse;
         }
 
-        final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
-        if (response instanceof OrderStatus) {
-            final OrderStatus intOrderStatus = (OrderStatus) response;
+        final OrderStatus intOrderStatus = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(OrderStatus.class::isInstance)
+            .map(OrderStatus.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No order status returned in Worldpay reply message"));
+
             authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
             final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
             for (final Object orderStatusType : intOrderStatusElements) {
                 transformOrderStatus(authResponse, intOrderStatus, orderStatusType);
             }
-        } else {
-            throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
-        }
+
         return authResponse;
     }
 
@@ -77,7 +77,12 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
                 .filter(Reference.class::isInstance)
                 .map(Reference.class::cast)
                 .findAny()
-                .map(reference -> new RedirectReference(reference.getId(), reference.getvalue()))
+                .map(reference -> {
+                    final RedirectReference redirectReference = new RedirectReference();
+                    redirectReference.setValue(reference.getvalue());
+                    redirectReference.setId(reference.getId());
+                    return redirectReference;
+                })
                 .ifPresent(authResponse::setRedirectReference);
 
         intOrderStatuses.stream()

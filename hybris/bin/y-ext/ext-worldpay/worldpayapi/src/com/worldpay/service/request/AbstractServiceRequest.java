@@ -1,6 +1,6 @@
 package com.worldpay.service.request;
 
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 
 /**
  * Template implementation of a {@link ServiceRequest} providing {@link MerchantInfo} and order code

@@ -7,7 +7,7 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.hop.WorldpayHOPPService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;

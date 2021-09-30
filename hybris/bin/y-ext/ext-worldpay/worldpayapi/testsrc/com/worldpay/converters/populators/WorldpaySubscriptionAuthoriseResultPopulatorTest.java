@@ -2,9 +2,9 @@ package com.worldpay.converters.populators;
 
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.ErrorDetail;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.RedirectReference;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;

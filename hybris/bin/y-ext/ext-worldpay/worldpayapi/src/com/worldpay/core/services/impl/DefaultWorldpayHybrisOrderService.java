@@ -4,15 +4,19 @@ import com.worldpay.core.dao.WorldpayHybrisOrderDao;
 import com.worldpay.core.services.WorldpayHybrisOrderService;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * {@inheritDoc}
  */
 public class DefaultWorldpayHybrisOrderService implements WorldpayHybrisOrderService {
 
-    private WorldpayHybrisOrderDao worldpayHybrisOrderDao;
-    private ModelService modelService;
+    protected final WorldpayHybrisOrderDao worldpayHybrisOrderDao;
+    protected final ModelService modelService;
+
+    public DefaultWorldpayHybrisOrderService(final WorldpayHybrisOrderDao worldpayHybrisOrderDao, final ModelService modelService) {
+        this.worldpayHybrisOrderDao = worldpayHybrisOrderDao;
+        this.modelService = modelService;
+    }
 
     /**
      * {@inheritDoc}
@@ -25,31 +29,19 @@ public class DefaultWorldpayHybrisOrderService implements WorldpayHybrisOrderSer
         modelService.save(orderModel);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OrderModel findOrderByWorldpayOrderCode(final String worldpayOrderCode) {
         return worldpayHybrisOrderDao.findOrderByWorldpayOrderCode(worldpayOrderCode);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String findOrderCodeByWorldpayOrderCode(final String worldpayOrderCode) {
         return findOrderByWorldpayOrderCode(worldpayOrderCode).getCode();
-    }
-
-    @Required
-    public void setWorldpayHybrisOrderDao(final WorldpayHybrisOrderDao worldpayHybrisOrderDao) {
-        this.worldpayHybrisOrderDao = worldpayHybrisOrderDao;
-    }
-
-    public WorldpayHybrisOrderDao getWorldpayHybrisOrderDao() {
-        return worldpayHybrisOrderDao;
-    }
-
-    @Required
-    public void setModelService(final ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    public ModelService getModelService() {
-        return modelService;
     }
 }

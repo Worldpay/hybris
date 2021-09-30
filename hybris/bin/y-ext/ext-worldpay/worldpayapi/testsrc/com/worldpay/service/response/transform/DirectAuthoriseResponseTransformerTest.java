@@ -1,10 +1,10 @@
 package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.token.TokenReply;
+import com.worldpay.internal.model.*;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -44,6 +44,7 @@ public class DirectAuthoriseResponseTransformerTest {
     private static final String TRANSACTION_ID_3DS = "transactionId3DS";
     private static final String MAJOR_3DS_VERSION = "1";
     private static final String ISSUER_PAYLOAD = "issuerPayload";
+    private static final String ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE = "Reply has no reply message or the reply type is not the expected one";
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -351,7 +352,7 @@ public class DirectAuthoriseResponseTransformerTest {
     @Test
     public void shouldThrowExceptionWhenResponseTypeIsNull() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("No reply message in Worldpay response");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
 
         final PaymentService paymentServiceReply = new PaymentService();
 
@@ -363,7 +364,7 @@ public class DirectAuthoriseResponseTransformerTest {
     @Test
     public void shouldThrowExceptionWhenResponseTypeNotReply() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("Reply type from Worldpay not the expected type");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
 
         final PaymentService paymentServiceReply = new PaymentService();
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(new Notify());

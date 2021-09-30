@@ -1,9 +1,9 @@
 package com.worldpay.service.request;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.token.DeleteTokenRequest;
-import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.token.DeleteTokenRequest;
+import com.worldpay.data.token.TokenRequest;
 
 /**
  * This class represents the details that must be passed to a call to {@link WorldpayServiceGateway#deleteToken(DeleteTokenServiceRequest)} in the WorldpayServiceGateway
@@ -36,10 +36,13 @@ public class DeleteTokenServiceRequest extends AbstractServiceRequest {
         checkParameters("DeleteTokenServiceRequest", merchantInfo);
 
         final DeleteTokenServiceRequest request = new DeleteTokenServiceRequest(merchantInfo, null);
-        request.setDeleteTokenRequest(new DeleteTokenRequest(paymentTokenId, authenticatedShopperId, tokenRequest));
+        final DeleteTokenRequest deleteTokenRequest = new DeleteTokenRequest();
+        deleteTokenRequest.setPaymentTokenId(paymentTokenId);
+        deleteTokenRequest.setAuthenticatedShopperId(authenticatedShopperId);
+        deleteTokenRequest.setTokenRequest(tokenRequest);
+        request.setDeleteTokenRequest(deleteTokenRequest);
         return request;
     }
-
 
     public DeleteTokenRequest getDeleteTokenRequest() {
         return deleteTokenRequest;

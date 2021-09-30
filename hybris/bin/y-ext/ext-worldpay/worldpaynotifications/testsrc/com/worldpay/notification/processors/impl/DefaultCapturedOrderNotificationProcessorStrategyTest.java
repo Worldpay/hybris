@@ -1,9 +1,9 @@
 package com.worldpay.notification.processors.impl;
 
-import com.worldpay.klarna.WorldpayKlarnaUtils;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.PaymentReply;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayKlarnaService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -60,13 +60,13 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     @Mock
     private PaymentReply paymentReplyMock;
     @Mock
-    private WorldpayKlarnaUtils worldpayKlarnaUtilsMock;
+    private WorldpayKlarnaService worldpayKlarnaServiceMock;
 
     private List<PaymentTransactionEntryModel> pendingCaptureTransactionEntries;
 
     @Before
     public void setUp() {
-        testObj = new DefaultCapturedOrderNotificationProcessorStrategy(transactionOperationsMock, modelServiceMock, worldpayPaymentTransactionServiceMock, worldpayKlarnaUtilsMock);
+        testObj = new DefaultCapturedOrderNotificationProcessorStrategy(transactionOperationsMock, modelServiceMock, worldpayPaymentTransactionServiceMock, worldpayKlarnaServiceMock);
         pendingCaptureTransactionEntries = singletonList(paymentTransactionEntryModelMock);
 
         when(worldpayPaymentTransactionServiceMock.getPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, CAPTURE)).thenReturn(pendingCaptureTransactionEntries);
@@ -104,7 +104,7 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     public void processNotificationMessage_shouldNotCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMAndIsKlarnaSSL() {
         when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(true);
-        when(worldpayKlarnaUtilsMock.isKlarnaPaymentType(PaymentType.KLARNASSL.getMethodCode())).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(PaymentType.KLARNASSL.getMethodCode())).thenReturn(true);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
 

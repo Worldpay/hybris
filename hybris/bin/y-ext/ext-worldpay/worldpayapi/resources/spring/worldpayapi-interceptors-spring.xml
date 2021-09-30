@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="worldpayTxDataCodeGenerator"
+          class="de.hybris.platform.servicelayer.keygenerator.impl.PersistentKeyGenerator">
+        <property name="key" value="worldpay_payment"/>
+        <property name="digits" value="8"/>
+        <property name="start" value="00000000"/>
+    </bean>
+
+    <bean id="worldpayItemCodePrepareInterceptor" class="com.worldpay.interceptors.WorldpayItemCodePrepareInterceptor">
+        <property name="keyGenerator" ref="worldpayTxDataCodeGenerator"/>
+        <property name="typeService" ref="typeService"/>
+        <property name="fieldName" value="code"/>
+    </bean>
+
+    <bean id="worldpayPaymentInfoRemoveInterceptor"
+          class="com.worldpay.interceptors.WorldpayPaymentInfoRemoveInterceptor">
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="worldpayDirectOrderService" ref="worldpayDirectOrderService"/>
+    </bean>
+
+    <!--Interceptor Mapping-->
+    <bean id="worldpayAavResponseInterceptorMapping"
+          class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
+        <property name="interceptor" ref="worldpayItemCodePrepareInterceptor"/>
+        <property name="typeCode" value="WorldpayAavResponse"/>
+    </bean>
+    <bean id="worldpayRiskScoreInterceptorMapping"
+          class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
+        <property name="interceptor" ref="worldpayItemCodePrepareInterceptor"/>
+        <property name="typeCode" value="WorldpayRiskScore"/>
+    </bean>
+    <bean id="worldpayPaymentInfoRemoveInterceptorMapping"
+          class="de.hybris.platform.servicelayer.interceptor.impl.InterceptorMapping">
+        <property name="interceptor" ref="worldpayPaymentInfoRemoveInterceptor"/>
+        <property name="typeCode" value="PaymentInfo"/>
+    </bean>
+
+</beans>

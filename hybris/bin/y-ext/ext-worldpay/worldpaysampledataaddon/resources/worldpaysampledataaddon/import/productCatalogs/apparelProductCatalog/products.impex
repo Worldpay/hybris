@@ -1,6 +1,11 @@
-$productCatalog=apparelProductCatalog
-$productCatalogName=Apparel Product Catalog
-$catalogVersion=catalogversion(catalog(id[default=$productCatalog]),version[default='Staged'])[unique=true,default=$productCatalog:Staged]
-$supercategories=supercategories(code, $catalogVersion)
-$baseProduct=baseProduct(code,$catalogVersion)
-$approved=approvalstatus(code)[default='check']
+$productCatalog = apparelProductCatalog
+$productCatalogName = Apparel Product Catalog
+$catalogVersion = catalogversion(catalog(id[default=$productCatalog]), version[default='Staged'])[unique=true, default=$productCatalog:Staged]
+$supercategories = supercategories(code, $catalogVersion)
+$baseProduct = baseProduct(code, $catalogVersion)
+$approved = approvalstatus(code)[default='check']
+
+INSERT_UPDATE Product; code[unique = true]; $catalogVersion; commodityCode;
+                     ; 300045375          ;                ; 300045375
+                     ; 300015407          ;                ; 300015407
+                     ; 29533              ;                ; 29533

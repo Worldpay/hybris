@@ -1,5 +1,9 @@
 package com.worldpay.forms;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+
 public class CSEPaymentForm {
 
     private boolean termsCheck;
@@ -12,6 +16,10 @@ public class CSEPaymentForm {
     private String expiryMonth;
     private String referenceId;
     private String windowSizePreference;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateOfBirth;
+    private String deviceSession;
+    private boolean dobRequired;
 
     public String getCseToken() {
         return cseToken;
@@ -91,5 +99,29 @@ public class CSEPaymentForm {
 
     public void setSecurityCode(final String securityCode) {
         this.securityCode = securityCode;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(final Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getDeviceSession() {
+        return deviceSession;
+    }
+
+    public void setDeviceSession(final String deviceSession) {
+        this.deviceSession = deviceSession;
+    }
+
+    public boolean isDobRequired() {
+        return dobRequired;
+    }
+
+    public void setDobRequired(final boolean dobRequired) {
+        this.dobRequired = dobRequired;
     }
 }

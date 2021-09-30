@@ -4,23 +4,24 @@ import com.worldpay.core.services.WorldpayHybrisOrderService;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.Date;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.Amount;
+import com.worldpay.data.Date;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.CaptureServiceRequest;
 import com.worldpay.service.response.CaptureServiceResponse;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
+import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.ordersplitting.model.ConsignmentModel;
 import de.hybris.platform.payment.commands.CaptureCommand;
 import de.hybris.platform.payment.commands.request.CaptureRequest;
 import de.hybris.platform.payment.commands.result.CaptureResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.List;
@@ -38,7 +39,7 @@ import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICAT
  * </p>
  */
 public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements CaptureCommand {
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayCaptureCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayCaptureCommand.class);
 
     protected final Converter<CaptureServiceResponse, CaptureResult> captureServiceResponseConverter;
     protected final WorldpayHybrisOrderService worldpayHybrisOrderService;
@@ -64,7 +65,7 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
             final CaptureServiceRequest captureRequest = buildCaptureServiceRequest(orderCode, amount, currency, getShippingInfosFromOrder(orderCode));
             return capture(captureRequest);
         } catch (final WorldpayException e) {
-            LOG.error(MessageFormat.format("Error during capture of payment with ordercode [{0}] to merchant [{1}]", orderCode, merchantCode), e);
+            LOG.error("Error during capture of payment with ordercode [{}] to merchant [{}]", orderCode, merchantCode, e);
             return createErrorCaptureResult();
         }
     }
@@ -72,9 +73,9 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
     protected List<String> getShippingInfosFromOrder(final String orderCode) {
         final OrderModel orderModel = worldpayHybrisOrderService.findOrderByWorldpayOrderCode(orderCode);
         return orderModel.getConsignments().stream()
-                .map(ConsignmentModel::getTrackingID)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .map(ConsignmentModel::getTrackingID)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     private CaptureResult createErrorCaptureResult() {
@@ -111,7 +112,7 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
      */
     private CaptureServiceRequest buildCaptureServiceRequest(final String worldpayOrderCode, final BigDecimal captureAmount, final Currency currency, final List<String> trackingIds) throws WorldpayException {
         final Amount amount = getWorldpayOrderService().createAmount(currency, captureAmount.doubleValue());
-        final Date date = new Date(LocalDateTime.now());
+        final Date date = WorldpayInternalModelTransformerUtil.newDateFromLocalDateTime(LocalDateTime.now());
 
         final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
         return CaptureServiceRequest.createCaptureRequest(merchantInfo, worldpayOrderCode, amount, date, trackingIds);

@@ -1,18 +1,18 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactionCodeStrategy;
+import com.worldpay.data.Amount;
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.ApplePayHeader;
+import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.applepay.ApplePay;
+import com.worldpay.data.klarna.KlarnaPayment;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Header;
-import com.worldpay.klarna.WorldpayKlarnaUtils;
 import com.worldpay.service.WorldpayUrlService;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.applepay.ApplePay;
-import com.worldpay.service.model.klarna.KlarnaPayment;
 import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.payment.WorldpayKlarnaService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
@@ -21,6 +21,7 @@ import de.hybris.platform.core.model.c2l.LanguageModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -51,7 +51,7 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String ORDER_DESCRIPTION = "orderDescription";
     private static final String GBP = "GBP";
-    private static final String COUNTRY_CODE = "countryCode";
+    private static final String COUNTRY_CODE = "GB";
     private static final String EXTRA_DATA = "extraData";
     private static final String EPHEMERAL_PUBLIC_KEY = "ephemeralPublicKey";
     private static final String PUBLIC_KEY_HASH = "publicKeyHash";
@@ -72,7 +72,6 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String PAYMENT_PROVIDER = "paymentProvider";
 
     @InjectMocks
-    @Spy
     private DefaultWorldpayOrderService testObj;
 
     @Mock
@@ -80,11 +79,13 @@ public class DefaultWorldpayOrderServiceTest {
     @Mock
     private WorldpayUrlService worldpayUrlServiceMock;
     @Mock
-    private WorldpayKlarnaUtils worldpayKlarnaPaymentsMock;
+    private WorldpayKlarnaService worldpayKlarnaServiceMock;
     @Mock
     private CommerceCheckoutService commerceCheckoutServiceMock;
     @Mock
     private RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategyMock;
+    @Mock
+    Converter<com.worldpay.data.applepay.Header, Header> internalHeaderConverter;
 
     @Mock
     private CurrencyModel currencyModelMock;
@@ -100,16 +101,15 @@ public class DefaultWorldpayOrderServiceTest {
     @Mock
     private LanguageModel languageMock;
     @Mock
-    private CommerceCheckoutParameter commerceCheckoutParameterMock;
+    private Header internalHeaderMock;
 
     @Before
     public void setUp() throws Exception {
-        testObj = new DefaultWorldpayOrderService(commonI18NServiceMock, worldpayUrlServiceMock, worldpayKlarnaPaymentsMock, commerceCheckoutServiceMock, recurringGenerateMerchantTransactionCodeStrategyMock);
-        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_SSL)).thenReturn(true);
-        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_SLICE_IT_SSL)).thenReturn(true);
-        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_PAYNOW_SSL)).thenReturn(true);
-        when(worldpayKlarnaPaymentsMock.isKlarnaPaymentType(KLARNA_PAYLATER_SSL)).thenReturn(true);
-        when(commonI18NServiceMock.getLocaleForLanguage(languageMock)).thenReturn(Locale.UK);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_SSL)).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_SLICE_IT_SSL)).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_PAYNOW_SSL)).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_PAYLATER_SSL)).thenReturn(true);
+        when(commonI18NServiceMock.getLocaleForLanguage(languageMock)).thenReturn(Locale.ENGLISH);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class DefaultWorldpayOrderServiceTest {
 
         final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_PAYNOW_SSL);
 
-        assertEquals(PaymentType.KLARNAPAYNOWSSL, result.getPaymentType());
+        assertEquals(PaymentType.KLARNAPAYNOWSSL.getMethodCode(), result.getPaymentType());
         assertEquals(EXTRA_DATA, result.getExtraMerchantData());
         assertEquals(SUCCESS_URL, result.getSuccessURL());
         assertEquals(PENDING_URL, result.getPendingURL());
@@ -202,7 +202,7 @@ public class DefaultWorldpayOrderServiceTest {
 
         final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_SLICE_IT_SSL);
 
-        assertEquals(PaymentType.KLARNASLICESSL, result.getPaymentType());
+        assertEquals(PaymentType.KLARNASLICESSL.getMethodCode(), result.getPaymentType());
         assertEquals(EXTRA_DATA, result.getExtraMerchantData());
         assertEquals(SUCCESS_URL, result.getSuccessURL());
         assertEquals(PENDING_URL, result.getPendingURL());
@@ -220,7 +220,7 @@ public class DefaultWorldpayOrderServiceTest {
 
         final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_PAYLATER_SSL);
 
-        assertEquals(PaymentType.KLARNAPAYLATERSSL, result.getPaymentType());
+        assertEquals(PaymentType.KLARNAPAYLATERSSL.getMethodCode(), result.getPaymentType());
         assertEquals(EXTRA_DATA, result.getExtraMerchantData());
         assertEquals(SUCCESS_URL, result.getSuccessURL());
         assertEquals(PENDING_URL, result.getPendingURL());
@@ -238,9 +238,9 @@ public class DefaultWorldpayOrderServiceTest {
 
         final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_SSL);
 
-        assertEquals(PaymentType.KLARNASSL, result.getPaymentType());
+        assertEquals(PaymentType.KLARNASSL.getMethodCode(), result.getPaymentType());
         assertEquals(COUNTRY_CODE, result.getPurchaseCountry());
-        assertEquals(Locale.UK.toLanguageTag(), result.getShopperLocale());
+        assertEquals("en-GB", result.getShopperLocale());
         assertEquals(KLARNA_CHECKOUT_URL, result.getMerchantUrls().getCheckoutURL());
         assertEquals(KLARNA_CONFIRMATION_URL, result.getMerchantUrls().getConfirmationURL());
         assertEquals(EXTRA_DATA, result.getExtraMerchantData());
@@ -264,6 +264,8 @@ public class DefaultWorldpayOrderServiceTest {
 
     @Test
     public void shouldCreateApplePayPayment() throws WorldpayModelTransformationException {
+
+
         final ApplePayHeader applePayHeader = new ApplePayHeader();
         applePayHeader.setEphemeralPublicKey(EPHEMERAL_PUBLIC_KEY);
         applePayHeader.setPublicKeyHash(PUBLIC_KEY_HASH);
@@ -280,7 +282,13 @@ public class DefaultWorldpayOrderServiceTest {
         assertThat(result.getData()).isEqualTo(DATA);
         assertThat(result.getSignature()).isEqualTo(SIGNATURE);
         assertThat(result.getVersion()).isEqualTo(VERSION);
-        final Header header = (Header) result.getHeader().transformToInternalModel();
+
+        when(internalHeaderConverter.convert(result.getHeader())).thenReturn(internalHeaderMock);
+        when(internalHeaderMock.getEphemeralPublicKey()).thenReturn(EPHEMERAL_PUBLIC_KEY);
+        when(internalHeaderMock.getPublicKeyHash()).thenReturn(PUBLIC_KEY_HASH);
+        when(internalHeaderMock.getTransactionId()).thenReturn(TRANSACTION_ID);
+
+        final Header header = internalHeaderConverter.convert(result.getHeader());
         assertThat(header.getEphemeralPublicKey()).isEqualTo(EPHEMERAL_PUBLIC_KEY);
         assertThat(header.getPublicKeyHash()).isEqualTo(PUBLIC_KEY_HASH);
         assertThat(header.getTransactionId()).isEqualTo(TRANSACTION_ID);

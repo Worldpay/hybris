@@ -1,11 +1,11 @@
 package com.worldpay.service.impl;
 
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.model.WorldpayThreeDS2JsonWebTokenConfigurationModel;
 import com.worldpay.service.WorldpayUrlService;
 import de.hybris.platform.acceleratorservices.urlresolver.SiteBaseUrlResolutionService;
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.site.BaseSiteService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Default implementation of the {@link WorldpayUrlService}
@@ -17,8 +17,15 @@ import org.springframework.beans.factory.annotation.Required;
 public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
 
     private static final String EMPTY_STRING = "";
-    private BaseSiteService baseSiteService;
-    private SiteBaseUrlResolutionService siteBaseUrlResolutionService;
+
+    protected final BaseSiteService baseSiteService;
+    protected final SiteBaseUrlResolutionService siteBaseUrlResolutionService;
+
+    public DefaultWorldpayUrlService(final BaseSiteService baseSiteService,
+                                     final SiteBaseUrlResolutionService siteBaseUrlResolutionService) {
+        this.baseSiteService = baseSiteService;
+        this.siteBaseUrlResolutionService = siteBaseUrlResolutionService;
+    }
 
     @Override
     public String getWebsiteUrlForCurrentSite() {
@@ -33,7 +40,7 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
      * @return a full URL including HTTP protocol, server, port, path etc.
      */
     protected String getFullUrl(final String url, final boolean isSecure) throws WorldpayConfigurationException {
-        final BaseSiteModel currentBaseSite = getBaseSiteService().getCurrentBaseSite();
+        final BaseSiteModel currentBaseSite = baseSiteService.getCurrentBaseSite();
 
         final String fullResponseUrl = siteBaseUrlResolutionService.getWebsiteUrlForSite(currentBaseSite, isSecure, url);
         if (fullResponseUrl == null) {
@@ -124,26 +131,16 @@ public class DefaultWorldpayUrlService extends AbstractWorldpayUrlService {
 
     @Override
     public String getFullThreeDSecureFlexFlowReturnUrl() throws WorldpayConfigurationException {
-        return getFullUrl(getThreeDSecureFlexFlowReturnUrl(), true);
+        return getFullUrl(getThreeDS2Configuration().getFlowReturnUrl(), true);
     }
 
     @Override
     public String getFullThreeDSecureFlexAutosubmitUrl() throws WorldpayConfigurationException {
-        return getFullUrl(getThreeDSecureFlexAuthSubmit(), true);
+        return getFullUrl(getThreeDS2Configuration().getAuthSubmit(), true);
     }
 
-    public BaseSiteService getBaseSiteService() {
-        return baseSiteService;
+    @Override
+    public WorldpayThreeDS2JsonWebTokenConfigurationModel getThreeDS2Configuration() {
+        return baseSiteService.getCurrentBaseSite().getWebMerchantConfiguration().getThreeDSFlexJsonWebTokenSettings();
     }
-
-    @Required
-    public void setBaseSiteService(final BaseSiteService baseSiteService) {
-        this.baseSiteService = baseSiteService;
-    }
-
-    @Required
-    public void setSiteBaseUrlResolutionService(final SiteBaseUrlResolutionService siteBaseUrlResolutionService) {
-        this.siteBaseUrlResolutionService = siteBaseUrlResolutionService;
-    }
-
 }

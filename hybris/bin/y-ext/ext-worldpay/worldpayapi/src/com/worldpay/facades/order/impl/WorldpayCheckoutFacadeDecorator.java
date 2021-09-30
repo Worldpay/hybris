@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Optional;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNullStandardMessage;
 
@@ -447,10 +448,17 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         return checkoutCustomerStrategy.getCurrentUserForCheckout();
     }
 
+    /**
+     * If payment info has billing address it will be set as payment address in session cart.
+     */
     protected void setPaymentInfoBillingAddressOnSessionCart() {
         final CartModel sessionCart = getSessionCart();
-        sessionCart.setPaymentAddress(sessionCart.getPaymentInfo().getBillingAddress());
-        cartService.saveOrder(sessionCart);
+        Optional.ofNullable(sessionCart.getPaymentInfo())
+            .map(PaymentInfoModel::getBillingAddress)
+            .ifPresent(paymentAddress -> {
+                sessionCart.setPaymentAddress(paymentAddress);
+                cartService.saveOrder(sessionCart);
+            });
     }
 
     protected CommerceCheckoutParameter createCommerceCheckoutParameter(final CartModel cart, final boolean enableHooks) {

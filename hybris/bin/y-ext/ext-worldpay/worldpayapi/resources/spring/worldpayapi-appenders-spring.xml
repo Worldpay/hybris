@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Email Appenders -->
+    <bean id="clusterInformationAppender"
+          class="com.worldpay.support.appender.impl.WorldpayClusterInformationAppender"/>
+
+    <bean id="configuredFlowsAppender" class="com.worldpay.support.appender.impl.WorldpayConfiguredFlowsAppender">
+        <constructor-arg name="cmsSiteService" ref="cmsSiteService"/>
+        <constructor-arg name="cmsPageDao" ref="cmsPageDao"/>
+    </bean>
+
+    <bean id="currentTimeAppender" class="com.worldpay.support.appender.impl.WorldpayCurrentTimeAppender"/>
+
+    <bean id="extensionListAppender" class="com.worldpay.support.appender.impl.WorldpayExtensionListAppender"/>
+
+    <bean id="merchantConfigurationAppender"
+          class="com.worldpay.support.appender.impl.WorldpayMerchantConfigurationAppender">
+        <constructor-arg name="worldpayMerchantConfigurationService" ref="worldpayMerchantConfigurationService"/>
+    </bean>
+
+    <bean id="hybrisVersionAppender" class="com.worldpay.support.appender.impl.WorldpayHybrisVersionAppender">
+        <constructor-arg name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <bean id="hybrisAddonVersionAppender" class="com.worldpay.support.appender.impl.WorldpayAddonVersionAppender">
+        <constructor-arg name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <bean id="paymentTransactionAppender"
+          class="com.worldpay.support.appender.impl.WorldpayPaymentTransactionTypesAppender"/>
+
+    <bean id="userDisplayNameAppender" class="com.worldpay.support.appender.impl.WorldpayUserDisplayNameAppender">
+        <constructor-arg name="userService" ref="userService"/>
+    </bean>
+
+</beans>

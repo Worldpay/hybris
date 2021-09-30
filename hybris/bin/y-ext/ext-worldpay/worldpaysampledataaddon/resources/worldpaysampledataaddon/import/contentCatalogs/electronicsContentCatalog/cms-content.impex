@@ -38,24 +38,24 @@ INSERT_UPDATE WorldpayGooglePayComponent; uid[unique = true] ; $contentCV[unique
 INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name          ; $picture[lang = $lang]
                                  ; creditCardComponent ;                          ; "Credit Card" ; cc-icon
 
-INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name               ; apmConfiguration(code); $picture[lang = $lang]; restrictions(uid, $contentCV)
-                                  ; sofortComponent         ;                          ; "SOFORT"           ; SOFORT-SSL            ; sofort-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; sofortCHComponent       ;                          ; "SOFORT-CH"        ; SOFORT_CH-SSL         ; sofort-ch-icon        ; AssistedServiceSessionReversedRestriction
-                                  ; payPalComponent         ;                          ; "PayPal"           ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; boletoComponent         ;                          ; "Boleto"           ; BOLETO-SSL            ; boleto-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; postepayComponent       ;                          ; "PostePay"         ; POSTEPAY-SSL          ; postepay-icon         ; AssistedServiceSessionReversedRestriction
-                                  ; poliComponent           ;                          ; "POLi"             ; POLI-SSL              ; poli-icon             ; AssistedServiceSessionReversedRestriction
-                                  ; polinzComponent         ;                          ; "POLi - NZ"        ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; mistercashComponent     ;                          ; "Mistercash"       ; MISTERCASH-SSL        ; mistercash-icon       ; AssistedServiceSessionReversedRestriction
-                                  ; chinaUnionPayComponent  ;                          ; "China Union Pay"  ; CHINAUNIONPAY-SSL     ; cup-icon              ; AssistedServiceSessionReversedRestriction
-                                  ; alipayComponent         ;                          ; "Alipay"           ; ALIPAY-SSL            ; alipay-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; enetsComponent          ;                          ; "Enets"            ; ENETS-SSL             ; enets-icon            ; AssistedServiceSessionReversedRestriction
-                                  ; idealComponent          ;                          ; "iDeal"            ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaComponent         ;                          ; "Klarna"           ; KLARNA-SSL            ; klarna-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; giropayComponent        ;                          ; "Giropay"          ; GIROPAY-SSL           ; giropay-icon          ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later" ; KLARNA_PAYLATER-SSL      ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"  ; KLARNA_SLICEIT-SSL      ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaPayNowComponent   ;                          ; "Klarna Pay Now"   ; KLARNA_PAYNOW-SSL        ; klarna-paynow-icon    ; AssistedServiceSessionReversedRestriction
+INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name                ; apmConfiguration(code); $picture[lang = $lang]; restrictions(uid, $contentCV)
+                                  ; sofortComponent         ;                          ; "SOFORT"            ; SOFORT-SSL            ; sofort-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; sofortCHComponent       ;                          ; "SOFORT-CH"         ; SOFORT_CH-SSL         ; sofort-ch-icon        ; AssistedServiceSessionReversedRestriction
+                                  ; payPalComponent         ;                          ; "PayPal"            ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; boletoComponent         ;                          ; "Boleto"            ; BOLETO-SSL            ; boleto-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; postepayComponent       ;                          ; "PostePay"          ; POSTEPAY-SSL          ; postepay-icon         ; AssistedServiceSessionReversedRestriction
+                                  ; poliComponent           ;                          ; "POLi"              ; POLI-SSL              ; poli-icon             ; AssistedServiceSessionReversedRestriction
+                                  ; polinzComponent         ;                          ; "POLi - NZ"         ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; mistercashComponent     ;                          ; "Mistercash"        ; MISTERCASH-SSL        ; mistercash-icon       ; AssistedServiceSessionReversedRestriction
+                                  ; chinaUnionPayComponent  ;                          ; "China Union Pay"   ; CHINAUNIONPAY-SSL     ; cup-icon              ; AssistedServiceSessionReversedRestriction
+                                  ; alipayComponent         ;                          ; "Alipay"            ; ALIPAY-SSL            ; alipay-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; enetsComponent          ;                          ; "Enets"             ; ENETS-SSL             ; enets-icon            ; AssistedServiceSessionReversedRestriction
+                                  ; idealComponent          ;                          ; "iDeal"             ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaComponent         ;                          ; "Klarna"            ; KLARNA-SSL            ; klarna-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; giropayComponent        ;                          ; "Giropay"           ; GIROPAY-SSL           ; giropay-icon          ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later"  ; KLARNA_PAYLATER-SSL   ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"   ; KLARNA_SLICEIT-SSL    ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaPayNowComponent   ;                          ; "Klarna Pay Now"    ; KLARNA_PAYNOW-SSL     ; klarna-paynow-icon    ; AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
                          ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,chinaUnionPayComponent,alipayComponent,enetsComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent

@@ -15,12 +15,10 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
     private String failurePath;
     private String cancelPath;
     private String threeDSecureTermPath;
-    private String threeDSecureFlexFlowReturnUrl;
     private String threeDSecureQuoteTermPath;
     private String errorPath;
     private String termsPath;
     private String klarnaConfirmationPath;
-    private String threeDSecureFlexAuthSubmit;
 
     public String getSuccessPath() {
         return successPath;
@@ -101,23 +99,5 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
     @Required
     public void setKlarnaConfirmationPath(final String klarnaConfirmationPath) {
         this.klarnaConfirmationPath = klarnaConfirmationPath;
-    }
-
-    public String getThreeDSecureFlexFlowReturnUrl() {
-        return threeDSecureFlexFlowReturnUrl;
-    }
-
-    @Required
-    public void setThreeDSecureFlexFlowReturnUrl(final String threeDSecureFlexFlowReturnUrl) {
-        this.threeDSecureFlexFlowReturnUrl = threeDSecureFlexFlowReturnUrl;
-    }
-
-    public String getThreeDSecureFlexAuthSubmit() {
-        return threeDSecureFlexAuthSubmit;
-    }
-
-    @Required
-    public void setThreeDSecureFlexAuthSubmit(final String threeDSecureFlexAuthSubmit) {
-        this.threeDSecureFlexAuthSubmit = threeDSecureFlexAuthSubmit;
     }
 }

@@ -3,7 +3,7 @@ package com.worldpay.service.response.transform;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Error;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.token.UpdateTokenReply;
+import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.service.response.ServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -30,6 +30,7 @@ public class UpdateTokenResponseTransformerTest {
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
     private static final String ERROR_CODE = "errorCode";
     private static final String ERROR_VALUE = "errorValue";
+    private static final String ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE = "Update Token Response has no reply message or the reply type is not the expected one";
 
     @InjectMocks
     private UpdateTokenResponseTransformer testObj;
@@ -74,7 +75,7 @@ public class UpdateTokenResponseTransformerTest {
     @Test
     public void shouldRaiseWorldpayModelTransformationExceptionWhenThereIsNoReplyInThePaymentService() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("No reply message in Worldpay update token response");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(null));
 
         testObj.transform(paymentServiceMock);
@@ -83,7 +84,7 @@ public class UpdateTokenResponseTransformerTest {
     @Test
     public void shouldRaiseWorldpayModelTransformationExceptionWhenResponseIsNotAReply() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("Reply type from Worldpay not the expected type");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(new Modify()));
 
         testObj.transform(paymentServiceMock);

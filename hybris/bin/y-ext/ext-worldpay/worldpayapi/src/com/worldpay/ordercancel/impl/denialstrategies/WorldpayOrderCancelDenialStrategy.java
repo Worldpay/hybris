@@ -8,19 +8,19 @@ import de.hybris.platform.ordercancel.impl.denialstrategies.AbstractCancelDenial
 import de.hybris.platform.ordercancel.model.OrderCancelConfigModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
-import static java.text.MessageFormat.format;
 
 /**
  * Implementation of a OrderCancelDenialStrategy taking into consideration the conditions for Worldpay
  */
 public class WorldpayOrderCancelDenialStrategy extends AbstractCancelDenialStrategy implements OrderCancelDenialStrategy {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayOrderCancelDenialStrategy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayOrderCancelDenialStrategy.class);
 
     /**
      * Implementation of getCancelDenialReason that checks if the order has a confirmed captured paymentTransactionEntry.
@@ -48,7 +48,7 @@ public class WorldpayOrderCancelDenialStrategy extends AbstractCancelDenialStrat
             final List<PaymentTransactionEntryModel> entries = paymentTransaction.getEntries();
             for (final PaymentTransactionEntryModel entry : entries) {
                 if (shouldReturnDenialReason(entry)) {
-                    LOG.warn(format("The order {0} cannot be cancelled because the transaction entry with requestId {1} is captured", orderModel.getCode(), entry.getRequestId()));
+                    LOG.warn("The order {} cannot be cancelled because the transaction entry with requestId {} is captured", orderModel.getCode(), entry.getRequestId());
                     return getReason();
                 }
             }

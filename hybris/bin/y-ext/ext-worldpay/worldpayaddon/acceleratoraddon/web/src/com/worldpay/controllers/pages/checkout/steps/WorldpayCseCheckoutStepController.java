@@ -30,6 +30,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Web controller to handle a CSE checkout step
@@ -38,7 +40,8 @@ import javax.validation.Valid;
 @RequestMapping(value = "/checkout/multi/worldpay/cse")
 public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
-    protected static final Logger LOGGER = LogManager.getLogger(WorldpayCseCheckoutStepController.class);
+    private static final Logger LOGGER = LogManager.getLogger(WorldpayCseCheckoutStepController.class);
+
     protected static final String CSE_PUBLIC_KEY = "csePublicKey";
     protected static final String CSE_PAYMENT_FORM = "csePaymentForm";
     protected static final String REDIRECT_TO_CSE_PAGE = "redirect:/checkout/multi/worldpay/cse/cse-data";
@@ -131,7 +134,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         }
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSEAdditionalAuthInfo(csePaymentForm);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm.getCvc(), cseAdditionalAuthInfo);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm, cseAdditionalAuthInfo);
 
         return authoriseAndHandleResponse(model, cseAdditionalAuthInfo, worldpayAdditionalInfoData, response);
     }
@@ -173,9 +176,11 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         return worldpayAddonEndpointService.getChallengeIframe3dSecureFlex();
     }
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final CSEPaymentForm csePaymentForm, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        worldpayAdditionalInfo.setSecurityCode(cvc);
+        worldpayAdditionalInfo.setDateOfBirth(csePaymentForm.getDateOfBirth());
+        worldpayAdditionalInfo.setSecurityCode(csePaymentForm.getCvc());
+        worldpayAdditionalInfo.setDeviceSession(csePaymentForm.getDeviceSession());
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
         }
@@ -188,7 +193,11 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     @Override
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
         super.setupAddPaymentPage(model);
+
         model.addAttribute(CSE_PAYMENT_FORM, new CSEPaymentForm());
+        model.addAttribute(IS_FS_ENABLED, worldpayPaymentCheckoutFacade.isFSEnabled());
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(BIRTH_DAY_DATE_FORMAT);
+        model.addAttribute(CURRENT_DATE, dateFormat.format(new Date()));
         model.addAttribute(CSE_PUBLIC_KEY, worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
         model.addAttribute(THREEDSFLEX_EVENT_ORIGIN_DOMAIN, worldpayDDCFacade.getEventOriginDomainForDDC());
     }

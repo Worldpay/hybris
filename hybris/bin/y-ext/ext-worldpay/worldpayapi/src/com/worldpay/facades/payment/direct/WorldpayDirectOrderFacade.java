@@ -4,7 +4,6 @@ import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.service.model.MerchantInfo;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.InvalidCartException;
@@ -71,13 +70,11 @@ public interface WorldpayDirectOrderFacade {
      *
      * @param abstractOrderModel         The abstractOrderModel to authorise.
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
-     * @param merchantInfo               The Worldpay merchant
      * @return {@link DirectResponseData} Wrapper object containing information on the response from Worldpay
      * @throws WorldpayException    - something went wrong
      * @throws InvalidCartException - something went wrong
      */
-    DirectResponseData authoriseRecurringPayment(final AbstractOrderModel abstractOrderModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                 final MerchantInfo merchantInfo) throws WorldpayException, InvalidCartException;
+    DirectResponseData authoriseRecurringPayment(final AbstractOrderModel abstractOrderModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
 
     /**
      * Performs a request to Worldpay to retrieve the URL to redirect to when using Klarna.
@@ -166,4 +163,5 @@ public interface WorldpayDirectOrderFacade {
      * @throws WorldpayException
      */
     DirectResponseData executeSecondPaymentAuthorisation3DSecure(final String worldpayOrderCode) throws WorldpayException, InvalidCartException;
+
 }

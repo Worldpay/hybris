@@ -38,12 +38,13 @@
 		<property name="add" ref="worldpayViewChangeBeforeViewHandler"/>
 	</bean>
 
-	<bean id="worldpayJsVariablesBeforeViewHandlerAdaptee"
-		  class="com.worldpay.interceptors.beforeview.WorldpayJsVariablesBeforeViewHandler">
-		<constructor-arg name="siteConfigService" ref="siteConfigService"/>
-	</bean>
+    <bean id="worldpayJsVariablesBeforeViewHandlerAdaptee"
+          class="com.worldpay.interceptors.beforeview.WorldpayJsVariablesBeforeViewHandler">
+        <constructor-arg name="siteConfigService" ref="siteConfigService"/>
+        <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
+    </bean>
 
-	<bean id="worldpayJsVariablesBeforeViewHandler" parent="beforeViewHandlerAdapter">
+    <bean id="worldpayJsVariablesBeforeViewHandler" parent="beforeViewHandlerAdapter">
 		<property name="adaptee" ref="worldpayJsVariablesBeforeViewHandlerAdaptee"/>
 	</bean>
 

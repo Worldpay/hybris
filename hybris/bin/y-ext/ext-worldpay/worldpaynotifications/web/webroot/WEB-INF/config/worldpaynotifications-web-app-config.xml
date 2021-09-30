@@ -10,10 +10,10 @@
  license agreement you entered into with SAP.
 -->
 
-<!-- 
+<!--
   WARNING: This is the Spring WEB configuration file. If you want to replace
-  items or managers you have to do this from the extensions core configuration 
-  file (worldpaynotifications/resources/worldpaynotifications-spring.xml) 
+  items or managers you have to do this from the extensions core configuration
+  file (worldpaynotifications/resources/worldpaynotifications-spring.xml)
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -53,7 +53,7 @@
     </bean>
 
 	<!--
-	 WARNING: 
+	 WARNING:
 	 Do NOT override hybris managers or items within the web module!
 	 Use always the core spring configuration file (worldpaynotifications-spring.xml) in
 	 the extensions resources/ directory.
@@ -67,6 +67,7 @@
         <value>SETTLED</value>
         <value>REFUND_WEBFORM_ISSUED</value>
         <value>CANCELLED</value>
+        <value>VOIDED</value>
     </util:set>
 
     <context:component-scan base-package="com.worldpay.worldpaynotifications.controller"/>

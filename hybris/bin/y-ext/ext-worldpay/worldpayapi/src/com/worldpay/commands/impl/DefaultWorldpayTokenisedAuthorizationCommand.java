@@ -6,9 +6,9 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.token.Token;
+import com.worldpay.data.*;
+import com.worldpay.data.threeds2.Additional3DSData;
+import com.worldpay.data.token.Token;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.request.WorldpayRequestService;
 import com.worldpay.service.request.AuthoriseRequestParameters;
@@ -21,7 +21,8 @@ import de.hybris.platform.payment.commands.request.SubscriptionAuthorizationRequ
 import de.hybris.platform.payment.commands.result.AuthorizationResult;
 import de.hybris.platform.payment.dto.BillingInfo;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Optional;
@@ -40,7 +41,7 @@ import static java.text.MessageFormat.format;
  */
 public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayCommand implements SubscriptionAuthorizationCommand {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayTokenisedAuthorizationCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayTokenisedAuthorizationCommand.class);
     private static final String UNKNOWN_MERCHANT_CODE = "unknownMerchantCode";
 
     protected final Converter<BillingInfo, Address> worldpayBillingInfoAddressConverter;
@@ -131,7 +132,8 @@ public class DefaultWorldpayTokenisedAuthorizationCommand extends WorldpayComman
         final BasicOrderInfo orderInfo = getWorldpayOrderService().createBasicOrderInfo(worldpayOrderCode, worldpayOrderCode, amount);
         final Session session = worldpayRequestService.createSession(additionalInfo);
         final Browser browser = worldpayRequestService.createBrowser(additionalInfo);
-        final Additional3DSData additional3DSData = new Additional3DSData(additionalInfo.getAdditional3DS2().getDfReferenceId());
+        final Additional3DSData additional3DSData = new Additional3DSData();
+        additional3DSData.setDfReferenceId(additionalInfo.getAdditional3DS2().getDfReferenceId());
         final String customerEmail = additionalInfo.getCustomerEmail();
         final String authenticatedShopperId = additionalInfo.getAuthenticatedShopperId();
         final Shopper shopper = worldpayRequestService.createAuthenticatedShopper(customerEmail, authenticatedShopperId, session, browser);

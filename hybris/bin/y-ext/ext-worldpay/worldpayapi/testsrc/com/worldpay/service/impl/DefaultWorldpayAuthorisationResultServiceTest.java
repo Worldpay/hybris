@@ -1,7 +1,7 @@
 package com.worldpay.service.impl;
 
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.RedirectReference;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.commands.result.AbstractResult;
@@ -81,5 +81,5 @@ public class DefaultWorldpayAuthorisationResultServiceTest {
         verify(worldpaySubscriptionAuthorizeResultMock).setPaymentRedirectUrl(REDIRECT_REFERENCE);
     }
 }
-    
+
 

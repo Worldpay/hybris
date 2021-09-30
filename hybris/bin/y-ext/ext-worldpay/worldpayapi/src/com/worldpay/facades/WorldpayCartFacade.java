@@ -16,5 +16,4 @@ public interface WorldpayCartFacade {
      * Sets the payment address from the paymentInfo
      */
     void setBillingAddressFromPaymentInfo();
-
 }

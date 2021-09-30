@@ -45,21 +45,19 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
     @Mock
     private CustomerModel customerModelMock;
 
-
-    private RegionWsDTO regionWsDTOStub;
-    private CountryWsDTO countryWsDTOStub;
     private AddressWsDTO addressWsDTOStub;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         addressWsDTOStub = new AddressWsDTO();
         addressWsDTOStub.setShippingAddress(Boolean.TRUE);
+        addressWsDTOStub.setBillingAddress(Boolean.TRUE);
 
-        countryWsDTOStub = new CountryWsDTO();
+        final CountryWsDTO countryWsDTOStub = new CountryWsDTO();
         countryWsDTOStub.setIsocode(SPAIN_ISOCODE);
         countryWsDTOStub.setName(SPAIN_NAME);
 
-        regionWsDTOStub = new RegionWsDTO();
+        final RegionWsDTO regionWsDTOStub = new RegionWsDTO();
         regionWsDTOStub.setIsocode(VLC_ISOCODE);
         regionWsDTOStub.setName(VLC_NAME);
 
@@ -73,7 +71,7 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
     }
 
     @Test
-    public void populate_shouldSetCountryRegionEmailAndShippingAddress() {
+    public void populate_WhenWsDTOFieldsAreSet_ShouldSetCountryRegionEmailShippingAddressAndBillingAddress() {
         final AddressData result = new AddressData();
 
         testObj.populate(addressWsDTOStub, result);
@@ -82,10 +80,11 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
         assertThat(result.getRegion()).isEqualTo(regionDataMock);
         assertThat(result.getEmail()).isEqualTo(USER_EMAIL);
         assertThat(result.isShippingAddress()).isTrue();
+        assertThat(result.isBillingAddress()).isTrue();
     }
 
     @Test
-    public void populate_shouldNotSetShippingAddressWhenWsDTOFieldIsNotSet() {
+    public void populate_WhenWsDTOFieldIsNotSet_ShouldNotSetShippingAddress() {
         final AddressData result = new AddressData();
         addressWsDTOStub.setShippingAddress(null);
 
@@ -95,7 +94,17 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
     }
 
     @Test
-    public void populate_shouldNotSetRegionWhenWsDTOFieldIsNotSet() {
+    public void populate_WhenWsDTOFieldIsNotSet_ShouldNotSetBillingAddress() {
+        final AddressData result = new AddressData();
+        addressWsDTOStub.setBillingAddress(null);
+
+        testObj.populate(addressWsDTOStub, result);
+
+        assertThat(result.isBillingAddress()).isFalse();
+    }
+
+    @Test
+    public void populate_WhenWsDTOFieldIsNotSet_ShouldNotSetRegion() {
         final AddressData result = new AddressData();
         addressWsDTOStub.setRegion(null);
 

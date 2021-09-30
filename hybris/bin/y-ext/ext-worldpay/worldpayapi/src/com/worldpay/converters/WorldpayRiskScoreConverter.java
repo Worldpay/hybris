@@ -1,7 +1,7 @@
 package com.worldpay.converters;
 
 import com.worldpay.model.WorldpayRiskScoreModel;
-import com.worldpay.service.model.RiskScore;
+import com.worldpay.data.RiskScore;
 import de.hybris.platform.converters.impl.AbstractConverter;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.springframework.beans.factory.annotation.Required;

@@ -41,6 +41,7 @@
         <value>REFUND_WEBFORM_ISSUED</value>
         <value>SHOPPER_REDIRECTED</value>
         <value>FAILURE</value>
+        <value>VOIDED</value>
     </enum>
 
     <enum class="com.worldpay.enums.order.ThreeDSecureVersionEnum">
@@ -52,6 +53,7 @@
         <value>LEGACY_FLOW</value>
         <value>THREEDSFLEX_FLOW</value>
     </enum>
+
     <enum class="com.worldpay.enums.payment.storedCredentials.Usage">
         <value>NA</value>
         <value>FIRST</value>
@@ -84,6 +86,12 @@
         <value>ERROR_L2_L3_DATA</value>
         <value>ERROR_LODGING_DATA</value>
         <value>ERROR_SPLIT_AUTH</value>
+    </enum>
+
+    <enum class="com.worldpay.enums.lineItem.LineItemType">
+        <value>PHYSICAL</value>
+        <value>DISCOUNT</value>
+        <value>SHIPPING_FEE</value>
     </enum>
 
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
@@ -131,6 +139,8 @@
         <property name="replenishmentOrder" type="boolean"/>
         <property name="additional3DS2" type="com.worldpay.data.Additional3DS2Info"/>
         <property name="transactionIdentifier" type="java.lang.String"/>
+        <property name="dateOfBirth" type="java.util.Date"/>
+        <property name="deviceSession" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -376,4 +386,591 @@
         <property name="requiredBillingContactFields" type="java.util.List&lt;java.lang.String>"/>
     </bean>
 
+    <bean class="com.worldpay.data.apm.WorldpayAPMConfigurationData">
+        <property name="code" type="java.lang.String"/>
+        <property name="name" type="java.lang.String"/>
+        <property name="description" type="java.lang.String"/>
+        <property name="autoCancelPendingTimeoutInMinutes" type="java.lang.Integer"/>
+        <property name="bank" type="java.lang.Boolean"/>
+        <property name="automaticRefunds" type="java.lang.Boolean"/>
+        <property name="bankTransferRefunds" type="java.lang.Boolean"/>
+        <property name="bankConfigurations" type="java.util.List&lt;com.worldpay.facades.BankConfigurationData>"/>
+    </bean>
+
+    <bean class="com.worldpay.data.cms.WorldpayAPMComponentData">
+        <property name="apmConfiguration" type="com.worldpay.data.apm.WorldpayAPMConfigurationData"/>
+        <property name="media" type="de.hybris.platform.cmsfacades.data.MediaData"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.cms.WorldpayAPMComponentsData">
+        <property name="apmComponents"
+                  type="java.util.List&lt;com.worldpay.data.cms.WorldpayAPMComponentData>">
+        </property>
+    </bean>
+
+    <bean class="com.worldpay.data.AccountTransaction">
+        <property name="accountType" type="java.lang.String"/>
+        <property name="batchId" type="java.lang.String"/>
+        <property name="amount" type="com.worldpay.data.Amount"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Address">
+        <property name="firstName" type="java.lang.String"/>
+        <property name="lastName" type="java.lang.String"/>
+        <property name="street" type="java.lang.String"/>
+        <property name="houseName" type="java.lang.String"/>
+        <property name="houseNumber" type="java.lang.String"/>
+        <property name="houseNumberExtension" type="java.lang.String"/>
+        <property name="address1" type="java.lang.String"/>
+        <property name="address2" type="java.lang.String"/>
+        <property name="address3" type="java.lang.String"/>
+        <property name="postalCode" type="java.lang.String"/>
+        <property name="city" type="java.lang.String"/>
+        <property name="state" type="java.lang.String"/>
+        <property name="countryCode" type="java.lang.String"/>
+        <property name="telephoneNumber" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Amount">
+        <property name="value" type="java.lang.String"/>
+        <property name="currencyCode" type="java.lang.String"/>
+        <property name="exponent" type="java.lang.String"/>
+        <property name="debitCreditIndicator" type="com.worldpay.enums.DebitCreditIndicator"/>
+    </bean>
+
+    <bean class="com.worldpay.data.BasicOrderInfo">
+        <property name="orderCode" type="java.lang.String"/>
+        <property name="description" type="java.lang.String"/>
+        <property name="amount" type="com.worldpay.data.Amount"/>
+    </bean>
+
+    <bean class="com.worldpay.data.BranchSpecificExtension">
+        <property name="purchase" type="java.util.List&lt;com.worldpay.data.Purchase>"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Browser">
+        <property name="acceptHeader" type="java.lang.String"/>
+        <property name="userAgentHeader" type="java.lang.String"/>
+        <property name="deviceType" type="java.lang.String"/>
+        <property name="deviceOS" type="java.lang.String"/>
+        <property name="httpAcceptLanguage" type="java.lang.String"/>
+        <property name="httpReferer" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.CustomNumericFields">
+        <property name="customNumericField1" type="java.lang.Number"/>
+        <property name="customNumericField2" type="java.lang.Number"/>
+        <property name="customNumericField3" type="java.lang.Number"/>
+        <property name="customNumericField4" type="java.lang.Number"/>
+        <property name="customNumericField5" type="java.lang.Number"/>
+        <property name="customNumericField6" type="java.lang.Number"/>
+        <property name="customNumericField7" type="java.lang.Number"/>
+        <property name="customNumericField8" type="java.lang.Number"/>
+        <property name="customNumericField9" type="java.lang.Number"/>
+        <property name="customNumericField10" type="java.lang.Number"/>
+    </bean>
+
+    <bean class="com.worldpay.data.CustomStringFields">
+        <property name="customStringField1" type="java.lang.String"/>
+        <property name="customStringField2" type="java.lang.String"/>
+        <property name="customStringField3" type="java.lang.String"/>
+        <property name="customStringField4" type="java.lang.String"/>
+        <property name="customStringField5" type="java.lang.String"/>
+        <property name="customStringField6" type="java.lang.String"/>
+        <property name="customStringField7" type="java.lang.String"/>
+        <property name="customStringField8" type="java.lang.String"/>
+        <property name="customStringField9" type="java.lang.String"/>
+        <property name="customStringField10" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Date">
+        <property name="dayOfMonth" type="java.lang.String"/>
+        <property name="month" type="java.lang.String"/>
+        <property name="year" type="java.lang.String"/>
+        <property name="hour" type="java.lang.String"/>
+        <property name="minute" type="java.lang.String"/>
+        <property name="second" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.ErrorDetail">
+        <property name="code" type="java.lang.String"/>
+        <property name="message" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.FraudSightData">
+        <property name="shopperFields" type="com.worldpay.data.ShopperFields"/>
+        <property name="customNumericFields" type="com.worldpay.data.CustomNumericFields"/>
+        <property name="customStringFields" type="com.worldpay.data.CustomStringFields"/>
+    </bean>
+
+    <bean class="com.worldpay.data.FraudSightResponse">
+        <property name="score" type="double"/>
+        <property name="id" type="java.lang.String"/>
+        <property name="message" type="java.lang.String"/>
+        <property name="reasonCodes" type="java.util.List&lt;java.lang.String>"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Item">
+        <property name="description" type="java.lang.String"/>
+        <property name="productCode" type="java.lang.String"/>
+        <property name="commodityCode" type="java.lang.String"/>
+        <property name="quantity" type="java.lang.String"/>
+        <property name="unitOfMeasure" type="java.lang.String"/>
+        <property name="unitCost" type="com.worldpay.data.Amount"/>
+        <property name="itemTotal" type="com.worldpay.data.Amount"/>
+        <property name="itemTotalWithTax" type="com.worldpay.data.Amount"/>
+        <property name="itemDiscountAmount" type="com.worldpay.data.Amount"/>
+        <property name="taxAmount" type="com.worldpay.data.Amount"/>
+    </bean>
+
+    <bean class="com.worldpay.data.JournalReply">
+        <property name="journalType" type="com.worldpay.enums.order.AuthorisedStatus"/>
+        <property name="bookingDate" type="com.worldpay.data.Date"/>
+        <property name="accountTransactions" type="java.util.List&lt;com.worldpay.data.AccountTransaction>"/>
+    </bean>
+
+    <bean class="com.worldpay.data.LineItem">
+        <property name="name" type="java.lang.String"/>
+        <property name="quantity" type="java.lang.String"/>
+        <property name="quantityUnit" type="java.lang.String"/>
+        <property name="unitPrice" type="java.lang.String"/>
+        <property name="taxRate" type="java.lang.String"/>
+        <property name="totalAmount" type="java.lang.String"/>
+        <property name="totalTaxAmount" type="java.lang.String"/>
+        <property name="totalTaxAmountValue" type="double"/>
+        <property name="totalDiscountAmount" type="java.lang.String"/>
+        <property name="lineItemReference" type="com.worldpay.data.LineItemReference"/>
+        <property name="lineItemType" type="com.worldpay.enums.lineItem.LineItemType"/>
+    </bean>
+
+    <bean class="com.worldpay.data.LineItemReference">
+        <property name="id" type="java.lang.String"/>
+        <property name="value" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.MerchantInfo">
+        <property name="merchantCode" type="java.lang.String"/>
+        <property name="merchantPassword" type="java.lang.String"/>
+        <property name="usingMacValidation" type="boolean"/>
+        <property name="macSecret" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Order" extends="com.worldpay.data.BasicOrderInfo">
+        <property name="installationId" type="java.lang.String"/>
+        <property name="orderContent" type="java.lang.String"/>
+        <property name="paymentMethodMask" type="com.worldpay.data.PaymentMethodMask"/>
+        <property name="paymentDetails" type="com.worldpay.data.PaymentDetails"/>
+        <property name="payAsOrder" type="com.worldpay.data.payment.PayAsOrder"/>
+        <property name="shopper" type="com.worldpay.data.Shopper"/>
+        <property name="shippingAddress" type="com.worldpay.data.Address"/>
+        <property name="billingAddress" type="com.worldpay.data.Address"/>
+        <property name="statementNarrative" type="java.lang.String"/>
+        <property name="echoData" type="java.lang.String"/>
+        <property name="tokenRequest" type="com.worldpay.data.token.TokenRequest"/>
+        <property name="session" type="com.worldpay.data.Session"/>
+        <property name="paResponse" type="java.lang.String"/>
+        <property name="orderLines" type="com.worldpay.data.OrderLines"/>
+        <property name="dynamicInteractionType" type="com.worldpay.enums.order.DynamicInteractionType"/>
+        <property name="additional3DSData" type="com.worldpay.data.threeds2.Additional3DSData"/>
+        <property name="riskData" type="com.worldpay.data.threeds2.RiskData"/>
+        <property name="paymentMethodAttributes" type="java.util.List&lt;com.worldpay.data.PaymentMethodAttribute>"/>
+        <property name="fraudSightData" type="com.worldpay.data.FraudSightData"/>
+        <property name="deviceSession" type="java.lang.String"/>
+        <property name="branchSpecificExtension" type="com.worldpay.data.BranchSpecificExtension"/>
+        <property name="mandateType" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.OrderLines">
+        <property name="orderTaxAmount" type="java.lang.String"/>
+        <property name="termsURL" type="java.lang.String"/>
+        <property name="lineItems" type="java.util.List&lt;com.worldpay.data.LineItem>"/>
+    </bean>
+
+    <bean class="com.worldpay.data.PaymentDetails">
+        <property name="payment" type="com.worldpay.data.payment.Payment"/>
+        <property name="session" type="com.worldpay.data.Session"/>
+        <property name="paResponse" type="java.lang.String"/>
+        <property name="storedCredentials" type="com.worldpay.data.payment.StoredCredentials"/>
+        <property name="action" type="com.worldpay.enums.PaymentAction"/>
+    </bean>
+
+    <bean class="com.worldpay.data.PaymentMethodAttribute">
+        <property name="paymentMethod" type="java.lang.String"/>
+        <property name="attrName" type="java.lang.String"/>
+        <property name="attrValue" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.PaymentMethodMask">
+        <property name="includes" type="java.util.List&lt;java.lang.String>"/>
+        <property name="excludes" type="java.util.List&lt;java.lang.String>"/>
+        <property name="storedCredentials" type="com.worldpay.data.payment.StoredCredentials"/>
+    </bean>
+
+    <bean class="com.worldpay.data.PaymentReply">
+        <property name="paymentMethodCode" type="java.lang.String"/>
+        <property name="amount" type="com.worldpay.data.Amount"/>
+        <property name="authStatus" type="com.worldpay.enums.order.AuthorisedStatus"/>
+        <property name="cvcResultDescription" type="java.lang.String"/>
+        <property name="balanceAccountType" type="java.lang.String"/>
+        <property name="balanceAmount" type="com.worldpay.data.Amount"/>
+        <property name="cardNumber" type="java.lang.String"/>
+        <property name="returnCode" type="java.lang.String"/>
+        <property name="riskScore" type="com.worldpay.data.RiskScore"/>
+        <property name="fraudSight" type="com.worldpay.data.FraudSightResponse"/>
+        <property name="cardHolderName" type="java.lang.String"/>
+        <property name="cardDetails" type="com.worldpay.data.payment.Card"/>
+        <property name="aavAddressResultCode" type="java.lang.String"/>
+        <property name="aavCardholderNameResultCode" type="java.lang.String"/>
+        <property name="aavEmailResultCode" type="java.lang.String"/>
+        <property name="aavPostcodeResultCode" type="java.lang.String"/>
+        <property name="aavTelephoneResultCode" type="java.lang.String"/>
+        <property name="refundReference" type="java.lang.String"/>
+        <property name="authorisationId" type="java.lang.String"/>
+        <property name="authorisedBy" type="java.lang.String"/>
+        <property name="threeDSecureResultDescription" type="java.lang.String"/>
+        <property name="schemeResponse" type="com.worldpay.data.SchemeResponse"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Purchase">
+        <property name="invoiceReferenceNumber" type="java.lang.String"/>
+        <property name="customerReference" type="java.lang.String"/>
+        <property name="cardAcceptorTaxId" type="java.lang.String"/>
+        <property name="shipFromPostalCode" type="java.lang.String"/>
+        <property name="destinationPostalCode" type="java.lang.String"/>
+        <property name="destinationCountryCode" type="java.lang.String"/>
+        <property name="taxExempt" type="boolean"/>
+        <property name="salesTax" type="com.worldpay.data.Amount"/>
+        <property name="discountAmount" type="com.worldpay.data.Amount"/>
+        <property name="shippingAmount" type="com.worldpay.data.Amount"/>
+        <property name="dutyAmount" type="com.worldpay.data.Amount"/>
+        <property name="orderDate" type="com.worldpay.data.Date"/>
+        <property name="item" type="java.util.List&lt;com.worldpay.data.Item>"/>
+    </bean>
+
+    <bean class="com.worldpay.data.RedirectReference">
+        <property name="id" type="java.lang.String"/>
+        <property name="value" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Request3DInfo">
+        <property name="paRequest" type="java.lang.String"/>
+        <property name="issuerUrl" type="java.lang.String"/>
+        <property name="transactionId3DS" type="java.lang.String"/>
+        <property name="major3DSVersion" type="java.lang.String"/>
+        <property name="issuerPayload" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.RiskScore">
+        <property name="value" type="java.lang.String"/>
+        <property name="provider" type="java.lang.String"/>
+        <property name="id" type="java.lang.String"/>
+        <property name="finalScore" type="java.lang.String"/>
+        <property name="RGID" type="java.lang.String"/>
+        <property name="tScore" type="java.lang.String"/>
+        <property name="tRisk" type="java.lang.String"/>
+        <property name="message" type="java.lang.String"/>
+        <property name="extendedResponse" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.SchemeResponse">
+        <property name="schemeName" type="java.lang.String"/>
+        <property name="actionCode" type="java.lang.String"/>
+        <property name="responseCode" type="java.lang.String"/>
+        <property name="transactionIdentifier" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Session">
+        <property name="shopperIPAddress" type="java.lang.String"/>
+        <property name="id" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.Shopper">
+        <property name="shopperEmailAddress" type="java.lang.String"/>
+        <property name="authenticatedShopperID" type="java.lang.String"/>
+        <property name="browser" type="com.worldpay.data.Browser"/>
+        <property name="session" type="com.worldpay.data.Session"/>
+    </bean>
+
+    <bean class="com.worldpay.data.ShopperFields">
+        <property name="shopperName" type="java.lang.String"/>
+        <property name="shopperAddress" type="com.worldpay.data.Address"/>
+        <property name="shopperId" type="java.lang.String"/>
+        <property name="birthDate" type="com.worldpay.data.Date"/>
+    </bean>
+
+    <bean class="com.worldpay.data.WebformRefundReply">
+        <property name="webformId" type="java.lang.String"/>
+        <property name="paymentId" type="java.lang.String"/>
+        <property name="webformStatus" type="java.lang.String"/>
+        <property name="amount" type="com.worldpay.data.Amount"/>
+        <property name="reason" type="java.lang.String"/>
+        <property name="webformURL" type="java.lang.String"/>
+        <property name="refundId" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.applepay.ApplePay" extends="com.worldpay.data.payment.Payment">
+        <property name="header" type="com.worldpay.data.applepay.Header"/>
+        <property name="signature" type="java.lang.String"/>
+        <property name="version" type="java.lang.String"/>
+        <property name="data" type="java.lang.String"/>
+        <property name="tokenRequestorID" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.applepay.Header">
+        <property name="ephemeralPublicKey" type="java.lang.String"/>
+        <property name="publicKeyHash" type="java.lang.String"/>
+        <property name="transactionId" type="java.lang.String"/>
+        <property name="applicationData" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.klarna.KlarnaMerchantUrls">
+        <property name="checkoutURL" type="java.lang.String"/>
+        <property name="confirmationURL" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.klarna.KlarnaPayment" extends="com.worldpay.data.payment.Payment">
+        <property name="purchaseCountry" type="java.lang.String"/>
+        <property name="shopperCountryCode" type="java.lang.String"/>
+        <property name="locale" type="java.lang.String"/>
+        <property name="shopperLocale" type="java.lang.String"/>
+        <property name="successURL" type="java.lang.String"/>
+        <property name="pendingURL" type="java.lang.String"/>
+        <property name="failureURL" type="java.lang.String"/>
+        <property name="cancelURL" type="java.lang.String"/>
+        <property name="merchantUrls" type="com.worldpay.data.klarna.KlarnaMerchantUrls"/>
+        <property name="extraMerchantData" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.klarna.KlarnaRedirectURLs">
+        <property name="successURL" type="java.lang.String"/>
+        <property name="pendingURL" type="java.lang.String"/>
+        <property name="failureURL" type="java.lang.String"/>
+        <property name="cancelURL" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.Payment" abstract="true">
+        <property name="paymentType" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AchPayment" extends="com.worldpay.data.payment.Payment">
+        <property name="achType" type="com.worldpay.enums.AchType"/>
+        <property name="firstName" type="java.lang.String"/>
+        <property name="lastName" type="java.lang.String"/>
+        <property name="address" type="com.worldpay.data.Address"/>
+        <property name="bankAccountType" type="java.lang.String"/>
+        <property name="routingNumber" type="java.lang.String"/>
+        <property name="accountNumber" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativeAccNoPayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="accountNumber" type="java.lang.String"/>
+        <property name="accountPassword" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativeBankCodePayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="bankCode" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativeCardAddressPayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="cardAddress" type="com.worldpay.data.Address"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativePanCvvPayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="pan" type="java.lang.String"/>
+        <property name="cvv" type="java.lang.String"/>
+        <property name="expiryDate" type="com.worldpay.data.Date"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativePanPinPayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="pan" type="java.lang.String"/>
+        <property name="pin" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativePayment" extends="com.worldpay.data.payment.Payment">
+        <property name="shopperCountryCode" type="java.lang.String"/>
+        <property name="successURL" type="java.lang.String"/>
+        <property name="pendingURL" type="java.lang.String"/>
+        <property name="failureURL" type="java.lang.String"/>
+        <property name="cancelURL" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativePayPalPayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="firstInBillingRun" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.AlternativeShopperBankCodePayment" extends="com.worldpay.data.payment.AlternativePayment">
+        <property name="shopperBankCode" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.BankAccount" extends="com.worldpay.data.payment.Payment">
+        <property name="accountHolderName" type="java.lang.String"/>
+        <property name="accountNumber" type="java.lang.String"/>
+        <property name="bankName" type="java.lang.String"/>
+        <property name="bankLocation" type="java.lang.String"/>
+        <property name="bankLocationId" type="java.lang.String"/>
+        <property name="birthDate" type="com.worldpay.data.Date"/>
+        <property name="address" type="com.worldpay.data.Address"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.Card" extends="com.worldpay.data.payment.Payment">
+        <property name="cardNumber" type="java.lang.String"/>
+        <property name="cvc" type="java.lang.String"/>
+        <property name="expiryDate" type="com.worldpay.data.Date"/>
+        <property name="cardHolderName" type="java.lang.String"/>
+        <property name="cardAddress" type="com.worldpay.data.Address"/>
+        <property name="birthDate" type="com.worldpay.data.Date"/>
+        <property name="startDate" type="com.worldpay.data.Date"/>
+        <property name="issueNumber" type="java.lang.String"/>
+        <property name="bin" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.Cse" extends="com.worldpay.data.payment.Payment">
+        <property name="encryptedData" type="java.lang.String"/>
+        <property name="address" type="com.worldpay.data.Address"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.EnvoyTransferPayment" extends="com.worldpay.data.payment.Payment">
+        <property name="shopperCountryCode" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.PayAsOrder">
+        <property name="originalMerchantCode" type="java.lang.String"/>
+        <property name="originalOrderCode" type="java.lang.String"/>
+        <property name="amount" type="com.worldpay.data.Amount"/>
+        <property name="cvc" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.PayWithGoogleSSL" extends="com.worldpay.data.payment.Payment">
+        <property name="protocolVersion" type="java.lang.String"/>
+        <property name="signature" type="java.lang.String"/>
+        <property name="signedMessage" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.payment.StoredCredentials">
+        <property name="merchantInitiatedReason" type="com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason"/>
+        <property name="schemeTransactionIdentifier" type="java.lang.String"/>
+        <property name="usage" type="com.worldpay.enums.payment.storedCredentials.Usage"/>
+    </bean>
+
+    <bean class="com.worldpay.data.threeds2.Additional3DSData">
+        <property name="dfReferenceId" type="java.lang.String"/>
+        <property name="challengePreference" type="java.lang.String"/>
+        <property name="challengeWindowSize" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.threeds2.AuthenticationRiskData">
+        <property name="authenticationMethod" type="java.lang.String"/>
+        <property name="authenticationTimestamp" type="com.worldpay.data.Date"/>
+    </bean>
+
+    <bean class="com.worldpay.data.threeds2.RiskData">
+        <property name="transactionRiskData" type="com.worldpay.data.threeds2.TransactionRiskData"/>
+        <property name="shopperAccountRiskData" type="com.worldpay.data.threeds2.ShopperAccountRiskData"/>
+        <property name="authenticationRiskData" type="com.worldpay.data.threeds2.AuthenticationRiskData"/>
+    </bean>
+
+    <bean class="com.worldpay.data.threeds2.ShopperAccountRiskData">
+        <property name="shopperAccountAgeIndicator" type="java.lang.String"/>
+        <property name="transactionsAttemptedLastDay" type="java.lang.String"/>
+        <property name="shopperAccountPaymentAccountIndicator" type="java.lang.String"/>
+        <property name="shopperAccountChangeIndicator" type="java.lang.String"/>
+        <property name="shopperAccountPasswordChangeIndicator" type="java.lang.String"/>
+        <property name="previousSuspiciousActivity" type="java.lang.String"/>
+        <property name="addCardAttemptsLastDay" type="java.lang.String"/>
+        <property name="transactionsAttemptedLastYear" type="java.lang.String"/>
+        <property name="purchasesCompletedLastSixMonths" type="java.lang.String"/>
+        <property name="shopperAccountShippingAddressUsageIndicator" type="java.lang.String"/>
+        <property name="shippingNameMatchesAccountName" type="java.lang.String"/>
+        <property name="shopperAccountCreationDate" type="com.worldpay.data.Date"/>
+        <property name="shopperAccountShippingAddressFirstUseDate" type="com.worldpay.data.Date"/>
+        <property name="shopperAccountModificationDate" type="com.worldpay.data.Date"/>
+        <property name="shopperAccountPaymentAccountFirstUseDate" type="com.worldpay.data.Date"/>
+        <property name="shopperAccountPasswordChangeDate" type="com.worldpay.data.Date"/>
+    </bean>
+
+    <bean class="com.worldpay.data.threeds2.TransactionRiskData">
+        <property name="deliveryTimeframe" type="java.lang.String"/>
+        <property name="deliveryEmailAddress" type="java.lang.String"/>
+        <property name="preOrderPurchase" type="java.lang.String"/>
+        <property name="shippingMethod" type="java.lang.String"/>
+        <property name="giftCardCount" type="java.lang.String"/>
+        <property name="reorderingPreviousPurchases" type="java.lang.String"/>
+        <property name="transactionRiskDataPreOrderDate" type="com.worldpay.data.Date"/>
+        <property name="transactionRiskDataGiftCardAmount" type="com.worldpay.data.threeds2.TransactionRiskDataGiftCardAmount"/>
+    </bean>
+
+    <bean class="com.worldpay.data.threeds2.TransactionRiskDataGiftCardAmount">
+        <property name="amount" type="com.worldpay.data.Amount"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.CardDetails">
+        <property name="cardHolderName" type="java.lang.String"/>
+        <property name="cvcNumber" type="java.lang.String"/>
+        <property name="cardBrand" type="java.lang.String"/>
+        <property name="cardSubBrand" type="java.lang.String"/>
+        <property name="issuerCountryCode" type="java.lang.String"/>
+        <property name="cardNumber" type="java.lang.String"/>
+        <property name="expiryDate" type="com.worldpay.data.Date"/>
+        <property name="cardAddress" type="com.worldpay.data.Address"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.CardTokenRequest">
+        <property name="tokenRequest" type="com.worldpay.data.token.TokenRequest"/>
+        <property name="authenticatedShopperId" type="java.lang.String"/>
+        <property name="payment" type="com.worldpay.data.payment.Payment"/>
+        <property name="storedCredentials" type="com.worldpay.data.payment.StoredCredentials"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.DeleteTokenReply">
+        <property name="paymentTokenId" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.DeleteTokenRequest">
+        <property name="authenticatedShopperId" type="java.lang.String"/>
+        <property name="paymentTokenId" type="java.lang.String"/>
+        <property name="tokenRequest" type="com.worldpay.data.token.TokenRequest"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.Token" extends="com.worldpay.data.payment.Payment">
+        <property name="paymentTokenID" type="java.lang.String"/>
+        <property name="paymentInstrument" type="com.worldpay.data.token.CardDetails"/>
+        <property name="merchantToken" type="boolean"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.TokenDetails">
+        <property name="tokenEvent" type="java.lang.String"/>
+        <property name="paymentTokenID" type="java.lang.String"/>
+        <property name="reportingTokenID" type="java.lang.String"/>
+        <property name="tokenReason" type="java.lang.String"/>
+        <property name="tokenEventReference" type="java.lang.String"/>
+        <property name="paymentTokenExpiry" type="com.worldpay.data.Date"/>
+        <property name="reportingTokenExpiry" type="com.worldpay.data.Date"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.TokenReply">
+        <property name="authenticatedShopperID" type="java.lang.String"/>
+        <property name="tokenEventReference" type="java.lang.String"/>
+        <property name="tokenReason" type="java.lang.String"/>
+        <property name="tokenDetails" type="com.worldpay.data.token.TokenDetails"/>
+        <property name="paymentInstrument" type="com.worldpay.data.payment.Card"/>
+        <property name="error" type="com.worldpay.data.ErrorDetail"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.TokenRequest">
+        <property name="tokenEventReference" type="java.lang.String"/>
+        <property name="tokenReason" type="java.lang.String"/>
+        <property name="merchantToken" type="boolean"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.UpdateTokenReply">
+        <property name="paymentTokenId" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.token.UpdateTokenRequest">
+        <property name="paymentTokenId" type="java.lang.String"/>
+        <property name="authenticatedShopperID" type="java.lang.String"/>
+        <property name="cardDetails" type="com.worldpay.data.token.CardDetails"/>
+        <property name="tokenRequest" type="com.worldpay.data.token.TokenRequest"/>
+        <property name="merchantToken" type="boolean"/>
+    </bean>
 </beans>
