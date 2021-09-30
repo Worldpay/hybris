@@ -1,9 +1,9 @@
 package com.worldpay.service.request;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.Date;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.Amount;
+import com.worldpay.data.Date;
+import com.worldpay.data.MerchantInfo;
 
 import java.util.List;
 

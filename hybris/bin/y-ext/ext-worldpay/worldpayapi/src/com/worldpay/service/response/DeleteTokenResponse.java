@@ -1,6 +1,6 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.model.token.DeleteTokenReply;
+import com.worldpay.data.token.DeleteTokenReply;
 
 /**
  * Object representing the response of a delete token request.

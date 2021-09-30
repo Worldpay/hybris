@@ -1,139 +1,397 @@
+// Hybris b2c_acc__oms_plus recipe extended with Worldpay addon
 apply plugin: 'installer-platform-plugin'
 apply plugin: 'installer-addon2-plugin'
 
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-
-    dependencies {
-    }
-}
-
-ext {
-    workDir = "./work"
-}
-
-def platform = platform {
+def pl = platform {
     localProperties {
-        '# place your custom properties into this file instead of modifying the project.properties'
-        '# all properties in this file have higher priority and will overwrite the platform/project.properties settings.'
-
-        property '#mykey', '#myvalue'
-        property '#hac.webroot', '/hac'
-
+        property 'recaptcha.publickey', ''
+        property 'recaptcha.privatekey', ''
         property 'googleApiKey', ''
-
-        property 'website.electronics.http', 'http://electronics.local:9001/yacceleratorstorefront'
-        property 'website.electronics.https', 'https://electronics.local:9002/yacceleratorstorefront'
-        property 'website.apparel-de.http', 'http://apparel-de.local:9001/yacceleratorstorefront'
-        property 'website.apparel-de.https', 'https://apparel-de.local:9002/yacceleratorstorefront'
-        property 'website.apparel-uk.http', 'http://apparel-uk.local:9001/yacceleratorstorefront'
-        property 'website.apparel-uk.https', 'https://apparel-uk.local:9002/yacceleratorstorefront'
-        property 'multicountrysampledataaddon.import.active', 'false'
-        property 'ansi.colors', 'true'
+        property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
         property 'testclasses.addonname', 'yacceleratorstorefront'
-    }
+        property 'multicountrysampledataaddon.import.active', 'false'
+        property 'storefront.supportedUiExperienceLevels.electronics', 'DESKTOP,MOBILE'
+        property 'storefront.supportedUiExperienceLevels.apparel-uk', 'DESKTOP,MOBILE'
+        property 'storefront.supportedUiExperienceLevels.apparel-de', 'DESKTOP,MOBILE'
+        property 'ansi.colors', 'true'
 
+        property 'worldpay.config.3dsecureflex.jwt.alg', 'hs256'
+        property 'worldpay.config.3dsecureflex.jwt.challengeurl', 'https://secure-test.worldpay.com/shopper/3ds/challenge.html'
+        property 'worldpay.config.3dsecureflex.jwt.ddcurl', 'https://secure-test.worldpay.com/shopper/3ds/ddc.html'
+        property 'worldpay.config.3dsecureflex.jwt.eventOriginDomain', 'https://secure-test.worldpay.com'
+        property 'worldpay.config.3dsecureflex.jwt.returnurl', '/checkout/multi/worldpay/3dsecureflex/sop/response'
+        property 'worldpay.config.3dsecureflex.challengepreference', 'noPreference'
+        property 'worldpay.config.3dsecureflex.secondauthorisation.submit.url', '/checkout/multi/worldpay/3dsecureflex/sop/response/autosubmit'
+        property 'worldpay.config.3dsecureflex.jwt.flowReturnUrl', '/checkout/multi/worldpay/3dsecureflex/sop/response'
+
+        property 'worldpay.config.web.merchant.card.acceptor.taxId', '123456789'
+
+        property 'worldpay.config.web.merchant.code.electronics', 'MERCHANTREL60ECOM'
+        property 'worldpay.config.web.merchant.password.electronics', '3l3ph4nt_and_c4st!3'
+        property 'worldpay.config.web.merchant.macSecret.electronics', '3l3ph4nt_AND_c4st!3s'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.electronics', ''
+        property 'worldpay.config.web.merchant.installationId.electronics', '1048564'
+        property 'worldpay.config.web.merchant.statementNarrative.electronics', ''
+        property 'worldpay.config.asm.merchant.code.electronics', 'MERCHANTREL60MOTO'
+        property 'worldpay.config.asm.merchant.password.electronics', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.macSecret.electronics', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.installationId.electronics', '1048564'
+        property 'worldpay.config.asm.merchant.statementNarrative.electronics', ''
+        property 'worldpay.config.replenishment.merchant.code.electronics', 'MERCHANTREL60RECUR'
+        property 'worldpay.config.replenishment.merchant.password.electronics', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.macSecret.electronics', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.installationId.electronics', '1048564'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.electronics', ''
+        property 'worldpay.config.3dsecureflex.jwt.iss.electronics', ''
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.electronics', ''
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.electronics', ''
+
+        property 'worldpay.config.web.merchant.code.apparel_uk', 'MERCHANTREL60ECOM'
+        property 'worldpay.config.web.merchant.password.apparel_uk', '3l3ph4nt_and_c4st!3'
+        property 'worldpay.config.web.merchant.macSecret.apparel_uk', '3l3ph4nt_AND_c4st!3s'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_uk', ''
+        property 'worldpay.config.web.merchant.installationId.apparel_uk', '1048564'
+        property 'worldpay.config.web.merchant.statementNarrative.apparel_uk', ''
+        property 'worldpay.config.asm.merchant.code.apparel_uk', 'MERCHANTREL60MOTO'
+        property 'worldpay.config.asm.merchant.password.apparel_uk', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.macSecret.apparel_uk', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.installationId.apparel_uk', '1048564'
+        property 'worldpay.config.asm.merchant.statementNarrative.apparel_uk', ''
+        property 'worldpay.config.replenishment.merchant.code.apparel_uk', 'MERCHANTREL60RECUR'
+        property 'worldpay.config.replenishment.merchant.password.apparel_uk', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.macSecret.apparel_uk', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.installationId.apparel_uk', '1048564'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.apparel_uk', ''
+        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_uk', ''
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_uk', ''
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_uk', ''
+
+        property 'worldpay.config.web.merchant.code.apparel_de', 'MERCHANTREL60ECOM'
+        property 'worldpay.config.web.merchant.password.apparel_de', '3l3ph4nt_and_c4st!3'
+        property 'worldpay.config.web.merchant.macSecret.apparel_de', '3l3ph4nt_AND_c4st!3s'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_de', ''
+        property 'worldpay.config.web.merchant.installationId.apparel_de', '1048564'
+        property 'worldpay.config.web.merchant.statementNarrative.apparel_de', ''
+        property 'worldpay.config.asm.merchant.code.apparel_de', 'MERCHANTREL60MOTO'
+        property 'worldpay.config.asm.merchant.password.apparel_de', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.macSecret.apparel_de', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.asm.merchant.installationId.apparel_de', '1048564'
+        property 'worldpay.config.asm.merchant.statementNarrative.apparel_de', ''
+        property 'worldpay.config.replenishment.merchant.code.apparel_de', 'MERCHANTREL60RECUR'
+        property 'worldpay.config.replenishment.merchant.password.apparel_de', 'Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.macSecret.apparel_de', 'Ru553!!_5qu4r3Ru553!!_5qu4r3'
+        property 'worldpay.config.replenishment.merchant.installationId.apparel_de', '1048564'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.apparel_de', ''
+        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_de', ''
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_de', ''
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_de', ''
+    }
     afterSetup {
         ensureAdminPasswordSet()
     }
-
     extensions {
-        extensionNames 'ordermanagementaddon',
-                'orderselfserviceaddon',
-                'ordermanagementwebservices',
-
-                'warehousing',
-                'warehousingbackoffice',
-                'warehousingwebservices',
-
-                'adaptivesearchsolr',
-                'adaptivesearchbackoffice',
-                'adaptivesearchsamplesaddon',
-                'commerceservicesbackoffice',
-                'solrfacetsearchbackoffice',
-
-                'yacceleratorbackoffice',
-                'yacceleratorinitialdata',
-                'yacceleratorordermanagement',
-                'yacceleratorstorefront',
-                'yaddon',
-                'ycommercewebservices',
-
-                'apparelstore',
-                'electronicsstore',
-                'powertoolsstore',
-                'solrserver',
-
-                'acceleratorwebservicesaddon',
-                'commerceorgaddon',
-                'commerceorgsamplesaddon',
-
-                'assistedservicestorefront',
-                'assistedservicewebservices',
-                'customerticketingaddon',
-                'customersupportbackoffice',
-                'ticketsystembackoffice',
-                'consignmenttrackingbackoffice',
-
-                'rulebuilderbackoffice',
-                'couponbackoffice',
-                'droolsruleengineservices',
-                'couponfacades',
-                'promotionenginesamplesaddon',
-                'consignmenttrackingaddon',
-
-                'pcmbackofficesamplesaddon',
-
-                'consignmenttrackingocc',
-
-                'outboundservices',
-		        'outboundsync',
-                'odata2webservices',
-                'odata2webservicesfeaturetests',
-                'integrationbackoffice',
-                'integrationmonitoringbackoffice',
-                'outboundsyncbackoffice',
-
-                'kymaintegrationbackoffice',
-
-                'xyformsbackoffice',
-                'xyformsstorefrontcommons',
-                'xyformssamples',
-                'xyformsweb',
-                'orbeonweb',
-
-                'entitlementfacades',
-                'entitlementbackoffice',
-
-                'cmswebservices',
-                'smarteditwebservices',
-                'cmssmarteditwebservices',
-                'permissionswebservices',
-                'previewwebservices',
-                'smarteditaddon',
-                'cmssmartedit',
-                'cmsbackoffice',
-                'cmsocc',
-                'multicountrysampledataaddon',
-
-                'worldpayaddon',
-                'worldpayaddonbackoffice',
-                'worldpayapi',
-                'worldpaynotifications',
-                'worldpaysampledataaddon',
-                'worldpayextocc',
-                'worldpayhac',
-                'worldpayoms'
+        /* adaptive-search */
+        extName 'adaptivesearch'
+        extName 'adaptivesearchsolr'
+        extName 'adaptivesearchfacades'
+        extName 'adaptivesearchbackoffice'
+        extName 'adaptivesearchwebservices'
+        extName 'adaptivesearchsamplesaddon'
+        /* api-registry */
+        extName 'apiregistrybackoffice'
+        extName 'apiregistryservices'
+        /* assisted-services */
+        extName 'assistedservicecustomerinterestsaddon'
+        extName 'assistedservicecustomerinterestsfacades'
+        extName 'assistedservicefacades'
+        extName 'assistedservicepromotionaddon'
+        extName 'assistedservicepromotionfacades'
+        extName 'assistedserviceservices'
+        extName 'assistedservicestorefront'
+        extName 'assistedservicewebservices'
+        /* assisted-services-integrations */
+        extName 'assistedserviceyprofileaddon'
+        extName 'assistedserviceyprofilefacades'
+        extName 'yaasyprofileconnect'
+        /* b2c-accelerator */
+        extName 'apparelstore'
+        extName 'electronicsstore'
+        /* b2c-accelerator-addons */
+        extName 'captchaaddon'
+        extName 'multicountrysampledataaddon'
+        extName 'wishlist'
+        /* backoffice-addons */
+        extName 'pcmbackofficesamplesaddon'
+        /* backoffice-addons */
+        extName 'classificationgroupsservices'
+        extName 'mediaconversionbackoffice'
+        extName 'patchesbackoffice'
+        extName 'pcmbackoffice'
+        /* backoffice-framework */
+        extName 'backoffice'
+        extName 'platformbackoffice'
+        extName 'ybackoffice'
+        /* base-accelerator */
+        extName 'yacceleratorbackoffice'
+        extName 'yacceleratorcore'
+        extName 'yacceleratorfacades'
+        extName 'yacceleratorinitialdata'
+        extName 'yacceleratorstorefront'
+        extName 'yaddon'
+        extName 'yacceleratorfulfilmentprocess'
+        /* base-commerce */
+        extName 'basecommerce'
+        extName 'basecommercebackoffice'
+        extName 'customerreview'
+        extName 'payment'
+        extName 'promotions'
+        extName 'promotionsbackoffice'
+        extName 'voucher'
+        extName 'voucherbackoffice'
+        /* cds-integration */
+        extName 'profileservices'
+        extName 'profiletagaddon'
+        /* cds-merchandising */
+        extName 'merchandisingaddon'
+        extName 'merchandisingcmswebservices'
+        extName 'merchandisingservices'
+        extName 'merchandisingservicesbackoffice'
+        extName 'merchandisingsmartedit'
+        extName 'merchandisingstorefrontsampledataaddon'
+        /* commerce-services */
+        extName 'commercefacades'
+        extName 'commerceservices'
+        extName 'commerceservicesbackoffice'
+        extName 'commercewebservices'
+        extName 'commercewebservicescommons'
+        extName 'commercewebservicestests'
+        /* configurable-bundle */
+        extName 'configurablebundleaddon'
+        extName 'configurablebundlebackoffice'
+        extName 'configurablebundlefacades'
+        extName 'configurablebundleservices'
+        /* configurator-complex-products */
+        extName 'sapproductconfigfacades'
+        extName 'sapproductconfigrules'
+        extName 'sapproductconfigrulesbackoffice'
+        extName 'sapproductconfigruntimeinterface'
+        extName 'sapproductconfigruntimemock'
+        extName 'sapproductconfigservices'
+        extName 'ysapproductconfigaddon'
+        /* consignment-tracking */
+        extName 'consignmenttrackingaddon'
+        extName 'consignmenttrackingbackoffice'
+        extName 'consignmenttrackingfacades'
+        extName 'consignmenttrackingmock'
+        extName 'consignmenttrackingservices'
+        /* core-accelerator */
+        extName 'acceleratorbackoffice'
+        extName 'acceleratorcms'
+        extName 'acceleratorfacades'
+        extName 'acceleratorservices'
+        extName 'acceleratorstorefrontcommons'
+        extName 'addonsupport'
+        /* coupon */
+        extName 'couponbackoffice'
+        extName 'couponfacades'
+        extName 'couponservices'
+        extName 'couponwebservices'
+        /* customer-coupon */
+        extName 'customercouponaddon'
+        extName 'customercouponbackoffice'
+        extName 'customercouponfacades'
+        extName 'customercouponsamplesaddon'
+        extName 'customercouponservices'
+        /* customer-interest */
+        extName 'customerinterestsaddon'
+        extName 'customerinterestsfacades'
+        extName 'customerinterestsservices'
+        /* customer-service */
+        extName 'customersupportbackoffice'
+        extName 'customerticketingaddon'
+        extName 'customerticketingfacades'
+        extName 'ticketsystem'
+        extName 'ticketsystembackoffice'
+        /* customer-service */
+        extName 'datahubadapter'
+        extName 'datahubclient'
+        extName 'dataimportcommons'
+        /* entitlements */
+        extName 'entitlementbackoffice'
+        extName 'entitlementfacades'
+        extName 'entitlementservices'
+        /* integration-apis */
+        extName 'inboundservices'
+        extName 'integrationbackoffice'
+        extName 'integrationbackofficetest'
+        extName 'integrationmonitoringbackoffice'
+        extName 'integrationservices'
+        extName 'odata2services'
+        extName 'odata2webservices'
+        extName 'odata2webservicesfeaturetests'
+        extName 'outboundservices'
+        extName 'outboundsync'
+        extName 'outboundsyncbackoffice'
+        extName 'webhookbackoffice'
+        extName 'webhookservices'
+        /* message-center */
+        extName 'messagecentercsfacades'
+        extName 'messagecentercsservices'
+        /* notification */
+        extName 'notificationaddon'
+        extName 'notificationfacades'
+        extName 'notificationservices'
+        /* npm-ancillary */
+        extName 'npmancillary'
+        /* order-management */
+        extName 'ordermanagementaddon'
+        extName 'ordermanagementfacades'
+        extName 'ordermanagementwebservices'
+        extName 'orderselfserviceaddon'
+        extName 'warehousing'
+        extName 'warehousingbackoffice'
+        extName 'warehousingfacades'
+        extName 'warehousingwebservices'
+        /* personalization */
+        extName 'personalizationcms'
+        extName 'personalizationcmsbackoffice'
+        extName 'personalizationcmsweb'
+        extName 'personalizationfacades'
+        extName 'personalizationintegration'
+        extName 'personalizationintegrationbackoffice'
+        extName 'personalizationsampledataaddon'
+        extName 'personalizationservices'
+        extName 'personalizationservicesbackoffice'
+        extName 'personalizationsmartedit'
+        extName 'personalizationwebservices'
+        extName 'previewpersonalizationweb'
+        /* personalization-integration */
+        extName 'personalizationaddon'
+        extName 'personalizationyprofile'
+        extName 'personalizationyprofilesampledataaddon'
+        /* personalization-promotion*/
+        extName 'personalizationpromotions'
+        extName 'personalizationpromotionsbackoffice'
+        extName 'personalizationpromotionssampledataaddon'
+        extName 'personalizationpromotionssmartedit'
+        extName 'personalizationpromotionsweb'
+        /* personalization-search */
+        extName 'personalizationsearch'
+        extName 'personalizationsearchbackoffice'
+        extName 'personalizationsearchsamplesaddon'
+        extName 'personalizationsearchsmartedit'
+        extName 'personalizationsearchweb'
+        /* platform */
+        extName 'adminapi'
+        extName 'auditreportservices'
+        extName 'deltadetection'
+        extName 'embeddedserver'
+        extName 'groovynature'
+        extName 'mediaconversion'
+        extName 'patches'
+        extName 'springintegrationlibs'
+        extName 'tomcatembeddedserver'
+        extName 'yempty'
+        extName 'yhacext'
+        extName 'yvoid'
+        /* promotion-engine */
+        extName 'promotionenginebackoffice'
+        extName 'promotionenginesamplesaddon'
+        extName 'promotionengineservices'
+        /* rule-engine */
+        extName 'droolsruleengineservices'
+        extName 'ordercalculation'
+        extName 'rulebuilderbackoffice'
+        extName 'ruledefinitions'
+        extName 'ruleengine'
+        extName 'ruleenginebackoffice'
+        extName 'ruleengineservices'
+        /* sap-btp-extensions-integration */
+        extName 'kymaintegrationbackoffice'
+        extName 'kymaintegrationservices'
+        /* search-and-navigation */
+        extName 'backofficesolrsearch'
+        extName 'solrfacetsearch'
+        extName 'solrfacetsearchbackoffice'
+        extName 'solrserver'
+        /* search-services */
+        extName 'searchbackoffice'
+        extName 'searchprovidercssearchbackoffice'
+        extName 'searchprovidercssearchservices'
+        extName 'searchservices'
+        /* selective-cart */
+        extName 'selectivecartfacades'
+        extName 'selectivecartservices'
+        extName 'selectivecartsplitlistaddon'
+        /* smartedit */
+        extName 'cmssmartedit'
+        extName 'cmssmarteditwebservices'
+        extName 'smartedit'
+        extName 'smarteditaddon'
+        extName 'smarteditwebservices'
+        /* stock-notification */
+        extName 'stocknotificationaddon'
+        extName 'stocknotificationfacades'
+        extName 'stocknotificationservices'
+        /* subscription-bundles */
+        extName 'subscriptionbundlebackoffice'
+        extName 'subscriptionbundlefacades'
+        extName 'subscriptionbundleservices'
+        /* subscriptions */
+        extName 'subscriptionbackoffice'
+        extName 'subscriptionfacades'
+        extName 'subscriptionservices'
+        /* text-field-configurator-template */
+        extName 'textfieldconfiguratortemplateaddon'
+        extName 'textfieldconfiguratortemplatebackoffice'
+        extName 'textfieldconfiguratortemplatefacades'
+        extName 'textfieldconfiguratortemplateservices'
+        /* timed-access-promotion-engine */
+        extName 'timedaccesspromotionengineaddon'
+        extName 'timedaccesspromotionenginebackoffice'
+        extName 'timedaccesspromotionenginefacades'
+        extName 'timedaccesspromotionenginesamplesaddon'
+        extName 'timedaccesspromotionengineservices'
+        /* web-content-management-system */
+        extName 'cms2'
+        extName 'cms2lib'
+        extName 'cmsbackoffice'
+        extName 'cmsfacades'
+        extName 'cmswebservices'
+        extName 'cmsocc'
+        extName 'previewwebservices'
+        /* web-services-commons */
+        extName 'permissionsfacades'
+        extName 'permissionswebservices'
+        extName 'webservicescommons'
+        extName 'ywebservices'
+        /* yforms */
+        extName 'orbeonweb'
+        extName 'xyformsbackoffice'
+        extName 'xyformsfacades'
+        extName 'xyformssamples'
+        extName 'xyformsservices'
+        extName 'xyformsstorefrontcommons'
+        extName 'xyformsweb'
+        /* Worldpay extensions */
+        extName 'worldpayaddon'
+        extName 'worldpayaddonbackoffice'
+        extName 'worldpayapi'
+        extName 'worldpaynotifications'
+        extName 'worldpaysampledataaddon'
+        extName 'worldpayextocc'
+        extName 'worldpayhac'
+        extName 'worldpayoms'
     }
 
     addons {
         forStoreFronts('yacceleratorstorefront') {
-            names 'worldpayaddon', 'worldpaysampledataaddon','commerceorgsamplesaddon', 'customerticketingaddon', 'promotionenginesamplesaddon', 'adaptivesearchsamplesaddon',
-                    'pcmbackofficesamplesaddon', 'ordermanagementaddon', 'orderselfserviceaddon', 'consignmenttrackingaddon', 'assistedservicestorefront',
-                    'xyformssamples', 'xyformsstorefrontcommons', 'smarteditaddon', 'multicountrysampledataaddon'
+            names('worldpayaddon', 'worldpaysampledataaddon', 'customercouponaddon', 'captchaaddon', 'assistedservicestorefront', 'assistedservicecustomerinterestsaddon', 'personalizationsampledataaddon',
+                'assistedserviceyprofileaddon', 'assistedservicepromotionaddon', 'customerticketingaddon', 'textfieldconfiguratortemplateaddon', 'smarteditaddon',
+                'consignmenttrackingaddon', 'notificationaddon', 'customerinterestsaddon', 'stocknotificationaddon', 'orderselfserviceaddon', 'adaptivesearchsamplesaddon',
+                'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons',
+                'personalizationyprofilesampledataaddon', 'personalizationaddon', 'profiletagaddon', 'merchandisingaddon', 'merchandisingstorefrontsampledataaddon', 'customercouponsamplesaddon',
+                'multicountrysampledataaddon', 'ordermanagementaddon', 'selectivecartsplitlistaddon', 'timedaccesspromotionengineaddon', 'timedaccesspromotionenginesamplesaddon', 'ysapproductconfigaddon')
             template 'yacceleratorstorefront'
 
         }
@@ -142,25 +400,25 @@ def platform = platform {
 
 task setup() {
     doLast {
-        platform.setup()
+        pl.setup()
     }
 }
 
 task buildSystem(dependsOn: setup) {
     doLast {
-        platform.build()
+        pl.build()
     }
 }
 
 task initialize(dependsOn: buildSystem) {
     doLast {
-        platform.initialize()
+        pl.initialize()
     }
 }
 
 task start {
     doLast {
-        platform.start()
+        pl.start()
     }
 }
 
@@ -175,4 +433,3 @@ task stopInBackground {
         pl.stopInBackground()
     }
 }
-

@@ -4,6 +4,7 @@ import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
@@ -47,6 +48,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.Date;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
@@ -82,6 +84,9 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
     private static final String THREEDS_FLEX_CHALLENGE_IFRAME = "threeDSFlexIframePage";
     private static final String THREEDSECURE_FLEX_DDC_URL_VALUE = "threeDSecureDDCUrlValue";
+    private static final Date CURRENT_DATE_VALUE = new Date();
+    private static final String DEVICE_SESSION = "device_session";
+    private static final String CURRENT_DATE = "currentDate";
 
     @Spy
     @InjectMocks
@@ -108,6 +113,8 @@ public class WorldpayCseCheckoutStepControllerTest {
     private BindingResult bindingResultMock;
     @Mock
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
+    @Mock
+    private WorldpayCartFacade worldpayCartFacadeMock;
     @Mock(name = "cseFormValidator")
     private Validator cseFormValidatorMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
@@ -159,6 +166,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     @Mock
     private HttpServletResponse responseMock;
 
+
     @Before
     public void setUp() throws CMSItemNotFoundException {
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
@@ -181,6 +189,7 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
     }
 
     @Test
@@ -296,14 +305,27 @@ public class WorldpayCseCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddCMSContentForPageToModel() throws CMSItemNotFoundException {
+    public void getCseDataPage_WhenFSEnabled_ShouldAddCMSContentForPageToModelAndFSAttributeTrue() throws CMSItemNotFoundException {
         testObj.getCseDataPage(modelMock);
 
         verify(modelMock).addAttribute(CMS_PAGE_MODEL, contentPageModelMock);
+        verify(modelMock).addAttribute(IS_FS_ENABLED, true);
+        verify(modelMock).addAttribute(eq(CURRENT_DATE), any(Date.class));
     }
 
     @Test
-    public void shouldAddCartToModel() throws CMSItemNotFoundException {
+    public void getCseDataPage_WhenFSDisabled_ShouldAddCMSContentForPageToModelAndFSAttributeFalse() throws CMSItemNotFoundException {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
+
+        testObj.getCseDataPage(modelMock);
+
+        verify(modelMock).addAttribute(CMS_PAGE_MODEL, contentPageModelMock);
+        verify(modelMock).addAttribute(IS_FS_ENABLED, false);
+        verify(modelMock).addAttribute(eq(CURRENT_DATE), any(Date.class));
+    }
+
+    @Test
+    public void getCseDataPage_shouldAddCartToModel() throws CMSItemNotFoundException {
         testObj.getCseDataPage(modelMock);
 
         verify(modelMock).addAttribute(CART_DATA, cartDataMock);
@@ -347,11 +369,16 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(cseAdditionalAuthInfoMock.getAdditional3DS2()).thenReturn(additional3DS2InfoMock);
         when(cseAdditionalAuthInfoMock.getAdditional3DS2().getDfReferenceId()).thenReturn(ID_REFERENCE);
         when(cseAdditionalAuthInfoMock.getAdditional3DS2().getChallengeWindowSize()).thenReturn(WINDOW_SIZE);
+        when(csePaymentFormMock.getDateOfBirth()).thenReturn(CURRENT_DATE_VALUE);
+        when(csePaymentFormMock.getDeviceSession()).thenReturn(DEVICE_SESSION);
+        when(csePaymentFormMock.getCvc()).thenReturn(CVC);
 
-        testObj.createWorldpayAdditionalInfo(httpServletRequestMock, CVC, cseAdditionalAuthInfoMock);
+        testObj.createWorldpayAdditionalInfo(httpServletRequestMock, csePaymentFormMock, cseAdditionalAuthInfoMock);
 
         verify(worldpayAdditionalInfoFacadeMock).createWorldpayAdditionalInfoData(httpServletRequestMock);
         verify(worldpayAdditionalInfoDataMock).setSecurityCode(CVC);
+        verify(worldpayAdditionalInfoDataMock).setDateOfBirth(CURRENT_DATE_VALUE);
+        verify(worldpayAdditionalInfoDataMock).setDeviceSession(DEVICE_SESSION);
         verify(worldpayAdditionalInfoDataMock).setAdditional3DS2(additional3DS2InfoMock);
     }
 

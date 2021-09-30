@@ -4,7 +4,7 @@ import com.worldpay.exception.WorldpayCommunicationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 
 /**
  * Interface template for the connector required to send the xml {@link PaymentService} to Worldpay.
@@ -29,5 +29,5 @@ public interface WorldpayConnector {
      *
      * @param paymentService
      */
-    void logXMLOut(final PaymentService paymentService);
+    String logXMLOut(final PaymentService paymentService);
 }

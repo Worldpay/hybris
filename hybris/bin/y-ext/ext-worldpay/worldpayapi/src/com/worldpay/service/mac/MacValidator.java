@@ -2,7 +2,7 @@ package com.worldpay.service.mac;
 
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.RedirectReference;
 
 /**
  * Class to validate of a mac code.

@@ -7,6 +7,7 @@ ACC.worldpay = {
         "populateDeclineCodeTimeout",
         "hideOrShowSaveDetails",
         "bindBanks",
+        ["bindDOBInput", ACC.isFSEnabled === 'true'],
         "checkPreviouslySelectedPaymentMethod",
         "onPaymentMethodChange"
     ],
@@ -119,6 +120,7 @@ ACC.worldpay = {
             setTimeout(function () {
                 populateDeclineCode();
             }, waitTimer);
+
             function populateDeclineCode() {
                 $.ajax({
                     url: ACC.config.encodedContextPath + "/checkout/multi/worldpay/choose-payment-method/getDeclineMessage",
@@ -245,6 +247,24 @@ ACC.worldpay = {
                 $bankElement.find('select').prop('disabled', true);
             }
         });
+    },
+
+    bindDOBInput: function () {
+        $('.cms-payment-button').on('change', function () {
+            var selectedCard = $('[name="paymentMethod"]:checked');
+            if (selectedCard.attr('id') === 'paymentMethod_CC') {
+                $('#dobElement').removeClass('hidden');
+                $('#dobRequired').val(true);
+            } else {
+                $('#dobElement').addClass('hidden');
+                $('#dobRequired').val(false);
+            }
+        });
+
+        if ($('[id="paymentMethod_CC"]:checked').length > 0) {
+            $('#dobElement').removeClass('hidden');
+            $('#dobRequired').val(ACC.isFSEnabled);
+        }
     },
 
     onPaymentMethodChange: function () {

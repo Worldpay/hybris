@@ -4,9 +4,11 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Modify;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenUpdate;
+import com.worldpay.data.token.UpdateTokenRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +30,16 @@ public class UpdateTokenRequestTransformerTest {
 
     @InjectMocks
     private UpdateTokenRequestTransformer testObj;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    private ConfigurationService configurationServiceMock;
+    @Mock
+    protected Converter<UpdateTokenRequest, PaymentTokenUpdate> internalPaymentTokenUpdateConverterMock;
+
     @Mock(answer = RETURNS_DEEP_STUBS)
     private UpdateTokenServiceRequest serviceRequestMock;
     @Mock
     private PaymentTokenUpdate paymentTokenUpdateMock;
-    @Mock(answer = RETURNS_DEEP_STUBS)
-    private ConfigurationService configurationServiceMock;
 
     @Before
     public void setUp() throws Exception {
@@ -47,7 +53,7 @@ public class UpdateTokenRequestTransformerTest {
 
     @Test
     public void shouldReturnPaymentServiceWithPaymentTokenUpdate() throws Exception {
-        when(serviceRequestMock.getUpdateTokenRequest().transformToInternalModel()).thenReturn(paymentTokenUpdateMock);
+        when(internalPaymentTokenUpdateConverterMock.convert(serviceRequestMock.getUpdateTokenRequest())).thenReturn(paymentTokenUpdateMock);
         when(serviceRequestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
 
         final PaymentService result = testObj.transform(serviceRequestMock);

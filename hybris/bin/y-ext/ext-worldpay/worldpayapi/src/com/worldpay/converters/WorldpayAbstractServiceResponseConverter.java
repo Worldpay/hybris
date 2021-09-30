@@ -1,7 +1,7 @@
 package com.worldpay.converters;
 
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.ErrorDetail;
+import com.worldpay.data.Amount;
+import com.worldpay.data.ErrorDetail;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.response.ServiceResponse;
 import de.hybris.platform.converters.impl.AbstractConverter;

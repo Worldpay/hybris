@@ -2,7 +2,7 @@ package com.worldpay.commands.impl;
 
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.model.PaymentTransactionModel;

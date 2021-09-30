@@ -3,25 +3,30 @@ package com.worldpay.converters.populators;
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.ErrorDetail;
+import com.worldpay.data.PaymentReply;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Populator that fills the necessary details on a {@link WorldpaySubscriptionAuthorizeResult} with the information of a {@link DirectAuthoriseServiceResponse}
  */
 public class WorldpaySubscriptionAuthoriseResultPopulator implements Populator<DirectAuthoriseServiceResponse, WorldpaySubscriptionAuthorizeResult> {
 
-    private static final Logger LOG = Logger.getLogger(WorldpaySubscriptionAuthoriseResultPopulator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpaySubscriptionAuthoriseResultPopulator.class);
 
-    private WorldpayAuthorisationResultService worldpayAuthorisationResultService;
+    protected final WorldpayAuthorisationResultService worldpayAuthorisationResultService;
+
+    public WorldpaySubscriptionAuthoriseResultPopulator(final WorldpayAuthorisationResultService worldpayAuthorisationResultService) {
+        this.worldpayAuthorisationResultService = worldpayAuthorisationResultService;
+    }
 
     /**
      * Populates the data from the {@link DirectAuthoriseServiceResponse} to a {@link WorldpaySubscriptionAuthorizeResult}
+     *
      * @param source a {@link DirectAuthoriseServiceResponse} from Worldpay
      * @param target a {@link WorldpaySubscriptionAuthorizeResult} in hybris.
      * @throws ConversionException
@@ -39,7 +44,7 @@ public class WorldpaySubscriptionAuthoriseResultPopulator implements Populator<D
                 LOG.warn("No PaymentReply in response from worldpay");
                 final ErrorDetail errorDetail = source.getErrorDetail();
                 if (errorDetail != null) {
-                    LOG.error("Error message from Worldpay: " + errorDetail.getMessage());
+                    LOG.error("Error message from Worldpay: {}", errorDetail.getMessage());
                 }
                 worldpayAuthorisationResultService.setAuthoriseResultAsError(target);
             }
@@ -47,10 +52,5 @@ public class WorldpaySubscriptionAuthoriseResultPopulator implements Populator<D
             final AuthorisedStatus status = paymentReply.getAuthStatus();
             worldpayAuthorisationResultService.setAuthoriseResultByTransactionStatus(target, status, orderCode);
         }
-    }
-
-    @Required
-    public void setWorldpayAuthorisationResultService(final WorldpayAuthorisationResultService worldpayAuthorisationResultService) {
-        this.worldpayAuthorisationResultService = worldpayAuthorisationResultService;
     }
 }

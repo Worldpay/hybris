@@ -1,19 +1,22 @@
-
 package com.worldpay.commands.impl;
 
+import com.worldpay.core.services.WorldpayPrimeRoutingService;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.CancelServiceRequest;
+import com.worldpay.service.request.VoidSaleServiceRequest;
 import com.worldpay.service.response.CancelServiceResponse;
+import com.worldpay.service.response.VoidSaleServiceResponse;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.payment.commands.VoidCommand;
 import de.hybris.platform.payment.commands.request.VoidRequest;
 import de.hybris.platform.payment.commands.result.VoidResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
@@ -27,12 +30,20 @@ import static java.text.MessageFormat.format;
  */
 public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidCommand {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayVoidCommand.class);
-    protected final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter;
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayVoidCommand.class);
 
-    public DefaultWorldpayVoidCommand(final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter, final WorldpayMerchantInfoService worldpayMerchantInfoService, final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayOrderService worldpayOrderService, final WorldpayServiceGateway worldpayServiceGateway) {
+    protected final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter;
+    protected final WorldpayPrimeRoutingService worldpayPrimeRoutingService;
+
+    public DefaultWorldpayVoidCommand(final Converter<CancelServiceResponse, VoidResult> voidServiceResponseConverter,
+                                      final WorldpayMerchantInfoService worldpayMerchantInfoService,
+                                      final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                      final WorldpayOrderService worldpayOrderService,
+                                      final WorldpayServiceGateway worldpayServiceGateway,
+                                      final WorldpayPrimeRoutingService worldpayPrimeRoutingService) {
         super(worldpayMerchantInfoService, worldpayPaymentTransactionService, worldpayOrderService, worldpayServiceGateway);
         this.voidServiceResponseConverter = voidServiceResponseConverter;
+        this.worldpayPrimeRoutingService = worldpayPrimeRoutingService;
     }
 
     /**
@@ -42,9 +53,31 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
      */
     @Override
     public VoidResult perform(final VoidRequest request) {
+        final String worldpayOrderCode = request.getRequestId();
+
+        if (worldpayPrimeRoutingService.isOrderAuthorisedWithPrimeRouting(worldpayOrderCode)) {
+            return voidSale(worldpayOrderCode);
+        }
+        return cancel(worldpayOrderCode);
+    }
+
+    /**
+     * Make the call through to worldpay to void the authorisation
+     *
+     * @param worldpayOrderCode void worldpayOrderCode
+     * @return VoidResult translated from the service response
+     */
+    private VoidResult voidSale(final String worldpayOrderCode) {
         try {
-            final CancelServiceRequest cancelRequest = buildCancelServiceRequest(request.getRequestId());
-            return cancel(cancelRequest);
+            final VoidSaleServiceRequest voidServiceRequest = buildVoidServiceRequest(worldpayOrderCode);
+
+            final VoidSaleServiceResponse voidSaleServiceResponse = getWorldpayServiceGateway().voidSale(voidServiceRequest);
+            if (voidSaleServiceResponse == null) {
+                throw new WorldpayException("Response from Worldpay is empty");
+            }
+            final VoidResult voidResult = voidServiceResponseConverter.convert(voidSaleServiceResponse);
+            voidResult.setRequestToken(voidServiceRequest.getMerchantInfo().getMerchantCode());
+            return voidResult;
         } catch (final WorldpayException e) {
             LOG.error(format("Exception raised while issuing a cancelServiceRequest: [{0}]", e.getMessage()), e);
             return createErrorVoidResult();
@@ -54,17 +87,23 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
     /**
      * Make the call through to worldpay to cancel the authorisation
      *
-     * @param cancelServiceRequest service request object
+     * @param worldpayOrderCode worldpayOrderCode
      * @return VoidResult translated from the service response
      */
-    private VoidResult cancel(final CancelServiceRequest cancelServiceRequest) throws WorldpayException {
-        final CancelServiceResponse cancelResponse = getWorldpayServiceGateway().cancel(cancelServiceRequest);
-        if (cancelResponse == null) {
-            throw new WorldpayException("Response from worldpay is empty");
+    private VoidResult cancel(final String worldpayOrderCode) {
+        try {
+            final CancelServiceRequest cancelServiceRequest = buildCancelServiceRequest(worldpayOrderCode);
+            final CancelServiceResponse cancelResponse = getWorldpayServiceGateway().cancel(cancelServiceRequest);
+            if (cancelResponse == null) {
+                throw new WorldpayException("Response from Worldpay is empty");
+            }
+            final VoidResult voidResult = voidServiceResponseConverter.convert(cancelResponse);
+            voidResult.setRequestToken(cancelServiceRequest.getMerchantInfo().getMerchantCode());
+            return voidResult;
+        } catch (final WorldpayException e) {
+            LOG.error(format("Exception raised while issuing a cancelServiceRequest: [{0}]", e.getMessage()), e);
+            return createErrorVoidResult();
         }
-        final VoidResult voidResult = voidServiceResponseConverter.convert(cancelResponse);
-        voidResult.setRequestToken(cancelServiceRequest.getMerchantInfo().getMerchantCode());
-        return voidResult;
     }
 
     protected VoidResult createErrorVoidResult() {
@@ -83,5 +122,16 @@ public class DefaultWorldpayVoidCommand extends WorldpayCommand implements VoidC
     private CancelServiceRequest buildCancelServiceRequest(final String worldpayOrderCode) throws WorldpayException {
         final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
         return CancelServiceRequest.createCancelRequest(merchantInfo, worldpayOrderCode);
+    }
+
+    /**
+     * Build the void service request
+     *
+     * @param worldpayOrderCode order code to be used in the service request
+     * @return CancelServiceRequest object
+     */
+    private VoidSaleServiceRequest buildVoidServiceRequest(final String worldpayOrderCode) throws WorldpayException {
+        final MerchantInfo merchantInfo = getMerchantInfo(worldpayOrderCode);
+        return VoidSaleServiceRequest.createVoidSaleRequest(merchantInfo, worldpayOrderCode);
     }
 }

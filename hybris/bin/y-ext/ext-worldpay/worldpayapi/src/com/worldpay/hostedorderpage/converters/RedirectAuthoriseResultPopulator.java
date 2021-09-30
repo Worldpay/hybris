@@ -2,13 +2,14 @@ package com.worldpay.hostedorderpage.converters;
 
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
-import com.worldpay.service.model.Amount;
+import com.worldpay.data.Amount;
 import com.worldpay.service.payment.WorldpayOrderService;
 import de.hybris.platform.acceleratorservices.payment.cybersource.converters.populators.response.AbstractResultPopulator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -23,7 +24,7 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
  */
 public class RedirectAuthoriseResultPopulator implements Populator<Map<String, String>, RedirectAuthoriseResult> {
 
-    private static final Logger LOG = Logger.getLogger(RedirectAuthoriseResultPopulator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RedirectAuthoriseResultPopulator.class);
 
     private static final String PAYMENT_STATUS = "paymentStatus";
     private static final String STATUS = "status";
@@ -79,7 +80,7 @@ public class RedirectAuthoriseResultPopulator implements Populator<Map<String, S
         if (StringUtils.isNotEmpty(source.get(PAYMENT_AMOUNT)) && StringUtils.isNotEmpty(source.get(PAYMENT_CURRENCY))) {
             try {
                 final Currency currency = Currency.getInstance(source.get(PAYMENT_CURRENCY));
-                Amount amount = worldpayOrderService.createAmount(currency, Integer.valueOf(source.get(PAYMENT_AMOUNT)));
+                final Amount amount = worldpayOrderService.createAmount(currency, Integer.parseInt(source.get(PAYMENT_AMOUNT)));
                 return new BigDecimal(amount.getValue());
             } catch (IllegalArgumentException exception) {
                 LOG.error(MessageFormat.format("Received invalid currency isoCode: [{0}]", source.get(PAYMENT_CURRENCY)), exception);

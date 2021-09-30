@@ -1,6 +1,6 @@
 package com.worldpay.converters.populators;
 
-import com.worldpay.service.model.Address;
+import com.worldpay.data.Address;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.payment.dto.BillingInfo;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;

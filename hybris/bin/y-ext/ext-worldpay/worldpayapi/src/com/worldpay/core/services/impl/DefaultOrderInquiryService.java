@@ -11,7 +11,7 @@ import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.AbstractServiceRequest;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
@@ -19,13 +19,11 @@ import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Callable;
-
-import static java.text.MessageFormat.format;
 
 /**
  * Default implementation fo the {@link OrderInquiryService}.
@@ -35,16 +33,24 @@ import static java.text.MessageFormat.format;
  * </p>
  */
 public class DefaultOrderInquiryService implements OrderInquiryService {
-    private static final Logger LOG = Logger.getLogger(DefaultOrderInquiryService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultOrderInquiryService.class);
 
     private static final String WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES = "worldpayapi.inquiry.max.number.of.retries";
     private static final int DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE = 3;
     private static final String WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES = "worldpayapi.inquiry.delay.between.retries";
     private static final int DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE = 3;
 
-    private WorldpayPaymentInfoService worldpayPaymentInfoService;
-    private ConfigurationService configurationService;
-    private WorldpayServiceGateway worldpayServiceGateway;
+    protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
+    protected final ConfigurationService configurationService;
+    protected final WorldpayServiceGateway worldpayServiceGateway;
+
+    public DefaultOrderInquiryService(final WorldpayPaymentInfoService worldpayPaymentInfoService,
+                                      final ConfigurationService configurationService,
+                                      final WorldpayServiceGateway worldpayServiceGateway) {
+        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
+        this.configurationService = configurationService;
+        this.worldpayServiceGateway = worldpayServiceGateway;
+    }
 
     /**
      * {@inheritDoc}
@@ -64,13 +70,13 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         if (!orderInquiryServiceResponse.isError()) {
             final String methodCode = orderInquiryServiceResponse.getPaymentReply().getPaymentMethodCode();
             worldpayPaymentInfoService.savePaymentType(paymentTransactionModel, methodCode);
-            if (paymentTransactionModel.getInfo().getIsApm()) {
+            if (Boolean.TRUE.equals(paymentTransactionModel.getInfo().getIsApm())) {
                 worldpayPaymentInfoService.createWorldpayApmPaymentInfo(paymentTransactionModel);
-                LOG.info(format("Converting PaymentInfo to WorldpayAPMPaymentInfo and setting timeout-date for PaymentTransaction with code [{0}] on order with code [{1}]",
-                        paymentTransactionModel.getCode(), paymentTransactionModel.getOrder().getCode()));
+                LOG.info("Converting PaymentInfo to WorldpayAPMPaymentInfo and setting timeout-date for PaymentTransaction with code [{}] on order with code [{}]",
+                    paymentTransactionModel.getCode(), paymentTransactionModel.getOrder().getCode());
             }
         } else {
-            LOG.error(format("Order inquiry service returned error [{0}]", orderInquiryServiceResponse.getErrorDetail().getMessage()));
+            LOG.error("Order inquiry service returned error [{}]", orderInquiryServiceResponse.getErrorDetail().getMessage());
         }
     }
 
@@ -118,11 +124,11 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
 
     private RetryConfig buildRetryConfig() {
         return new RetryConfigBuilder()
-                .retryOnSpecificExceptions(WorldpayException.class)
-                .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
-                .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
-                .withFixedBackoff()
-                .build();
+            .retryOnSpecificExceptions(WorldpayException.class)
+            .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
+            .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
+            .withFixedBackoff()
+            .build();
     }
 
     protected Status<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {
@@ -137,18 +143,4 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         return KlarnaOrderInquiryServiceRequest.createKlarnaOrderInquiryRequest(merchantInfo, orderCode);
     }
 
-    @Required
-    public void setWorldpayPaymentInfoService(final WorldpayPaymentInfoService worldpayPaymentInfoService) {
-        this.worldpayPaymentInfoService = worldpayPaymentInfoService;
-    }
-
-    @Required
-    public void setWorldpayServiceGateway(final WorldpayServiceGateway worldpayServiceGateway) {
-        this.worldpayServiceGateway = worldpayServiceGateway;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-    }
 }

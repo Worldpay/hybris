@@ -3,17 +3,18 @@ package com.worldpay.service.payment.impl;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.mac.MacValidator;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayAfterRedirectValidationService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 
 public class DefaultWorldpayAfterRedirectValidationService implements WorldpayAfterRedirectValidationService {
-    protected static final Logger LOG = Logger.getLogger(DefaultWorldpayAfterRedirectValidationService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayAfterRedirectValidationService.class);
     private static final String KEY_MAC = "mac";
     private static final String KEY_MAC2 = "mac2";
     private static final String ORDER_KEY = "orderKey";

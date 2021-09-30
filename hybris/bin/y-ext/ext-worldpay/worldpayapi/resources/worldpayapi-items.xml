@@ -2,14 +2,22 @@
 <items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="items.xsd">
 
+    <collectiontypes>
+        <collectiontype code="PayloadCollection" elementtype="Payload" autocreate="true" generate="false"
+                        type="list"/>
+    </collectiontypes>
+
     <enumtypes>
         <enumtype code="OrderStatus" autocreate="false" generate="true" dynamic="true">
             <value code="PAYMENT_PENDING"/>
         </enumtype>
+
         <enumtype code="PaymentTransactionType" autocreate="false" generate="false">
             <value code="SETTLED"/>
             <value code="REFUSED"/>
+            <value code="VOIDED"/>
         </enumtype>
+
         <enumtype code="CreditCardType" autocreate="false" generate="false">
             <value code="jcb"/>
             <value code="uatp"/>
@@ -23,6 +31,79 @@
             <value code="card"/>
             <value code="token"/>
         </enumtype>
+
+        <enumtype code="EnvironmentType">
+            <value code="TEST"/>
+            <value code="PRODUCTION"/>
+        </enumtype>
+
+        <enumtype code="ApplePaySupportedNetworks" dynamic="true">
+            <value code="amex"/>
+            <value code="cartesBancaires"/>
+            <value code="chinaUnionPay"/>
+            <value code="discover"/>
+            <value code="eftpos"/>
+            <value code="electron"/>
+            <value code="elo"/>
+            <value code="interac"/>
+            <value code="jcb"/>
+            <value code="mada"/>
+            <value code="maestro"/>
+            <value code="masterCard"/>
+            <value code="privateLabel"/>
+            <value code="visa"/>
+            <value code="vPay"/>
+        </enumtype>
+
+        <enumtype code="ApplePayMerchantCapabilities" dynamic="true">
+            <value code="supportsCredit"/>
+            <value code="supportsDebit"/>
+            <value code="supports3DS"/>
+            <value code="supportsEMV"/>
+        </enumtype>
+
+        <enumtype code="GooglePayCardNetworks" dynamic="true">
+            <value code="AMEX"/>
+            <value code="DISCOVER"/>
+            <value code="INTERAC"/>
+            <value code="JCB"/>
+            <value code="MASTERCARD"/>
+            <value code="VISA"/>
+        </enumtype>
+
+        <enumtype code="GooglePayCardAuthMethods" dynamic="true">
+            <value code="PAN_ONLY"/>
+            <value code="CRYPTOGRAM_3DS"/>
+        </enumtype>
+
+        <enumtype code="ChallengePreference" dynamic="false">
+            <value code="noPreference"/>
+            <value code="noChallengeRequested"/>
+            <value code="challengeRequested"/>
+            <value code="challengeMandated"/>
+        </enumtype>
+
+        <enumtype code="PaymentAction">
+            <value code="AUTHORISE"/>
+            <value code="REFUND"/>
+            <value code="OFFLINEAUTHORISE"/>
+            <value code="ACCOUNTVERIFICATION"/>
+            <value code="SALE"/>
+            <value code="AUTHENTICATE"/>
+        </enumtype>
+
+        <enumtype code="DebitCreditIndicator">
+            <value code="debit"/>
+            <value code="credit"/>
+        </enumtype>
+
+        <enumtype code="AchType">
+            <value code="authentication"/>
+            <value code="deposit"/>
+            <value code="validation"/>
+            <value code="verification"/>
+        </enumtype>
+
     </enumtypes>
 
     <relations>
@@ -45,11 +126,39 @@
             <targetElement type="WorldpayCurrencyRange" collectiontype="set" cardinality="many"
                            qualifier="currencyRanges"/>
         </relation>
+        <relation code="WorldpayApplePayConfiguration2Network" localized="false">
+            <deployment table="ApplePayConfNetwork" typecode="19027"/>
+            <sourceElement type="WorldpayApplePayConfiguration" cardinality="many" navigable="false"/>
+            <targetElement qualifier="supportedNetworks" type="ApplePaySupportedNetworks"
+                           cardinality="many"
+                           collectiontype="set"/>
+        </relation>
+        <relation code="WorldpayApplePayConfiguration2Capabilities" localized="false">
+            <deployment table="ApplePayConfCapabs" typecode="19028"/>
+            <sourceElement type="WorldpayApplePayConfiguration" cardinality="many" navigable="false"/>
+            <targetElement qualifier="merchantCapabilities" type="ApplePayMerchantCapabilities"
+                           cardinality="many"
+                           collectiontype="set"/>
+        </relation>
+        <relation code="WorldpayGooglePayConfiguration2CardNetworks" localized="false">
+            <deployment table="GooglePayConfNetwork" typecode="19031"/>
+            <sourceElement type="WorldpayGooglePayConfiguration" cardinality="many" navigable="false"/>
+            <targetElement qualifier="allowedCardNetworks" type="GooglePayCardNetworks"
+                           cardinality="many"
+                           collectiontype="set"/>
+        </relation>
+        <relation code="WorldpayGooglePayConfiguration2CardAuthMethods" localized="false">
+            <deployment table="GooglePayConfMethds" typecode="19032"/>
+            <sourceElement type="WorldpayGooglePayConfiguration" cardinality="many" navigable="false"/>
+            <targetElement qualifier="allowedAuthMethods" type="GooglePayCardAuthMethods"
+                           cardinality="many"
+                           collectiontype="set"/>
+        </relation>
     </relations>
 
     <itemtypes>
         <itemtype code="AbstractOrder" autocreate="false" generate="false">
-            <description>Extending Abstract Order to hold the worldpay order code</description>
+            <description>Extending Abstract Order to hold the worldpay attributes</description>
             <attributes>
                 <attribute qualifier="worldpayOrderCode" type="java.lang.String" generate="true" autocreate="true">
                     <persistence type="property"/>
@@ -58,6 +167,19 @@
                 <attribute qualifier="worldpayDeclineCode" type="java.lang.String" generate="true" autocreate="true">
                     <persistence type="property"/>
                     <description>Decline code of the transaction if it was refused</description>
+                </attribute>
+                <attribute qualifier="isPrimeRouteAuth" type="java.lang.Boolean" generate="true" autocreate="true">
+                    <persistence type="property"/>
+                    <description>Determines if the transaction is done using Prime Routing</description>
+                    <defaultvalue>Boolean.FALSE</defaultvalue>
+                </attribute>
+                <attribute qualifier="requestsPayload" type="PayloadCollection">
+                    <description>Worldpay api requests payload</description>
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="responsesPayload" type="PayloadCollection">
+                    <description>Worldpay api responses payload</description>
+                    <persistence type="property"/>
                 </attribute>
             </attributes>
             <indexes>
@@ -68,7 +190,7 @@
         </itemtype>
 
         <itemtype code="Cart" autocreate="false" generate="false">
-            <description>Extending Cart to hold bank code</description>
+            <description>Extending Cart to worldpay attributes</description>
             <attributes>
                 <attribute qualifier="shopperBankCode" type="java.lang.String" generate="true" autocreate="true">
                     <persistence type="property"/>
@@ -78,6 +200,42 @@
                 <attribute qualifier="threeDSChallengeSession" type="WorldpayCartThreeDSChallengeSession">
                     <persistence type="property"/>
                     <description>3DS Challenge session data</description>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <itemtype code="Payload"
+                  jaloclass="com.worldpay.jalo.Payload">
+            <deployment table="Payload" typecode="19035"/>
+            <attributes>
+                <attribute qualifier="payload" type="java.lang.String">
+                    <persistence type="property">
+                        <columntype>
+                            <value>HYBRIS.LONG_STRING</value>
+                        </columntype>
+                        <columntype database="mysql">
+                            <value>MEDIUMTEXT</value>
+                        </columntype>
+                        <columntype database="oracle">
+                            <value>CLOB</value>
+                        </columntype>
+                        <columntype database="sqlserver">
+                            <value>TEXT</value>
+                        </columntype>
+                        <columntype database="sap">
+                            <value>NCLOB</value>
+                        </columntype>
+                    </persistence>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <itemtype code="Product" autocreate="false" generate="false">
+            <description>Extending Product to hold the commodity code</description>
+            <attributes>
+                <attribute qualifier="commodityCode" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Commodity code for the product</description>
                 </attribute>
             </attributes>
         </itemtype>
@@ -270,6 +428,10 @@
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
+                <attribute qualifier="fraudSight" autocreate="true" type="WorldpayFraudSight">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
                 <attribute qualifier="worldpayBank" autocreate="true" type="WorldpayBankConfiguration">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
@@ -278,6 +440,37 @@
             <indexes>
                 <index name="requestIdIdx">
                     <key attribute="requestId"/>
+                </index>
+            </indexes>
+        </itemtype>
+
+        <itemtype code="WorldpayFraudSight" extends="GenericItem">
+            <deployment table="WorldpayFraudSight" typecode="19034"/>
+            <attributes>
+                <attribute qualifier="id" type="java.lang.String">
+                    <modifiers read="true" write="true" search="true" optional="false" initial="true" unique="true"/>
+                    <persistence type="property"/>
+                    <description>The unique identifier generated for the payment event</description>
+                </attribute>
+                <attribute qualifier="score" type="java.lang.Double">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                    <description>The score returned by the FraudSight model</description>
+                </attribute>
+                <attribute qualifier="message" type="java.lang.String">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                    <description>FraudSight risk decision value</description>
+                </attribute>
+                <attribute qualifier="reasonCodes" type="StringCollection">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                    <description>Risk reasons triggered by the FraudSight model</description>
+                </attribute>
+            </attributes>
+            <indexes>
+                <index name="id_unique_Idx" unique="true">
+                    <key attribute="id"/>
                 </index>
             </indexes>
         </itemtype>
@@ -512,6 +705,270 @@
                 </index>
             </indexes>
         </itemtype>
+
+        <itemtype code="WorldpayMerchantConfiguration" extends="GenericItem">
+            <deployment table="WorldpayMerchantConfig" typecode="19025"/>
+            <attributes>
+                <attribute qualifier="identifier" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Unique Identifier of MerchantConfig</description>
+                    <modifiers initial="true" optional="false" unique="true"/>
+                </attribute>
+                <attribute qualifier="code" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Code of MerchantConfig.</description>
+                </attribute>
+                <attribute qualifier="password" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The valid password of your account.</description>
+                </attribute>
+                <attribute qualifier="macValidation" type="java.lang.Boolean">
+                    <persistence type="property"/>
+                    <modifiers optional="false"/>
+                    <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                    <description>Determines whether the Mac Validation is enabled.</description>
+                </attribute>
+                <attribute qualifier="macSecret" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Mac Secret provided in the Worldpay console.</description>
+                </attribute>
+                <attribute qualifier="csePublicKey" type="java.lang.String">
+                    <persistence type="property">
+                        <columntype database="oracle">
+                            <value>CLOB</value>
+                        </columntype>
+                        <columntype database="sqlserver">
+                            <value>nvarchar(max)</value>
+                        </columntype>
+                        <columntype database="mysql">
+                            <value>text</value>
+                        </columntype>
+                        <columntype database="sap">
+                            <value>NCLOB</value>
+                        </columntype>
+                        <columntype>
+                            <value>HYBRIS.LONG_STRING</value>
+                        </columntype>
+                    </persistence>
+                    <description>The account CSE Public Key.</description>
+                </attribute>
+                <attribute qualifier="installationId" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The merchant installation id.</description>
+                </attribute>
+                <attribute qualifier="statementNarrative" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The statement narrative for the merchant.</description>
+                </attribute>
+                <attribute qualifier="orderContent" type="java.lang.String">
+                    <persistence type="property">
+                        <columntype database="oracle">
+                            <value>CLOB</value>
+                        </columntype>
+                        <columntype database="sqlserver">
+                            <value>nvarchar(max)</value>
+                        </columntype>
+                        <columntype database="mysql">
+                            <value>text</value>
+                        </columntype>
+                        <columntype database="sap">
+                            <value>NCLOB</value>
+                        </columntype>
+                        <columntype>
+                            <value>HYBRIS.LONG_STRING</value>
+                        </columntype>
+                    </persistence>
+                    <description>The order content value.</description>
+                </attribute>
+                <attribute qualifier="applePayConfiguration" type="WorldpayApplePayConfiguration">
+                    <persistence type="property"/>
+                    <description>The configuration for ApplePay.</description>
+                </attribute>
+                <attribute qualifier="googlePayConfiguration" type="WorldpayGooglePayConfiguration">
+                    <persistence type="property"/>
+                    <description>The configuration for GooglePay.</description>
+                </attribute>
+                <attribute qualifier="threeDSFlexJsonWebTokenSettings" type="WorldpayThreeDS2JsonWebTokenConfiguration">
+                    <persistence type="property"/>
+                    <description>The configuration for 3DS2.</description>
+                </attribute>
+                <attribute qualifier="threeDSFlexChallengePreference" type="ChallengePreference">
+                    <persistence type="property"/>
+                    <description>The 3DS flex challenge preference.</description>
+                </attribute>
+                <attribute qualifier="excludedPaymentTypes" type="StringCollection">
+                    <persistence type="property"/>
+                    <description>The excluded payment types.</description>
+                </attribute>
+                <attribute qualifier="includedPaymentTypes" type="StringCollection">
+                    <persistence type="property"/>
+                    <description>The included payment types.</description>
+                </attribute>
+                <attribute qualifier="cardAcceptorTaxID" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Card Acceptor Tax ID for Level 2/3 data</description>
+                </attribute>
+            </attributes>
+            <indexes>
+                <index name="idIdx" unique="true">
+                    <key attribute="identifier"/>
+                </index>
+                <index name="merchantConfigCodeIdx" unique="false">
+                    <key attribute="code"/>
+                </index>
+            </indexes>
+        </itemtype>
+
+        <itemtype code="WorldpayApplePayConfiguration" extends="GenericItem">
+            <deployment table="WorldpayApplePayConfig" typecode="19026"/>
+            <attributes>
+                <attribute qualifier="identifier" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Unique Identifier of ApplePay Configuration</description>
+                    <modifiers initial="true" optional="false" unique="true"/>
+                </attribute>
+                <attribute qualifier="merchantId" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Merchant identifier</description>
+                </attribute>
+                <attribute qualifier="merchantName" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Merchant Name</description>
+                </attribute>
+                <attribute qualifier="countryCode" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Country Code</description>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <itemtype code="WorldpayGooglePayConfiguration" extends="GenericItem">
+            <deployment table="WorldpayGooglePayConfig" typecode="19029"/>
+            <attributes>
+                <attribute qualifier="identifier" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Unique Identifier of GooglePay Configuration</description>
+                    <modifiers initial="true" optional="false" unique="true"/>
+                </attribute>
+                <attribute qualifier="merchantId" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Merchant identifier</description>
+                </attribute>
+                <attribute qualifier="merchantName" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Merchant Name</description>
+                </attribute>
+                <attribute qualifier="gatewayMerchantId" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Gateway merchant ID, which is provided by the gateway</description>
+                </attribute>
+                <attribute qualifier="environment" type="EnvironmentType">
+                    <persistence type="property"/>
+                    <description>The Worldpay environment to which we is integrated.</description>
+                    <defaultvalue>test</defaultvalue>
+                </attribute>
+                <attribute qualifier="cardType" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Describe your site's support for the CARD payment method</description>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <itemtype code="WorldpayThreeDS2JsonWebTokenConfiguration" extends="GenericItem">
+            <deployment table="WorldpayTDS2Config" typecode="19033"/>
+            <attributes>
+                <attribute qualifier="identifier" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Unique Identifier of ThreeDS2 Configuration</description>
+                    <modifiers initial="true" optional="false" unique="true"/>
+                </attribute>
+                <attribute qualifier="iss" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 jwt ISS</description>
+                </attribute>
+                <attribute qualifier="jwtMacKey" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 jwt mac key</description>
+                </attribute>
+                <attribute qualifier="orgUnitId" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 jwt organisation unit id</description>
+                </attribute>
+                <attribute qualifier="alg" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 jwt alg</description>
+                    <defaultvalue>TEST</defaultvalue>
+                </attribute>
+                <attribute qualifier="eventOriginDomain" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The domain origin as TEST, PROD, MOCK</description>
+                </attribute>
+                <attribute qualifier="challengeUrl" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 jwt challenge url</description>
+                </attribute>
+                <attribute qualifier="ddcUrl" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 jwt ddc url</description>
+                </attribute>
+                <attribute qualifier="flowReturnUrl" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 flex flow return url</description>
+                </attribute>
+                <attribute qualifier="occFlowReturnUrl" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 flex occ flow return url</description>
+                </attribute>
+                <attribute qualifier="authSubmit" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>The 3DS2 flex auth submit</description>
+                </attribute>
+            </attributes>
+        </itemtype>
+
+        <typegroup name="Site">
+            <itemtype code="BaseSite" autocreate="false" generate="false">
+                <description>Extending BaseSite type with additional attributes.</description>
+                <attributes>
+                    <attribute qualifier="enablePR" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the Prime Routing</description>
+                    </attribute>
+                    <attribute qualifier="webMerchantConfiguration" type="WorldpayMerchantConfiguration">
+                        <description>Web Merchant Configuration</description>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="asmMerchantConfiguration" type="WorldpayMerchantConfiguration">
+                        <description>ASM Merchant Configuration</description>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="replenishmentMerchantConfiguration" type="WorldpayMerchantConfiguration">
+                        <description>Replenishment Merchant Configuration</description>
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute qualifier="enableFS" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the FraudSight</description>
+                    </attribute>
+                    <attribute qualifier="enableLevel2" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the Level 2 Data</description>
+                    </attribute>
+                    <attribute qualifier="enableLevel3" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the Level 3 Data</description>
+                    </attribute>
+                </attributes>
+            </itemtype>
+        </typegroup>
 
         <typegroup name="cms">
             <itemtype code="WorldpayPaymentPage" jaloclass="com.worldpay.jalo.WorldpayPaymentPage"

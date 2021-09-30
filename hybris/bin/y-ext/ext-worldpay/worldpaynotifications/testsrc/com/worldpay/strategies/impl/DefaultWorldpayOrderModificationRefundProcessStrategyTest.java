@@ -1,9 +1,14 @@
 package com.worldpay.strategies.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
+import de.hybris.platform.payment.dto.TransactionStatus;
+import de.hybris.platform.payment.dto.TransactionStatusDetails;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
+import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.returns.model.ReturnProcessModel;
 import de.hybris.platform.returns.model.ReturnRequestModel;
@@ -16,10 +21,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import static de.hybris.platform.basecommerce.enums.ReturnStatus.CANCELED;
 import static de.hybris.platform.basecommerce.enums.ReturnStatus.PAYMENT_REVERSED;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CANCEL;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertTrue;
@@ -36,6 +43,8 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
     private DefaultWorldpayOrderModificationRefundProcessStrategy testObj;
 
     @Mock
+    private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
+    @Mock
     private OrderModel orderModelMock;
     @Mock
     private ReturnRequestModel returnRequestMock1, returnRequestMock2;
@@ -51,6 +60,8 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
     private ReturnProcessModel refundWaitingReturnProcessMock2;
     @Mock
     private ModelService modelServiceMock;
+    @Mock
+    private PaymentTransactionModel paymentTransactionMock;
 
     @Before
     public void setUp() {
@@ -63,6 +74,7 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
         when(returnRequestMock1.getReturnProcess()).thenReturn(singletonList(refundWaitingReturnProcessMock1));
         when(refundWaitingReturnProcessMock1.getCode()).thenReturn(RETURN_PROCESS_CODE);
         when(orderModelMock.getReturnRequests()).thenReturn(singletonList(returnRequestMock1));
+        when(orderModelMock.getPaymentTransactions()).thenReturn(ImmutableList.of(paymentTransactionMock));
     }
 
     @Test
@@ -101,6 +113,7 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 
         verifyZeroInteractions(businessProcessServiceMock);
+        verifyZeroInteractions(modelServiceMock);
     }
 
     @Test
@@ -126,4 +139,19 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
 
         verifyZeroInteractions(businessProcessServiceMock);
     }
+
+    @Test
+    public void processRefundFollowOn_WhenOrderHasPendingCancelTransactionEntry_ShouldUpdateTheCancelEntry() {
+        when(orderModelMock.getReturnRequests()).thenReturn(null);
+        when(worldpayPaymentTransactionServiceMock.getPendingPaymentTransactionEntriesForType(paymentTransactionMock, CANCEL)).thenReturn(ImmutableList.of(paymentTransactionEntryMock));
+
+        testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
+
+        verify(paymentTransactionEntryMock).setTransactionStatus(TransactionStatus.REJECTED.name());
+        verify(paymentTransactionEntryMock).setTransactionStatusDetails(TransactionStatusDetails.PROCESSOR_DECLINE.name());
+        verify(paymentTransactionEntryMock).setPending(Boolean.FALSE);
+        verify(paymentTransactionEntryMock).setAmount(BigDecimal.ZERO);
+        verify(modelServiceMock).save(paymentTransactionEntryMock);
+    }
+
 }

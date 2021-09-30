@@ -2,7 +2,7 @@ package com.worldpay.hostedorderpage.converters;
 
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
-import com.worldpay.service.model.Amount;
+import com.worldpay.data.Amount;
 import com.worldpay.service.payment.WorldpayOrderService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Test;

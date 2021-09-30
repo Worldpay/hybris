@@ -11,8 +11,16 @@ public interface WorldpayCheckoutService {
     /**
      * This method is used for saving the billing address in the cartModel
      *
-     * @param cartModel the cart model
+     * @param cartModel    the cart model
      * @param addressModel the address model
      */
-    void setPaymentAddress(final CartModel cartModel, final AddressModel addressModel);
+    void setPaymentAddress(CartModel cartModel, AddressModel addressModel);
+
+    /**
+     * This method is used for saving the shipping and billing address in the cartModel
+     *
+     * @param cartModel    the cart model
+     * @param addressModel the address model
+     */
+    void setShippingAndPaymentAddress(CartModel cartModel, AddressModel addressModel);
 }

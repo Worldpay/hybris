@@ -47,7 +47,9 @@ import org.springframework.validation.Validator;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
@@ -76,6 +78,10 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String CSE_PAYMENT_DETAILS_PAGE = "CSEPaymentDetailsPage";
     private static final String EVENT_ORIGIN_DOMAIN = "EVENT_ORIGIN_DOMAIN";
     private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN = "originEventDomain3DSFlex";
+    private static final String BIRTHDAY_DATE = "birthdayDate";
+    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final String DEVICE_SESSION = "DEVICE_SESSION";
+    private static final String DEVICE_SESSION_VALUE = "device_session_value";
 
     @Spy
     @InjectMocks
@@ -91,7 +97,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
     @Mock
     private WorldpayDDCFacade workdpayDDCFacadeMock;
-
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
@@ -162,8 +167,12 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(httpServletRequestMock.getSession().getId()).thenReturn(SESSION_ID);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(b2bCSEPaymentFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
+        when(worldpayAdditionalInfoDataMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
         when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(true);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(b2bCSEPaymentFormMock.getDeviceSession()).thenReturn(DEVICE_SESSION_VALUE);
+        when(worldpayAdditionalInfoDataMock.getDeviceSession()).thenReturn(DEVICE_SESSION_VALUE);
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
@@ -181,19 +190,33 @@ public class WorldpayCseCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRedirectToSummaryIfNoException() throws CMSItemNotFoundException {
+    public void addCseData_WhenNoExceptionAndFSDisabled_shouldRedirectToSummary() throws CMSItemNotFoundException {
         // When no errors are thrown
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock, redirectAttrsMock);
 
         assertEquals(REDIRECT_TO_SUMMARY_PAGE, result);
+        verifyZeroInteractions(redirectAttrsMock);
+    }
+
+    @Test
+    public void addCseData_WhenNoExceptionAndFSEnabled_shouldRedirectToSummary() throws CMSItemNotFoundException {
+        // When no errors are thrown
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock, redirectAttrsMock);
+
+        assertEquals(REDIRECT_TO_SUMMARY_PAGE, result);
+        verify(redirectAttrsMock).addFlashAttribute(BIRTHDAY_DATE, BIRTHDAY_DATE_VALUE);
+        verify(redirectAttrsMock).addFlashAttribute(DEVICE_SESSION, DEVICE_SESSION_VALUE);
     }
 
     @Test
     public void shouldRedirectToErrorIfExceptionThrownByFacade() throws CMSItemNotFoundException, WorldpayException {
         doThrow(new WorldpayException("errorMessage")).when(worldpayDirectOrderFacadeMock).tokenize(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock, redirectAttrsMock);
 
         assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);
     }
@@ -202,7 +225,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldDisplayCsePaymentPageIfErrorTokenizing() throws CMSItemNotFoundException, WorldpayException {
         doThrow(new WorldpayException("errorMessage")).when(worldpayDirectOrderFacadeMock).tokenize(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
 
-        testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
+        testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock, redirectAttrsMock);
 
         verify(modelMock).addAttribute(eq(B2B_CSE_PAYMENT_FORM), any(CSEPaymentForm.class));
     }
@@ -211,7 +234,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     public void shouldValidateCseFormAndRedirectToCseForm() throws CMSItemNotFoundException {
         doReturn(true).when(testObj).addGlobalErrors(modelMock, bindingResultMock);
 
-        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock);
+        final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock, redirectAttrsMock);
 
         verify(cseFormValidatorMock).validate(b2bCSEPaymentFormMock, bindingResultMock);
         assertEquals(CSE_PAYMENT_DETAILS_PAGE, result);

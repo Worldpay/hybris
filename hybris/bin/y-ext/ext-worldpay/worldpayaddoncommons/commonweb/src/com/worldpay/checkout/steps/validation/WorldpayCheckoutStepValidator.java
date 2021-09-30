@@ -4,12 +4,13 @@ import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.validation.AbstractCheckoutStepValidator;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.validation.ValidationResults;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 public class WorldpayCheckoutStepValidator extends AbstractCheckoutStepValidator {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayCheckoutStepValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayCheckoutStepValidator.class);
 
     /**
      * {@inheritDoc}
@@ -19,7 +20,7 @@ public class WorldpayCheckoutStepValidator extends AbstractCheckoutStepValidator
 
         final CheckoutPciOptionEnum subscriptionPciOption = getCheckoutFlowFacade().getSubscriptionPciOption();
         if (!CheckoutPciOptionEnum.HOP.equals(subscriptionPciOption)) {
-            LOG.error("unexpected PCI option for worldpay [" + subscriptionPciOption + "]");
+            LOG.error("unexpected PCI option for worldpay [{}]", subscriptionPciOption);
             return ValidationResults.REDIRECT_TO_CART;
         }
 

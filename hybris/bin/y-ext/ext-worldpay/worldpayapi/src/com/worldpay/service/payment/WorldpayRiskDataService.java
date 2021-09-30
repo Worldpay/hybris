@@ -1,10 +1,10 @@
 package com.worldpay.service.payment;
 
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.threeds2.AuthenticationRiskData;
-import com.worldpay.service.model.threeds2.RiskData;
-import com.worldpay.service.model.threeds2.ShopperAccountRiskData;
-import com.worldpay.service.model.threeds2.TransactionRiskData;
+import com.worldpay.data.threeds2.AuthenticationRiskData;
+import com.worldpay.data.threeds2.RiskData;
+import com.worldpay.data.threeds2.ShopperAccountRiskData;
+import com.worldpay.data.threeds2.TransactionRiskData;
 import de.hybris.platform.core.model.order.CartModel;
 
 /**

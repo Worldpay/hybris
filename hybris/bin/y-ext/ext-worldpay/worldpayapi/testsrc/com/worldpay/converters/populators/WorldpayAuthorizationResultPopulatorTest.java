@@ -1,8 +1,8 @@
 package com.worldpay.converters.populators;
 
 import com.worldpay.service.WorldpayAuthorisationResultService;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.ErrorDetail;
+import com.worldpay.data.PaymentReply;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.commands.result.AuthorizationResult;
@@ -27,7 +27,7 @@ public class WorldpayAuthorizationResultPopulatorTest {
     private static final String ERROR_MESSAGE = "errorMessage";
 
     @InjectMocks
-    private WorldpayAuthorizationResultPopulator testObj = new WorldpayAuthorizationResultPopulator();
+    private WorldpayAuthorizationResultPopulator testObj;
 
     @Mock
     private WorldpayAuthorisationResultService worldpayAuthorisationResultServiceMock;

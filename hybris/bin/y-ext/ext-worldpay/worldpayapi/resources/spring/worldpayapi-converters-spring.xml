@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias name="defaultWorldpayAddressConverter" alias="worldpayAddressConverter"/>
+    <bean id="defaultWorldpayAddressConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Address"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayAddressPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultWorldpayBillingInfoAddressConverter" alias="worldpayBillingInfoAddressConverter"/>
+    <bean id="defaultWorldpayBillingInfoAddressConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Address"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayBillingInfoAddressPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="worldpayAddressPopulator" class="com.worldpay.converters.populators.WorldpayAddressPopulator"/>
+    <bean id="worldpayBillingInfoAddressPopulator"
+          class="com.worldpay.converters.populators.WorldpayBillingInfoAddressPopulator"/>
+
+    <bean id="orderNotificationRequestToMessageConverter"
+          class="com.worldpay.converters.OrderModificationRequestConverter">
+        <property name="serviceResponseTransformerHelper" ref="serviceResponseTransformerHelper"/>
+    </bean>
+
+    <bean id="worldpayRiskScoreConverter" class="com.worldpay.converters.WorldpayRiskScoreConverter"
+          parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.model.WorldpayRiskScoreModel"/>
+        <property name="modelService" ref="modelService"/>
+    </bean>
+
+    <alias name="defaultWorldpayFraudSightResponseConverter" alias="worldpayFraudSightResponseConverter"/>
+    <bean id="defaultWorldpayFraudSightResponseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.model.WorldpayFraudSightModel"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayFraudSightResponsePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultWorldpayFraudSightResponsePopulator" alias="worldpayFraudSightResponsePopulator"/>
+    <bean id="defaultWorldpayFraudSightResponsePopulator" class="com.worldpay.converters.populators.WorldpayFraudSightResponsePopulator"/>
+
+    <bean id="worldpayAbstractServiceResponseConverter"
+          class="com.worldpay.converters.WorldpayAbstractServiceResponseConverter" abstract="true"
+          parent="abstractPopulatingConverter">
+        <constructor-arg name="worldpayOrderService" ref="defaultWorldpayOrderService"/>
+    </bean>
+
+    <alias name="worldpayVoidServiceResponseConverter" alias="voidServiceResponseConverter"/>
+    <bean id="worldpayVoidServiceResponseConverter" class="com.worldpay.converters.WorldpayVoidServiceResponseConverter"
+          parent="worldpayAbstractServiceResponseConverter">
+        <property name="targetClass" value="de.hybris.platform.payment.commands.result.VoidResult"/>
+    </bean>
+
+    <alias name="worldpayRefundServiceResponseConverter" alias="refundServiceResponseConverter"/>
+    <bean id="worldpayRefundServiceResponseConverter"
+          class="com.worldpay.converters.WorldpayRefundServiceResponseConverter"
+          parent="worldpayAbstractServiceResponseConverter">
+        <property name="targetClass" value="de.hybris.platform.payment.commands.result.RefundResult"/>
+    </bean>
+
+    <alias name="worldpayCaptureServiceResponseConverter" alias="captureServiceResponseConverter"/>
+    <bean id="worldpayCaptureServiceResponseConverter"
+          class="com.worldpay.converters.WorldpayCaptureServiceResponseConverter"
+          parent="worldpayAbstractServiceResponseConverter">
+        <property name="targetClass" value="de.hybris.platform.payment.commands.result.CaptureResult"/>
+    </bean>
+
+    <bean id="worldpayDirectAuthoriseServiceResponseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.commands.WorldpaySubscriptionAuthorizeResult"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpaySubscriptionAuthorizeResultPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="worldpayTokenisedDirectAuthorizationResponseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.payment.commands.result.AuthorizationResult"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayAuthorizationResultPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="worldpayAavResponsePopulator" class="com.worldpay.converters.populators.WorldpayAavResponsePopulator"/>
+
+    <bean id="worldpaySubscriptionAuthorizeResultPopulator"
+          class="com.worldpay.converters.populators.WorldpaySubscriptionAuthoriseResultPopulator">
+        <constructor-arg name="worldpayAuthorisationResultService" ref="worldpayAuthorisationResultService"/>
+    </bean>
+
+    <bean id="worldpayAuthorizationResultPopulator"
+          class="com.worldpay.converters.populators.WorldpayAuthorizationResultPopulator">
+        <constructor-arg name="worldpayAuthorisationResultService" ref="worldpayAuthorisationResultService"/>
+    </bean>
+
+    <bean id="worldpayAPMPaymentInfoPopulator"
+          class="com.worldpay.facades.order.converters.populators.WorldpayAPMPaymentInfoPopulator"/>
+
+    <bean id="worldpayOrderDataPopulator"
+          class="com.worldpay.facades.order.converters.populators.WorldpayOrderDataPopulator">
+        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    </bean>
+
+    <bean id="applePayConfigDataToValidateMerchantRequestDTOPopulator"
+          class="com.worldpay.converters.populators.ApplePayConfigDataToValidateMerchantRequestDTOPopulator">
+        <constructor-arg name="worldpayUrlService" ref="worldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultApplePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"
+           alias="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"/>
+    <bean id="defaultApplePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"
+          parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.payment.applepay.ValidateMerchantRequestDTO"/>
+        <property name="populators">
+            <list>
+                <ref bean="applePayConfigDataToValidateMerchantRequestDTOPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean name="worldpayAbstractOrderPopulator"
+          class="com.worldpay.order.converters.populator.WorldpayAbstractOrderPopulator">
+        <property name="addressConverter" ref="addressConverter"/>
+    </bean>
+
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="cartConverter"/>
+        <property name="add" ref="worldpayAPMPaymentInfoPopulator"/>
+    </bean>
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="cartConverter"/>
+        <property name="add" ref="worldpayAbstractOrderPopulator"/>
+    </bean>
+
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="orderConverter"/>
+        <property name="add" ref="worldpayOrderDataPopulator"/>
+    </bean>
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="orderConverter"/>
+        <property name="add" ref="worldpayAPMPaymentInfoPopulator"/>
+    </bean>
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="orderConverter"/>
+        <property name="add" ref="worldpayAbstractOrderPopulator"/>
+    </bean>
+
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="extendedCartConverter"/>
+        <property name="add" ref="worldpayAbstractOrderPopulator"/>
+    </bean>
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="extendedCartConverter"/>
+        <property name="add" ref="worldpayAPMPaymentInfoPopulator"/>
+    </bean>
+
+    <bean id="pageModelPopulatingConvertersMapMergeDirective" depends-on="pageModelConverterFactory"
+          parent="mapMergeDirective">
+        <property name="key">
+            <value type="java.lang.Class">com.worldpay.model.WorldpayPaymentPageModel</value>
+        </property>
+        <property name="value" ref="contentPageModelConverter"/>
+    </bean>
+
+    <alias name="defaultBankConfigurationModelBankConfigurationDataConverter"
+           alias="bankConfigurationModelBankConfigurationDataConverter"/>
+    <bean id="defaultBankConfigurationModelBankConfigurationDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.facades.BankConfigurationData"/>
+        <property name="populators">
+            <list>
+                <ref bean="bankConfigurationPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultBankConfigurationPopulator" alias="bankConfigurationPopulator"/>
+    <bean id="defaultBankConfigurationPopulator"
+          class="com.worldpay.converters.populators.WorldpayBankConfigurationPopulator"/>
+
+    <alias name="defaultRedirectAuthoriseResultConverter" alias="redirectAuthoriseResultConverter"/>
+    <bean id="defaultRedirectAuthoriseResultConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.hostedorderpage.data.RedirectAuthoriseResult"/>
+        <property name="populators">
+            <list>
+                <ref bean="redirectAuthoriseResultPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultRedirectAuthoriseResultPopulator" alias="redirectAuthoriseResultPopulator"/>
+    <bean id="defaultRedirectAuthoriseResultPopulator"
+          class="com.worldpay.hostedorderpage.converters.RedirectAuthoriseResultPopulator">
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+    </bean>
+
+    <alias name="defaultAPMPaymentInfoConverter" alias="apmPaymentInfoConverter"/>
+    <bean id="defaultAPMPaymentInfoConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData"/>
+        <property name="populators">
+            <list>
+                <ref bean="apmPaymentInfoPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultWorldpayAPMPaymentInfoPopulator" alias="apmPaymentInfoPopulator"/>
+    <bean id="defaultWorldpayAPMPaymentInfoPopulator"
+          class="com.worldpay.converters.populators.DefaultWorldpayAPMPaymentInfoPopulator">
+
+    </bean>
+
+    <alias name="defaultWorldpayCCpaymentInfoPopulator" alias="worldpayCCpaymentInfoPopulator"/>
+    <bean name="defaultWorldpayCCpaymentInfoPopulator"
+          class="com.worldpay.converters.populators.WorldpayCCPaymentInfoPopulator">
+    </bean>
+
+    <bean parent="modifyPopulatorList">
+        <property name="list" ref="creditCardPaymentInfoConverter"/>
+        <property name="add" ref="worldpayCCpaymentInfoPopulator"/>
+    </bean>
+
+    <alias name="defaultWorldPayMerchantConfigDataPopulator" alias="worldPayMerchantConfigDataPopulator"/>
+    <bean id="defaultWorldPayMerchantConfigDataPopulator" class="com.worldpay.facades.payment.merchant.converters.populators.WorldPayMerchantConfigDataPopulator"/>
+
+    <alias name="defaultWorldPayMerchantConfigDataConverter" alias="worldPayMerchantConfigDataConverter"/>
+    <bean id="defaultWorldPayMerchantConfigDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.config.merchant.WorldpayMerchantConfigData"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldPayMerchantConfigDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultWorldpayAPMConfigurationPopulator" alias="worldpayAPMConfigurationPopulator"/>
+    <bean id="defaultWorldpayAPMConfigurationPopulator"
+          class="com.worldpay.converters.populators.WorldpayAPMConfigurationPopulator">
+        <constructor-arg name="worldpayBankConfigurationFacade" ref="worldpayBankConfigurationFacade"/>
+    </bean>
+
+    <alias name="defaultWorldpayAPMConfigurationConverter" alias="worldpayAPMConfigurationConverter"/>
+    <bean id="defaultWorldpayAPMConfigurationConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.apm.WorldpayAPMConfigurationData"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayAPMConfigurationPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultWorldpayAPMComponentPopulator" alias="worldpayAPMComponentPopulator"/>
+    <bean id="defaultWorldpayAPMComponentPopulator"
+          class="com.worldpay.converters.populators.WorldpayAPMComponentPopulator">
+        <constructor-arg name="worldpayAPMConfigurationConverter" ref="worldpayAPMConfigurationConverter"/>
+        <constructor-arg name="mediaModelConverter" ref="mediaModelConverter"/>
+    </bean>
+
+    <alias name="defaultWorldpayAPMComponentConverter" alias="worldpayAPMComponentConverter"/>
+    <bean id="defaultWorldpayAPMComponentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.cms.WorldpayAPMComponentData"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayAPMComponentPopulator"/>
+            </list>
+        </property>
+    </bean>
+</beans>

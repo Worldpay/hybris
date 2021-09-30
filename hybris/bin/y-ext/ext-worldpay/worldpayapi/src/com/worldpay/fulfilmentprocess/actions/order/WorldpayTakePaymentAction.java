@@ -9,9 +9,9 @@ import de.hybris.platform.payment.PaymentService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.action.AbstractAction;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +23,7 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
  * Action that handles payment transactions and update order status
  */
 public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel> {
-    private static final Logger LOG = Logger.getLogger(WorldpayTakePaymentAction.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayTakePaymentAction.class);
 
     private static final String OK = "OK";
     private static final String NOK = "NOK";
@@ -60,9 +60,9 @@ public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel>
     }
 
     protected String handleMultipleTransactionEntries(final OrderProcessModel process, final OrderModel order, final PaymentTransactionModel paymentTransaction, final List<PaymentTransactionEntryModel> entries) {
-        LOG.error(MessageFormat.format("Found {0} PaymentTransactionEntries with " +
-                "type CAPTURE for PaymentTransaction with code {1} and orderProcess " +
-                "with code {2}. There should be exactly 1", entries.size(), paymentTransaction.getCode(), process.getCode()));
+        LOG.error("Found {} PaymentTransactionEntries with " +
+                "type CAPTURE for PaymentTransaction with code {} and orderProcess " +
+                "with code {}. There should be exactly 1", entries.size(), paymentTransaction.getCode(), process.getCode());
         setOrderStatus(order, PAYMENT_NOT_CAPTURED);
         return NOK;
     }
@@ -83,7 +83,7 @@ public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel>
     protected boolean checkForPendingStatus(final OrderModel order, final PaymentTransactionModel txn) {
         // wait if any capture entries are still pending
         if (worldpayPaymentTransactionService.isPaymentTransactionPending(txn, CAPTURE)) {
-            LOG.info(MessageFormat.format("Still waiting for capture on order: {0} ", order));
+            LOG.info("Still waiting for capture on order: {} ", order);
             return true;
         }
         return false;
@@ -92,7 +92,7 @@ public class WorldpayTakePaymentAction extends AbstractAction<OrderProcessModel>
     protected boolean checkForNotAccepted(final OrderModel order, final PaymentTransactionModel transaction) {
         // NOK if all capture entries have not been accepted
         if (!worldpayPaymentTransactionService.areAllPaymentTransactionsAcceptedForType(order, CAPTURE)) {
-            LOG.error("The payment transaction capture has failed. Order: " + order.getCode() + ". Transaction: " + transaction.getCode());
+            LOG.error("The payment transaction capture has failed. Order: {}. Transaction: {}" , order.getCode(), transaction.getCode());
             setOrderStatus(order, PAYMENT_NOT_CAPTURED);
             return true;
         }

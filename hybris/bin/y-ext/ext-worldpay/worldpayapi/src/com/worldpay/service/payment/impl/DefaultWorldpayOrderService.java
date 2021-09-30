@@ -1,18 +1,21 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactionCodeStrategy;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.*;
+import com.worldpay.data.applepay.ApplePay;
+import com.worldpay.data.applepay.Header;
+import com.worldpay.data.klarna.KlarnaMerchantUrls;
+import com.worldpay.data.klarna.KlarnaPayment;
+import com.worldpay.data.klarna.KlarnaRedirectURLs;
+import com.worldpay.data.payment.Cse;
+import com.worldpay.data.payment.PayWithGoogleSSL;
+import com.worldpay.data.payment.Payment;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.klarna.WorldpayKlarnaUtils;
 import com.worldpay.service.WorldpayUrlService;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.applepay.ApplePay;
-import com.worldpay.service.model.applepay.Header;
-import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
-import com.worldpay.service.model.klarna.KlarnaRedirectURLs;
-import com.worldpay.service.model.payment.*;
+import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.payment.WorldpayKlarnaService;
 import com.worldpay.service.payment.WorldpayOrderService;
+import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
@@ -26,6 +29,8 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Objects;
 
+import static com.worldpay.service.model.payment.PaymentType.CSEDATA;
+
 /**
  * {@inheritDoc}
  */
@@ -33,18 +38,18 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
 
     protected final CommonI18NService commonI18NService;
     protected final WorldpayUrlService worldpayUrlService;
-    protected final WorldpayKlarnaUtils worldpayKlarnaUtils;
+    protected final WorldpayKlarnaService worldpayKlarnaService;
     protected final CommerceCheckoutService commerceCheckoutService;
     protected final RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategy;
 
     public DefaultWorldpayOrderService(final CommonI18NService commonI18NService,
                                        final WorldpayUrlService worldpayUrlService,
-                                       final WorldpayKlarnaUtils worldpayKlarnaUtils,
+                                       final WorldpayKlarnaService worldpayKlarnaService,
                                        final CommerceCheckoutService commerceCheckoutService,
                                        final RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategy) {
         this.commonI18NService = commonI18NService;
         this.worldpayUrlService = worldpayUrlService;
-        this.worldpayKlarnaUtils = worldpayKlarnaUtils;
+        this.worldpayKlarnaService = worldpayKlarnaService;
         this.commerceCheckoutService = commerceCheckoutService;
         this.recurringGenerateMerchantTransactionCodeStrategy = recurringGenerateMerchantTransactionCodeStrategy;
     }
@@ -55,7 +60,11 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
     @Override
     public Amount createAmount(final Currency currency, final int amount) {
         final Double roundedValue = commonI18NService.convertAndRoundCurrency(Math.pow(10, currency.getDefaultFractionDigits()), 1, currency.getDefaultFractionDigits(), amount);
-        return new Amount(String.valueOf(roundedValue), currency.getCurrencyCode(), String.valueOf(currency.getDefaultFractionDigits()));
+        final Amount amountData = new Amount();
+        amountData.setCurrencyCode(currency.getCurrencyCode());
+        amountData.setValue(String.valueOf(roundedValue));
+        amountData.setExponent(String.valueOf(currency.getDefaultFractionDigits()));
+        return amountData;
     }
 
     /**
@@ -73,7 +82,11 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
     @Override
     public Amount createAmount(final Currency currency, final double amount) {
         final Double roundedValue = commonI18NService.convertAndRoundCurrency(1, Math.pow(10, currency.getDefaultFractionDigits()), 0, amount);
-        return new Amount(String.valueOf(roundedValue.intValue()), currency.getCurrencyCode(), String.valueOf(currency.getDefaultFractionDigits()));
+        final Amount amountData = new Amount();
+        amountData.setCurrencyCode(currency.getCurrencyCode());
+        amountData.setValue(String.valueOf(roundedValue.intValue()));
+        amountData.setExponent(String.valueOf(currency.getDefaultFractionDigits()));
+        return amountData;
     }
 
     /**
@@ -90,7 +103,11 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      */
     @Override
     public BasicOrderInfo createBasicOrderInfo(final String worldpayOrderCode, final String description, final Amount amount) {
-        return new BasicOrderInfo(worldpayOrderCode, description, amount);
+        final BasicOrderInfo basicOrderInfor = new BasicOrderInfo();
+        basicOrderInfor.setAmount(amount);
+        basicOrderInfor.setDescription(description);
+        basicOrderInfor.setOrderCode(worldpayOrderCode);
+        return basicOrderInfor;
     }
 
     /**
@@ -100,18 +117,24 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
     public Payment createKlarnaPayment(final String countryCode, final LanguageModel language, final String extraMerchantData, final String klarnaPaymentMethod) throws WorldpayConfigurationException {
         PaymentType klarnaPaymentType = null;
 
-        if (worldpayKlarnaUtils.isKlarnaPaymentType(klarnaPaymentMethod)) {
+        if (worldpayKlarnaService.isKlarnaPaymentType(klarnaPaymentMethod)) {
             klarnaPaymentType = PaymentType.getPaymentType(klarnaPaymentMethod);
         }
 
         final String languageCode = commonI18NService.getLocaleForLanguage(language).toLanguageTag();
+        final String locale = languageCode.concat("-").concat(countryCode);
         if (Objects.nonNull(klarnaPaymentType) && PaymentType.KLARNASSL.equals(klarnaPaymentType)) {
-            final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls(worldpayUrlService.getBaseWebsiteUrlForSite(), worldpayUrlService.getKlarnaConfirmationURL());
-            return PaymentBuilder.createKlarnaPayment(countryCode, languageCode,
-                merchantUrls, extraMerchantData);
+            final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls();
+            merchantUrls.setCheckoutURL(worldpayUrlService.getBaseWebsiteUrlForSite());
+            merchantUrls.setConfirmationURL(worldpayUrlService.getKlarnaConfirmationURL());
+            return WorldpayInternalModelTransformerUtil.createKlarnaPayment(countryCode, locale, merchantUrls, extraMerchantData);
         } else if (Objects.nonNull(klarnaPaymentType)) {
-            final KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs(worldpayUrlService.getFullSuccessURL(), worldpayUrlService.getFullCancelURL(), worldpayUrlService.getFullPendingURL(), worldpayUrlService.getFullFailureURL());
-            return PaymentBuilder.createKlarnaPayment(countryCode, languageCode, extraMerchantData, klarnaPaymentMethod, klarnaRedirectURLs);
+            final KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs();
+            klarnaRedirectURLs.setSuccessURL(worldpayUrlService.getFullSuccessURL());
+            klarnaRedirectURLs.setCancelURL(worldpayUrlService.getFullCancelURL());
+            klarnaRedirectURLs.setPendingURL(worldpayUrlService.getFullPendingURL());
+            klarnaRedirectURLs.setFailureURL(worldpayUrlService.getFullFailureURL());
+            return WorldpayInternalModelTransformerUtil.createKlarnaPayment(countryCode, locale, extraMerchantData, klarnaPaymentMethod, klarnaRedirectURLs);
         } else {
             throw new WorldpayConfigurationException("Invalid Klarna Payment Method");
         }
@@ -122,8 +145,18 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      */
     @Override
     public Payment createApplePayPayment(final ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData) {
-        final Header header = new Header(worldpayAdditionalInfoApplePayData.getHeader().getEphemeralPublicKey(), worldpayAdditionalInfoApplePayData.getHeader().getPublicKeyHash(), worldpayAdditionalInfoApplePayData.getHeader().getTransactionId(), null);
-        return new ApplePay(header, worldpayAdditionalInfoApplePayData.getSignature(), worldpayAdditionalInfoApplePayData.getVersion(), worldpayAdditionalInfoApplePayData.getData(), null);
+        final Header header = new Header();
+        header.setEphemeralPublicKey(worldpayAdditionalInfoApplePayData.getHeader().getEphemeralPublicKey());
+        header.setPublicKeyHash(worldpayAdditionalInfoApplePayData.getHeader().getPublicKeyHash());
+        header.setTransactionId(worldpayAdditionalInfoApplePayData.getHeader().getTransactionId());
+
+        final ApplePay applePay = new ApplePay();
+        applePay.setHeader(header);
+        applePay.setSignature(worldpayAdditionalInfoApplePayData.getSignature());
+        applePay.setVersion(worldpayAdditionalInfoApplePayData.getVersion());
+        applePay.setData(worldpayAdditionalInfoApplePayData.getData());
+
+        return applePay;
     }
 
     /**
@@ -131,7 +164,12 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      */
     @Override
     public Cse createCsePayment(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final Address billingAddress) {
-        return PaymentBuilder.createCSE(cseAdditionalAuthInfo.getEncryptedData(), billingAddress);
+        final Cse cse = new Cse();
+        cse.setAddress(billingAddress);
+        cse.setEncryptedData(cseAdditionalAuthInfo.getEncryptedData());
+        cse.setPaymentType(CSEDATA.getMethodCode());
+
+        return cse;
     }
 
     /**
@@ -139,7 +177,13 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      */
     @Override
     public PayWithGoogleSSL createGooglePayPayment(final String protocolVersion, final String signature, final String signedMessage) {
-        return new PayWithGoogleSSL(protocolVersion, signature, signedMessage);
+        final PayWithGoogleSSL payWithGoogleSSL = new PayWithGoogleSSL();
+        payWithGoogleSSL.setProtocolVersion(protocolVersion);
+        payWithGoogleSSL.setSignature(signature);
+        payWithGoogleSSL.setSignedMessage(signedMessage);
+        payWithGoogleSSL.setPaymentType(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+
+        return payWithGoogleSSL;
     }
 
     /**
@@ -174,8 +218,8 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      * {@inheritDoc}
      */
     @Override
-    public String generateWorldpayOrderCode(final AbstractOrderModel abstractOrderModel){
-       return recurringGenerateMerchantTransactionCodeStrategy.generateCode(abstractOrderModel);
+    public String generateWorldpayOrderCode(final AbstractOrderModel abstractOrderModel) {
+        return recurringGenerateMerchantTransactionCodeStrategy.generateCode(abstractOrderModel);
     }
 
 }

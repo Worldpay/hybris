@@ -13,10 +13,6 @@ $jarResourceCmsCockpit=jar:com.worldpay.constants.Worldpayb2baddonConstants&/wor
 INSERT_UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];name;restrictedPageTypes(code);active[default=true];frontendTemplateName
 ;;WorldpayCSEPaymentAndBillingCheckoutPageTemplate;Worldpay CSE Payment Page Template;WorldpayPaymentPage;;addon:/$addonExtensionName/pages/checkout/multi/worldpayChooseCSEPaymentDetailsPage
 
-#The velocity template is imported after creating a pageTemplate
-INSERT_UPDATE PageTemplate;$contentCV[unique=true];uid[unique=true];velocityTemplate[translator=de.hybris.platform.commerceservices.impex.impl.FileLoaderValueTranslator]
-;;WorldpayCSEPaymentAndBillingCheckoutPageTemplate;$jarResourceCmsCockpit/structure-view/responsive/structure_WorldpayResponsiveCSEPaymentAndBillingCheckoutPageTemplate.vm
-
 # Content Pages
 INSERT_UPDATE WorldpayPaymentPage;$contentCV[unique=true];uid[unique=true];name;masterTemplate(uid,$contentCV);label;defaultPage[default='true'];approvalStatus(code)[default='approved'];homepage[default='false'];
 ;;worldpayPaymentAndBillingCheckoutPage;Worldpay Payment And Billing Checkout Page;WorldpayCSEPaymentAndBillingCheckoutPageTemplate;worldpayPaymentAndBillingCheckoutStep

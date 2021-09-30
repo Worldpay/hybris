@@ -1,7 +1,7 @@
 package com.worldpay.service.request;
 
 
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 
 /**
  * Interface representation of a Service Request that will be used to make the calls through to Worldpay.

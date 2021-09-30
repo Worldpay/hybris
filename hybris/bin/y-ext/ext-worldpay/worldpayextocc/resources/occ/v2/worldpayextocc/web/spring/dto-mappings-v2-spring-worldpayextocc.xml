@@ -20,4 +20,56 @@
         <property name="destClass"
                   value="de.hybris.platform.commercefacades.user.data.AddressData"/>
     </bean>
+
+    <bean parent="fieldSetLevelMapping" id="bankConfigurationWsDTOFieldSetLevelMapping">
+        <property name="dtoClass" value="com.worldpay.dto.apm.BankConfigurationWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="bankCode, bankName"/>
+                <entry key="DEFAULT"
+                       value="BASIC"/>
+                <entry key="FULL"
+                       value="BASIC"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean parent="fieldSetLevelMapping" id="worldpayAPMConfigurationWsDTOFieldSetLevelMapping">
+        <property name="dtoClass" value="com.worldpay.dto.apm.WorldpayAPMConfigurationWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="code, name, bankConfigurations(BASIC)"/>
+                <entry key="DEFAULT"
+                       value="BASIC, description, autoCancelPendingTimeoutInMinutes, bank, automaticRefunds, bankTransferRefunds, bankConfigurations(DEFAULT)"/>
+                <entry key="FULL"
+                       value="DEFAULT"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean parent="fieldSetLevelMapping" id="worldpayAPMComponentWsDTOFieldSetLevelMapping">
+        <property name="dtoClass" value="com.worldpay.dto.cms.WorldpayAPMComponentWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="apmConfiguration(BASIC), media(BASIC)"/>
+                <entry key="DEFAULT"
+                       value="apmConfiguration(DEFAULT), media(DEFAULT)"/>
+                <entry key="FULL"
+                       value="apmConfiguration(FULL), media(FULL)"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean parent="fieldSetLevelMapping" id="worldpayAPMComponentsWsDTOFieldSetLevelMapping">
+        <property name="dtoClass" value="com.worldpay.dto.cms.WorldpayAPMComponentsWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="apmComponents(BASIC)"/>
+                <entry key="DEFAULT"
+                       value="apmComponents(DEFAULT)"/>
+                <entry key="FULL"
+                       value="apmComponents(FULL)"/>
+            </map>
+        </property>
+    </bean>
 </beans>

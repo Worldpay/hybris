@@ -31,6 +31,8 @@ import static java.util.Calendar.*;
 @Controller
 public class WorldpayOrderModificationMockController {
 
+    protected static final String FRAUD_SIGHT_MESSAGES = "fraudSightMessages";
+    protected static final String FRAUD_SIGHT_REASON_CODES = "fraudSightReasonCodes";
     protected static final int END_INDEX = 4;
     protected static final int START_INDEX = 6;
     protected static final String XML_RESPONSE = "xmlResponse";
@@ -91,6 +93,12 @@ public class WorldpayOrderModificationMockController {
 
     @Resource
     private Set<String> tokenEvents;
+
+    @Resource
+    private Set<String> fraudSightMessages;
+
+    @Resource
+    private Set<String> fraudSightReasonCodes;
 
     @Resource
     private WorldpayMockConnector worldpayMockConnector;
@@ -197,5 +205,7 @@ public class WorldpayOrderModificationMockController {
         model.put(POSSIBLE_EVENTS, possibleEvents);
         model.put(TOKEN_EVENTS, tokenEvents);
         model.put(MERCHANTS, worldpayResponseMockMerchantInfoService.getAllMerchantCodes());
+        model.put(FRAUD_SIGHT_MESSAGES, fraudSightMessages);
+        model.put(FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodes);
     }
 }

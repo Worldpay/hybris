@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.io.IOUtils;

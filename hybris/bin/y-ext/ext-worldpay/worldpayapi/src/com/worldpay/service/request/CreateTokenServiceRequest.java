@@ -1,10 +1,10 @@
 package com.worldpay.service.request;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.payment.Payment;
-import com.worldpay.service.model.token.CardTokenRequest;
-import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.token.CardTokenRequest;
+import com.worldpay.data.token.TokenRequest;
 
 
 /**
@@ -33,7 +33,11 @@ public class CreateTokenServiceRequest extends AbstractServiceRequest {
         checkParameters("CreateTokenServiceRequest", merchantInfo, payment);
 
         final CreateTokenServiceRequest request = new CreateTokenServiceRequest(merchantInfo, null);
-        request.setCardTokenRequest(new CardTokenRequest(tokenRequest, authenticatedShopperId, payment));
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest();
+        cardTokenRequest.setAuthenticatedShopperId(authenticatedShopperId);
+        cardTokenRequest.setPayment(payment);
+        cardTokenRequest.setTokenRequest(tokenRequest);
+        request.setCardTokenRequest(cardTokenRequest);
         return request;
     }
 
@@ -49,7 +53,10 @@ public class CreateTokenServiceRequest extends AbstractServiceRequest {
         checkParameters("CreateTokenServiceRequest", merchantInfo, payment);
 
         final CreateTokenServiceRequest request = new CreateTokenServiceRequest(merchantInfo, null);
-        request.setCardTokenRequest(new CardTokenRequest(tokenRequest, payment));
+        final CardTokenRequest cardTokenRequest = new CardTokenRequest();
+        cardTokenRequest.setPayment(payment);
+        cardTokenRequest.setTokenRequest(tokenRequest);
+        request.setCardTokenRequest(cardTokenRequest);
         return request;
     }
 

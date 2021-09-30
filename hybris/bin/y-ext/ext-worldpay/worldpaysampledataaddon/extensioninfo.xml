@@ -7,10 +7,6 @@
                 
         <requires-extension name="worldpayapi"/>
                 
-        <requires-extension name="electronicsstore"/>
-                
-        <requires-extension name="apparelstore"/>
-                
         <requires-extension name="assistedservicestorefront"/>
                 
         <coremodule generated="true" manager="com.worldpay.jalo.WorldpaysampledataaddonManager" packageroot="com.worldpay"/>

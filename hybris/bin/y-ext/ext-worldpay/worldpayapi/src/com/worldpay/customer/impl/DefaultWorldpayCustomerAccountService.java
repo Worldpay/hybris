@@ -3,14 +3,15 @@ package com.worldpay.customer.impl;
 import com.worldpay.customer.WorldpayCustomerAccountService;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import de.hybris.platform.commerceservices.customer.impl.DefaultCustomerAccountService;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.core.model.user.CustomerModel;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
@@ -24,7 +25,7 @@ public class DefaultWorldpayCustomerAccountService extends DefaultCustomerAccoun
     protected WorldpayMerchantInfoService worldpayMerchantInfoService;
     protected WorldpayDirectOrderService worldpayDirectOrderService;
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayCustomerAccountService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayCustomerAccountService.class);
 
     /**
      * Fist delete token at Worldpay than call super

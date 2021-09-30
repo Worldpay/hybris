@@ -7,7 +7,6 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.Reply;
 import com.worldpay.service.response.SecondThreeDSecurePaymentServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
@@ -28,14 +27,12 @@ public class SecondThreeDSecurePaymentResponseTransformer extends AbstractServic
             throw new WorldpayModelTransformationException("The Worldpay response is null");
         }
 
-        if (CollectionUtils.isEmpty(paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()) || paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
-        }
-        final Object responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-        final Reply intReply = (Reply) responseType;
+        final Reply intReply = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
         final SecondThreeDSecurePaymentServiceResponse response = new SecondThreeDSecurePaymentServiceResponse();
         if (getServiceResponseTransformerHelper().checkForError(response, intReply)) {

@@ -7,8 +7,9 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.SchemeResponse;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.SchemeResponse;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpaySessionService;
@@ -238,7 +239,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         final String merchantCode = worldpayMerchantInfoService.getCurrentSiteMerchant().getMerchantCode();
         final PaymentInfoModel paymentInfoModel = Optional.ofNullable(abstractOrderModel.getPaymentInfo())
             .orElseGet(() -> createCreditCardPaymentInfo(serviceResponse, abstractOrderModel, merchantCode));
-        final BigDecimal authorisationAmount = worldpayOrderService.convertAmount(serviceResponse.getPaymentReply().getAmount());
+        final PaymentReply paymentReply = serviceResponse.getPaymentReply();
+        final BigDecimal authorisationAmount = worldpayOrderService.convertAmount(paymentReply.getAmount());
         final CommerceCheckoutParameter commerceCheckoutParameter;
 
         if (abstractOrderModel instanceof CartModel) {
@@ -250,16 +252,18 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         }
 
         final PaymentTransactionModel paymentTransaction = worldpayPaymentTransactionService.createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
-        worldpayPaymentTransactionService.addRiskScore(paymentTransaction, serviceResponse.getPaymentReply());
+        worldpayPaymentTransactionService.addRiskScore(paymentTransaction, paymentReply);
+
+        worldpayPaymentTransactionService.addFraudSightToPaymentTransaction(paymentTransaction, paymentReply);
 
         final PaymentTransactionEntryModel transactionEntry = worldpayPaymentTransactionService.createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction,
-                merchantCode,
-                abstractOrderModel,
-                authorisationAmount);
-        worldpayPaymentTransactionService.addAavFields(transactionEntry, serviceResponse.getPaymentReply());
+            merchantCode,
+            abstractOrderModel,
+            authorisationAmount);
+        worldpayPaymentTransactionService.addAavFields(transactionEntry, paymentReply);
         getTransactionIdentifier(serviceResponse)
-                .ifPresent(transactionIdentifier ->
-                        worldpayPaymentInfoService.setTransactionIdentifierOnPaymentInfo(paymentInfoModel, transactionIdentifier));
+            .ifPresent(transactionIdentifier ->
+                worldpayPaymentInfoService.setTransactionIdentifierOnPaymentInfo(paymentInfoModel, transactionIdentifier));
         worldpayPaymentInfoService.updateAndAttachPaymentInfoModel(paymentTransaction, abstractOrderModel, paymentInfoModel);
     }
 
@@ -278,9 +282,9 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
             commerceCheckoutParameter = worldpayOrderService.createCheckoutParameterAndSetPaymentInfo(paymentInfoModel, authorisationAmount, cartModel);
             final PaymentTransactionModel paymentTransaction = worldpayPaymentTransactionService.createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
             worldpayPaymentTransactionService.createPendingAuthorisePaymentTransactionEntry(paymentTransaction,
-                    merchantCode,
-                    cartModel,
-                    authorisationAmount);
+                merchantCode,
+                cartModel,
+                authorisationAmount);
             worldpayPaymentInfoService.updateAndAttachPaymentInfoModel(paymentTransaction, abstractOrderModel, paymentInfoModel);
         }
     }
@@ -295,7 +299,7 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     protected Optional<String> getTransactionIdentifier(final DirectAuthoriseServiceResponse serviceResponse) {
         return Optional.ofNullable(serviceResponse.getPaymentReply().getSchemeResponse())
-                .map(SchemeResponse::getTransactionIdentifier);
+            .map(SchemeResponse::getTransactionIdentifier);
     }
 
     protected CreditCardPaymentInfoModel createCreditCardPaymentInfo(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode) {

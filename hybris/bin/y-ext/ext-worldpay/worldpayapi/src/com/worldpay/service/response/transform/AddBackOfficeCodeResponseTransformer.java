@@ -19,33 +19,36 @@ public class AddBackOfficeCodeResponseTransformer extends AbstractServiceRespons
      * @see com.worldpay.service.response.transform.AbstractServiceResponseTransformer#transform(com.worldpay.internal.model.PaymentService)
      */
     @Override
-    public ServiceResponse transform(PaymentService reply) throws WorldpayModelTransformationException {
-        AddBackOfficeCodeServiceResponse addBackOfficeCodeResponse = new AddBackOfficeCodeServiceResponse();
+    public ServiceResponse transform(final PaymentService reply) throws WorldpayModelTransformationException {
+        final AddBackOfficeCodeServiceResponse addBackOfficeCodeResponse = new AddBackOfficeCodeServiceResponse();
 
-        final Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
-        }
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-        final Reply intReply = (Reply) responseType;
+        final Reply intReply = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
+
         if (getServiceResponseTransformerHelper().checkForError(addBackOfficeCodeResponse, intReply)) {
             return addBackOfficeCodeResponse;
         }
 
-        final Ok intOk = (Ok) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
-        if (intOk == null) {
-            throw new WorldpayModelTransformationException("No ok status returned in Worldpay reply message");
-        }
-        final Object receivedType = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
-        if (receivedType instanceof BackofficeCodeReceived) {
-            BackofficeCodeReceived intBackOfficeCodeReceived = (BackofficeCodeReceived) receivedType;
-            addBackOfficeCodeResponse.setOrderCode(intBackOfficeCodeReceived.getOrderCode());
-            addBackOfficeCodeResponse.setBackOfficeCode(intBackOfficeCodeReceived.getBackOfficeCode());
-        } else {
-            throw new WorldpayModelTransformationException("Ok received type returned in Worldpay reply message is not one of the expected types for add back office code");
-        }
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(Ok.class::isInstance)
+            .map(Ok.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
+
+        final BackofficeCodeReceived intBackOfficeCodeReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+            .stream()
+            .filter(BackofficeCodeReceived.class::isInstance)
+            .map(BackofficeCodeReceived.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Ok received type returned in Worldpay reply message is not one of the expected types for add back office code"));
+
+        addBackOfficeCodeResponse.setOrderCode(intBackOfficeCodeReceived.getOrderCode());
+        addBackOfficeCodeResponse.setBackOfficeCode(intBackOfficeCodeReceived.getBackOfficeCode());
 
         return addBackOfficeCodeResponse;
     }

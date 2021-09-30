@@ -1,6 +1,6 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.worldpay.facades.WorldpayCartFacade;
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
@@ -14,12 +14,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
+
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/redirect")
 public class WorldpayRedirectCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     @Resource
-    private WorldpayCartFacade worldpayCartFacade;
+    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
 
     /**
      * Validates and saves form details on submit of the payment details form for the HOP payment flow and redirects to Worldpay payment pages
@@ -52,6 +54,9 @@ public class WorldpayRedirectCheckoutStepController extends WorldpayChoosePaymen
         }
         redirectAttrs.addFlashAttribute(SAVE_PAYMENT_INFO, paymentDetailsForm.getSaveInAccount());
         redirectAttrs.addFlashAttribute(PAYMENT_METHOD_PARAM, paymentDetailsForm.getPaymentMethod());
+        if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
+            redirectAttrs.addFlashAttribute(BIRTHDAY_DATE, paymentDetailsForm.getDateOfBirth());
+        }
         return getRedirectToPaymentMethod();
     }
 

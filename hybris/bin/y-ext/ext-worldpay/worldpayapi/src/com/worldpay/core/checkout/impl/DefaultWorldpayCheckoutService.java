@@ -4,7 +4,7 @@ import com.worldpay.core.checkout.WorldpayCheckoutService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
+import de.hybris.platform.servicelayer.user.AddressService;
 
 /**
  * Provides specific behaviour to the commerce checkout service to set the merchant transaction code in the same style
@@ -12,7 +12,13 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class DefaultWorldpayCheckoutService implements WorldpayCheckoutService {
 
-    private ModelService modelService;
+    protected final ModelService modelService;
+    protected final AddressService addressService;
+
+    public DefaultWorldpayCheckoutService(final ModelService modelService, final AddressService addressService) {
+        this.modelService = modelService;
+        this.addressService = addressService;
+    }
 
     /**
      * {@inheritDoc}
@@ -20,17 +26,21 @@ public class DefaultWorldpayCheckoutService implements WorldpayCheckoutService {
     @Override
     public void setPaymentAddress(final CartModel cartModel, final AddressModel addressModel) {
         cartModel.setPaymentAddress(addressModel);
-        getModelService().save(cartModel);
+        modelService.save(cartModel);
 
-        getModelService().refresh(cartModel);
+        modelService.refresh(cartModel);
     }
 
-    public ModelService getModelService() {
-        return modelService;
-    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setShippingAndPaymentAddress(final CartModel cartModel, final AddressModel addressModel) {
+        cartModel.setDeliveryAddress(addressModel);
+        final AddressModel paymentAddress = addressService.cloneAddress(addressModel);
+        cartModel.setPaymentAddress(paymentAddress);
+        modelService.saveAll(paymentAddress, cartModel);
 
-    @Required
-    public void setModelService(final ModelService modelService) {
-        this.modelService = modelService;
+        modelService.refresh(cartModel);
     }
 }

@@ -1,15 +1,14 @@
 package com.worldpay.core.services.impl;
 
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.core.services.WorldpayCartService;
-import com.worldpay.dao.OrderModificationDao;
+import com.worldpay.core.services.WorldpayOrderModificationProcessService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.notification.OrderNotificationMessage;
-import com.worldpay.core.services.WorldpayOrderModificationProcessService;
 import com.worldpay.strategies.WorldpayPlaceOrderFromNotificationStrategy;
 import com.worldpay.strategies.paymenttransaction.WorldpayPaymentTransactionTypeStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.enums.DefectiveReason;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
@@ -29,7 +28,8 @@ import java.util.Optional;
 
 import static com.worldpay.worldpaynotifications.enums.DefectiveReason.NO_WORLDPAY_CODE_MATCHED;
 import static com.worldpay.worldpaynotifications.enums.DefectiveReason.PROCESSING_ERROR;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUSED;
 import static java.text.MessageFormat.format;
 
 /**
@@ -44,28 +44,28 @@ public class DefaultWorldpayOrderModificationProcessService implements WorldpayO
 
     private static final Logger LOG = LogManager.getLogger(DefaultWorldpayOrderModificationProcessService.class);
 
-    protected final OrderModificationDao orderModificationDao;
-    protected final OrderModificationSerialiser orderModificationSerialiser;
+    protected final OrderNotificationService orderNotificationService;
     protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     protected final WorldpayCartService worldpayCartService;
     protected final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler;
     protected final WorldpayPlaceOrderFromNotificationStrategy worldpayPlaceOrderFromNotificationStrategy;
     protected final Map<PaymentTransactionType, WorldpayPaymentTransactionTypeStrategy> worldpayPaymentTransactionTypeStrategiesMap;
+    protected final List<PaymentTransactionType> worldpayNotRefusedPaymentTransactionTypeStrategiesList;
 
-    public DefaultWorldpayOrderModificationProcessService(final OrderModificationDao orderModificationDao,
-                                                          final OrderModificationSerialiser orderModificationSerialiser,
+    public DefaultWorldpayOrderModificationProcessService(final OrderNotificationService orderNotificationService,
                                                           final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
                                                           final WorldpayCartService worldpayCartService,
                                                           final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler,
                                                           final WorldpayPlaceOrderFromNotificationStrategy worldpayPlaceOrderFromNotificationStrategy,
-                                                          final Map<PaymentTransactionType, WorldpayPaymentTransactionTypeStrategy> worldpayPaymentTransactionTypeStrategiesMap) {
-        this.orderModificationDao = orderModificationDao;
-        this.orderModificationSerialiser = orderModificationSerialiser;
+                                                          final Map<PaymentTransactionType, WorldpayPaymentTransactionTypeStrategy> worldpayPaymentTransactionTypeStrategiesMap,
+                                                          final List<PaymentTransactionType> worldpayNotRefusedPaymentTransactionTypeStrategiesList) {
+        this.orderNotificationService = orderNotificationService;
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
         this.worldpayCartService = worldpayCartService;
         this.worldpayOrderNotificationHandler = worldpayOrderNotificationHandler;
         this.worldpayPlaceOrderFromNotificationStrategy = worldpayPlaceOrderFromNotificationStrategy;
         this.worldpayPaymentTransactionTypeStrategiesMap = worldpayPaymentTransactionTypeStrategiesMap;
+        this.worldpayNotRefusedPaymentTransactionTypeStrategiesList = worldpayNotRefusedPaymentTransactionTypeStrategiesList;
     }
 
     /**
@@ -76,7 +76,7 @@ public class DefaultWorldpayOrderModificationProcessService implements WorldpayO
     @Override
     public boolean processOrderModificationMessages(final PaymentTransactionType paymentTransactionType) {
         boolean success = true;
-        final List<WorldpayOrderModificationModel> orderModificationsByType = orderModificationDao.findUnprocessedOrderModificationsByType(paymentTransactionType);
+        final List<WorldpayOrderModificationModel> orderModificationsByType = orderNotificationService.getUnprocessedOrderModificationsByType(paymentTransactionType);
 
         for (final WorldpayOrderModificationModel orderModificationModel : orderModificationsByType) {
             final String worldpayOrderCode = orderModificationModel.getWorldpayOrderCode();
@@ -132,12 +132,9 @@ public class DefaultWorldpayOrderModificationProcessService implements WorldpayO
     }
 
     protected void processMessage(final PaymentTransactionType paymentTransactionTypeFromCronJob, final WorldpayOrderModificationModel orderModificationModel, final OrderModel orderModel) throws WorldpayConfigurationException {
-        final OrderNotificationMessage notificationMessage = orderModificationSerialiser.deserialise(orderModificationModel.getOrderNotificationMessage());
-        if (REFUND_FOLLOW_ON.equals(paymentTransactionTypeFromCronJob)) {
-            //pass transaction here
-            worldpayPaymentTransactionTypeStrategiesMap.get(REFUND_FOLLOW_ON).processModificationMessage(orderModel, orderModificationModel);
-        } else if (SETTLED.equals(paymentTransactionTypeFromCronJob)) {
-            worldpayPaymentTransactionTypeStrategiesMap.get(SETTLED).processModificationMessage(orderModel, orderModificationModel);
+        final OrderNotificationMessage notificationMessage = orderNotificationService.deserialiseNotification(orderModificationModel.getOrderNotificationMessage());
+        if (worldpayNotRefusedPaymentTransactionTypeStrategiesList.contains(paymentTransactionTypeFromCronJob)) {
+            worldpayPaymentTransactionTypeStrategiesMap.get(paymentTransactionTypeFromCronJob).processModificationMessage(orderModel, orderModificationModel);
         } else {
             PaymentTransactionType paymentTransactionType = paymentTransactionTypeFromCronJob;
             if (REFUSED.equals(paymentTransactionTypeFromCronJob)) {
@@ -149,8 +146,8 @@ public class DefaultWorldpayOrderModificationProcessService implements WorldpayO
     }
 
     private void setDefectiveNotificationAndReason(WorldpayOrderModificationModel orderModificationModel, DefectiveReason invalidAuthenticatedShopperId, Exception exception, boolean processed) {
-        worldpayOrderNotificationHandler.setDefectiveReason(orderModificationModel, invalidAuthenticatedShopperId);
-        worldpayOrderNotificationHandler.setDefectiveModification(orderModificationModel, exception, processed);
+        orderNotificationService.setDefectiveReason(orderModificationModel, invalidAuthenticatedShopperId);
+        orderNotificationService.setDefectiveModification(orderModificationModel, exception, processed);
     }
 
     protected Optional<CartModel> getCartByWorldpayOrderCode(final String worldpayOrderCode) {

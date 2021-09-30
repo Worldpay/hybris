@@ -1,7 +1,9 @@
 package com.worldpay.forms.validation;
 
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import de.hybris.bootstrap.annotations.UnitTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,6 +28,14 @@ public class CsePaymentDetailsFormValidatorTest {
     private PaymentDetailsForm paymentDetailsFormMock;
     @Mock
     private Errors errorsMock;
+    @Mock
+    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
+
+    @Before
+    public void setUp() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(false);
+    }
 
     @Test
     public void shouldNotAddErrorsOnTermsAndConditionsIfPaymentMethodIsOnline() throws Exception {

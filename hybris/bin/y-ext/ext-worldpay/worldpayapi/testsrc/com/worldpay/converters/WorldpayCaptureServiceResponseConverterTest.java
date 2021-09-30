@@ -1,6 +1,6 @@
 package com.worldpay.converters;
 
-import com.worldpay.service.model.Amount;
+import com.worldpay.data.Amount;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.response.CaptureServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;

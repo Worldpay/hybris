@@ -1,10 +1,15 @@
 package com.worldpay.service.request.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.*;
+import com.worldpay.internal.model.Modify;
+import com.worldpay.internal.model.OrderModification;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.Refund;
+import com.worldpay.data.Amount;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 /**
  * Specific class for transforming an {@link RefundServiceRequest} into a {@link PaymentService} object
@@ -28,9 +33,12 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
     protected final ConfigurationService configurationService;
+    protected final Converter<Amount, com.worldpay.internal.model.Amount> internalAmountConverter;
 
-    public RefundRequestTransformer(final ConfigurationService configurationService) {
+    public RefundRequestTransformer(final ConfigurationService configurationService,
+                                    final Converter<Amount, com.worldpay.internal.model.Amount> internalAmountConverter) {
         this.configurationService = configurationService;
+        this.internalAmountConverter = internalAmountConverter;
     }
 
     /* (non-Javadoc)
@@ -58,7 +66,8 @@ public class RefundRequestTransformer implements ServiceRequestTransformer {
         if (Boolean.TRUE.equals(refundRequest.getShopperWebformRefund())) {
             refund.setShopperWebformRefund(Boolean.TRUE.toString());
         }
-        refund.setAmount((Amount) refundRequest.getAmount().transformToInternalModel());
+
+        refund.setAmount(internalAmountConverter.convert(refundRequest.getAmount()));
         orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(refund);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
