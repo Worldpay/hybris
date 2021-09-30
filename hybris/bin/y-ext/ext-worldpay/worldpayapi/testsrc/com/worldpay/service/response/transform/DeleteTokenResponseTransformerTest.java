@@ -1,9 +1,9 @@
 package com.worldpay.service.response.transform;
 
+import com.worldpay.data.token.DeleteTokenReply;
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
-import com.worldpay.service.model.token.DeleteTokenReply;
+import com.worldpay.internal.model.*;
 import com.worldpay.service.response.DeleteTokenResponse;
 import com.worldpay.service.response.ServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 public class DeleteTokenResponseTransformerTest {
 
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
+    private static final String ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE = "Reply has no reply message or the reply type is not the expected one";
 
     @InjectMocks
     private DeleteTokenResponseTransformer testObj;
@@ -75,7 +76,7 @@ public class DeleteTokenResponseTransformerTest {
     @Test
     public void shouldRaiseWorldpayModelTransformationExceptionWhenThereIsNoReplyInThePaymentService() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("No reply message in Worldpay delete token response");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(null));
 
         testObj.transform(paymentServiceMock);
@@ -84,7 +85,7 @@ public class DeleteTokenResponseTransformerTest {
     @Test
     public void shouldRaiseWorldpayModelTransformationExceptionWhenResponseIsNotAReply() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("Reply type from Worldpay not the expected type");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(new Modify()));
 
         testObj.transform(paymentServiceMock);
@@ -95,7 +96,7 @@ public class DeleteTokenResponseTransformerTest {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("DeleteTokenResponse did not contain an OK object");
         when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()).
-                thenReturn(singletonList(new Shopper()));
+            thenReturn(singletonList(new Shopper()));
 
         testObj.transform(paymentServiceMock);
     }
@@ -105,7 +106,7 @@ public class DeleteTokenResponseTransformerTest {
         when(serviceResponseTransformerHelperMock.checkForError(any(DeleteTokenResponse.class), eq(replyMock))).thenReturn(true);
 
         when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken())
-                .thenReturn(singletonList(errorMock));
+            .thenReturn(singletonList(errorMock));
 
         final ServiceResponse result = testObj.transform(paymentServiceMock);
 

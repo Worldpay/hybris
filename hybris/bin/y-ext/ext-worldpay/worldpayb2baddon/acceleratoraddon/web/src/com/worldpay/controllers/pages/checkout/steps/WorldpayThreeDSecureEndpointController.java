@@ -12,11 +12,12 @@ import de.hybris.platform.b2bacceleratorfacades.api.cart.CheckoutFacade;
 import de.hybris.platform.b2bacceleratorfacades.checkout.data.PlaceOrderData;
 import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.order.InvalidCartException;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static com.worldpay.payment.TransactionStatus.ERROR;
 import static java.text.MessageFormat.format;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * Controller to handle 3D secure response
@@ -36,12 +36,11 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
     private static final Logger LOG = LogManager.getLogger(WorldpayThreeDSecureEndpointController.class);
 
     @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
+    @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
     private WorldpayCartService worldpayCartService;
-    @Resource
-    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
-
 
     /**
      * Method to handle 3D secure response
@@ -51,23 +50,23 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
      * @param redirectAttributes
      * @return
      */
-    @RequestMapping(method = POST)
+    @PostMapping
     @RequireHardLogIn
     public String doHandleThreeDSecureResponse(final HttpServletRequest request, final ThreeDSecureForm threeDSecureForm, final RedirectAttributes redirectAttributes) {
         final String worldpayOrderCode = threeDSecureForm.getMD();
         TransactionStatus transactionStatus = ERROR;
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.authorise3DSecure(threeDSecureForm.getPaRes(),
-                    worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
+                worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
             transactionStatus = responseData.getTransactionStatus();
             if (AUTHORISED.equals(transactionStatus)) {
                 final PlaceOrderData placeOrderData = new PlaceOrderData();
 
                 placeOrderData.setTermsCheck(true);
-                OrderData orderData = getB2BCheckoutFacade().placeOrder(placeOrderData);
+                final OrderData orderData = getB2BCheckoutFacade().placeOrder(placeOrderData);
                 return redirectToOrderConfirmationPage(orderData);
             } else {
-                LOG.error(format("Failed to create payment authorisation for successful 3DSecure response. Received {0} as transactionStatus", transactionStatus));
+                LOG.error("Failed to create payment authorisation for successful 3DSecure response. Received [{}] as transactionStatus", transactionStatus);
                 worldpayCartService.setWorldpayDeclineCodeOnCart(worldpayOrderCode, responseData.getReturnCode());
             }
         } catch (final WorldpayException | InvalidCartException e) {

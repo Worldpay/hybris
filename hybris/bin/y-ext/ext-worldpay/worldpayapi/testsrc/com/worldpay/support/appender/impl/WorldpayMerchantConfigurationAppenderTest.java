@@ -1,7 +1,7 @@
 package com.worldpay.support.appender.impl;
 
-import com.google.common.collect.ImmutableMap;
-import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.merchant.configuration.services.WorldpayMerchantConfigurationService;
+import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -12,11 +12,11 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -30,41 +30,43 @@ public class WorldpayMerchantConfigurationAppenderTest {
     private static final String PAYMENT_METHOD_2 = "paymentMethod2";
     private static final String PAYMENT_METHOD_3 = "paymentMethod3";
     private static final String PAYMENT_METHOD_4 = "paymentMethod4";
-    private static final String WEB_BEAN_ID = "webBeanId";
-    private static final String MOBILE_BEAN_ID = "mobileBeanId";
+    private static final String WEB_MERCHANT_ID = "webMerchantId";
+    private static final String MOBILE_MERCHANT_ID = "mobileMerchantId";
 
     @Spy
     @InjectMocks
     private WorldpayMerchantConfigurationAppender testObj;
 
     @Mock
-    private WorldpayMerchantConfigData webWorldpayMerchantConfigDataMock, mobileWorldpayMerchantConfigDataMock;
+    private WorldpayMerchantConfigurationService worldpayMerchantConfigurationServiceMock;
+    @Mock
+    private WorldpayMerchantConfigurationModel webWorldpayMerchantConfigurationMock, mobileWorldpayMerchantConfigurationMock;
 
     @Test
     public void appendContent_ShouldAppendMerchantConfiguration() {
-        final ImmutableMap<String, WorldpayMerchantConfigData> configuredMerchants = ImmutableMap.of(WEB_BEAN_ID, webWorldpayMerchantConfigDataMock, MOBILE_BEAN_ID, mobileWorldpayMerchantConfigDataMock);
-        doReturn(configuredMerchants).when(testObj).getConfiguredMerchants();
-
+        when(worldpayMerchantConfigurationServiceMock.getAllSystemActiveSiteMerchantConfigurations()).thenReturn(Set.of(webWorldpayMerchantConfigurationMock, mobileWorldpayMerchantConfigurationMock));
         final List<String> includedPaymentMethods = asList(PAYMENT_METHOD_1, PAYMENT_METHOD_2);
         final List<String> excludedPaymentMethods = asList(PAYMENT_METHOD_3, PAYMENT_METHOD_4);
 
-        when(webWorldpayMerchantConfigDataMock.getIncludedPaymentTypes()).thenReturn(includedPaymentMethods);
-        when(webWorldpayMerchantConfigDataMock.getExcludedPaymentTypes()).thenReturn(excludedPaymentMethods);
-        when(webWorldpayMerchantConfigDataMock.getMacValidation()).thenReturn(MAC_VALIDATION);
-        when(webWorldpayMerchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
-        when(webWorldpayMerchantConfigDataMock.getInstallationId()).thenReturn(INSTALLATION_ID);
+        when(webWorldpayMerchantConfigurationMock.getIncludedPaymentTypes()).thenReturn(includedPaymentMethods);
+        when(webWorldpayMerchantConfigurationMock.getExcludedPaymentTypes()).thenReturn(excludedPaymentMethods);
+        when(webWorldpayMerchantConfigurationMock.getMacValidation()).thenReturn(MAC_VALIDATION);
+        when(webWorldpayMerchantConfigurationMock.getCode()).thenReturn(MERCHANT_CODE);
+        when(webWorldpayMerchantConfigurationMock.getIdentifier()).thenReturn(WEB_MERCHANT_ID);
+        when(webWorldpayMerchantConfigurationMock.getInstallationId()).thenReturn(INSTALLATION_ID);
 
-        when(mobileWorldpayMerchantConfigDataMock.getIncludedPaymentTypes()).thenReturn(includedPaymentMethods);
-        when(mobileWorldpayMerchantConfigDataMock.getExcludedPaymentTypes()).thenReturn(excludedPaymentMethods);
-        when(mobileWorldpayMerchantConfigDataMock.getMacValidation()).thenReturn(MAC_VALIDATION);
-        when(mobileWorldpayMerchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
-        when(mobileWorldpayMerchantConfigDataMock.getInstallationId()).thenReturn(INSTALLATION_ID);
+        when(mobileWorldpayMerchantConfigurationMock.getIncludedPaymentTypes()).thenReturn(includedPaymentMethods);
+        when(mobileWorldpayMerchantConfigurationMock.getExcludedPaymentTypes()).thenReturn(excludedPaymentMethods);
+        when(mobileWorldpayMerchantConfigurationMock.getMacValidation()).thenReturn(MAC_VALIDATION);
+        when(mobileWorldpayMerchantConfigurationMock.getCode()).thenReturn(MERCHANT_CODE);
+        when(mobileWorldpayMerchantConfigurationMock.getIdentifier()).thenReturn(MOBILE_MERCHANT_ID);
+        when(mobileWorldpayMerchantConfigurationMock.getInstallationId()).thenReturn(INSTALLATION_ID);
 
         final String result = testObj.appendContent();
 
         assertTrue(result.contains("Merchant Configuration"));
-        assertTrue(result.contains(WEB_BEAN_ID));
-        assertTrue(result.contains(MOBILE_BEAN_ID));
+        assertTrue(result.contains(WEB_MERCHANT_ID));
+        assertTrue(result.contains(MOBILE_MERCHANT_ID));
 
         assertEquals(2, StringUtils.countMatches(result, MERCHANT_CODE));
         assertEquals(2, StringUtils.countMatches(result, INSTALLATION_ID));
@@ -79,5 +81,4 @@ public class WorldpayMerchantConfigurationAppenderTest {
         assertEquals(2, StringUtils.countMatches(result, PAYMENT_METHOD_4));
     }
 }
-    
 

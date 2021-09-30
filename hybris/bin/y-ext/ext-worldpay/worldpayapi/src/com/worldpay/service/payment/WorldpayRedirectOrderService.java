@@ -4,7 +4,7 @@ import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.core.model.order.CartModel;
 

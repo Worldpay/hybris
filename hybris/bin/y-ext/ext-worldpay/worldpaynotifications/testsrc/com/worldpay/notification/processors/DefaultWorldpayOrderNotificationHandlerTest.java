@@ -13,13 +13,11 @@ import de.hybris.platform.core.enums.OrderStatus;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.processengine.model.BusinessProcessModel;
-import de.hybris.platform.servicelayer.model.ModelService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -28,7 +26,6 @@ import java.util.Set;
 import static de.hybris.platform.core.enums.OrderStatus.*;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.CANCEL;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
-import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -38,14 +35,11 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
     private static final String ORDER_CODE = "orderCode";
     private static final String BUSINESS_PROCESS_CODE = "process_code";
 
-    @Spy
     @InjectMocks
     private DefaultWorldpayOrderNotificationHandler testObj;
 
     @Mock
-    private ModelService modelServiceMock;
-    @Mock
-    private OrderNotificationService orderModificationServiceMock;
+    private OrderNotificationService orderNodificationServiceMock;
     @Mock
     private ProcessDefinitionDao processDefinitionDaoMock;
     @Mock
@@ -53,10 +47,6 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
 
     @Mock
     private WorldpayOrderModificationModel orderModificationModelMock;
-    @Mock
-    private Exception exceptionMock;
-    @Mock
-    private WorldpayOrderModificationModel existingModificationModelMock;
     @Mock
     private OrderModel orderMock;
     @Mock
@@ -73,49 +63,7 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
         when(orderMock.getStatus()).thenReturn(CREATED);
         when(processDefinitionDaoMock.findWaitingOrderProcesses(ORDER_CODE, CAPTURE)).thenReturn(ImmutableList.of(businessProcessMock1));
         when(businessProcessMock1.getCode()).thenReturn(BUSINESS_PROCESS_CODE);
-        when(orderModificationServiceMock.isNotificationValid(notificationMessageMock, orderMock)).thenReturn(true);
-    }
-
-    @Test
-    public void setDefectiveModification_ShouldSetDefectiveAndProcessed() {
-        testObj.setDefectiveModification(orderModificationModelMock, exceptionMock, true);
-
-        verify(orderModificationModelMock).setDefective(Boolean.TRUE);
-        verify(orderModificationModelMock).setProcessed(true);
-        verify(modelServiceMock).save(orderModificationModelMock);
-    }
-
-    @Test
-    public void setDefectiveReason_WhenDefectiveCounterIsNotNull_ShouldSetDefectiveReasonAndIncreaseCounter() {
-        when(existingModificationModelMock.getDefectiveCounter()).thenReturn(1);
-        when(orderModificationServiceMock.getExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingModificationModelMock));
-
-        testObj.setDefectiveReason(orderModificationModelMock, DefectiveReason.PROCESSING_ERROR);
-
-        verify(orderModificationModelMock).setDefectiveReason(DefectiveReason.PROCESSING_ERROR);
-        verify(orderModificationModelMock).setDefectiveCounter(2);
-        verify(modelServiceMock).remove(existingModificationModelMock);
-    }
-
-    @Test
-    public void setDefectiveReason_WhenDefectiveCounterIsNull_ShouldSetDefectiveReasonAndSetCounterTo1() {
-        when(existingModificationModelMock.getDefectiveCounter()).thenReturn(null);
-        when(orderModificationServiceMock.getExistingModifications(orderModificationModelMock)).thenReturn(singletonList(existingModificationModelMock));
-
-        testObj.setDefectiveReason(orderModificationModelMock, DefectiveReason.PROCESSING_ERROR);
-
-        verify(orderModificationModelMock).setDefectiveReason(DefectiveReason.PROCESSING_ERROR);
-        verify(orderModificationModelMock).setDefectiveCounter(1);
-        verify(modelServiceMock).remove(existingModificationModelMock);
-    }
-
-    @Test
-    public void setNonDefectiveAndProcessed() {
-        testObj.setNonDefectiveAndProcessed(orderModificationModelMock);
-
-        verify(orderModificationModelMock).setProcessed(Boolean.TRUE);
-        verify(orderModificationModelMock).setDefective(Boolean.FALSE);
-        verify(modelServiceMock).save(orderModificationModelMock);
+        when(orderNodificationServiceMock.isNotificationValid(notificationMessageMock, orderMock)).thenReturn(true);
     }
 
     @Test
@@ -124,8 +72,8 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
 
         testObj.handleNotificationBusinessProcess(CAPTURE, orderModificationModelMock, orderMock, notificationMessageMock);
 
-        verify(orderModificationServiceMock).processOrderNotificationMessage(notificationMessageMock, orderModificationModelMock);
-        verify(testObj).setNonDefectiveAndProcessed(orderModificationModelMock);
+        verify(orderNodificationServiceMock).processOrderNotificationMessage(notificationMessageMock, orderModificationModelMock);
+        verify(orderNodificationServiceMock).setNonDefectiveAndProcessed(orderModificationModelMock);
         verify(businessProcessServiceMock).triggerEvent(BUSINESS_PROCESS_CODE + "_" + CAPTURE);
     }
 
@@ -136,19 +84,19 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
 
         testObj.handleNotificationBusinessProcess(CANCEL, orderModificationModelMock, orderMock, notificationMessageMock);
 
-        verify(orderModificationServiceMock).processOrderNotificationMessage(notificationMessageMock, orderModificationModelMock);
-        verify(testObj).setNonDefectiveAndProcessed(orderModificationModelMock);
+        verify(orderNodificationServiceMock).processOrderNotificationMessage(notificationMessageMock, orderModificationModelMock);
+        verify(orderNodificationServiceMock).setNonDefectiveAndProcessed(orderModificationModelMock);
         verify(businessProcessServiceMock, never()).triggerEvent(anyString());
     }
 
     @Test
     public void handleNotificationBusinessProcess_WhenNotificationIsNotValid_ShouldSetDefectiveNotificationAndAdReason() throws WorldpayConfigurationException {
-        when(orderModificationServiceMock.isNotificationValid(notificationMessageMock, orderMock)).thenReturn(false);
+        when(orderNodificationServiceMock.isNotificationValid(notificationMessageMock, orderMock)).thenReturn(false);
 
         testObj.handleNotificationBusinessProcess(CAPTURE, orderModificationModelMock, orderMock, notificationMessageMock);
 
-        verify(testObj).setDefectiveReason(orderModificationModelMock, DefectiveReason.INVALID_AUTHENTICATED_SHOPPER_ID);
-        verify(testObj).setDefectiveModification(orderModificationModelMock, null, true);
+        verify(orderNodificationServiceMock).setDefectiveReason(orderModificationModelMock, DefectiveReason.INVALID_AUTHENTICATED_SHOPPER_ID);
+        verify(orderNodificationServiceMock).setDefectiveModification(orderModificationModelMock, null, true);
     }
 
     @Test
@@ -157,7 +105,7 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
 
         testObj.handleNotificationBusinessProcess(CAPTURE, orderModificationModelMock, orderMock, notificationMessageMock);
 
-        verifyZeroInteractions(orderModificationServiceMock);
+        verifyZeroInteractions(orderNodificationServiceMock);
         verifyZeroInteractions(businessProcessServiceMock);
     }
 }

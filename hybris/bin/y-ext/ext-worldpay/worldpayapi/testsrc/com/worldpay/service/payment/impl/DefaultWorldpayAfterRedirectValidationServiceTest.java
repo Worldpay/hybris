@@ -2,7 +2,7 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.mac.MacValidator;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
 import org.junit.Test;

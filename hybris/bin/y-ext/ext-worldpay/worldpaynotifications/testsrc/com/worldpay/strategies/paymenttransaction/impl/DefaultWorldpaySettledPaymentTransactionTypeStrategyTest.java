@@ -2,9 +2,7 @@ package com.worldpay.strategies.paymenttransaction.impl;
 
 import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.notification.OrderNotificationMessage;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -15,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.worldpay.worldpaynotifications.enums.DefectiveReason.INVALID_AUTHENTICATED_SHOPPER_ID;
+import static com.worldpay.worldpaynotifications.enums.DefectiveReason.PROCESSING_ERROR;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -27,10 +25,6 @@ public class DefaultWorldpaySettledPaymentTransactionTypeStrategyTest {
     @InjectMocks
     private DefaultWorldpaySettledPaymentTransactionTypeStrategy testObj;
 
-    @Mock
-    private WorldpayOrderNotificationHandler worldpayOrderNotificationHandlerMock;
-    @Mock
-    private OrderModificationSerialiser orderModificationSerialiserMock;
     @Mock
     private OrderNotificationService orderNotificationServiceMock;
 
@@ -44,7 +38,7 @@ public class DefaultWorldpaySettledPaymentTransactionTypeStrategyTest {
     @Before
     public void setUp() {
         when(worldpayOrderNotificationMock.getOrderNotificationMessage()).thenReturn(DESERIALISED_NOTIFICATION);
-        when(orderModificationSerialiserMock.deserialise(DESERIALISED_NOTIFICATION)).thenReturn(orderNotificationMock);
+        when(orderNotificationServiceMock.deserialiseNotification(DESERIALISED_NOTIFICATION)).thenReturn(orderNotificationMock);
     }
 
     @Test
@@ -60,7 +54,7 @@ public class DefaultWorldpaySettledPaymentTransactionTypeStrategyTest {
 
         testObj.processModificationMessage(orderMock, worldpayOrderNotificationMock);
 
-        verify(worldpayOrderNotificationHandlerMock).setDefectiveReason(worldpayOrderNotificationMock, INVALID_AUTHENTICATED_SHOPPER_ID);
-        verify(worldpayOrderNotificationHandlerMock).setDefectiveModification(worldpayOrderNotificationMock, null, true);
+        verify(orderNotificationServiceMock).setDefectiveReason(worldpayOrderNotificationMock, PROCESSING_ERROR);
+        verify(orderNotificationServiceMock).setDefectiveModification(worldpayOrderNotificationMock, null, true);
     }
 }

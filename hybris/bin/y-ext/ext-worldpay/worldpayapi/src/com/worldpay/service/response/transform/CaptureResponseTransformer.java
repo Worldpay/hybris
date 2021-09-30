@@ -1,54 +1,62 @@
 package com.worldpay.service.response.transform;
 
+import com.worldpay.data.Amount;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.CaptureReceived;
 import com.worldpay.internal.model.Ok;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.Reply;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.DebitCreditIndicator;
 import com.worldpay.service.response.CaptureServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 /**
  * Specific class for transforming a {@link PaymentService} into a {@link CaptureServiceResponse} object
  */
 public class CaptureResponseTransformer extends AbstractServiceResponseTransformer {
 
-    /** (non-Javadoc)
+    protected final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter;
+
+    public CaptureResponseTransformer(final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter) {
+        this.internalAmountReverseConverter = internalAmountReverseConverter;
+    }
+
+    /**
+     * (non-Javadoc)
+     *
      * @see com.worldpay.service.response.transform.AbstractServiceResponseTransformer#transform(com.worldpay.internal.model.PaymentService)
      */
     @Override
-    public ServiceResponse transform(PaymentService reply) throws WorldpayModelTransformationException {
+    public ServiceResponse transform(final PaymentService reply) throws WorldpayModelTransformationException {
         final CaptureServiceResponse captureResponse = new CaptureServiceResponse();
 
-        final Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
-        }
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-        final Reply intReply = (Reply) responseType;
+        final Reply intReply = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
+
         if (getServiceResponseTransformerHelper().checkForError(captureResponse, intReply)) {
             return captureResponse;
         }
 
-        final Ok intOk = (Ok) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
-        if (intOk == null) {
-            throw new WorldpayModelTransformationException("No ok status returned in Worldpay reply message");
-        }
-        final Object receivedType = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
-        if (receivedType instanceof CaptureReceived) {
-            CaptureReceived intCaptureReceived = (CaptureReceived) receivedType;
-            captureResponse.setOrderCode(intCaptureReceived.getOrderCode());
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(Ok.class::isInstance)
+            .map(Ok.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
 
-            com.worldpay.internal.model.Amount intAmount = intCaptureReceived.getAmount();
-            Amount amount = new Amount(intAmount.getValue(), intAmount.getCurrencyCode(), intAmount.getExponent(), DebitCreditIndicator.getDebitCreditIndicator(intAmount.getDebitCreditIndicator()));
-            captureResponse.setAmount(amount);
-        } else {
-            throw new WorldpayModelTransformationException("Ok received type returned in Worldpay reply message is not one of the expected types for capture");
-        }
+        final CaptureReceived intCaptureReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+            .stream()
+            .filter(CaptureReceived.class::isInstance)
+            .map(CaptureReceived.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Ok received type returned in Worldpay reply message is not one of the expected types for capture"));
+
+        captureResponse.setOrderCode(intCaptureReceived.getOrderCode());
+        captureResponse.setAmount(internalAmountReverseConverter.convert(intCaptureReceived.getAmount()));
 
         return captureResponse;
     }

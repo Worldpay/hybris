@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias name="defaultWorldpayRequestFactory" alias="worldpayRequestFactory"/>
+    <bean id="defaultWorldpayRequestFactory"
+          class="com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory">
+        <constructor-arg name="worldpayTokenEventReferenceCreationStrategy"
+                         ref="worldpayTokenEventReferenceCreationStrategy"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayKlarnaService" ref="worldpayKlarnaService"/>
+        <constructor-arg name="worldpayRiskDataService" ref="worldpayRiskDataService"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="worldpayRequestService" ref="worldpayRequestService"/>
+        <constructor-arg name="worldpayAdditionalRequestDataService" ref="worldpayAdditionalRequestDataService"/>
+    </bean>
+
+</beans>

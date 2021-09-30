@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <alias name="defaultOCCWorldpayUrlService" alias="occWorldpayUrlService"/>
+    <bean id="defaultOCCWorldpayUrlService" class="com.worldpay.service.OCCWorldpayUrlService"
+          parent="worldpayUrlService">
+        <property name="successPath" value="${occ.worldpay.config.successURL}"/>
+        <property name="pendingPath" value="${occ.worldpay.config.pendingURL}"/>
+        <property name="failurePath" value="${occ.worldpay.config.failureURL}"/>
+        <property name="errorPath" value="${occ.worldpay.config.errorURL}"/>
+        <property name="cancelPath" value="${occ.worldpay.config.cancelURL}"/>
+    </bean>
+
+    <alias name="defaultOCCWorldpayHOPService" alias="occWorldpayHOPService"/>
+    <bean id="defaultOCCWorldpayHOPService"
+          class="com.worldpay.service.hop.impl.DefaultWorldpayHOPService"
+          parent="defaultWorldpayHOPService">
+        <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultOCCWorldpayRedirectOrderService" alias="occWorldpayRedirectOrderService"/>
+    <bean id="defaultOCCWorldpayRedirectOrderService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService"
+          parent="defaultWorldpayRedirectOrderService">
+        <constructor-arg name="worldpayHOPService" ref="occWorldpayHOPService"/>
+    </bean>
+
+    <alias name="defaultOCCWorldpayJsonWebTokenService" alias="occWorldpayJsonWebTokenService"/>
+    <bean id="defaultOCCWorldpayJsonWebTokenService"
+          class="com.worldpay.service.payment.impl.OCCWorldpayJsonWebTokenService">
+        <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
+    </bean>
+
+    <alias name="defaultOccWorldpaySessionService" alias="occWorldpaySessionService"/>
+    <bean name="defaultOccWorldpaySessionService" class="com.worldpay.service.payment.impl.OccWorldpaySessionService">
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
+    <bean id="occWorldpayDirectOrderService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService"
+          parent="abstractWorldpayOrderService">
+        <constructor-arg name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
+        <constructor-arg name="worldpaySessionService" ref="occWorldpaySessionService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+    </bean>
+
+</beans>

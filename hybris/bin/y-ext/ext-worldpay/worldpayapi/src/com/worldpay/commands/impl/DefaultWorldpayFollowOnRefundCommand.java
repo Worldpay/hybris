@@ -4,8 +4,8 @@ package com.worldpay.commands.impl;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.Amount;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.response.RefundServiceResponse;
@@ -14,13 +14,13 @@ import de.hybris.platform.payment.commands.FollowOnRefundCommand;
 import de.hybris.platform.payment.commands.request.FollowOnRefundRequest;
 import de.hybris.platform.payment.commands.result.RefundResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Currency;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
-import static java.text.MessageFormat.format;
 
 
 /**
@@ -31,7 +31,7 @@ import static java.text.MessageFormat.format;
  */
 public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implements FollowOnRefundCommand<FollowOnRefundRequest> {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayFollowOnRefundCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayFollowOnRefundCommand.class);
 
     protected final Converter<RefundServiceResponse, RefundResult> refundServiceResponseConverter;
 
@@ -55,7 +55,7 @@ public class DefaultWorldpayFollowOnRefundCommand extends WorldpayCommand implem
             final RefundServiceRequest refundServiceRequest = buildRefundRequest(request.getMerchantTransactionCode(), orderCode, amount, merchantInfo);
             return refund(refundServiceRequest);
         } catch (final WorldpayException e) {
-            LOG.error(format("Exception raised while issuing a refundRequest: [{0}]", e.getMessage()), e);
+            LOG.error("Exception raised while issuing a refundRequest: [{}]", e.getMessage(), e);
             return createErrorRefundResult();
         }
     }

@@ -9,9 +9,28 @@ def pl = platform {
         property 'googleApiKey', ''
         property 'website.powertools.http', 'http://powertools.local:9001/yb2bacceleratorstorefront'
         property 'website.powertools.https', 'https://powertools.local:9002/yb2bacceleratorstorefront'
-	    property 'yb2bacceleratorstorefront.illegalrequirementstest.excluded', 'true'
         property 'testclasses.addonname', 'yb2bacceleratorstorefront'
         property 'ansi.colors', 'true'
+
+        property 'worldpay.config.web.merchant.code.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.password.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.macSecret.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.installationId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.statementNarrative.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.code.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.password.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.macSecret.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.installationId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.statementNarrative.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.code.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.password.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.macSecret.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.installationId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.powertools', '<CHANGE_ME>'
     }
 
     afterSetup {
@@ -118,10 +137,10 @@ def pl = platform {
 
     addons {
         forStoreFronts('yb2bacceleratorstorefront') {
-            names('worldpayb2baddon','worldpaysampledataaddon','b2bacceleratoraddon', 'commerceorgaddon', 'commerceorgsamplesaddon', 'b2bpunchoutaddon', 'secureportaladdon',
-                    'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon', 'promotionenginesamplesaddon',
-                    'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
-                    'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'personalizationsearchsamplesaddon')
+            names('worldpayb2baddon', 'worldpaysampledataaddon', 'b2bacceleratoraddon', 'commerceorgaddon', 'commerceorgsamplesaddon', 'b2bpunchoutaddon', 'secureportaladdon',
+                'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon', 'promotionenginesamplesaddon',
+                'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
+                'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'personalizationsearchsamplesaddon')
             template 'yacceleratorstorefront'
         }
     }

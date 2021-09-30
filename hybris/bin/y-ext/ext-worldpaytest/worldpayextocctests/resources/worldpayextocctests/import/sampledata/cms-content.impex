@@ -1,0 +1,13 @@
+$contentCatalog = wsTestContentCatalog
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
+
+INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name                  ; apmConfiguration(code)
+                                  ; poliComponent           ;                          ; "POLI-SSL"            ; POLI-SSL
+                                  ; boletoComponent         ;                          ; "BOLETO-SSL"          ; BOLETO-SSL
+                                  ; giropayComponent        ;                          ; "GIROPAY-SSL"         ; GIROPAY-SSL
+                                  ; sofortComponent         ;                          ; "SOFORT-SSL"          ; SOFORT-SSL
+                                  ; idealComponent          ;                          ; "IDEAL-SSL"           ; IDEAL-SSL
+                                  ; klarnaPayLaterComponent ;                          ; "KLARNA_PAYLATER-SSL" ; KLARNA_PAYLATER-SSL
+                                  ; klarnaSliceItComponent  ;                          ; "KLARNA_SLICEIT-SSL"  ; KLARNA_SLICEIT-SSL
+                                  ; enetsComponent          ;                          ; "ENETS-SSL"           ; ENETS-SSL
+                                  ; sepaComponent           ;                          ; "Sepa Direct Debit"   ; SEPA_DIRECT_DEBIT-SSL

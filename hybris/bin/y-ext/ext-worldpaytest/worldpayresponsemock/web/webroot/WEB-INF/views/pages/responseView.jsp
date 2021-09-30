@@ -64,6 +64,7 @@
             margin: 0;
             font-weight: normal;
         }
+
         legend {
             float: left;
         }
@@ -164,7 +165,8 @@
     <fieldset id="sharedFields">
         <legend>Common</legend>
         <form:label path="transactionAmount">
-            <span>Transaction Amount: <span title="The amount should be without decimal point" class="glyphicon glyphicon-info-sign"></span></span>
+            <span>Transaction Amount: <span title="The amount should be without decimal point"
+                                            class="glyphicon glyphicon-info-sign"></span></span>
             <form:input path="transactionAmount"/>
         </form:label>
         <form:label path="currencyCode">
@@ -205,6 +207,7 @@
                 <option value="NoRisk">No risk score</option>
                 <option value="RMM">Risk Management Module</option>
                 <option value="RG">Risk Guardian</option>
+                <option value="FS">Fraud Sight</option>
             </form:select>
         </label>
 
@@ -224,6 +227,36 @@
                 <form:input path="riskValue"/>
             </form:label>
         </fieldset>
+    </fieldset>
+
+    <fieldset>
+        <legend>FraudSight</legend>
+
+        <form:label path="useFraudSight">
+            <span>Enable Fraud Sight:</span>
+            <form:checkbox path="useFraudSight" id="useFraudSight" value="${useFraudSight}"/>
+        </form:label>
+
+        <div id="fraudSightContainer" class="hide">
+            <form:label path="fraudSightScore">
+                <span>FraudSight score:</span>
+                <form:input type="number" path="fraudSightScore" id="fraudSightScore"/>
+            </form:label>
+
+            <form:label path="fraudSightMessage">
+                <span>Risk decision values:</span>
+                <form:select path="fraudSightMessage">
+                    <form:options items="${fraudSightMessages}"/>
+                </form:select>
+            </form:label>
+
+            <form:label path="fraudSightReasonCodes">
+                <span>Risk reasons:</span>
+                <form:select path="fraudSightReasonCodes" multiple="multiple">
+                    <form:options items="${fraudSightReasonCodes}"/>
+                </form:select>
+            </form:label>
+        </div>
     </fieldset>
 
     <fieldset>
@@ -433,11 +466,11 @@
     <fieldset id="AmExAdvancedVerification">
         <legend>AAV</legend>
         <label>AAV</label>
-        <responseMock:aavSelectBox path="aavAddress" labelText="Aav Address" />
-        <responseMock:aavSelectBox path="aavPostcode" labelText="Aav Postcode" />
-        <responseMock:aavSelectBox path="aavCardholderName" labelText="Aav Cardholder Name" />
-        <responseMock:aavSelectBox path="aavTelephone" labelText="Aav Telephone" />
-        <responseMock:aavSelectBox path="aavEmail" labelText="Aav Email" />
+        <responseMock:aavSelectBox path="aavAddress" labelText="Aav Address"/>
+        <responseMock:aavSelectBox path="aavPostcode" labelText="Aav Postcode"/>
+        <responseMock:aavSelectBox path="aavCardholderName" labelText="Aav Cardholder Name"/>
+        <responseMock:aavSelectBox path="aavTelephone" labelText="Aav Telephone"/>
+        <responseMock:aavSelectBox path="aavEmail" labelText="Aav Email"/>
     </fieldset>
 
     <fieldset id="shopperWebformRefundDetails" class="hide">
@@ -542,6 +575,24 @@
             $("#shopperWebformRefundDetails").addClass("hide");
         }
     })
+
+    $('#useFraudSight').change(function () {
+        if (this.checked) {
+            $('#fraudSightContainer').removeClass('hide');
+        } else {
+            $('#fraudSightContainer').addClass('hide');
+        }
+    });
+
+    $(document).ready(function () {
+        if ($('#useFraudSight').is(':checked')) {
+            $('#fraudSightContainer').removeClass('hide');
+        } else {
+            $('#fraudSightContainer').addClass('hide');
+        }
+    });
+
+
 </script>
 
 </body>

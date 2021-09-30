@@ -2,6 +2,9 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
+import com.worldpay.data.payment.Card;
+import com.worldpay.data.token.TokenDetails;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.enums.order.ThreeDSecureFlowEnum;
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.exception.WorldpayConfigurationException;
@@ -9,11 +12,7 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.payment.Card;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.TokenDetails;
-import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpaySessionService;
 import com.worldpay.service.payment.request.WorldpayRequestFactory;
@@ -201,7 +200,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(aditional3DSInfoMock.getChallengeWindowSize()).thenReturn(WINDOW_SIZE);
         when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getPaymentInstrument()).thenReturn(cardMock);
-        when(cardMock.getPaymentType()).thenReturn(PaymentType.VISA);
+        when(cardMock.getPaymentType()).thenReturn(PaymentType.VISA.getMethodCode());
         when(tokenReplyMock.getTokenDetails()).thenReturn(tokenDetailsMock);
         when(tokenDetailsMock.getTokenEvent()).thenReturn(TokenEvent.CONFLICT.name());
         when(worldpayMerchantInfoService.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
@@ -551,7 +550,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
 
         testObj.completeAuthoriseGooglePay(directAuthoriseServiceResponseMock, orderMock, MERCHANT_CODE);
 
-       verifyZeroInteractions(worldpayPaymentTransactionServiceMock);
-       verifyZeroInteractions(worldpayPaymentInfoServiceMock);
+        verifyZeroInteractions(worldpayPaymentTransactionServiceMock);
+        verifyZeroInteractions(worldpayPaymentInfoServiceMock);
     }
 }

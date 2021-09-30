@@ -2,11 +2,9 @@ package com.worldpay.strategies.paymenttransaction.impl;
 
 import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.strategies.WorldpayOrderModificationRefundProcessStrategy;
 import com.worldpay.strategies.paymenttransaction.WorldpayPaymentTransactionTypeStrategy;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.core.model.order.OrderModel;
 
@@ -18,18 +16,12 @@ import static com.worldpay.worldpaynotifications.enums.DefectiveReason.INVALID_A
 public class DefaultWorldpayRefundedPaymentTransactionTypeStrategy implements WorldpayPaymentTransactionTypeStrategy {
 
     protected final WorldpayOrderModificationRefundProcessStrategy worldpayOrderModificationRefundProcessStrategy;
-    protected final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler;
     protected final OrderNotificationService orderNotificationService;
-    protected final OrderModificationSerialiser orderModificationSerialiser;
 
     public DefaultWorldpayRefundedPaymentTransactionTypeStrategy(final WorldpayOrderModificationRefundProcessStrategy worldpayOrderModificationRefundProcessStrategy,
-                                                                 final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler,
-                                                                 final OrderNotificationService orderNotificationService,
-                                                                 final OrderModificationSerialiser orderModificationSerialiser) {
+                                                                 final OrderNotificationService orderNotificationService) {
         this.worldpayOrderModificationRefundProcessStrategy = worldpayOrderModificationRefundProcessStrategy;
-        this.worldpayOrderNotificationHandler = worldpayOrderNotificationHandler;
         this.orderNotificationService = orderNotificationService;
-        this.orderModificationSerialiser = orderModificationSerialiser;
     }
 
     /**
@@ -37,17 +29,17 @@ public class DefaultWorldpayRefundedPaymentTransactionTypeStrategy implements Wo
      */
     @Override
     public void processModificationMessage(final OrderModel order, final WorldpayOrderModificationModel orderModification) {
-        final OrderNotificationMessage notificationMessage = orderModificationSerialiser.deserialise(orderModification.getOrderNotificationMessage());
+        final OrderNotificationMessage notificationMessage = orderNotificationService.deserialiseNotification(orderModification.getOrderNotificationMessage());
         if (worldpayOrderModificationRefundProcessStrategy.processRefundFollowOn(order, notificationMessage)) {
             try {
                 orderNotificationService.processOrderNotificationMessage(notificationMessage, orderModification);
-                worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModification);
+                orderNotificationService.setNonDefectiveAndProcessed(orderModification);
             } catch (final WorldpayConfigurationException e) {
-                worldpayOrderNotificationHandler.setDefectiveReason(orderModification, INVALID_AUTHENTICATED_SHOPPER_ID);
-                worldpayOrderNotificationHandler.setDefectiveModification(orderModification, null, true);
+                orderNotificationService.setDefectiveReason(orderModification, INVALID_AUTHENTICATED_SHOPPER_ID);
+                orderNotificationService.setDefectiveModification(orderModification, null, true);
             }
         } else {
-            worldpayOrderNotificationHandler.setDefectiveModification(orderModification, null, true);
+            orderNotificationService.setDefectiveModification(orderModification, null, true);
         }
     }
 }

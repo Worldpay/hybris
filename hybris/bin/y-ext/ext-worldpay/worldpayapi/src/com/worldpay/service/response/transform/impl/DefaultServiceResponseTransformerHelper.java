@@ -1,31 +1,44 @@
 package com.worldpay.service.response.transform.impl;
 
+import com.worldpay.data.Address;
+import com.worldpay.data.Amount;
+import com.worldpay.data.Date;
+import com.worldpay.data.RiskScore;
+import com.worldpay.data.SchemeResponse;
+import com.worldpay.data.*;
+import com.worldpay.data.token.DeleteTokenReply;
+import com.worldpay.data.token.TokenReply;
+import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.internal.model.Error;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.Address;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.Date;
-import com.worldpay.service.model.RiskScore;
-import com.worldpay.service.model.SchemeResponse;
-import com.worldpay.service.model.*;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.DeleteTokenReply;
-import com.worldpay.service.model.token.TokenReply;
-import com.worldpay.service.model.token.UpdateTokenReply;
 import com.worldpay.service.response.ServiceResponse;
 import com.worldpay.service.response.transform.ServiceResponseTransformerHelper;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of {@link ServiceResponseTransformerHelper}
  */
 public class DefaultServiceResponseTransformerHelper implements ServiceResponseTransformerHelper {
+
+    protected final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter;
+    protected final Converter<com.worldpay.internal.model.Date, Date> internalDateReverseConverter;
+
+    public DefaultServiceResponseTransformerHelper(final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter,
+                                                   final Converter<com.worldpay.internal.model.Date, Date> internalDateReverseConverter) {
+        this.internalAmountReverseConverter = internalAmountReverseConverter;
+        this.internalDateReverseConverter = internalDateReverseConverter;
+    }
+
 
     /**
      * {@inheritDoc}
@@ -54,7 +67,10 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     }
 
     private ErrorDetail buildErrorDetail(final com.worldpay.internal.model.Error intError) {
-        return new ErrorDetail(intError.getCode(), intError.getvalue());
+        final ErrorDetail error = new ErrorDetail();
+        error.setCode(intError.getCode());
+        error.setMessage(intError.getvalue());
+        return error;
     }
 
     /**
@@ -73,6 +89,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         setBalanceList(intPayment, paymentReply);
         setReturnCode(intPayment, paymentReply);
         setRiskScore(intPayment, paymentReply);
+        setFraudSight(intPayment, paymentReply);
         setAAVCodes(intPayment, paymentReply);
         setRefundReference(intPayment, paymentReply);
         setAuthorisationId(intPayment, paymentReply);
@@ -108,6 +125,29 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     private void setRiskScore(final Payment intPayment, final PaymentReply paymentReply) {
         Optional.ofNullable(intPayment.getRiskScore()).map(this::buildRiskScore).ifPresent(paymentReply::setRiskScore);
+    }
+
+    private void setFraudSight(final Payment intPayment, final PaymentReply paymentReply) {
+        final FraudSight intFraudSight = intPayment.getFraudSight();
+
+        if (intFraudSight != null) {
+
+            final FraudSightResponse fraudSight = new FraudSightResponse();
+            fraudSight.setId(intFraudSight.getId());
+            fraudSight.setScore(Double.parseDouble(intFraudSight.getScore()));
+            fraudSight.setMessage(intFraudSight.getMessage());
+
+            if (intFraudSight.getReasonCodes() != null && CollectionUtils.isNotEmpty(intFraudSight.getReasonCodes().getReasonCode())) {
+
+                fraudSight.setReasonCodes(intFraudSight.getReasonCodes()
+                    .getReasonCode()
+                    .stream()
+                    .map(ReasonCode::getvalue)
+                    .collect(Collectors.toList()));
+            }
+
+            paymentReply.setFraudSight(fraudSight);
+        }
     }
 
     private void setCvcResult(final Payment intPayment, final PaymentReply paymentReply) {
@@ -217,12 +257,12 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             if (tokenInformationField instanceof TokenReason) {
                 tokenReply.setTokenReason(((TokenReason) tokenInformationField).getvalue());
             } else if (tokenInformationField instanceof TokenDetails) {
-                final com.worldpay.service.model.token.TokenDetails tokenDetails = transformTokenDetails((TokenDetails) tokenInformationField);
+                final com.worldpay.data.token.TokenDetails tokenDetails = transformTokenDetails((TokenDetails) tokenInformationField);
                 tokenReply.setTokenDetails(tokenDetails);
             } else if (tokenInformationField instanceof PaymentInstrument) {
                 final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
                 if (paymentInstrument instanceof CardDetails) {
-                    final com.worldpay.service.model.payment.Card card = transformCard((CardDetails) paymentInstrument);
+                    final com.worldpay.data.payment.Card card = transformCard((CardDetails) paymentInstrument);
                     tokenReply.setPaymentInstrument(card);
                 }
             } else if (tokenInformationField instanceof Error) {
@@ -232,8 +272,8 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         return tokenReply;
     }
 
-    private com.worldpay.service.model.token.TokenDetails transformTokenDetails(final com.worldpay.internal.model.TokenDetails tokenInformationField) {
-        final com.worldpay.service.model.token.TokenDetails tokenDetails = new com.worldpay.service.model.token.TokenDetails();
+    private com.worldpay.data.token.TokenDetails transformTokenDetails(final com.worldpay.internal.model.TokenDetails tokenInformationField) {
+        final com.worldpay.data.token.TokenDetails tokenDetails = new com.worldpay.data.token.TokenDetails();
 
         Optional.ofNullable(tokenInformationField.getTokenReason())
             .map(TokenReason::getvalue)
@@ -281,7 +321,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     }
 
     private Amount transformAmount(final com.worldpay.internal.model.Amount intAmount) {
-        return new Amount(intAmount.getValue(), intAmount.getCurrencyCode(), intAmount.getExponent(), DebitCreditIndicator.getDebitCreditIndicator(intAmount.getDebitCreditIndicator()));
+        return internalAmountReverseConverter.convert(intAmount);
     }
 
     private void setAAVCodes(final Payment intPayment, final PaymentReply paymentReply) {
@@ -307,7 +347,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         }
     }
 
-    private com.worldpay.service.model.payment.Card transformCard(final CardDetails intCardDetails) {
+    private com.worldpay.data.payment.Card transformCard(final CardDetails intCardDetails) {
         final Derived derived = intCardDetails.getDerived();
         if (derived != null) {
             final String cvc = intCardDetails.getCvc() == null ? null : intCardDetails.getCvc().getvalue();
@@ -320,8 +360,16 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 setCardBrand(derived);
             }
             final String cardHolderName = transformCardHolderName(intCardDetails.getCardHolderName());
-            return new com.worldpay.service.model.payment.Card(PaymentType.getPaymentType(derived.getCardBrand()),
-                derived.getObfuscatedPAN(), cvc, expiryDate, cardHolderName, address, null, null, null, derived.getBin());
+
+            final com.worldpay.data.payment.Card card = new com.worldpay.data.payment.Card();
+            card.setPaymentType(PaymentType.getPaymentType(derived.getCardBrand()).getMethodCode());
+            card.setCardNumber(derived.getObfuscatedPAN());
+            card.setCvc(cvc);
+            card.setExpiryDate(expiryDate);
+            card.setCardHolderName(cardHolderName);
+            card.setBin(derived.getBin());
+            card.setCardAddress(address);
+            return card;
         }
         return null;
     }
@@ -376,14 +424,19 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         }
     }
 
-    private com.worldpay.service.model.payment.Card transformCard(final Card intCard, final CardHolderName cardHolderName) {
+    private com.worldpay.data.payment.Card transformCard(final Card intCard, final CardHolderName cardHolderName) {
         Date transformedDate = null;
         final String cardHolderNameValue = transformCardHolderName(cardHolderName);
         if (intCard.getExpiryDate() != null) {
             transformedDate = transformDate(intCard.getExpiryDate().getDate());
         }
-        return new com.worldpay.service.model.payment.Card(PaymentType.getPaymentType(intCard.getType()),
-            intCard.getNumber(), null, transformedDate, cardHolderNameValue, null, null, null, null, null);
+
+        final com.worldpay.data.payment.Card card = new com.worldpay.data.payment.Card();
+        card.setPaymentType(PaymentType.getPaymentType(intCard.getType()) != null ? PaymentType.getPaymentType(intCard.getType()).getMethodCode() : null);
+        card.setCardNumber(intCard.getNumber());
+        card.setExpiryDate(transformedDate);
+        card.setCardHolderName(cardHolderNameValue);
+        return card;
     }
 
     private String transformCardHolderName(final CardHolderName cardHolderName) {
@@ -438,7 +491,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     }
 
     private Date transformDate(final com.worldpay.internal.model.Date intDate) {
-        return new Date(intDate.getDayOfMonth(), intDate.getMonth(), intDate.getYear(), intDate.getHour(), intDate.getMinute(), intDate.getSecond());
+        return internalDateReverseConverter.convert(intDate);
     }
 
     /**
@@ -469,7 +522,10 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             Optional.ofNullable(accountTx.getAmount())
                 .map(this::transformAmount)
                 .ifPresent(accountTransaction::setAmount);
-            journalReply.addAccountTransaction(accountTransaction);
+            if (journalReply.getAccountTransactions() == null) {
+                journalReply.setAccountTransactions(new ArrayList<>());
+            }
+            journalReply.getAccountTransactions().add(accountTransaction);
         }
     }
 }

@@ -4,7 +4,8 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.service.WorldpayURIService;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 public class DefaultWorldpayURIService implements WorldpayURIService {
 
-    private static final Logger LOG = Logger.getLogger(DefaultWorldpayURIService.class);
+    private static final Logger LOG = LogManager.getLogger(DefaultWorldpayURIService.class);
     protected static final String UNABLE_TO_PARSE_URL = "Unable to parse url [{0}]";
     protected static final String UNABLE_TO_PARSE_URL_REDIRECT_URL = "Unable to parse url redirect url";
 

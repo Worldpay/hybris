@@ -1,6 +1,6 @@
 package com.worldpay.service.request;
 
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 
 public class SecondThreeDSecurePaymentRequest extends AbstractServiceRequest {
 

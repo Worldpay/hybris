@@ -10,7 +10,7 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.merchant.strategies.WorldpayOrderInfoStrategy;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.core.model.order.CartModel;

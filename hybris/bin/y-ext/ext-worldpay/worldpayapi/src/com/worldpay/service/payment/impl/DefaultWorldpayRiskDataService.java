@@ -1,7 +1,7 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.threeds2.RiskData;
+import com.worldpay.data.threeds2.RiskData;
 import com.worldpay.service.payment.WorldpayRiskDataService;
 import de.hybris.platform.core.model.order.CartModel;
 

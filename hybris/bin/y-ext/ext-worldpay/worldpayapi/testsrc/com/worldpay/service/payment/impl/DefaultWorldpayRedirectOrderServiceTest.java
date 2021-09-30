@@ -1,5 +1,6 @@
 package com.worldpay.service.payment.impl;
 
+import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.enums.order.AuthorisedStatus;
@@ -7,12 +8,11 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.hop.WorldpayHOPPService;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.BasicOrderInfo;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.Amount;
+import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayTokenEventReferenceCreationStrategy;
-import com.worldpay.strategy.WorldpayAuthenticatedShopperIdStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
@@ -79,7 +79,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Mock
     private WorldpayPaymentInfoService worldpayPaymentInfoServiceMock;
     @Mock
-    private WorldpayAuthenticatedShopperIdStrategy worldpayAuthenticatedShopperIdStrategyMock;
+    private WorldpayCartService worldpayCartServiceMock;
     @Mock
     private WorldpayTokenEventReferenceCreationStrategy worldpayTokenEventReferenceCreationStrategyMock;
     @Mock
@@ -107,7 +107,7 @@ public class DefaultWorldpayRedirectOrderServiceTest {
         when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), eq(WORLDPAY_ORDER_CODE), any(Amount.class))).thenReturn(basicOrderInfoMock);
 
         when(worldpayPaymentInfoServiceMock.createPaymentInfo(cartModelMock)).thenReturn(paymentInfoModelMock);
-        when(worldpayAuthenticatedShopperIdStrategyMock.getAuthenticatedShopperId(customerModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
+        when(worldpayCartServiceMock.getAuthenticatedShopperId(cartModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayTokenEventReferenceCreationStrategyMock.createTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
         when(worldpayOrderServiceMock.createCheckoutParameterAndSetPaymentInfo(paymentInfoModelMock, bigDecimalMock, cartModelMock)).thenReturn(commerceCheckoutParameterMock);
         when(cartModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);

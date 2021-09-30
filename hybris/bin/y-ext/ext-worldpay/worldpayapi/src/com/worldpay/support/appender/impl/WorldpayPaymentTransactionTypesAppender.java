@@ -4,7 +4,8 @@ import com.worldpay.support.WorldpayCronJobSupportInformationService;
 import com.worldpay.support.appender.WorldpaySupportEmailAppender;
 import de.hybris.platform.core.Registry;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
 import java.util.Set;
@@ -14,7 +15,7 @@ import java.util.Set;
  */
 public class WorldpayPaymentTransactionTypesAppender extends WorldpaySupportEmailAppender {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayPaymentTransactionTypesAppender.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayPaymentTransactionTypesAppender.class);
 
     /**
      * {@inheritDoc}

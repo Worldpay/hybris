@@ -18,13 +18,18 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 
-    <bean id="worldpayResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayResponseBuilder"/>
-    <bean id="worldpayDirectAuthoriseResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder"/>
-    <bean id="worldpayCaptureResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayCaptureResponseBuilder"/>
-    <bean id="worldpayNotificationResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder">
+    <bean id="worldpayResponseBuilder"
+          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayResponseBuilder"/>
+    <bean id="worldpayDirectAuthoriseResponseBuilder"
+          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayDirectAuthoriseResponseBuilder"/>
+    <bean id="worldpayCaptureResponseBuilder"
+          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayCaptureResponseBuilder"/>
+    <bean id="worldpayNotificationResponseBuilder"
+          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayNotificationResponseBuilder">
         <constructor-arg name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
     </bean>
-    <bean id="worldpayTokenCreateResponseBuilder" class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder"/>
+    <bean id="worldpayTokenCreateResponseBuilder"
+          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder"/>
 
     <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate"/>
 
@@ -41,7 +46,9 @@
         <property name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
     </bean>
 
-    <bean id="worldpayResponseMockMerchantInfoService" class="com.worldpay.worldpayresponsemock.merchant.impl.DefaultWorldpayResponseMockMerchantInfoService" parent="worldpayMerchantInfoService"/>
+    <bean id="worldpayResponseMockMerchantInfoService"
+          class="com.worldpay.worldpayresponsemock.merchant.impl.DefaultWorldpayResponseMockMerchantInfoService"
+          parent="worldpayMerchantInfoService"/>
 
     <util:map id="iso8583ResponseCodes" key-type="java.lang.Integer">
         <entry key="0" value="AUTHORISED"/>
@@ -152,6 +159,7 @@
         <value>REVOKE_REQUESTED</value>
         <value>REVOKE_FAILED</value>
         <value>REVOKED</value>
+        <value>VOIDED</value>
     </util:set>
 
     <util:set id="tokenEvents">
@@ -160,4 +168,22 @@
         <value>CONFLICT</value>
         <value>USE</value>
     </util:set>
+
+    <util:set id="fraudSightMessages">
+        <value>low-risk</value>
+        <value>high-risk</value>
+        <value>review</value>
+    </util:set>
+
+    <util:set id="fraudSightReasonCodes">
+        <value>Unusual behaviour for card</value>
+        <value>Unusual transaction for merchant</value>
+        <value>Recent unexpected card activity</value>
+        <value>Card unfamiliarity</value>
+        <value>Card type often linked to fraud</value>
+        <value>Irregularities in cardholder-entered information</value>
+        <value>High risk email</value>
+        <value>FRAUD SUSPICION</value>
+    </util:set>
+
 </beans>

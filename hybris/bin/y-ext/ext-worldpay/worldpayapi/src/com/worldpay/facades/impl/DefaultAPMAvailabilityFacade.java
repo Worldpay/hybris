@@ -1,10 +1,10 @@
 package com.worldpay.facades.impl;
 
+import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.APMAvailabilityFacade;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
 import de.hybris.platform.order.CartService;
-import org.springframework.beans.factory.annotation.Required;
 
 
 /**
@@ -12,23 +12,33 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class DefaultAPMAvailabilityFacade implements APMAvailabilityFacade {
 
-    private APMAvailabilityService apmAvailabilityService;
-    private CartService cartService;
+    private final APMAvailabilityService apmAvailabilityService;
+    private final CartService cartService;
+    private final APMConfigurationLookupService apmConfigurationLookupService;
+
+    public DefaultAPMAvailabilityFacade(final APMAvailabilityService apmAvailabilityService, final CartService cartService, final APMConfigurationLookupService apmConfigurationLookupService) {
+        this.apmAvailabilityService = apmAvailabilityService;
+        this.cartService = cartService;
+        this.apmConfigurationLookupService = apmConfigurationLookupService;
+    }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isAvailable(final WorldpayAPMConfigurationModel apmConfiguration) {
         return apmAvailabilityService.isAvailable(apmConfiguration, cartService.getSessionCart());
     }
 
-    @Required
-    public void setApmAvailabilityService(final APMAvailabilityService apmAvailabilityService) {
-        this.apmAvailabilityService = apmAvailabilityService;
-    }
-
-    @Required
-    public void setCartService(CartService cartService) {
-        this.cartService = cartService;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAvailable(final String paymentMethod) {
+        final WorldpayAPMConfigurationModel apmConfiguration = apmConfigurationLookupService.getAPMConfigurationForCode(paymentMethod);
+        if (apmConfiguration != null) {
+            return this.isAvailable(apmConfiguration);
+        }
+        return false;
     }
 }

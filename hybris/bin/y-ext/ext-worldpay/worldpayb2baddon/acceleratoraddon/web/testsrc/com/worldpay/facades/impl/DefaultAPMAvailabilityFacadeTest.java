@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class DefaultAPMAvailabilityFacadeTest {
 
     @InjectMocks
-    private DefaultAPMAvailabilityFacade testObj = new DefaultAPMAvailabilityFacade();
+    private DefaultAPMAvailabilityFacade testObj;
 
     @Mock
     private WorldpayAPMConfigurationModel apmConfigurationMock;

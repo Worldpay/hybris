@@ -11,7 +11,8 @@ import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Date;
 
 /**
  * Web controller to handle the Iframe in a checkout step
@@ -30,9 +32,11 @@ import javax.validation.Valid;
 @RequestMapping(value = "/checkout/multi/worldpay/iframe")
 public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
+    protected static final Logger LOGGER = LogManager.getLogger(WorldpayIframeCheckoutStepController.class);
+
     protected static final String SHOW_NGPP_IFRAME = "showNGPPIframe";
     protected static final String REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS = REDIRECT_PREFIX + "/checkout/multi/worldpay/iframe/add-payment-details";
-    private static final Logger LOGGER = Logger.getLogger(WorldpayIframeCheckoutStepController.class);
+
     @Resource
     protected WorldpayCartFacade worldpayCartFacade;
     @Resource
@@ -71,7 +75,7 @@ public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentM
         }
         try {
             final AdditionalAuthInfo additionalAuthInfo = createAdditionalAuthInfo(paymentDetailsForm.getSaveInAccount(), paymentMethod);
-            final PaymentData paymentData = worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, createWorldpayAdditionalInfo(httpServletRequest));
+            final PaymentData paymentData = worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, createWorldpayAdditionalInfo(httpServletRequest, paymentDetailsForm.getDateOfBirth()));
             worldpayHostedOrderFacade.createPaymentInfoModelOnCart(paymentDetailsForm.getSaveInAccount());
             redirectAttrs.addFlashAttribute(PAYMENT_DATA, paymentData);
             redirectAttrs.addFlashAttribute(SHOW_NGPP_IFRAME, true);
@@ -83,8 +87,10 @@ public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentM
         return REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS;
     }
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request) {
-        return worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final Date dateOfBirth) {
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
+        worldpayAdditionalInfoData.setDateOfBirth(dateOfBirth);
+        return worldpayAdditionalInfoData;
     }
 
 }

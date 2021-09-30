@@ -1,11 +1,11 @@
 package com.worldpay.strategies.impl;
 
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
-import com.worldpay.service.model.Amount;
+import com.worldpay.data.Amount;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpayRedirectOrderService;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.enums.DefectiveReason;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.math.BigDecimal.TEN;
@@ -41,7 +42,7 @@ public class DefaultWorldpayPlaceOrderFromNotificationStrategyTest {
     private DefaultWorldpayPlaceOrderFromNotificationStrategy testObj;
 
     @Mock
-    private OrderModificationSerialiser orderModificationSerialiserMock;
+    private OrderNotificationService orderNotificationServiceMock;
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
     @Mock
@@ -72,9 +73,9 @@ public class DefaultWorldpayPlaceOrderFromNotificationStrategyTest {
 
     @Before
     public void setUp() {
-        testObj.setImpersonationService(new TestImpersonationService());
+        Whitebox.setInternalState(testObj, "impersonationService", new TestImpersonationService());
         when(worldpayOrderModificationModelMock.getOrderNotificationMessage()).thenReturn(SERIALIZED_JSON_STRING);
-        when(orderModificationSerialiserMock.deserialise(SERIALIZED_JSON_STRING)).thenReturn(orderNotificationMessageMock);
+        when(orderNotificationServiceMock.deserialiseNotification(SERIALIZED_JSON_STRING)).thenReturn(orderNotificationMessageMock);
     }
 
     @Test
@@ -87,10 +88,10 @@ public class DefaultWorldpayPlaceOrderFromNotificationStrategyTest {
 
         testObj.placeOrderFromNotification(worldpayOrderModificationModelMock, cartModelMock);
 
-        final InOrder inOrder = Mockito.inOrder(cartServiceMock, worldpayRedirectOrderServiceMock, worldpayOrderNotificationHandlerMock);
+        final InOrder inOrder = Mockito.inOrder(cartServiceMock, worldpayRedirectOrderServiceMock, worldpayOrderNotificationHandlerMock, orderNotificationServiceMock);
         inOrder.verify(cartServiceMock).setSessionCart(cartModelMock);
         inOrder.verify(worldpayRedirectOrderServiceMock).completeConfirmedRedirectAuthorise(TEN, MERCHANT_CODE, cartModelMock);
-        inOrder.verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(worldpayOrderModificationModelMock);
+        inOrder.verify(orderNotificationServiceMock).setNonDefectiveAndProcessed(worldpayOrderModificationModelMock);
 
         verify(modelServiceMock).refresh(orderModelMock);
         verify(cartServiceMock).removeSessionCart();
@@ -110,7 +111,7 @@ public class DefaultWorldpayPlaceOrderFromNotificationStrategyTest {
 
         testObj.placeOrderFromNotification(worldpayOrderModificationModelMock, cartModelMock);
 
-        verify(worldpayOrderNotificationHandlerMock).setDefectiveReason(worldpayOrderModificationModelMock, DefectiveReason.ERROR_PLACING_ORDER);
+        verify(orderNotificationServiceMock).setDefectiveReason(worldpayOrderModificationModelMock, DefectiveReason.ERROR_PLACING_ORDER);
     }
 
     private class TestImpersonationService implements ImpersonationService {

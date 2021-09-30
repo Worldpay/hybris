@@ -15,7 +15,7 @@ public interface WorldpayHybrisOrderService {
      * @param worldpayOrderCode the worldpay order code
      * @param declineCode       the decline code
      */
-    void setWorldpayDeclineCodeOnOrder(final String worldpayOrderCode, final String declineCode);
+    void setWorldpayDeclineCodeOnOrder(String worldpayOrderCode, String declineCode);
 
     /**
      * Returns the order by WorldpayOrderCode

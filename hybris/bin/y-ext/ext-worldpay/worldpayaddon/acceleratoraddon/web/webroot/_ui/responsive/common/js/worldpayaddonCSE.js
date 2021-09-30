@@ -6,7 +6,8 @@ ACC.worldpayCSE = {
         "bindPaymentButtons",
         "bindMessageEventListener",
         "fillResolutionForWindowChallenge",
-        "bindPlaceOrderForm"
+        "bindPlaceOrderForm",
+        ["performJsc", $("#worldpayCsePaymentForm").length > 0 && ACC.isFSEnabled === 'true']
     ],
 
     errorCodeMap: {},
@@ -23,7 +24,6 @@ ACC.worldpayCSE = {
         const encryptedData = Worldpay.encrypt(data, ACC.worldpayCSE.errorHandler);
         if (encryptedData) {
             $("#encryptedData").val(encryptedData);
-            $("#DDCIframe").contents().find('#collectionForm').submit();
             return true;
         } else {
             return false;
@@ -128,7 +128,7 @@ ACC.worldpayCSE = {
                 return xhr;
             },
             success: function (res) {
-                if (xhr.getResponseHeader('3D-Secure-Flow')  === "false" || !xhr.getResponseHeader('3D-Secure-Flow')) {
+                if (xhr.getResponseHeader('3D-Secure-Flow') === "false" || !xhr.getResponseHeader('3D-Secure-Flow')) {
                     $('body').html(res);
                     window.scrollTo(0, 0);
                 } else {
@@ -162,6 +162,26 @@ ACC.worldpayCSE = {
                 ACC.worldpayCSE.submitCSEForm();
             }
         }, false);
+    },
+
+    performJsc: function () {
+        let ndownc = ACC.worldpayCSE.create_uuid(); //that’s the sessionId
+        let div = $('#worldpayCsePaymentForm'); //suggestion how you can store sessionId for when you need it in payment request
+        let input = document.createElement('input');
+        input.setAttribute('type', 'hidden');
+        input.setAttribute('id', 'deviceSession');
+        input.setAttribute('name', 'deviceSession');
+        input.setAttribute('value', ndownc);
+        div.append(input);
+        threatmetrix.prfl(ACC.profilingDomain, ACC.organizationId, ndownc, 1); // Jsc.prfl is the renamed function
+    },
+
+    create_uuid: function () {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     },
 
     populateErrorCodeMap: function () {

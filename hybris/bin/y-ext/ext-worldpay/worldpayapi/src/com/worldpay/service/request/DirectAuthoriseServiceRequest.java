@@ -1,9 +1,10 @@
 package com.worldpay.service.request;
 
+import com.worldpay.data.*;
+import com.worldpay.data.payment.Payment;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.payment.Payment;
+import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 
 /**
  * This class represents the details that must be passed to a call to {@link WorldpayServiceGateway#directAuthorise(DirectAuthoriseServiceRequest)} (DirectAuthoriseServiceRequest)
@@ -30,17 +31,15 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
         final BasicOrderInfo orderInfo = requestParameters.getOrderInfo();
         checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, merchantInfo.getMerchantCode(), merchantInfo.getMerchantPassword());
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
-        final Shopper shopper = requestParameters.getShopper();
-        final PaymentDetails paymentDetails = new PaymentDetails(requestParameters.getPayment(), shopper != null ? shopper.getSession() : null);
         final Order reqOrder = new OrderBuilder()
-                .withOrderInfo(orderInfo)
-                .withShopper(shopper)
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withBillingAddress(requestParameters.getBillingAddress())
-                .withStatementNarrative(requestParameters.getStatementNarrative())
-                .withPaymentDetails(paymentDetails)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-                .build();
+            .withOrderInfo(orderInfo)
+            .withShopper(requestParameters.getShopper())
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withBillingAddress(requestParameters.getBillingAddress())
+            .withStatementNarrative(requestParameters.getStatementNarrative())
+            .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+            .build();
         reqOrder.setOrderLines(requestParameters.getOrderLines());
         authRequest.setOrder(reqOrder);
 
@@ -61,20 +60,16 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
 
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
 
-        final Shopper shopper = requestParameters.getShopper();
-
-        final PaymentDetails paymentDetails = new PaymentDetails(requestParameters.getPayment(), shopper != null ? shopper.getSession() : null);
-
         final Order reqOrder = new OrderBuilder()
-                .withOrderInfo(orderInfo)
-                .withShopper(shopper)
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withBillingAddress(requestParameters.getBillingAddress())
-                .withStatementNarrative(requestParameters.getStatementNarrative())
-                .withPaymentDetails(paymentDetails)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-                .withOrderLines(requestParameters.getOrderLines())
-                .build();
+            .withOrderInfo(orderInfo)
+            .withShopper(requestParameters.getShopper())
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withBillingAddress(requestParameters.getBillingAddress())
+            .withStatementNarrative(requestParameters.getStatementNarrative())
+            .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+            .withOrderLines(requestParameters.getOrderLines())
+            .build();
 
         authRequest.setOrder(reqOrder);
 
@@ -94,18 +89,21 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
         checkParameters(DIRECT_AUTHORISE_SERVICE_REQUEST, merchantInfo, orderInfo, shopper);
         checkInstanceOfToken(requestParameters.getPayment());
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
-        final PaymentDetails paymentDetails = new PaymentDetails(requestParameters.getPayment(), shopper != null ? shopper.getSession() : null, requestParameters.getStoredCredentials());
+
         // Passing billing address as null as the token has one in Worldpay.
         final Order order = new OrderBuilder()
-                .withOrderInfo(orderInfo)
-                .withShopper(shopper)
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withStatementNarrative(requestParameters.getStatementNarrative())
-                .withPaymentDetails(paymentDetails)
-                .withDynamicInteractionType(requestParameters.getDynamicInteractionType())
-                .withRiskData(requestParameters.getRiskData())
-                .withAdditional3DSData(requestParameters.getAdditional3DSData())
-                .build();
+            .withOrderInfo(orderInfo)
+            .withShopper(shopper)
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withStatementNarrative(requestParameters.getStatementNarrative())
+            .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
+            .withDynamicInteractionType(requestParameters.getDynamicInteractionType())
+            .withRiskData(requestParameters.getRiskData())
+            .withAdditional3DSData(requestParameters.getAdditional3DSData())
+            .withFraudSightAttribute(requestParameters.getFraudSightData())
+            .withDeviceSession(requestParameters.getDeviceSession())
+            .withLevel23Data(requestParameters.getBranchSpecificExtension())
+            .build();
         authRequest.setOrder(order);
         return authRequest;
     }
@@ -124,15 +122,14 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
         final Payment payment = requestParameters.getPayment();
         checkInstanceOfApplePay(payment);
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
-        final PaymentDetails paymentDetails = new PaymentDetails(payment, shopper != null ? shopper.getSession() : null);
         // Passing billing address as null as the token has one in Worldpay.
         final Order order = new OrderBuilder()
-                .withOrderInfo(orderInfo)
-                .withShopper(shopper)
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withPaymentDetails(paymentDetails)
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-                .build();
+            .withOrderInfo(orderInfo)
+            .withShopper(shopper)
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+            .build();
         authRequest.setOrder(order);
         return authRequest;
     }
@@ -151,18 +148,17 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
         final Payment payment = requestParameters.getPayment();
         checkInstanceOfGooglePay(payment);
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
-        final PaymentDetails paymentDetails = new PaymentDetails(payment, shopper != null ? shopper.getSession() : null);
         // Passing billing address as null as the token has one in Worldpay.
         final Order reqOrder = new OrderBuilder()
-                .withOrderInfo(orderInfo)
-                .withShopper(shopper)
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withBillingAddress(requestParameters.getBillingAddress())
-                .withStatementNarrative(requestParameters.getStatementNarrative())
-                .withPaymentDetails(paymentDetails)
-                .withTokenRequest(requestParameters.getTokenRequest())
-                .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-                .build();
+            .withOrderInfo(orderInfo)
+            .withShopper(shopper)
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withBillingAddress(requestParameters.getBillingAddress())
+            .withStatementNarrative(requestParameters.getStatementNarrative())
+            .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
+            .withTokenRequest(requestParameters.getTokenRequest())
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+            .build();
         authRequest.setOrder(reqOrder);
         return authRequest;
     }
@@ -182,7 +178,8 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
 
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(merchantInfo, orderInfo.getOrderCode());
 
-        final Order reqOrder = new Order(orderInfo.getOrderCode(), null, null);
+        final Order reqOrder = new Order();
+        reqOrder.setOrderCode(orderInfo.getOrderCode());
         reqOrder.setSession(requestParameters.getShopper().getSession());
         reqOrder.setPaResponse(requestParameters.getPaRes());
         authRequest.setOrder(reqOrder);
@@ -191,27 +188,28 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
 
     /**
      * Creates a DirectAuthoriseServiceRequest given the requestParameters passed
+     *
      * @param requestParameters
      * @return new instance of the DirectAuthoriseServiceRequest initialised with input parameters
      */
     public static DirectAuthoriseServiceRequest createDirectTokenAndAuthoriseRequest(final AuthoriseRequestParameters requestParameters) {
         final DirectAuthoriseServiceRequest authRequest = new DirectAuthoriseServiceRequest(requestParameters.getMerchantInfo(), requestParameters.getOrderInfo().getOrderCode());
 
-        final PaymentDetails paymentDetails = new PaymentDetails(requestParameters.getPayment(), requestParameters.getShopper().getSession());
-        paymentDetails.setStoredCredentials(requestParameters.getStoredCredentials());
-
         final Order reqOrder = new OrderBuilder()
-                .withOrderInfo(requestParameters.getOrderInfo())
-                .withShopper(requestParameters.getShopper())
-                .withTokenRequest(requestParameters.getTokenRequest())
-                .withShippingAddress(requestParameters.getShippingAddress())
-                .withBillingAddress(requestParameters.getBillingAddress())
-                .withStatementNarrative(requestParameters.getStatementNarrative())
-                .withPaymentDetails(paymentDetails)
-                .withDynamicInteractionType(requestParameters.getDynamicInteractionType())
-                .withRiskData(requestParameters.getRiskData())
-                .withAdditional3DSData(requestParameters.getAdditional3DSData())
-                .build();
+            .withOrderInfo(requestParameters.getOrderInfo())
+            .withShopper(requestParameters.getShopper())
+            .withTokenRequest(requestParameters.getTokenRequest())
+            .withShippingAddress(requestParameters.getShippingAddress())
+            .withBillingAddress(requestParameters.getBillingAddress())
+            .withStatementNarrative(requestParameters.getStatementNarrative())
+            .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
+            .withDynamicInteractionType(requestParameters.getDynamicInteractionType())
+            .withRiskData(requestParameters.getRiskData())
+            .withAdditional3DSData(requestParameters.getAdditional3DSData())
+            .withFraudSightAttribute(requestParameters.getFraudSightData())
+            .withDeviceSession(requestParameters.getDeviceSession())
+            .withLevel23Data(requestParameters.getBranchSpecificExtension())
+            .build();
         authRequest.setOrder(reqOrder);
         return authRequest;
     }

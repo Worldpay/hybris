@@ -9,18 +9,17 @@ import de.hybris.platform.ordercancel.impl.denialstrategies.AbstractCancelDenial
 import de.hybris.platform.ordercancel.model.OrderCancelConfigModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import static java.text.MessageFormat.format;
 
 /**
  * Strategy that avoids an order cancellation when has been paid with an APM or the payment method is still unknown.
  */
 public class WorldpayApmOrderCancelDenialStrategy extends AbstractCancelDenialStrategy implements OrderCancelDenialStrategy {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayApmOrderCancelDenialStrategy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayApmOrderCancelDenialStrategy.class);
 
     /**
      * @param orderCancelConfigModel
@@ -38,7 +37,7 @@ public class WorldpayApmOrderCancelDenialStrategy extends AbstractCancelDenialSt
             for (final PaymentTransactionModel paymentTransaction : paymentTransactions) {
                 final PaymentInfoModel paymentInfo = paymentTransaction.getInfo();
                 if (shouldReturnCancelReason(paymentInfo)) {
-                    LOG.warn(format("The order [{0}] cannot be cancelled as the payment was made through an APM or is still unknown", orderModel.getCode()));
+                    LOG.warn("The order [{}] cannot be cancelled as the payment was made through an APM or is still unknown", orderModel.getCode());
                     return getReason();
                 }
             }

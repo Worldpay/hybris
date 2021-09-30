@@ -1,6 +1,7 @@
 package com.worldpay.service;
 
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.model.WorldpayThreeDS2JsonWebTokenConfigurationModel;
 
 /**
  * Interface defining the WorldpayUrlService. Implementing service needs to be able to provide fully qualified urls for
@@ -101,4 +102,11 @@ public interface WorldpayUrlService {
      * @return
      */
     String getFullThreeDSecureFlexAutosubmitUrl() throws WorldpayConfigurationException;
+
+    /**
+     * Gets the 3DS2 configuration model for the current base site
+     *
+     * @return the configuration
+     */
+    WorldpayThreeDS2JsonWebTokenConfigurationModel getThreeDS2Configuration();
 }

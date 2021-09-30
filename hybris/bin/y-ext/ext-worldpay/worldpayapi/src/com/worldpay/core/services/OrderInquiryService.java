@@ -2,7 +2,7 @@ package com.worldpay.core.services;
 
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 

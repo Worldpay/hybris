@@ -1,0 +1,16 @@
+$lang = en
+$storeUid = wsTest
+$currencies = EUR, USD, SGD, CHF, GBP
+
+INSERT_UPDATE Country; isocode[unique = true]; name[lang = en]; active[default = true]
+                     ; UK                    ; "United Kingdom"
+
+INSERT_UPDATE Currency; isocode[unique = true]; conversion; digits; symbol; name[lang = en]; active[default = true]
+                      ; SGD                   ; 1         ; 2     ; S$    ; Singapore Dollar
+                      ; CHF                   ; 1         ; 2     ; CHF   ; Swiss Franc
+                      ; EUR                   ; 1         ; 2     ; €     ; Euro
+                      ; GBP                   ; 1         ; 2     ; £     ; Pound Sterling
+                      ; USD                   ; 1         ; 2     ; $     ; US Dollar
+
+UPDATE BaseStore; uid[unique = true]; currencies(isocode)[mode = append]
+                ; $storeUid         ; $currencies

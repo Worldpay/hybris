@@ -1,11 +1,11 @@
 package com.worldpay.service.request;
 
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.Order;
-import com.worldpay.service.model.applepay.ApplePay;
-import com.worldpay.service.model.payment.PayWithGoogleSSL;
-import com.worldpay.service.model.payment.Payment;
-import com.worldpay.service.model.token.Token;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.Order;
+import com.worldpay.data.applepay.ApplePay;
+import com.worldpay.data.payment.PayWithGoogleSSL;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.token.Token;
 
 /**
  * This class adds the {@link Order} details to the AbstractServiceRequest and forms the superclass of all authorise requests. It's not used directly as the

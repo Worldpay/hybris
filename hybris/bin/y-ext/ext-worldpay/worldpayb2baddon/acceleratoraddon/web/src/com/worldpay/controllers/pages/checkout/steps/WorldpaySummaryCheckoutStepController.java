@@ -55,7 +55,7 @@ import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.G
 @RequestMapping(value = "/checkout/multi/worldpay/summary")
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
-    protected static final Logger LOG = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
+    private static final Logger LOG = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
 
     private static final String SUMMARY = "summary";
     private static final String CART_SUFFIX = "/cart";
@@ -119,6 +119,10 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final List<DayOfWeek> daysOfWeek = new ArrayList<>();
         daysOfWeek.add(DayOfWeek.MONDAY);
         b2bCSEPaymentForm.setnDaysOfWeek(daysOfWeek);
+        if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
+            b2bCSEPaymentForm.setDateOfBirth((Date) model.asMap().get(BIRTHDAY_DATE));
+            b2bCSEPaymentForm.setDeviceSession((String) model.asMap().get(DEVICE_SESSION));
+        }
         model.addAttribute(B2B_CSE_PAYMENT_FORM, b2bCSEPaymentForm);
 
         storeCmsPageInModel(model, getContentPageForLabelOrId(MULTI_CHECKOUT_SUMMARY_CMS_PAGE_LABEL));
@@ -130,7 +134,9 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
         final String subscriptionId = cartData.getPaymentInfo() != null ? cartData.getPaymentInfo().getSubscriptionId() : null;
         model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
-        model.addAttribute(BIN, cartData.getPaymentInfo().getBin());
+
+        Optional.ofNullable(cartData.getPaymentInfo()).ifPresent(bin -> model.addAttribute(BIN, bin));
+
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
@@ -178,7 +184,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSESubscriptionAdditionalAuthInfo(b2bCSEPaymentForm);
         if (getCheckoutFacade().getCheckoutCart().getPaymentInfo() != null && !b2bCSEPaymentForm.isReplenishmentOrder()) {
             // Pay by credit card - Place Order Now - authorize payment
-            final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, b2bCSEPaymentForm.getSecurityCode(), cseAdditionalAuthInfo);
+            final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, b2bCSEPaymentForm, cseAdditionalAuthInfo);
             try {
                 final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(worldpayAdditionalInfoData);
                 if (AUTHORISED != directResponseData.getTransactionStatus()) {
@@ -370,9 +376,11 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     }
 
     private WorldpayAdditionalInfoData getWorldpayAdditionalInfo(final HttpServletRequest request,
-                                                                 final String securityCode, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
+                                                                 final B2BCSEPaymentForm b2bCSEPaymentForm, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
         final WorldpayAdditionalInfoData info = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        info.setSecurityCode(securityCode);
+        info.setDateOfBirth(b2bCSEPaymentForm.getDateOfBirth());
+        info.setSecurityCode(b2bCSEPaymentForm.getSecurityCode());
+        info.setDeviceSession(b2bCSEPaymentForm.getDeviceSession());
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             info.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
         }

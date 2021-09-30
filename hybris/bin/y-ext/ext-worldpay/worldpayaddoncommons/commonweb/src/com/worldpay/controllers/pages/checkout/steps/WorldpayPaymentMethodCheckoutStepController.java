@@ -17,7 +17,8 @@ import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutSt
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,15 +27,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/payment-method")
 public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
 
-    private static final Logger LOGGER = Logger.getLogger(WorldpayPaymentMethodCheckoutStepController.class);
+    private static final Logger LOGGER = LogManager.getLogger(WorldpayPaymentMethodCheckoutStepController.class);
 
     protected static final String HOP_DEBUG_MODE_CONFIG = "hop.debug.mode";
     protected static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
@@ -166,6 +169,10 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     }
 
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final Model model) {
-        return worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData((HttpServletRequest) model.asMap().get(REQUEST));
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData((HttpServletRequest) model.asMap().get(REQUEST));
+        if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
+            worldpayAdditionalInfoData.setDateOfBirth((Date) model.asMap().get(BIRTHDAY_DATE));
+        }
+        return worldpayAdditionalInfoData;
     }
 }

@@ -5,7 +5,7 @@ import com.worldpay.internal.model.Inquiry;
 import com.worldpay.internal.model.KlarnaConfirmationInquiry;
 import com.worldpay.internal.model.OrderInquiry;
 import com.worldpay.internal.model.PaymentService;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;

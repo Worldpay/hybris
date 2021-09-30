@@ -1,8 +1,8 @@
 package com.worldpay.service.response;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.RedirectReference;
-import com.worldpay.service.model.token.TokenReply;
+import com.worldpay.data.RedirectReference;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 
 /**

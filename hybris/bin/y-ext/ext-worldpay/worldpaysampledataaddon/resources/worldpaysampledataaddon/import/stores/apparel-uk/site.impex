@@ -1,7 +1,92 @@
-$productCatalog=apparelProductCatalog
-$contentCatalog=apparel-ukContentCatalog
-$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$defaultLanguage=en
-$storeUid=apparel-uk
-$siteUid=apparel-uk
-$webServiceSiteUid=$siteUidWS
+$productCatalog = apparelProductCatalog
+$contentCatalog = apparel-ukContentCatalog
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$defaultLanguage = en
+$storeUid = apparel-uk
+$siteUid = apparel-uk
+$webServiceSiteUid = $siteUidWS
+$enableLevel2 = true
+
+UPDATE GenericItem[processor = de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor]; pk[unique = true]
+$webMerchantCode = $config-worldpay.config.web.merchant.code.apparel_uk
+$webMerchantPassword = $config-worldpay.config.web.merchant.password.apparel_uk
+$webMacSecret = $config-worldpay.config.web.merchant.macSecret.apparel_uk
+$googlePayGatewayMerchantId = $config-worldpay.config.web.googlePay.gatewayMerchantId.apparel_uk
+$webInstallationId = $config-worldpay.config.web.merchant.installationId.apparel_uk
+$webStatementNarrative = $config-worldpay.config.web.merchant.statementNarrative.apparel_uk
+$webCardAcceptorTaxId = $config-worldpay.config.web.merchant.card.acceptor.taxId
+$asmMerchantCode = $config-worldpay.config.asm.merchant.code.apparel_uk
+$asmMerchantPassword = $config-worldpay.config.asm.merchant.password.apparel_uk
+$asmMacSecret = $config-worldpay.config.asm.merchant.macSecret.apparel_uk
+$asmInstallationId = $config-worldpay.config.asm.merchant.installationId.apparel_uk
+$asmStatementNarrative = $config-worldpay.config.asm.merchant.statementNarrative.apparel_uk
+$replenishmentMerchantCode = $config-worldpay.config.replenishment.merchant.code.apparel_uk
+$replenishmentMerchantPassword = $config-worldpay.config.replenishment.merchant.password.apparel_uk
+$replenishmentMacSecret = $config-worldpay.config.replenishment.merchant.macSecret.apparel_uk
+$replenishmentInstallationId = $config-worldpay.config.replenishment.merchant.installationId.apparel_uk
+$replenishmentStatementNarrative = $config-worldpay.config.replenishment.merchant.statementNarrative.apparel_uk
+$iss = $config-worldpay.config.3dsecureflex.jwt.iss.apparel_uk
+$jwtMacKey = $config-worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_uk
+$orgUnitId = $config-worldpay.config.3dsecureflex.jwt.orgunitid.apparel_uk
+$alg = $config-worldpay.config.3dsecureflex.jwt.alg
+$challengeUrl = $config-worldpay.config.3dsecureflex.jwt.challengeurl
+$ddcUrl = $config-worldpay.config.3dsecureflex.jwt.ddcurl
+$flowreturnUrl = $config-worldpay.config.3dsecureflex.jwt.flowReturnUrl
+$authSubmit = $config-worldpay.config.3dsecureflex.secondauthorisation.submit.url
+$eventOriginDomain = $config-worldpay.config.3dsecureflex.jwt.eventOriginDomain
+
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; csePublicKey                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ; installationId; statementNarrative     ; orderContent                   ; threeDSFlexChallengePreference(code)
+"#%beforeEach:
+   if (!""$webInstallationId"".isBlank()){
+          line.put(Integer.valueOf(7), ""$webInstallationId"");
+   }
+
+   if (""$webMacSecret"".isBlank()){
+        line.put(Integer.valueOf(4), ""false"");
+        line.put(Integer.valueOf(5), """");
+   }
+"
+                                           ; webMerchantConfiguration-$siteUid ; $webMerchantCode ; $webMerchantPassword ; true         ; $webMacSecret ; "1#10001#c745fe13416ffc5f9283f47f7b18e58a55a1e152d873cf7e31cd87e04dda905570b53bd6996c54d2f90a7ade6e65ba45853617472b1ad78d02f0bd9183af22d8dd6002a7857d0c4f5c102bd29864ae9b5b2caf3ef22932a7b2c6f00f819f6ac92905d9662d0905526f0a99160e49dd613b07212fb9429535a28b54a087fc3541a8fc214e46a07ebacab0f5b6a60331cd66168548c097c716df09332d95faf3d9717107a5db5ce553406688a368d6d44f79eb4c3366068e7c4dbe1f1987ef6ac54bc4e1195021ceac831141553986db5a5b8206abc0e0b36ed4adf31ae692829057dbb0c99270825335405e816f40fe3a3051c323695e52bf97fccda813c45a31" ; 1048564       ; $webStatementNarrative ; Order Content $webMerchantCode ; noPreference
+
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; csePublicKey                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ; installationId; statementNarrative     ; orderContent                       ; threeDSFlexChallengePreference(code)
+"#%beforeEach:
+
+   if (!""$asmInstallationId"".isBlank()){
+          line.put(Integer.valueOf(7), ""$asmInstallationId"");
+   }
+
+   if (""$asmMacSecret"".isBlank()){
+        line.put(Integer.valueOf(4), ""false"");
+        line.put(Integer.valueOf(5), """");
+   }
+"
+                                           ; asmMerchantConfiguration-$siteUid ; $asmMerchantCode ; $asmMerchantPassword ; true         ; $asmMacSecret ; "1#10001#c745fe13416ffc5f9283f47f7b18e58a55a1e152d873cf7e31cd87e04dda905570b53bd6996c54d2f90a7ade6e65ba45853617472b1ad78d02f0bd9183af22d8dd6002a7857d0c4f5c102bd29864ae9b5b2caf3ef22932a7b2c6f00f819f6ac92905d9662d0905526f0a99160e49dd613b07212fb9429535a28b54a087fc3541a8fc214e46a07ebacab0f5b6a60331cd66168548c097c716df09332d95faf3d9717107a5db5ce553406688a368d6d44f79eb4c3366068e7c4dbe1f1987ef6ac54bc4e1195021ceac831141553986db5a5b8206abc0e0b36ed4adf31ae692829057dbb0c99270825335405e816f40fe3a3051c323695e52bf97fccda813c45a31" ; 1048564       ; $asmStatementNarrative ; Order Content $asmMerchantCode ASM ; noPreference
+
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]                   ; code                       ; password                       ; macValidation; macSecret               ; csePublicKey                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ; installationId; statementNarrative               ; orderContent                             ; threeDSFlexChallengePreference(code)
+"#%beforeEach:
+   if (!""$replenishmentInstallationId"".isBlank()){
+          line.put(Integer.valueOf(7), ""$replenishmentInstallationId"");
+   }
+
+   if (""$replenishmentMacSecret"".isBlank()){
+        line.put(Integer.valueOf(4), ""false"");
+        line.put(Integer.valueOf(5), """");
+   }
+"
+                                           ; replenishmentMerchantConfiguration-$siteUid ; $replenishmentMerchantCode ; $replenishmentMerchantPassword ; true         ; $replenishmentMacSecret ; "1#10001#c745fe13416ffc5f9283f47f7b18e58a55a1e152d873cf7e31cd87e04dda905570b53bd6996c54d2f90a7ade6e65ba45853617472b1ad78d02f0bd9183af22d8dd6002a7857d0c4f5c102bd29864ae9b5b2caf3ef22932a7b2c6f00f819f6ac92905d9662d0905526f0a99160e49dd613b07212fb9429535a28b54a087fc3541a8fc214e46a07ebacab0f5b6a60331cd66168548c097c716df09332d95faf3d9717107a5db5ce553406688a368d6d44f79eb4c3366068e7c4dbe1f1987ef6ac54bc4e1195021ceac831141553986db5a5b8206abc0e0b36ed4adf31ae692829057dbb0c99270825335405e816f40fe3a3051c323695e52bf97fccda813c45a31" ; 1048564       ; $replenishmentStatementNarrative ; Order Content $replenishmentMerchantCode ;
+
+INSERT_UPDATE WorldpayApplePayConfiguration; identifier[unique = true]; supportedNetworks(code)                        ; countryCode; merchantCapabilities(code)                              ; merchantId              ; merchantName
+                                           ; $siteUid-applePayConfig  ; amex, discover, jcb, maestro, masterCard, visa ; ES         ; supportsCredit, supportsDebit, supports3DS, supportsEMV ; merchant.WorldpayHybris ; Worldpay test
+
+INSERT_UPDATE WorldpayGooglePayConfiguration; identifier[unique = true]; merchantId       ; merchantName     ; environment(code); cardType; gatewayMerchantId           ; allowedCardNetworks(code)             ; allowedAuthMethods(code)
+                                            ; $siteUid-googlePayConfig ; $webMerchantCode ; $webMerchantCode ; TEST             ; CARD    ; $googlePayGatewayMerchantId ; AMEX, DISCOVER, JCB, MASTERCARD, VISA ; PAN_ONLY
+
+INSERT_UPDATE WorldpayThreeDS2JsonWebTokenConfiguration; identifier[unique = true]; iss  ; jwtMacKey  ; orgUnitId  ; alg  ; eventOriginDomain  ; challengeUrl  ; ddcUrl  ; flowReturnUrl  ; authSubmit
+                                                       ; $siteUid-threeDS2Config  ; $iss ; $jwtMacKey ; $orgUnitId ; $alg ; $eventOriginDomain ; $challengeUrl ; $ddcUrl ; $flowreturnUrl ; $authSubmit
+
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; applePayConfiguration(identifier); googlePayConfiguration(identifier); threeDSFlexJsonWebTokenSettings(identifier); cardAcceptorTaxID
+                                           ; webMerchantConfiguration-$siteUid ; $siteUid-applePayConfig          ; $siteUid-googlePayConfig          ; $siteUid-threeDS2Config                    ; $webCardAcceptorTaxId
+
+UPDATE BaseSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier); enableLevel2[default = $enableLevel2]
+               ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid   ;
+

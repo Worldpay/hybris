@@ -1,6 +1,6 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.model.ErrorDetail;
+import com.worldpay.data.ErrorDetail;
 
 /**
  * Interface representation of a Service Response that will be returned from the calls through to Worldpay.

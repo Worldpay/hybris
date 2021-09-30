@@ -1,20 +1,23 @@
 package com.worldpay.service;
 
+import com.google.common.collect.ImmutableList;
+import com.worldpay.data.*;
+import com.worldpay.data.applepay.ApplePay;
+import com.worldpay.data.applepay.Header;
+import com.worldpay.data.klarna.KlarnaMerchantUrls;
+import com.worldpay.data.payment.Card;
+import com.worldpay.data.payment.PayWithGoogleSSL;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.threeds2.Additional3DSData;
+import com.worldpay.data.threeds2.RiskData;
+import com.worldpay.data.token.Token;
+import com.worldpay.data.token.TokenRequest;
+import com.worldpay.enums.lineItem.LineItemType;
 import com.worldpay.enums.order.DynamicInteractionType;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.applepay.ApplePay;
-import com.worldpay.service.model.applepay.Header;
-import com.worldpay.service.model.klarna.KlarnaMerchantUrls;
-import com.worldpay.service.model.payment.PayWithGoogleSSL;
-import com.worldpay.service.model.payment.Payment;
-import com.worldpay.service.model.payment.PaymentBuilder;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.threeds2.RiskData;
-import com.worldpay.service.model.token.Token;
-import com.worldpay.service.model.token.TokenRequest;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
+import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,49 +36,160 @@ public class DirectAuthoriseServiceRequestTest {
 
     private static final String TOKEN_ID = "tokenId";
     private static final String MERCHANT1ECOM = "MERCHANT1ECOM";
+    private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
     private static final String DESCRIPTION = "Your Order & Order desc";
-    private static final Amount AMOUNT = new Amount("100", "EUR", "2");
     private static final String PA_RES = "paRes";
     private static final String SHOPPER_NAME = "J. Shopper";
     private static final String EXTRA_MERCHANT_DATA = "extraMerchantData";
     private static final String SHOPPER_LOCALE = "en-GB";
     private static final String LINE_ITEM_REFERENCE_ID = "id";
     private static final String LINE_ITEM_REFERENCE_VALUE = "value";
-
+    private static final String CITY = "city";
+    private static final String GB = "GB";
+    private static final String NAME = "John";
+    private static final String LAST_NAME = "Shopper";
+    private static final String SHOPPER_ADDRESS_1 = "Shopper Address1";
+    private static final String SHOPPER_ADDRESS_2 = "Shopper Address2";
+    private static final String SHOPPER_ADDRESS_3 = "Shopper Address3";
+    private static final String POSTAL_CODE = "Postal code";
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
     private static final String TOKEN_REASON = "tokenReason";
     private static final String SHOPPER_EMAIL = "jshopper@myprovider.com";
     private static final String STATEMENT_NARRATIVE = "STATEMENT NARRATIVE TEXT";
     private static final String ORDER_CODE = "orderCode";
-
-    private static final TokenRequest TOKEN_REQUEST = new TokenRequest(TOKEN_EVENT_REFERENCE, TOKEN_REASON);
     private static final String COUNTRY_CODE = "GB";
-    private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", COUNTRY_CODE);
-    private static final com.worldpay.service.model.Date EXPIRY_DATE = new com.worldpay.service.model.Date(LocalDateTime.now().plusYears(1));
-    private static final Session SESSION = new Session("192.168.1.1", "sessionId1234");
-    private static final Browser BROWSER = new Browser("text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)", "0");
-    private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", COUNTRY_CODE);
-    private static final Shopper SHOPPER = new Shopper(SHOPPER_EMAIL, null, BROWSER, SESSION);
-    private static final Shopper SHOPPER_WITHOUT_BROWSER_NOR_SESSION = new Shopper(SHOPPER_EMAIL, null, null, null);
-    private static final Shopper SHOPPER_WITH_SHOPPER_ID = new Shopper(SHOPPER_EMAIL, AUTHENTICATED_SHOPPER_ID, BROWSER, SESSION);
+    private static final String IP = "192.168.1.1";
+    private static final String SESSION_ID = "sessionId1234";
+    private static final String ACCEPT_HEADER = "text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8";
+    private static final String USER_AGENT_HEADER = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)";
+    private static final String DEVICE_TYPE = "0";
+    private static final String CONFIRMATION_URL = "confirmationURL";
+    private static final String CHECKOUT_URL = "checkoutURL";
+    private static final String ORDER_TAX_AMOUNT = "orderTaxAmount";
+    private static final String TERMS_URL = "termsURL";
     private static final String REFERENCE_ID = "referenceId";
+    private static final String DEVICE_SESSION_ID = "device_session_id";
 
     @SuppressWarnings("PMD.MemberScope")
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private ShopperFields shopperFields = new ShopperFields();
+    private CustomNumericFields customNumericFields = new CustomNumericFields();
+    private CustomStringFields customStringFields = new CustomStringFields();
+    private Purchase purchase = new Purchase();
     private MerchantInfo merchantInfo;
     private BasicOrderInfo basicOrderInfo;
     private Payment payment;
     private Additional3DSData additional3DSData;
     private RiskData riskData;
+    private FraudSightData fraudSightData;
+    private BranchSpecificExtension branchSpecificExtension;
+    private TokenRequest tokenRequest;
+    private Amount amount;
+    private Address shippingAddress;
+    private Address billingAddress;
+    private Session session;
+    private Browser browser;
+    private Card visa;
+    private Date expiryDate;
+    private Shopper shopper;
+    private Shopper shopperWithoutBrowserNorSession;
+    private Shopper shopperWithShopperID;
 
     @Before
     public void setUp() {
-        merchantInfo = new MerchantInfo(MERCHANT1ECOM, "3l3ph4nt_&_c4st!3");
-        basicOrderInfo = new BasicOrderInfo(ORDER_CODE, DESCRIPTION, AMOUNT);
-        additional3DSData = new Additional3DSData(REFERENCE_ID);
+        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
+        merchantInfo.setMerchantCode(MERCHANT1ECOM);
+        this.merchantInfo = merchantInfo;
+
+        final TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setTokenReason(TOKEN_REASON);
+        tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
+        tokenRequest.setMerchantToken(false);
+        this.tokenRequest = tokenRequest;
+
+        final Amount amount = new Amount();
+        amount.setExponent("2");
+        amount.setCurrencyCode("EUR");
+        amount.setValue("100");
+        this.amount = amount;
+
+        final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
+        basicOrderInfo.setOrderCode(ORDER_CODE);
+        basicOrderInfo.setDescription(DESCRIPTION);
+        basicOrderInfo.setAmount(amount);
+        this.basicOrderInfo = basicOrderInfo;
+
+        final Additional3DSData additional3DSData = new Additional3DSData();
+        additional3DSData.setDfReferenceId(REFERENCE_ID);
+        this.additional3DSData = additional3DSData;
+
         riskData = new RiskData();
+
+        final FraudSightData fraudSightData = new FraudSightData();
+        fraudSightData.setShopperFields(shopperFields);
+        fraudSightData.setCustomStringFields(customStringFields);
+        fraudSightData.setCustomNumericFields(customNumericFields);
+        this.fraudSightData = fraudSightData;
+
+        final BranchSpecificExtension branchSpecificExtension = new BranchSpecificExtension();
+        branchSpecificExtension.setPurchase(ImmutableList.of(purchase));
+        this.branchSpecificExtension = branchSpecificExtension;
+
+        final Session session = new Session();
+        session.setId(SESSION_ID);
+        session.setShopperIPAddress(IP);
+        this.session = session;
+
+        final Browser browser = new Browser();
+        browser.setUserAgentHeader(USER_AGENT_HEADER);
+        browser.setAcceptHeader(ACCEPT_HEADER);
+        browser.setDeviceType(DEVICE_TYPE);
+        this.browser = browser;
+
+        final Address address = new Address();
+        address.setFirstName(NAME);
+        address.setLastName(LAST_NAME);
+        address.setAddress1(SHOPPER_ADDRESS_1);
+        address.setAddress2(SHOPPER_ADDRESS_2);
+        address.setAddress3(SHOPPER_ADDRESS_3);
+        address.setPostalCode(POSTAL_CODE);
+        address.setCity(CITY);
+        address.setCountryCode(GB);
+
+        this.shippingAddress = address;
+        this.billingAddress = address;
+
+        expiryDate = WorldpayInternalModelTransformerUtil.newDateFromLocalDateTime(LocalDateTime.now().plusYears(1));
+
+        final Shopper shopper = new Shopper();
+        shopper.setShopperEmailAddress(SHOPPER_EMAIL);
+        shopper.setSession(this.session);
+        shopper.setBrowser(this.browser);
+        this.shopper = shopper;
+
+        final Shopper shopperWithoutBrowserNorSession = new Shopper();
+        shopperWithoutBrowserNorSession.setShopperEmailAddress(SHOPPER_EMAIL);
+        this.shopperWithoutBrowserNorSession = shopperWithoutBrowserNorSession;
+
+        final Shopper shopperWithShopperID = new Shopper();
+        shopperWithShopperID.setShopperEmailAddress(SHOPPER_EMAIL);
+        shopperWithShopperID.setAuthenticatedShopperID(AUTHENTICATED_SHOPPER_ID);
+        shopperWithShopperID.setSession(this.session);
+        shopperWithShopperID.setBrowser(this.browser);
+        this.shopperWithShopperID = shopperWithShopperID;
+
+        final Card visa = new Card();
+        visa.setPaymentType(PaymentType.VISA.getMethodCode());
+        visa.setCardNumber("4444333322221111");
+        visa.setCvc("123");
+        visa.setExpiryDate(expiryDate);
+        visa.setCardAddress(billingAddress);
+        visa.setCardHolderName(SHOPPER_NAME);
+        this.visa = visa;
+
     }
 
     @Test
@@ -98,15 +212,15 @@ public class DirectAuthoriseServiceRequestTest {
 
     @Test
     public void createDirectAuthoriseRequestShouldNotRequestTokenAndHaveAllTheInformation() {
-        payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
+        payment = visa;
 
         final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER)
-            .withShippingAddress(SHIPPING_ADDRESS)
-            .withBillingAddress(BILLING_ADDRESS)
+            .withShopper(shopper)
+            .withShippingAddress(shippingAddress)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .build();
@@ -115,32 +229,39 @@ public class DirectAuthoriseServiceRequestTest {
 
         final Order requestOrder = result.getOrder();
         assertNull(requestOrder.getTokenRequest());
-        assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
-        assertEquals(SHOPPER, result.getOrder().getShopper());
+        assertEquals(billingAddress, result.getOrder().getBillingAddress());
+        assertEquals(shopper, result.getOrder().getShopper());
         assertEquals(payment, result.getOrder().getPaymentDetails().getPayment());
         assertCommonOrderRequestData(result);
     }
 
     @Test
     public void shouldContainOrderLinesForKlarnaDirectAuthorize() {
-        final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls("checkoutURL", "confirmationURL");
-        payment = PaymentBuilder.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, merchantUrls, EXTRA_MERCHANT_DATA);
+        final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls();
+        merchantUrls.setConfirmationURL(CONFIRMATION_URL);
+        merchantUrls.setCheckoutURL(CHECKOUT_URL);
+        payment = WorldpayInternalModelTransformerUtil.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, merchantUrls, EXTRA_MERCHANT_DATA);
 
         final LineItem lineItem = new LineItem();
-        lineItem.setLineItemType(LineItem.LINE_ITEM_TYPE.SHIPPING_FEE);
+        lineItem.setLineItemType(LineItemType.SHIPPING_FEE);
 
-        final LineItemReference lineItemReference = new LineItemReference(LINE_ITEM_REFERENCE_ID, LINE_ITEM_REFERENCE_VALUE);
+        final LineItemReference lineItemReference = new LineItemReference();
+        lineItemReference.setValue(LINE_ITEM_REFERENCE_VALUE);
+        lineItemReference.setId(LINE_ITEM_REFERENCE_ID);
         lineItem.setLineItemReference(lineItemReference);
 
-        final OrderLines orderLines = new OrderLines("orderTaxAmount", "termsURL", singletonList(lineItem));
+        final OrderLines orderLines = new OrderLines();
+        orderLines.setLineItems(singletonList(lineItem));
+        orderLines.setOrderTaxAmount(ORDER_TAX_AMOUNT);
+        orderLines.setTermsURL(TERMS_URL);
 
         final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER_WITH_SHOPPER_ID)
-            .withShippingAddress(SHIPPING_ADDRESS)
-            .withBillingAddress(BILLING_ADDRESS)
+            .withShopper(shopperWithShopperID)
+            .withShippingAddress(shippingAddress)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withOrderLines(orderLines)
@@ -149,8 +270,8 @@ public class DirectAuthoriseServiceRequestTest {
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createKlarnaDirectAuthoriseRequest(requestParameters3D);
 
         final Order requestOrder = result.getOrder();
-        assertEquals(BILLING_ADDRESS, result.getOrder().getBillingAddress());
-        assertEquals(SHOPPER_WITH_SHOPPER_ID, result.getOrder().getShopper());
+        assertEquals(billingAddress, result.getOrder().getBillingAddress());
+        assertEquals(shopperWithShopperID, result.getOrder().getShopper());
         assertThat(requestOrder.getOrderLines().getLineItems()).hasSize(1);
         assertThat(requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference().getId()).isEqualTo(LINE_ITEM_REFERENCE_ID);
         assertThat(requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference().getValue()).isEqualTo(LINE_ITEM_REFERENCE_VALUE);
@@ -163,66 +284,90 @@ public class DirectAuthoriseServiceRequestTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Payment type needs to be a type of Token");
 
-        payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, SHOPPER_NAME, "123", BILLING_ADDRESS);
-
-        basicOrderInfo = new BasicOrderInfo(ORDER_CODE, "Your Order & Order desc with token", new Amount("1000", "EUR", "2"));
-
         final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
-            .withPayment(payment)
-            .withShopper(SHOPPER_WITH_SHOPPER_ID)
-            .withShippingAddress(SHIPPING_ADDRESS)
+            .withPayment(visa)
+            .withShopper(shopperWithShopperID)
+            .withShippingAddress(shippingAddress)
             .withBillingAddress(null)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withAdditional3DSData(additional3DSData)
+            .withFraudSightData(fraudSightData)
+            .withDeviceSession(DEVICE_SESSION_ID)
             .build();
         DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
     }
 
     @Test
-    public void createTokenisedDirectAuthoriseRequestShouldCreateAnOrderRequestWithToken() {
-        payment = new Token(TOKEN_ID, false);
+    public void createTokenisedDirectAuthoriseRequest_ShouldCreateAnOrderRequestWithToken() {
+        final Token token = new Token();
+        token.setPaymentType(PaymentType.TOKENSSL.getMethodCode());
+        token.setPaymentTokenID(TOKEN_ID);
+        token.setMerchantToken(false);
+        payment = token;
 
         final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER_WITH_SHOPPER_ID)
-            .withShippingAddress(SHIPPING_ADDRESS)
+            .withShopper(shopperWithShopperID)
+            .withShippingAddress(shippingAddress)
             .withBillingAddress(null)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withAdditional3DSData(additional3DSData)
+            .withFraudSightData(fraudSightData)
+            .withDeviceSession(DEVICE_SESSION_ID)
+            .withLevel23Data(branchSpecificExtension)
             .build();
+
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
 
-        assertEquals("TOKEN-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode());
+        assertEquals("TOKEN-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType());
         assertEquals(TOKEN_ID, ((Token) result.getOrder().getPaymentDetails().getPayment()).getPaymentTokenID());
-        assertEquals(SHOPPER_WITH_SHOPPER_ID, result.getOrder().getShopper());
+        assertEquals(shopperWithShopperID, result.getOrder().getShopper());
         assertEquals(REFERENCE_ID, result.getOrder().getAdditional3DSData().getDfReferenceId());
+        assertEquals(fraudSightData, result.getOrder().getFraudSightData());
+        assertEquals(shopperFields, result.getOrder().getFraudSightData().getShopperFields());
+        assertEquals(DEVICE_SESSION_ID, result.getOrder().getDeviceSession());
+        assertEquals(branchSpecificExtension, result.getOrder().getBranchSpecificExtension());
         assertCommonOrderRequestData(result);
     }
 
     @Test
     public void createApplePayDirectAuthoriseRequestShouldCreateAnOrderRequestWithApplePayAsPaymentMethod() {
-        payment = new ApplePay(new Header("ephKey", "keyHash", "transactionId", "applicationData"), "signature", "version", "data", "tokenRequestorID");
+        final Header header = new Header();
+        header.setTransactionId("transactionId");
+        header.setApplicationData("applicationData");
+        header.setPublicKeyHash("keyHash");
+        header.setEphemeralPublicKey("ephKey");
+
+        final ApplePay applePay = new ApplePay();
+        applePay.setHeader(header);
+        applePay.setSignature("signature");
+        applePay.setVersion("version");
+        applePay.setData("data");
+        applePay.setTokenRequestorID("tokenRequestorID");
+        applePay.setPaymentType(PaymentType.APPLEPAYSSL.getMethodCode());
+
+        payment = applePay;
 
         final AuthoriseRequestParameters requestParameters3D = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER_WITH_SHOPPER_ID)
-            .withShippingAddress(SHIPPING_ADDRESS)
+            .withShopper(shopperWithShopperID)
+            .withShippingAddress(shippingAddress)
             .withBillingAddress(null)
             .withStatementNarrative(null)
             .withDynamicInteractionType(null).build();
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createApplePayDirectAuthoriseRequest(requestParameters3D);
 
-        assertEquals("APPLEPAY-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode());
+        assertEquals("APPLEPAY-SSL", result.getOrder().getPaymentDetails().getPayment().getPaymentType());
         assertEquals("data", ((ApplePay) result.getOrder().getPaymentDetails().getPayment()).getData());
-        assertEquals(SHOPPER_WITH_SHOPPER_ID, result.getOrder().getShopper());
+        assertEquals(shopperWithShopperID, result.getOrder().getShopper());
     }
 
     @Test
@@ -232,7 +377,7 @@ public class DirectAuthoriseServiceRequestTest {
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(null)
-            .withShopper(SHOPPER_WITH_SHOPPER_ID)
+            .withShopper(shopperWithShopperID)
             .withShippingAddress(null)
             .withBillingAddress(null)
             .withStatementNarrative(null)
@@ -246,23 +391,23 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(ORDER_CODE, result.getOrderCode());
         assertEquals(ORDER_CODE, result.getOrder().getOrderCode());
         assertEquals(PA_RES, result.getOrder().getPaResponse());
-        assertEquals(SESSION, result.getOrder().getSession());
+        assertEquals(session, result.getOrder().getSession());
     }
 
 
     @Test
     public void createDirectAuthorisedWithoutMerchantShouldRaiseIllegalArgumentExceptionException() {
         thrown.expect(IllegalArgumentException.class);
-        merchantInfo = new MerchantInfo(null, null);
-        final Payment payment = PaymentBuilder.createVISASSL("4444333322221111", EXPIRY_DATE, "J. Shopper", "123", BILLING_ADDRESS);
+        merchantInfo.setMerchantPassword(null);
+        merchantInfo.setMerchantCode(null);
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
-            .withPayment(payment)
-            .withShopper(SHOPPER)
-            .withShippingAddress(SHIPPING_ADDRESS)
-            .withBillingAddress(BILLING_ADDRESS)
+            .withPayment(visa)
+            .withShopper(shopper)
+            .withShippingAddress(shippingAddress)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .build();
@@ -272,35 +417,44 @@ public class DirectAuthoriseServiceRequestTest {
 
     @Test
     public void shouldCreateGooglePayDirectAuthorisationRequest() {
-        final PayWithGoogleSSL payment = new PayWithGoogleSSL("protocolVersion", "signature", "signedMessage");
+        final PayWithGoogleSSL payment = new PayWithGoogleSSL();
+        payment.setProtocolVersion("protocolVersion");
+        payment.setSignature("signature");
+        payment.setSignedMessage("signedMessage");
+        payment.setPaymentType(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER_WITHOUT_BROWSER_NOR_SESSION)
-            .withShippingAddress(SHIPPING_ADDRESS)
+            .withShopper(shopperWithoutBrowserNorSession)
+            .withShippingAddress(shippingAddress)
             .withBillingAddress(null)
             .withStatementNarrative(null)
-                .withTokenRequest(null)
+            .withTokenRequest(null)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .build();
 
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createGooglePayDirectAuthoriseRequest(requestParameters);
 
-        assertThat(result.getOrder().getPaymentDetails().getPayment().getPaymentType().getMethodCode()).isEqualTo(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+        assertThat(result.getOrder().getPaymentDetails().getPayment().getPaymentType()).isEqualTo(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
     }
 
     @Test
     public void shouldRaiseIllegalArgumentExceptionWhenPaymentIsNotPayWithGoogleSSL() {
         thrown.expect(IllegalArgumentException.class);
-        final Token payment = new Token(TOKEN_EVENT_REFERENCE, false);
+        final Token token = new Token();
+        token.setPaymentType(PaymentType.TOKENSSL.getMethodCode());
+        token.setPaymentTokenID(TOKEN_EVENT_REFERENCE);
+        token.setMerchantToken(false);
+        payment = token;
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER_WITHOUT_BROWSER_NOR_SESSION)
-            .withShippingAddress(SHIPPING_ADDRESS)
+            .withShopper(shopperWithoutBrowserNorSession)
+            .withShippingAddress(shippingAddress)
             .withBillingAddress(null)
             .withStatementNarrative(null)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
@@ -320,11 +474,15 @@ public class DirectAuthoriseServiceRequestTest {
 
         assertEquals(merchantInfo, result.getMerchantInfo());
         assertEquals(ORDER_CODE, result.getOrderCode());
-        assertEquals(resultOrder.getBillingAddress(), BILLING_ADDRESS);
-        assertEquals(resultOrder.getShippingAddress(), SHIPPING_ADDRESS);
-        assertEquals(resultOrder.getStatementNarrative(), STATEMENT_NARRATIVE);
-        assertEquals(resultOrder.getDynamicInteractionType(), DynamicInteractionType.ECOMMERCE);
-        assertEquals(resultOrder.getTokenRequest(), TOKEN_REQUEST);
+        assertEquals(billingAddress, resultOrder.getBillingAddress());
+        assertEquals(shippingAddress, resultOrder.getShippingAddress());
+        assertEquals(STATEMENT_NARRATIVE, resultOrder.getStatementNarrative());
+        assertEquals(DynamicInteractionType.ECOMMERCE, resultOrder.getDynamicInteractionType());
+        assertEquals(tokenRequest, resultOrder.getTokenRequest());
+        assertEquals(fraudSightData, result.getOrder().getFraudSightData());
+        assertEquals(shopperFields, result.getOrder().getFraudSightData().getShopperFields());
+        assertEquals(DEVICE_SESSION_ID, result.getOrder().getDeviceSession());
+        assertEquals(branchSpecificExtension, result.getOrder().getBranchSpecificExtension());
         assert3DSInfoOrderRequestData(result);
     }
 
@@ -333,14 +491,17 @@ public class DirectAuthoriseServiceRequestTest {
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(basicOrderInfo)
             .withPayment(payment)
-            .withShopper(SHOPPER)
-            .withShippingAddress(SHIPPING_ADDRESS)
-            .withBillingAddress(BILLING_ADDRESS)
+            .withShopper(shopper)
+            .withShippingAddress(shippingAddress)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-            .withTokenRequest(TOKEN_REQUEST)
+            .withTokenRequest(tokenRequest)
             .withAdditional3DSData(additional3DSData)
             .withRiskData(riskData)
+            .withFraudSightData(fraudSightData)
+            .withDeviceSession(DEVICE_SESSION_ID)
+            .withLevel23Data(branchSpecificExtension)
             .build();
     }
 
@@ -349,11 +510,11 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(ORDER_CODE, result.getOrderCode());
         assertEquals(ORDER_CODE, result.getOrder().getOrderCode());
         assertEquals(DESCRIPTION, result.getOrder().getDescription());
-        assertEquals(AMOUNT, result.getOrder().getAmount());
-        assertEquals(SHIPPING_ADDRESS, result.getOrder().getShippingAddress());
+        assertEquals(amount, result.getOrder().getAmount());
+        assertEquals(shippingAddress, result.getOrder().getShippingAddress());
         assertEquals(STATEMENT_NARRATIVE, result.getOrder().getStatementNarrative());
         assertEquals(payment, result.getOrder().getPaymentDetails().getPayment());
-        assertEquals(SESSION, result.getOrder().getPaymentDetails().getSession());
+        assertEquals(session, result.getOrder().getPaymentDetails().getSession());
     }
 
     private void assert3DSInfoOrderRequestData(final DirectAuthoriseServiceRequest result) {

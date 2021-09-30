@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias alias="worldpayCartDao" name="defaultWorldpayCartDao"/>
+    <bean id="defaultWorldpayCartDao" class="com.worldpay.core.dao.impl.DefaultWorldpayCartDao"
+          parent="abstractItemDao">
+    </bean>
+
+    <alias alias="worldpayHybrisOrderDao" name="defaultWorldpayHybrisOrderDao"/>
+    <bean id="defaultWorldpayHybrisOrderDao" class="com.worldpay.core.dao.impl.DefaultWorldpayHybrisOrderDao"
+          parent="abstractItemDao">
+    </bean>
+
+    <alias name="defaultAbstractOrderGenericDao" alias="abstractOrderGenericDao"/>
+    <bean name="defaultAbstractOrderGenericDao" class="de.hybris.platform.servicelayer.internal.dao.DefaultGenericDao">
+        <constructor-arg value="AbstractOrder"/>
+    </bean>
+
+    <bean name="worldpayBankConfigurationGenericDao"
+          class="de.hybris.platform.servicelayer.internal.dao.DefaultGenericDao">
+        <constructor-arg value="WorldpayBankConfiguration"/>
+    </bean>
+
+    <alias alias="worldpayAPMComponentDao" name="defaultWorldpayAPMComponentDao"/>
+    <bean id="defaultWorldpayAPMComponentDao"
+          class="com.worldpay.core.dao.impl.DefaultWorldpayAPMComponentDao"
+          parent="abstractCMSItemDao"/>
+
+    <alias alias="paymentTransactionDao" name="worldpayPaymentTransactionDao"/>
+    <bean id="worldpayPaymentTransactionDao" class="com.worldpay.core.dao.impl.DefaultWorldpayPaymentTransactionDao"
+          parent="abstractItemDao">
+    </bean>
+
+    <bean id="worldpayAPMConfigurationDao" class="com.worldpay.core.dao.WorldpayAPMConfigurationDao"/>
+
+</beans>

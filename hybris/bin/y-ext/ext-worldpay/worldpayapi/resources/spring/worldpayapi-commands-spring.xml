@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Worldpay Commands (Direct Authorise) -->
+    <bean name="worldpayCommand" abstract="true" class="com.worldpay.commands.impl.WorldpayCommand">
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+    </bean>
+
+    <bean name="worldpayCommandFactory"
+          class="de.hybris.platform.payment.commands.factory.impl.DefaultCommandFactoryImpl">
+        <property name="paymentProvider" value="Worldpay"/>
+        <property name="commands">
+            <map>
+                <entry>
+                    <key>
+                        <value type="java.lang.Class">de.hybris.platform.payment.commands.CaptureCommand</value>
+                    </key>
+                    <bean class="com.worldpay.commands.impl.DefaultWorldpayCaptureCommand" parent="worldpayCommand">
+                        <constructor-arg name="captureServiceResponseConverter" ref="captureServiceResponseConverter"/>
+                        <constructor-arg name="worldpayHybrisOrderService" ref="worldpayHybrisOrderService"/>
+                    </bean>
+                </entry>
+                <entry>
+                    <key>
+                        <value type="java.lang.Class">de.hybris.platform.payment.commands.PartialCaptureCommand</value>
+                    </key>
+                    <bean class="com.worldpay.commands.impl.DefaultWorldpayCaptureCommand" parent="worldpayCommand">
+                        <constructor-arg name="captureServiceResponseConverter" ref="captureServiceResponseConverter"/>
+                        <constructor-arg name="worldpayHybrisOrderService" ref="worldpayHybrisOrderService"/>
+                    </bean>
+                </entry>
+                <entry>
+                    <key>
+                        <value type="java.lang.Class">de.hybris.platform.payment.commands.VoidCommand</value>
+                    </key>
+                    <bean class="com.worldpay.commands.impl.DefaultWorldpayVoidCommand" parent="worldpayCommand">
+                        <constructor-arg name="voidServiceResponseConverter" ref="voidServiceResponseConverter"/>
+                        <constructor-arg name="worldpayPrimeRoutingService" ref="worldpayPrimeRoutingService"/>
+                    </bean>
+                </entry>
+                <entry>
+                    <key>
+                        <value type="java.lang.Class">de.hybris.platform.payment.commands.FollowOnRefundCommand</value>
+                    </key>
+                    <bean class="com.worldpay.commands.impl.DefaultWorldpayFollowOnRefundCommand"
+                          parent="worldpayCommand">
+                        <constructor-arg name="refundServiceResponseConverter" ref="refundServiceResponseConverter"/>
+                    </bean>
+                </entry>
+                <entry>
+                    <key>
+                        <value type="java.lang.Class">
+                            de.hybris.platform.payment.commands.SubscriptionAuthorizationCommand
+                        </value>
+                    </key>
+                    <bean class="com.worldpay.commands.impl.DefaultWorldpayTokenisedAuthorizationCommand"
+                          parent="worldpayCommand">
+                        <constructor-arg name="worldpayAuthorizationResultConverter"
+                                         ref="worldpayTokenisedDirectAuthorizationResponseConverter"/>
+                        <constructor-arg name="worldpayBillingInfoAddressConverter"
+                                         ref="worldpayBillingInfoAddressConverter"/>
+                        <constructor-arg name="worldpayRequestService" ref="worldpayRequestService"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+</beans>

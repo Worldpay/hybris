@@ -1,15 +1,17 @@
 package com.worldpay.service.request;
 
+import com.worldpay.data.*;
+import com.worldpay.data.payment.Cse;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.payment.StoredCredentials;
+import com.worldpay.data.token.TokenRequest;
 import com.worldpay.enums.order.DynamicInteractionType;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.payment.Cse;
-import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.payment.StoredCredentials;
-import com.worldpay.service.model.token.TokenRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
@@ -32,26 +34,105 @@ public class OrderBuilderTest {
     private static final String ENCRYPTED_DATA = "encryptedData";
     private static final List<PaymentType> INCLUDED_PAYMENT_TYPES = singletonList(ONLINE);
     private static final List<PaymentType> EXCLUDED_PAYMENT_TYPES = singletonList(VISA);
-    private static final TokenRequest TOKEN_REQUEST = new TokenRequest("tokenEventReferenceNumber", "tokenReason");
-    private static final Address SHIPPING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
-    private static final Address BILLING_ADDRESS = new Address("John", "Shopper", "Shopper Address1", "Shopper Address2", "Shopper Address3", "postalCode", "city", "GB");
+    private static final List<String> INCLUDED_PAYMENT_TYPES_METHOD = singletonList(ONLINE.getMethodCode());
+    private static final List<String> EXCLUDED_PAYMENT_TYPES_METHOD = singletonList(VISA.getMethodCode());
+    private static final String TOKEN_EVENT_REFERENCE = "tokenEventReferenceNumber";
+    private static final String TOKEN_REASON = "tokenReason";
+    private static final String FIRST_NAME = "John";
+    private static final String LAST_NAME = "Shopper";
+    private static final String SHOPPER_ADDRESS_1 = "Shopper Address1";
+    private static final String SHOPPER_ADDRESS_2 = "Shopper Address2";
+    private static final String SHOPPER_ADDRESS_3 = "Shopper Address3";
+    private static final String POSTAL_CODE = "postalCode";
+    private static final String CITY = "city";
+    private static final String GB = "GB";
     private static final String SESSION_ID = "sessionId";
     private static final String SHOPPER_IP_ADDRESS = "shopperIPAddress";
-    private static final Session SESSION = new Session(SHOPPER_IP_ADDRESS, SESSION_ID);
-    private static final Shopper SHOPPER = new Shopper(EMAIL_ADDRESS, null, null, SESSION);
-    private static final Amount AMOUNT = new Amount("100", "EUR", "2");
-    private static final Payment PAYMENT = new Cse(ENCRYPTED_DATA, SHIPPING_ADDRESS);
+    private Payment payment;
     private static final StoredCredentials STORED_CREDENTIALS = new StoredCredentials();
     private static final String ORDER_DESC = "Your Order & Order desc";
-    private static final BasicOrderInfo BASIC_ORDER_INFO = new BasicOrderInfo(ORDER_CODE, ORDER_DESC, AMOUNT);
     private static final DynamicInteractionType DYNAMIC_INTERACTION_TYPE = DynamicInteractionType.ECOMMERCE;
-    private static final PaymentDetails PAYMENT_DETAILS = new PaymentDetails(PAYMENT, SESSION, STORED_CREDENTIALS);
+    private PaymentDetails paymentDetails;
     private static final String ECHO_DATA = "echoData";
     private static final LineItem LINE_ITEM = new LineItem();
     private static final String ORDER_TAX_AMOUNT = "orderTaxAmount";
     private static final String TERMS_URL = "termsUrl";
-    private static final OrderLines ORDER_LINES = new OrderLines(ORDER_TAX_AMOUNT, TERMS_URL, List.of(LINE_ITEM));
+    private OrderLines orderLines;
     private static final List<PaymentMethodAttribute> PAYMENT_METHOD_ATTRIBUTES = List.of(new PaymentMethodAttribute());
+    private TokenRequest tokenRequest;
+    private Address shippingAddress;
+    private Address billingAddress;
+    private Session session;
+    private Shopper shopper;
+    private Amount amount;
+    private BasicOrderInfo basicOrderInfo;
+    private static final String MANDATE_TYPE = "mandateType";
+
+    @Mock
+    private FraudSightData fraudSightDataMock;
+    @Mock
+    private BranchSpecificExtension level23DataMock;
+
+    @Before
+    public void setUp() throws Exception {
+        final TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setTokenReason(TOKEN_REASON);
+        tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
+        this.tokenRequest = tokenRequest;
+
+        final Amount amount = new Amount();
+        amount.setExponent("2");
+        amount.setCurrencyCode("EUR");
+        amount.setValue("100");
+        this.amount = amount;
+
+        final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
+        basicOrderInfo.setOrderCode(ORDER_CODE);
+        basicOrderInfo.setDescription(ORDER_DESC);
+        basicOrderInfo.setAmount(amount);
+        this.basicOrderInfo = basicOrderInfo;
+
+        final Address address = new Address();
+        address.setFirstName(FIRST_NAME);
+        address.setLastName(LAST_NAME);
+        address.setAddress1(SHOPPER_ADDRESS_1);
+        address.setAddress2(SHOPPER_ADDRESS_2);
+        address.setAddress3(SHOPPER_ADDRESS_3);
+        address.setPostalCode(POSTAL_CODE);
+        address.setCity(CITY);
+        address.setCountryCode(GB);
+
+        this.shippingAddress = address;
+        this.billingAddress = address;
+
+        final Session session = new Session();
+        session.setId(SESSION_ID);
+        session.setShopperIPAddress(SHOPPER_IP_ADDRESS);
+        this.session = session;
+
+        final Shopper shopper = new Shopper();
+        shopper.setShopperEmailAddress(EMAIL_ADDRESS);
+        shopper.setSession(session);
+        this.shopper = shopper;
+
+        final Cse cse = new Cse();
+        cse.setEncryptedData(ENCRYPTED_DATA);
+        cse.setAddress(shippingAddress);
+        cse.setPaymentType(PaymentType.CSEDATA.getMethodCode());
+        payment = cse;
+
+        final PaymentDetails paymentDetails = new PaymentDetails();
+        paymentDetails.setPayment(payment);
+        paymentDetails.setSession(this.session);
+        paymentDetails.setStoredCredentials(STORED_CREDENTIALS);
+        this.paymentDetails = paymentDetails;
+
+        final OrderLines orderLines = new OrderLines();
+        orderLines.setLineItems(List.of(LINE_ITEM));
+        orderLines.setTermsURL(TERMS_URL);
+        orderLines.setOrderTaxAmount(ORDER_TAX_AMOUNT);
+        this.orderLines = orderLines;
+    }
 
     @Test
     public void build_ShouldCreateOrderWithAllParameters_WhenAllRequestParametersAreProvided() {
@@ -63,43 +144,49 @@ public class OrderBuilderTest {
     private void verifyOrder(final Order order) {
         assertEquals(ORDER_CODE, order.getOrderCode());
         assertEquals(ORDER_DESC, order.getDescription());
-        assertEquals(AMOUNT, order.getAmount());
+        assertEquals(amount, order.getAmount());
         assertNotNull(order.getPaymentDetails());
-        assertEquals(PAYMENT, order.getPaymentDetails().getPayment());
-        assertEquals(SESSION, order.getPaymentDetails().getSession());
+        assertEquals(payment, order.getPaymentDetails().getPayment());
+        assertEquals(session, order.getPaymentDetails().getSession());
         assertEquals(STORED_CREDENTIALS, order.getPaymentDetails().getStoredCredentials());
         assertEquals(INSTALLATION_ID, order.getInstallationId());
-        assertEquals(INCLUDED_PAYMENT_TYPES, order.getPaymentMethodMask().getIncludes());
-        assertEquals(EXCLUDED_PAYMENT_TYPES, order.getPaymentMethodMask().getExcludes());
+        assertEquals(INCLUDED_PAYMENT_TYPES_METHOD, order.getPaymentMethodMask().getIncludes());
+        assertEquals(EXCLUDED_PAYMENT_TYPES_METHOD, order.getPaymentMethodMask().getExcludes());
         assertEquals(ORDER_CONTENT, order.getOrderContent());
-        assertEquals(SHOPPER, order.getShopper());
-        assertEquals(TOKEN_REQUEST, order.getTokenRequest());
-        assertEquals(SHIPPING_ADDRESS, order.getShippingAddress());
-        assertEquals(BILLING_ADDRESS, order.getBillingAddress());
+        assertEquals(shopper, order.getShopper());
+        assertEquals(tokenRequest, order.getTokenRequest());
+        assertEquals(shippingAddress, order.getShippingAddress());
+        assertEquals(billingAddress, order.getBillingAddress());
         assertEquals(STATEMENT_NARRATIVE, order.getStatementNarrative());
         assertEquals(DYNAMIC_INTERACTION_TYPE, order.getDynamicInteractionType());
         assertEquals(ECHO_DATA, order.getEchoData());
-        assertEquals(ORDER_LINES, order.getOrderLines());
+        assertEquals(orderLines, order.getOrderLines());
         assertEquals(PAYMENT_METHOD_ATTRIBUTES, order.getPaymentMethodAttributes());
+        assertEquals(fraudSightDataMock, order.getFraudSightData());
+        assertEquals(level23DataMock, order.getBranchSpecificExtension());
+        assertEquals(MANDATE_TYPE, order.getMandateType());
     }
 
     private Order createOrder() {
         return new OrderBuilder()
-            .withOrderInfo(BASIC_ORDER_INFO)
-            .withShopper(SHOPPER)
+            .withOrderInfo(basicOrderInfo)
+            .withShopper(shopper)
             .withInstallationId(INSTALLATION_ID)
             .withOrderContent(ORDER_CONTENT)
-            .withTokenRequest(TOKEN_REQUEST)
-            .withShippingAddress(SHIPPING_ADDRESS)
-            .withBillingAddress(BILLING_ADDRESS)
+            .withTokenRequest(tokenRequest)
+            .withShippingAddress(shippingAddress)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(STATEMENT_NARRATIVE)
             .withExcludedPaymentMethods(EXCLUDED_PAYMENT_TYPES)
             .withIncludedPaymentMethods(INCLUDED_PAYMENT_TYPES)
             .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
-            .withPaymentDetails(PAYMENT_DETAILS)
+            .withPaymentDetails(paymentDetails)
             .withEchoData(ECHO_DATA)
-            .withOrderLines(ORDER_LINES)
+            .withOrderLines(orderLines)
             .withPaymentMethodAttribute(PAYMENT_METHOD_ATTRIBUTES)
+            .withFraudSightAttribute(fraudSightDataMock)
+            .withLevel23Data(level23DataMock)
+            .withMandateType(MANDATE_TYPE)
             .build();
     }
 }

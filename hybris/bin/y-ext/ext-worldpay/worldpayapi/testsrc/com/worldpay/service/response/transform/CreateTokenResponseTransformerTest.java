@@ -1,9 +1,9 @@
 package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Error;
-import com.worldpay.service.model.token.TokenReply;
+import com.worldpay.internal.model.*;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.ServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -28,10 +28,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CreateTokenResponseTransformerTest {
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
-
     private static final String AUTHENTICATED_SHOPPER = "authenticatedShopper";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
     private static final String TOKEN_REASON = "tokenReason";
@@ -49,6 +45,7 @@ public class CreateTokenResponseTransformerTest {
     private static final String ERROR_CODE = "errorCode";
     private static final String ERROR_VALUE = "errorValue";
     private static final String PAYPAL_TOKEN = "paypalToken";
+    private static final String ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE = "Reply has no reply message or the reply type is not the expected one";
 
     @InjectMocks
     private CreateTokenResponseTransformer testObj;
@@ -59,11 +56,14 @@ public class CreateTokenResponseTransformerTest {
     private ServiceResponseTransformerHelper serviceResponseTransformerHelperMock;
     @Mock
     private TokenReply tokenReplyMock;
+    @Rule
+    @SuppressWarnings("PMD.MemberScope")
+    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void shouldRaiseErrorIfPaymentServiceReplyIsNull() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("No reply message in Worldpay create token response");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(null));
 
         testObj.transform(paymentServiceReplyMock);
@@ -72,7 +72,7 @@ public class CreateTokenResponseTransformerTest {
     @Test
     public void shouldRaiseErrorIfResponseTypeIsNotReply() throws WorldpayModelTransformationException {
         thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("Reply type from Worldpay not the expected type");
+        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(new Submit()));
 
         testObj.transform(paymentServiceReplyMock);

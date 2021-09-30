@@ -1,6 +1,6 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.PaymentReply;
 
 /**
  * This class represents the details that are passed back from a call to

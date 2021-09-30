@@ -2,13 +2,13 @@ package com.worldpay.core.services.impl;
 
 import com.evanlennick.retry4j.config.RetryConfig;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
+import com.worldpay.data.ErrorDetail;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.PaymentReply;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
@@ -45,6 +45,8 @@ public class DefaultOrderInquiryServiceTest {
     private static final String WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES = "worldpayapi.inquiry.delay.between.retries";
     private static final int DELAY_BETWEEN_RETRIES = 1;
     private static final int MAX_NUMBER_RETRIES = 3;
+    private static final String ERROR_CODE = "5";
+    private static final String ERROR_MESSAGE_DETAIL = "Some Error Detail";
 
 
     @Rule
@@ -175,13 +177,16 @@ public class DefaultOrderInquiryServiceTest {
     @Test
     public void shouldRetryInquiryPaymentDetailsWhenThereIsAnError() throws Exception {
         when(worldpayServiceGatewayMock.orderInquiry(orderInquiryServiceRequestMock))
-                .thenReturn(orderInquiryServiceResponseMock)
-                .thenReturn(orderInquiryServiceResponseMock1)
-                .thenReturn(orderInquiryServiceResponseMock2);
+            .thenReturn(orderInquiryServiceResponseMock)
+            .thenReturn(orderInquiryServiceResponseMock1)
+            .thenReturn(orderInquiryServiceResponseMock2);
 
         when(orderInquiryServiceResponseMock2.getPaymentReply()).thenReturn(paymentReplyMock);
 
-        final ErrorDetail errorDetail = new ErrorDetail("5", "Some Error Detail");
+        final ErrorDetail errorDetail = new ErrorDetail();
+        errorDetail.setCode(ERROR_CODE);
+        errorDetail.setMessage(ERROR_MESSAGE_DETAIL);
+
         when(orderInquiryServiceResponseMock.getErrorDetail()).thenReturn(errorDetail);
         when(orderInquiryServiceResponseMock1.getErrorDetail()).thenReturn(errorDetail);
         when(orderInquiryServiceResponseMock2.getErrorDetail()).thenReturn(null);
@@ -212,11 +217,14 @@ public class DefaultOrderInquiryServiceTest {
     @Test(expected = WorldpayException.class)
     public void shouldRetryInquiryPaymentDetailsWhenThereIsAnErrorAndFailWhenRetriesNumberAreExhausted() throws Exception {
         when(worldpayServiceGatewayMock.orderInquiry(orderInquiryServiceRequestMock))
-                .thenReturn(orderInquiryServiceResponseMock)
-                .thenReturn(orderInquiryServiceResponseMock1)
-                .thenReturn(orderInquiryServiceResponseMock2);
+            .thenReturn(orderInquiryServiceResponseMock)
+            .thenReturn(orderInquiryServiceResponseMock1)
+            .thenReturn(orderInquiryServiceResponseMock2);
 
-        final ErrorDetail errorDetail = new ErrorDetail("5", "Some Error Detail");
+        final ErrorDetail errorDetail = new ErrorDetail();
+        errorDetail.setCode(ERROR_CODE);
+        errorDetail.setMessage(ERROR_MESSAGE_DETAIL);
+
         when(orderInquiryServiceResponseMock.getErrorDetail()).thenReturn(errorDetail);
         when(orderInquiryServiceResponseMock1.getErrorDetail()).thenReturn(errorDetail);
         when(orderInquiryServiceResponseMock2.getErrorDetail()).thenReturn(errorDetail);
@@ -256,13 +264,16 @@ public class DefaultOrderInquiryServiceTest {
     public void shouldRetryKlarnaInquiryPaymentDetailsWhenThereIsAnErrorAndFailWhenRetriesNumberAreExhausted() throws Exception {
         doReturn(klarnaOrderInquiryServiceRequestMock).when(testObj).createKlarnaOrderInquiryServiceRequest(merchantInfoMock, WORLDPAY_ORDER_CODE);
 
-        final ErrorDetail errorDetail = new ErrorDetail("5", "Some Error Detail");
+        final ErrorDetail errorDetail = new ErrorDetail();
+        errorDetail.setCode(ERROR_CODE);
+        errorDetail.setMessage(ERROR_MESSAGE_DETAIL);
+
         when(orderInquiryServiceResponseMock.getErrorDetail()).thenReturn(errorDetail);
 
         when(worldpayServiceGatewayMock.orderInquiry(klarnaOrderInquiryServiceRequestMock))
-                .thenReturn(orderInquiryServiceResponseMock)
-                .thenReturn(orderInquiryServiceResponseMock)
-                .thenReturn(orderInquiryServiceResponseMock);
+            .thenReturn(orderInquiryServiceResponseMock)
+            .thenReturn(orderInquiryServiceResponseMock)
+            .thenReturn(orderInquiryServiceResponseMock);
 
         testObj.inquiryKlarnaOrder(merchantInfoMock, WORLDPAY_ORDER_CODE);
     }

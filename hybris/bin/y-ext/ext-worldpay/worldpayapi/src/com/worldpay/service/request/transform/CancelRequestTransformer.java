@@ -11,7 +11,6 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.CancelServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link CancelServiceRequest} into a {@link PaymentService} object
@@ -32,7 +31,11 @@ import org.springframework.beans.factory.annotation.Required;
 public class CancelRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
+
+    public CancelRequestTransformer(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     /**
      * (non-Javadoc)
@@ -40,7 +43,7 @@ public class CancelRequestTransformer implements ServiceRequestTransformer {
      * @see com.worldpay.service.request.transform.ServiceRequestTransformer#transform(com.worldpay.service.request.ServiceRequest)
      */
     @Override
-    public PaymentService transform(ServiceRequest request) throws WorldpayModelTransformationException {
+    public PaymentService transform(final ServiceRequest request) throws WorldpayModelTransformationException {
         if (request == null || request.getMerchantInfo() == null || request.getOrderCode() == null) {
             throw new WorldpayModelTransformationException("Request provided to do the cancelOrRefund is invalid.");
         }
@@ -52,14 +55,9 @@ public class CancelRequestTransformer implements ServiceRequestTransformer {
         final OrderModification orderModification = new OrderModification();
         orderModification.setOrderCode(request.getOrderCode());
         final CancelOrRefund cancelOrRefund = new CancelOrRefund();
-        orderModification. getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(cancelOrRefund);
+        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(cancelOrRefund);
         modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
-    }
-
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 }

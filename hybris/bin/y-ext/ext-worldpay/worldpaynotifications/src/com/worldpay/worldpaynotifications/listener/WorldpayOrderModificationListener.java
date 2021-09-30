@@ -1,18 +1,17 @@
 package com.worldpay.worldpaynotifications.listener;
 
 import com.worldpay.core.event.OrderModificationEvent;
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.notification.OrderNotificationMessage;
-import com.worldpay.util.OrderModificationSerialiser;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.servicelayer.event.impl.AbstractEventListener;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.util.Map;
 
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
@@ -26,12 +25,22 @@ import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
  */
 public class WorldpayOrderModificationListener extends AbstractEventListener<OrderModificationEvent> {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayOrderModificationListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayOrderModificationListener.class);
 
-    private ModelService modelService;
-    private WorldpayCartService worldpayCartService;
-    private Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap;
-    private OrderModificationSerialiser orderModificationSerialiser;
+    protected final ModelService modelService;
+    protected final WorldpayCartService worldpayCartService;
+    protected final Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap;
+    protected final OrderNotificationService orderNotificationService;
+
+    public WorldpayOrderModificationListener(final ModelService modelService,
+                                             final WorldpayCartService worldpayCartService,
+                                             final Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap,
+                                             final OrderNotificationService orderNotificationService) {
+        this.modelService = modelService;
+        this.worldpayCartService = worldpayCartService;
+        this.paymentTransactionTypeMap = paymentTransactionTypeMap;
+        this.orderNotificationService = orderNotificationService;
+    }
 
     /**
      * {@inheritDoc}
@@ -48,7 +57,7 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
         if (transactionType != null) {
             saveOrderModification(orderNotificationMessage, transactionType);
         } else {
-            LOG.warn(MessageFormat.format("Transaction type {0} not supported. Ignoring event.", journalType));
+            LOG.warn("Transaction type {} not supported. Ignoring event.", journalType);
         }
     }
 
@@ -61,31 +70,11 @@ public class WorldpayOrderModificationListener extends AbstractEventListener<Ord
 
     protected void saveOrderModification(final OrderNotificationMessage orderNotificationMessage, final PaymentTransactionType transactionType) {
         final String worldpayOrderCode = orderNotificationMessage.getOrderCode();
-        LOG.info(MessageFormat.format("Saving worldpayOrderModificationModel for worldpay order code: {0}", worldpayOrderCode));
+        LOG.info("Saving worldpayOrderModificationModel for worldpay order code: {}", worldpayOrderCode);
         final WorldpayOrderModificationModel worldpayOrderModificationModel = modelService.create(WorldpayOrderModificationModel.class);
         worldpayOrderModificationModel.setType(transactionType);
         worldpayOrderModificationModel.setWorldpayOrderCode(worldpayOrderCode);
-        worldpayOrderModificationModel.setOrderNotificationMessage(orderModificationSerialiser.serialise(orderNotificationMessage));
+        worldpayOrderModificationModel.setOrderNotificationMessage(orderNotificationService.serialiseNotification(orderNotificationMessage));
         modelService.save(worldpayOrderModificationModel);
-    }
-
-    @Required
-    public void setPaymentTransactionTypeMap(final Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap) {
-        this.paymentTransactionTypeMap = paymentTransactionTypeMap;
-    }
-
-    @Required
-    public void setModelService(final ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    @Required
-    public void setOrderModificationSerialiser(final OrderModificationSerialiser orderModificationSerialiser) {
-        this.orderModificationSerialiser = orderModificationSerialiser;
-    }
-
-    @Required
-    public void setWorldpayCartService(final WorldpayCartService worldpayCartService) {
-        this.worldpayCartService = worldpayCartService;
     }
 }

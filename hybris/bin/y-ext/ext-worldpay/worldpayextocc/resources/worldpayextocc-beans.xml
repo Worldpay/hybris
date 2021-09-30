@@ -40,4 +40,46 @@
         <property name="validationURL" type="java.lang.String"/>
     </bean>
 
+    <bean class="com.worldpay.dto.payment.PaymentRequestData">
+        <property name="paymentMethod" type="java.lang.String"/>
+        <property name="shopperBankCode" type="java.lang.String"/>
+        <property name="save" type="java.lang.Boolean"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.payment.PaymentDataWsDTO">
+        <property name="postUrl" type="java.lang.String"/>
+        <property name="parameters" type="java.util.Map&lt;String, String>"/>
+        <property name="mappingLabels" type="java.util.Map&lt;String, String>"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.apm.BankConfigurationWsDTO">
+        <property name="bankCode" type="java.lang.String"/>
+        <property name="bankName" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.apm.WorldpayAPMConfigurationWsDTO">
+        <property name="code" type="java.lang.String"/>
+        <property name="name" type="java.lang.String"/>
+        <property name="description" type="java.lang.String"/>
+        <property name="autoCancelPendingTimeoutInMinutes" type="java.lang.Integer"/>
+        <property name="bank" type="java.lang.Boolean"/>
+        <property name="automaticRefunds" type="java.lang.Boolean"/>
+        <property name="bankTransferRefunds" type="java.lang.Boolean"/>
+        <property name="bankConfigurations" type="java.util.List&lt;com.worldpay.dto.apm.BankConfigurationWsDTO>"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.cms.WorldpayAPMComponentWsDTO">
+        <property name="apmConfiguration" type="com.worldpay.dto.apm.WorldpayAPMConfigurationWsDTO"/>
+        <property name="media" type="de.hybris.platform.cmsocc.data.MediaWsDTO"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.cms.WorldpayAPMComponentsWsDTO">
+        <property name="apmComponents"
+                  type="java.util.List&lt;com.worldpay.dto.cms.WorldpayAPMComponentWsDTO>">
+        </property>
+    </bean>
+
+    <bean class="de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO">
+        <property name="billingAddress" type="java.lang.Boolean"/>
+    </bean>
 </beans>
