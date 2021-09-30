@@ -17,24 +17,22 @@ public class CreateTokenResponseTransformer extends AbstractServiceResponseTrans
     public ServiceResponse transform(final PaymentService paymentService) throws WorldpayModelTransformationException {
         final CreateTokenResponse createTokenResponse = new CreateTokenResponse();
 
-        final Object responseType = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay create token response");
-        }
-
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-
-        final Reply intReply = (Reply) responseType;
-
-        final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
+        final Reply intReply = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
         if (getServiceResponseTransformerHelper().checkForError(createTokenResponse, intReply)) {
             return createTokenResponse;
-        } else if (response instanceof Token) {
-            createTokenResponse.setToken(getServiceResponseTransformerHelper().buildTokenReply((Token) response));
         }
+        intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(Token.class::isInstance)
+            .map(Token.class::cast)
+            .findAny()
+            .ifPresent(response -> createTokenResponse.setToken(getServiceResponseTransformerHelper().buildTokenReply(response)));
 
         return createTokenResponse;
     }

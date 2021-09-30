@@ -1,6 +1,6 @@
 package com.worldpay.attributehandlers;
 
-import com.worldpay.klarna.WorldpayKlarnaUtils;
+import com.worldpay.service.payment.WorldpayKlarnaService;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import org.junit.Test;
@@ -29,41 +29,40 @@ public class WorldpayAPMPaymentInfoIsKlarnaPaymentTypeCodeDynamicAttributeHandle
     private WorldpayAPMPaymentInfoIsKlarnaPaymentTypeCodeDynamicAttributeHandler testObj;
 
     @Mock
-    private WorldpayKlarnaUtils worldpayKlarnaUtilsMock;
-
+    private WorldpayKlarnaService worldpayKlarnaServiceMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private WorldpayAPMPaymentInfoModel paymentInfoModelMock;
 
     @Test
     public void get_shouldReturnTrueWhenKlarnaUtilsMockReturnsTrue() {
         when(paymentInfoModelMock.getApmConfiguration().getCode()).thenReturn(KLARNA_1);
-        when(worldpayKlarnaUtilsMock.isKlarnaPaymentType(KLARNA_1)).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_1)).thenReturn(true);
 
         final Boolean result = testObj.get(paymentInfoModelMock);
 
-        verify(worldpayKlarnaUtilsMock).isKlarnaPaymentType(KLARNA_1);
+        verify(worldpayKlarnaServiceMock).isKlarnaPaymentType(KLARNA_1);
         assertThat(result).isTrue();
     }
 
     @Test
     public void get_shouldReturnFalseWhenKlarnaUtilsMockReturnsFalse() {
         when(paymentInfoModelMock.getApmConfiguration().getCode()).thenReturn(NON_KLARNA);
-        when(worldpayKlarnaUtilsMock.isKlarnaPaymentType(NON_KLARNA)).thenReturn(false);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(NON_KLARNA)).thenReturn(false);
 
         final Boolean result = testObj.get(paymentInfoModelMock);
 
-        verify(worldpayKlarnaUtilsMock).isKlarnaPaymentType(NON_KLARNA);
+        verify(worldpayKlarnaServiceMock).isKlarnaPaymentType(NON_KLARNA);
         assertThat(result).isFalse();
     }
 
     @Test
     public void get_shouldReturnFalseWhenCodeIsNull() {
         when(paymentInfoModelMock.getApmConfiguration().getCode()).thenReturn(null);
-        when(worldpayKlarnaUtilsMock.isKlarnaPaymentType(null)).thenReturn(false);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(null)).thenReturn(false);
 
         final Boolean result = testObj.get(paymentInfoModelMock);
 
-        verify(worldpayKlarnaUtilsMock).isKlarnaPaymentType(null);
+        verify(worldpayKlarnaServiceMock).isKlarnaPaymentType(null);
         assertThat(result).isFalse();
     }
 

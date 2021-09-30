@@ -40,6 +40,8 @@
                                                action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
                                         <wp-multi-checkout:paymentButtons cse="true"/>
+
+                                        <form:input type="hidden" id="dateOfBirthRequired" path="dobRequired" value="false"/>
                                         <wp-multi-checkout:bankSelect/>
                                         <wp-multi-checkout:billingAddress/>
                                         <div class="form-additionals">

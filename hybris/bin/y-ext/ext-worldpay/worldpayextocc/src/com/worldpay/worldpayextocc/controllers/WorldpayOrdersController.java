@@ -5,6 +5,7 @@ import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
@@ -16,14 +17,18 @@ import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.CartModificationData;
 import de.hybris.platform.commercefacades.order.data.CartModificationDataList;
+import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.validators.CompositeValidator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -54,7 +59,8 @@ import static java.text.MessageFormat.format;
 @RequestMapping(value = "/{baseSiteId}")
 public class WorldpayOrdersController extends AbstractWorldpayController {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayOrdersController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayOrdersController.class);
+    private static final String FAILED_TO_PLACE_ORDER = "Failed to place Order";
 
     // Named like this in order to use the bean definition from commercewebservices
     @Resource(name = "commerceWebServicesCartFacade2")
@@ -69,6 +75,8 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     private WorldpayCartService worldpayCartService;
     @Resource
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
+    @Resource
+    private WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
 
     /**
      * Authorizes cart and places the order. Response contains the new order data.
@@ -77,20 +85,18 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
      * @param cartId
      * @param securityCode
      * @param fields
-     *
-     * @formparam cartId Cart code for logged in user, cart GUID for guest checkout
-     * @formparam securityCode CCV security code.
-     * @queryparam fields Response configuration (list of fields, which should be returned in response)
      * @return Created order data
      * @throws InvalidCartException
      * @throws NoCheckoutCartException
-     * @throws WebserviceValidationException
-     *            When the cart is not filled properly (e. g. delivery mode is not set, payment method is not set)
+     * @throws WebserviceValidationException When the cart is not filled properly (e. g. delivery mode is not set, payment method is not set)
+     * @formparam cartId Cart code for logged in user, cart GUID for guest checkout
+     * @formparam securityCode CCV security code.
+     * @queryparam fields Response configuration (list of fields, which should be returned in response)
      * @security Allowed only for customers, customer managers, clients or trusted clients. Trusted client is able to
-     *           impersonate as any customer and place order on his behalf
+     * impersonate as any customer and place order on his behalf
      */
     @Secured(
-            {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+        {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/worldpayorders")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -98,7 +104,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
                                               @RequestParam final String cartId,
                                               @RequestParam final String securityCode,
                                               @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
-            throws InvalidCartException, NoCheckoutCartException, WorldpayException {
+        throws InvalidCartException, NoCheckoutCartException, WorldpayException {
 
         cartLoaderStrategy.loadCart(cartId);
         validateCartForPlaceOrder();
@@ -111,7 +117,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     }
 
     @Secured(
-            {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+        {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/initial-payment-request")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -154,13 +160,31 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
             if (AUTHORISED.equals(transactionStatus)) {
                 return dataMapper.map(responseData.getOrderData(), OrderWsDTO.class, fields);
             } else {
-                LOG.error(format("Failed to create payment authorisation for successful 3DSecure response. Received {0} as transactionStatus", transactionStatus));
+                LOG.error("Failed to create payment authorisation for successful 3DSecure response. Received {} as transactionStatus", transactionStatus);
                 worldpayCartService.setWorldpayDeclineCodeOnCart(merchantData, responseData.getReturnCode());
             }
         } catch (WorldpayException | InvalidCartException e) {
             LOG.error(format("There was an error processing the 3d secure payment for order with worldpayOrderCode [{0}]", merchantData), e);
         }
         throw new ThreeDSecureException(format("Failed to handle authorisation for 3DSecure. Received {0} as transactionStatus", transactionStatus));
+    }
+
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST"})
+    @PostMapping(value = "/users/{userId}/carts/{cartId}/worldpayorders/place-redirect-order")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(nickname = "placeRedirectOrder", value = "Place an order for redirect APMs.", notes = "Place the order after APM success redirect. The response contains the new order data.")
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    @ResponseBody
+    public OrderWsDTO placeRedirectOrder(
+        @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields) throws WorldpayException {
+
+        try {
+            final OrderData orderData = worldpayCheckoutFacadeDecorator.placeOrder();
+            return dataMapper.map(orderData, OrderWsDTO.class, fields);
+        } catch (final InvalidCartException e) {
+            LOG.error(FAILED_TO_PLACE_ORDER, e);
+            throw new WorldpayException(FAILED_TO_PLACE_ORDER);
+        }
     }
 
     private CSEAdditionalAuthInfo createCseAdditionalAuthInfo(final String challengeWindowSize, final String dfReferenceId, final Boolean savedCard) {

@@ -1,9 +1,9 @@
 package com.worldpay.service.notification;
 
-import com.worldpay.service.model.JournalReply;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.WebformRefundReply;
-import com.worldpay.service.model.token.TokenReply;
+import com.worldpay.data.JournalReply;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.WebformRefundReply;
+import com.worldpay.data.token.TokenReply;
 
 import java.io.Serializable;
 

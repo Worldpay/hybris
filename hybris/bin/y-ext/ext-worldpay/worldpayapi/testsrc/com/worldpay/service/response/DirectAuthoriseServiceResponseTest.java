@@ -1,8 +1,8 @@
 package com.worldpay.service.response;
 
+import com.worldpay.data.Request3DInfo;
 import com.worldpay.enums.order.ThreeDSecureFlowEnum;
 import com.worldpay.enums.order.ThreeDSecureVersionEnum;
-import com.worldpay.service.model.Request3DInfo;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -16,6 +16,7 @@ public class DirectAuthoriseServiceResponseTest {
     private static final String ISSUER_PAYLOAD = "issuerPayload";
     private static final String MAJOR_3DS_VERSION1 = "1";
     private static final String MAJOR_3DS_VERSION2 = "2";
+    private static final String TRANSACTION_ID = "TransactionID";
 
     @Test
     public void get3DSecureVersionReturnsAnEmptyOptionalIfThereIsNot3DSecureInfo() {
@@ -40,7 +41,9 @@ public class DirectAuthoriseServiceResponseTest {
     @Test
     public void get3DSecureFlowWithPaRequestAndIssuerUrlReturnsTheLegacyFlow() {
         final DirectAuthoriseServiceResponse testObj = new DirectAuthoriseServiceResponse();
-        final Request3DInfo request3DInfo = new Request3DInfo(PA_REQUEST, ISSUER_URL);
+        final Request3DInfo request3DInfo = new Request3DInfo();
+        request3DInfo.setPaRequest(PA_REQUEST);
+        request3DInfo.setIssuerUrl(ISSUER_URL);
 
         testObj.setRequest3DInfo(request3DInfo);
 
@@ -52,7 +55,11 @@ public class DirectAuthoriseServiceResponseTest {
     @Test
     public void get3DSecureFlowWithIssuerUrlAnd3DMajorVersionAndIssuerPayloadAndTransactionIDReturns3DSecureFlexFlow() {
         final DirectAuthoriseServiceResponse testObj = new DirectAuthoriseServiceResponse();
-        final Request3DInfo request3DInfo = new Request3DInfo(PA_REQUEST, ISSUER_URL, MAJOR_3DS_VERSION1, ISSUER_PAYLOAD);
+        final Request3DInfo request3DInfo = new Request3DInfo();
+        request3DInfo.setIssuerUrl(ISSUER_URL);
+        request3DInfo.setMajor3DSVersion(MAJOR_3DS_VERSION1);
+        request3DInfo.setIssuerPayload(ISSUER_PAYLOAD);
+        request3DInfo.setTransactionId3DS(TRANSACTION_ID);
 
         testObj.setRequest3DInfo(request3DInfo);
 
@@ -64,7 +71,8 @@ public class DirectAuthoriseServiceResponseTest {
     @Test
     public void get3DSecureFlowWithIncompleteRequest3DInfoReturnsNull() {
         final DirectAuthoriseServiceResponse testObj = new DirectAuthoriseServiceResponse();
-        final Request3DInfo request3DInfo = new Request3DInfo(PA_REQUEST, null);
+        final Request3DInfo request3DInfo = new Request3DInfo();
+        request3DInfo.setPaRequest(PA_REQUEST);
 
         testObj.setRequest3DInfo(request3DInfo);
 

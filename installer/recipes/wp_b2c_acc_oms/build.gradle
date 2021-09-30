@@ -34,6 +34,67 @@ def platform = platform {
         property 'multicountrysampledataaddon.import.active', 'false'
         property 'ansi.colors', 'true'
         property 'testclasses.addonname', 'yacceleratorstorefront'
+
+        property 'worldpay.config.web.merchant.code.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.password.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.macSecret.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.installationId.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.statementNarrative.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.code.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.password.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.macSecret.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.installationId.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.statementNarrative.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.code.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.password.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.macSecret.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.installationId.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.iss.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.electronics', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.electronics', '<CHANGE_ME>'
+
+        property 'worldpay.config.web.merchant.code.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.password.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.installationId.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.code.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.password.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.installationId.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.code.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.password.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.installationId.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_uk', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_uk', '<CHANGE_ME>'
+
+        property 'worldpay.config.web.merchant.code.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.password.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.macSecret.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.installationId.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.code.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.password.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.macSecret.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.installationId.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.code.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.password.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.macSecret.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.installationId.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_de', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_de', '<CHANGE_ME>'
+
     }
 
     afterSetup {
@@ -64,7 +125,6 @@ def platform = platform {
 
                 'apparelstore',
                 'electronicsstore',
-                'powertoolsstore',
                 'solrserver',
 
                 'acceleratorwebservicesaddon',

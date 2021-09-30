@@ -4,9 +4,11 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Modify;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.PaymentTokenDelete;
+import com.worldpay.data.token.DeleteTokenRequest;
 import com.worldpay.service.request.DeleteTokenServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +34,9 @@ public class DeleteTokenRequestTransformerTest {
     @Mock(answer = RETURNS_DEEP_STUBS)
     private DeleteTokenServiceRequest serviceRequestMock;
     @Mock
+    private Converter<DeleteTokenRequest, PaymentTokenDelete> internalPaymentTokenDeleteConverter;
+
+    @Mock
     private PaymentTokenDelete paymentTokenDeleteMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
@@ -48,7 +53,7 @@ public class DeleteTokenRequestTransformerTest {
 
     @Test
     public void shouldReturnPaymentServiceWithPaymentTokenDelete() throws Exception {
-        when(serviceRequestMock.getDeleteTokenRequest().transformToInternalModel()).thenReturn(paymentTokenDeleteMock);
+        when(internalPaymentTokenDeleteConverter.convert(serviceRequestMock.getDeleteTokenRequest())).thenReturn(paymentTokenDeleteMock);
         when(serviceRequestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
 
         final PaymentService result = testObj.transform(serviceRequestMock);

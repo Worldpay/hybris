@@ -1,6 +1,7 @@
 package com.worldpay.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -10,7 +11,7 @@ import javax.xml.bind.JAXBException;
  */
 public class WorldpayConstants {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayConstants.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayConstants.class);
 
     private WorldpayConstants() {
     }

@@ -15,6 +15,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.UUID;
 
 import static com.worldpay.worldpayresponsemock.builders.AddressBuilder.anAddressBuilder;
 import static com.worldpay.worldpayresponsemock.builders.AmountBuilder.anAmountBuilder;
@@ -127,7 +128,31 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
             .withTransactionIdentifier(responseForm.getTransactionIdentifier())
             .build();
         populateAavFields(responseForm, payment);
+        populateFraudSight(responseForm, payment);
+
         return payment;
+    }
+
+    private void populateFraudSight(final ResponseForm responseForm, final Payment payment) {
+        if (responseForm.isUseFraudSight()) {
+            final FraudSight fraudSight = new FraudSight();
+            fraudSight.setId(UUID.randomUUID().toString());
+            fraudSight.setMessage(responseForm.getFraudSightMessage());
+            fraudSight.setScore(String.valueOf(responseForm.getFraudSightScore()));
+
+            final ReasonCodes reasonCodes = new ReasonCodes();
+
+            responseForm.getFraudSightReasonCodes()
+                .forEach(reasonCodeValue -> {
+                    final ReasonCode reasonCode = new ReasonCode();
+                    reasonCode.setvalue(reasonCodeValue);
+                    reasonCodes.getReasonCode().add(reasonCode);
+                });
+
+            fraudSight.setReasonCodes(reasonCodes);
+
+            payment.setFraudSight(fraudSight);
+        }
     }
 
     private void populateAavFields(final ResponseForm responseForm, final Payment payment) {

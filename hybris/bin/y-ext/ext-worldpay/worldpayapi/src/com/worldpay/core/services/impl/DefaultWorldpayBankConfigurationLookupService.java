@@ -6,7 +6,6 @@ import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.model.WorldpayBankConfigurationModel;
 import de.hybris.platform.servicelayer.internal.dao.GenericDao;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,8 +18,14 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  */
 public class DefaultWorldpayBankConfigurationLookupService implements WorldpayBankConfigurationLookupService {
 
-    private APMConfigurationLookupService apmConfigurationLookupService;
-    private GenericDao<WorldpayBankConfigurationModel> worldpayBankConfigurationGenericDao;
+    protected final APMConfigurationLookupService apmConfigurationLookupService;
+    protected final GenericDao<WorldpayBankConfigurationModel> worldpayBankConfigurationGenericDao;
+
+    public DefaultWorldpayBankConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService,
+                                                         final GenericDao<WorldpayBankConfigurationModel> worldpayBankConfigurationGenericDao) {
+        this.apmConfigurationLookupService = apmConfigurationLookupService;
+        this.worldpayBankConfigurationGenericDao = worldpayBankConfigurationGenericDao;
+    }
 
     /**
      * {@inheritDoc}
@@ -50,15 +55,5 @@ public class DefaultWorldpayBankConfigurationLookupService implements WorldpayBa
         }
         final List<WorldpayBankConfigurationModel> bankList = worldpayBankConfigurationGenericDao.find(ImmutableMap.of(WorldpayBankConfigurationModel.CODE, bankCode));
         return bankList.get(0);
-    }
-
-    @Required
-    public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
-        this.apmConfigurationLookupService = apmConfigurationLookupService;
-    }
-
-    @Required
-    public void setWorldpayBankConfigurationGenericDao(final GenericDao<WorldpayBankConfigurationModel> worldpayBankConfigurationGenericDao) {
-        this.worldpayBankConfigurationGenericDao = worldpayBankConfigurationGenericDao;
     }
 }

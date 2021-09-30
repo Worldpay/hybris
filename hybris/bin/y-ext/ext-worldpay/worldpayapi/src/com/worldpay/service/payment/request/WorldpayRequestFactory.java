@@ -3,7 +3,7 @@ package com.worldpay.service.payment.request;
 import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.*;
 import com.worldpay.service.response.CreateTokenResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;

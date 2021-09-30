@@ -1,6 +1,6 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.model.token.UpdateTokenReply;
+import com.worldpay.data.token.UpdateTokenReply;
 
 public class UpdateTokenResponse extends AbstractServiceResponse {
 

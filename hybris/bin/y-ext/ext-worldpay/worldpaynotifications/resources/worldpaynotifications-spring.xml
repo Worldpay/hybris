@@ -11,7 +11,7 @@
            alias="worldpayAuthorizedPaymentTransactionTypeStrategy"/>
     <bean id="defaultWorldpayAuthorizedPaymentTransactionTypeStrategy"
           class="com.worldpay.strategies.paymenttransaction.impl.DefaultWorldpayAuthorizedPaymentTransactionTypeStrategy">
-        <constructor-arg name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
+        <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
         <constructor-arg name="worldpayPaymentTransactionService" ref="defaultWorldpayPaymentTransactionService"/>
     </bean>
 
@@ -21,16 +21,14 @@
           class="com.worldpay.strategies.paymenttransaction.impl.DefaultWorldpayRefundedPaymentTransactionTypeStrategy">
         <constructor-arg name="worldpayOrderModificationRefundProcessStrategy"
                          ref="worldpayOrderModificationRefundProcessStrategy"/>
-        <constructor-arg name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
         <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
-        <constructor-arg name="orderModificationSerialiser" ref="orderModificationSerialiser"/>
     </bean>
 
     <alias name="defaultWorldpayRefusedPaymentTransactionTypeStrategy"
            alias="worldpayRefusedPaymentTransactionTypeStrategy"/>
     <bean id="defaultWorldpayRefusedPaymentTransactionTypeStrategy"
           class="com.worldpay.strategies.paymenttransaction.impl.DefaultWorldpayRefusedPaymentTransactionTypeStrategy">
-        <constructor-arg name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
+        <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
     </bean>
 
     <alias name="defaultWorldpaySettledPaymentTransactionTypeStrategy"
@@ -38,8 +36,13 @@
     <bean id="defaultWorldpaySettledPaymentTransactionTypeStrategy"
           class="com.worldpay.strategies.paymenttransaction.impl.DefaultWorldpaySettledPaymentTransactionTypeStrategy">
         <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
-        <constructor-arg name="orderModificationSerialiser" ref="orderModificationSerialiser"/>
-        <constructor-arg name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
+    </bean>
+
+    <alias name="defaultWorldpayVoidedPaymentTransactionTypeStrategy"
+           alias="worldpayVoidedPaymentTransactionTypeStrategy"/>
+    <bean id="defaultWorldpayVoidedPaymentTransactionTypeStrategy"
+          class="com.worldpay.strategies.paymenttransaction.impl.DefaultWorldpayVoidedPaymentTransactionTypeStrategy">
+        <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
     </bean>
 
     <util:map id="worldpayPaymentTransactionTypeStrategiesMap"
@@ -49,24 +52,32 @@
         <entry key="AUTHORIZATION" value-ref="worldpayAuthorizedPaymentTransactionTypeStrategy"/>
         <entry key="SETTLED" value-ref="worldpaySettledPaymentTransactionTypeStrategy"/>
         <entry key="REFUND_FOLLOW_ON" value-ref="worldpayRefundedPaymentTransactionTypeStrategy"/>
+        <entry key="VOIDED" value-ref="worldpayVoidedPaymentTransactionTypeStrategy"/>
     </util:map>
+
+    <util:list id="worldpayNotRefusedPaymentTransactionTypeStrategiesList" value-type="de.hybris.platform.payment.enums.PaymentTransactionType">
+        <value>REFUND_FOLLOW_ON</value>
+        <value>SETTLED</value>
+        <value>VOIDED</value>
+    </util:list>
 
     <alias name="worldpayOrderModificationProcessService" alias="orderModificationProcessStrategy"/>
     <bean id="worldpayOrderModificationProcessService"
           class="com.worldpay.core.services.impl.DefaultWorldpayOrderModificationProcessService">
-        <constructor-arg name="orderModificationDao" ref="orderModificationDao"/>
-        <constructor-arg name="orderModificationSerialiser" ref="orderModificationSerialiser"/>
+        <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
         <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
         <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
         <constructor-arg name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
         <constructor-arg name="worldpayPlaceOrderFromNotificationStrategy" ref="worldpayPlaceOrderFromNotificationStrategy"/>
         <constructor-arg name="worldpayPaymentTransactionTypeStrategiesMap" ref="worldpayPaymentTransactionTypeStrategiesMap"/>
+        <constructor-arg name="worldpayNotRefusedPaymentTransactionTypeStrategiesList" ref="worldpayNotRefusedPaymentTransactionTypeStrategiesList"/>
     </bean>
 
     <alias name="defaultWorldpayOrderModificationRefundProcessStrategy" alias="worldpayOrderModificationRefundProcessStrategy"/>
     <bean id="defaultWorldpayOrderModificationRefundProcessStrategy" class="com.worldpay.strategies.impl.DefaultWorldpayOrderModificationRefundProcessStrategy">
         <constructor-arg name="businessProcessService" ref="businessProcessService"/>
         <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
     </bean>
 
     <alias name="worldpayOrderModificationCleanUpStrategy" alias="orderModificationCleanUpStrategy"/>
@@ -82,6 +93,7 @@
         <constructor-arg name="orderModificationDao" ref="orderModificationDao"/>
         <constructor-arg name="l10nService" ref="l10nService"/>
         <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayHybrisOrderService" ref="worldpayHybrisOrderService"/>
     </bean>
 
     <alias name="defaultPaymentTransactionRejectionStrategy" alias="paymentTransactionRejectionStrategy"/>
@@ -93,10 +105,10 @@
     </bean>
 
     <bean id="orderModificationListener" class="com.worldpay.worldpaynotifications.listener.WorldpayOrderModificationListener" parent="abstractEventListener">
-        <property name="modelService" ref="modelService"/>
-        <property name="paymentTransactionTypeMap" ref="paymentTransactionTypeMap"/>
-        <property name="orderModificationSerialiser" ref="orderModificationSerialiser"/>
-        <property name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="paymentTransactionTypeMap" ref="paymentTransactionTypeMap"/>
+        <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
     </bean>
 
     <bean id="orderModificationProcessorJobPerformable" class="com.worldpay.cronjob.OrderModificationProcessorJobPerformable" parent="abstractJobPerformable">
@@ -109,11 +121,11 @@
         <property name="worldpayOrderModificationCleanUpStrategy" ref="orderModificationCleanUpStrategy"/>
     </bean>
     <bean id="paymentInfoInquiryJobPerformable" class="com.worldpay.cronjob.PaymentInfoInquiryJobPerformable" parent="abstractJobPerformable">
-        <property name="orderInquiryService" ref="orderInquiryService"/>
-        <property name="worldpayPaymentTransactionDao" ref="paymentTransactionDao"/>
-        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
-        <property name="configurationService" ref="configurationService"/>
-        <property name="paymentTransactionRejectionStrategy" ref="paymentTransactionRejectionStrategy"/>
+        <constructor-arg name="orderInquiryService" ref="orderInquiryService"/>
+        <constructor-arg name="worldpayPaymentTransactionDao" ref="paymentTransactionDao"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="paymentTransactionRejectionStrategy" ref="paymentTransactionRejectionStrategy"/>
     </bean>
 
     <bean id="apmOrderTimeoutJobPerformable" class="com.worldpay.cronjob.APMOrderTimeoutJobPerformable" parent="abstractJobPerformable">
@@ -138,29 +150,28 @@
     <alias name="defaultProcessDefinitionDao" alias="processDefinitionDao"/>
     <bean id="defaultProcessDefinitionDao" class="com.worldpay.dao.impl.DefaultProcessDefinitionDao" parent="abstractItemDao"/>
 
-    <alias name="defaultOrderModificationSerialiser" alias="orderModificationSerialiser"/>
-    <bean id="defaultOrderModificationSerialiser" class="com.worldpay.util.impl.DefaultOrderModificationSerialiser"/>
-
     <!-- Order Notification Service -->
     <alias alias="orderNotificationService" name="defaultOrderNotificationService"/>
     <bean id="defaultOrderNotificationService" class="com.worldpay.core.services.impl.DefaultOrderNotificationService">
         <constructor-arg name="worldpayPaymentTransactionDao" ref="paymentTransactionDao"/>
         <constructor-arg name="journalTypeToNotificationProcessorStrategyMap" ref="journalTypeToNotificationProcessorStrategyMap"/>
-        <constructor-arg name="worldpayAuthenticatedShopperIdStrategy" ref="worldpayAuthenticatedShopperIdStrategy"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
         <constructor-arg name="orderModificationDao" ref="orderModificationDao"/>
+        <constructor-arg name="modelService" ref="modelService"/>
     </bean>
 
     <alias alias="authorisedOrderNotificationProcessorStrategy" name="defaultAuthorisedOrderNotificationProcessorStrategy"/>
     <bean id="defaultAuthorisedOrderNotificationProcessorStrategy" class="com.worldpay.notification.processors.impl.DefaultAuthorisedOrderNotificationProcessorStrategy">
         <constructor-arg name="modelService" ref="modelService"/>
-        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
-        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
         <constructor-arg name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="txManager"/>
             </bean>
         </constructor-arg>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
         <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
     </bean>
 
     <alias alias="capturedOrderNotificationProcessorStrategy" name="defaultCapturedOrderNotificationProcessorStrategy"/>
@@ -172,7 +183,7 @@
         </constructor-arg>
         <constructor-arg name="modelService" ref="modelService"/>
         <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
-        <constructor-arg name="worldpayKlarnaUtils" ref="worldpayKlarnaUtils"/>
+        <constructor-arg name="worldpayKlarnaService" ref="worldpayKlarnaService"/>
     </bean>
 
     <alias alias="refusedOrderNotificationProcessorStrategy" name="defaultRefusedOrderNotificationProcessorStrategy"/>
@@ -198,6 +209,17 @@
         <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
     </bean>
 
+    <alias alias="voidedOrderNotificationProcessorStrategy" name="defaultVoidedOrderNotificationProcessorStrategy"/>
+    <bean id="defaultVoidedOrderNotificationProcessorStrategy" class="com.worldpay.notification.processors.impl.DefaultVoidedOrderNotificationProcessorStrategy">
+        <constructor-arg name="transactionTemplate">
+            <bean class="org.springframework.transaction.support.TransactionTemplate">
+                <property name="transactionManager" ref="txManager"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
     <util:map id="journalTypeToNotificationProcessorStrategyMap"
               key-type="com.worldpay.enums.order.AuthorisedStatus"
               value-type="com.worldpay.notification.processors.OrderNotificationProcessorStrategy">
@@ -205,6 +227,7 @@
         <entry key="CAPTURED" value-ref="capturedOrderNotificationProcessorStrategy"/>
         <entry key="REFUSED" value-ref="refusedOrderNotificationProcessorStrategy"/>
         <entry key="REFUNDED" value-ref="refundedOrderNotificationProcessorStrategy"/>
+        <entry key="VOIDED" value-ref="voidedOrderNotificationProcessorStrategy"/>
     </util:map>
 
     <alias name="defaultWorldpayCronJobSupportInformationService" alias="worldpayCronJobSupportInformationService"/>
@@ -231,7 +254,6 @@
 
     <bean id="worldpayOrderNotificationHandler"
           class="com.worldpay.notification.processors.DefaultWorldpayOrderNotificationHandler">
-        <constructor-arg name="modelService" ref="modelService"/>
         <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
         <constructor-arg name="processDefinitionDao" ref="processDefinitionDao"/>
         <constructor-arg name="nonTriggeringOrderStatuses" ref="nonBusinessProcessTriggeringOrderStatuses"/>
@@ -240,14 +262,13 @@
 
     <bean id="worldpayPlaceOrderFromNotificationStrategy"
           class="com.worldpay.strategies.impl.DefaultWorldpayPlaceOrderFromNotificationStrategy">
-        <property name="worldpayOrderNotificationHandler" ref="worldpayOrderNotificationHandler"/>
-        <property name="modelService" ref="modelService"/>
-        <property name="orderModificationSerialiser" ref="orderModificationSerialiser"/>
-        <property name="commerceCheckoutService" ref="commerceCheckoutService"/>
-        <property name="cartService" ref="cartService"/>
-        <property name="impersonationService" ref="impersonationService"/>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
-        <property name="worldpayRedirectOrderService" ref="worldpayRedirectOrderService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="orderNotificationService" ref="orderNotificationService"/>
+        <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="impersonationService" ref="impersonationService"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayRedirectOrderService" ref="worldpayRedirectOrderService"/>
     </bean>
 
 

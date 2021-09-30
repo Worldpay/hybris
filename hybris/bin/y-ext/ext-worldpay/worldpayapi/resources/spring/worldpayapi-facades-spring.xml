@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias name="defaultWorldpayMerchantConfigDataFacade" alias="worldpayMerchantConfigDataFacade"/>
+    <bean id="defaultWorldpayMerchantConfigDataFacade"
+          class="com.worldpay.facades.payment.merchant.impl.DefaultWorldpayMerchantConfigDataFacade">
+        <constructor-arg name="worldpayMerchantStrategy" ref="worldpayMerchantStrategy"/>
+        <constructor-arg name="worldPayMerchantConfigDataConverter" ref="worldPayMerchantConfigDataConverter"/>
+    </bean>
+
+    <alias name="defaultWorldpayPaymentCheckoutFacade" alias="worldpayPaymentCheckoutFacade"/>
+    <bean id="defaultWorldpayPaymentCheckoutFacade"
+          class="com.worldpay.facades.order.impl.DefaultWorldpayPaymentCheckoutFacade">
+        <constructor-arg name="checkoutFacade" ref="checkoutFacade"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="customerAccountService" ref="customerAccountService"/>
+        <constructor-arg name="worldpayCheckoutService" ref="worldpayCheckoutService"/>
+        <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
+    </bean>
+
+    <alias name="defaultWorldpayApplePayPaymentCheckoutFacade" alias="worldpayApplePayPaymentCheckoutFacade"/>
+    <bean id="defaultWorldpayApplePayPaymentCheckoutFacade"
+          class="com.worldpay.facades.order.impl.DefaultWorldpayApplePayPaymentCheckoutFacade">
+        <property name="i18NFacade" ref="i18NFacade"/>
+        <property name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
+        <property name="userFacade" ref="userFacade"/>
+        <property name="worldpayPaymentCheckoutFacade" ref="worldpayPaymentCheckoutFacade"/>
+        <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <property name="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"
+                  ref="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"/>
+    </bean>
+
+    <alias name="defaultWorldpayKlarnaPaymentCheckoutFacade" alias="worldpayKlarnaPaymentCheckoutFacade"/>
+    <bean id="defaultWorldpayKlarnaPaymentCheckoutFacade"
+          class="com.worldpay.facades.order.impl.DefaultWorldpayKlarnaPaymentCheckoutFacade">
+        <property name="checkoutFacade" ref="checkoutFacade"/>
+        <property name="cartService" ref="cartService"/>
+        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <property name="orderInquiryService" ref="orderInquiryService"/>
+        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+    </bean>
+
+    <alias name="worldpayCheckoutFacadeDecorator" alias="worldpayCheckoutFacade"/>
+    <bean id="worldpayCheckoutFacadeDecorator" class="com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator">
+        <constructor-arg name="checkoutFlowFacade" ref="checkoutFlowFacade"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="addressConverter" ref="addressConverter"/>
+        <constructor-arg name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
+        <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
+    </bean>
+
+    <alias name="defaultAPMAvailabilityFacade" alias="apmAvailabilityFacade"/>
+    <bean id="defaultAPMAvailabilityFacade" class="com.worldpay.facades.impl.DefaultAPMAvailabilityFacade">
+        <constructor-arg name="apmAvailabilityService" ref="apmAvailabilityService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+    </bean>
+
+    <alias name="defaultWorldpayHostedOrderFacade" alias="worldpayHostedOrderFacade"/>
+    <bean id="defaultWorldpayHostedOrderFacade"
+          class="com.worldpay.facades.payment.hosted.impl.DefaultWorldpayHostedOrderFacade">
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="sessionService" ref="sessionService"/>
+        <constructor-arg name="worldpayOrderInfoStrategy" ref="worldpayOrderInfoStrategy"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="worldpayRedirectOrderService" ref="worldpayRedirectOrderService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+    </bean>
+
+    <alias name="defaultWorldpayAfterRedirectValidationFacade" alias="worldpayAfterRedirectValidationFacade"/>
+    <bean id="defaultWorldpayAfterRedirectValidationFacade"
+          class="com.worldpay.facades.payment.hosted.impl.DefaultWorldpayAfterRedirectValidationFacade">
+        <constructor-arg name="sessionService" ref="sessionService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="worldpayAfterRedirectValidationService" ref="worldpayAfterRedirectValidationService"/>
+    </bean>
+
+    <alias name="defaultWorldpayBankConfigurationFacade" alias="worldpayBankConfigurationFacade"/>
+    <bean id="defaultWorldpayBankConfigurationFacade"
+          class="com.worldpay.facades.impl.DefaultWorldpayBankConfigurationFacade">
+        <constructor-arg name="worldpayBankConfigurationLookupService" ref="worldpayBankConfigurationLookupService"/>
+        <constructor-arg name="bankConfigurationModelBankConfigurationDataConverter"
+                         ref="bankConfigurationModelBankConfigurationDataConverter"/>
+        <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+    </bean>
+
+    <alias name="defaultWorldpayAdditionalInfoFacade" alias="worldpayAdditionalInfoFacade"/>
+    <bean id="defaultWorldpayAdditionalInfoFacade"
+          class="com.worldpay.facades.payment.impl.DefaultWorldpayAdditionalInfoFacade">
+        <constructor-arg name="worldpayAdditionalInfoService" ref="worldpayAdditionalInfoService"/>
+    </bean>
+
+    <alias name="defaultWorldpayCartFacade" alias="worldpayCartFacade"/>
+    <bean id="defaultWorldpayCartFacade" class="com.worldpay.facades.impl.DefaultWorldpayCartFacade">
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="addressService" ref="addressService"/>
+    </bean>
+
+    <alias name="defaultWorldpayAPMComponentFacade" alias="worldpayAPMComponentFacade"/>
+    <bean id="defaultWorldpayAPMComponentFacade" class="com.worldpay.facades.impl.DefaultWorldpayAPMComponentFacade">
+        <constructor-arg name="worldpayAPMComponentService" ref="worldpayAPMComponentService"/>
+        <constructor-arg name="worldpayAPMComponentConverter" ref="worldpayAPMComponentConverter"/>
+    </bean>
+
+    <alias name="defaultWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>
+    <bean id="defaultWorldpayDirectOrderFacade"
+          class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayDirectOrderFacade">
+        <constructor-arg name="worldpayDirectOrderService" ref="worldpayDirectOrderService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="apmPaymentInfoPopulator" ref="apmPaymentInfoPopulator"/>
+    </bean>
+
+    <alias name="defaultWorldpayDirectResponseFacade" alias="worldpayDirectResponseFacade"/>
+    <bean id="defaultWorldpayDirectResponseFacade"
+          class="com.worldpay.facades.impl.DefaultWorldpayDirectResponseFacade">
+        <constructor-arg ref="worldpayDirectResponseService"/>
+        <constructor-arg ref="worldpayCheckoutFacade"/>
+        <constructor-arg ref="worldpayUrlService"/>
+        <constructor-arg ref="worldpayJsonWebTokenService"/>
+        <constructor-arg ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg ref="worldpaySessionService"/>
+    </bean>
+
+    <alias name="defaultWorldpayDDCFacade" alias="worldpayDDCFacade"/>
+    <bean id="defaultWorldpayDDCFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayDDCFacade">
+        <constructor-arg name="worldpayJsonWebTokenService" ref="worldpayJsonWebTokenService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+    </bean>
+
+    <alias name="defaultWorldpayUserFacade" alias="userFacade"/>
+    <bean id="defaultWorldpayUserFacade" class="com.worldpay.facades.impl.DefaultWorldpayUserFacade">
+        <constructor-arg name="apmPaymentInfoConverter" ref="apmPaymentInfoConverter"/>
+        <constructor-arg name="userFacade" ref="defaultUserFacade"/>
+        <constructor-arg name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
+        <constructor-arg name="creditCardPaymentInfoConverter" ref="creditCardPaymentInfoConverter"/>
+        <constructor-arg name="customerAccountService" ref="worldpayCustomerAccountService"/>
+    </bean>
+
+</beans>

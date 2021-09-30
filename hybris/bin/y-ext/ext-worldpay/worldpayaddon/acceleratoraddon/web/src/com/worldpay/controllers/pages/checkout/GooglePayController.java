@@ -16,7 +16,8 @@ import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,7 @@ import java.text.MessageFormat;
 @RequestMapping(value = "/checkout/multi/worldpay/googlepay")
 public class GooglePayController extends AbstractCheckoutController {
 
-    private static final Logger LOG = Logger.getLogger(GooglePayController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GooglePayController.class);
 
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
@@ -81,7 +82,7 @@ public class GooglePayController extends AbstractCheckoutController {
         if (region != null) {
             addressData.setRegion(region);
         } else {
-            LOG.debug(MessageFormat.format("Failed to determine region from country {0} and region code {1}", countryIsoCode, administrativeArea));
+            LOG.debug("Failed to determine region from country {} and region code {}", countryIsoCode, administrativeArea);
         }
 
     }

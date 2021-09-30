@@ -1,13 +1,14 @@
 package com.worldpay.service.request;
 
+import com.worldpay.data.*;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.payment.StoredCredentials;
+import com.worldpay.data.threeds2.Additional3DSData;
+import com.worldpay.data.threeds2.RiskData;
+import com.worldpay.data.token.TokenRequest;
+import com.worldpay.enums.PaymentAction;
 import com.worldpay.enums.order.DynamicInteractionType;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.payment.Payment;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.payment.StoredCredentials;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.threeds2.RiskData;
-import com.worldpay.service.model.token.TokenRequest;
 
 import java.util.List;
 
@@ -32,6 +33,11 @@ public final class AuthoriseRequestParameters {
     private String installationId;
     private String orderContent;
     private List<PaymentMethodAttribute> paymentMethodAttributes;
+    private FraudSightData fraudSightData;
+    private String deviceSession;
+    private PaymentAction action;
+    private BranchSpecificExtension branchSpecificExtension;
+    private String mandateType;
 
     private AuthoriseRequestParameters() {
     }
@@ -92,12 +98,12 @@ public final class AuthoriseRequestParameters {
         return tokenRequest;
     }
 
-    public void setIncludedPTs(final List<PaymentType> includedPTs) {
-        this.includedPTs = includedPTs;
-    }
-
     public List<PaymentType> getIncludedPTs() {
         return includedPTs;
+    }
+
+    public void setIncludedPTs(final List<PaymentType> includedPTs) {
+        this.includedPTs = includedPTs;
     }
 
     public String getInstallationId() {
@@ -138,6 +144,46 @@ public final class AuthoriseRequestParameters {
 
     public void setPaymentMethodAttributes(List<PaymentMethodAttribute> paymentMethodAttributes) {
         this.paymentMethodAttributes = paymentMethodAttributes;
+    }
+
+    public FraudSightData getFraudSightData() {
+        return fraudSightData;
+    }
+
+    public void setFraudSightData(final FraudSightData fraudSightData) {
+        this.fraudSightData = fraudSightData;
+    }
+
+    public String getDeviceSession() {
+        return deviceSession;
+    }
+
+    public void setDeviceSession(final String deviceSession) {
+        this.deviceSession = deviceSession;
+    }
+
+    public PaymentAction getAction() {
+        return action;
+    }
+
+    public void setAction(final PaymentAction action) {
+        this.action = action;
+    }
+
+    public BranchSpecificExtension getBranchSpecificExtension() {
+        return branchSpecificExtension;
+    }
+
+    public void setBranchSpecificExtension(final BranchSpecificExtension branchSpecificExtension) {
+        this.branchSpecificExtension = branchSpecificExtension;
+    }
+
+    public String getMandateType() {
+        return mandateType;
+    }
+
+    public void setMandateType(final String mandateType) {
+        this.mandateType = mandateType;
     }
 
     public interface AuthoriseRequestParametersCreator {
@@ -181,6 +227,16 @@ public final class AuthoriseRequestParameters {
 
         AuthoriseRequestParametersCreator withPaymentMethodAttributes(List<PaymentMethodAttribute> paymentMethodAttributes);
 
+        AuthoriseRequestParametersCreator withFraudSightData(FraudSightData fraudSightData);
+
+        AuthoriseRequestParametersCreator withDeviceSession(String deviceSession);
+
+        AuthoriseRequestParametersCreator withPaymentDetailsAction(PaymentAction action);
+
+        AuthoriseRequestParametersCreator withLevel23Data(BranchSpecificExtension branchSpecificExtension);
+
+        AuthoriseRequestParametersCreator withMandateType(String mandateType);
+
         AuthoriseRequestParameters build();
     }
 
@@ -206,6 +262,11 @@ public final class AuthoriseRequestParameters {
         private List<PaymentType> excludedPTs;
         private String orderContent;
         private List<PaymentMethodAttribute> paymentMethodAttributes;
+        private FraudSightData fraudSightData;
+        private String deviceSession;
+        private PaymentAction action;
+        private BranchSpecificExtension branchSpecificExtension;
+        private String mandateType;
 
         private AuthoriseRequestParametersBuilder() {
         }
@@ -340,8 +401,38 @@ public final class AuthoriseRequestParameters {
         }
 
         @Override
+        public AuthoriseRequestParametersCreator withFraudSightData(final FraudSightData fraudSightData) {
+            this.fraudSightData = fraudSightData;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withDeviceSession(final String deviceSession) {
+            this.deviceSession = deviceSession;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withPaymentDetailsAction(final PaymentAction action) {
+            this.action = action;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withLevel23Data(final BranchSpecificExtension branchSpecificExtension) {
+            this.branchSpecificExtension = branchSpecificExtension;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withMandateType(final String mandateType) {
+            this.mandateType = mandateType;
+            return this;
+        }
+
+        @Override
         public AuthoriseRequestParameters build() {
-            AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
+            final AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
 
             parameters.merchantInfo = merchantInfo;
             parameters.orderInfo = orderInfo;
@@ -363,6 +454,11 @@ public final class AuthoriseRequestParameters {
             parameters.excludedPTs = excludedPTs;
             parameters.orderContent = orderContent;
             parameters.paymentMethodAttributes = paymentMethodAttributes;
+            parameters.fraudSightData = fraudSightData;
+            parameters.deviceSession = deviceSession;
+            parameters.action = action;
+            parameters.branchSpecificExtension = branchSpecificExtension;
+            parameters.mandateType = mandateType;
 
             return parameters;
         }
@@ -391,6 +487,11 @@ public final class AuthoriseRequestParameters {
             ", installationId='" + installationId + '\'' +
             ", orderContent='" + orderContent + '\'' +
             ", paymentMethodAttributes=" + paymentMethodAttributes +
+            ", fraudSightData='" + fraudSightData + '\'' +
+            ", deviceSession='" + deviceSession + '\'' +
+            ", level23data='" + branchSpecificExtension + '\'' +
+            ", mandateType='" + mandateType + '\'' +
+            ", action=" + action.name() +
             '}';
     }
 }

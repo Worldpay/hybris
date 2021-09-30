@@ -1,1 +1,1 @@
-worldpay-core-*.jar
+dtd-conversion/*.jar

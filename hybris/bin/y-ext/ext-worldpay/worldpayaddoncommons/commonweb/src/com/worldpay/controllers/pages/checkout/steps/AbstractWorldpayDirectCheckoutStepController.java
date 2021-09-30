@@ -23,6 +23,9 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
     protected static final String THREEDSECURE_FLEX_DDC_URL = "threeDSecureDDCUrl";
     protected static final String THREED_SECURE_FLEX_FLOW = "3D-Secure-Flex-Flow";
     protected static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
+    protected static final String BIRTH_DAY_DATE_FORMAT = "dd/MM/yyyy";
+    protected static final String BIRTHDAY_DATE = "birthdayDate";
+    protected static final String DEVICE_SESSION = "DEVICE_SESSION";
 
     @Resource
     protected WorldpayAddonEndpointService worldpayAddonEndpointService;
@@ -66,9 +69,9 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
 
     public void setDDCIframeData(final Model model) {
         final String ddcUrl = Optional.ofNullable(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData())
-                .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
-                .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
-                .orElse(null);
+            .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
+            .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
+            .orElse(null);
         model.addAttribute(THREEDSECURE_FLEX_DDC_URL, ddcUrl);
         model.addAttribute(THREEDSECURE_JWT_FLEX_DDC, worldpayDDCFacade.createJsonWebTokenForDDC());
     }

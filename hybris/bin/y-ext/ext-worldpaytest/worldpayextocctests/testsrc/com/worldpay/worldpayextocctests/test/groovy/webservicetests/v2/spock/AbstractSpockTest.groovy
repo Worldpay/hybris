@@ -2,7 +2,6 @@ package com.worldpay.worldpayextocctests.test.groovy.webservicetests.v2.spock
 
 import com.worldpay.worldpayextocctests.test.groovy.webservicetests.config.TestConfigFactory
 import de.hybris.platform.commercewebservicestests.test.groovy.webservicetests.SSLIssuesIgnoringHttpClientFactory
-
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
 import org.apache.commons.logging.LogFactory

@@ -86,7 +86,6 @@
                                                        action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
                                                 <wp-multi-checkout:paymentButtons cse="false"/>
-                                                <wp-multi-checkout:bankSelect/>
 
                                                 <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
                                                     <div class="save_payment_details checkbox">
@@ -96,6 +95,8 @@
                                                         </label>
                                                     </div>
                                                 </sec:authorize>
+
+                                                <wp-multi-checkout:dateOfBirthInput/>
 
                                                 <wp-multi-checkout:billingAddress/>
                                                 <div class="form-additionals">

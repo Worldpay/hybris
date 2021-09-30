@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="worldpayPaymentInfoIsApmHandler" class="com.worldpay.attributehandlers.WorldpayPaymentInfoIsApmHandler">
+        <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+    </bean>
+
+    <bean id="worldpayAPMPaymentInfoIsKlarnaPaymentTypeCodeDynamicAttributeHandler"
+          class="com.worldpay.attributehandlers.WorldpayAPMPaymentInfoIsKlarnaPaymentTypeCodeDynamicAttributeHandler">
+        <constructor-arg name="worldpayKlarnaService" ref="worldpayKlarnaService"/>
+    </bean>
+
+    <alias name="worldpayDynamicAttributesOrderStatusDisplayByMap" alias="dynamicAttributesOrderStatusDisplay"/>
+    <bean id="worldpayDynamicAttributesOrderStatusDisplayByMap"
+          class="com.worldpay.core.checkout.attribute.WorldpayOrderStatusDisplayDynamicAttributeHandler"
+          parent="acceleratorDynamicAttributesOrderStatusDisplayByMap">
+        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    </bean>
+
+</beans>

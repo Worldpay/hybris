@@ -4,7 +4,7 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.Session;
 import com.worldpay.internal.model.Submit;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.SecondThreeDSecurePaymentRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
@@ -30,6 +30,8 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
     private static final String MERCHANT_INFO_CODE = "merchant_info_code";
     private static final String ORDER_CODE = "order_code";
     private static final String VERSION = "1.4";
+    private static final String MERCHANT_CODE = "MERCHANT_CODE";
+    private static final String MERCHANT_PASSWORD = "MERCHANT_PASSWORD";
 
     @InjectMocks
     private SecondThreeDSecurePaymentRequestTransformer testObj;
@@ -78,7 +80,10 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
 
     @Test
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentService() throws WorldpayModelTransformationException {
-        final MerchantInfo merchantInfo = new MerchantInfo("MERCHANT_CODE", "MERCHANT_PASSWORD");
+        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
+        merchantInfo.setMerchantCode(MERCHANT_CODE);
+
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfo);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_INFO_CODE);
         when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
@@ -94,7 +99,7 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
         assertEquals("Incorrect orderCode", ORDER_CODE, orderCode);
         assertEquals(merchantInfo.getMerchantCode(), result.getMerchantCode());
         assertEquals(VERSION, result.getVersion());
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrInfo3DSecureOrSession();
         final Session session = (Session) orderElements.get(1);
         assertEquals(SESSION_ID, session.getId());
     }

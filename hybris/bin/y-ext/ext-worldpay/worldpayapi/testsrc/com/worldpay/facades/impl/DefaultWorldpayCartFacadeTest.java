@@ -24,6 +24,7 @@ public class DefaultWorldpayCartFacadeTest {
 
     @InjectMocks
     private DefaultWorldpayCartFacade testObj;
+
     @Mock
     private WorldpayCartService worldpayCartServiceMock;
     @Mock

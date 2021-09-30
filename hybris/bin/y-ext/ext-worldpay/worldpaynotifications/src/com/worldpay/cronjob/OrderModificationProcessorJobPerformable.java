@@ -6,9 +6,9 @@ import de.hybris.platform.cronjob.enums.CronJobResult;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.servicelayer.cronjob.AbstractJobPerformable;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.util.Set;
 
 import static de.hybris.platform.cronjob.enums.CronJobResult.ERROR;
@@ -22,7 +22,7 @@ public class OrderModificationProcessorJobPerformable extends AbstractJobPerform
 
     protected final WorldpayOrderModificationProcessService worldpayOrderModificationProcessService;
 
-    private static final Logger LOG = Logger.getLogger(OrderModificationProcessorJobPerformable.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OrderModificationProcessorJobPerformable.class);
 
     public OrderModificationProcessorJobPerformable(final WorldpayOrderModificationProcessService worldpayOrderModificationProcessService) {
         this.worldpayOrderModificationProcessService = worldpayOrderModificationProcessService;
@@ -31,7 +31,7 @@ public class OrderModificationProcessorJobPerformable extends AbstractJobPerform
     @Override
     public PerformResult perform(final OrderModificationCronJobModel cronJobModel) {
         final Set<PaymentTransactionType> typeOfPaymentTransactionToProcessSet = cronJobModel.getPaymentTransactionTypes();
-        LOG.info(MessageFormat.format("Executing cronjob for payment transaction types: {0}", typeOfPaymentTransactionToProcessSet));
+        LOG.info("Executing cronjob for payment transaction types: {}", typeOfPaymentTransactionToProcessSet);
         boolean success = true;
         for (final PaymentTransactionType paymentTransactionType : typeOfPaymentTransactionToProcessSet) {
             if (!worldpayOrderModificationProcessService.processOrderModificationMessages(paymentTransactionType)) {
@@ -39,7 +39,7 @@ public class OrderModificationProcessorJobPerformable extends AbstractJobPerform
             }
         }
         final CronJobResult result = success ? SUCCESS : ERROR;
-        LOG.info(MessageFormat.format("Cronjob finished with result {0}", result));
+        LOG.info("Cronjob finished with result {}", result);
         return new PerformResult(result, FINISHED);
     }
 }

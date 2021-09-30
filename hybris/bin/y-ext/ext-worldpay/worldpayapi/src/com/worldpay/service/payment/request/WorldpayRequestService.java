@@ -1,26 +1,24 @@
 package com.worldpay.service.payment.request;
 
-import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason;
 import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.*;
-import com.worldpay.service.model.payment.Payment;
-import com.worldpay.service.model.payment.StoredCredentials;
-import com.worldpay.service.model.threeds2.Additional3DSData;
-import com.worldpay.service.model.token.CardDetails;
-import com.worldpay.service.model.token.Token;
-import com.worldpay.service.model.token.TokenRequest;
+import com.worldpay.data.Browser;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.Session;
+import com.worldpay.data.Shopper;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.payment.StoredCredentials;
+import com.worldpay.data.threeds2.Additional3DSData;
+import com.worldpay.data.token.CardDetails;
+import com.worldpay.data.token.Token;
+import com.worldpay.data.token.TokenRequest;
 import com.worldpay.service.request.CreateTokenServiceRequest;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
-import de.hybris.platform.core.model.order.AbstractOrderModel;
-import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
-import de.hybris.platform.core.model.user.CustomerModel;
-
 
 /**
  * Request factory for building request to Worldpay
@@ -96,9 +94,9 @@ public interface WorldpayRequestService {
     /**
      * Creates a payment element to be used in bank transfers
      *
-     * @param worldpayOrderCode   worldpay order code
-     * @param paymentMethod   indicates which payment method for bank transfer is going to be used (IDEAL-SSL,...)
-     * @param shopperBankCode indicates the selected bank by the user
+     * @param worldpayOrderCode worldpay order code
+     * @param paymentMethod     indicates which payment method for bank transfer is going to be used (IDEAL-SSL,...)
+     * @param shopperBankCode   indicates the selected bank by the user
      * @return Payment object
      */
     Payment createBankPayment(final String worldpayOrderCode, final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException;
@@ -155,35 +153,10 @@ public interface WorldpayRequestService {
     CardDetails createCardDetails(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final AddressModel paymentAddress);
 
     /**
-     * Gets the delivery Address for given cart, id delivery address true will return the delivery address, otherwise payment address
-     *
-     * @param abstractOrder
-     * @param isDeliveryAddress if it's delivery addresss
-     * @return {@link Address}
-     */
-    Address getAddressFromCart(final AbstractOrderModel abstractOrder, final boolean isDeliveryAddress);
-
-    /**
-     * @param cartModel
-     * @param additionalAuthInfo
-     * @return
-     */
-    Address getBillingAddress(final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo);
-
-    /**
      * Get the Dynamic Interaction type for the worldpay additional data
      *
      * @param worldpayAdditionalInfoData the additional data
      * @return the {@link DynamicInteractionType}
      */
     DynamicInteractionType getDynamicInteractionType(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
-
-    /**
-     * Get customer email
-     *
-     * @param customerModel them customer model
-     * @return the cuatomer email
-     */
-    String getEmailForCustomer(final CustomerModel customerModel);
-
 }

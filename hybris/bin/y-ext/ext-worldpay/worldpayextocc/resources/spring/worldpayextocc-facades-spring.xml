@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <alias name="defaultOCCWorldpayDirectResponseFacade" alias="occWorldpayDirectResponseFacade"/>
+    <bean id="defaultOCCWorldpayDirectResponseFacade"
+          class="com.worldpay.facades.impl.DefaultWorldpayDirectResponseFacade">
+        <constructor-arg ref="worldpayDirectResponseService"/>
+        <constructor-arg ref="worldpayCheckoutFacade"/>
+        <constructor-arg ref="occWorldpayUrlService"/>
+        <constructor-arg ref="occWorldpayJsonWebTokenService"/>
+        <constructor-arg ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="worldpaySessionService" ref="occWorldpaySessionService"/>
+    </bean>
+
+    <bean id="occWorldpayDirectOrderFacade"
+          class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayDirectOrderFacade">
+        <constructor-arg name="worldpayDirectOrderService" ref="occWorldpayDirectOrderService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="acceleratorCheckoutFacade" ref="acceleratorCheckoutFacade"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="apmPaymentInfoPopulator" ref="apmPaymentInfoPopulator"/>
+    </bean>
+
+    <alias name="defaultOCCWorldpayHostedOrderFacade" alias="occWorldpayHostedOrderFacade"/>
+    <bean id="defaultOCCWorldpayHostedOrderFacade"
+          class="com.worldpay.facades.payment.hosted.impl.DefaultWorldpayHostedOrderFacade"
+          parent="defaultWorldpayHostedOrderFacade">
+        <constructor-arg name="worldpayRedirectOrderService" ref="occWorldpayRedirectOrderService"/>
+    </bean>
+
+</beans>

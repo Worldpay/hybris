@@ -17,30 +17,32 @@ public class DeleteTokenResponseTransformer extends AbstractServiceResponseTrans
     @Override
     public ServiceResponse transform(final PaymentService paymentService) throws WorldpayModelTransformationException {
 
-        final Object responseType = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay delete token response");
-        }
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-
-        final Reply intReply = (Reply) responseType;
-
-        final Object response = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
+        final Reply intReply = paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
         final DeleteTokenResponse deleteTokenResponse = new DeleteTokenResponse();
         if (getServiceResponseTransformerHelper().checkForError(deleteTokenResponse, intReply)) {
             return deleteTokenResponse;
         }
-        if (!(response instanceof Ok)) {
-            throw new WorldpayModelTransformationException("DeleteTokenResponse did not contain an OK object");
-        }
-        final Ok okResponse = (Ok) response;
-        final Object deleteTokenReceived = okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived().get(0);
-        if (deleteTokenReceived instanceof DeleteTokenReceived) {
-            deleteTokenResponse.setDeleteTokenResponse(getServiceResponseTransformerHelper().buildDeleteTokenReply((DeleteTokenReceived) deleteTokenReceived));
-        }
+
+        final Ok okResponse = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(Ok.class::isInstance)
+            .map(Ok.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("DeleteTokenResponse did not contain an OK object"));
+
+        okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+            .stream()
+            .filter(DeleteTokenReceived.class::isInstance)
+            .map(DeleteTokenReceived.class::cast)
+            .findAny()
+            .ifPresent(deleteTokenReceived -> deleteTokenResponse.setDeleteTokenResponse(getServiceResponseTransformerHelper().buildDeleteTokenReply(deleteTokenReceived)));
+
         return deleteTokenResponse;
     }
 }

@@ -2,6 +2,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.WorldpayCartFacade;
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.forms.validation.PaymentDetailsFormValidator;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -20,6 +21,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Calendar;
+import java.util.Date;
+
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static java.lang.Boolean.FALSE;
@@ -33,14 +38,14 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayRedirectCheckoutStepControllerTest {
 
-    @Spy
-    @InjectMocks
-    private WorldpayRedirectCheckoutStepController testObj = new WorldpayRedirectCheckoutStepController();
-
     private static final String BILLING_ERROR_VIEW = "billingErrorView";
     private static final String BANK_CODE = "bankCode";
     private static final String PAYMENT_METHOD = "paymentMethod";
+    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
 
+    @Spy
+    @InjectMocks
+    private WorldpayRedirectCheckoutStepController testObj = new WorldpayRedirectCheckoutStepController();
     @Mock
     private PaymentDetailsForm paymentDetailsFormMock;
     @Mock
@@ -59,6 +64,8 @@ public class WorldpayRedirectCheckoutStepControllerTest {
     private APMConfigurationLookupService apmConfigurationServiceMock;
     @Mock
     private WorldpayCartFacade worldpayCartFacadeMock;
+    @Mock
+    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
 
     @Before
     public void setUp() {
@@ -69,10 +76,12 @@ public class WorldpayRedirectCheckoutStepControllerTest {
         when(paymentDetailsFormMock.getSaveInAccount()).thenReturn(true);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(ONLINE.getMethodCode());
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
     }
 
     @Test
-    public void addressShouldBeSavedIfCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddress() throws CMSItemNotFoundException {
+    public void addPaymentDetails_WhenCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddressAndWhenFSEnabled_ShouldSaveTheAddressAndAddTheDOBRedirectAttribute() throws CMSItemNotFoundException {
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(FALSE);
         when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
 
@@ -84,6 +93,24 @@ public class WorldpayRedirectCheckoutStepControllerTest {
 
         verify(redirectAttrsMock).addFlashAttribute(SAVE_PAYMENT_INFO, true);
         verify(redirectAttrsMock).addFlashAttribute(PAYMENT_METHOD_PARAM, ONLINE.getMethodCode());
+        verify(redirectAttrsMock).addFlashAttribute(BIRTHDAY_DATE, BIRTHDAY_DATE_VALUE);
+    }
+
+    @Test
+    public void addPaymentDetails_WhenCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddressAndWhenFSDisabled_ShouldSaveTheAddressAndNotAddTheDOBRedirectAttribute() throws CMSItemNotFoundException {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(FALSE);
+        when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
+
+        testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);
+
+        verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
+        verify(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(null);
+        verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
+
+        verify(redirectAttrsMock).addFlashAttribute(SAVE_PAYMENT_INFO, true);
+        verify(redirectAttrsMock).addFlashAttribute(PAYMENT_METHOD_PARAM, ONLINE.getMethodCode());
+        verify(redirectAttrsMock, never()).addFlashAttribute(BIRTHDAY_DATE, BIRTHDAY_DATE_VALUE);
     }
 
     @Test

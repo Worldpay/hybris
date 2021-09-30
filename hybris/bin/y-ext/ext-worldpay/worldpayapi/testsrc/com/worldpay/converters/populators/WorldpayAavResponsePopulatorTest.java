@@ -1,7 +1,7 @@
 package com.worldpay.converters.populators;
 
 import com.worldpay.model.WorldpayAavResponseModel;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.PaymentReply;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
 import org.junit.Test;

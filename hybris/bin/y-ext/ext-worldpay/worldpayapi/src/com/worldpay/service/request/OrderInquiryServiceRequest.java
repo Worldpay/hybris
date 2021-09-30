@@ -1,7 +1,7 @@
 package com.worldpay.service.request;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 
 /**
  * This class represents the details that must be passed to a call to {@link WorldpayServiceGateway#orderInquiry(AbstractServiceRequest) orderInquiry()} in the

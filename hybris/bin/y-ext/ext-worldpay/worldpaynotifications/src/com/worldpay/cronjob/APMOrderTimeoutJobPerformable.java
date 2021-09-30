@@ -12,11 +12,11 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.servicelayer.cronjob.AbstractJobPerformable;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,7 +28,7 @@ import static de.hybris.platform.payment.dto.TransactionStatus.REVIEW;
  */
 public class APMOrderTimeoutJobPerformable extends AbstractJobPerformable {
 
-    private static final Logger LOG = Logger.getLogger(APMOrderTimeoutJobPerformable.class);
+    private static final Logger LOG = LoggerFactory.getLogger(APMOrderTimeoutJobPerformable.class);
 
     private WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
     private BusinessProcessService businessProcessService;
@@ -50,7 +50,7 @@ public class APMOrderTimeoutJobPerformable extends AbstractJobPerformable {
             final Collection<OrderProcessModel> orderProcesses = orderModel.getOrderProcess();
             for (final OrderProcessModel orderProcess : orderProcesses) {
                 final String eventName = orderProcess.getCode() + "_" + PaymentTransactionType.AUTHORIZATION;
-                LOG.info(MessageFormat.format("Order with code [{0}] timed out. Attempting to trigger an event with code [{1}]", orderModel.getCode(), eventName));
+                LOG.info("Order with code [{}] timed out. Attempting to trigger an event with code [{}]", orderModel.getCode(), eventName);
                 businessProcessService.triggerEvent(eventName);
             }
         }

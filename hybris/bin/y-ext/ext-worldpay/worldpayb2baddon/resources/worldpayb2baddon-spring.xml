@@ -103,9 +103,8 @@
 
 	<alias name="defaultWorldpayAuthorizePaymentAction" alias="authorizePaymentAction"/>
 	<bean id="defaultWorldpayAuthorizePaymentAction" class="com.worldpay.actions.replenishment.WorldpayAuthorizePaymentAction" parent="abstractAction">
-		<property name="impersonationService" ref="impersonationService"/>
-		<property name="worldpayDirectOrderFacade" ref="worldpayDirectOrderFacade"/>
-		<property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+		<constructor-arg name="impersonationService" ref="impersonationService"/>
+		<constructor-arg name="worldpayDirectOrderFacade" ref="worldpayDirectOrderFacade"/>
 	</bean>
 
 </beans>

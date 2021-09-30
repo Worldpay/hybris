@@ -1,12 +1,11 @@
 package com.worldpay.support.appender.impl;
 
-import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.merchant.configuration.services.WorldpayMerchantConfigurationService;
+import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import com.worldpay.support.appender.WorldpaySupportEmailAppender;
-import de.hybris.platform.core.Registry;
-import org.springframework.beans.factory.BeanFactoryUtils;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.join;
 
@@ -15,6 +14,12 @@ import static org.apache.commons.lang.StringUtils.join;
  */
 public class WorldpayMerchantConfigurationAppender extends WorldpaySupportEmailAppender {
 
+    protected final WorldpayMerchantConfigurationService worldpayMerchantConfigurationService;
+
+    public WorldpayMerchantConfigurationAppender(final WorldpayMerchantConfigurationService worldpayMerchantConfigurationService) {
+        this.worldpayMerchantConfigurationService = worldpayMerchantConfigurationService;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -22,21 +27,21 @@ public class WorldpayMerchantConfigurationAppender extends WorldpaySupportEmailA
     public String appendContent() {
         final StringBuilder merchantConfiguration = new StringBuilder();
         merchantConfiguration.append(System.lineSeparator()).append("Merchant Configuration:").append(System.lineSeparator());
-        final Map<String, WorldpayMerchantConfigData> merchantConfigurations = getConfiguredMerchants();
-        for (Map.Entry<String, WorldpayMerchantConfigData> configuredMerchant : merchantConfigurations.entrySet()) {
-            merchantConfiguration.append(ONE_TAB).append("Configured Merchant Bean Name: ").append(configuredMerchant.getKey()).append(System.lineSeparator());
-            merchantConfiguration.append(TWO_TABS).append("Merchant Code: ").append(configuredMerchant.getValue().getCode()).append(System.lineSeparator());
-            merchantConfiguration.append(TWO_TABS).append("Merchant InstallationId: ").append(configuredMerchant.getValue().getInstallationId()).append(System.lineSeparator());
-            merchantConfiguration.append(TWO_TABS).append("Mac Validation: ").append(configuredMerchant.getValue().getMacValidation()).append(System.lineSeparator());
+        final Set<WorldpayMerchantConfigurationModel> allSystemActiveSiteMerchantConfigurations = worldpayMerchantConfigurationService.getAllSystemActiveSiteMerchantConfigurations();
+        for (WorldpayMerchantConfigurationModel configuredMerchant : allSystemActiveSiteMerchantConfigurations) {
+            merchantConfiguration.append(ONE_TAB).append("Configured Merchant Id: ").append(configuredMerchant.getIdentifier()).append(System.lineSeparator());
+            merchantConfiguration.append(TWO_TABS).append("Merchant Code: ").append(configuredMerchant.getCode()).append(System.lineSeparator());
+            merchantConfiguration.append(TWO_TABS).append("Merchant InstallationId: ").append(configuredMerchant.getInstallationId()).append(System.lineSeparator());
+            merchantConfiguration.append(TWO_TABS).append("Mac Validation: ").append(configuredMerchant.getMacValidation()).append(System.lineSeparator());
             merchantConfiguration.append(TWO_TABS).append("Included payment methods: ");
-            final List<String> includedPaymentTypes = configuredMerchant.getValue().getIncludedPaymentTypes();
+            final Collection<String> includedPaymentTypes = configuredMerchant.getIncludedPaymentTypes();
             if (includedPaymentTypes != null) {
                 merchantConfiguration.append(join(includedPaymentTypes, ","));
             } else {
                 merchantConfiguration.append("None");
             }
             merchantConfiguration.append(System.lineSeparator()).append(TWO_TABS).append("Excluded payment methods: ");
-            final List<String> excludedPaymentTypes = configuredMerchant.getValue().getExcludedPaymentTypes();
+            final Collection<String> excludedPaymentTypes = configuredMerchant.getExcludedPaymentTypes();
             if (excludedPaymentTypes != null) {
                 merchantConfiguration.append(join(excludedPaymentTypes, ",")).append(System.lineSeparator());
             } else {
@@ -44,9 +49,5 @@ public class WorldpayMerchantConfigurationAppender extends WorldpaySupportEmailA
             }
         }
         return merchantConfiguration.toString();
-    }
-
-    protected Map<String, WorldpayMerchantConfigData> getConfiguredMerchants() {
-        return BeanFactoryUtils.beansOfTypeIncludingAncestors(Registry.getApplicationContext(), WorldpayMerchantConfigData.class);
     }
 }

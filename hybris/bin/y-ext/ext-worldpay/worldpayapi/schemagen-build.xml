@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project name="worldpayapi-schemagen" default="build">
+
+    <tstamp />
+
+    <path id="schemagen-classpath">
+        <pathelement path="gensrc"/>
+        <pathelement path="classes"/>
+        <pathelement path="resources/schema"/>
+        <fileset dir="lib/dtd-conversion" includes="*.jar"/>
+    </path>
+
+    <taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask">
+        <classpath refid="schemagen-classpath"/>
+    </taskdef>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="lib/dtd-conversion/ant-contrib-1.0b3.jar" />
+
+    <target name="build"
+              description="Generates xsd schema from the Worldpay generated classes">
+            <echo message="Generating xsd schema from the Worldpay generated classes"/>
+            <if>
+                <available file="resources/schema" type="dir"/>
+                <then>
+                    <echo message="schema folder has already been created"/>
+                </then>
+                <else>
+                    <mkdir dir="resources/schema"/>
+                </else>
+            </if>
+            <schemagen includeantruntime="true" destdir="resources/schema">
+                <src path="gensrc/com/worldpay/internal"/>
+                <classpath refid="schemagen-classpath" />
+            </schemagen>
+            <move file="resources/schema/schema1.xsd" tofile="resources/schema/paymentService_v1.xsd"/>
+            <echo message="Worldpay xsd generated into the resources/schema folder"/>
+    </target>
+</project>

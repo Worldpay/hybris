@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2014 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
--->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -41,6 +30,7 @@
     <bean id="worldpayJsVariablesBeforeViewHandlerAdaptee"
           class="com.worldpay.interceptors.beforeview.WorldpayJsVariablesBeforeViewHandler">
         <constructor-arg name="siteConfigService" ref="siteConfigService"/>
+        <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
     </bean>
 
     <bean id="worldpayJsVariablesBeforeViewHandler" parent="beforeViewHandlerAdapter">
@@ -100,6 +90,15 @@
 
     <bean id="REDIRECT_TO_CHOOSE_PAYMENT_METHOD" class="java.lang.String">
         <constructor-arg value="redirect:/checkout/multi/worldpay/choose-payment-method"/>
+    </bean>
+
+    <bean id="redirectStrategy" class="org.springframework.security.web.DefaultRedirectStrategy"/>
+
+    <alias name="defaultWorldpayCommerceRedirectStrategy" alias="commerceRedirectStrategy"/>
+    <bean name="defaultWorldpayCommerceRedirectStrategy" class="com.worldpay.security.WorldpayCommerceRedirectStrategy"
+          parent="redirectStrategy">
+        <constructor-arg name="checkoutFlowFacade" ref="checkoutFlowFacade"/>
+        <constructor-arg name="expressTargetUrl" value="/checkout/multi/worldpay/summary/express"/>
     </bean>
 
 </beans>

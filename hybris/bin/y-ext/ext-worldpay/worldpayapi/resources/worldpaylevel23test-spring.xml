@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd"
+       profile="worldpaylevel23test">
+
+    <alias name="defaultTestWorldpayLevel23Strategy" alias="worldpayLevel23Strategy"/>
+    <bean id="defaultTestWorldpayLevel23Strategy"
+          class="com.worldpay.service.payment.impl.DefaultTestWorldpayLevel23Strategy" parent="defaultWorldpayLevel23Strategy"/>
+</beans>

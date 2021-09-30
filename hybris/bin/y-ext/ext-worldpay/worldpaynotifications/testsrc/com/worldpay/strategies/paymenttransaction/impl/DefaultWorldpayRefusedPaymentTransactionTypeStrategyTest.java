@@ -1,6 +1,6 @@
 package com.worldpay.strategies.paymenttransaction.impl;
 
-import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -21,7 +21,7 @@ public class DefaultWorldpayRefusedPaymentTransactionTypeStrategyTest {
     private DefaultWorldpayRefusedPaymentTransactionTypeStrategy testObj;
 
     @Mock
-    private WorldpayOrderNotificationHandler worldpayOrderNotificationHandlerMock;
+    private OrderNotificationService orderNotificationServiceMock;
 
     @Mock
     private WorldpayOrderModificationModel worldpayOrderNotificationMock;
@@ -34,6 +34,6 @@ public class DefaultWorldpayRefusedPaymentTransactionTypeStrategyTest {
 
         testObj.processModificationMessage(orderMock, worldpayOrderNotificationMock);
 
-        verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(worldpayOrderNotificationMock);
+        verify(orderNotificationServiceMock).setNonDefectiveAndProcessed(worldpayOrderNotificationMock);
     }
 }
