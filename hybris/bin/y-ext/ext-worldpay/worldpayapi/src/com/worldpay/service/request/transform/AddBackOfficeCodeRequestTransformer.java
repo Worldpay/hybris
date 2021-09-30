@@ -8,7 +8,6 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.AddBackOfficeCodeServiceRequest;
 import com.worldpay.service.request.ServiceRequest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specific class for transforming an {@link AddBackOfficeCodeServiceRequest} into a {@link PaymentService} object
@@ -29,7 +28,11 @@ import org.springframework.beans.factory.annotation.Required;
 public class AddBackOfficeCodeRequestTransformer implements ServiceRequestTransformer {
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
 
-    private ConfigurationService configurationService;
+    protected final ConfigurationService configurationService;
+
+    public AddBackOfficeCodeRequestTransformer(final ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
 
     /**
      * (non-Javadoc)
@@ -61,8 +64,4 @@ public class AddBackOfficeCodeRequestTransformer implements ServiceRequestTransf
         return paymentService;
     }
 
-    @Required
-    public void setConfigurationService(final ConfigurationService configurationService) {
-        this.configurationService = configurationService;
-    }
 }

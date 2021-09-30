@@ -9,7 +9,8 @@ import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.order.InvalidCartException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +30,7 @@ import static java.text.MessageFormat.format;
 @RequestMapping(value = "/checkout/multi/worldpay/3dsecure/sop/response")
 public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayThreeDSecureEndpointController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayThreeDSecureEndpointController.class);
 
     @Resource
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
@@ -56,11 +57,11 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
             if (AUTHORISED.equals(transactionStatus)) {
                 return redirectToOrderConfirmationPage(responseData.getOrderData());
             } else {
-                LOG.error(format("Failed to create payment authorisation for successful 3DSecure response. Received {0} as transactionStatus", transactionStatus));
+                LOG.error("Failed to create payment authorisation for successful 3DSecure response. Received {} as transactionStatus", transactionStatus);
                 worldpayCartService.setWorldpayDeclineCodeOnCart(worldpayOrderCode, responseData.getReturnCode());
             }
         } catch (WorldpayException | InvalidCartException e) {
-            LOG.error(format("There was an error processing the 3d secure payment for order with worldpayOrderCode [{0}]", worldpayOrderCode), e);
+            LOG.error("There was an error processing the 3d secure payment for order with worldpayOrderCode [{}]", worldpayOrderCode, e);
         }
         redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, transactionStatus.toString());
         return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + transactionStatus;

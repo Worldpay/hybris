@@ -4,7 +4,7 @@ import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.SerializationUtils;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -20,6 +20,7 @@ public final class WorldpayUtil {
     /**
      * Serialize the worldpayAdditionalInfo object so that it can be passed into the commands without adjusting the
      * method structure all the way through
+     *
      * @param additionalInfo info to be serialized
      * @return String representation of the object encoded using Base 64 encoding
      */
@@ -30,6 +31,7 @@ public final class WorldpayUtil {
 
     /**
      * Deserialize a serialized worldpayAdditionalInfo object
+     *
      * @param serializedObject Object to be deserialized
      * @return worldpayAdditionalInfo object
      */
@@ -42,10 +44,11 @@ public final class WorldpayUtil {
 
     /**
      * Used to created a date in the past.
+     *
      * @param days specifies how many days to minus from new date.
      * @return
      */
     public static Date createDateInPast(final int days) {
-        return Date.from(LocalDate.now().minusDays(days).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return Date.from(LocalDateTime.now().minusDays(days).atZone(ZoneId.systemDefault()).toInstant());
     }
 }

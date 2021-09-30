@@ -1,6 +1,6 @@
 package com.worldpay.core.services.impl;
 
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.PaymentReply;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.enums.CreditCardType;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;

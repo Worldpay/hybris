@@ -1,7 +1,7 @@
 package com.worldpay.transaction;
 
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.PaymentReply;
+import com.worldpay.data.Amount;
+import com.worldpay.data.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
@@ -27,7 +27,7 @@ public interface WorldpayPaymentTransactionService {
      * @param paymentTransactionType The payment paymentTransaction type to check {@link PaymentTransactionType}
      * @return true when all paymentTransactions are accepted for the type {@param paymentTransactionType}
      */
-    boolean areAllPaymentTransactionsAcceptedForType(final OrderModel order, final PaymentTransactionType paymentTransactionType);
+    boolean areAllPaymentTransactionsAcceptedForType(OrderModel order, PaymentTransactionType paymentTransactionType);
 
     /**
      * Checks if the order contains a paymentTransaction with the flag apmOpen true, which means the asynchronous
@@ -36,7 +36,7 @@ public interface WorldpayPaymentTransactionService {
      * @param order he current order {@link OrderModel}
      * @return true when there are transactions with the apmOpen flag, false otherwise.
      */
-    boolean isAnyPaymentTransactionApmOpenForOrder(final OrderModel order);
+    boolean isAnyPaymentTransactionApmOpenForOrder(OrderModel order);
 
     /**
      * Checks if any of the PaymentTransactionEntries {@link PaymentTransactionEntryModel} in the {@param paymentTransaction} has the pending flag.
@@ -45,7 +45,7 @@ public interface WorldpayPaymentTransactionService {
      * @param paymentTransactionType The payment paymentTransaction type to check {@link PaymentTransactionType}
      * @return true if any of the entries is pending. False otherwise.
      */
-    boolean isPaymentTransactionPending(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType);
+    boolean isPaymentTransactionPending(PaymentTransactionModel paymentTransaction, PaymentTransactionType paymentTransactionType);
 
     /**
      * Returns a list with the PaymentTransactionEntries {@link PaymentTransactionEntryModel} of the type {@param paymentTransactionType} {@link PaymentTransactionType}
@@ -55,7 +55,7 @@ public interface WorldpayPaymentTransactionService {
      * @return an empty list if no PaymentTransactionEntries {@link PaymentTransactionEntryModel} of the
      * type {@param paymentTransactionType} are found, a list of entries of the type {@param paymentTransactionType} otherwise.
      */
-    List<PaymentTransactionEntryModel> filterPaymentTransactionEntriesOfType(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType);
+    List<PaymentTransactionEntryModel> filterPaymentTransactionEntriesOfType(PaymentTransactionModel paymentTransaction, PaymentTransactionType paymentTransactionType);
 
     /**
      * Returns a list with the PaymentTransactionEntries {@link PaymentTransactionEntryModel} of the type {@param paymentTransactionType} {@link PaymentTransactionType} in pending status
@@ -65,7 +65,7 @@ public interface WorldpayPaymentTransactionService {
      * @return an empty list if no PaymentTransactionEntries {@link PaymentTransactionEntryModel} in pending status of the
      * type {@param paymentTransactionType} are found, a list of entries of the type {@param paymentTransactionType} in pending status otherwise.
      */
-    List<PaymentTransactionEntryModel> getPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel, final PaymentTransactionType paymentTransactionType);
+    List<PaymentTransactionEntryModel> getPendingPaymentTransactionEntriesForType(PaymentTransactionModel paymentTransactionModel, PaymentTransactionType paymentTransactionType);
 
 
     /**
@@ -87,7 +87,7 @@ public interface WorldpayPaymentTransactionService {
      * @return true if the dependant paymentTransaction type is completed, false otherwise.
      * If the current paymentTransaction of the type {@param paymentTransactionType} has no dependencies, returns true
      */
-    boolean isPreviousTransactionCompleted(final String worldpayOrderCode, final PaymentTransactionType paymentTransactionType, final OrderModel orderModel);
+    boolean isPreviousTransactionCompleted(String worldpayOrderCode, PaymentTransactionType paymentTransactionType, OrderModel orderModel);
 
     /**
      * Creates a new PaymentTransactionEntry of the type {@link PaymentTransactionType#CAPTURE}
@@ -97,7 +97,7 @@ public interface WorldpayPaymentTransactionService {
      * @param orderNotificationMessage The {@link OrderNotificationMessage} to get the information from
      * @return the new {@link PaymentTransactionType#CAPTURE} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createCapturedPaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final OrderNotificationMessage orderNotificationMessage);
+    PaymentTransactionEntryModel createCapturedPaymentTransactionEntry(PaymentTransactionModel paymentTransaction, OrderNotificationMessage orderNotificationMessage);
 
     /**
      * Creates a new PaymentTransactionEntry of the type {@link PaymentTransactionType#REFUND_FOLLOW_ON}
@@ -107,7 +107,7 @@ public interface WorldpayPaymentTransactionService {
      * @param orderNotificationMessage The {@link OrderNotificationMessage} to get the information from
      * @return the new {@link PaymentTransactionType#REFUND_FOLLOW_ON} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createRefundedPaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final OrderNotificationMessage orderNotificationMessage);
+    PaymentTransactionEntryModel createRefundedPaymentTransactionEntry(PaymentTransactionModel paymentTransaction, OrderNotificationMessage orderNotificationMessage);
 
     /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}
@@ -119,8 +119,8 @@ public interface WorldpayPaymentTransactionService {
      * @param authorisedAmount   The authorisedAmount
      * @return the new {@link PaymentTransactionType#AUTHORIZATION} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode,
-                                                                               final CartModel cartModel, final BigDecimal authorisedAmount);
+    PaymentTransactionEntryModel createPendingAuthorisePaymentTransactionEntry(PaymentTransactionModel paymentTransaction, String merchantCode,
+                                                                               CartModel cartModel, BigDecimal authorisedAmount);
 
     /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}
@@ -132,8 +132,8 @@ public interface WorldpayPaymentTransactionService {
      * @param authorisedAmount   The authorisedAmount
      * @return the new {@link PaymentTransactionType#AUTHORIZATION} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(final PaymentTransactionModel paymentTransaction, final String merchantCode,
-                                                                                  final AbstractOrderModel abstractOrderModel, final BigDecimal authorisedAmount);
+    PaymentTransactionEntryModel createNonPendingAuthorisePaymentTransactionEntry(PaymentTransactionModel paymentTransaction, String merchantCode,
+                                                                                  AbstractOrderModel abstractOrderModel, BigDecimal authorisedAmount);
 
     /**
      * Creates a new PaymentTransactionEntry {@link PaymentTransactionEntryModel} of the type {@link PaymentTransactionType#AUTHORIZATION}
@@ -143,7 +143,7 @@ public interface WorldpayPaymentTransactionService {
      * @param orderNotificationMessage The {@link OrderNotificationMessage} to get the information from
      * @return the new {@link PaymentTransactionType#SETTLED} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createNotPendingSettledPaymentTransactionEntry(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage);
+    PaymentTransactionEntryModel createNotPendingSettledPaymentTransactionEntry(PaymentTransactionModel paymentTransactionModel, OrderNotificationMessage orderNotificationMessage);
 
     /**
      * Creates a new paymentTransaction in the cart once the authorization result has been received, after the HOP.
@@ -153,7 +153,7 @@ public interface WorldpayPaymentTransactionService {
      * @param commerceCheckoutParameter
      * @return the created {@link PaymentTransactionModel}
      */
-    PaymentTransactionModel createPaymentTransaction(final boolean apmOpen, final String merchantCode, final CommerceCheckoutParameter commerceCheckoutParameter);
+    PaymentTransactionModel createPaymentTransaction(boolean apmOpen, String merchantCode, CommerceCheckoutParameter commerceCheckoutParameter);
 
     /**
      * Returns the PaymentTransactionModel {@link PaymentTransactionModel} corresponding to the {@param worldpayOrderCode}
@@ -161,7 +161,7 @@ public interface WorldpayPaymentTransactionService {
      * @param worldpayOrderCode The worldpayOrderCode to look for associated to a PaymentTransactionModel
      * @return The PaymentTransactionModel associated to the worldpayOrderCode if found, null otherwise
      */
-    PaymentTransactionModel getPaymentTransactionFromCode(final String worldpayOrderCode);
+    PaymentTransactionModel getPaymentTransactionFromCode(String worldpayOrderCode);
 
     /**
      * Updates each one of the {@param paymentTransactionEntries} to the status {@param transactionStatus}
@@ -169,7 +169,7 @@ public interface WorldpayPaymentTransactionService {
      * @param paymentTransactionEntries
      * @param transactionStatus
      */
-    void updateEntriesStatus(final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus);
+    void updateEntriesStatus(List<PaymentTransactionEntryModel> paymentTransactionEntries, String transactionStatus);
 
     /**
      * Set the riskscore on a paymentTransactionEntryModel
@@ -177,7 +177,7 @@ public interface WorldpayPaymentTransactionService {
      * @param paymentTransactionModel
      * @param paymentReply
      */
-    void addRiskScore(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply);
+    void addRiskScore(PaymentTransactionModel paymentTransactionModel, PaymentReply paymentReply);
 
     /**
      * Set the aav fields on a paymentTransactionEntryModel
@@ -185,7 +185,7 @@ public interface WorldpayPaymentTransactionService {
      * @param paymentTransactionEntryModel
      * @param paymentReply
      */
-    void addAavFields(final PaymentTransactionEntryModel paymentTransactionEntryModel, final PaymentReply paymentReply);
+    void addAavFields(PaymentTransactionEntryModel paymentTransactionEntryModel, PaymentReply paymentReply);
 
     /**
      * Updates the amount received from the OrderNotificationMessage
@@ -193,7 +193,7 @@ public interface WorldpayPaymentTransactionService {
      * @param transactionEntries transactionEntries to change the amount to.
      * @param amount             amount to set in the transactionEntries
      */
-    void updateEntriesAmount(final List<PaymentTransactionEntryModel> transactionEntries, final Amount amount);
+    void updateEntriesAmount(List<PaymentTransactionEntryModel> transactionEntries, Amount amount);
 
     /**
      * Matching order total against sum of amounts from PaymentTransactionEntries with
@@ -211,5 +211,7 @@ public interface WorldpayPaymentTransactionService {
      * @param paymentTransactionModel The {@link PaymentTransactionModel} to associate the paymentTransactionEntry to
      * @return the new {@link PaymentTransactionType#SETTLED} PaymentTransactionEntry created
      */
-    PaymentTransactionEntryModel createNotPendingCancelOrderTransactionEntry(final PaymentTransactionModel paymentTransactionModel);
+    PaymentTransactionEntryModel createNotPendingCancelOrderTransactionEntry(PaymentTransactionModel paymentTransactionModel);
+
+    void addFraudSightToPaymentTransaction(PaymentTransactionModel paymentTransaction, PaymentReply paymentReply);
 }

@@ -1,7 +1,7 @@
 package com.worldpay.service.response;
 
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.Amount;
+import com.worldpay.data.Amount;
 import com.worldpay.service.request.RefundServiceRequest;
 
 /**

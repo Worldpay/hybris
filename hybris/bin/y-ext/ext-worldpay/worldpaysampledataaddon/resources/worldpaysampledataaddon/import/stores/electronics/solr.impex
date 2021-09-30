@@ -9,4 +9,4 @@ $searchIndexNamePrefix=electronics
 $solrIndexedType=electronicsProductType
 $indexBaseSite=electronics
 $indexLanguages=ja,en,de,zh
-$indexCurrencies=JPY,USD
+$indexCurrencies=JPY,USD,EUR

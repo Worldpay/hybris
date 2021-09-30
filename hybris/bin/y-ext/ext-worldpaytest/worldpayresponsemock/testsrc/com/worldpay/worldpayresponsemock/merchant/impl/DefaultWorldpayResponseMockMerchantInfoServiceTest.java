@@ -1,8 +1,8 @@
 package com.worldpay.worldpayresponsemock.merchant.impl;
 
-import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.merchant.configuration.services.WorldpayMerchantConfigurationService;
+import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -11,7 +11,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Set;
 
-import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -25,18 +24,20 @@ public class DefaultWorldpayResponseMockMerchantInfoServiceTest {
     private DefaultWorldpayResponseMockMerchantInfoService testObj;
 
     @Mock
-    private WorldpayMerchantConfigData worldpayMerchantConfigData;
+    private WorldpayMerchantConfigurationService worldpayMerchantConfigurationServiceMock;
+    @Mock
+    private WorldpayMerchantConfigurationModel webWorldpayMerchantConfigurationMock, asmWorldpayMerchantConfigurationMock;
 
     @Test
-    public void getAllMerchantCodes() {
-        testObj.setConfiguredMerchants(singletonList(worldpayMerchantConfigData));
-        when(worldpayMerchantConfigData.getCode()).thenReturn(MERCHANT_CODE);
+    public void getAllMerchantCodes_ShouldReturnUniqueMerchantCodes() {
+        when(worldpayMerchantConfigurationServiceMock.getAllSystemActiveSiteMerchantConfigurations()).thenReturn(Set.of(webWorldpayMerchantConfigurationMock, asmWorldpayMerchantConfigurationMock));
+        when(webWorldpayMerchantConfigurationMock.getCode()).thenReturn(MERCHANT_CODE);
+        when(asmWorldpayMerchantConfigurationMock.getCode()).thenReturn(MERCHANT_CODE);
 
         final Set<String> allMerchantCodes = testObj.getAllMerchantCodes();
 
         assertThat(allMerchantCodes.size()).isEqualTo(1);
         assertThat(allMerchantCodes.iterator().next()).isEqualTo(MERCHANT_CODE);
-
     }
 
 }

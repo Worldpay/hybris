@@ -1,6 +1,7 @@
 package com.worldpay.forms.validation;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
@@ -13,16 +14,18 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static java.lang.Boolean.FALSE;
 
 
-@Component ("paymentDetailsFormValidator")
+@Component("paymentDetailsFormValidator")
 public class PaymentDetailsFormValidator implements Validator {
 
     protected static final String GLOBAL_MISSING_DELIVERY_ADDRESS = "checkout.multi.paymentMethod.createSubscription.billingAddress.noneSelectedMsg";
     protected static final String CHECKOUT_ERROR_TERMS_NOT_ACCEPTED = "checkout.error.terms.not.accepted";
+    protected static final String CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY = "checkout.error.fraudSight.dob.mandatory";
 
     protected static final String FIELD_PAYMENT_METHOD = "paymentMethod";
     protected static final String FIELD_SHOPPER_BANK_CODE = "shopperBankCode";
@@ -44,8 +47,11 @@ public class PaymentDetailsFormValidator implements Validator {
     @Resource
     private APMAvailabilityService apmAvailabilityService;
 
-    @Resource (name = "worldpayCheckoutFacade")
+    @Resource(name = "worldpayCheckoutFacade")
     private AcceleratorCheckoutFacade checkoutFacade;
+
+    @Resource
+    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
 
     /**
      * {@inheritDoc}
@@ -91,6 +97,18 @@ public class PaymentDetailsFormValidator implements Validator {
             validateField(errors, FIELD_BILLING_ADDRESS_POSTCODE, "address.postcode.invalid");
             validateField(errors, FIELD_BILLING_ADDRESS_COUNTRY_ISO, "address.country.invalid");
         }
+
+        if (worldpayPaymentCheckoutFacade.isFSEnabled() && form.isDobRequired() && !isValidDate(form.getDateOfBirth())) {
+            errors.reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+        }
+    }
+
+    protected boolean isValidDate(final Date birthdayDate) {
+        if (birthdayDate == null) {
+            return false;
+        }
+
+        return birthdayDate.before(new Date());
     }
 
     protected void validateTermsCheck(final Errors errors, final PaymentDetailsForm form) {

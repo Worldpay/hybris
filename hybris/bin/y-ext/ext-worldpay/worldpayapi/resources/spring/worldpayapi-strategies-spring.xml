@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
+
+    <alias name="defaultWorldpayMerchantStrategy" alias="worldpayMerchantStrategy"/>
+    <bean id="defaultWorldpayMerchantStrategy" class="com.worldpay.strategy.impl.DefaultWorldpayMerchantStrategy">
+        <constructor-arg name="assistedServiceService" ref="defaultAssistedServiceService"/>
+        <constructor-arg name="worldpayMerchantConfigurationService" ref="worldpayMerchantConfigurationService"/>
+    </bean>
+
+    <alias name="defaultWorldpayOrderInfoStrategy" alias="worldpayOrderInfoStrategy"/>
+    <bean id="defaultWorldpayOrderInfoStrategy"
+          class="com.worldpay.merchant.strategies.impl.DefaultWorldpayOrderInfoStrategy"/>
+
+    <alias name="defaultWorldpayCustomerIpAddressStrategy" alias="worldpayCustomerIpAddressStrategy"/>
+    <bean id="defaultWorldpayCustomerIpAddressStrategy"
+          class="com.worldpay.strategy.impl.DefaultWorldpayCustomerIpAddressStrategy">
+        <property name="headerName" value="X-Forwarded-For"/>
+
+        <!-- Possible headers that contain the customer IP
+            <property name="headerName" value="Proxy-Client-IP"/>
+            <property name="headerName" value="WL-Proxy-Client-IP"/>
+            <property name="headerName" value="HTTP_CLIENT_IP"/>
+            <property name="headerName" value="HTTP_X_FORWARDED_FOR"/>
+        -->
+    </bean>
+
+    <alias name="defaultRecurringGenerateMerchantTransactionCodeStrategy"
+           alias="recurringGenerateMerchantTransactionCodeStrategy"/>
+    <bean id="defaultRecurringGenerateMerchantTransactionCodeStrategy"
+          class="com.worldpay.core.services.strategies.impl.DefaultRecurringGenerateMerchantTransactionCodeStrategy">
+        <property name="modelService" ref="modelService"/>
+        <property name="cartService" ref="cartService"/>
+    </bean>
+
+    <alias name="defaultApmAvailabilityCountryStrategy" alias="apmAvailabilityCountryStrategy"/>
+    <bean id="defaultApmAvailabilityCountryStrategy"
+          class="com.worldpay.service.apm.strategy.impl.APMAvailabilityCountryStrategy">
+        <property name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
+    </bean>
+
+    <alias name="defaultWorldpayDeliveryAddressStrategy" alias="worldpayDeliveryAddressStrategy"/>
+    <bean id="defaultWorldpayDeliveryAddressStrategy"
+          class="com.worldpay.strategy.impl.DefaultWorldpayDeliveryAddressStrategy"/>
+
+    <alias name="defaultApmAvailabilityCurrencyStrategy" alias="apmAvailabilityCurrencyStrategy"/>
+    <bean id="defaultApmAvailabilityCurrencyStrategy"
+          class="com.worldpay.service.apm.strategy.impl.APMAvailabilityCurrencyStrategy"/>
+
+    <alias name="defaultApmAvailabilityRangeStrategy" alias="apmAvailabilityRangeStrategy"/>
+    <bean id="defaultApmAvailabilityRangeStrategy"
+          class="com.worldpay.service.apm.strategy.impl.APMAvailabilityRangeStrategy"/>
+
+    <alias name="defaultApmAvailabilityBankStrategy" alias="apmAvailabilityBankStrategy"/>
+    <bean id="defaultApmAvailabilityBankStrategy"
+          class="com.worldpay.service.apm.strategy.impl.APMAvailabilityBankStrategy">
+        <property name="worldpayBankConfigurationLookupService" ref="worldpayBankConfigurationLookupService"/>
+    </bean>
+
+    <alias name="defaultWorldpayTokenEventReferenceCreationStrategy"
+           alias="worldpayTokenEventReferenceCreationStrategy"/>
+    <bean id="defaultWorldpayTokenEventReferenceCreationStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayTokenEventReferenceCreationStrategy">
+        <property name="cartService" ref="cartService"/>
+    </bean>
+
+    <!-- Cancellation strategies -->
+    <bean id="worldpayOrderCancelDenialStrategy"
+          class="com.worldpay.ordercancel.impl.denialstrategies.WorldpayOrderCancelDenialStrategy">
+        <property name="reason">
+            <bean class="de.hybris.platform.ordercancel.DefaultOrderCancelDenialReason">
+                <property name="code" value="4"/>
+                <property name="description"
+                          value="Order cannot be cancelled as there are captured transaction entries."/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="worldpayCancelOrderServiceListMergeDirective" depends-on="orderCancelService" parent="listMergeDirective">
+        <property name="add" ref="worldpayOrderCancelDenialStrategy"/>
+        <property name="listPropertyDescriptor" value="cancelDenialStrategies"/>
+    </bean>
+
+    <bean id="worldpayApmOrderCancelDenialStrategy"
+          class="com.worldpay.ordercancel.impl.denialstrategies.WorldpayApmOrderCancelDenialStrategy">
+        <property name="reason">
+            <bean class="de.hybris.platform.ordercancel.DefaultOrderCancelDenialReason">
+                <property name="code" value="5"/>
+                <property name="description"
+                          value="Order cannot be cancelled as payment was made through an APM or is still unknown."/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="worldpayApmCancelOrderServiceListMergeDirective" depends-on="orderCancelService"
+          parent="listMergeDirective">
+        <property name="add" ref="worldpayApmOrderCancelDenialStrategy"/>
+        <property name="listPropertyDescriptor" value="cancelDenialStrategies"/>
+    </bean>
+
+    <alias name="defaultWorldpayHOPNoReturnParamsStrategy" alias="worldpayHOPNoReturnParamsStrategy"/>
+    <bean id="defaultWorldpayHOPNoReturnParamsStrategy"
+          class="com.worldpay.facades.payment.hosted.impl.DefaultWorldpayHOPNoReturnParamsStrategy">
+        <constructor-arg name="cartService" ref="cartService"/>
+    </bean>
+
+    <alias name="defaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy"
+           alias="worldpayCancelWholeOrderDueToCancelNotificationStrategy"/>
+    <bean id="defaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy"
+          class="com.worldpay.orderprocess.strategies.cancel.impl.DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategy">
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
+    <util:list id="worldpayDirectDataRequestStrategies"
+               value-type="com.worldpay.service.payment.WorldpayAdditionalDataRequestStrategy">
+        <ref bean="worldpayFraudSightStrategy"/>
+        <ref bean="worldpayPrimeRoutingStrategy"/>
+        <ref bean="worldpayLevel23Strategy"/>
+    </util:list>
+
+    <util:list id="worldpayRedirectDataRequestStrategies"
+               value-type="com.worldpay.service.payment.WorldpayAdditionalDataRequestStrategy">
+        <ref bean="worldpayFraudSightStrategy"/>
+        <ref bean="worldpayLevel23Strategy"/>
+        <ref bean="worldpaySepaMandateStrategy"/>
+    </util:list>
+
+    <alias name="defaultWorldpaySepaMandateStrategy" alias="worldpaySepaMandateStrategy"/>
+    <bean id="defaultWorldpaySepaMandateStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpaySepaMandateStrategy"/>
+
+    <alias name="defaultWorldpayPrimeRoutingStrategy" alias="worldpayPrimeRoutingStrategy"/>
+    <bean id="defaultWorldpayPrimeRoutingStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayPrimeRoutingStrategy">
+        <constructor-arg name="worldpayPrimeRoutingService" ref="worldpayPrimeRoutingService"/>
+    </bean>
+
+    <bean id="abstractWorldpayFraudSightStrategy"
+          class="com.worldpay.service.payment.impl.AbstractWorldpayFraudSightStrategy" abstract="true"/>
+
+    <alias name="defaultWorldpayFraudSightStrategy" alias="worldpayFraudSightStrategy"/>
+    <bean id="defaultWorldpayFraudSightStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayFraudSightStrategy"
+          parent="abstractWorldpayFraudSightStrategy">
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="worldpayAddressConverter" ref="worldpayAddressConverter"/>
+        <constructor-arg name="baseSiteService" ref="baseSiteService"/>
+        <constructor-arg name="worldpayFraudSightResponseConverter" ref="worldpayFraudSightResponseConverter"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
+    <bean id="abstractWorldpayLevel23Strategy"
+          class="com.worldpay.service.payment.impl.AbstractWorldpayLevel23Strategy" abstract="true"/>
+
+    <alias name="defaultWorldpayLevel23DataValidatora" alias="worldpayLevel23DataValidator"/>
+    <bean id="defaultWorldpayLevel23DataValidatora"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayLevel23DataValidator"/>
+
+    <alias name="defaultWorldpayLevel23Strategy" alias="worldpayLevel23Strategy"/>
+    <bean id="defaultWorldpayLevel23Strategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayLevel23Strategy"
+          parent="abstractWorldpayLevel23Strategy">
+        <constructor-arg name="worldpayMerchantStrategy" ref="worldpayMerchantStrategy"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="worldpayLevel23DataValidator" ref="worldpayLevel23DataValidator"/>
+    </bean>
+
+    <bean id="worldpayEntryCodeStrategy" class="com.worldpay.transaction.impl.WorldpayEntryCodeStrategyImpl"/>
+
+</beans>

@@ -2,8 +2,8 @@ package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.RedirectReference;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
 
@@ -18,25 +18,27 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
      * @see AbstractServiceResponseTransformer#transform(com.worldpay.internal.model.PaymentService)
      */
     @Override
-    public ServiceResponse transform(PaymentService reply) throws WorldpayModelTransformationException {
-        OrderInquiryServiceResponse orderInquiryResponse = new OrderInquiryServiceResponse();
+    public ServiceResponse transform(final PaymentService reply) throws WorldpayModelTransformationException {
+        final OrderInquiryServiceResponse orderInquiryResponse = new OrderInquiryServiceResponse();
 
-        final Object responseType = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
-        }
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-        final Reply intReply = (Reply) responseType;
+        final Reply intReply = reply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
+
         if (getServiceResponseTransformerHelper().checkForError(orderInquiryResponse, intReply)) {
             return orderInquiryResponse;
         }
 
-        final OrderStatus intOrderStatus = (OrderStatus) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
-        if (intOrderStatus == null) {
-            throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
-        }
+        final OrderStatus intOrderStatus = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(OrderStatus.class::isInstance)
+            .map(OrderStatus.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No order status returned in Worldpay reply message"));
+
         orderInquiryResponse.setOrderCode(intOrderStatus.getOrderCode());
 
         final List<Object> orderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
@@ -47,7 +49,9 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
                 orderInquiryResponse.setPaymentReply(paymentReply);
             } else if (orderStatusElement instanceof Reference) {
                 final Reference intReference = (Reference) orderStatusElement;
-                final RedirectReference reference = new RedirectReference(intReference.getId(), intReference.getvalue());
+                final RedirectReference reference = new RedirectReference();
+                reference.setId(intReference.getId());
+                reference.setValue(intReference.getvalue());
                 orderInquiryResponse.setReference(reference);
             }
         }

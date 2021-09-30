@@ -33,8 +33,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTH_DAY_DATE_FORMAT;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
@@ -48,6 +51,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     protected static final String PAYMENT_INFOS = "paymentInfos";
     protected static final String CHOOSE_PAYMENT_METHOD = "choose-payment-method";
     protected static final String SAVED_CARD_SELECTED_ATTRIBUTE = "savedCardSelected";
+    protected static final String CURRENT_DATE = "currentDate";
+    protected static final String IS_FS_ENABLED = "isFSEnabled";
 
     protected static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
     protected static final String TEXT_ACCOUNT_PROFILE_PAYMENT_CART_REMOVED = "text.account.profile.paymentCart.removed";
@@ -102,6 +107,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
         setupAddPaymentPage(model);
         setupPaymentDetailsForm(model);
+        model.addAttribute(IS_FS_ENABLED, worldpayPaymentCheckoutFacade.isFSEnabled());
+        final SimpleDateFormat dateFormat = new SimpleDateFormat(BIRTH_DAY_DATE_FORMAT);
+        model.addAttribute(CURRENT_DATE, dateFormat.format(new Date()));
         setCheckoutStepLinksForModel(model, getCheckoutStep());
 
         return getViewForPage(model);

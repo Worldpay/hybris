@@ -1,6 +1,6 @@
 package com.worldpay.converters.populators;
 
-import com.worldpay.service.model.Address;
+import com.worldpay.data.Address;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.user.AddressModel;
 import org.apache.commons.lang.StringEscapeUtils;

@@ -16,7 +16,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         authorizeCustomer(client, customer)
 
         def cart = createCart(client, customer, format)
-        def address = createAddress(client, customer, format)
+        def address = createAddress(client, customer, DE_ISO_CODE, format)
         addProductToCart(client, customer, cart.code, '3429337')
         setDeliveryAddress(client, customer, cart.code, address)
         setDeliveryMode(client, customer, cart.code, 'standard-gross')

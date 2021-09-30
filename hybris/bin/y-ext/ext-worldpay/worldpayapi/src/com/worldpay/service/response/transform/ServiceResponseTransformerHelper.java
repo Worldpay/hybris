@@ -1,13 +1,13 @@
 package com.worldpay.service.response.transform;
 
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.ErrorDetail;
-import com.worldpay.service.model.JournalReply;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.WebformRefundReply;
-import com.worldpay.service.model.token.DeleteTokenReply;
-import com.worldpay.service.model.token.TokenReply;
-import com.worldpay.service.model.token.UpdateTokenReply;
+import com.worldpay.data.ErrorDetail;
+import com.worldpay.data.JournalReply;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.WebformRefundReply;
+import com.worldpay.data.token.DeleteTokenReply;
+import com.worldpay.data.token.TokenReply;
+import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.service.response.ServiceResponse;
 
 /**

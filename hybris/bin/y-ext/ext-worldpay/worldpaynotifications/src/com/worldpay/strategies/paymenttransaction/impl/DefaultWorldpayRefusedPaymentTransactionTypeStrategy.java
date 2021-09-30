@@ -1,6 +1,6 @@
 package com.worldpay.strategies.paymenttransaction.impl;
 
-import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.strategies.paymenttransaction.WorldpayPaymentTransactionTypeStrategy;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -17,10 +17,10 @@ public class DefaultWorldpayRefusedPaymentTransactionTypeStrategy implements Wor
 
     private static final Logger LOG = LogManager.getLogger(DefaultWorldpayRefusedPaymentTransactionTypeStrategy.class);
 
-    protected final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler;
+    protected final OrderNotificationService orderNotificationService;
 
-    public DefaultWorldpayRefusedPaymentTransactionTypeStrategy(final WorldpayOrderNotificationHandler worldpayOrderNotificationHandler) {
-        this.worldpayOrderNotificationHandler = worldpayOrderNotificationHandler;
+    public DefaultWorldpayRefusedPaymentTransactionTypeStrategy(final OrderNotificationService orderNotificationService) {
+        this.orderNotificationService = orderNotificationService;
     }
 
     /**
@@ -29,6 +29,6 @@ public class DefaultWorldpayRefusedPaymentTransactionTypeStrategy implements Wor
     @Override
     public void processModificationMessage(final OrderModel order, final WorldpayOrderModificationModel orderModification) {
         LOG.info(format("Marking order modification with [{0}] transaction for refused worldpayOrder [{1}] as processed", PaymentTransactionType.REFUSED, orderModification.getWorldpayOrderCode()));
-        worldpayOrderNotificationHandler.setNonDefectiveAndProcessed(orderModification);
+        orderNotificationService.setNonDefectiveAndProcessed(orderModification);
     }
 }

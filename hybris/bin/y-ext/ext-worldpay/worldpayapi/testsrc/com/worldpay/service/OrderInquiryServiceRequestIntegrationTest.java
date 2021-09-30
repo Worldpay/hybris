@@ -6,10 +6,10 @@ import com.evanlennick.retry4j.config.RetryConfig;
 import com.evanlennick.retry4j.config.RetryConfigBuilder;
 import com.evanlennick.retry4j.exception.RetriesExhaustedException;
 import com.evanlennick.retry4j.exception.UnexpectedException;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.PaymentReply;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.PaymentReply;
 import com.worldpay.service.request.AbstractServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
@@ -32,7 +32,6 @@ public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseT
 
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASS = "3l3ph4nt_&_c4st!3";
-    private static final MerchantInfo MERCHANT_INFO = new MerchantInfo(MERCHANT_CODE, MERCHANT_PASS);
     private static final String ORDER_CODE = String.valueOf(new Date().getTime());
 
     private static final String WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES = "worldpayapi.inquiry.max.number.of.retries";
@@ -49,15 +48,21 @@ public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseT
     public void setUp() throws Exception {
         configurationService.getConfiguration().setProperty(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE.toString());
         configurationService.getConfiguration().setProperty(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE.toString());
+
+
     }
 
     @Test
     @Ignore("Ignored because taking to much time to pass")
     public void testOrderInquiry() throws WorldpayException {
 
-        WPSGTestHelper.directAuthorise(gateway, MERCHANT_INFO, ORDER_CODE);
+        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo.setMerchantPassword(MERCHANT_PASS);
+        merchantInfo.setMerchantCode(MERCHANT_CODE);
 
-        final OrderInquiryServiceRequest request = OrderInquiryServiceRequest.createOrderInquiryRequest(MERCHANT_INFO, ORDER_CODE);
+        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+
+        final OrderInquiryServiceRequest request = OrderInquiryServiceRequest.createOrderInquiryRequest(merchantInfo, ORDER_CODE);
         final Callable<OrderInquiryServiceResponse> callable = getOrderInquiryServiceResponseCallable(request);
 
         final RetryConfig config = buildRetryConfig();
@@ -79,11 +84,11 @@ public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseT
 
     private RetryConfig buildRetryConfig() {
         return new RetryConfigBuilder()
-                .retryOnSpecificExceptions(WorldpayException.class)
-                .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
-                .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
-                .withFixedBackoff()
-                .build();
+            .retryOnSpecificExceptions(WorldpayException.class)
+            .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
+            .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
+            .withFixedBackoff()
+            .build();
     }
 
     private Status<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {

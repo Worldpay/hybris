@@ -13,4 +13,11 @@ public interface APMAvailabilityFacade {
      * @return true or false depending on if the apm configuration is available
      */
     boolean isAvailable(final WorldpayAPMConfigurationModel apmConfiguration);
+
+    /**
+     * Method to check if APM configuration is currently available given code of APM
+     * @param paymentMethod code of APM
+     * @return true or false depending on if the apm configuration is available
+     */
+    boolean isAvailable(String paymentMethod);
 }

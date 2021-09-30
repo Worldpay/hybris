@@ -1,12 +1,13 @@
 package com.worldpay.service;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.service.model.Amount;
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.Amount;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.response.RefundServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
 import de.hybris.platform.servicelayer.ServicelayerBaseTest;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.annotation.Resource;
@@ -20,18 +21,34 @@ public class RefundServiceRequestIntegrationTest extends ServicelayerBaseTest {
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
     private static final String ORDER_CODE = String.valueOf(new Date().getTime());
-    private static final MerchantInfo MERCHANT_INFO = new MerchantInfo(MERCHANT_CODE, MERCHANT_PASSWORD);
     private static final String REFERENCE = "reference";
+    private static final String EUR = "EUR";
+    private static final String EXPONENT = "2";
+
+    private MerchantInfo merchantInfo;
 
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway gateway;
 
+    @Before
+    public void setUp() throws Exception {
+        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
+        merchantInfo.setMerchantCode(MERCHANT_CODE);
+        this.merchantInfo = merchantInfo;
+    }
+
     @Test
     public void testRefundFullAmount() throws WorldpayException {
-        WPSGTestHelper.directAuthorise(gateway, MERCHANT_INFO, ORDER_CODE);
-        WPSGTestHelper.capture(gateway, MERCHANT_INFO, ORDER_CODE);
+        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+        WPSGTestHelper.capture(gateway, merchantInfo, ORDER_CODE);
 
-        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, new Amount("100", "EUR", "2"), REFERENCE, Boolean.FALSE);
+        final Amount amountMock = new Amount();
+        amountMock.setExponent(EXPONENT);
+        amountMock.setCurrencyCode(EUR);
+        amountMock.setValue("100");
+
+        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE, amountMock, REFERENCE, Boolean.FALSE);
         final RefundServiceResponse refund = gateway.refund(request);
 
         assertNotNull("Refund response is null!", refund);
@@ -44,10 +61,15 @@ public class RefundServiceRequestIntegrationTest extends ServicelayerBaseTest {
 
     @Test
     public void testRefundPartialAmount() throws WorldpayException {
-        WPSGTestHelper.directAuthorise(gateway, MERCHANT_INFO, ORDER_CODE);
-        WPSGTestHelper.capture(gateway, MERCHANT_INFO, ORDER_CODE);
+        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+        WPSGTestHelper.capture(gateway, merchantInfo, ORDER_CODE);
 
-        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, new Amount("70", "EUR", "2"), REFERENCE, Boolean.FALSE);
+        final Amount amountMock = new Amount();
+        amountMock.setExponent(EXPONENT);
+        amountMock.setCurrencyCode(EUR);
+        amountMock.setValue("70");
+
+        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE, amountMock, REFERENCE, Boolean.FALSE);
         final RefundServiceResponse refund = gateway.refund(request);
 
         assertNotNull("Refund response is null!", refund);
@@ -61,10 +83,16 @@ public class RefundServiceRequestIntegrationTest extends ServicelayerBaseTest {
     @Test
     public void testRefundMultiple() throws WorldpayException {
 
-        WPSGTestHelper.directAuthorise(gateway, MERCHANT_INFO, ORDER_CODE);
-        WPSGTestHelper.capture(gateway, MERCHANT_INFO, ORDER_CODE);
+        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+        WPSGTestHelper.capture(gateway, merchantInfo, ORDER_CODE);
 
-        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, new Amount("70", "EUR", "2"), REFERENCE, Boolean.FALSE);
+        final Amount amountMock = new Amount();
+        amountMock.setExponent(EXPONENT);
+        amountMock.setCurrencyCode(EUR);
+        amountMock.setValue("70");
+
+
+        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE, amountMock, REFERENCE, Boolean.FALSE);
         final RefundServiceResponse refund = gateway.refund(request);
 
         assertNotNull("Refund response is null!", refund);
@@ -74,7 +102,12 @@ public class RefundServiceRequestIntegrationTest extends ServicelayerBaseTest {
         assertNotNull("Ampount in the refund is null!", amount);
         assertEquals("Incorrect amount refunded", "70", amount.getValue());
 
-        final RefundServiceRequest request2 = RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, new Amount("30", "EUR", "2"), REFERENCE, Boolean.FALSE);
+        final Amount amountMock2 = new Amount();
+        amountMock2.setExponent(EXPONENT);
+        amountMock2.setCurrencyCode(EUR);
+        amountMock2.setValue("30");
+
+        final RefundServiceRequest request2 = RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE,amountMock2, REFERENCE, Boolean.FALSE);
         final RefundServiceResponse refund2 = gateway.refund(request2);
 
         assertNotNull("Refund response is null!", refund2);
@@ -87,10 +120,15 @@ public class RefundServiceRequestIntegrationTest extends ServicelayerBaseTest {
 
     @Test
     public void testRefundAmountMoreThanCaptured() throws WorldpayException {
-        WPSGTestHelper.directAuthorise(gateway, MERCHANT_INFO, ORDER_CODE);
-        WPSGTestHelper.capture(gateway, MERCHANT_INFO, ORDER_CODE);
+        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+        WPSGTestHelper.capture(gateway, merchantInfo, ORDER_CODE);
 
-        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(MERCHANT_INFO, ORDER_CODE, new Amount("140", "EUR", "2"), REFERENCE, Boolean.FALSE);
+        final Amount amountMock = new Amount();
+        amountMock.setExponent(EXPONENT);
+        amountMock.setCurrencyCode(EUR);
+        amountMock.setValue("140");
+
+        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE, amountMock, REFERENCE, Boolean.FALSE);
         final RefundServiceResponse refund = gateway.refund(request);
 
         assertNotNull("Refund response is null!", refund);

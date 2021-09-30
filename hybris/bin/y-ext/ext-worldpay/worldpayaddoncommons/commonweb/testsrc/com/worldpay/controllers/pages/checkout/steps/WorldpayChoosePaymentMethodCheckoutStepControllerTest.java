@@ -85,6 +85,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     private static final String PHONE_NUMBER = "+44 (0) 123-123-123";
     private static final String PAYMENT_STATUS = "paymentStatus";
     private static final String SAVED_CARD_SELECTED_ATTRIBUTE = "savedCardSelected";
+    private static final String CURRENT_DATE = "currentDate";
+    private static final String IS_FS_ENABLED = "isFSEnabled";
 
     @Spy
     @InjectMocks
@@ -316,18 +318,21 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldSetupAndRedirectToChoosePaymentPage() throws CMSItemNotFoundException {
+    public void enterStep_WhenNoPaymentStatusInTheModel_shouldSetupAndRedirectToChoosePaymentPage() throws CMSItemNotFoundException {
         when(modelMock.asMap().get(PAYMENT_STATUS_PARAMETER_NAME)).thenReturn(null);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
 
         testObj.enterStep(modelMock, redirectAttrsMock);
 
         verify(testObj).setupAddPaymentPage(modelMock);
         verify(modelMock).addAttribute(eq(PAYMENT_DETAILS_FORM), any(PaymentDetailsForm.class));
+        verify(modelMock).addAttribute(IS_FS_ENABLED, true);
+        verify(modelMock).addAttribute(eq(CURRENT_DATE), any(String.class));
         verify(modelMock, never()).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
     }
 
     @Test
-    public void shouldAddErrorWhenThereIsAPaymentStatusInTheModel() throws CMSItemNotFoundException {
+    public void enterStep_WhenThereIsAPaymentStatusInTheModel_ShouldAddError() throws CMSItemNotFoundException {
         when(modelMock.asMap().get(PAYMENT_STATUS_PARAMETER_NAME)).thenReturn(PAYMENT_STATUS);
 
         testObj.enterStep(modelMock, redirectAttrsMock);

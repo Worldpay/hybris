@@ -1,15 +1,17 @@
 package com.worldpay.service.response.transform.impl;
 
+import com.worldpay.data.JournalReply;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.WebformRefundReply;
+import com.worldpay.data.token.DeleteTokenReply;
+import com.worldpay.data.token.TokenReply;
+import com.worldpay.data.token.UpdateTokenReply;
+import com.worldpay.enums.DebitCreditIndicator;
 import com.worldpay.internal.model.Error;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.JournalReply;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.WebformRefundReply;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.DeleteTokenReply;
-import com.worldpay.service.model.token.TokenReply;
-import com.worldpay.service.model.token.UpdateTokenReply;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
@@ -29,6 +32,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultServiceResponseTransformerHelperTest {
 
+    public static final String REASEON_CODE_1 = "Card Unfamiliarity";
+    public static final String REASEON_CODE_2 = "High Risk Email";
     private static final String RESPONSE_CODE = "responseCode";
     private static final String ACTION_CODE = "action code";
     private static final String TRANSACTION_ID = "transaction id";
@@ -106,8 +111,17 @@ public class DefaultServiceResponseTransformerHelperTest {
     private static final String BATCH_1 = "batch 1";
     private static final String BATCH_2 = "batch 2";
     private static final String TOKEN_ID = "token_id";
+    private static final String FRAUD_SIGHT_ID = "188a9ae6-21c4-4fd9-87cd-8df4c719aaf1";
+    private static final String SCORE = "0.5";
+    private static final String LOW_RISK_LEVEL = "low-risk";
+
     @InjectMocks
     private DefaultServiceResponseTransformerHelper testObj;
+
+    @Mock
+    private Converter<com.worldpay.internal.model.Amount, com.worldpay.data.Amount> internalAmountReverseConverterMock;
+    @Mock
+    private Converter<com.worldpay.internal.model.Date, com.worldpay.data.Date> internalDateReverseConverterMock;
 
     private Amount amount;
     private CVCResultCode cvcResultCode;
@@ -123,6 +137,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     private AAVTelephoneResultCode aavTelephoneResultCode;
     private AuthorisationId authorisationId;
     private SchemeResponse schemeResponse;
+    private FraudSight fraudSightResponse;
 
     @Mock
     private UpdateTokenReceived updateTokenReceivedMock;
@@ -134,11 +149,44 @@ public class DefaultServiceResponseTransformerHelperTest {
     private AccountTx accountTx1Mock, accountTx2Mock;
     @Mock
     private DeleteTokenReceived deletedTokenReceivedMock;
+    @Mock
+    private ReasonCodes reasonCodesMock;
+    @Mock
+    private Amount internalAmountMock;
+    @Mock
+    private com.worldpay.data.Amount amountMock, balanceAmountMock;
+    @Mock
+    private Date internalDateMock;
+    @Mock
+    private com.worldpay.data.Date dateMock, reportingDateMock;
 
     @Before
     public void setUp() {
+        testObj = new DefaultServiceResponseTransformerHelper(internalAmountReverseConverterMock, internalDateReverseConverterMock);
+
         cardHolderName = new CardHolderName();
         cardHolderName.setvalue(CARD_HOLDER_NAME);
+
+        when(amountMock.getValue()).thenReturn(AMOUNT_VALUE);
+        when(amountMock.getCurrencyCode()).thenReturn(AMOUNT_CURRENCY_CODE);
+        when(amountMock.getDebitCreditIndicator()).thenReturn(DebitCreditIndicator.DEBIT);
+        when(amountMock.getExponent()).thenReturn(AMOUNT_EXPONENT);
+        when(balanceAmountMock.getValue()).thenReturn(BALANCE_AMOUNT_VALUE);
+        when(balanceAmountMock.getCurrencyCode()).thenReturn(BALANCE_AMOUNT_CURRENCY_CODE);
+        when(balanceAmountMock.getDebitCreditIndicator()).thenReturn(DebitCreditIndicator.DEBIT);
+        when(balanceAmountMock.getExponent()).thenReturn(BALANCE_AMOUNT_EXPONENT);
+        when(dateMock.getYear()).thenReturn(EXPIRY_YEAR);
+        when(dateMock.getMonth()).thenReturn(EXPIRY_MONTH);
+        when(dateMock.getDayOfMonth()).thenReturn(DAY_OF_MONTH);
+        when(dateMock.getHour()).thenReturn(HOUR);
+        when(dateMock.getMinute()).thenReturn(MINUTE);
+        when(dateMock.getSecond()).thenReturn(SECOND);
+        when(reportingDateMock.getYear()).thenReturn(REPORTING_EXPIRY_YEAR);
+        when(reportingDateMock.getMonth()).thenReturn(REPORTING_EXPIRY_MONTH);
+        when(reportingDateMock.getDayOfMonth()).thenReturn(REPORTING_DAY_OF_MONTH);
+        when(reportingDateMock.getHour()).thenReturn(REPORTING_HOUR);
+        when(reportingDateMock.getMinute()).thenReturn(REPORTING_MINUTE);
+        when(reportingDateMock.getSecond()).thenReturn(REPORTING_SECOND);
         when(journalMock.getJournalType()).thenReturn(AUTHORISED.name());
         when(journalMock.getBookingDate()).thenReturn(bookingDateMock);
         when(bookingDateMock.getDate()).thenReturn(createDate());
@@ -149,6 +197,10 @@ public class DefaultServiceResponseTransformerHelperTest {
         when(accountTx2Mock.getAccountType()).thenReturn(BUSSINESS_ACCOUNT);
         when(accountTx2Mock.getBatchId()).thenReturn(BATCH_2);
         when(deletedTokenReceivedMock.getPaymentTokenID()).thenReturn(TOKEN_ID);
+        when(internalAmountReverseConverterMock.convert(internalAmountMock)).thenReturn(amountMock);
+        when(internalAmountReverseConverterMock.convert(internalAmountMock)).thenReturn(balanceAmountMock);
+        when(internalDateReverseConverterMock.convert(internalDateMock)).thenReturn(dateMock);
+        when(internalDateReverseConverterMock.convert(internalDateMock)).thenReturn(reportingDateMock);
     }
 
     @Test
@@ -161,6 +213,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         createBalance();
         createIso8583ReturnCode();
         createRiskScore();
+        createFraudSight();
         createAavAddressResultCode();
         createAavCardholderNameResultCode();
         createAavEmailResultCode();
@@ -178,6 +231,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         payment.getBalance().add(balance);
         payment.setISO8583ReturnCode(iso8583ReturnCode);
         payment.setRiskScore(riskScore);
+        payment.setFraudSight(fraudSightResponse);
         payment.setCardHolderName(cardHolderName);
         payment.setAAVAddressResultCode(aavAddressResultCode);
         payment.setAAVCardholderNameResultCode(aavCardholderNameResultCode);
@@ -188,6 +242,10 @@ public class DefaultServiceResponseTransformerHelperTest {
         payment.setAuthorisationId(authorisationId);
         payment.setSchemeResponse(schemeResponse);
 
+        when(internalDateReverseConverterMock.convert(payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate())).thenReturn(dateMock);
+        when(internalAmountReverseConverterMock.convert(payment.getBalance().get(0).getAmount())).thenReturn(balanceAmountMock);
+        when(internalAmountReverseConverterMock.convert(payment.getAmount())).thenReturn(amountMock);
+
         final PaymentReply paymentReply = testObj.buildPaymentReply(payment);
 
         assertEquals(PAYMENT_METHOD, paymentReply.getPaymentMethodCode());
@@ -195,7 +253,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(EXPIRY_YEAR, paymentReply.getCardDetails().getExpiryDate().getYear());
         assertEquals(CARD_HOLDER_NAME, paymentReply.getCardDetails().getCardHolderName());
         assertEquals(CARD_NUMBER, paymentReply.getCardDetails().getCardNumber());
-        assertEquals(PaymentType.VISA, paymentReply.getCardDetails().getPaymentType());
+        assertEquals(PaymentType.VISA.getMethodCode(), paymentReply.getCardDetails().getPaymentType());
         assertEquals(AUTHORISED, paymentReply.getAuthStatus());
         assertEquals(CVC_RESULT_CODE_DESCRIPTION, paymentReply.getCvcResultDescription());
         assertEquals(ISO8583_RETURN_CODE_CODE, paymentReply.getReturnCode());
@@ -222,6 +280,26 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(RESPONSE_CODE, paymentReply.getSchemeResponse().getResponseCode());
         assertEquals(SCHEMA_NAME, paymentReply.getSchemeResponse().getSchemeName());
         assertEquals(TRANSACTION_ID, paymentReply.getSchemeResponse().getTransactionIdentifier());
+
+        assertThat(paymentReply.getFraudSight().getId()).isEqualTo(FRAUD_SIGHT_ID);
+        assertThat(paymentReply.getFraudSight().getScore()).isEqualTo(0.5);
+        assertThat(paymentReply.getFraudSight().getMessage()).isEqualTo(LOW_RISK_LEVEL);
+        assertThat(paymentReply.getFraudSight().getReasonCodes()).hasSize(2);
+        assertThat(paymentReply.getFraudSight().getReasonCodes().get(0)).isEqualTo(REASEON_CODE_1);
+        assertThat(paymentReply.getFraudSight().getReasonCodes().get(1)).isEqualTo(REASEON_CODE_2);
+    }
+
+    private void createFraudSight() {
+        fraudSightResponse = new FraudSight();
+        fraudSightResponse.setId(FRAUD_SIGHT_ID);
+        fraudSightResponse.setScore(SCORE);
+        fraudSightResponse.setMessage(LOW_RISK_LEVEL);
+        final ReasonCode reasonCode1 = new ReasonCode();
+        reasonCode1.setvalue(REASEON_CODE_1);
+        final ReasonCode reasonCode2 = new ReasonCode();
+        reasonCode2.setvalue(REASEON_CODE_2);
+        when(reasonCodesMock.getReasonCode()).thenReturn(Arrays.asList(reasonCode1, reasonCode2));
+        fraudSightResponse.setReasonCodes(reasonCodesMock);
     }
 
     private void createScheme() {
@@ -307,6 +385,10 @@ public class DefaultServiceResponseTransformerHelperTest {
         payment.setRefundReference(REFUND_REFERENCE);
         payment.setAuthorisationId(authorisationId);
 
+        when(internalDateReverseConverterMock.convert(payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate())).thenReturn(dateMock);
+        when(internalAmountReverseConverterMock.convert(payment.getBalance().get(0).getAmount())).thenReturn(balanceAmountMock);
+        when(internalAmountReverseConverterMock.convert(payment.getAmount())).thenReturn(amountMock);
+
         final PaymentReply paymentReply = testObj.buildPaymentReply(payment);
 
         assertEquals(PAYMENT_METHOD, paymentReply.getPaymentMethodCode());
@@ -314,11 +396,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(EXPIRY_YEAR, paymentReply.getCardDetails().getExpiryDate().getYear());
         assertEquals(CARD_HOLDER_NAME, paymentReply.getCardDetails().getCardHolderName());
         assertEquals(CARD_NUMBER, paymentReply.getCardDetails().getCardNumber());
-        assertEquals(PaymentType.VISA, paymentReply.getCardDetails().getPaymentType());
+        assertEquals(PaymentType.VISA.getMethodCode(), paymentReply.getCardDetails().getPaymentType());
         assertEquals(AUTHORISED, paymentReply.getAuthStatus());
         assertEquals(CVC_RESULT_CODE_DESCRIPTION, paymentReply.getCvcResultDescription());
         assertEquals(ISO8583_RETURN_CODE_CODE, paymentReply.getReturnCode());
-        assertThat(paymentReply.getRiskScore()).isEqualTo(null);
+        assertThat(paymentReply.getRiskScore()).isNull();
         assertEquals(AAV_ADDRESS_RESULT_CODE_DESCRIPTION, paymentReply.getAavAddressResultCode());
         assertEquals(AAV_CARDHOLDER_NAME_RESULT_CODE_DESCRIPTION, paymentReply.getAavCardholderNameResultCode());
         assertEquals(AAV_EMAIL_RESULT_CODE_DESCRIPTION, paymentReply.getAavEmailResultCode());
@@ -381,6 +463,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
+        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).getExpiryDate().getDate();
+        when(internalDateReverseConverterMock.convert(date)).thenReturn(dateMock);
+
         final Error error = new Error();
         error.setCode(ERROR_CODE);
         error.setvalue(ERROR_MESSAGE);
@@ -435,7 +520,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARTE_BLEUE);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARTE_BLEUE.getMethodCode());
     }
 
     @Test
@@ -449,7 +534,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARTE_BANCAIRE);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARTE_BANCAIRE.getMethodCode());
     }
 
     @Test
@@ -463,7 +548,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.VISA);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.VISA.getMethodCode());
     }
 
     @Test
@@ -477,7 +562,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.AIRPLUS);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.AIRPLUS.getMethodCode());
     }
 
     @Test
@@ -491,7 +576,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.AMERICAN_EXPRESS);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.AMERICAN_EXPRESS.getMethodCode());
     }
 
     @Test
@@ -505,7 +590,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DANKORT);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DANKORT.getMethodCode());
     }
 
     @Test
@@ -519,7 +604,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DINERS);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DINERS.getMethodCode());
     }
 
     @Test
@@ -533,7 +618,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DISCOVER);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.DISCOVER.getMethodCode());
     }
 
     @Test
@@ -547,7 +632,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.JCB);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.JCB.getMethodCode());
     }
 
     @Test
@@ -561,7 +646,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MAESTRO);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MAESTRO.getMethodCode());
     }
 
     @Test
@@ -575,7 +660,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.UATP);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.UATP.getMethodCode());
     }
 
     @Test
@@ -589,7 +674,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL.getMethodCode());
     }
 
     @Test
@@ -625,6 +710,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetailsWithoutCardHolderName());
         tokenElements.add(paymentInstrument);
+
+        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).getExpiryDate().getDate();
+        when(internalDateReverseConverterMock.convert(date)).thenReturn(dateMock);
 
         final Error error = new Error();
         error.setCode(ERROR_CODE);
@@ -707,6 +795,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         error.setvalue(ERROR_MESSAGE);
         tokenElements.add(error);
 
+        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).getExpiryDate().getDate();
+        when(internalDateReverseConverterMock.convert(date)).thenReturn(dateMock);
+
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
         assertEquals(AUTHENTICATED_SHOPPER_ID, tokenReply.getAuthenticatedShopperID());
@@ -759,6 +850,8 @@ public class DefaultServiceResponseTransformerHelperTest {
         reportingTokenExpiry.setDate(createReportingTokenExpiryDate());
         tokenDetail.setReportingTokenExpiry(reportingTokenExpiry);
         tokenElements.add(tokenDetail);
+
+        when(internalDateReverseConverterMock.convert(reportingTokenExpiry.getDate())).thenReturn(reportingDateMock);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetailsWithoutExpiryDate());
@@ -865,6 +958,8 @@ public class DefaultServiceResponseTransformerHelperTest {
         shopperWebformRefundDetails.setRefundId(REFUND_ID);
         shopperWebformRefundDetails.setAmount(amount);
 
+        when(internalAmountReverseConverterMock.convert(shopperWebformRefundDetails.getAmount())).thenReturn(amountMock);
+
         final WebformRefundReply result = testObj.buildWebformRefundReply(shopperWebformRefundDetails);
 
         assertEquals(WEBFORM_URL, result.getWebformURL());
@@ -873,7 +968,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(PAYMENT_ID, result.getPaymentId());
         assertEquals(REASON, result.getReason());
         assertEquals(REFUND_ID, result.getRefundId());
-        final com.worldpay.service.model.Amount amountResult = result.getAmount();
+        final com.worldpay.data.Amount amountResult = result.getAmount();
         assertEquals(amount.getValue(), amountResult.getValue());
     }
 
@@ -897,7 +992,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MASTERCARD);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MASTERCARD.getMethodCode());
     }
 
     @Test
@@ -911,7 +1006,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MASTERCARD);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.MASTERCARD.getMethodCode());
     }
 
     @Test
@@ -925,11 +1020,13 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
 
-        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL);
+        assertThat(tokenReply.getPaymentInstrument().getPaymentType()).isEqualTo(PaymentType.CARD_SSL.getMethodCode());
     }
 
     @Test
     public void buildJournalReply_ShouldBuildTheJournal() {
+        when(internalDateReverseConverterMock.convert(journalMock.getBookingDate().getDate())).thenReturn(dateMock);
+
         final JournalReply result = testObj.buildJournalReply(journalMock);
 
         assertThat(result).isNotNull();

@@ -1,12 +1,13 @@
 ACC.worldpay = {
 
-    _autoload:[
+    _autoload: [
         "bindUseDeliveryAddress",
         "bindCountrySelector",
         "bindCreditCardAddressForm",
         "populateDeclineCodeTimeout",
         "hideOrShowSaveDetails",
         "bindBanks",
+        ["bindDOBInput", ACC.isFSEnabled === 'true'],
         "checkPreviouslySelectedPaymentMethod"
     ],
 
@@ -60,8 +61,7 @@ ACC.worldpay = {
         if (wpUseDeliveryAddress.is(":checked")) {
             $('select[id^="billingAddress\\.country"]').val(wpUseDeliveryAddress.data('countryisocode'));
             ACC.worldpay.disableAddressForm();
-        }
-        else {
+        } else {
             this.clearAddressForm();
             this.enableAddressForm();
         }
@@ -136,11 +136,9 @@ ACC.worldpay = {
         $(".cms-payment-button").on("change", function () {
             if ($("#paymentMethod_CC").is(":checked") || $("#paymentMethod_ONLINE").val() == "ONLINE") {
                 $(".save_payment_details").removeClass("hidden");
-            }
-            else if (!$(".cms-payment-button").length) {
+            } else if (!$(".cms-payment-button").length) {
                 $(".save_payment_details").removeClass("hidden");
-            }
-            else {
+            } else {
                 $("#SaveDetails").prop('checked', false);
                 $(".save_payment_details").addClass("hidden");
             }
@@ -193,5 +191,24 @@ ACC.worldpay = {
                 $("#bankElement").addClass("hidden");
             }
         });
+
+    },
+
+    bindDOBInput: function () {
+        $('.cms-payment-button').on('change', function () {
+            var selectedCard = $('[name="paymentMethod"]:checked');
+            if (selectedCard.attr('id') === 'paymentMethod_CC') {
+                $('#dobElement').removeClass('hidden');
+                $('#dobRequired').val(true);
+            } else {
+                $('#dobElement').addClass('hidden');
+                $('#dobRequired').val(false);
+            }
+        });
+
+        if ($('[id="paymentMethod_CC"]:checked').length > 0) {
+            $('#dobElement').removeClass('hidden');
+            $('#dobRequired').val(ACC.isFSEnabled);
+        }
     }
 };

@@ -1,6 +1,6 @@
 package com.worldpay.service.response;
 
-import com.worldpay.service.model.ErrorDetail;
+import com.worldpay.data.ErrorDetail;
 
 /**
  * Template implementation of a {@link ServiceResponse} providing order code and {@link ErrorDetail}

@@ -1,10 +1,10 @@
 package com.worldpay.service.request;
 
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.token.CardDetails;
+import com.worldpay.data.token.TokenRequest;
+import com.worldpay.data.token.UpdateTokenRequest;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.token.CardDetails;
-import com.worldpay.service.model.token.TokenRequest;
-import com.worldpay.service.model.token.UpdateTokenRequest;
 
 
 /**
@@ -40,24 +40,35 @@ public class UpdateTokenServiceRequest extends AbstractServiceRequest {
         checkParameters("UpdateTokenServiceRequest", merchantInfo, cardDetails);
 
         final UpdateTokenServiceRequest request = new UpdateTokenServiceRequest(merchantInfo, null);
-        request.setUpdateTokenRequest(new UpdateTokenRequest(paymentTokenId, authenticatedShopperId, cardDetails, tokenRequest, false));
+        final UpdateTokenRequest updateTokenRequest = new UpdateTokenRequest();
+        updateTokenRequest.setPaymentTokenId(paymentTokenId);
+        updateTokenRequest.setAuthenticatedShopperID(authenticatedShopperId);
+        updateTokenRequest.setCardDetails(cardDetails);
+        updateTokenRequest.setTokenRequest(tokenRequest);
+        updateTokenRequest.setMerchantToken(false);
+        request.setUpdateTokenRequest(updateTokenRequest);
         return request;
     }
 
     /**
      * Static convenience method for creating an instance of the UpdateTokenServiceRequest with merchant scope
      *
-     * @param merchantInfo           merchantInfo to be used in the Worldpay call
-     * @param paymentTokenId         the payment token id to update
-     * @param tokenRequest           contains the information to request a new token
-     * @param cardDetails            payment to be used in the Worldpay call
+     * @param merchantInfo   merchantInfo to be used in the Worldpay call
+     * @param paymentTokenId the payment token id to update
+     * @param tokenRequest   contains the information to request a new token
+     * @param cardDetails    payment to be used in the Worldpay call
      * @return new instance of the UpdateTokenServiceRequest initialised with input parameters
      */
     public static UpdateTokenServiceRequest updateTokenRequestWithMerchantScope(final MerchantInfo merchantInfo, final String paymentTokenId, final TokenRequest tokenRequest, final CardDetails cardDetails) {
         checkParameters("UpdateTokenServiceRequest", merchantInfo, cardDetails);
 
         final UpdateTokenServiceRequest request = new UpdateTokenServiceRequest(merchantInfo, null);
-        request.setUpdateTokenRequest(new UpdateTokenRequest(paymentTokenId, null, cardDetails, tokenRequest, true));
+        final UpdateTokenRequest updateTokenRequest = new UpdateTokenRequest();
+        updateTokenRequest.setPaymentTokenId(paymentTokenId);
+        updateTokenRequest.setCardDetails(cardDetails);
+        updateTokenRequest.setTokenRequest(tokenRequest);
+        updateTokenRequest.setMerchantToken(true);
+        request.setUpdateTokenRequest(updateTokenRequest);
         return request;
     }
 

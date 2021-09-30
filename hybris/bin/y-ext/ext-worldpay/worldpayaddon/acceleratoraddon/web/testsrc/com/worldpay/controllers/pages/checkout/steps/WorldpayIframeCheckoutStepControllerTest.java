@@ -27,6 +27,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Calendar;
+import java.util.Date;
 
 import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
@@ -45,6 +47,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     private static final String SHOW_NGPP_IFRAME = "showNGPPIframe";
     private static final String REDIRECT_PREFIX = "redirect:";
     private static final String REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS = REDIRECT_PREFIX + "/checkout/multi/worldpay/iframe/add-payment-details";
+    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
 
     private static final String PAYMENT_DATA = "paymentData";
     private static final String SHOPPER_BANK_CODE = "shopperBankCode";
@@ -122,6 +125,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     public void addPaymentDetailsShouldReturnIframePageWithSaveInAccountSetAsFalse() throws WorldpayException, CMSItemNotFoundException {
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(additionalAuthInfoMock, worldpayAdditionalInfoDataMock)).thenReturn(paymentDataMock);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(any())).thenReturn(worldpayAdditionalInfoDataMock);
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
 
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, httpServletRequestMock, bindingResultMock, redirectAttrbsMock);
 
@@ -132,6 +136,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
         verify(redirectAttrbsMock).addFlashAttribute(SHOW_NGPP_IFRAME, true);
         verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
         verify(worldpayHostedOrderFacadeMock).createPaymentInfoModelOnCart(Boolean.FALSE);
+        verify(worldpayAdditionalInfoDataMock).setDateOfBirth(BIRTHDAY_DATE_VALUE);
         assertEquals(REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS, result);
     }
 
@@ -139,6 +144,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     public void addPaymentDetailsShouldReturnBillingPageWithErrors() throws WorldpayException, CMSItemNotFoundException {
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(additionalAuthInfoMock, worldpayAdditionalInfoDataMock)).thenThrow(new WorldpayException(EXCEPTION_MESSAGE));
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(any())).thenReturn(worldpayAdditionalInfoDataMock);
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
 
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, httpServletRequestMock, bindingResultMock, redirectAttrbsMock);
 
@@ -149,6 +155,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
         verify(redirectAttrbsMock, never()).addFlashAttribute(eq(PAYMENT_METHOD_PARAM), any());
         verify(redirectAttrbsMock, never()).addFlashAttribute(eq(SHOPPER_BANK_CODE), any());
         verify(redirectAttrbsMock).addFlashAttribute(SHOW_NGPP_IFRAME, false);
+        verify(worldpayAdditionalInfoDataMock).setDateOfBirth(BIRTHDAY_DATE_VALUE);
         assertEquals(REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS, result);
     }
 

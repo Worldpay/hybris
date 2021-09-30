@@ -2,7 +2,7 @@ package com.worldpay.service.response.transform;
 
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.*;
-import com.worldpay.service.model.RedirectReference;
+import com.worldpay.data.RedirectReference;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import com.worldpay.service.response.ServiceResponse;
 
@@ -22,22 +22,24 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
     public ServiceResponse transform(final PaymentService paymentServiceReply) throws WorldpayModelTransformationException {
         final RedirectAuthoriseServiceResponse authResponse = new RedirectAuthoriseServiceResponse();
 
-        final Object responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        if (responseType == null) {
-            throw new WorldpayModelTransformationException("No reply message in Worldpay response");
-        }
-        if (!(responseType instanceof Reply)) {
-            throw new WorldpayModelTransformationException("Reply type from Worldpay not the expected type");
-        }
-        final Reply intReply = (Reply) responseType;
+        final Reply intReply = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()
+            .stream()
+            .filter(Reply.class::isInstance)
+            .map(Reply.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
+
         if (getServiceResponseTransformerHelper().checkForError(authResponse, intReply)) {
             return authResponse;
         }
 
-        final OrderStatus intOrderStatus = (OrderStatus) intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
-        if (intOrderStatus == null) {
-            throw new WorldpayModelTransformationException("No order status returned in Worldpay reply message");
-        }
+        final OrderStatus intOrderStatus = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+            .stream()
+            .filter(OrderStatus.class::isInstance)
+            .map(OrderStatus.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No order status returned in Worldpay reply message"));
+
         authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
         final List<Object> intOrderData = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
@@ -55,7 +57,10 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
                 .findAny()
                 .orElseThrow(() -> new WorldpayModelTransformationException("Order status type returned in Worldpay reply message is not one of the expected types for redirect authorise"));
 
-        final RedirectReference redirectReference = new RedirectReference(reference.getId(), reference.getvalue());
+
+        final RedirectReference redirectReference = new RedirectReference();
+        redirectReference.setValue(reference.getvalue());
+        redirectReference.setId(reference.getId());
         authResponse.setRedirectReference(redirectReference);
 
         return authResponse;

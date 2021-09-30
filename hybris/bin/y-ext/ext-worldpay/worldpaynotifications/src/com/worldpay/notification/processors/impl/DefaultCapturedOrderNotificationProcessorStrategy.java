@@ -1,8 +1,8 @@
 package com.worldpay.notification.processors.impl;
 
-import com.worldpay.klarna.WorldpayKlarnaUtils;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayKlarnaService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
@@ -24,15 +24,16 @@ public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderN
     protected final TransactionOperations transactionTemplate;
     protected final ModelService modelService;
     protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    protected final WorldpayKlarnaUtils worldpayKlarnaUtils;
+    protected final WorldpayKlarnaService worldpayKlarnaService;
 
     public DefaultCapturedOrderNotificationProcessorStrategy(final TransactionOperations transactionTemplate,
                                                              final ModelService modelService,
-                                                             final WorldpayPaymentTransactionService worldpayPaymentTransactionService, final WorldpayKlarnaUtils worldpayKlarnaUtils) {
+                                                             final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                                             final WorldpayKlarnaService worldpayKlarnaService) {
         this.transactionTemplate = transactionTemplate;
         this.modelService = modelService;
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-        this.worldpayKlarnaUtils = worldpayKlarnaUtils;
+        this.worldpayKlarnaService = worldpayKlarnaService;
     }
 
     /**
@@ -60,7 +61,7 @@ public class DefaultCapturedOrderNotificationProcessorStrategy implements OrderN
     }
 
     private boolean shouldCreateCapturePaymentTransactionEntry(final PaymentInfoModel paymentInfoModel, final String paymentTypeCode) {
-        return Objects.nonNull(paymentInfoModel) && paymentInfoModel.getIsApm() && !(worldpayKlarnaUtils.isKlarnaPaymentType(paymentTypeCode));
+        return Objects.nonNull(paymentInfoModel) && paymentInfoModel.getIsApm() && !(worldpayKlarnaService.isKlarnaPaymentType(paymentTypeCode));
     }
 
     protected void updatePaymentTransactionEntry(final PaymentTransactionModel transactionModel, final List<PaymentTransactionEntryModel> paymentTransactionEntries, final String transactionStatus) {

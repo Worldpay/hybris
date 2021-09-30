@@ -1,5 +1,6 @@
 package com.worldpay.facades.impl;
 
+import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -23,13 +24,16 @@ public class DefaultAPMAvailabilityFacadeTest {
     private DefaultAPMAvailabilityFacade testObj;
 
     @Mock
-    private WorldpayAPMConfigurationModel apmConfigurationMock;
+    private APMAvailabilityService apmAvailabilityServiceMock;
+    @Mock
+    private APMConfigurationLookupService apmConfigurationLookupServiceMock;
     @Mock
     private CartService cartServiceMock;
+
+    @Mock
+    private WorldpayAPMConfigurationModel apmConfigurationMock;
     @Mock
     private CartModel cartModelMock;
-    @Mock
-    private APMAvailabilityService apmAvailabilityServiceMock;
 
     @Test
     public void isAvailableInvokesApmAvailabilityService() {

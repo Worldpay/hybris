@@ -10,11 +10,12 @@ import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLo
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.order.InvalidCartException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
@@ -27,7 +28,9 @@ import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay")
 public class WorldpayKlarnaCheckoutStepController extends AbstractController {
-    private static final Logger LOG = Logger.getLogger(WorldpayHopResponseController.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(WorldpayKlarnaCheckoutStepController.class);
+
     private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
     private static final String CHECKOUT_PLACE_ORDER_FAILED = "checkout.placeOrder.failed";
     private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
@@ -49,7 +52,7 @@ public class WorldpayKlarnaCheckoutStepController extends AbstractController {
      * @param redirectAttributes
      * @return
      */
-    @RequestMapping(value = "/klarna/confirmation", method = RequestMethod.GET)
+    @GetMapping(value = "/klarna/confirmation")
     @RequireHardLogIn
     public String doHandleKlarnaConfirmation(final Model model, final RedirectAttributes redirectAttributes) {
         try {

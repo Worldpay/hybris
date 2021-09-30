@@ -2,7 +2,6 @@ package com.worldpay.notification.processors;
 
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.service.notification.OrderNotificationMessage;
-import com.worldpay.worldpaynotifications.enums.DefectiveReason;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
@@ -12,34 +11,6 @@ import de.hybris.platform.payment.enums.PaymentTransactionType;
  */
 public interface WorldpayOrderNotificationHandler {
 
-    /**
-     * Sets the notification as defective
-     * Logs the message from the provided exception
-     * Sets the notification as processed by the given processed flag
-     * Saves the notification
-     *
-     * @param orderModificationModel
-     * @param exception
-     * @param processed
-     */
-    void setDefectiveModification(WorldpayOrderModificationModel orderModificationModel, Exception exception, boolean processed);
-
-    /**
-     * Sets the defective reason given to the order notification.
-     * Increments the defectiveCounter in the order notification.
-     *
-     * @param orderModificationModel
-     * @param defectiveReason
-     */
-    void setDefectiveReason(WorldpayOrderModificationModel orderModificationModel, DefectiveReason defectiveReason);
-
-    /**
-     * Sets the notification as processed and non defective
-     * Saves the notification
-     *
-     * @param modification
-     */
-    void setNonDefectiveAndProcessed(WorldpayOrderModificationModel modification);
 
     /**
      * Handles order notifications and triggers business process if needed

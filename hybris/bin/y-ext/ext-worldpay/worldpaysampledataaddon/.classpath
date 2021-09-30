@@ -4,8 +4,6 @@
 	<classpathentry kind="output" path="eclipsebin/notused"/>
 
 	<classpathentry exported="true" kind="src" path="/worldpayapi" />
-	<classpathentry exported="true" kind="src" path="/electronicsstore" />
-	<classpathentry exported="true" kind="src" path="/apparelstore" />
 	<classpathentry exported="true" kind="src" path="/assistedservicestorefront" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />

@@ -1,7 +1,7 @@
 package com.worldpay.strategies.paymenttransaction.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
+import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -24,12 +24,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayAuthorizedPaymentTransactionTypeStrategyTest {
 
-
     @InjectMocks
     private DefaultWorldpayAuthorizedPaymentTransactionTypeStrategy testObj;
 
     @Mock
-    private WorldpayOrderNotificationHandler worldpayOrderNotificationHandlerMock;
+    private OrderNotificationService orderNotificationServiceMock;
     @Mock
     private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
 
@@ -52,7 +51,7 @@ public class DefaultWorldpayAuthorizedPaymentTransactionTypeStrategyTest {
     public void processModificationMessage_WhenNotPendingTransactionEntries_ShouldProcessAndSetNonDefective() {
         testObj.processModificationMessage(orderMock, worldpayOrderNotificationMock);
 
-        verify(worldpayOrderNotificationHandlerMock).setNonDefectiveAndProcessed(worldpayOrderNotificationMock);
+        verify(orderNotificationServiceMock).setNonDefectiveAndProcessed(worldpayOrderNotificationMock);
     }
 
     @Test
@@ -61,6 +60,6 @@ public class DefaultWorldpayAuthorizedPaymentTransactionTypeStrategyTest {
 
         testObj.processModificationMessage(orderMock, worldpayOrderNotificationMock);
 
-        verify(worldpayOrderNotificationHandlerMock, never()).setNonDefectiveAndProcessed(worldpayOrderNotificationMock);
+        verify(orderNotificationServiceMock, never()).setNonDefectiveAndProcessed(worldpayOrderNotificationMock);
     }
 }

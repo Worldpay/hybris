@@ -9,12 +9,12 @@ import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.model.ApplePayPaymentInfoModel;
 import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
-import com.worldpay.service.model.MerchantInfo;
-import com.worldpay.service.model.PaymentReply;
-import com.worldpay.service.model.payment.Card;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.PaymentReply;
+import com.worldpay.data.payment.Card;
+import com.worldpay.data.token.CardDetails;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.service.model.token.CardDetails;
-import com.worldpay.service.model.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
 import com.worldpay.service.response.CreateTokenResponse;
@@ -147,7 +147,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Mock(answer = RETURNS_DEEP_STUBS)
     private Card cardMock;
     @Mock
-    private com.worldpay.service.model.Date dateMock;
+    private com.worldpay.data.Date dateMock;
     @Mock
     private CurrencyModel currencyModelMock;
     @Mock
@@ -515,7 +515,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         doReturn(CC_PAYMENT_INFO_MODEL_CODE).when(testObj).generateCcPaymentInfoCode(cartModelMock);
         when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(NEW);
-        when(tokenReplyMock.getPaymentInstrument().getPaymentType()).thenReturn(PaymentType.VISA);
+        when(tokenReplyMock.getPaymentInstrument().getPaymentType()).thenReturn(PaymentType.VISA.getMethodCode());
         when(tokenReplyMock.getPaymentInstrument().getBin()).thenReturn(BIN);
         when(cartModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
         doReturn(clonedAddressMock).when(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, creditCardPaymentInfoModelMock);

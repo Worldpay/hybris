@@ -2,8 +2,9 @@ package com.worldpay.facades.payment.merchant.impl;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
+import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import com.worldpay.strategy.WorldpayMerchantStrategy;
-import org.springframework.beans.factory.annotation.Required;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 
 
 /**
@@ -11,18 +12,20 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class DefaultWorldpayMerchantConfigDataFacade implements WorldpayMerchantConfigDataFacade {
 
-    private WorldpayMerchantStrategy worldpayMerchantStrategy;
+    protected final WorldpayMerchantStrategy worldpayMerchantStrategy;
+    protected final Converter<WorldpayMerchantConfigurationModel, WorldpayMerchantConfigData> worldPayMerchantConfigDataConverter;
+
+    public DefaultWorldpayMerchantConfigDataFacade(final WorldpayMerchantStrategy worldpayMerchantStrategy,
+                                                   final Converter<WorldpayMerchantConfigurationModel, WorldpayMerchantConfigData> worldPayMerchantConfigDataConverter) {
+        this.worldpayMerchantStrategy = worldpayMerchantStrategy;
+        this.worldPayMerchantConfigDataConverter = worldPayMerchantConfigDataConverter;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public WorldpayMerchantConfigData getCurrentSiteMerchantConfigData() {
-        return worldpayMerchantStrategy.getMerchant();
-    }
-
-    @Required
-    public void setWorldpayMerchantStrategy(final WorldpayMerchantStrategy worldpayMerchantStrategy) {
-        this.worldpayMerchantStrategy = worldpayMerchantStrategy;
+        return worldPayMerchantConfigDataConverter.convert(worldpayMerchantStrategy.getMerchant());
     }
 }

@@ -1,6 +1,6 @@
 package com.worldpay.service.payment;
 
-import com.worldpay.service.model.MerchantInfo;
+import com.worldpay.data.MerchantInfo;
 
 import java.util.Map;
 

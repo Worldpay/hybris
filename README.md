@@ -9,7 +9,7 @@ About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company
 The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
 
 ## Release Information
-This release is tailored for SAP Commerce Cloud 2005. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
+This release is tailored for SAP Commerce Cloud 2105. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
 
 # Installation and Usage
 
@@ -38,14 +38,36 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-- A read/write socket connection timeout was configured in the library
+##Features:
+- SEPA Direct Debit has been integrated as an APM
+- Prime routing
+- Level2/3 Data
+- Request and response payloads are now saved into the Order
+- Fraud Sight Integration
+- Unprocessed order tickets are now linked to their order
 
-- ypay-lib was updated to the latest DTD version
+##Breaking changes:
+- Several POJO objects are now created as beans defined in a beans.xml file. 
+- transformToInternalModel has been removed. New Converters/Populators  per each one of the types that we have has been created and are used instead
+- Java Classes from the Worldpay's DTD are now generated with JAXB's xjc
+- The merchant configuration has been migrated to the data model:
+	1. Every merchant.xml file has been deleted from the repository and sensitive data like passwords, macSecret are not visible anymore.
+	2. New Types have been added into the DB definition: WorldpayMerchantConfiguration, WorldpayApplePayConfiguration, WorldpayGooglePayConfiguration, WorldpayThreeDS2JsonWebTokenConfiguration.
+	3. New enumerations have been added into the DB definition: EnvironmentType, ApplePaySupportedNetworks, ApplePayMerchantCapabilities, GooglePayCardNetworks, GooglePayCardAuthMethods, ChallengePreference
+	4. The Merchant Configuration can be found in the backoffice following the path: Worldpay → Merchant Configuration
+	5. The Merchant Configuration is related to the Site. Every site will have now a new tab called Worldpay. Inside this type there is the section MERCHANT CONFIGURATION DETAILS in which you can find the new 3 attributes:
+		- Web Merchant Configuration
+		- ASM Merchant Configuration
+		- Replenishment Merchant Configuration
+- All of them are of the same type WorldpayMerchantConfiguration. This new configuration represents the old xml configuration of the merchant.xml file.
 
-- When upgrading to version 2011 redundant address converters were removed after ootb hybris populated the email
+##Bugs Fixed: 
+- Fixed an issue related with date generation that was causing unprocessed order tickets not being created.
+- Fixed an issue that was causing customers being redirected to an incorrect HOP URL when using express checkout.
+- Fixed a NPE thrown on the summary step of the checkout when a paymentInfo has no bin number set.
+- Fixed an issue with Ideal that was making the successURL not being encrypted.
+- The profiletagaddon has been added to the project to fix a JSP file not found exception.
+- Fixed an issue related to the tax configuration that was causing an error in the Electronics site when paying with a saved card.
+- Fixed an issue related to the client side encryption that was causing an error when accessing to the payment details page.
+- Fixed an issue with Klarna where an invalid shopper locale was being set.
 
-- A bug was raised to fix hybris ootb causing an order process failure. Unnecessary user rights were removed and warehouse users were imported just for OMS. User rights were also moved to the common impex 
-
-- Added obfuscated cart number, card expiry month and year in the order confirmation page and payment info for googlepay with spartacus
-
-- Fixed a bug related to saved cards for the b2b accelerator. The issue was caused by order placed with replenishment and card tokenized and saved in the step. The billing address was not saved in this case and it was causing the error when reusing the saved card.

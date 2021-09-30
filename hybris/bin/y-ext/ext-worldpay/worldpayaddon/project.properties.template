@@ -34,7 +34,8 @@ worldpayaddon.javascript.paths.responsive=\
   /responsive/common/js/worldpayaddonCSE.js;\
   /responsive/common/js/worldpayaddonRedirect.js;\
   /responsive/common/js/worldpayGooglePay.js;\
-  /responsive/common/js/worldpayApplePay.js
+  /responsive/common/js/worldpayApplePay.js;\
+  /responsive/common/js/worldpayCollector.js
 worldpayaddon.css.paths.responsive=/responsive/common/css/worldpayaddon.css
 
 
