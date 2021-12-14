@@ -45,8 +45,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
 
@@ -74,6 +78,8 @@ import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.
 public class WorldpayCartsController extends AbstractWorldpayController {
 
     private static final Logger LOG = Logger.getLogger(WorldpayCartsController.class);
+
+    private static final String DATE_OF_BIRTH_FORMAT = "yyyy-MM-dd";
 
     @Resource(name = "occWorldpayDirectOrderFacade")
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
@@ -200,6 +206,10 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, cseAdditionalAuthInfo, cartId);
+        worldpayAdditionalInfoData.setDeviceSession(paymentDetails.getDeviceSession());
+        Optional.ofNullable(paymentDetails.getDateOfBirth())
+            .map(this::convertStringToDate)
+            .ifPresent(date -> worldpayAdditionalInfoData.setDateOfBirth(date));
 
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
 
@@ -333,5 +343,20 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         worldpayAdressWsDTOAddressDataPopulator.populate(address, addressData);
         userFacade.addAddress(addressData);
         worldpayPaymentCheckoutFacade.setBillingDetails(addressData);
+    }
+
+    /**
+     * Convert yyyy-MM-dd string to a Java Date
+     * @param dateString
+     * @return
+     */
+    protected Date convertStringToDate(final String dateString) {
+        try {
+            return new SimpleDateFormat(DATE_OF_BIRTH_FORMAT).parse(dateString);
+        }
+        catch (ParseException e){
+            LOG.error("failed parsing date of birth", e);
+        }
+        return null;
     }
 }

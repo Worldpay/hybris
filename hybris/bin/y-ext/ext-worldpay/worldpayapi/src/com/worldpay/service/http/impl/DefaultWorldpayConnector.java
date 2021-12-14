@@ -58,7 +58,7 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     public ServiceReply send(final PaymentService outboundPaymentService, final MerchantInfo merchantInfo, final String cookie) throws WorldpayException {
         final AtomicReference<ResponseEntity<String>> responseXML = new AtomicReference<>();
         final Single<ResponseEntity<String>> response = sendOutboundXML(outboundPaymentService, merchantInfo, cookie);
-        response.subscribe(responseXML::set);
+        responseXML.set(response.toBlocking().value());
         return processResponseXML(responseXML.get());
     }
 

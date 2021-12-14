@@ -5,6 +5,8 @@ INSERT_UPDATE Country; isocode[unique = true]; name[lang = en]; active[default =
                      ; SG                    ; "Singapore"
                      ; CN                    ; "China"
                      ; CH                    ; "Switzerland"
+                     ; AU                    ; "Australia"
+                     ; NZ                    ; "New Zealand"
 
 INSERT_UPDATE Region; country(isocode); isocode[unique = true]; isocodeShort; name[lang = en]; active[default = true]
                     ; CN              ; CN-11                 ; 11          ; "Beijing"
@@ -47,6 +49,9 @@ INSERT_UPDATE Currency; isocode[unique = true]; conversion; digits; symbol; name
                       ; CNY                   ; 0.16      ; 2     ; ¥     ; Chinese Yuan
                       ; CHF                   ; 1         ; 2     ; CHF   ; Swiss Franc
                       ; EUR                   ; 1         ; 2     ; €     ; Euro
+                      ; BRL                   ; 1         ; 2     ; R$    ; Brazilian real
+                      ; AUD                   ; 1         ; 2     ; $     ; Australian dollar
+                      ; NZD                   ; 1         ; 2     ; $     ; New Zealand dollar
 
 # SiteMap Language Currencies
 INSERT_UPDATE SiteMapLanguageCurrency; &siteMapLanguageCurrency; language(isoCode)[unique = true]; currency(isocode)[unique = true];
@@ -60,6 +65,9 @@ INSERT_UPDATE SiteMapLanguageCurrency; &siteMapLanguageCurrency; language(isoCod
 INSERT_UPDATE Zone; code[unique = true]; countries(isocode)
                   ; singapore          ; SG
                   ; china              ; CN
+                  ; brazil             ; BR
+                  ; australia          ; AU
+                  ; newzealand         ; NZ
 
 # SINGAPORE
 INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; value ; minimum[unique = true]; currency(isocode)[unique = true]; zone(code)[default = 'singapore'][unique = true]
@@ -168,7 +176,24 @@ INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(cod
                                    ; standard-gross                   ;                                             ; CNY                             ; 7,49  ; 0,00
                                    ; standard-net                     ;                                             ; SGD                             ; 59,99 ; 0,00
                                    ; standard-net                     ;                                             ; CNY                             ; 59,99 ; 0,00
-
+# Brazil
+INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'brazil'][unique = true]; currency(isocode)[unique = true, default = 'BRL']; value ; minimum[unique = true]
+                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
+# Australia
+INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'australia'][unique = true]; currency(isocode)[unique = true, default = 'AUD']; value ; minimum[unique = true]
+                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
+# New Zealand
+INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'newzealand'][unique = true]; currency(isocode)[unique = true, default = 'NZD']; value ; minimum[unique = true]
+                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
 # Activate free shipping
 "#% if: de.hybris.platform.jalo.extension.ExtensionManager.getInstance().isExtensionInstalled(""worldpayb2baddon"")"
 INSERT_UPDATE ZoneDeliveryMode; code[unique = true]        ; active[default = true]; name[lang = 'en']; description[lang = 'en']             ; net
@@ -255,16 +280,16 @@ INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = en] 
                                       ; GIROPAY-SSL           ; GIROPAY           ; GiroPay               ;                      ; EUR                ; DE                            ; EUR:1:2000                                   ; true                             ;
                                       ; SOFORT-SSL            ; SOFORT            ; Sofort                ;                      ; EUR                ; AT,BE,FR,DE                   ; EUR:1:2000                                   ; true                             ;
                                       ; SOFORT_CH-SSL         ; SOFORT-CH         ; Sofort Switzerland    ;                      ; CHF                ; CH                            ; CHF:1:2000                                   ; true                             ;
-                                      ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay       ;                      ; GBP,EUR,USD        ;                               ;                                              ; true                             ;
+                                      ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay       ;                      ; GBP,EUR,USD        ; CN                            ;                                              ; true                             ;
                                       ; ALIPAY-SSL            ; Alipay            ; Alipay                ;                      ; GBP,EUR,USD,SGD    ; CN                            ; GBP:1:5000,EUR:1:6000,USD:1:8000,SGD:2:10000 ; true                             ;
                                       ; PAYPAL-EXPRESS        ; PayPal            ; PayPal                ;                      ;                    ;                               ;                                              ; true                             ;
                                       ; PAYWITHGOOGLE-SSL     ; Google Pay        ; Google Pay            ;                      ;                    ;                               ;                                              ; true                             ;
                                       ; APPLEPAY-SSL          ; Apple Pay         ; Apple Pay             ;                      ;                    ;                               ;                                              ; true                             ;
-                                      ; POSTEPAY-SSL          ; Postepay          ; Postepay              ;                      ; EUR                ;                               ; EUR:1:3000                                   ; true                             ; true
-                                      ; MISTERCASH-SSL        ; MisterCash        ; MisterCash            ;                      ; EUR                ;                               ; EUR:1:5000                                   ;                                  ;
-                                      ; POLI-SSL              ; POLi              ; POLi                  ;                      ;                    ;                               ;                                              ;                                  ; true
-                                      ; POLINZ-SSL            ; POLi-NZ           ; POLi-NZ               ;                      ;                    ;                               ;                                              ; true                             ;
-                                      ; BOLETO-SSL            ; Boleto            ; Boleto                ;                      ;                    ;                               ;                                              ; true                             ;
+                                      ; POSTEPAY-SSL          ; Postepay          ; Postepay              ;                      ; EUR                ; IT                            ; EUR:1:3000                                   ; true                             ; true
+                                      ; MISTERCASH-SSL        ; MisterCash        ; MisterCash            ;                      ; EUR                ; BE                            ; EUR:1:5000                                   ;                                  ;
+                                      ; POLI-SSL              ; POLi              ; POLi                  ;                      ; AUD                ; AU                            ;                                              ;                                  ; true
+                                      ; POLINZ-SSL            ; POLi-NZ           ; POLi-NZ               ;                      ; NZD                ; NZ                            ;                                              ; true                             ;
+                                      ; BOLETO-SSL            ; Boleto            ; Boleto                ;                      ; BRL                ; BR                            ;                                              ; true                             ;
                                       ; ENETS-SSL             ; ENETS             ; eNets                 ;                      ; SGD                ; SG                            ; SGD:2:10000                                  ;                                  ; true
                                       ; IDEAL-SSL             ; iDeal             ; iDeal                 ; true                 ; EUR                ; NL                            ;                                              ; true                             ;
                                       ; KLARNA-SSL            ; Klarna            ; Klarna                ;                      ; EUR,GBP            ; AT,FI,DE,NL,NO,SE,GB          ;                                              ; true                             ;
