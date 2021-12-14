@@ -5,6 +5,8 @@ INSERT_UPDATE Country; isocode[unique = true]; name[lang = en]; active[default =
                      ; SG                    ; "Singapore"
                      ; CN                    ; "China"
                      ; CH                    ; "Switzerland"
+                     ; AU                    ; "Australia"
+                     ; NZ                    ; "New Zealand"
 
 INSERT_UPDATE Region; country(isocode); isocode[unique = true]; isocodeShort; name[lang = en]; active[default = true]
                     ; CN              ; CN-11                 ; 11          ; "Beijing"
@@ -64,6 +66,8 @@ INSERT_UPDATE Zone; code[unique = true]; countries(isocode)
                   ; singapore          ; SG
                   ; china              ; CN
                   ; brazil             ; BR
+                  ; australia          ; AU
+                  ; newzealand         ; NZ
 
 # SINGAPORE
 INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; value ; minimum[unique = true]; currency(isocode)[unique = true]; zone(code)[default = 'singapore'][unique = true]
@@ -174,6 +178,18 @@ INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(cod
                                    ; standard-net                     ;                                             ; CNY                             ; 59,99 ; 0,00
 # Brazil
 INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'brazil'][unique = true]; currency(isocode)[unique = true, default = 'BRL']; value ; minimum[unique = true]
+                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
+# Australia
+INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'australia'][unique = true]; currency(isocode)[unique = true, default = 'AUD']; value ; minimum[unique = true]
+                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
+# New Zealand
+INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'newzealand'][unique = true]; currency(isocode)[unique = true, default = 'NZD']; value ; minimum[unique = true]
                                    ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
                                    ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
                                    ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
