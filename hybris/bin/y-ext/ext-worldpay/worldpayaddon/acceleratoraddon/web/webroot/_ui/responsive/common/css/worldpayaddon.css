@@ -70,3 +70,14 @@
     margin-bottom: 15px;
     padding: 10px 0;
 }
+
+.challenge-iframe iframe {
+    width: 390px;
+    height: 400px;
+}
+
+@media (min-width: 620px) {
+    .challenge-iframe iframe {
+        width: 600px;
+    }
+}
