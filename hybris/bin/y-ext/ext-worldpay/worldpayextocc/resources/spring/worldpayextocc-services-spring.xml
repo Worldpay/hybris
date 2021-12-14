@@ -19,6 +19,8 @@
           class="com.worldpay.service.hop.impl.DefaultWorldpayHOPService"
           parent="defaultWorldpayHOPService">
         <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
+        <constructor-arg name="worldpayRequestFactory" ref="occWorldpayRequestFactory"/>
+
     </bean>
 
     <alias name="defaultOCCWorldpayRedirectOrderService" alias="occWorldpayRedirectOrderService"/>
@@ -48,4 +50,34 @@
         <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
     </bean>
 
+    <alias name="defaultOccWorldpayKlarnaService" alias="occWorldpayKlarnaService"/>
+    <bean id="defaultOccWorldpayKlarnaService" class="com.worldpay.service.payment.impl.DefaultWorldpayKlarnaService">
+        <constructor-arg name="commonI18NService" ref="commonI18NService"/>
+        <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
+        <constructor-arg name="klarnaPayments" ref="klarnaPayments"/>
+    </bean>
+
+
+    <alias name="defaultOccWorldpayOrderService" alias="occWorldpayOrderService"/>
+    <bean id="defaultOccWorldpayOrderService" class="com.worldpay.service.payment.impl.DefaultWorldpayOrderService">
+        <constructor-arg name="commonI18NService" ref="commonI18NService"/>
+        <constructor-arg name="worldpayUrlService" ref="occWorldpayUrlService"/>
+        <constructor-arg name="worldpayKlarnaService" ref="occWorldpayKlarnaService"/>
+        <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
+        <constructor-arg name="recurringGenerateMerchantTransactionCodeStrategy"
+                         ref="recurringGenerateMerchantTransactionCodeStrategy"/>
+    </bean>
+
+    <alias name="defaultOccWorldpayRequestFactory" alias="occWorldpayRequestFactory"/>
+    <bean id="defaultOccWorldpayRequestFactory"
+          class="com.worldpay.service.payment.request.impl.DefaultWorldpayRequestFactory">
+        <constructor-arg name="worldpayTokenEventReferenceCreationStrategy"
+                         ref="worldpayTokenEventReferenceCreationStrategy"/>
+        <constructor-arg name="worldpayOrderService" ref="occWorldpayOrderService"/>
+        <constructor-arg name="worldpayKlarnaService" ref="occWorldpayKlarnaService"/>
+        <constructor-arg name="worldpayRiskDataService" ref="worldpayRiskDataService"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="worldpayRequestService" ref="worldpayRequestService"/>
+        <constructor-arg name="worldpayAdditionalRequestDataService" ref="worldpayAdditionalRequestDataService"/>
+    </bean>
 </beans>
