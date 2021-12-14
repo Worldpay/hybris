@@ -134,6 +134,7 @@ ACC.worldpayCSE = {
                 } else {
                     ACC.colorbox.open("", {
                         html: res,
+                        className: 'challenge-iframe',
                         onComplete: function () {
                             if (xhr.getResponseHeader('3D-Secure-Flex-Flow') === "false" || !xhr.getResponseHeader('3D-Secure-Flex-Flow')) {
                                 submitLegacy3dForm();
@@ -153,8 +154,6 @@ ACC.worldpayCSE = {
         window.addEventListener('message', function (event) {
             if (event.origin === ACC.worldpayCSE.originEventDomain3DSFlex) {
                 var data = JSON.parse(event.data);
-                //TODO Remove this warn console log line whenever you go PROD
-                console.warn('Merchant received a message:', data);
                 if (data !== undefined && data.Status) {
                     // Extract the ReferenceId and store it in your data to submit back to Worldpay.
                     $('#threeDSReferenceId').val(data.SessionId);
@@ -164,6 +163,9 @@ ACC.worldpayCSE = {
         }, false);
     },
 
+    /**
+     * Create FraudSight ID and start profiling
+     */
     performJsc: function () {
         let ndownc = ACC.worldpayCSE.create_uuid(); //that’s the sessionId
         let div = $('#worldpayCsePaymentForm'); //suggestion how you can store sessionId for when you need it in payment request

@@ -38,36 +38,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-##Features:
-- SEPA Direct Debit has been integrated as an APM
-- Prime routing
-- Level2/3 Data
-- Request and response payloads are now saved into the Order
-- Fraud Sight Integration
-- Unprocessed order tickets are now linked to their order
-
-##Breaking changes:
-- Several POJO objects are now created as beans defined in a beans.xml file. 
-- transformToInternalModel has been removed. New Converters/Populators  per each one of the types that we have has been created and are used instead
-- Java Classes from the Worldpay's DTD are now generated with JAXB's xjc
-- The merchant configuration has been migrated to the data model:
-	1. Every merchant.xml file has been deleted from the repository and sensitive data like passwords, macSecret are not visible anymore.
-	2. New Types have been added into the DB definition: WorldpayMerchantConfiguration, WorldpayApplePayConfiguration, WorldpayGooglePayConfiguration, WorldpayThreeDS2JsonWebTokenConfiguration.
-	3. New enumerations have been added into the DB definition: EnvironmentType, ApplePaySupportedNetworks, ApplePayMerchantCapabilities, GooglePayCardNetworks, GooglePayCardAuthMethods, ChallengePreference
-	4. The Merchant Configuration can be found in the backoffice following the path: Worldpay → Merchant Configuration
-	5. The Merchant Configuration is related to the Site. Every site will have now a new tab called Worldpay. Inside this type there is the section MERCHANT CONFIGURATION DETAILS in which you can find the new 3 attributes:
-		- Web Merchant Configuration
-		- ASM Merchant Configuration
-		- Replenishment Merchant Configuration
-- All of them are of the same type WorldpayMerchantConfiguration. This new configuration represents the old xml configuration of the merchant.xml file.
-
-##Bugs Fixed: 
-- Fixed an issue related with date generation that was causing unprocessed order tickets not being created.
-- Fixed an issue that was causing customers being redirected to an incorrect HOP URL when using express checkout.
-- Fixed a NPE thrown on the summary step of the checkout when a paymentInfo has no bin number set.
-- Fixed an issue with Ideal that was making the successURL not being encrypted.
-- The profiletagaddon has been added to the project to fix a JSP file not found exception.
-- Fixed an issue related to the tax configuration that was causing an error in the Electronics site when paying with a saved card.
-- Fixed an issue related to the client side encryption that was causing an error when accessing to the payment details page.
-- Fixed an issue with Klarna where an invalid shopper locale was being set.
+The ApplePay timeout was extended to 5 seconds to fix a bug found by multiple merchants. It seems that, in some cases, the response from Worldpay request was getting passed as null into the processResponseXML() method. After some investigation, the root cause proved to be the use of the reactive API of RxJava
 
