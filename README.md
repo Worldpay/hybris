@@ -38,4 +38,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
 
 ## RELEASE NOTES
-The ApplePay timeout was extended to 5 seconds to fix a bug found by multiple merchants. It seems that, in some cases, the response from Worldpay request was getting passed as null into the processResponseXML() method. After some investigation, the root cause proved to be the use of the reactive API of RxJava 
+Fixed notification process when trying to save a PaymentInfoModel that has been removed.
+
