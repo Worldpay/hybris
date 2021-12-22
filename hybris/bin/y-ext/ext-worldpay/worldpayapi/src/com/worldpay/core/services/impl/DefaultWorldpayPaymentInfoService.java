@@ -36,7 +36,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -106,7 +105,6 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         attachPaymentInfoModel(paymentTransactionModel, orderModel, paymentInfo);
         updateStoredCredentialsOnPaymentInfo(paymentInfo, orderNotificationMessage);
         removePaymentInfoWhenCreatingNewOneFromNotification(orderModel);
-        modelService.save(paymentInfo);
     }
 
     /**
@@ -116,7 +114,6 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     public void updateAndAttachPaymentInfoModel(final PaymentTransactionModel paymentTransactionModel, final AbstractOrderModel orderModel, final PaymentInfoModel paymentInfoModel) {
         updatePaymentInfo(orderModel, paymentInfoModel);
         attachPaymentInfoModel(paymentTransactionModel, orderModel, paymentInfoModel);
-        modelService.save(paymentInfoModel);
     }
 
     /**
@@ -132,6 +129,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         apmPaymentInfoModel.setSaved(false);
         apmPaymentInfoModel.setMerchantId(worldpayMerchantInfoService.getMerchantInfoFromTransaction(paymentTransactionModel).getMerchantCode());
         apmPaymentInfoModel.setTimeoutDate(calculateAPMTimeoutDate(paymentTransactionModel.getCreationtime(), apmPaymentInfoModel.getApmConfiguration()));
+        modelService.save(apmPaymentInfoModel);
         return apmPaymentInfoModel;
     }
 
@@ -187,9 +185,8 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setVersion(applePayAdditionalAuthInfo.getVersion());
         paymentInfoModel.setTransactionId(applePayAdditionalAuthInfo.getHeader().getTransactionId());
         cartModel.setPaymentInfo(paymentInfoModel);
-        updatePaymentInfo(cartModel, paymentInfoModel);
-        modelService.saveAll(cartModel, paymentInfoModel);
-        return paymentInfoModel;
+        modelService.save(cartModel);
+        return updatePaymentInfo(cartModel, paymentInfoModel);
     }
 
     /**
@@ -260,6 +257,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     @Override
     public void setTransactionIdentifierOnPaymentInfo(final PaymentInfoModel paymentInfoModel, final String transactionIdentifier) {
         paymentInfoModel.setTransactionIdentifier(transactionIdentifier);
+        modelService.save(paymentInfoModel);
     }
 
     /**
@@ -376,7 +374,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             }
             return createWorldpayApmPaymentInfo(paymentTransactionModel);
         }
-        return createCreditCardPaymentInfo(paymentTransactionModel, orderNotificationMessage);
+        return createAndSaveCreditCard(paymentTransactionModel, orderNotificationMessage);
     }
 
     protected WorldpayAPMPaymentInfoModel createPaypalTokenisedPaymentInfo(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage, final TokenReply tokenReply) throws WorldpayConfigurationException {
@@ -392,6 +390,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             newWorldpayAPMPaymentInfo.setBillingAddress(paymentTransactionModel.getOrder().getPaymentAddress());
             final LocalDate dt = getDateTime(tokenDetails.getPaymentTokenExpiry());
             newWorldpayAPMPaymentInfo.setExpiryDate(java.util.Date.from(dt.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            modelService.save(newWorldpayAPMPaymentInfo);
             return newWorldpayAPMPaymentInfo;
         }
 
@@ -430,7 +429,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
      * @param orderNotificationMessage the {@OrderNotificationMessage} received from Worldpay in the Redirect/HOP flow
      * @return
      */
-    protected CreditCardPaymentInfoModel createCreditCardPaymentInfo(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
+    protected CreditCardPaymentInfoModel createAndSaveCreditCard(final PaymentTransactionModel paymentTransactionModel, final OrderNotificationMessage orderNotificationMessage) {
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
 
         final TokenReply tokenReply = orderNotificationMessage.getTokenReply();
@@ -444,7 +443,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
                     return creditCardPaymentInfoModel;
                 }
             }
-            return cloneCreditCardWithPaymentInformation(paymentTransactionModel, paymentReply);
+            return cloneAndSaveCreditCardWithPaymentInformation(paymentTransactionModel, paymentReply);
         }
     }
 
@@ -464,7 +463,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         return tokenEvent.equals(TokenEvent.MATCH) || tokenEvent.equals(TokenEvent.CONFLICT);
     }
 
-    protected CreditCardPaymentInfoModel cloneCreditCardWithPaymentInformation(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
+    protected CreditCardPaymentInfoModel cloneAndSaveCreditCardWithPaymentInformation(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
         final CreditCardPaymentInfoModel creditCardPaymentInfoModel = modelService.clone(paymentTransactionModel.getInfo(), CreditCardPaymentInfoModel.class);
         creditCardPaymentInfoModel.setOriginal(null);
         creditCardPaymentInfoModel.setDuplicate(false);
@@ -474,6 +473,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         setCardInformation(creditCardPaymentInfoModel, card.getCardNumber(), expiryDate.getMonth(), expiryDate.getYear(), card.getCardHolderName());
         updateCreditCardType(creditCardPaymentInfoModel, paymentReply);
 
+        modelService.save(creditCardPaymentInfoModel);
         return creditCardPaymentInfoModel;
     }
 
@@ -545,6 +545,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setEventReference(tokenReply.getTokenDetails().getTokenEventReference());
         final LocalDate dt = getDateTime(tokenReply.getTokenDetails().getPaymentTokenExpiry());
         creditCardPaymentInfoModel.setExpiryDate(java.util.Date.from(dt.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        modelService.save(creditCardPaymentInfoModel);
         return creditCardPaymentInfoModel;
     }
 
@@ -557,6 +558,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
 
     private PaymentInfoModel updatePaymentInfo(final AbstractOrderModel cartModel, final PaymentInfoModel paymentInfoModel) {
         paymentInfoModel.setWorldpayOrderCode(cartModel.getWorldpayOrderCode());
+        modelService.save(paymentInfoModel);
         return paymentInfoModel;
     }
 
