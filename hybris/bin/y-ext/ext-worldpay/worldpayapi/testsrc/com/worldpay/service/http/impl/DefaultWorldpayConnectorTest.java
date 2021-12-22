@@ -143,11 +143,11 @@ public class DefaultWorldpayConnectorTest {
             .extracting(ServiceReply::getPaymentService, ServiceReply::getCookie)
             .containsExactly(paymentServiceReplyMock, COOKIE);
 
-        final var uri = uriArgumentCaptor.getValue();
+        final URI uri = uriArgumentCaptor.getValue();
         assertThat(uri.toString()).hasToString(ENDPOINT);
 
         final byte[] plainCreds = ("merchantCode" + ":" + "merchantPassword").getBytes(StandardCharsets.UTF_8);
-        final var request = httpEntityArgumentCaptor.getValue();
+        final HttpEntity<String> request = httpEntityArgumentCaptor.getValue();
         assertThat(request.getHeaders()).containsAllEntriesOf(Map.of(
             HttpHeaders.AUTHORIZATION, List.of("Basic " + new String(Base64.getEncoder().encode(plainCreds))),
             HttpHeaders.HOST, List.of(uri.getHost()),
