@@ -1,11 +1,11 @@
 #Ant properties
-#Tue Dec 14 16:33:10 UTC 2021
+#Wed Dec 22 10:57:49 UTC 2021
 version.api=2005
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayfulfilment
 description=worldpayfulfilment
-builddate=20211214 1633
+builddate=20211222 1057
 releasedate=20201209 2017
 version=2005.6
 module.name=platform-module
