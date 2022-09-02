@@ -24,6 +24,8 @@ import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrate
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.validators.CompositeValidator;
 import org.slf4j.Logger;
@@ -100,6 +102,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @PostMapping(value = "/users/{userId}/worldpayorders")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
+    @ApiBaseSiteIdAndUserIdParam
     public PlaceOrderResponseWsDTO placeOrder(final HttpServletRequest request,
                                               @RequestParam final String cartId,
                                               @RequestParam final String securityCode,
@@ -121,6 +124,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @PostMapping(value = "/users/{userId}/initial-payment-request")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
+    @ApiBaseSiteIdAndUserIdParam
     public PlaceOrderResponseWsDTO initializePaymentRequest(final HttpServletRequest request,
                                                             @RequestParam final String cartId,
                                                             @RequestParam final String challengeWindowSize,
@@ -143,6 +147,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @PostMapping(value = "/users/{userId}/worldpayorders/3dresponse")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
+    @ApiBaseSiteIdAndUserIdParam
     public OrderWsDTO doHandleThreeDSecureResponse(final HttpServletRequest request,
                                                    @RequestParam final String cartId,
                                                    @RequestParam final String paRes,

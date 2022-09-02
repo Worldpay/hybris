@@ -9,5 +9,4 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; idealComponent          ;                          ; "IDEAL-SSL"           ; IDEAL-SSL
                                   ; klarnaPayLaterComponent ;                          ; "KLARNA_PAYLATER-SSL" ; KLARNA_PAYLATER-SSL
                                   ; klarnaSliceItComponent  ;                          ; "KLARNA_SLICEIT-SSL"  ; KLARNA_SLICEIT-SSL
-                                  ; enetsComponent          ;                          ; "ENETS-SSL"           ; ENETS-SSL
                                   ; sepaComponent           ;                          ; "Sepa Direct Debit"   ; SEPA_DIRECT_DEBIT-SSL

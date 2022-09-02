@@ -263,7 +263,7 @@ public class WorldpayCartsControllerTest {
 
         final PlaceOrderResponseWsDTO result = testObj.addPaymentDetailsAndPlaceOrder(requestMock, responseMock, paymentDetailsWsDTOMock, CART_ID);
 
-        assertThat(result.getOrder()).isEqualTo(orderWsDTOMock);
+        assertThat(result.getTransactionStatus()).isEqualTo(TransactionStatus.AUTHORISED);
         assertThat(result.isThreeDSecureNeeded()).isFalse();
     }
 

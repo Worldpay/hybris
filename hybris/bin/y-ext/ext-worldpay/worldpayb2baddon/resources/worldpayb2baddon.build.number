@@ -1,11 +1,11 @@
 #Ant properties
-#Wed Sep 29 10:46:25 UTC 2021
+#Wed Aug 31 13:37:59 UTC 2022
 version.api=2105
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayb2baddon
 description=worldpayb2baddon
-builddate=20210929 1046
+builddate=20220831 1337
 releasedate=20210721 0907
 version=2105.0
 module.name=platform-module

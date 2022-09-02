@@ -12,6 +12,8 @@
         <property name="challengeWindowSize" type="java.lang.String"/>
         <property name="dfReferenceId" type="java.lang.String"/>
         <property name="acceptedTermsAndConditions" type="java.lang.Boolean"/>
+        <property name="dateOfBirth" type="java.lang.String" />
+        <property name="deviceSession" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.dto.order.PlaceOrderResponseWsDTO">

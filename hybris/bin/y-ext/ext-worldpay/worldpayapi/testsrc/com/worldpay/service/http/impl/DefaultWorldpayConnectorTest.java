@@ -1,10 +1,11 @@
 package com.worldpay.service.http.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.internal.model.PaymentService;
+import com.worldpay.service.http.ServiceReply;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
-import com.worldpay.data.MerchantInfo;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import org.apache.commons.io.IOUtils;
@@ -19,10 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.worldpay.util.WorldpayConstants.XML_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +43,9 @@ public class DefaultWorldpayConnectorTest {
     private static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
     private static final String WORLDPAY_CONFIG_CONTEXT = "worldpay.config.context";
     private static final String ENDPOINT = "https://secure-test.worldpay.com/jsp/merchant/xml/paymentService.jsp";
+    private static final String BODY = "body";
+    private static final String COOKIE = "cookie";
+    private static final String XML = "xml";
 
     @InjectMocks
     private DefaultWorldpayConnector testObj;
@@ -58,6 +65,8 @@ public class DefaultWorldpayConnectorTest {
     private ArgumentCaptor<URI> uriArgumentCaptor;
     @Captor
     private ArgumentCaptor<HttpEntity<String>> httpEntityArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<InputStream> inputStreamArgumentCaptor;
     @Mock
     private ResponseEntity<String> responseEntityMock;
     @Mock
@@ -115,5 +124,37 @@ public class DefaultWorldpayConnectorTest {
     public void logXMLShouldMarshalPaymentService() throws WorldpayException {
         testObj.logXMLOut(paymentServiceRequestMock);
         verify(paymentServiceMarshallerMock).marshal(paymentServiceRequestMock);
+    }
+
+    @Test
+    public void send_WhenTheResponseIsDelayedByRetries_ShouldSendThePaymentServiceTransformedInXML() throws Exception {
+
+        when(responseEntityMock.getHeaders()).thenReturn(httpHeadersMock);
+        when(httpHeadersMock.get(HttpHeaders.SET_COOKIE)).thenReturn(List.of(COOKIE));
+        when(responseEntityMock.getBody()).thenReturn(BODY);
+        when(paymentServiceMarshallerMock.unmarshal(inputStreamArgumentCaptor.capture())).thenReturn(paymentServiceReplyMock);
+        when(paymentServiceMarshallerMock.marshalAsFragment(paymentServiceRequestMock)).thenReturn(XML);
+        when(restTemplateMock.postForEntity(uriArgumentCaptor.capture(), httpEntityArgumentCaptor.capture(), eq(String.class)))
+            .thenThrow(new ResourceAccessException(""))
+            .thenThrow(new ResourceAccessException(""))
+            .thenReturn(responseEntityMock);
+
+        assertThat(testObj.send(paymentServiceRequestMock, merchantInfoMock, COOKIE))
+            .extracting(ServiceReply::getPaymentService, ServiceReply::getCookie)
+            .containsExactly(paymentServiceReplyMock, COOKIE);
+
+        final URI uri = uriArgumentCaptor.getValue();
+        assertThat(uri.toString()).hasToString(ENDPOINT);
+
+        final byte[] plainCreds = ("merchantCode" + ":" + "merchantPassword").getBytes(StandardCharsets.UTF_8);
+        final HttpEntity<String> request = httpEntityArgumentCaptor.getValue();
+        assertThat(request.getHeaders()).containsAllEntriesOf(Map.of(
+            HttpHeaders.AUTHORIZATION, List.of("Basic " + new String(Base64.getEncoder().encode(plainCreds))),
+            HttpHeaders.HOST, List.of(uri.getHost()),
+            HttpHeaders.COOKIE, List.of(COOKIE)));
+        assertThat(request.getBody()).startsWith(XML_HEADER).contains(XML);
+        assertThat(inputStreamArgumentCaptor.getValue()).hasSameContentAs(IOUtils.toInputStream(BODY, StandardCharsets.UTF_8));
+
+        verify(restTemplateMock, times(3)).postForEntity(eq(URI.create(ENDPOINT)), anyObject(), eq(String.class));
     }
 }

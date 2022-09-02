@@ -29,6 +29,8 @@ import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiFieldsParam;
 import io.swagger.annotations.ApiOperation;
@@ -45,10 +47,15 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Optional;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
+import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.FULL_LEVEL;
 
 /**
  * Controller for handling Worldpay specific payments
@@ -74,6 +81,8 @@ import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.
 public class WorldpayCartsController extends AbstractWorldpayController {
 
     private static final Logger LOG = Logger.getLogger(WorldpayCartsController.class);
+
+    private static final String DATE_OF_BIRTH_FORMAT = "yyyy-MM-dd";
 
     @Resource(name = "occWorldpayDirectOrderFacade")
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
@@ -139,12 +148,12 @@ public class WorldpayCartsController extends AbstractWorldpayController {
      * manager may impersonate as any user and access cart on their behalf.
      */
     @Secured(
-        {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+            {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/worldpaypaymentdetails")
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
                                                  @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields)
-        throws WorldpayException, NoCheckoutCartException {
+            throws WorldpayException, NoCheckoutCartException {
         final PaymentDetailsWsDTO paymentDetails = new PaymentDetailsWsDTO();
         final Collection<PaymentDetailsWsDTOOption> options = new ArrayList<>();
         options.add(PaymentDetailsWsDTOOption.BASIC);
@@ -181,16 +190,18 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/worldpaypaymentdetails", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
                                                  @RequestBody final PaymentDetailsWsDTO paymentDetails,
                                                  @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields)
-        throws NoCheckoutCartException, WorldpayException {
+            throws NoCheckoutCartException, WorldpayException {
         return addPaymentDetailsInternal(request, paymentDetails, fields);
     }
 
-    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST"})
     @PostMapping(value = "/{cartId}/place-order")
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiBaseSiteIdAndUserIdParam
     public PlaceOrderResponseWsDTO addPaymentDetailsAndPlaceOrder(final HttpServletRequest request,
                                                                   final HttpServletResponse response,
                                                                   @RequestBody final PaymentDetailsWsDTO paymentDetails,
@@ -200,10 +211,14 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, cseAdditionalAuthInfo, cartId);
+        worldpayAdditionalInfoData.setDeviceSession(paymentDetails.getDeviceSession());
+        Optional.ofNullable(paymentDetails.getDateOfBirth())
+                .map(this::convertStringToDate)
+                .ifPresent(date -> worldpayAdditionalInfoData.setDateOfBirth(date));
 
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
 
-        return handleDirectResponse(directResponseData, response, DEFAULT_LEVEL);
+        return handleDirectResponse(directResponseData, response, FULL_LEVEL);
     }
 
     /**
@@ -227,6 +242,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/worldpaybillingaddress", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public void addBillingAddressToCart(@RequestBody final AddressWsDTO address,
                                         @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields) {
         saveBillingAddress(address, fields);
@@ -234,7 +250,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_GUEST", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/{cartId}/addresses/worldpaydeliveryaddress", consumes = {
-        MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+            MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(nickname = "createCartDeliveryAndBillingAddress", value = "Creates a delivery and a payment address for the cart.", notes = "Creates an address and assigns it to the cart as the delivery address and the payment address.")
     @ApiBaseSiteIdUserIdAndCartIdParam
@@ -252,6 +268,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @GetMapping(value = "/{cartId}/payment-method/available")
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public boolean isPaymentMethodAvailable(@RequestParam final String paymentMethod) {
         return apmAvailabilityFacade.isAvailable(paymentMethod);
     }
@@ -263,9 +280,10 @@ public class WorldpayCartsController extends AbstractWorldpayController {
      * @param request
      * @return
      */
-    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST"})
     @PostMapping(value = "/{cartId}/payment-method/redirect-authorise")
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public PaymentDataWsDTO getRedirectAuthorise(@RequestBody final PaymentRequestData paymentRequest,
                                                  final HttpServletRequest request) throws WorldpayException {
         final String paymentMethod = paymentRequest.getPaymentMethod();
@@ -333,5 +351,20 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         worldpayAdressWsDTOAddressDataPopulator.populate(address, addressData);
         userFacade.addAddress(addressData);
         worldpayPaymentCheckoutFacade.setBillingDetails(addressData);
+    }
+
+    /**
+     * Convert yyyy-MM-dd string to a Java Date
+     *
+     * @param dateString
+     * @return
+     */
+    protected Date convertStringToDate(final String dateString) {
+        try {
+            return new SimpleDateFormat(DATE_OF_BIRTH_FORMAT).parse(dateString);
+        } catch (ParseException e) {
+            LOG.error("failed parsing date of birth", e);
+        }
+        return null;
     }
 }

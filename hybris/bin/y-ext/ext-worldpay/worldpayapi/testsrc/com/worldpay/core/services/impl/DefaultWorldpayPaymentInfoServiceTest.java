@@ -4,16 +4,16 @@ import com.google.common.collect.ImmutableList;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.GooglePayAdditionalAuthInfo;
-import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.model.ApplePayPaymentInfoModel;
-import com.worldpay.model.GooglePayPaymentInfoModel;
-import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.payment.Card;
 import com.worldpay.data.token.CardDetails;
 import com.worldpay.data.token.TokenReply;
+import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
+import com.worldpay.model.ApplePayPaymentInfoModel;
+import com.worldpay.model.GooglePayPaymentInfoModel;
+import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.request.UpdateTokenServiceRequest;
@@ -279,6 +279,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(orderPaymentInfoModelMock).setCode(startsWith(ORDER_CODE + "_"));
         verify(orderPaymentInfoModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(orderPaymentInfoModelMock).setUser(userModelMock);
+        verify(modelServiceMock).save(orderPaymentInfoModelMock);
     }
 
     @Test
@@ -318,13 +319,10 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setType(VISA);
         verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
 
-        final InOrder inOrder = inOrder(testObj, modelServiceMock, orderModelMock, paymentTransactionModelMock);
-
-        inOrder.verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
-        inOrder.verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
-        inOrder.verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
-        inOrder.verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
-        inOrder.verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
+        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
+        verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
+        verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
     }
 
     @Test
@@ -338,12 +336,11 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        verify(modelServiceMock, never()).clone(any(CreditCardPaymentInfoModel.class));
+        verify(modelServiceMock, never()).save(any(CreditCardPaymentInfoModel.class));
 
-        final InOrder inOrder = inOrder(modelServiceMock, orderModelMock, paymentTransactionModelMock);
-        inOrder.verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
-        inOrder.verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
-        inOrder.verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
+        verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
+        verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
+        verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
     }
 
     @Test
@@ -359,13 +356,11 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        final InOrder inOrder = inOrder(modelServiceMock, orderModelMock, paymentTransactionModelMock);
+        verify(modelServiceMock).clone(any(CreditCardPaymentInfoModel.class), eq(CreditCardPaymentInfoModel.class));
 
-        inOrder.verify(modelServiceMock).clone(any(CreditCardPaymentInfoModel.class), eq(CreditCardPaymentInfoModel.class));
-        inOrder.verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
-        inOrder.verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
-        inOrder.verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
-        inOrder.verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
+        verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
+        verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
+        verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
     }
 
     @Test
@@ -376,7 +371,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        verify(modelServiceMock).clone(paymentTransactionPaymentInfoModelMock, CreditCardPaymentInfoModel.class);
         verify(creditCardPaymentInfoModelMock).setSubscriptionId(PAYMENT_TOKEN_ID);
         verify(creditCardPaymentInfoModelMock).setSaved(true);
         verify(creditCardPaymentInfoModelMock).setEventReference(TOKEN_REFERENCE);
@@ -463,7 +457,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.PAYPAL.getMethodCode());
         verify(orderModelMock).setPaymentInfo(worldpayAPMPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(worldpayAPMPaymentInfoModelMock);
-        verify(modelServiceMock).save(worldpayAPMPaymentInfoModelMock);
+        verify(modelServiceMock, times(2)).save(worldpayAPMPaymentInfoModelMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
     }
 
@@ -522,6 +516,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         testObj.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, false, MERCHANT_ID);
 
+        verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
         verify(creditCardPaymentInfoModelMock).setCode(CC_PAYMENT_INFO_MODEL_CODE);
         verify(creditCardPaymentInfoModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(creditCardPaymentInfoModelMock).setUser(userModelMock);
@@ -614,6 +609,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(worldpayAPMPaymentInfoModelMock).setSaved(false);
         verify(worldpayAPMPaymentInfoModelMock).setMerchantId(MERCHANT_ID);
         verify(worldpayAPMPaymentInfoModelMock).setTimeoutDate(DateUtils.addMinutes(CREATION_TIME, TIMEOUT_IN_MINUTES));
+        verify(modelServiceMock).save(worldpayAPMPaymentInfoModelMock);
     }
 
     @Test
@@ -823,7 +819,8 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(applePayPaymentInfoModelMock).setTransactionId(TRANSACTION_ID);
         verify(applePayPaymentInfoModelMock).setVersion(VERSION);
         verify(cartModelMock).setPaymentInfo(applePayPaymentInfoModelMock);
-        verify(modelServiceMock).saveAll(cartModelMock, applePayPaymentInfoModelMock);
+        verify(modelServiceMock).save(cartModelMock);
+        verify(modelServiceMock).save(applePayPaymentInfoModelMock);
     }
 
     @Test
@@ -853,7 +850,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         testObj.createPaymentInfoModelOnCart(cartModelMock, true);
 
-        verify(modelServiceMock).create(PaymentInfoModel.class);
+        verify(modelServiceMock).save(orderPaymentInfoModelMock);
         verify(orderPaymentInfoModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(orderPaymentInfoModelMock).setUser(userModelMock);
         verify(orderPaymentInfoModelMock).setSaved(true);
@@ -884,16 +881,14 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     }
 
     private void verifyCardNotCreated() {
-        final InOrder inOrder = inOrder(testObj, orderModelMock, paymentTransactionModelMock, modelServiceMock);
-        inOrder.verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
-        inOrder.verify(orderModelMock).setPaymentInfo(savedCreditCardPaymentInfoMock);
-        inOrder.verify(paymentTransactionModelMock).setInfo(savedCreditCardPaymentInfoMock);
-        inOrder.verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
-        inOrder.verify(modelServiceMock).save(savedCreditCardPaymentInfoMock);
+        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(orderModelMock).setPaymentInfo(savedCreditCardPaymentInfoMock);
+        verify(paymentTransactionModelMock).setInfo(savedCreditCardPaymentInfoMock);
+        verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
     }
 
     private void verifiesOn_CreatePaymentInfoModelOnCart(final boolean isSaved) {
-        verify(modelServiceMock).create(PaymentInfoModel.class);
+        verify(modelServiceMock).save(orderPaymentInfoModelMock);
         verify(orderPaymentInfoModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(orderPaymentInfoModelMock).setUser(userModelMock);
         verify(orderPaymentInfoModelMock).setSaved(isSaved);

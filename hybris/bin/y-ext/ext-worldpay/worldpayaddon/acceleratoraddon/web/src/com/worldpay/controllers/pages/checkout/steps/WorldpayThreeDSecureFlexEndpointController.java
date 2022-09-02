@@ -49,13 +49,11 @@ public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpay
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
 
     @PostMapping(value = "/response")
-    @RequireHardLogIn
     public String doHandleThreeDSecureResponse(final HttpServletRequest request, final ThreeDSecureFlexForm threeDSecureFlexForm, final RedirectAttributes redirectAttributes) {
         return REDIRECT_PREFIX + configurationService.getConfiguration().getString(WorldpayapiConstants.WORLDPAY_3DSECURE_FLEX_SECOND_AUTH_SUBMIT_URL);
     }
 
     @GetMapping(value = "/response/autosubmit")
-    @RequireHardLogIn
     public String getThreeDSecureResponseAutosubmit(final HttpServletRequest request, final ThreeDSecureFlexForm threeDSecureFlexForm, final RedirectAttributes redirectAttributes) {
         return configurationService.getConfiguration().getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX) + CHECKOUT_3DSECUREFLEX_RESPONSE_AUTOSUBMIT;
     }

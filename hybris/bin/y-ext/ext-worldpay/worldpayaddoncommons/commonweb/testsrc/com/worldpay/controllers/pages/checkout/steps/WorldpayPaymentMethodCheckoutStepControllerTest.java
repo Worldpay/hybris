@@ -9,8 +9,10 @@ import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
+import com.worldpay.internal.model.KLARNAV2SSL;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayAddonEndpointService;
+import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
@@ -20,7 +22,6 @@ import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
-import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
@@ -60,7 +61,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
     private static final String PAYMENT_METHOD_VALUE = "paymentMethodValue";
     private static final String PAYMENT_METHOD_BANK_TRANSFER = "PAYMENT_METHOD_BANK_TRANSFER";
-    private static final String PAYMENT_METHOD_KLARNA = "KLARNA-SSL";
+    private static final String PAYMENT_METHOD_KLARNA = "KLARNA_V2-SSL";
     private static final String SHOPPER_BANK_CODE_VALUE = "shopperBankCode";
     private static final String REDIRECT_URL = "redirectUrl";
     private static final String HOSTED_ORDER_PAGE = "hostedOrderPostPage";
@@ -133,7 +134,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     public void setUp() throws Exception {
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), anyString());
 
-        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any(PagePreviewCriteriaData.class))).thenReturn(contentPageModelMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
         when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
         when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
         when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
@@ -214,13 +215,13 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldRedirectToInternalUrlWithKlarnaContentWhenPaymentTypeIsKlarna() throws Exception {
-        when(worldpayAddonEndpointServiceMock.getKlarnaResponsePage()).thenReturn(KLARNA_RESPONSE_PAGE);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_KLARNA);
         when(worldpayDirectOrderFacadeMock.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock)).thenReturn(KLARNA_RESPONSE);
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
 
-        assertEquals(KLARNA_RESPONSE_PAGE, result);
-        verify(modelMock).addAttribute(KLARNA_RESPONSE_PAGE_DATA_PARAM, KLARNA_RESPONSE);
+        verify(modelMock).addAttribute(HOSTED_ORDER_PAGE_DATA, paymentDataMock);
+        verify(paymentDataParametersMock).put(PREFERRED_PAYMENT_METHOD_PARAM, PaymentType.KLARNAV2SSL.getMethodCode());
+        assertEquals(HOSTED_ORDER_PAGE, result);
     }
 }

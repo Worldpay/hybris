@@ -185,8 +185,8 @@
     </util:map>
 
     <bean id="worldpayTimeOutBasedHttpClientFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
-        <property name="readTimeout" value="${worldpay.restconfig.http.connectTimeout}"/>
-        <property name="connectTimeout" value="${worldpay.restconfig.http.readTimeout}"/>
+        <property name="readTimeout" value="${worldpay.restconfig.http.readTimeout}"/>
+        <property name="connectTimeout" value="${worldpay.restconfig.http.connectTimeout}"/>
     </bean>
 
     <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate">
