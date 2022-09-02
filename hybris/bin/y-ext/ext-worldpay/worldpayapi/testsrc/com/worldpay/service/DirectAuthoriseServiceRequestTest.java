@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.worldpay.data.*;
 import com.worldpay.data.applepay.ApplePay;
 import com.worldpay.data.applepay.Header;
-import com.worldpay.data.klarna.KlarnaMerchantUrls;
+import com.worldpay.data.klarna.KlarnaRedirectURLs;
 import com.worldpay.data.payment.Card;
 import com.worldpay.data.payment.PayWithGoogleSSL;
 import com.worldpay.data.payment.Payment;
@@ -64,12 +64,15 @@ public class DirectAuthoriseServiceRequestTest {
     private static final String ACCEPT_HEADER = "text/html,application/xhtml+xml,application/xml;q=0. 9,*/*;q=0.8";
     private static final String USER_AGENT_HEADER = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)";
     private static final String DEVICE_TYPE = "0";
-    private static final String CONFIRMATION_URL = "confirmationURL";
-    private static final String CHECKOUT_URL = "checkoutURL";
     private static final String ORDER_TAX_AMOUNT = "orderTaxAmount";
     private static final String TERMS_URL = "termsURL";
     private static final String REFERENCE_ID = "referenceId";
     private static final String DEVICE_SESSION_ID = "device_session_id";
+    private static final String KLARNA_PAYMENT_METHOD = "KLARNA_V2-SSL";
+    private static final String KLARNA_CANCEL_URL = "klarna-cancel-redirect-URL";
+    private static final String KLARNA_FAILURE_URL = "klarna-failure-redirect-URL";
+    private static final String KLARNA_PENDING_URL = "klarna-pending-redirect-URL";
+    private static final String KLARNA_SUCCESS_URL = "klarna-success-redirect-URL";
 
     @SuppressWarnings("PMD.MemberScope")
     @Rule
@@ -237,10 +240,13 @@ public class DirectAuthoriseServiceRequestTest {
 
     @Test
     public void shouldContainOrderLinesForKlarnaDirectAuthorize() {
-        final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls();
-        merchantUrls.setConfirmationURL(CONFIRMATION_URL);
-        merchantUrls.setCheckoutURL(CHECKOUT_URL);
-        payment = WorldpayInternalModelTransformerUtil.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, merchantUrls, EXTRA_MERCHANT_DATA);
+        final KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs();
+        klarnaRedirectURLs.setCancelURL(KLARNA_CANCEL_URL);
+        klarnaRedirectURLs.setFailureURL(KLARNA_FAILURE_URL);
+        klarnaRedirectURLs.setPendingURL(KLARNA_PENDING_URL);
+        klarnaRedirectURLs.setSuccessURL(KLARNA_SUCCESS_URL);
+
+        payment = WorldpayInternalModelTransformerUtil.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, EXTRA_MERCHANT_DATA, KLARNA_PAYMENT_METHOD, klarnaRedirectURLs);
 
         final LineItem lineItem = new LineItem();
         lineItem.setLineItemType(LineItemType.SHIPPING_FEE);

@@ -32,7 +32,7 @@ INSERT_UPDATE CMSInverseRestriction;$contentCV[unique=true];name;originalRestric
                                    ;;Assisted Service Session Reversed Restriction;AssistedServiceSessionRestriction;AssistedServiceSessionReversedRestriction;
 
 INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;cmsComponents(uid, $contentCV)
-;;BodyContentSlot-checkoutPaymentDetails;Checkout Payment Details Slot;CheckoutProgressComponent,CheckoutProgressMobileTopComponent,apmIntroduction,applePayComponent,googlePayComponent,sofortComponent,creditCardComponent,CheckoutPaymentDetailsComponent,CheckoutProgressMobileBottomComponent
+;;BodyContentSlot-checkoutPaymentDetails;Checkout Payment Details Slot;CheckoutProgressComponent,CheckoutProgressMobileTopComponent,CheckoutPaymentDetailsComponent,CheckoutProgressMobileBottomComponent
 ;;SideContentSlot-checkoutPaymentDetails;Order Summary Slot;CheckoutOrderSummaryComponent
 
 
@@ -84,7 +84,6 @@ INSERT_UPDATE Media; code[unique = true]  ; $media                              
                    ; alipay-icon          ; $siteResource/alipay-icon.png          ;                             ;                          ; images
                    ; cc-icon              ; $siteResource/cc-icon.png              ;                             ;                          ; images
                    ; cup-icon             ; $siteResource/cup-icon.png             ;                             ;                          ; images
-                   ; enets-icon           ; $siteResource/enets-icon.jpg           ;                             ;                          ; images
                    ; sofort-icon          ; $siteResource/sofort-icon.png          ;                             ;                          ; images
                    ; sofort-ch-icon       ; $siteResource/sofort-ch-icon.png       ;                             ;                          ; images
                    ; paypal-icon          ; $siteResource/paypal-icon.png          ;                             ;                          ; images
@@ -122,16 +121,15 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; mistercashComponent     ;                          ; "Mistercash"       ; MISTERCASH-SSL        ; mistercash-icon       ; AssistedServiceSessionReversedRestriction
                                   ; chinaUnionPayComponent  ;                          ; "China Union Pay"  ; CHINAUNIONPAY-SSL     ; cup-icon              ; AssistedServiceSessionReversedRestriction
                                   ; alipayComponent         ;                          ; "Alipay"           ; ALIPAY-SSL            ; alipay-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; enetsComponent          ;                          ; "Enets"            ; ENETS-SSL             ; enets-icon            ; AssistedServiceSessionReversedRestriction
                                   ; idealComponent          ;                          ; "iDeal"            ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaComponent         ;                          ; "Klarna"           ; KLARNA-SSL            ; klarna-icon           ; AssistedServiceSessionReversedRestriction
                                   ; giropayComponent        ;                          ; "Giropay"          ; GIROPAY-SSL           ; giropay-icon          ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later" ; KLARNA_PAYLATER-SSL      ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"  ; KLARNA_SLICEIT-SSL      ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction
-                                  ; klarnaPayNowComponent   ;                          ; "Klarna Pay Now"   ; KLARNA_PAYNOW-SSL        ; klarna-paynow-icon    ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaComponent         ;                          ; "Klarna"           ; KLARNA_V2-SSL         ; klarna-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later" ; KLARNA_PAYLATER-SSL   ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"  ; KLARNA_SLICEIT-SSL    ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaPayNowComponent   ;                          ; "Klarna Pay Now"   ; KLARNA_PAYNOW-SSL     ; klarna-paynow-icon    ; AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
-                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,chinaUnionPayComponent,alipayComponent,enetsComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent
+                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,chinaUnionPayComponent,alipayComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent
 
 INSERT_UPDATE CMSParagraphComponent; $contentCV[unique = true]; uid[unique = true]             ; content[lang = $lang]                                                                                                                                    ;
                                    ;                          ; WorldpayHelpParagraphComponent ; "<strong>Need Help setting up your Merchants?</strong> <span>Contact Your Worldpay Relationship Manager and they will only be too happy to help!</span>" ;

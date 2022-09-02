@@ -11,6 +11,7 @@ import com.worldpay.payment.applepay.ValidateMerchantRequestDTO;
 import com.worldpay.payment.applepay.ValidateMerchantRequestData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @GetMapping(value = "/payment-request", produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public ResponseEntity<ApplePayPaymentRequest> getPaymentRequest() {
         return ResponseEntity.ok(worldpayApplePayPaymentCheckoutFacade.getApplePayPaymentRequest(checkoutFacade.getCheckoutCart()));
     }
@@ -44,6 +46,7 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/request-session", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public Object requestPaymentSession(@RequestBody final ValidateMerchantRequestData validateMerchantRequestData) {
         final ValidateMerchantRequestDTO requestDTO = worldpayApplePayPaymentCheckoutFacade.getValidateMerchantRequestDTO();
 
@@ -53,8 +56,9 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest,
-                                                  @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields,
+                                                  @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields,
                                                   final HttpServletResponse response) throws WorldpayException, InvalidCartException {
         worldpayApplePayPaymentCheckoutFacade.saveBillingAddresses(authorisationRequest.getBillingContact());
 
