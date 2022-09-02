@@ -9,7 +9,6 @@ import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayAddonEndpointService;
-import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
@@ -28,7 +27,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.List;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
@@ -42,7 +40,6 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     protected static final String HOP_DEBUG_MODE_CONFIG = "hop.debug.mode";
     protected static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
     protected static final String PREFERRED_PAYMENT_METHOD_PARAM = "preferredPaymentMethod";
-    protected static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
 
     @Resource
     protected WorldpayBankConfigurationFacade worldpayBankConfigurationFacade;
@@ -54,8 +51,6 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     protected WorldpayHostedOrderFacade worldpayHostedOrderFacade;
     @Resource
     protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
-    @Resource
-    protected List<String> klarnaPayments;
 
     /**
      * {@inheritDoc}
@@ -75,9 +70,6 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
 
             if (isBankTransferAPM(paymentMethod)) {
                 return REDIRECT_PREFIX + getRedirectURLForBankTransfer(model, paymentMethod);
-
-            } else if (isKlarnaAPM(paymentMethod)) {
-                return getViewContentForKlarna(model);
             }
 
             final PaymentData paymentData = redirectAuthorise(model, paymentMethod);
@@ -121,25 +113,11 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
         return worldpayDirectOrderFacade.authoriseBankTransferRedirect(bankTransferAdditionalAuthInfo, worldpayAdditionalInfoData);
     }
 
-    protected String getViewContentForKlarna(final Model model) throws WorldpayException {
-        final Boolean savePaymentInfo = getSavePaymentInfo(model);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData((HttpServletRequest) model.asMap().get(REQUEST));
-        final AdditionalAuthInfo additionalAuthInfo = createAdditionalAuthInfo(savePaymentInfo, PaymentType.KLARNASSL.getMethodCode());
-        final String klarnaRedirectContent = worldpayDirectOrderFacade.authoriseKlarnaRedirect(worldpayAdditionalInfoData, additionalAuthInfo);
-        model.addAttribute(KLARNA_RESPONSE_PAGE_DATA_PARAM, klarnaRedirectContent);
-
-        return worldpayAddonEndpointService.getKlarnaResponsePage();
-    }
-
     protected boolean isBankTransferAPM(final String paymentMethod) {
         if (paymentMethodIsOnline(paymentMethod)) {
             return false;
         }
         return worldpayBankConfigurationFacade.isBankTransferApm(paymentMethod);
-    }
-
-    protected boolean isKlarnaAPM(final String paymentMethod) {
-        return PaymentType.KLARNASSL.getMethodCode().equals(paymentMethod);
     }
 
     protected void populateModel(final Model model, final PaymentData hostedOrderPageData) {
@@ -162,10 +140,6 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     @Override
     protected CheckoutStep getCheckoutStep() {
         return getCheckoutStep(PAYMENT_METHOD_STEP_NAME);
-    }
-
-    public List<String> getKlarnaPayments() {
-        return klarnaPayments;
     }
 
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final Model model) {

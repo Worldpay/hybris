@@ -24,6 +24,7 @@ import rx.functions.Func1;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
@@ -97,7 +98,7 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
         final HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Basic " + new String(Base64.getEncoder().encode(plainCreds), StandardCharsets.UTF_8));
         headers.add(HttpHeaders.HOST, host);
-        headers.add(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_XML.toString());
+        headers.add(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_XML.withCharset(StandardCharsets.UTF_8).toString());
         Optional.ofNullable(cookie).ifPresent(cookieValue -> headers.add(HttpHeaders.COOKIE, cookieValue));
         return headers;
     }
@@ -109,8 +110,12 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
 
     private ServiceReply processResponseXML(final ResponseEntity<String> responseXML) throws WorldpayException {
         final ServiceReply serviceReply = new ServiceReply();
+        final ByteBuffer encode = StandardCharsets.ISO_8859_1.encode(responseXML.getBody());
+        final String response = StandardCharsets.UTF_8.decode(encode).toString();
+
         serviceReply.setCookie(Iterables.getFirst(responseXML.getHeaders().get("Set-Cookie"), ""));
-        serviceReply.setPaymentService(paymentServiceMarshaller.unmarshal(IOUtils.toInputStream(responseXML.getBody(), StandardCharsets.UTF_8)));
+        serviceReply.setPaymentService(paymentServiceMarshaller.unmarshal(IOUtils.toInputStream(response, StandardCharsets.UTF_8)));
+
         return serviceReply;
     }
 

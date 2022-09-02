@@ -17,6 +17,7 @@ import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,7 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @GetMapping(value = "/merchant-configuration", produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdUserIdAndCartIdParam
     public ResponseEntity<GooglePayConfigData> getGooglePaySettings() {
         return ResponseEntity.ok(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getGooglePaySettings());
     }
@@ -54,7 +56,8 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final GooglePayAuthorisationRequest authorisationRequest, @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields,
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final GooglePayAuthorisationRequest authorisationRequest, @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields,
                                                   final HttpServletResponse response) throws WorldpayException, InvalidCartException {
         saveBillingAddress(authorisationRequest.getBillingAddress());
 

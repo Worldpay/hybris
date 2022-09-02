@@ -5,10 +5,10 @@ The Connector is SAP Premium Certified.
 About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company. The company provides payment services for mail order and Internet retailers, as well as point of sale transactions. Customers are a mix of multinational, multichannel retailers, with the majority being small business merchants. It also provides loans to small businesses.
 
 ## Introduction
-## SAP Commerce Cloud
+### SAP Commerce Cloud
 The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
 
-## Release Information
+### Release Information
 This release is tailored for SAP Commerce Cloud 2105. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
 
 # Installation and Usage
@@ -17,26 +17,40 @@ This release is tailored for SAP Commerce Cloud 2105. It is advised to use the l
 
 The AddOn provides three gradle recipes to be used with the hybris installer.
 
-1. wp_b2c_acc with fulfilment functionality for both accelerator storefront and OCC.
+1. *wp_b2c_acc* with fulfilment functionality for both accelerator storefront and OCC.
 
-2. wp_b2c_acc_oms with OMS functionality for both accelerator storefront and OCC.
+2. *wp_b2c_acc_oms* with OMS functionality for both accelerator storefront and OCC.
 
-3. wp_b2b_acc with fulfilment functionality for b2b accelerator storefront.
+3. *wp_b2b_acc* with fulfilment functionality for b2b accelerator storefront.
 
-4. wp_b2c_acc_occ with fulfilment functionality for b2c accelerator storefront and extra porperties for Spartacus.
+4. *wp_b2c_acc_occ* with fulfilment functionality for b2c accelerator storefront and extra porperties for Spartacus.
 
-The recipes are based on the b2c_acc, b2c_acc_oms and b2b_acc recipes provided by hybris.
+The recipes are based on the *b2c_acc*, *b2c_acc_oms* and *b2b_acc* recipes provided by hybris.
 
 The recipes can be found under the installer folder.
 
-To use the recipes on a clean hybris installation, copy the folder hybris to your ${HYBRIS_BIN_DIR}
+To use the recipes on a clean hybris installation, copy the folder hybris to your *${HYBRIS_BIN_DIR}*
 
 Since the recipe generates the local.properties file with the properties defined in the recipe, optionally you can add your local.properties to the customconfig folder.
 
 In order to install the AddOn using one of the recipes, run the following commands:
 - This will run setup, build, initialize and start
-HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform
+`HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform`
 
 ## RELEASE NOTES
-Fixed notification process when trying to save a PaymentInfoModel that has been removed.
+
+### Features:
+- Klarna V2 SSL implemented. The connector no more supports Klarna SSL.
+- Updated Swagger IO end-point annotations for Spartacus.
+- Updated Spartacus recipe with SSL configuration by default.
+
+### Breaking changes:
+- eNets APM removed. The connector no more support eNets payment method.
+
+### Bugs Fixed: 
+- Fixed encode/decode requests and responses for respective languages. Some characters aren't decoded/encoded properly, causing a wrong visualization on The WorldPay dashboard.
+- Fixed order overview information page. Now it's fully populated on Spartacus recipe.
+- Fixed Apple Pay checkout process. Some data wasn't populated as expected causing a failed checkout process.
+- Fixed guest checkout in Spartacus. Some end-points return an “Access denied“ when FE call them.
+
 

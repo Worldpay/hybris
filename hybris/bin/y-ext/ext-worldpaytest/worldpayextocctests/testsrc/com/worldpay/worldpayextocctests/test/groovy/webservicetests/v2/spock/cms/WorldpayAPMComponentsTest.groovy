@@ -45,7 +45,7 @@ class WorldpayAPMComponentsTest extends AbstractWorldpaySpockTest {
         JSON           | EUR_CURRENCY | DE_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | false
         JSON           | EUR_CURRENCY | NL_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'IDEAL-SSL', 'KLARNA_PAYLATER-SSL', 'SEPA_DIRECT_DEBIT-SSL']                                       | true
         JSON           | GBP_CURRENCY | UK_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | true
-        JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'ENETS-SSL']                                                                                       | true
+        JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL']                                                                                       | true
         JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL']                                                                                                    | false
         JSON           | EUR_CURRENCY | AT_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | false
     }
