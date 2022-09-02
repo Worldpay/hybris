@@ -216,6 +216,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
                 .map(this::convertStringToDate)
                 .ifPresent(date -> worldpayAdditionalInfoData.setDateOfBirth(date));
 
+
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
 
         return handleDirectResponse(directResponseData, response, FULL_LEVEL);
@@ -363,6 +364,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         try {
             return new SimpleDateFormat(DATE_OF_BIRTH_FORMAT).parse(dateString);
         } catch (ParseException e) {
+
             LOG.error("failed parsing date of birth", e);
         }
         return null;

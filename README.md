@@ -52,3 +52,4 @@ In order to install the AddOn using one of the recipes, run the following comman
 - Fixed Apple Pay checkout process. Some data wasn't populated as expected causing a failed checkout process.
 - Fixed guest checkout in Spartacus. Some end-points return an “Access denied“ when FE call them.
 
+
