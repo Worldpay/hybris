@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 import static java.util.Collections.singleton;
@@ -47,5 +47,5 @@ public class WorldpayPaymentTransactionTypesAppenderTest {
         assertFalse(result.contains("Payment Transaction Types:"));
     }
 }
-    
+
 

@@ -41,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
 
@@ -53,7 +53,7 @@ import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.AdditionalMatchers.or;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -134,24 +134,24 @@ public class WorldpayCartsControllerTest {
 
     @Before
     public void setUp() throws WorldpayException, InvalidCartException {
-        when(dataMapperMock.map(addressWsDTOMock, AddressData.class, DEFAULT_LEVEL)).thenReturn(addressDataMock);
+        lenient().when(dataMapperMock.map(addressWsDTOMock, AddressData.class, DEFAULT_LEVEL)).thenReturn(addressDataMock);
         when(apmAvailabilityFacadeMock.isAvailable(or(eq(PaymentType.IDEAL.getMethodCode()), eq(PaymentType.CHINA_UNION_PAY.getMethodCode())))).thenReturn(Boolean.TRUE);
         doReturn(SESSION_ID).when(testObj).getSessionId(requestMock);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(Boolean.TRUE);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoDataMock);
-        when(dataMapperMock.map(ccPaymentInfoDataMock, PaymentDetailsWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL)).thenReturn(paymentDetailsWsDTOMock);
+        lenient().when(dataMapperMock.map(ccPaymentInfoDataMock, PaymentDetailsWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL)).thenReturn(paymentDetailsWsDTOMock);
         when(worldpayDirectOrderFacadeMock.executeFirstPaymentAuthorisation3DSecure(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(directResponseDataMock);
         when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
         when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.AUTHORISED);
         when(directResponseDataMock.getReturnCode()).thenReturn(RETURN_CODE);
-        when(dataMapperMock.map(orderDataMock, OrderWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL)).thenReturn(orderWsDTOMock);
+        lenient().when(dataMapperMock.map(orderDataMock, OrderWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL)).thenReturn(orderWsDTOMock);
         when(worldpayDirectResponseFacadeMock.retrieveAttributesForFlex3dSecure(directResponseDataMock)).thenReturn(threeDSFlexData);
         when(paymentDetailsWsDTOMock.getBillingAddress()).thenReturn(addressWsDTOMock);
 
         doAnswer(invocationOnMock -> {
-            final PaymentDetailsWsDTO paymentDetails = invocationOnMock.getArgumentAt(1, PaymentDetailsWsDTO.class);
+            final PaymentDetailsWsDTO paymentDetails = invocationOnMock.getArgument(1);
             paymentDetails.setBillingAddress(addressWsDTOMock);
 
             return null;
@@ -413,7 +413,7 @@ public class WorldpayCartsControllerTest {
         testObj.getRedirectAuthorise(paymentRequestData, requestMock);
 
         verify(worldpayDirectOrderFacadeMock).authoriseBankTransferRedirect(any(BankTransferAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
-        verify(dataMapperMock).map(any(BankTransferAdditionalAuthInfo.class), eq(PaymentDataWsDTO.class));
+        verify(dataMapperMock).map(any(), eq(PaymentDataWsDTO.class));
     }
 
     @Test
@@ -429,7 +429,7 @@ public class WorldpayCartsControllerTest {
         testObj.getRedirectAuthorise(paymentRequestData, requestMock);
 
         verify(worldpayHostedOrderFacadeMock).redirectAuthorise(any(AdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
-        verify(dataMapperMock).map(any(AdditionalAuthInfo.class), eq(PaymentDataWsDTO.class));
+        verify(dataMapperMock).map(any(), eq(PaymentDataWsDTO.class));
     }
 
     @Test

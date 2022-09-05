@@ -33,7 +33,12 @@ public class AddressPopulator implements Populator<Address, com.worldpay.interna
         target.setPostalCode(source.getPostalCode());
         target.setCity(source.getCity());
         target.setState(source.getState());
-        target.setCountryCode(source.getCountryCode());
+
+        Optional.ofNullable(source.getCountryCode()).ifPresent(country -> {
+            CountryCode countryCode = new CountryCode();
+            countryCode.setvalue(source.getCountryCode());
+            target.setCountryCode(countryCode);
+        });
 
         final List<Object> addressDetails = target.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3();
 

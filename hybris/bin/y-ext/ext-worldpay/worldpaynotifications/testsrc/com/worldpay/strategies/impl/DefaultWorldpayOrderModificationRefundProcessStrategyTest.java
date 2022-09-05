@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -89,8 +89,6 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
     @Test
     public void processRefundFollowOn_WhenNotificationIsREFUNDAndThereAreMultipleReturnRequest_ShouldTriggerReturnProcess() {
         when(orderModelMock.getReturnRequests()).thenReturn(Arrays.asList(returnRequestMock1, returnRequestMock2));
-        when(returnRequestMock2.getReturnProcess()).thenReturn(singletonList(refundWaitingReturnProcessMock2));
-        when(refundWaitingReturnProcessMock2.getCode()).thenReturn(RETURN_PROCESS_CODE + "_INVALID");
 
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 
@@ -103,7 +101,7 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
 
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 
-        verifyZeroInteractions(businessProcessServiceMock);
+        verifyNoInteractions(businessProcessServiceMock);
     }
 
     @Test
@@ -112,8 +110,8 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
 
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 
-        verifyZeroInteractions(businessProcessServiceMock);
-        verifyZeroInteractions(modelServiceMock);
+        verifyNoInteractions(businessProcessServiceMock);
+        verifyNoInteractions(modelServiceMock);
     }
 
     @Test
@@ -137,7 +135,7 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
 
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 
-        verifyZeroInteractions(businessProcessServiceMock);
+        verifyNoInteractions(businessProcessServiceMock);
     }
 
     @Test

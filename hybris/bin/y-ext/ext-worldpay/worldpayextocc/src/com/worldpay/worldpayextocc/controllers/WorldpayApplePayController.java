@@ -58,7 +58,7 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
     @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
     public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest,
-                                                  @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields,
+                                                  @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields,
                                                   final HttpServletResponse response) throws WorldpayException, InvalidCartException {
         worldpayApplePayPaymentCheckoutFacade.saveBillingAddresses(authorisationRequest.getBillingContact());
 

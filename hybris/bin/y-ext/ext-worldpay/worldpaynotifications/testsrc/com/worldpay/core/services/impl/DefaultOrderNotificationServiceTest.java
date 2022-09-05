@@ -21,8 +21,8 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
@@ -65,7 +65,7 @@ public class DefaultOrderNotificationServiceTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "journalTypeToNotificationProcessorStrategyMap", ImmutableMap.of(AUTHORISED, orderNotificationProcessorStrategyMock));
+        ReflectionTestUtils.setField(testObj, "journalTypeToNotificationProcessorStrategyMap", ImmutableMap.of(AUTHORISED, orderNotificationProcessorStrategyMock));
 
         when(worldpayCartServiceMock.getAuthenticatedShopperId(orderMock)).thenReturn(VALID_AUTHENTICATED_SHOPPER_ID);
         when(orderNotificationMessageMock.getTokenReply().getAuthenticatedShopperID()).thenReturn(VALID_AUTHENTICATED_SHOPPER_ID);

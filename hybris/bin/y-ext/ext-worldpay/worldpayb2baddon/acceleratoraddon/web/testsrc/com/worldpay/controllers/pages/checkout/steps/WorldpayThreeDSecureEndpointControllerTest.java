@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
 import static com.worldpay.payment.TransactionStatus.REFUSED;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -117,7 +117,7 @@ public class WorldpayThreeDSecureEndpointControllerTest {
 
     @Test
     public void shouldRedirectToErrorPageWhenInvalidCartExceptionThrown() throws InvalidCartException, WorldpayException {
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR);
+        lenient().when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR);
         when(worldpayDirectOrderFacadeMock.authorise3DSecure(PA_RESPONSE, worldpayAdditionalInfoDataMock)).thenThrow(new InvalidCartException(EXCEPTION_MESSAGE));
 
         final String result = testObj.doHandleThreeDSecureResponse(requestMock, threeDSecureFormMock, redirectAttributesMock);
@@ -128,7 +128,7 @@ public class WorldpayThreeDSecureEndpointControllerTest {
 
     @Test
     public void shouldRedirectToErrorPageWhenWorldpayExceptionThrown() throws InvalidCartException, WorldpayException {
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR);
+        lenient().when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR);
         when(worldpayDirectOrderFacadeMock.authorise3DSecure(PA_RESPONSE, worldpayAdditionalInfoDataMock)).thenThrow(new WorldpayException(EXCEPTION_MESSAGE));
 
         final String result = testObj.doHandleThreeDSecureResponse(requestMock, threeDSecureFormMock, redirectAttributesMock);

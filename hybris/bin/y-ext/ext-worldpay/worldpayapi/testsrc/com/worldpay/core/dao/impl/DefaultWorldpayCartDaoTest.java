@@ -10,7 +10,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static com.worldpay.core.dao.impl.DefaultWorldpayCartDao.PARAM_WORLD_PAY_ORDER_CODE;
 import static com.worldpay.core.dao.impl.DefaultWorldpayCartDao.QUERY;

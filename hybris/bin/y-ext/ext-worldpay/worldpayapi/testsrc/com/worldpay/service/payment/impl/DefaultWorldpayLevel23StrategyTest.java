@@ -25,14 +25,14 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Calendar;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -126,12 +126,8 @@ public class DefaultWorldpayLevel23StrategyTest {
 
     @Test
     public void populateRequestWithAdditionalData_WhenLevel3EnabledAndValidData_ShouldSetLevel3Data() {
-        doReturn(true).when(testObj).isLevel2Enabled(cartMock);
         doReturn(level23DataMock).when(testObj).createLevel23Data(cartMock);
 
-        doNothing().when(testObj).setCustomerReference(any(), any());
-        doNothing().when(testObj).setProductDescription(any(), any());
-        doNothing().when(testObj).setDutyAmount(any(), any());
         when(worldpayLevel23DataValidatorMock.isValidLevel3Data(purchaseList)).thenReturn(true);
 
         testObj.populateRequestWithAdditionalData(cartMock, worldpayAdditionalInfoDataMock, authoriseRequestParametersCreatorMock);
@@ -145,9 +141,6 @@ public class DefaultWorldpayLevel23StrategyTest {
         doReturn(true).when(testObj).isLevel3Enabled(cartMock);
         doReturn(level23DataMock).when(testObj).createLevel23Data(cartMock);
 
-        doNothing().when(testObj).setCustomerReference(any(), any());
-        doNothing().when(testObj).setProductDescription(any(), any());
-        doNothing().when(testObj).setDutyAmount(any(), any());
         when(worldpayLevel23DataValidatorMock.isValidLevel3Data(purchaseList)).thenReturn(false);
         when(worldpayLevel23DataValidatorMock.isValidLevel2Data(purchaseList)).thenReturn(true);
 

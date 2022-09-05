@@ -183,7 +183,7 @@ public final class TokenBuilder {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
         paypal.setvalue(StringUtils.EMPTY);
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(paypal);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(paypal);
         return paymentInstrument;
     }
 
@@ -216,7 +216,7 @@ public final class TokenBuilder {
 
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(cardDetails);
         return paymentInstrument;
     }
 

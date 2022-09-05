@@ -10,7 +10,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +54,6 @@ public class WorldPayApplePayHttpClientFactoryBeanTest {
     @Test
     public void createInstanceWithNonExistentFileThrowsAnException() throws Exception {
         when(resourceMock.exists()).thenReturn(false);
-        when(resourceMock.isReadable()).thenReturn(false);
         testObj.setCertificateFile(resourceMock);
         testObj.setKeyStoreType(PKCS_12);
         testObj.setPassword(CHANGEIT);

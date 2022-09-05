@@ -16,7 +16,7 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -31,7 +31,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -75,15 +75,13 @@ public class WorldpayRedirectCheckoutStepControllerTest {
 
         when(paymentDetailsFormMock.getSaveInAccount()).thenReturn(true);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(ONLINE.getMethodCode());
-        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
     }
 
     @Test
     public void addPaymentDetails_WhenCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddressAndWhenFSEnabled_ShouldSaveTheAddressAndAddTheDOBRedirectAttribute() throws CMSItemNotFoundException {
-        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(FALSE);
-        when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
+        lenient().when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
 
         testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);
 
@@ -98,8 +96,7 @@ public class WorldpayRedirectCheckoutStepControllerTest {
 
     @Test
     public void addPaymentDetails_WhenCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddressAndWhenFSDisabled_ShouldSaveTheAddressAndNotAddTheDOBRedirectAttribute() throws CMSItemNotFoundException {
-        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(FALSE);
-        when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
+        lenient().when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
 
         testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);

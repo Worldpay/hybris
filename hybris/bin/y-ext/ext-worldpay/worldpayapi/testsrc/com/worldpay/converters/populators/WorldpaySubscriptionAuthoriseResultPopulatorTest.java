@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
@@ -96,7 +96,6 @@ public class WorldpaySubscriptionAuthoriseResultPopulatorTest {
     public void populateShouldSetRejectedAndReviewNeededWhenDirectAuthoriseServiceResponseHasNoPaymentReplyAndIsAPM() {
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(null);
         when(directAuthoriseServiceResponseMock.getRedirectReference()).thenReturn(redirectReferenceMock);
-        when(redirectReferenceMock.getValue()).thenReturn(REFERENCE_URL);
 
         final WorldpaySubscriptionAuthorizeResult result = new WorldpaySubscriptionAuthorizeResult();
         testObj.populate(directAuthoriseServiceResponseMock, result);

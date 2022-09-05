@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.concurrent.Callable;
 
@@ -97,12 +97,7 @@ public class DefaultOrderInquiryServiceTest {
         when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PAYMENT_METHOD_CODE);
         when(paymentTransactionModelMock.getInfo()).thenReturn(paymentTransactionPaymentInfoModelMock);
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
-        when(paymentTransactionAPMPaymentInfoModelMock.getIsApm()).thenReturn(Boolean.TRUE);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
-        when(paymentTransactionAPMPaymentInfoModelMock.getApmConfiguration()).thenReturn(worldpayAPMConfigurationModelMock);
-
-        when(worldpayAPMPaymentInfoModelMock.getPaymentType()).thenReturn(PAYMENT_METHOD_CODE);
-        when(modelServiceMock.clone(paymentTransactionAPMPaymentInfoModelMock, WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
 
         when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
 
@@ -203,7 +198,6 @@ public class DefaultOrderInquiryServiceTest {
     public void shouldCreateConfigurationUsingConfigurationServiceValues() throws Exception {
         when(worldpayServiceGatewayMock.orderInquiry(orderInquiryServiceRequestMock)).thenReturn(orderInquiryServiceResponseMock);
 
-        when(orderInquiryServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(orderInquiryServiceResponseMock.getErrorDetail()).thenReturn(null);
 
         testObj.inquireOrder(merchantInfoMock, WORLDPAY_ORDER_CODE);
@@ -236,7 +230,6 @@ public class DefaultOrderInquiryServiceTest {
     public void shouldInquiryKlarnaOrderStatus() throws WorldpayException {
         doReturn(klarnaOrderInquiryServiceRequestMock).when(testObj).createKlarnaOrderInquiryServiceRequest(merchantInfoMock, WORLDPAY_ORDER_CODE);
         when(worldpayServiceGatewayMock.orderInquiry(klarnaOrderInquiryServiceRequestMock)).thenReturn(orderInquiryServiceResponseMock);
-        when(orderInquiryServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(orderInquiryServiceResponseMock.getErrorDetail()).thenReturn(null);
 
         final OrderInquiryServiceResponse result = testObj.inquiryKlarnaOrder(merchantInfoMock, WORLDPAY_ORDER_CODE);

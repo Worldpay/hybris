@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.*;
 
@@ -78,54 +78,46 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
     @Test
     public void onRemove_WhenCCPaymentInfoTokenIsNotAttachedToUser_ShouldNotDeleteIt() throws Exception {
-        when(creditCardPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(creditCardPaymentInfoModelMock.getUser()).thenReturn(null);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(creditCardPaymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
     }
 
     @Test
     public void onRemove_WhenAPMPaymentInfoTokenIsNotAttachedToUser_ShouldNotDeleteIt() throws Exception {
-        when(worldpayAPMPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(worldpayAPMPaymentInfoModelMock.getUser()).thenReturn(null);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(worldpayAPMPaymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
     }
 
     @Test
     public void onRemove_WhenDuplicateCCPaymentInfo_shouldNotDeleteToken() throws Exception {
-        when(creditCardPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(creditCardPaymentInfoModelMock.getDuplicate()).thenReturn(true);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(creditCardPaymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
     }
 
     @Test
     public void onRemove_WhenDuplicateAPMPaymentInfo_shouldNotDeleteToken() throws Exception {
-        when(worldpayAPMPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(worldpayAPMPaymentInfoModelMock.getDuplicate()).thenReturn(true);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(worldpayAPMPaymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
     }
 
     @Test
     public void onRemove_WhenNormalPaymentInfo_ShouldNotDeleteToken() {
         testObj.onRemove(paymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(worldpayMerchantInfoServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayMerchantInfoServiceMock);
     }
 
     @Test
@@ -134,8 +126,8 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
         testObj.onRemove(creditCardPaymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(worldpayMerchantInfoServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayMerchantInfoServiceMock);
     }
 
     @Test
@@ -144,7 +136,7 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
         testObj.onRemove(worldpayAPMPaymentInfoModelMock, interceptorContextMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(worldpayMerchantInfoServiceMock);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(worldpayMerchantInfoServiceMock);
     }
 }

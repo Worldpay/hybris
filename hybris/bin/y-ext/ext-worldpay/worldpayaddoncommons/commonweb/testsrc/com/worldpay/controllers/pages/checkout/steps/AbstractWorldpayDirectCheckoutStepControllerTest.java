@@ -19,7 +19,7 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpServletResponse;
@@ -75,12 +75,12 @@ public class AbstractWorldpayDirectCheckoutStepControllerTest {
     @Before
     public void setUp() {
         doReturn(LOCALISED_DECLINE_MESSAGE).when(testObj).getLocalisedDeclineMessage(RETURN_CODE);
-        when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
-        when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
+        lenient().when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
+        lenient().when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
         when(directResponseDataMock.getReturnCode()).thenReturn(RETURN_CODE);
-        when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
-        when(cartDataMock.getWorldpayOrderCode()).thenReturn(MERCHANT_DATA_VALUE);
-        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        lenient().when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
+        lenient().when(cartDataMock.getWorldpayOrderCode()).thenReturn(MERCHANT_DATA_VALUE);
+        lenient().when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(worldpayAddonEndpointServiceMock.getAutoSubmit3DSecure()).thenReturn(AUTOSUBMIT_3DSECURE);
         when(worldpayAddonEndpointServiceMock.getAutoSubmit3DSecureFlex()).thenReturn(AUTOSUBMIT_3DSECURE_FLEX);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);

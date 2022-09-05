@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.hybris.platform</groupId>
 	<artifactId>worldpayextocctests</artifactId>
-	<version>2005.0</version>
+	<version>2205.0</version>
 
 	<packaging>jar</packaging>
 

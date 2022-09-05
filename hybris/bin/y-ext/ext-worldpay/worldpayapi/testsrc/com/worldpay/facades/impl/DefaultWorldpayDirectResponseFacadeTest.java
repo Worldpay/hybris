@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Map;
 
@@ -111,7 +111,6 @@ public class DefaultWorldpayDirectResponseFacadeTest {
     @Test
     public void retrieveAttributesWhenResponseDataIs3dSecureLegacyFlow() throws WorldpayConfigurationException {
         when(worldpayDirectResponseServiceMock.is3DSecureLegacyFlow(directResponseDataMock)).thenReturn(true);
-        when(worldpayAddonEndpointServiceMock.getAutoSubmit3DSecure()).thenReturn(AUTO_SUBMIT_3DS_LEGACY);
         when(directResponseDataMock.getIssuerURL()).thenReturn(ISSUER_URL_VALUE);
         when(directResponseDataMock.getPaRequest()).thenReturn(PA_REQUEST_VALUE);
         when(acceleratorCheckoutFacadeMock.getCheckoutCart().getWorldpayOrderCode()).thenReturn(MERCHANT_VALUE);

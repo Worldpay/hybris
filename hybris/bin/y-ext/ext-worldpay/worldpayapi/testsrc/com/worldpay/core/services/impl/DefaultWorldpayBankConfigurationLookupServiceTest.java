@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ import static java.util.Collections.singletonList;
 import static org.jgroups.util.Util.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +49,7 @@ public class DefaultWorldpayBankConfigurationLookupServiceTest {
     @Test
     public void testGetActiveBankConfigurationsForCode() {
         when(apmConfigurationLookupService.getAPMConfigurationForCode(APM_CODE)).thenReturn(apmConfigurationModelMock);
-        when(worldpayBankConfigurationGenericDaoMock.find(anyMapOf(String.class, Object.class))).thenReturn(singletonList(worldpayBankConfigurationModelMock));
+        when(worldpayBankConfigurationGenericDaoMock.find(anyMap())).thenReturn(singletonList(worldpayBankConfigurationModelMock));
 
         final List<WorldpayBankConfigurationModel> activeBankConfigurationsForCode = testObj.getActiveBankConfigurationsForCode(APM_CODE);
 
@@ -70,7 +70,7 @@ public class DefaultWorldpayBankConfigurationLookupServiceTest {
 
     @Test
     public void shouldReturnBankConfigurationIfBankCodeNotNull() {
-        when(worldpayBankConfigurationGenericDaoMock.find(anyMapOf(String.class, Object.class))).thenReturn(singletonList(worldpayBankConfigurationModelMock));
+        when(worldpayBankConfigurationGenericDaoMock.find(anyMap())).thenReturn(singletonList(worldpayBankConfigurationModelMock));
 
         final WorldpayBankConfigurationModel result = testObj.getBankConfigurationForBankCode(BANK_CODE);
 

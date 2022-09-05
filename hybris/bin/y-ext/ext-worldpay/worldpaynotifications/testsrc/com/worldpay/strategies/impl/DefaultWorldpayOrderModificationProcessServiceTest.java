@@ -27,8 +27,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
@@ -84,25 +84,21 @@ public class DefaultWorldpayOrderModificationProcessServiceTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "worldpayPaymentTransactionTypeStrategiesMap", ImmutableMap.of(
+        ReflectionTestUtils.setField(testObj, "worldpayPaymentTransactionTypeStrategiesMap", ImmutableMap.of(
             REFUND_FOLLOW_ON, refundedPaymentTransactionTypeStrategyMock,
             SETTLED, settledPaymentTransactionTypeStrategyMock,
             REFUSED, refusedPaymentTransactionTypeStrategyMock,
             VOIDED, voidedPaymentTransactionTypeStrategyMock));
-        Whitebox.setInternalState(testObj, "worldpayNotRefusedPaymentTransactionTypeStrategiesList", ImmutableList.of(
+        ReflectionTestUtils.setField(testObj, "worldpayNotRefusedPaymentTransactionTypeStrategiesList", ImmutableList.of(
             REFUND_FOLLOW_ON, refundedPaymentTransactionTypeStrategyMock,
             SETTLED, settledPaymentTransactionTypeStrategyMock,
             VOIDED, voidedPaymentTransactionTypeStrategyMock));
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
-        when(nonTriggeringOrderStatusesMock.contains(CANCELLED)).thenReturn(true);
         when(orderNotificationServiceMock.getUnprocessedOrderModificationsByType(any(PaymentTransactionType.class))).thenReturn(singletonList(worldpayOrderModificationMock));
         when(worldpayOrderModificationMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(worldpayOrderModificationMock.getOrderNotificationMessage()).thenReturn(SERIALIZED_JSON_STRING);
         when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(paymentTransactionModelMock);
         when(orderNotificationServiceMock.deserialiseNotification(SERIALIZED_JSON_STRING)).thenReturn(orderNotificationMessageMock);
-        when(orderModelMock.getCode()).thenReturn(ORDER_CODE);
-        when(orderModelMock.getUser()).thenReturn(customerModelMock);
-        when(tokenReplyMock.getAuthenticatedShopperID()).thenReturn(TOKEN_REPLY_AUTHENTICATED_SHOPPER_ID);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(null);
     }
 
@@ -206,8 +202,6 @@ public class DefaultWorldpayOrderModificationProcessServiceTest {
 
     @Test
     public void processOrderModificationMessages_ShouldProcessRefusedPaymentTransaction() {
-        when(worldpayPaymentTransactionServiceMock.isPreviousTransactionCompleted(WORLDPAY_ORDER_CODE, REFUSED, orderModelMock)).thenReturn(Boolean.TRUE);
-
         final boolean result = testObj.processOrderModificationMessages(REFUSED);
 
         assertTrue(result);

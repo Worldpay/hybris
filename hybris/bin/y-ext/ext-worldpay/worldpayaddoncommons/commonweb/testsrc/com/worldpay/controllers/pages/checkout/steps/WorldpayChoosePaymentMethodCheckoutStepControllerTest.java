@@ -11,7 +11,6 @@ import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.Breadcrumb;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
-import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessage;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
 import de.hybris.platform.acceleratorstorefrontcommons.util.AddressDataUtil;
 import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
@@ -37,7 +36,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -56,7 +55,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -168,14 +167,10 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaDataMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaDataMock)).thenReturn(contentPageModelMock);
-        when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(PAGE_TITLE);
-        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(singletonList(breadCrumbMock));
-        when(siteConfigServiceMock.getBoolean(anyString(), eq(true))).thenReturn(true);
-        when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(false);
-        when(cmsPageServiceMock.getFrontendTemplateName(masterTemplateModelMock)).thenReturn(ERROR_PAGE);
+        lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(false);
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(singletonList(ccPaymentInfoMock));
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
-        when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        lenient().when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(i18NFacadeMock.getRegionsForCountryIso(ISO_CODE_ADDRESS_FORM)).thenReturn(regionDataList);
         when(addressFormMock.getCountryIso()).thenReturn(ISO_CODE_ADDRESS_FORM);
         when(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail()).thenReturn(EMAIL);
@@ -394,7 +389,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     @Test
     public void shouldSaveAddressForAnonymous() {
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(false);
-        when(userFacadeMock.isAnonymousUser()).thenReturn(true);
+        lenient().when(userFacadeMock.isAnonymousUser()).thenReturn(true);
 
         testObj.handleAndSaveAddresses(paymentDetailsFormMock);
 
@@ -409,7 +404,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
         final boolean result = testObj.addGlobalErrors(modelMock, bindingResultMock);
 
-        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any(GlobalMessage.class));
+        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
         assertTrue(result);
     }
 
@@ -419,7 +414,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
         final boolean result = testObj.addGlobalErrors(modelMock, bindingResultMock);
 
-        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any(GlobalMessage.class));
+        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
         assertTrue(result);
     }
 
