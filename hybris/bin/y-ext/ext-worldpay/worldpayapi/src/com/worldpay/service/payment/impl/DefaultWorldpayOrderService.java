@@ -123,12 +123,7 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
 
         final String languageCode = commonI18NService.getLocaleForLanguage(language).toLanguageTag();
         final String locale = languageCode.concat("-").concat(countryCode);
-        if (Objects.nonNull(klarnaPaymentType) && PaymentType.KLARNASSL.equals(klarnaPaymentType)) {
-            final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls();
-            merchantUrls.setCheckoutURL(worldpayUrlService.getBaseWebsiteUrlForSite());
-            merchantUrls.setConfirmationURL(worldpayUrlService.getKlarnaConfirmationURL());
-            return WorldpayInternalModelTransformerUtil.createKlarnaPayment(countryCode, locale, merchantUrls, extraMerchantData);
-        } else if (Objects.nonNull(klarnaPaymentType)) {
+        if (Objects.nonNull(klarnaPaymentType)) {
             final KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs();
             klarnaRedirectURLs.setSuccessURL(worldpayUrlService.getFullSuccessURL());
             klarnaRedirectURLs.setCancelURL(worldpayUrlService.getFullCancelURL());
@@ -155,6 +150,7 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
         applePay.setSignature(worldpayAdditionalInfoApplePayData.getSignature());
         applePay.setVersion(worldpayAdditionalInfoApplePayData.getVersion());
         applePay.setData(worldpayAdditionalInfoApplePayData.getData());
+        applePay.setPaymentType(PaymentType.APPLEPAYSSL.getMethodCode());
 
         return applePay;
     }

@@ -12,7 +12,7 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -114,9 +114,9 @@ public class DefaultWorldpayKlarnaService implements WorldpayKlarnaService {
         final LineItemReference lineItemReference = new LineItemReference();
         lineItemReference.setValue(String.valueOf(entry.getEntryNumber()));
         lineItem.setLineItemReference(lineItemReference);
-        lineItem.setName(StringEscapeUtils.escapeXml(entry.getProduct().getName()));
+        lineItem.setName(StringEscapeUtils.escapeXml10(entry.getProduct().getName()));
         lineItem.setQuantity(String.valueOf(entry.getQuantity()));
-        lineItem.setQuantityUnit(StringEscapeUtils.escapeXml(entry.getProduct().getUnit().getName()));
+        lineItem.setQuantityUnit(StringEscapeUtils.escapeXml10(entry.getProduct().getUnit().getName()));
         lineItem.setUnitPrice(convertDoubleToStringFormat(digits, entry.getBasePrice()));
         final double totalAmount = calculateEntryTotalAmount(entry);
         lineItem.setTotalAmount(convertDoubleToStringFormat(digits, totalAmount));

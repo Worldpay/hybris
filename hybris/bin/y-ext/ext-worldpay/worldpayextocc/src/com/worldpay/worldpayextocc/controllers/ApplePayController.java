@@ -11,6 +11,7 @@ import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.applepay.ValidateMerchantRequestDTO;
 import com.worldpay.payment.applepay.ValidateMerchantRequestData;
 import de.hybris.platform.order.InvalidCartException;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -38,6 +39,7 @@ public class ApplePayController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/request-session", consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdAndUserIdParam
     public Object requestPaymentSession(@RequestBody final ValidateMerchantRequestWsDTO validateMerchantRequestWsDTO) {
         final ValidateMerchantRequestData validateMerchantRequestData = dataMapper.map(validateMerchantRequestWsDTO, ValidateMerchantRequestData.class);
         final ValidateMerchantRequestDTO requestDTO = worldpayApplePayPaymentCheckoutFacade.getValidateMerchantRequestDTO();
@@ -49,6 +51,7 @@ public class ApplePayController extends AbstractWorldpayController {
             {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdAndUserIdParam
     public DirectResponseData authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest) throws WorldpayException, InvalidCartException {
         worldpayApplePayPaymentCheckoutFacade.saveBillingAddresses(authorisationRequest.getBillingContact());
 
@@ -59,6 +62,7 @@ public class ApplePayController extends AbstractWorldpayController {
             {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/update-payment-method", consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @ApiBaseSiteIdAndUserIdParam
     public ApplePayOrderUpdate updatePaymentMethod(@RequestBody final ApplePayPaymentMethodUpdateRequest paymentMethodUpdateRequest) {
         return worldpayDirectOrderFacade.updatePaymentMethod(paymentMethodUpdateRequest);
     }

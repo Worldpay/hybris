@@ -2,7 +2,6 @@ package com.worldpay.util;
 
 import com.worldpay.data.Date;
 import com.worldpay.data.PaymentDetails;
-import com.worldpay.data.klarna.KlarnaMerchantUrls;
 import com.worldpay.data.klarna.KlarnaPayment;
 import com.worldpay.data.klarna.KlarnaRedirectURLs;
 import com.worldpay.data.payment.AlternativePayment;
@@ -11,8 +10,6 @@ import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 
 import java.time.LocalDateTime;
-
-import static com.worldpay.service.model.payment.PaymentType.KLARNASSL;
 
 public class WorldpayInternalModelTransformerUtil {
 
@@ -62,17 +59,6 @@ public class WorldpayInternalModelTransformerUtil {
         paymentDetails.setAction(requestParameters.getAction());
 
         return paymentDetails;
-    }
-
-    public static KlarnaPayment createKlarnaPayment(final String purchaseCountry, final String shopperLocale, final KlarnaMerchantUrls merchantUrls, final String extraMerchantData) {
-        final KlarnaPayment klarnaPayment = new KlarnaPayment();
-        klarnaPayment.setPaymentType(KLARNASSL.getMethodCode());
-        klarnaPayment.setPurchaseCountry(purchaseCountry);
-        klarnaPayment.setShopperLocale(shopperLocale);
-        klarnaPayment.setMerchantUrls(merchantUrls);
-        klarnaPayment.setExtraMerchantData(extraMerchantData);
-
-        return klarnaPayment;
     }
 
     public static KlarnaPayment createKlarnaPayment(final String shopperCountryCode, final String shopperLocale, final String extraMerchantData,

@@ -3,7 +3,7 @@ package com.worldpay.converters.populators;
 import com.worldpay.data.Address;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.user.AddressModel;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,10 +114,10 @@ public class WorldpayAddressPopulatorTest {
 
         testObject.populate(sourceMock, target);
 
-        assertEquals(StringEscapeUtils.escapeXml("áéíóú"), target.getAddress1());
-        assertEquals(StringEscapeUtils.escapeXml("üöë"), target.getAddress2());
-        assertEquals(StringEscapeUtils.escapeXml("ñÑçÇ"), target.getCity());
-        assertEquals(StringEscapeUtils.escapeXml("abcÑñç"), target.getPostalCode());
+        assertEquals(StringEscapeUtils.escapeXml10("áéíóú"), target.getAddress1());
+        assertEquals(StringEscapeUtils.escapeXml10("üöë"), target.getAddress2());
+        assertEquals(StringEscapeUtils.escapeXml10("ñÑçÇ"), target.getCity());
+        assertEquals(StringEscapeUtils.escapeXml10("abcÑñç"), target.getPostalCode());
     }
 
     @Test(expected = IllegalArgumentException.class)
