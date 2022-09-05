@@ -101,10 +101,10 @@ public class DefaultCapturedOrderNotificationProcessorStrategyTest {
     }
 
     @Test
-    public void processNotificationMessage_shouldNotCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMAndIsKlarnaSSL() {
-        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
+    public void processNotificationMessage_shouldNotCreateCapturedPaymentTransactionEntry_whenMessageIsAnAPMAndIsKlarnaV2SSL() {
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.KLARNAV2SSL.getMethodCode());
         when(paymentTransactionModelMock.getInfo().getIsApm()).thenReturn(true);
-        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(PaymentType.KLARNASSL.getMethodCode())).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(PaymentType.KLARNAV2SSL.getMethodCode())).thenReturn(true);
 
         testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
 

@@ -580,7 +580,7 @@
               value-type="de.hybris.platform.servicelayer.dto.converter.Converter">
         <entry key="CSEDATA" value-ref="internalCsePaymentConverter"/>
         <entry key="APPLEPAYSSL" value-ref="internalApplePayConverter"/>
-        <entry key="KLARNASSL" value-ref="internalKlarnaPaymentConverter"/>
+        <entry key="KLARNAV2SSL" value-ref="internalKlarnaV2PaymentConverter"/>
         <entry key="KLARNAPAYLATERSSL" value-ref="internalKlarnaPayLaterPaymentConverter"/>
         <entry key="KLARNASLICESSL" value-ref="internalKlarnaSliceItPaymentConverter"/>
         <entry key="KLARNAPAYNOWSSL" value-ref="internalKlarnaPayNowPaymentConverter"/>
@@ -617,20 +617,6 @@
         <property name="populators">
             <list>
                 <ref bean="internalApplePayPopulator"/>
-            </list>
-        </property>
-    </bean>
-
-    <alias name="defaultKlarnaPaymentPopulator" alias="internalKlarnaPaymentPopulator"/>
-    <bean id="defaultKlarnaPaymentPopulator"
-          class="com.worldpay.converters.populators.internal.model.klarna.KlarnaPaymentPopulator"/>
-
-    <alias name="defaultKlarnaPaymentConverter" alias="internalKlarnaPaymentConverter"/>
-    <bean id="defaultKlarnaPaymentConverter" parent="abstractPopulatingConverter">
-        <property name="targetClass" value="com.worldpay.internal.model.KLARNASSL"/>
-        <property name="populators">
-            <list>
-                <ref bean="internalKlarnaPaymentPopulator"/>
             </list>
         </property>
     </bean>
@@ -673,6 +659,20 @@
         <property name="populators">
             <list>
                 <ref bean="internalKlarnaPayNowPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultKlarnaV2PaymentPopulator" alias="internalKlarnaV2PaymentPopulator"/>
+    <bean id="defaultKlarnaV2PaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.klarna.KlarnaV2PaymentPopulator"/>
+
+    <alias name="defaultKlarnaV2PaymentConverter" alias="internalKlarnaV2PaymentConverter"/>
+    <bean id="defaultKlarnaV2PaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.KLARNAV2SSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalKlarnaV2PaymentPopulator"/>
             </list>
         </property>
     </bean>

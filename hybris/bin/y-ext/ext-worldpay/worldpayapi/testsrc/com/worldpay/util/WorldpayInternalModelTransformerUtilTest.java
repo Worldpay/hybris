@@ -4,7 +4,6 @@ import com.worldpay.data.Date;
 import com.worldpay.data.PaymentDetails;
 import com.worldpay.data.Session;
 import com.worldpay.data.Shopper;
-import com.worldpay.data.klarna.KlarnaMerchantUrls;
 import com.worldpay.data.klarna.KlarnaPayment;
 import com.worldpay.data.klarna.KlarnaRedirectURLs;
 import com.worldpay.data.payment.*;
@@ -12,6 +11,7 @@ import com.worldpay.enums.PaymentAction;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import de.hybris.bootstrap.annotations.UnitTest;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,8 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayInternalModelTransformerUtilTest {
 
-    private static final String CHECKOUT_URL = "checkoutURL";
-    private static final String CONFIRMATION_URL = "confirmationURL";
     private static final String COUNTRY_CODE = "ES";
     private static final String SHOPPER_LOCALE = "shopperLocale";
     private static final String EXTRA_MERCHANT_DATA = "extraMerchantData";
@@ -35,6 +33,7 @@ public class WorldpayInternalModelTransformerUtilTest {
     private static final String FAILURE_URL = "failureURL";
     private static final String PENDING_URL = "pendingURL";
     private static final String CANCEL_URL = "cancelURL";
+
     @InjectMocks
     private WorldpayInternalModelTransformerUtil testObj;
 
@@ -43,6 +42,15 @@ public class WorldpayInternalModelTransformerUtilTest {
     private Shopper shopper = new Shopper();
     private StoredCredentials storedCredentials = new StoredCredentials();
     private PaymentAction action = PaymentAction.AUTHORISE;
+    private KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs();
+
+    @Before
+    public void setUp() throws Exception {
+        klarnaRedirectURLs.setSuccessURL(SUCCESS_URL);
+        klarnaRedirectURLs.setCancelURL(CANCEL_URL);
+        klarnaRedirectURLs.setPendingURL(PENDING_URL);
+        klarnaRedirectURLs.setFailureURL(FAILURE_URL);
+    }
 
     @Test
     public void newDateFromLocalDateTime_ShouldReturnDate() {
@@ -104,33 +112,58 @@ public class WorldpayInternalModelTransformerUtilTest {
     }
 
     @Test
-    public void createKlarnaPayment_ShouldRetunrKLARNASSL() {
-        final KlarnaMerchantUrls merchantUrls = new KlarnaMerchantUrls();
-        merchantUrls.setCheckoutURL(CHECKOUT_URL);
-        merchantUrls.setConfirmationURL(CONFIRMATION_URL);
+    public void createKlarnaPayment_ShouldReturnKLARNAV2SSL() {
+        final KlarnaPayment result = testObj.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, EXTRA_MERCHANT_DATA, PaymentType.KLARNAV2SSL.getMethodCode(), klarnaRedirectURLs);
 
-        final KlarnaPayment result = testObj.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, merchantUrls, EXTRA_MERCHANT_DATA);
-
-        assertThat(result.getPurchaseCountry()).isEqualTo(COUNTRY_CODE);
-        assertThat(result.getMerchantUrls().getCheckoutURL()).isEqualTo(merchantUrls.getCheckoutURL());
+        assertThat(result.getShopperCountryCode()).isEqualTo(COUNTRY_CODE);
         assertThat(result.getExtraMerchantData()).isEqualTo(EXTRA_MERCHANT_DATA);
-        assertThat(result.getShopperLocale()).isEqualTo(SHOPPER_LOCALE);
+        assertThat(result.getLocale()).isEqualTo(SHOPPER_LOCALE);
+        assertThat(result.getPaymentType()).isEqualTo(PaymentType.KLARNAV2SSL.getMethodCode());
+        assertThat(result.getCancelURL()).isEqualTo(klarnaRedirectURLs.getCancelURL());
+        assertThat(result.getFailureURL()).isEqualTo(klarnaRedirectURLs.getFailureURL());
+        assertThat(result.getPendingURL()).isEqualTo(klarnaRedirectURLs.getPendingURL());
+        assertThat(result.getSuccessURL()).isEqualTo(klarnaRedirectURLs.getSuccessURL());
     }
 
     @Test
-    public void createKlarnaPayment_ShouldRetunrKLARNAPAYNOWSSL() {
-        final KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs();
-        klarnaRedirectURLs.setSuccessURL(SUCCESS_URL);
-        klarnaRedirectURLs.setCancelURL(CANCEL_URL);
-        klarnaRedirectURLs.setPendingURL(PENDING_URL);
-        klarnaRedirectURLs.setFailureURL(FAILURE_URL);
-
+    public void createKlarnaPayment_ShouldReturnKLARNAPAYNOWSSL() {
         final KlarnaPayment result = testObj.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, EXTRA_MERCHANT_DATA, PaymentType.KLARNAPAYNOWSSL.getMethodCode(), klarnaRedirectURLs);
 
         assertThat(result.getShopperCountryCode()).isEqualTo(COUNTRY_CODE);
         assertThat(result.getExtraMerchantData()).isEqualTo(EXTRA_MERCHANT_DATA);
         assertThat(result.getLocale()).isEqualTo(SHOPPER_LOCALE);
         assertThat(result.getPaymentType()).isEqualTo(PaymentType.KLARNAPAYNOWSSL.getMethodCode());
-        assertThat(result.getSuccessURL()).isEqualTo(SUCCESS_URL);
+        assertThat(result.getCancelURL()).isEqualTo(klarnaRedirectURLs.getCancelURL());
+        assertThat(result.getFailureURL()).isEqualTo(klarnaRedirectURLs.getFailureURL());
+        assertThat(result.getPendingURL()).isEqualTo(klarnaRedirectURLs.getPendingURL());
+        assertThat(result.getSuccessURL()).isEqualTo(klarnaRedirectURLs.getSuccessURL());
+    }
+
+    @Test
+    public void createKlarnaPayment_ShouldReturnKLARNASLICESSL() {
+        final KlarnaPayment result = testObj.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, EXTRA_MERCHANT_DATA, PaymentType.KLARNASLICESSL.getMethodCode(), klarnaRedirectURLs);
+
+        assertThat(result.getShopperCountryCode()).isEqualTo(COUNTRY_CODE);
+        assertThat(result.getExtraMerchantData()).isEqualTo(EXTRA_MERCHANT_DATA);
+        assertThat(result.getLocale()).isEqualTo(SHOPPER_LOCALE);
+        assertThat(result.getPaymentType()).isEqualTo(PaymentType.KLARNASLICESSL.getMethodCode());
+        assertThat(result.getCancelURL()).isEqualTo(klarnaRedirectURLs.getCancelURL());
+        assertThat(result.getFailureURL()).isEqualTo(klarnaRedirectURLs.getFailureURL());
+        assertThat(result.getPendingURL()).isEqualTo(klarnaRedirectURLs.getPendingURL());
+        assertThat(result.getSuccessURL()).isEqualTo(klarnaRedirectURLs.getSuccessURL());
+    }
+
+    @Test
+    public void createKlarnaPayment_ShouldReturnKLARNAPAYLATERSSL() {
+        final KlarnaPayment result = testObj.createKlarnaPayment(COUNTRY_CODE, SHOPPER_LOCALE, EXTRA_MERCHANT_DATA, PaymentType.KLARNAPAYLATERSSL.getMethodCode(), klarnaRedirectURLs);
+
+        assertThat(result.getShopperCountryCode()).isEqualTo(COUNTRY_CODE);
+        assertThat(result.getExtraMerchantData()).isEqualTo(EXTRA_MERCHANT_DATA);
+        assertThat(result.getLocale()).isEqualTo(SHOPPER_LOCALE);
+        assertThat(result.getPaymentType()).isEqualTo(PaymentType.KLARNAPAYLATERSSL.getMethodCode());
+        assertThat(result.getCancelURL()).isEqualTo(klarnaRedirectURLs.getCancelURL());
+        assertThat(result.getFailureURL()).isEqualTo(klarnaRedirectURLs.getFailureURL());
+        assertThat(result.getPendingURL()).isEqualTo(klarnaRedirectURLs.getPendingURL());
+        assertThat(result.getSuccessURL()).isEqualTo(klarnaRedirectURLs.getSuccessURL());
     }
 }

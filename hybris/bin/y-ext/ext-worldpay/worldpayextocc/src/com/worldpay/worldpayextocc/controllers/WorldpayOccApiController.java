@@ -13,6 +13,8 @@ import com.worldpay.payment.DirectResponseData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
+import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
@@ -43,11 +45,13 @@ public class WorldpayOccApiController {
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
 
     @GetMapping(value = "/cse-public-key", produces = MediaType.TEXT_PLAIN_VALUE)
+    @ApiBaseSiteIdParam
     public ResponseEntity<String> getCsePublicKey() {
         return ResponseEntity.ok().body(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCsePublicKey());
     }
 
     @GetMapping(value = "/ddc-3ds-jwt", produces = "application/json")
+    @ApiBaseSiteIdParam
     public ResponseEntity<Map<String, String>> getThreeDsDDCInfo() {
         final String ddcUrl = Optional.ofNullable(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData())
             .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
@@ -61,6 +65,7 @@ public class WorldpayOccApiController {
     }
 
     @PostMapping(value = "/challenge/submit", produces = MediaType.TEXT_HTML_VALUE)
+    @ApiBaseSiteIdParam
     public ResponseEntity<String> handleChallengeSubmit(@RequestParam(value = "TransactionId", required = false) final String transactionId,
                                                         @RequestParam(value = "Response", required = false) final String response,
                                                         @RequestParam("MD") final String worldpayOrderCode,

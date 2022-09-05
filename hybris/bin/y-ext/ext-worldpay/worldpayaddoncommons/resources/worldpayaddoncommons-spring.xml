@@ -6,7 +6,7 @@
 
 
     <util:list id="klarnaPayments" value-type="java.lang.String">
-        <value>KLARNA-SSL</value>
+        <value>KLARNA_V2-SSL</value>
         <value>KLARNA_PAYLATER-SSL</value>
         <value>KLARNA_SLICEIT-SSL</value>
         <value>KLARNA_PAYNOW-SSL</value>

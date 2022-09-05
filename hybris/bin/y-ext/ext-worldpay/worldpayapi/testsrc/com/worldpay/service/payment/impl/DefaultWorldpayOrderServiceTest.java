@@ -60,16 +60,17 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String SIGNATURE = "signature";
     private static final String VERSION = "version";
 
-    private static final String KLARNA_SSL = "KLARNA-SSL";
+    private static final String KLARNA_V2_SSL = "KLARNA_V2-SSL";
     private static final String KLARNA_PAYNOW_SSL = "KLARNA_PAYNOW-SSL";
     private static final String KLARNA_SLICE_IT_SSL = "KLARNA_SLICEIT-SSL";
     private static final String KLARNA_PAYLATER_SSL = "KLARNA_PAYLATER-SSL";
-    private static final String WRONG_KLARNA_PAYMMENT_METHOD = "WRONG-KLARNA-SSL";
+    private static final String WRONG_KLARNA_PAYMMENT_METHOD = "WRONG-KLARNA_V2-SSL";
     private static final String SUCCESS_URL = "SUCCESS_URL";
     private static final String PENDING_URL = "PENDING_URL";
     private static final String FAILURE_URL = "FAILURE_URL";
     private static final String CANCEL_URL = "CANCEL_URL";
     private static final String PAYMENT_PROVIDER = "paymentProvider";
+    private static final String LOCALE = "en-GB";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -105,7 +106,7 @@ public class DefaultWorldpayOrderServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_SSL)).thenReturn(true);
+        when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_V2_SSL)).thenReturn(true);
         when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_SLICE_IT_SSL)).thenReturn(true);
         when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_PAYNOW_SSL)).thenReturn(true);
         when(worldpayKlarnaServiceMock.isKlarnaPaymentType(KLARNA_PAYLATER_SSL)).thenReturn(true);
@@ -175,8 +176,6 @@ public class DefaultWorldpayOrderServiceTest {
 
     @Test
     public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaPayNowPaymentIsReceived() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
-        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
         when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
@@ -193,8 +192,6 @@ public class DefaultWorldpayOrderServiceTest {
 
     @Test
     public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaSliceITPaymentIsReceived() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
-        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
         when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
@@ -211,8 +208,6 @@ public class DefaultWorldpayOrderServiceTest {
 
     @Test
     public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaPayLaterPaymentIsReceived() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
-        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
         when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
@@ -228,37 +223,30 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaSSLPaymentIsReceived() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
-        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
+    public void createKlarnaPayment_shouldCreateKlarnaPayment_WhenKlarnaV2SSLPaymentIsReceived() throws WorldpayConfigurationException {
         when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
         when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
 
-        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_SSL);
+        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, KLARNA_V2_SSL);
 
-        assertEquals(PaymentType.KLARNASSL.getMethodCode(), result.getPaymentType());
-        assertEquals(COUNTRY_CODE, result.getPurchaseCountry());
-        assertEquals("en-GB", result.getShopperLocale());
-        assertEquals(KLARNA_CHECKOUT_URL, result.getMerchantUrls().getCheckoutURL());
-        assertEquals(KLARNA_CONFIRMATION_URL, result.getMerchantUrls().getConfirmationURL());
-        assertEquals(EXTRA_DATA, result.getExtraMerchantData());
+        assertThat(result.getPaymentType()).isEqualTo(PaymentType.KLARNAV2SSL.getMethodCode());
+        assertThat(result.getShopperCountryCode()).isEqualTo(COUNTRY_CODE);
+        assertThat(result.getLocale()).isEqualTo(LOCALE);
+        assertThat(result.getSuccessURL()).isEqualTo(SUCCESS_URL);
+        assertThat(result.getFailureURL()).isEqualTo(FAILURE_URL);
+        assertThat(result.getCancelURL()).isEqualTo(CANCEL_URL);
+        assertThat(result.getPendingURL()).isEqualTo(PENDING_URL);
     }
 
     @Test(expected = WorldpayConfigurationException.class)
     public void createKlarnaPayment_shouldThrowWorldpayConfigurationException_WhenIncorrectKlarnaPaymentMethodIsReceived() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
-        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
-
         testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, WRONG_KLARNA_PAYMMENT_METHOD);
     }
 
     @Test(expected = WorldpayConfigurationException.class)
     public void createKlarnaPayment_shouldThrowWorldpayConfigurationException_WhenNULLPaymentMethodIsReceived() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getBaseWebsiteUrlForSite()).thenReturn(KLARNA_CHECKOUT_URL);
-        when(worldpayUrlServiceMock.getKlarnaConfirmationURL()).thenReturn(KLARNA_CONFIRMATION_URL);
-
         testObj.createKlarnaPayment(COUNTRY_CODE, languageMock, EXTRA_DATA, null);
     }
 

@@ -149,7 +149,7 @@ public class WorldpayTakePaymentActionTest {
     public void execute_WhenPaymentInfoIsKlarna_ShouldIssueACapture() {
         when(worldpayPaymentTransactionServiceMock.filterPaymentTransactionEntriesOfType(paymentTransactionMock, CAPTURE)).thenReturn(Collections.emptyList());
         when(paymentTransactionMock.getInfo()).thenReturn(worldpayAPMPaymentInfoModelMock);
-        when(worldpayAPMPaymentInfoModelMock.getApmConfiguration().getCode()).thenReturn(PaymentType.KLARNASSL.getMethodCode());
+        when(worldpayAPMPaymentInfoModelMock.getApmConfiguration().getCode()).thenReturn(PaymentType.KLARNAV2SSL.getMethodCode());
 
         final String result = testObj.execute(processMock);
 
