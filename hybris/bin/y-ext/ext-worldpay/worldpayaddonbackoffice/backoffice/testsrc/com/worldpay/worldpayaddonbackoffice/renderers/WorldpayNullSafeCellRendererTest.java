@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.zkoss.zul.Listcell;
 
 import static org.mockito.Mockito.*;
@@ -50,7 +50,7 @@ public class WorldpayNullSafeCellRendererTest {
 
         testObj.render(listCellMock, columnConfigurationMock, paymentTransactionEntryModel, dataTypeMock, widgetInstanceManagerMock);
 
-        verifyZeroInteractions(defaultListCellRenderer);
+        verifyNoInteractions(defaultListCellRenderer);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class WorldpayNullSafeCellRendererTest {
 
         testObj.render(listCellMock, columnConfigurationMock, paymentTransactionEntryModel, dataTypeMock, widgetInstanceManagerMock);
 
-        verifyZeroInteractions(defaultListCellRenderer);
+        verifyNoInteractions(defaultListCellRenderer);
     }
 
     @Test

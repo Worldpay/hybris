@@ -8,9 +8,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -43,7 +44,7 @@ public class TransactionRiskDataGiftCardAmountPopulatorTest {
     @Test
     public void populate_ShouldPopulateTransactionRiskDataGiftCardAmount() {
         when(sourceMock.getAmount()).thenReturn(amountMock);
-        when(internalAmountConverterMock.convert(amountMock)).thenReturn(internalAmountMock);
+        lenient().when(internalAmountConverterMock.convert(amountMock)).thenReturn(internalAmountMock);
 
         final com.worldpay.internal.model.TransactionRiskDataGiftCardAmount targetMock = new com.worldpay.internal.model.TransactionRiskDataGiftCardAmount();
         testObj.populate(sourceMock, targetMock);
@@ -54,7 +55,7 @@ public class TransactionRiskDataGiftCardAmountPopulatorTest {
     @Test
     public void populate_WhenAmountIsNull_ShouldNotPopulateAmount() {
         when(sourceMock.getAmount()).thenReturn(null);
-        when(internalAmountConverterMock.convert(sourceMock.getAmount())).thenReturn(internalAmountMock);
+        lenient().when(internalAmountConverterMock.convert(sourceMock.getAmount())).thenReturn(internalAmountMock);
 
         final com.worldpay.internal.model.TransactionRiskDataGiftCardAmount targetMock = new com.worldpay.internal.model.TransactionRiskDataGiftCardAmount();
         testObj.populate(sourceMock, targetMock);

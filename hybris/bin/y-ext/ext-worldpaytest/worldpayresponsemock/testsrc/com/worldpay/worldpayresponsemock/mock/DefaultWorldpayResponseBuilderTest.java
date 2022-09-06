@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -54,7 +54,7 @@ public class DefaultWorldpayResponseBuilderTest {
         for (final Object paymentServiceElement : paymentServiceElements) {
             if (paymentServiceElement instanceof Reply) {
                 final Reply reply = (Reply) paymentServiceElement;
-                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
                 assertThat(replyElements, hasItems(instanceOf(OrderStatus.class)));
                 for (final Object replyElement : replyElements) {
                     if (replyElement instanceof OrderStatus) {

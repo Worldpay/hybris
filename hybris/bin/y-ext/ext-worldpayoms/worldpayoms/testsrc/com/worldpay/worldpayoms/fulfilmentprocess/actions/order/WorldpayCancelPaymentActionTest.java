@@ -14,13 +14,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
 import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -65,8 +66,8 @@ public class WorldpayCancelPaymentActionTest {
 
     @Test
     public void testExecuteShouldReturnNOKWhenCancelIsNotSuccessful() {
-        when(cancellationPaymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR.name());
-        when(cancellationPaymentTransactionEntryModelMock.getTransactionStatusDetails()).thenReturn(TransactionStatusDetails.COMMUNICATION_PROBLEM.name());
+        lenient().when(cancellationPaymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ERROR.name());
+        lenient().when(cancellationPaymentTransactionEntryModelMock.getTransactionStatusDetails()).thenReturn(TransactionStatusDetails.COMMUNICATION_PROBLEM.name());
 
         final Transition result = testObj.executeAction(orderProcessModelMock);
 

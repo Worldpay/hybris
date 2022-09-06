@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static com.worldpay.support.appender.impl.WorldpayHybrisVersionAppender.HYBRIS_BUILD_VERSION_KEY;
 import static org.junit.Assert.assertTrue;
@@ -37,5 +37,5 @@ public class WorldpayHybrisVersionAppenderTest {
         assertTrue(result.contains("Hybris version: " + HYBRIS_VERSION_INFO));
     }
 }
-    
+
 

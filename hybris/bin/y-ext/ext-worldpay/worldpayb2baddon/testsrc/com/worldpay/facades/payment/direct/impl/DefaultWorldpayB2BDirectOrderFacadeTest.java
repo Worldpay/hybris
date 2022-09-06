@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -69,10 +69,10 @@ public class DefaultWorldpayB2BDirectOrderFacadeTest {
         when(worldpayDirectOrderServiceMock.authorise3DSecure(WORLDPAY_ORDER_CODE, worldpayAdditionalInfoDataMock, PA_RESPONSE)).thenReturn(directAuthoriseServiceResponse3dSecureMock);
         when(cartServiceMock.hasSessionCart()).thenReturn(Boolean.TRUE);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
-        when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        lenient().when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(directAuthoriseServiceResponseMock.getPaymentReply()).thenReturn(paymentReplyMock);
-        when(directAuthoriseServiceResponse3dSecureMock.getRequest3DInfo()).thenReturn(request3DInfoMock);
+        lenient().when(directAuthoriseServiceResponse3dSecureMock.getRequest3DInfo()).thenReturn(request3DInfoMock);
         when(directAuthoriseServiceResponse3dSecureMock.getPaymentReply()).thenReturn(paymentReplyMock);
         when(paymentReplyMock.getAuthStatus()).thenReturn(AuthorisedStatus.AUTHORISED);
         when(worldpayCartServiceMock.getAuthenticatedShopperId(cartModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);

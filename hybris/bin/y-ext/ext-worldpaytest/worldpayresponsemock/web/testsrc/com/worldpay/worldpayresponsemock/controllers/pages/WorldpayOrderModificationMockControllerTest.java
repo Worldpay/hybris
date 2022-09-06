@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -27,8 +27,6 @@ import static com.worldpay.worldpayresponsemock.controllers.WorldpayResponseMock
 import static com.worldpay.worldpayresponsemock.controllers.pages.WorldpayOrderModificationMockController.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -98,24 +96,24 @@ public class WorldpayOrderModificationMockControllerTest {
 
     @Before
     public void setUp() throws WorldpayException {
-        Whitebox.setInternalState(testObj, "fraudSightMessages", fraudSightMessagesMock);
-        Whitebox.setInternalState(testObj, "fraudSightReasonCodes", fraudSightReasonCodesMock);
-        Whitebox.setInternalState(testObj, "possibleEvents", possibleEventsMock);
+        ReflectionTestUtils.setField(testObj, "fraudSightMessages", fraudSightMessagesMock);
+        ReflectionTestUtils.setField(testObj, "fraudSightReasonCodes", fraudSightReasonCodesMock);
+        ReflectionTestUtils.setField(testObj, "possibleEvents", possibleEventsMock);
 
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(iso8583ResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
         when(responseFormMock.getTestCreditCard()).thenReturn(CREDIT_CARD_NUMBER);
         when(responseFormMock.getObfuscatedPAN()).thenReturn(CREDIT_CARD_NUMBER);
         when(worldpayResponseBuilderMock.buildResponse(responseFormMock)).thenReturn(SOME_RESPONSE);
-        when(requestMock.getScheme()).thenReturn(HTTP_SCHEME);
-        when(requestMock.getServerPort()).thenReturn(SERVER_PORT);
-        when(requestMock.getServerName()).thenReturn(SERVER_NAME);
-        when(site1Mock.getUid()).thenReturn(SITE_1);
-        when(site2Mock.getUid()).thenReturn(SITE_2);
+        lenient().when(requestMock.getScheme()).thenReturn(HTTP_SCHEME);
+        lenient().when(requestMock.getServerPort()).thenReturn(SERVER_PORT);
+        lenient().when(requestMock.getServerName()).thenReturn(SERVER_NAME);
+        lenient().when(site1Mock.getUid()).thenReturn(SITE_1);
+        lenient().when(site2Mock.getUid()).thenReturn(SITE_2);
         merchantSet = newHashSet(MERCHANT_1, MERCHANT_2);
         when(worldpayMerchantMockServiceMock.getAllMerchantCodes()).thenReturn(merchantSet);
         final List<BaseSiteModel> availableSites = Arrays.asList(site1Mock, site2Mock);
-        when(baseSiteServiceMock.getAllBaseSites()).thenReturn(availableSites);
+        lenient().when(baseSiteServiceMock.getAllBaseSites()).thenReturn(availableSites);
         when(apmConfigurationLookupServiceMock.getAllApmPaymentTypeCodes()).thenReturn(new HashSet<>(Arrays.asList(APM_1, APM_2)));
     }
 

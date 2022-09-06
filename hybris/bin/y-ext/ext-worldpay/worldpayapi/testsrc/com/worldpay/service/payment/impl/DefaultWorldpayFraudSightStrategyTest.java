@@ -24,14 +24,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -85,8 +84,8 @@ public class DefaultWorldpayFraudSightStrategyTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "worldpayAddressConverter", worldpayAddressConverterMock);
-        Whitebox.setInternalState(testObj, "worldpayFraudSightResponseConverter", worldpayFraudSightResponseConverterMock);
+        ReflectionTestUtils.setField(testObj, "worldpayAddressConverter", worldpayAddressConverterMock);
+        ReflectionTestUtils.setField(testObj, "worldpayFraudSightResponseConverter", worldpayFraudSightResponseConverterMock);
 
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(siteMock);
         when(worldpayFraudSightResponseConverterMock.convert(fraudSightMock)).thenReturn(worldpayFrauSightMock);
@@ -145,7 +144,6 @@ public class DefaultWorldpayFraudSightStrategyTest {
         when(cartMock.getUser()).thenReturn(customerMock);
         when(cartMock.getPaymentAddress()).thenReturn(addressMock);
         when(customerMock.getName()).thenReturn(CUSTOMER_NAME);
-        when(addressMock.getLine2()).thenReturn(ADDRESS_LINE_2);
         when(worldpayAdditionalInfoDataMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE);
         when(worldpayCartServiceMock.getAuthenticatedShopperId(cartMock)).thenReturn(SHOPPER_ID);
         when(worldpayAddressConverterMock.convert(addressMock)).thenReturn(convertedAddressMock);
@@ -221,6 +219,6 @@ public class DefaultWorldpayFraudSightStrategyTest {
 
         testObj.populateRequestWithAdditionalData(cartMock, worldpayAdditionalInfoDataMock, authoriseRequestParametersCreatorMock);
 
-        verifyZeroInteractions(authoriseRequestParametersCreatorMock);
+        verifyNoInteractions(authoriseRequestParametersCreatorMock);
     }
 }

@@ -17,7 +17,7 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static com.worldpay.voidprocess.listener.WorldpayCancelFinishedEventListener.WORLDPAY_VOID_PROCESS_NAME;
 import static org.mockito.Mockito.*;

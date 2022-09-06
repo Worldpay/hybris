@@ -16,12 +16,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,9 +59,8 @@ public class DeleteTokenResponseTransformerTest {
     @Before
     public void setUp() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(replyMock));
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
         when(okReplyMock.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()).thenReturn(singletonList(deleteTokenReceivedMock));
-        when(deleteTokenReceivedMock.getPaymentTokenID()).thenReturn(PAYMENT_TOKEN_ID);
     }
 
     @Test
@@ -95,7 +94,7 @@ public class DeleteTokenResponseTransformerTest {
     public void shouldThrowExceptionWhenResponseIsNotOk() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("DeleteTokenResponse did not contain an OK object");
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()).
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).
             thenReturn(singletonList(new Shopper()));
 
         testObj.transform(paymentServiceMock);
@@ -104,9 +103,6 @@ public class DeleteTokenResponseTransformerTest {
     @Test
     public void shouldReturnDeleteTokenResponseWithErrorDetails() throws Exception {
         when(serviceResponseTransformerHelperMock.checkForError(any(DeleteTokenResponse.class), eq(replyMock))).thenReturn(true);
-
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken())
-            .thenReturn(singletonList(errorMock));
 
         final ServiceResponse result = testObj.transform(paymentServiceMock);
 

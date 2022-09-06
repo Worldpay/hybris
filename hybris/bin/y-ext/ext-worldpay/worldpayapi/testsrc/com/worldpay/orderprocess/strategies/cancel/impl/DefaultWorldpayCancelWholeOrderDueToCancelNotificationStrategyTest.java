@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,10 +47,8 @@ public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategyTest 
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(orderModelMock.getStatus()).thenReturn(OrderStatus.PAYMENT_CAPTURED);
         when(orderModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderModelMock.getPaymentTransactions()).thenReturn(List.of(paymentTransactionModelMock));
         when(worldpayPaymentTransactionServiceMock.createNotPendingCancelOrderTransactionEntry(paymentTransactionModelMock))
             .thenReturn(paymentTransactionEntryMock);
-        when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -67,8 +65,6 @@ public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategyTest 
 
     @Test
     public void cancelOrder_WhenNoPaymentTransactionFound_ShouldSetTheOrderStatusToProcessingError() {
-        when(orderModelMock.getPaymentTransactions()).thenReturn(Collections.emptyList());
-
         testObj.cancelOrder(orderProcessModelMock);
 
         verify(orderModelMock).setStatus(OrderStatus.PROCESSING_ERROR);
@@ -82,7 +78,7 @@ public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategyTest 
 
         testObj.cancelOrder(orderProcessModelMock);
 
-        verifyZeroInteractions(worldpayPaymentTransactionServiceMock);
-        verifyZeroInteractions(modelServiceMock);
+        verifyNoInteractions(worldpayPaymentTransactionServiceMock);
+        verifyNoInteractions(modelServiceMock);
     }
 }

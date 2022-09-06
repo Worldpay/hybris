@@ -1,5 +1,6 @@
 package com.worldpay.worldpayextocctests.test.groovy.webservicetests.v2.spock
 
+import de.hybris.platform.testframework.JUnitPlatformSpecification
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
 
@@ -8,7 +9,7 @@ import static org.apache.http.HttpStatus.SC_OK
 import static org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED
 import static org.apache.http.entity.ContentType.APPLICATION_JSON
 
-abstract class AbstractSpockFlowTest extends AbstractSpockTest {
+abstract class AbstractSpockFlowTest extends JUnitPlatformSpecification {
 
     protected static final String CUSTOMER_USERNAME = 'democustomer'
     protected static final String CUSTOMER_PASSWORD_STRONG = 'PAss1234!'

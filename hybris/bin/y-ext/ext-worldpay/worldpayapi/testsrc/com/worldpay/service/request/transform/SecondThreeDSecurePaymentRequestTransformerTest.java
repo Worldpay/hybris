@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
@@ -49,16 +49,12 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
 
     @Test(expected = WorldpayModelTransformationException.class)
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentServiceNullMerchantInfo() throws WorldpayModelTransformationException {
-        when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
-        when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         testObj.transform(secondThreeDSecurePaymentRequestMock);
     }
 
     @Test(expected = WorldpayModelTransformationException.class)
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentServiceNullMerchantInfoCode() throws WorldpayModelTransformationException {
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
-        when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
-        when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         testObj.transform(secondThreeDSecurePaymentRequestMock);
     }
 
@@ -66,7 +62,6 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentServiceNullOrderCode() throws WorldpayModelTransformationException {
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_INFO_CODE);
-        when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
         testObj.transform(secondThreeDSecurePaymentRequestMock);
     }
 
@@ -85,7 +80,6 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
         merchantInfo.setMerchantCode(MERCHANT_CODE);
 
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfo);
-        when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_INFO_CODE);
         when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
 
@@ -99,7 +93,7 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
         assertEquals("Incorrect orderCode", ORDER_CODE, orderCode);
         assertEquals(merchantInfo.getMerchantCode(), result.getMerchantCode());
         assertEquals(VERSION, result.getVersion());
-        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrInfo3DSecureOrSession();
+        final List<Object> orderElements = intOrder.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession();
         final Session session = (Session) orderElements.get(1);
         assertEquals(SESSION_ID, session.getId());
     }

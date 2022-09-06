@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
@@ -254,7 +254,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         when(responseFormMock.getCountryCode()).thenReturn(ADDRESS_COUNTRY_CODE_VALUE);
         when(responseFormMock.getCardExpiryMonth()).thenReturn(CARD_EXPIRY_MONTH_VALUE);
         when(responseFormMock.getCardExpiryYear()).thenReturn(CARD_EXPIRY_YEAR_VALUE);
-        when(responseFormMock.getTokenCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
         when(responseFormMock.getCardSubBrand()).thenReturn(DERIVED_CARD_SUB_BRAND_VALUE);
         when(responseFormMock.getCardBrand()).thenReturn(DERIVED_CARD_BRAND_VALUE);
         when(responseFormMock.getObfuscatedPAN()).thenReturn(DERIVED_OBFUSCATED_PAN_VALUE);
@@ -288,7 +287,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
                 final Derived derived = cardDetails.getDerived();
@@ -307,7 +306,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(ADDRESS_LAST_NAME_VALUE, address.getLastName());
                 assertEquals(ADDRESS_POSTAL_CODE_VALUE, address.getPostalCode());
                 assertEquals(ADDRESS_CITY_VALUE, address.getCity());
-                assertEquals(ADDRESS_COUNTRY_CODE_VALUE, address.getCountryCode());
+                assertEquals(ADDRESS_COUNTRY_CODE_VALUE, address.getCountryCode().getvalue());
                 for (Object addressElement : address.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3()) {
                     if (addressElement instanceof Address1) {
                         assertEquals(ADDRESS_1_VALUE, ((Address1) addressElement).getvalue());
@@ -364,7 +363,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
+                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
                 assertNotNull(paypal);
 
             } else if (tokenElement instanceof TokenReason) {
@@ -380,7 +379,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     @Test
     public void buildResponse_shouldCreateAndPopulateTokenWithoutAuthenticatedShopperIdAndMerchantScope() throws WorldpayException {
         when(responseFormMock.getSelectToken()).thenReturn(CARD_DETAILS);
-        when(responseFormMock.getAuthenticatedShopperId()).thenReturn("WeDontWantThisValue");
         when(responseFormMock.isMerchantToken()).thenReturn(true);
 
         testObj.buildResponse(responseFormMock);

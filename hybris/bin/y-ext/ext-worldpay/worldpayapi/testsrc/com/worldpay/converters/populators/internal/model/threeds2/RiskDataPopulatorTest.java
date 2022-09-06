@@ -10,10 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -64,7 +65,7 @@ public class RiskDataPopulatorTest {
     @Test
     public void populate_WhenAuthenticationRiskDataIsNull_ShouldNotPopulate() {
         when(sourceMock.getAuthenticationRiskData()).thenReturn(null);
-        when(internalAuthenticationRiskDataConverterMock.convert(sourceMock.getAuthenticationRiskData())).thenReturn(null);
+        lenient().when(internalAuthenticationRiskDataConverterMock.convert(sourceMock.getAuthenticationRiskData())).thenReturn(null);
 
         final com.worldpay.internal.model.RiskData targetMock = new com.worldpay.internal.model.RiskData();
         testObj.populate(sourceMock, targetMock);
@@ -75,7 +76,7 @@ public class RiskDataPopulatorTest {
     @Test
     public void populate_WhenAuthenticationShopperAccountRiskDataIsNull_ShouldNotPopulate() {
         when(sourceMock.getShopperAccountRiskData()).thenReturn(null);
-        when(internalShopperAccountRiskDataConverterMock.convert(sourceMock.getShopperAccountRiskData())).thenReturn(null);
+        lenient().when(internalShopperAccountRiskDataConverterMock.convert(sourceMock.getShopperAccountRiskData())).thenReturn(null);
 
         final com.worldpay.internal.model.RiskData targetMock = new com.worldpay.internal.model.RiskData();
         testObj.populate(sourceMock, targetMock);
@@ -86,7 +87,7 @@ public class RiskDataPopulatorTest {
     @Test
     public void populate_WhenAuthenticationTransactionRiskDataIsNull_ShouldNotPopulate() {
         when(sourceMock.getTransactionRiskData()).thenReturn(null);
-        when(internalTransactionRiskDataConverterMock.convert(sourceMock.getTransactionRiskData())).thenReturn(null);
+        lenient().when(internalTransactionRiskDataConverterMock.convert(sourceMock.getTransactionRiskData())).thenReturn(null);
 
         final com.worldpay.internal.model.RiskData targetMock = new com.worldpay.internal.model.RiskData();
         testObj.populate(sourceMock, targetMock);

@@ -9,12 +9,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -39,7 +40,7 @@ public class WorldpayComponentControllerTest {
     @Test
     public void getAvailableApmComponents_ShouldReturnAnObjectWithComponents() {
         when(worldpayAPMComponentFacadeMock.getAllAvailableWorldpayAPMComponents()).thenReturn(List.of(worldpayAPMComponentDataMock));
-        when(dataMapperMock.map(anyObject(), eq(WorldpayAPMComponentsWsDTO.class), anyString())).thenReturn(worldpayAPMComponentsWsDTOMock);
+        lenient().when(dataMapperMock.map(any(), eq(WorldpayAPMComponentsWsDTO.class), anyString())).thenReturn(worldpayAPMComponentsWsDTOMock);
 
         final WorldpayAPMComponentsWsDTO result = testObj.getAvailableApmComponents(FIELDS);
 

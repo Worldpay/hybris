@@ -16,14 +16,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.zkoss.zul.Listcell;
 
 import java.math.BigDecimal;
 
 import static java.util.Collections.singletonList;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -64,10 +63,10 @@ public class AbstractAmountRendererTest {
         testObj = Mockito.mock(
             AbstractAmountRenderer.class,
             Mockito.CALLS_REAL_METHODS);
-        Whitebox.setInternalState(testObj, "typeFacade", typeFacadeMock);
-        Whitebox.setInternalState(testObj, "permissionFacade", permissionFacadeMock);
-        Whitebox.setInternalState(testObj, "propertyValueService", propertyValueServiceMock);
-        Whitebox.setInternalState(testObj, "labelService", labelServiceMock);
+        ReflectionTestUtils.setField(testObj, "typeFacade", typeFacadeMock);
+        ReflectionTestUtils.setField(testObj, "permissionFacade", permissionFacadeMock);
+        ReflectionTestUtils.setField(testObj, "propertyValueService", propertyValueServiceMock);
+        ReflectionTestUtils.setField(testObj, "labelService", labelServiceMock);
 
         when(typeFacadeMock.load(PaymentTransactionModel._TYPECODE)).thenReturn(dataTypeMock);
         when(propertyValueServiceMock.readValue(paymentTransactionEntryModelMock, QUALIFIER)).thenReturn(BigDecimal.TEN);
@@ -78,7 +77,6 @@ public class AbstractAmountRendererTest {
         when(dataTypeMock.getCode()).thenReturn(DATA_TYPE_CODE);
         when(permissionFacadeMock.canReadProperty(DATA_TYPE_CODE, QUALIFIER)).thenReturn(true);
         when(paymentTransactionEntryModelMock.getCurrency()).thenReturn(currencyModelMock);
-        when(paymentTransactionModel.getCurrency()).thenReturn(currencyModelMock);
         when(currencyModelMock.getDigits()).thenReturn(2);
         when(paymentTransactionModel.getEntries()).thenReturn(singletonList(paymentTransactionEntryModelMock));
     }

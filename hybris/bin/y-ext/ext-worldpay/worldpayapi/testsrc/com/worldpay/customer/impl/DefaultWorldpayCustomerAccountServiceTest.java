@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
@@ -77,8 +77,8 @@ public class DefaultWorldpayCustomerAccountServiceTest {
 
         testObj.deleteCCPaymentInfo(customerModelMock, creditCardPaymentInfoModelMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(modelService);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(modelService);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -87,40 +87,40 @@ public class DefaultWorldpayCustomerAccountServiceTest {
 
         testObj.deleteAPMPaymentInfo(customerModelMock, apmPaymentInfoModel);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(modelService);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(modelService);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteAPMPaymentInfo_ShouldThrowIllegalArgumentException_WhenCustomerIsNuLL() {
         testObj.deleteAPMPaymentInfo(null, apmPaymentInfoModel);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(modelService);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(modelService);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteCCPaymentInfo_ShouldThrowIllegalArgumentException_WhenCustomerIsNuLL() {
         testObj.deleteCCPaymentInfo(null, creditCardPaymentInfoModelMock);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(modelService);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(modelService);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteAPMPaymentInfo_ShouldThrowIllegalArgumentException_WhenPaymentInfoIsNuLL() {
         testObj.deleteAPMPaymentInfo(customerModelMock, null);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(modelService);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(modelService);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void deleteCCPaymentInfo_ShouldThrowIllegalArgumentException_WhenPaymentInfoIsNuLL() {
         testObj.deleteCCPaymentInfo(customerModelMock, null);
 
-        verifyZeroInteractions(worldpayDirectOrderServiceMock);
-        verifyZeroInteractions(modelService);
+        verifyNoInteractions(worldpayDirectOrderServiceMock);
+        verifyNoInteractions(modelService);
     }
 
     @Test

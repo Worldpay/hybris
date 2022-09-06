@@ -9,7 +9,7 @@ About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company
 The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
 
 ### Release Information
-This release is tailored for SAP Commerce Cloud 2105. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
+This release is tailored for SAP Commerce Cloud 2205. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
 
 # Installation and Usage
 

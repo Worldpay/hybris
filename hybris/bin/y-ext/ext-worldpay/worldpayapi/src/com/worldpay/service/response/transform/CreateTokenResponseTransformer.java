@@ -27,7 +27,7 @@ public class CreateTokenResponseTransformer extends AbstractServiceResponseTrans
         if (getServiceResponseTransformerHelper().checkForError(createTokenResponse, intReply)) {
             return createTokenResponse;
         }
-        intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()
+        intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Token.class::isInstance)
             .map(Token.class::cast)

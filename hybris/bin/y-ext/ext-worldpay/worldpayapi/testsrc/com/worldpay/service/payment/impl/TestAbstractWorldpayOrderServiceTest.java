@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.Mockito.verify;
 
@@ -30,7 +30,7 @@ public class TestAbstractWorldpayOrderServiceTest {
     @Before
     public void setUp() throws Exception {
         testObj = Mockito.mock(AbstractWorldpayOrderService.class, Mockito.CALLS_REAL_METHODS);
-        Whitebox.setInternalState(testObj, "worldpayPaymentInfoService", worldpayPaymentInfoServiceMock);
+        ReflectionTestUtils.setField(testObj, "worldpayPaymentInfoService", worldpayPaymentInfoServiceMock);
     }
 
     @Test
