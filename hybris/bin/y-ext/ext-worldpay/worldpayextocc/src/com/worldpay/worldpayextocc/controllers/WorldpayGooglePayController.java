@@ -57,7 +57,7 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
-    public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final GooglePayAuthorisationRequest authorisationRequest, @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields,
+    public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final GooglePayAuthorisationRequest authorisationRequest, @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields,
                                                   final HttpServletResponse response) throws WorldpayException, InvalidCartException {
         saveBillingAddress(authorisationRequest.getBillingAddress());
 
