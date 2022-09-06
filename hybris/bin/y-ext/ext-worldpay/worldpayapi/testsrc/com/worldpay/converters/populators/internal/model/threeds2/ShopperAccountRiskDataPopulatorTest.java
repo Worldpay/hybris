@@ -8,9 +8,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -70,11 +71,11 @@ public class ShopperAccountRiskDataPopulatorTest {
         when(sourceMock.getShopperAccountPaymentAccountFirstUseDate()).thenReturn(date4Mock);
         when(sourceMock.getShopperAccountPasswordChangeDate()).thenReturn(date5Mock);
 
-        when(internalDateConverterMock.convert(date1Mock)).thenReturn(internalDate1Mock);
-        when(internalDateConverterMock.convert(date2Mock)).thenReturn(internalDate2Mock);
-        when(internalDateConverterMock.convert(date3Mock)).thenReturn(internalDate3Mock);
-        when(internalDateConverterMock.convert(date4Mock)).thenReturn(internalDate4Mock);
-        when(internalDateConverterMock.convert(date5Mock)).thenReturn(internalDate5Mock);
+        lenient().when(internalDateConverterMock.convert(date1Mock)).thenReturn(internalDate1Mock);
+        lenient().when(internalDateConverterMock.convert(date2Mock)).thenReturn(internalDate2Mock);
+        lenient().when(internalDateConverterMock.convert(date3Mock)).thenReturn(internalDate3Mock);
+        lenient().when(internalDateConverterMock.convert(date4Mock)).thenReturn(internalDate4Mock);
+        lenient().when(internalDateConverterMock.convert(date5Mock)).thenReturn(internalDate5Mock);
 
         final com.worldpay.internal.model.ShopperAccountRiskData targetMock = new com.worldpay.internal.model.ShopperAccountRiskData();
         testObj.populate(sourceMock, targetMock);
@@ -100,7 +101,7 @@ public class ShopperAccountRiskDataPopulatorTest {
     @Test
     public void populate_WhenDateIsNull_ShouldNotPopulateInternalDate() {
         when(sourceMock.getShopperAccountCreationDate()).thenReturn(null);
-        when(internalDateConverterMock.convert(date1Mock)).thenReturn(internalDate1Mock);
+        lenient().when(internalDateConverterMock.convert(date1Mock)).thenReturn(internalDate1Mock);
 
         final com.worldpay.internal.model.ShopperAccountRiskData targetMock = new com.worldpay.internal.model.ShopperAccountRiskData();
         testObj.populate(sourceMock, targetMock);

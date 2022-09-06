@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -78,7 +78,6 @@ public class PaymentInfoInquiryJobPerformableTest {
         when(orderInquiryServiceMock.inquirePaymentTransaction(merchantInfoMock, paymentTransactionModelMock)).thenReturn(orderInquiryServiceResponseMock);
         when(paymentTransactionModelMock.getOrder().getSite().getUid()).thenReturn(SITE_UID);
         when(worldpayMerchantInfoServiceMock.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoMock);
-        when(paymentTransactionModelMock.getRequestToken()).thenReturn(REQUEST_TOKEN_APM);
         when(paymentTransactionModelMock.getCreationtime()).thenReturn(Date.from(Instant.now()));
     }
 

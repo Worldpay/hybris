@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.Errors;
 
 import static com.worldpay.forms.validation.PaymentDetailsFormValidator.CHECKOUT_ERROR_TERMS_NOT_ACCEPTED;
@@ -34,13 +34,13 @@ public class CsePaymentDetailsFormValidatorTest {
     @Before
     public void setUp() {
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
-        when(paymentDetailsFormMock.isDobRequired()).thenReturn(false);
+        lenient().when(paymentDetailsFormMock.isDobRequired()).thenReturn(false);
     }
 
     @Test
     public void shouldNotAddErrorsOnTermsAndConditionsIfPaymentMethodIsOnline() throws Exception {
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(ONLINE.getMethodCode());
-        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(false);
+        lenient().when(paymentDetailsFormMock.isTermsCheck()).thenReturn(false);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 

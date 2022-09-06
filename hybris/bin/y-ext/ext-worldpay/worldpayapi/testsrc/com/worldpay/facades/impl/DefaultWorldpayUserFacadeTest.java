@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
@@ -317,7 +317,7 @@ public class DefaultWorldpayUserFacadeTest {
 
         testObj.removeCCPaymentInfo(PAYMENT_INFO_CODE);
 
-        verifyZeroInteractions(customerAccountServiceMock);
+        verifyNoInteractions(customerAccountServiceMock);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -354,7 +354,7 @@ public class DefaultWorldpayUserFacadeTest {
 
         testObj.unlinkCCPaymentInfo(PAYMENT_INFO_CODE);
 
-        verifyZeroInteractions(customerAccountServiceMock);
+        verifyNoInteractions(customerAccountServiceMock);
     }
 
     @Test
@@ -378,7 +378,7 @@ public class DefaultWorldpayUserFacadeTest {
 
         testObj.setDefaultPaymentInfo(savedApmPaymentInfoDataMock);
 
-        verifyZeroInteractions(customerAccountServiceMock);
+        verifyNoInteractions(customerAccountServiceMock);
     }
 
     @Test

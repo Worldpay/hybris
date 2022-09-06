@@ -15,14 +15,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,12 +54,12 @@ public class DefaultWorldpayPaymentTransactionUtilsTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "paymentTransactionDependency", Map.of(
+        ReflectionTestUtils.setField(testObj, "paymentTransactionDependency", Map.of(
             CAPTURE, AUTHORIZATION,
             SETTLED, CAPTURE
         ));
         when(entryCodeStrategyMock.generateCode(paymentTransactionModelMock)).thenReturn(TRANSACTION_CODE);
-        when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(BigDecimal.TEN);
+        lenient().when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(BigDecimal.TEN);
         when(amountMock.getCurrencyCode()).thenReturn(CURRENCY_CODE);
         when(commonI18NServiceMock.getCurrency(CURRENCY_CODE)).thenReturn(currencyModelMock);
         when(configurationServiceMock.getConfiguration().getDouble("worldpayapi.authoriseamount.validation.tolerance")).thenReturn(0.01);

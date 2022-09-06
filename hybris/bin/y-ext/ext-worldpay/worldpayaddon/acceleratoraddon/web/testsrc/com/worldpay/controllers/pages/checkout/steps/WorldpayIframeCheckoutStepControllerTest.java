@@ -21,7 +21,7 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -92,11 +92,9 @@ public class WorldpayIframeCheckoutStepControllerTest {
     @Before
     public void setUp() {
         when(apmConfigurationServiceMock.getAllApmPaymentTypeCodes()).thenReturn(singleton(OTHER_PAYMENT));
-        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(billingAddressMock);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PAYMENT_METHOD);
         when(paymentDetailsFormMock.getShopperBankCode()).thenReturn(BANK_CODE);
-        when(worldpayPaymentCheckoutFacade.hasBillingDetails()).thenReturn(true);
-        doReturn(true).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD);
+        lenient().doReturn(true).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD);
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), eq(PAYMENT_METHOD));
         doNothing().when(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
@@ -106,7 +104,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     public void addPaymentDetailsShouldReturnIframePageWithSaveInAccountSetAsTrue() throws WorldpayException, CMSItemNotFoundException {
         when(paymentDetailsFormMock.getSaveInAccount()).thenReturn(Boolean.TRUE);
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(additionalAuthInfoMock, worldpayAdditionalInfoDataMock)).thenReturn(paymentDataMock);
-        when(additionalAuthInfoMock.getSaveCard()).thenReturn(Boolean.TRUE);
+        lenient().when(additionalAuthInfoMock.getSaveCard()).thenReturn(Boolean.TRUE);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(any())).thenReturn(worldpayAdditionalInfoDataMock);
 
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, httpServletRequestMock, bindingResultMock, redirectAttrbsMock);

@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ import static de.hybris.platform.basecommerce.enums.FraudStatus.CHECK;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Matchers.endsWith;
+import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

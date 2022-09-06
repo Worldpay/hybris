@@ -19,8 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,6 @@ import java.util.Map;
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.enums.order.AuthorisedStatus.*;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -68,7 +67,7 @@ public class WorldpayOrderModificationListenerTest {
 
     @Before
     public void setup() {
-        Whitebox.setInternalState(testObj, "paymentTransactionTypeMap", paymentTransactionTypeMap);
+        ReflectionTestUtils.setField(testObj, "paymentTransactionTypeMap", paymentTransactionTypeMap);
         paymentTransactionTypeMap.put(AUTHORISED, AUTHORIZATION);
         paymentTransactionTypeMap.put(REFUSED, PaymentTransactionType.REFUSED);
         paymentTransactionTypeMap.put(CANCELLED, CANCEL);
@@ -77,7 +76,6 @@ public class WorldpayOrderModificationListenerTest {
         when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn(RETURN_CODE);
         when(orderNotificationMessageMock.getJournalReply()).thenReturn(journalReplyMock);
         when(orderNotificationMessageMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderModelMock.getCode()).thenReturn(ORDER_CODE);
         when(orderNotificationServiceMock.serialiseNotification(orderNotificationMessageMock)).thenReturn(SERIALIZED);
         when(modelServiceMock.create(WorldpayOrderModificationModel.class)).thenReturn(worldpayOrderModificationModelMock);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
@@ -137,7 +135,6 @@ public class WorldpayOrderModificationListenerTest {
     public void onEventREFUSEDShouldSaveModificationModelWhenTransactionBelongsToACart() {
         when(journalReplyMock.getJournalType()).thenReturn(REFUSED);
         when(orderNotificationMessageMock.getPaymentReply().getReturnCode()).thenReturn("0");
-        when(paymentTransactionModelMock.getOrder()).thenReturn(cartModelMock);
 
         testObj.onEvent(orderModificationEventMock);
 

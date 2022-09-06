@@ -22,7 +22,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -142,7 +142,7 @@ public class GooglePayControllerTest {
 
         testObj.setRegion(addressData, address);
 
-        verifyZeroInteractions(addressData);
+        verifyNoInteractions(addressData);
     }
 
     private void verifyAddress(final ArgumentCaptor<AddressData> addressCaptor, final CountryData country) {

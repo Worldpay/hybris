@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
@@ -59,8 +59,8 @@ import static com.worldpay.service.model.payment.PaymentType.PAYPAL;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -164,16 +164,16 @@ public class WorldpayCseCheckoutStepControllerTest {
         doNothing().when(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         doReturn(BILLING_ERROR_VIEW).when(testObj).handleFormErrors(modelMock, paymentDetailsFormMock);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
-        when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        lenient().when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(httpServletRequestMock.getSession().getId()).thenReturn(SESSION_ID);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(b2bCSEPaymentFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
         when(worldpayAdditionalInfoDataMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
-        when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(true);
+        lenient().when(checkoutCustomerStrategyMock.isAnonymousCheckout()).thenReturn(true);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(b2bCSEPaymentFormMock.getDeviceSession()).thenReturn(DEVICE_SESSION_VALUE);
         when(worldpayAdditionalInfoDataMock.getDeviceSession()).thenReturn(DEVICE_SESSION_VALUE);
-        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
+        lenient().when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
@@ -181,12 +181,12 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(Collections.singletonList(ccPaymentInfoMock));
         when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
-        when(cartFacadeMock.getDeliveryCountries()).thenReturn(Collections.singletonList(countryDataMock));
+        lenient().when(cartFacadeMock.getDeliveryCountries()).thenReturn(Collections.singletonList(countryDataMock));
         when(resourceBreadcrumbBuilder.getBreadcrumbs(anyString())).thenReturn(Collections.singletonList(breadcrumbMock));
-        when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
+        lenient().when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);
         when(worldpayAddonEndpointService.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
-        when(sessionService.getCurrentSession()).thenReturn(session);
+        lenient().when(sessionService.getCurrentSession()).thenReturn(session);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class WorldpayCseCheckoutStepControllerTest {
         final String result = testObj.addCseData(httpServletRequestMock, modelMock, b2bCSEPaymentFormMock, bindingResultMock, redirectAttrsMock);
 
         assertEquals(REDIRECT_TO_SUMMARY_PAGE, result);
-        verifyZeroInteractions(redirectAttrsMock);
+        verifyNoInteractions(redirectAttrsMock);
     }
 
     @Test
@@ -242,7 +242,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
     @Test
     public void shouldRedirectToCseDetailsIfNoErrorsInAddressFormAndPaymentMethodCreditCard() throws CMSItemNotFoundException {
-        when(bindingResultMock.hasGlobalErrors()).thenReturn(false);
+        lenient().when(bindingResultMock.hasGlobalErrors()).thenReturn(false);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(ONLINE.getMethodCode());
 
         final String result = testObj.addPaymentAddress(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);
@@ -261,7 +261,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
     @Test
     public void shouldRedirectToPaymentMethodIfNotCreditCardAndNoErrors() throws CMSItemNotFoundException {
-        when(bindingResultMock.hasErrors()).thenReturn(false);
+        lenient().when(bindingResultMock.hasErrors()).thenReturn(false);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PAYPAL.getMethodCode());
         doReturn(REDIRECT_TO_PAYMENT_METHOD).when(testObj).getRedirectToPaymentMethod();
 

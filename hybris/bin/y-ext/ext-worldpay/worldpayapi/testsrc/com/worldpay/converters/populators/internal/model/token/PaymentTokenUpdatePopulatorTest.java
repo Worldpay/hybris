@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -134,7 +134,7 @@ public class PaymentTokenUpdatePopulatorTest {
         assertThat(target.getAuthenticatedShopperID().getvalue()).isEqualTo(SHOPPER_ID);
         assertThat(target.getPaymentTokenID().getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(target.getTokenEventReference()).isEqualTo(TOKEN_EVENT_REFERENCE);
-        assertThat(target.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).isEqualTo(intCardDetailsMock);
+        assertThat(target.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0)).isEqualTo(intCardDetailsMock);
         assertThat(target.getTokenReason().getvalue()).isEqualTo(TOKEN_REASON);
     }
 }

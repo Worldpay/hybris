@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -49,7 +49,7 @@ import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMetho
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.*;
 
@@ -68,6 +68,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String KLARNA_RESPONSE = "klarnaContent";
     private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
     private static final String KLARNA_RESPONSE_PAGE = "pages/klarna/klarnaResponseContentPage";
+    private static final String CONTENT_PAGE_LABEL = "contentPageLabel";
     private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
 
     @Spy
@@ -134,6 +135,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     public void setUp() throws Exception {
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), anyString());
 
+        lenient().when(contentPageModelMock.getLabel()).thenReturn(CONTENT_PAGE_LABEL);
         when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
         when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
         when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
@@ -174,7 +176,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void testEnterStepRedirectsToBankTransfer() throws CMSItemNotFoundException, WorldpayException {
-        doReturn(false).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_VALUE);
+        lenient().doReturn(false).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_VALUE);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_BANK_TRANSFER);
         when(bankConfigurationFacadeMock.isBankTransferApm(PAYMENT_METHOD_BANK_TRANSFER)).thenReturn(true);
         when(worldpayDirectOrderFacadeMock.authoriseBankTransferRedirect(any(BankTransferAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(REDIRECT_URL);
@@ -216,7 +218,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     @Test
     public void shouldRedirectToInternalUrlWithKlarnaContentWhenPaymentTypeIsKlarna() throws Exception {
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_KLARNA);
-        when(worldpayDirectOrderFacadeMock.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock)).thenReturn(KLARNA_RESPONSE);
+        lenient().when(worldpayDirectOrderFacadeMock.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock)).thenReturn(KLARNA_RESPONSE);
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
 

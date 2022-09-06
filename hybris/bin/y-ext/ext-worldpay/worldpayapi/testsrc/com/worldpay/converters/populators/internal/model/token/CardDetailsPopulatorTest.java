@@ -10,9 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -63,7 +64,7 @@ public class CardDetailsPopulatorTest {
     @Test
     public void populate_WhenDateIsNull_ShouldNotPopulateInternalDate() {
         when(sourceMock.getExpiryDate()).thenReturn(null);
-        when(internalDateConverterMock.convert(sourceMock.getExpiryDate())).thenReturn(internalDateMock);
+        lenient().when(internalDateConverterMock.convert(sourceMock.getExpiryDate())).thenReturn(internalDateMock);
 
         final com.worldpay.internal.model.CardDetails targetMock = new com.worldpay.internal.model.CardDetails();
         testObj.populate(sourceMock, targetMock);
@@ -74,7 +75,7 @@ public class CardDetailsPopulatorTest {
     @Test
     public void populate_WhenAddressIsNull_ShouldNotPopulateInternalAddress() {
         when(sourceMock.getCardAddress()).thenReturn(null);
-        when(internalAddressConverterMock.convert(sourceMock.getCardAddress())).thenReturn(internalAddresMock);
+        lenient().when(internalAddressConverterMock.convert(sourceMock.getCardAddress())).thenReturn(internalAddresMock);
 
         final com.worldpay.internal.model.CardDetails targetMock = new com.worldpay.internal.model.CardDetails();
         testObj.populate(sourceMock, targetMock);
@@ -93,8 +94,8 @@ public class CardDetailsPopulatorTest {
         when(sourceMock.getExpiryDate()).thenReturn(expiryDateMock);
         when(sourceMock.getIssuerCountryCode()).thenReturn(ISSUER_COUNTRY_CODE);
 
-        when(internalAddressConverterMock.convert(cardAddresMock)).thenReturn(internalAddresMock);
-        when(internalDateConverterMock.convert(expiryDateMock)).thenReturn(internalDateMock);
+        lenient().when(internalAddressConverterMock.convert(cardAddresMock)).thenReturn(internalAddresMock);
+        lenient().when(internalDateConverterMock.convert(expiryDateMock)).thenReturn(internalDateMock);
 
         final com.worldpay.internal.model.CardDetails targetMock = new com.worldpay.internal.model.CardDetails();
         testObj.populate(sourceMock, targetMock);

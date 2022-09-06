@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.ModelMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +52,7 @@ public class WorldpayJsVariablesBeforeViewHandlerTest {
     public void setUp() {
         when(worldpayFraudSightStrategyMock.isFraudSightEnabled()).thenReturn(true);
         when(siteConfigServiceMock.getInt(HOP_DECLINE_MESSAGE_WAIT_TIMER_SECONDS, SECONDS)).thenReturn(5);
-        when(modelMock.getAttribute(PAYMENT_STATUS)).thenReturn(PAYMENT_VALUE);
+        lenient().when(modelMock.getAttribute(PAYMENT_STATUS)).thenReturn(PAYMENT_VALUE);
         when(siteConfigServiceMock.getProperty(WORLDPAY_CONFIG_ENVIRONMENT)).thenReturn("TEST");
         when(siteConfigServiceMock.getProperty(WORLDPAY_CONFIG_PROFILE_DOMAIN_PROD)).thenReturn(PROFILING_DOMAIN_PROD);
         when(siteConfigServiceMock.getProperty(WORLDPAY_CONFIG_PROFILE_DOMAIN_TEST)).thenReturn(PROFILING_DOMAIN_TEST);
@@ -93,7 +93,7 @@ public class WorldpayJsVariablesBeforeViewHandlerTest {
     @Test
     public void beforeView_WhenTestProdAndFraudSightDisabled_ShouldReturnTheViewName() {
         when(worldpayFraudSightStrategyMock.isFraudSightEnabled()).thenReturn(false);
-        when(siteConfigServiceMock.getProperty(WORLDPAY_CONFIG_ENVIRONMENT)).thenReturn("PROD");
+        lenient().when(siteConfigServiceMock.getProperty(WORLDPAY_CONFIG_ENVIRONMENT)).thenReturn("PROD");
 
         final String result = testObj.beforeView(requestMock, responseMock, modelMock, VIEW_NAME);
 

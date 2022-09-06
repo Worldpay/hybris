@@ -10,9 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -63,7 +64,7 @@ public class TransactionRiskDataPopulatorTest {
     @Test
     public void populate_WhenDateIsNull_ShouldNotPopulateInternalDate() {
         when(sourceMock.getTransactionRiskDataPreOrderDate()).thenReturn(null);
-        when(internalDateConverterMock.convert(sourceMock.getTransactionRiskDataPreOrderDate())).thenReturn(internalDateMock);
+        lenient().when(internalDateConverterMock.convert(sourceMock.getTransactionRiskDataPreOrderDate())).thenReturn(internalDateMock);
 
         final com.worldpay.internal.model.TransactionRiskData targetMock = new com.worldpay.internal.model.TransactionRiskData();
         testObj.populate(sourceMock, targetMock);
@@ -74,7 +75,7 @@ public class TransactionRiskDataPopulatorTest {
     @Test
     public void populate_WhenAmountIsNull_ShouldNotPopulateAmount() {
         when(sourceMock.getTransactionRiskDataGiftCardAmount()).thenReturn(null);
-        when(internalTransactionRiskDataGiftCardAmountConverterMock.convert(sourceMock.getTransactionRiskDataGiftCardAmount())).thenReturn(internalAmountMock);
+        lenient().when(internalTransactionRiskDataGiftCardAmountConverterMock.convert(sourceMock.getTransactionRiskDataGiftCardAmount())).thenReturn(internalAmountMock);
 
         final com.worldpay.internal.model.TransactionRiskData targetMock = new com.worldpay.internal.model.TransactionRiskData();
         testObj.populate(sourceMock, targetMock);
@@ -93,8 +94,8 @@ public class TransactionRiskDataPopulatorTest {
         when(sourceMock.getTransactionRiskDataPreOrderDate()).thenReturn(dateMock);
         when(sourceMock.getTransactionRiskDataGiftCardAmount()).thenReturn(amountMock);
 
-        when(internalDateConverterMock.convert(dateMock)).thenReturn(internalDateMock);
-        when(internalTransactionRiskDataGiftCardAmountConverterMock.convert(amountMock)).thenReturn(internalAmountMock);
+        lenient().when(internalDateConverterMock.convert(dateMock)).thenReturn(internalDateMock);
+        lenient().when(internalTransactionRiskDataGiftCardAmountConverterMock.convert(amountMock)).thenReturn(internalAmountMock);
 
         final com.worldpay.internal.model.TransactionRiskData targetMock = new com.worldpay.internal.model.TransactionRiskData();
         testObj.populate(sourceMock, targetMock);

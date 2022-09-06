@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.ui.ModelMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class WorldpayViewChangeBeforeViewHandlerTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "viewMap", viewMap);
+        ReflectionTestUtils.setField(testObj, "viewMap", viewMap);
     }
 
     @Test

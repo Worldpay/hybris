@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.Errors;
 
 import java.text.ParseException;
@@ -88,7 +88,7 @@ public class CseFormValidatorTest {
     @Test
     public void validate_WhenFSIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
-        when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
+        lenient().when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(csePaymentFormMock, errorsMock);
 
@@ -98,7 +98,7 @@ public class CseFormValidatorTest {
     @Test
     public void validate_WhenFSIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
         when(csePaymentFormMock.isDobRequired()).thenReturn(false);
-        when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
+        lenient().when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(csePaymentFormMock, errorsMock);
 

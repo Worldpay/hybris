@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -66,7 +66,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -228,22 +228,22 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(formMock.isTermsCheck()).thenReturn(true);
         when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
         when(cartDataMock.isCalculated()).thenReturn(true);
-        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
-        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
-        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        lenient().when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        lenient().when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        lenient().when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
-        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        lenient().when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
         when(checkoutStepMock.previousStep()).thenReturn(PREVIOUS);
         when(checkoutStepMock.nextStep()).thenReturn(NEXT);
         when(checkoutStepMock.currentStep()).thenReturn(CURRENT);
         when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
         when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
         when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
-        when(productFacadeMock.getProductForCodeAndOptions(PRODUCT_CODE, Arrays.asList(BASIC, PRICE))).thenReturn(productDataMock);
+        lenient().when(productFacadeMock.getProductForCodeAndOptions(PRODUCT_CODE, Arrays.asList(BASIC, PRICE))).thenReturn(productDataMock);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
-        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        lenient().when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
         when(sessionServiceMock.getAttribute(SAVED_CARD_SELECTED_ATTRIBUTE)).thenReturn(Boolean.TRUE);
-        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        lenient().when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(worldpayDirectOrderFacadeMock.authoriseRecurringPayment(worldpayAdditionalInfoDataMock)).thenReturn(directResponseDataMock);
@@ -455,7 +455,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void getDDCIframeContent_shouldPopulate3DSecureJsonWebToken() {
-        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        lenient().when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
         when(worldpayMerchantConfigDataMock.getThreeDSFlexJsonWebTokenSettings().getDdcUrl()).thenReturn(THREEDSECURE_FLEX_DDC_URL_VALUE);
         when(worldpayDDCFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSECURE_JWT_FLEX_DDC_VALUE);
         when(worldpayAddonEndpointServiceMock.getDdcIframe3dSecureFlex()).thenReturn(THREDSFLEX_DDC_PAGE);
