@@ -181,7 +181,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ApiBaseSiteIdUserIdAndCartIdParam
     @ResponseBody
     public OrderWsDTO placeRedirectOrder(
-        @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields) throws WorldpayException {
+        @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
 
         try {
             final OrderData orderData = worldpayCheckoutFacadeDecorator.placeOrder();

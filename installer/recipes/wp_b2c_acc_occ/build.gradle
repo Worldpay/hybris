@@ -231,10 +231,10 @@ def pl = platform {
 
     addons {
         forStoreFronts('yacceleratorstorefront') {
-            names('worldpayaddon', 'worldpaysampledataaddon', 'captchaaddon', 'commerceorgsamplesaddon', 'assistedservicestorefront', 'assistedservicecustomerinterestsaddon',
+            names('worldpayaddon', 'worldpaysampledataaddon', 'captchaaddon', 'commerceorgsamplesaddon', 'promotionenginesamplesaddon', 'assistedservicestorefront', 'assistedservicecustomerinterestsaddon',
                     'assistedserviceyprofileaddon', 'assistedservicepromotionaddon', 'customerticketingaddon', 'textfieldconfiguratortemplateaddon', 'smarteditaddon',
                     'consignmenttrackingaddon', 'notificationaddon', 'customerinterestsaddon', 'stocknotificationaddon', 'orderselfserviceaddon', 'adaptivesearchsamplesaddon',
-                    'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons',
+                    'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons', 'personalizationsearchsamplesaddon',
                     'personalizationyprofilesampledataaddon', 'personalizationaddon', 'profiletagaddon', 'merchandisingaddon', 'merchandisingstorefrontsampledataaddon'
                     // Uncomment the following line if you want to add spartacussampledata to your build
                     // ,'worldpayspartacussampledata'
