@@ -1,0 +1,27 @@
+/* stylelint-disable-next-line selector-class-pattern -- Reason for disabling Stylelint. */
+.wp__apm {
+  height: 100%;
+  width: 100%;
+  padding: 1rem 1rem 0;
+  display: block;
+  border: 1px solid var(--cx-color-light);
+  text-align: center;
+  cursor: pointer;
+
+  cx-media {
+    height: 32px;
+    width: auto;
+    margin-bottom: 0.5rem;
+  }
+
+  &-label {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  &--selected,
+  &:hover,
+  &:focus {
+    border-color: var(--cx-color-primary);
+  }
+}
