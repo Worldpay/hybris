@@ -24,12 +24,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -107,8 +107,6 @@ public class DefaultWorldpayHOPServiceTest {
         when(sessionServiceMock.getAttribute(LANGUAGE_SESSION_ATTRIBUTE_KEY)).thenReturn(currentSessionLanguageMock);
         when(currentSessionLanguageMock.getIsocode()).thenReturn(LANGUAGE_ISO_CODE);
 
-        when(cartModelMock.getUser()).thenReturn(customerModelMock);
-        when(cartModelMock.getPaymentAddress()).thenReturn(cartPaymentAddressModelMock);
     }
 
     @Test
@@ -116,7 +114,7 @@ public class DefaultWorldpayHOPServiceTest {
         final PaymentData result = testObj.buildHOPPageData(cartModelMock, additionalAuthInfoMock, merchantInfoMock, worldpayAdditionalInfoDataMock);
 
         verify(sessionServiceMock).setAttribute(WORLDPAY_MERCHANT_CODE, MERCHANT_CODE);
-        verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMapOf(String.class, String.class));
+        verify(worldpayURIServiceMock).extractUrlParamsToMap(eq(REDIRECT_URL), anyMap());
         assertEquals(REDIRECT_URL, result.getPostUrl());
         assertEquals(COUNTRY_CODE, result.getParameters().get(KEY_COUNTRY));
         assertEquals(LANGUAGE_ISO_CODE, result.getParameters().get(LANGUAGE_SESSION_ATTRIBUTE_KEY));

@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.client.RestTemplate;
 
 import static org.mockito.Mockito.*;
@@ -65,14 +65,6 @@ public class ApplePayControllerTest {
     @Mock
     private ApplePayAdditionalAuthInfo paymentDataMock;
 
-
-    @Before
-    public void setup() {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, null)).thenReturn("https://electronics.ypay-daily-responsive.e2y.io/worlpaystorefront/en");
-        when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(customerMock);
-    }
-
     @Test
     public void testAuthoriseOrder() throws WorldpayException, InvalidCartException {
         doNothing().when(worldpayApplePayPaymentCheckoutFacadeMock).saveBillingAddresses(billingContactMock);
@@ -87,7 +79,7 @@ public class ApplePayControllerTest {
 
     @Test
     public void testRequestPaymentSession() {
-        when(dataMapperMock.map(validateMerchantRequestWsDTOMock, ValidateMerchantRequestData.class)).thenReturn(validateMerchantRequestDataMock);
+        lenient().when(dataMapperMock.map(validateMerchantRequestWsDTOMock, ValidateMerchantRequestData.class)).thenReturn(validateMerchantRequestDataMock);
         when(validateMerchantRequestDataMock.getValidationURL()).thenReturn("http://apple.com");
         when(worldpayApplePayPaymentCheckoutFacadeMock.getValidateMerchantRequestDTO()).thenReturn(validateMerchantRequestDTOMock);
 

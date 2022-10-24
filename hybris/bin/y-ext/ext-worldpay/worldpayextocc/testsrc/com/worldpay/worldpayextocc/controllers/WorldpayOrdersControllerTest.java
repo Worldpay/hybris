@@ -12,9 +12,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -45,7 +46,7 @@ public class WorldpayOrdersControllerTest {
     @Test
     public void placeRedirectOrder_ShouldReturnOrderWsDTO() throws InvalidCartException, WorldpayException {
         when(worldpayCheckoutFacadeDecoratorMock.placeOrder()).thenReturn(orderDataMock);
-        when(dataMapperMock.map(orderDataMock, OrderWsDTO.class)).thenReturn(orderWsDTOMock);
+        lenient().when(dataMapperMock.map(orderDataMock, OrderWsDTO.class)).thenReturn(orderWsDTOMock);
 
         testObj.placeRedirectOrder(FieldSetLevelHelper.DEFAULT_LEVEL);
 

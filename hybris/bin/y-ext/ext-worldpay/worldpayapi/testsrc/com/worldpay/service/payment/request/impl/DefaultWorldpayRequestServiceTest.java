@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.security.GeneralSecurityException;
 
@@ -121,7 +121,6 @@ public class DefaultWorldpayRequestServiceTest {
 
     @Test
     public void shouldReturnNullWhenPaymentTypeIsNotFound() throws WorldpayConfigurationException {
-        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(FULL_SUCCESS_URL);
 
         final AlternativeShopperBankCodePayment result = (AlternativeShopperBankCodePayment) testObj.createBankPayment(WORLDPAY_ORDER_CODE, "notfound", BANK_CODE);
 
@@ -143,7 +142,6 @@ public class DefaultWorldpayRequestServiceTest {
     @Test(expected = ConversionException.class)
     public void createBankPayment_whenEncryptionFails_shouldThrowException() throws WorldpayConfigurationException, GeneralSecurityException {
         doThrow(new ConversionException("something failed")).when(worldpayOrderCodeVerificationServiceMock).getEncryptedOrderCode(WORLDPAY_ORDER_CODE);
-        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(FULL_SUCCESS_URL);
 
         testObj.createBankPayment(WORLDPAY_ORDER_CODE, "IDEAL-SSL", BANK_CODE);
     }

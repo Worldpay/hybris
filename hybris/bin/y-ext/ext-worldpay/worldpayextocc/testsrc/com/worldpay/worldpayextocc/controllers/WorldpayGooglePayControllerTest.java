@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -142,7 +142,7 @@ public class WorldpayGooglePayControllerTest {
 
         testObj.setRegion(addressDataMock, googlePayAddressData);
 
-        verifyZeroInteractions(i18NFacadeMock);
+        verifyNoInteractions(i18NFacadeMock);
         verify(addressDataMock, never()).setRegion(regionDataMock);
     }
 
@@ -152,7 +152,7 @@ public class WorldpayGooglePayControllerTest {
 
         testObj.setRegion(addressDataMock, googlePayAddressData);
 
-        verifyZeroInteractions(addressDataMock);
+        verifyNoInteractions(addressDataMock);
     }
 
     private void verifyAddress(final ArgumentCaptor<AddressData> addressCaptor, final CountryData country) {

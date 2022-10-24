@@ -8,9 +8,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -59,7 +60,7 @@ public class AuthenticationRiskDataPopulatorTest {
     @Test
     public void populate_WhenDateIsNull_ShouldNotPopulateInternalDate() {
         when(sourceMock.getAuthenticationTimestamp()).thenReturn(null);
-        when(internalDateConverterMock.convert(sourceMock.getAuthenticationTimestamp())).thenReturn(internalDateMock);
+        lenient().when(internalDateConverterMock.convert(sourceMock.getAuthenticationTimestamp())).thenReturn(internalDateMock);
 
         final com.worldpay.internal.model.AuthenticationRiskData targetMock = new com.worldpay.internal.model.AuthenticationRiskData();
         testObj.populate(sourceMock, targetMock);

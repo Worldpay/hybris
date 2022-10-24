@@ -45,7 +45,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
      */
     @Override
     public boolean checkForError(final ServiceResponse response, final Reply reply) {
-        final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
+        final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().get(0);
         if (replyType instanceof com.worldpay.internal.model.Error) {
             response.setError(Optional.of(replyType)
                 .map(com.worldpay.internal.model.Error.class::cast)
@@ -260,7 +260,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 final com.worldpay.data.token.TokenDetails tokenDetails = transformTokenDetails((TokenDetails) tokenInformationField);
                 tokenReply.setTokenDetails(tokenDetails);
             } else if (tokenInformationField instanceof PaymentInstrument) {
-                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
+                final Object paymentInstrument = ((PaymentInstrument) tokenInformationField).getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
                 if (paymentInstrument instanceof CardDetails) {
                     final com.worldpay.data.payment.Card card = transformCard((CardDetails) paymentInstrument);
                     tokenReply.setPaymentInstrument(card);
@@ -455,10 +455,13 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             address.setFirstName(intAddress.getFirstName());
             address.setLastName(intAddress.getLastName());
             address.setCity(intAddress.getCity());
-            address.setCountryCode(intAddress.getCountryCode());
             address.setPostalCode(intAddress.getPostalCode());
             address.setState(intAddress.getState());
             address.setTelephoneNumber(intAddress.getTelephoneNumber());
+
+            Optional.ofNullable(intAddress.getCountryCode())
+                .ifPresent(countryCode -> address.setCountryCode(countryCode.getvalue()));
+
             return address;
         }
         return null;

@@ -40,7 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.Date;
@@ -105,16 +105,16 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
         Mockito.when(cartDataMock.getDeliveryAddress()).thenReturn(Mockito.mock(AddressData.class));
         Mockito.when(cartDataMock.getDeliveryMode()).thenReturn(Mockito.mock(DeliveryModeData.class));
         Mockito.when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
-        Mockito.when(cartModelMock.getUser()).thenReturn(customerModelMock);
-        Mockito.when(checkoutCustomerStrategy.getCurrentUserForCheckout()).thenReturn(customerModelMock);
+        Mockito.lenient().when(cartModelMock.getUser()).thenReturn(customerModelMock);
+        Mockito.lenient().when(checkoutCustomerStrategy.getCurrentUserForCheckout()).thenReturn(customerModelMock);
 
         Mockito.when(i18NService.getCurrentTimeZone()).thenReturn(TimeZone.getDefault());
         Mockito.when(i18NService.getCurrentLocale()).thenReturn(Locale.getDefault());
-        Mockito.when(baseSiteService.getCurrentBaseSite()).thenReturn(baseSiteModelMock);
-        Mockito.when(baseStoreService.getCurrentBaseStore()).thenReturn(baseStoreModelMock);
+        Mockito.lenient().when(baseSiteService.getCurrentBaseSite()).thenReturn(baseSiteModelMock);
+        Mockito.lenient().when(baseStoreService.getCurrentBaseStore()).thenReturn(baseStoreModelMock);
 
-        Mockito.when(modelService.create(TriggerModel.class)).thenReturn(triggerModelMock);
-        Mockito.when(modelService.create(B2BCommentModel.class)).thenReturn(b2BCommentModelMock);
+        Mockito.lenient().when(modelService.create(TriggerModel.class)).thenReturn(triggerModelMock);
+        Mockito.lenient().when(modelService.create(B2BCommentModel.class)).thenReturn(b2BCommentModelMock);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
         PlaceOrderData placeOrderData = createPlaceOrderData(true);
 
         mockPayByCard();
-        Mockito.when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
+        Mockito.lenient().when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
 
         testObj.placeOrder(placeOrderData);
 
@@ -161,7 +161,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
         PlaceOrderData placeOrderData = createPlaceOrderData(true);
 
         mockPayByCard();
-        Mockito.when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
+        Mockito.lenient().when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
 
         testObj.placeOrder(placeOrderData);
 

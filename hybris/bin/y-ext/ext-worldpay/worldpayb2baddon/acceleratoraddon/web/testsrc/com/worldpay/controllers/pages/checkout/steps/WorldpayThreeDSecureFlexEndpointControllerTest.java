@@ -24,7 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -90,8 +90,8 @@ public class WorldpayThreeDSecureFlexEndpointControllerTest {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX)).thenReturn(ADDON_WORLDPAYADDON);
         when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
         when(testObj.getB2BCheckoutFacade()).thenReturn(worldpayCheckoutFacadeMock);
-        when(testObj.getCheckoutFacade()).thenReturn(worldpayCheckoutFacadeMock);
-        when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
+        lenient().when(testObj.getCheckoutFacade()).thenReturn(worldpayCheckoutFacadeMock);
+        lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class WorldpayThreeDSecureFlexEndpointControllerTest {
 
     @Test
     public void testDoHandleThreeDSecureResponseThatShouldRedirectToOrderConfirmation() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
-        doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
+        lenient().doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
         when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
         when(worldpayDirectOrderFacadeMock.executeSecondPaymentAuthorisation3DSecure()).thenReturn(directResponseDataMock);
         when(testObj.getB2BCheckoutFacade().placeOrder(any(PlaceOrderData.class))).thenReturn(orderDataMock);

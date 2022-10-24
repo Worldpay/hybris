@@ -11,13 +11,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -58,7 +59,7 @@ public class DefaultWorldpayAfterRedirectValidationFacadeTest {
 
     @Test
     public void validateRedirectResponse_ShouldReturnFalse_WhenRedirectResponseIsNotValid() {
-        when(worldpayAfterRedirectValidationServiceMock.validateRedirectResponse(eq(merchantInfoMock), eq(WORLDPAY_RESPONSE))).thenReturn(false);
+        lenient().when(worldpayAfterRedirectValidationServiceMock.validateRedirectResponse(eq(merchantInfoMock), eq(WORLDPAY_RESPONSE))).thenReturn(false);
 
         final boolean result = testObj.validateRedirectResponse(WORLDPAY_RESPONSE);
 

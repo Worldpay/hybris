@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -60,9 +60,6 @@ public class DefaultWorldpayDirectResponseServiceTest {
     public void is3DSecureLegacyFlowReturnsFalseWhenDirectResponseDataIsLFlexFlow() {
         when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.AUTHENTICATION_REQUIRED);
         when(directResponseDataMock.getIssuerURL()).thenReturn(ISSUER_URL);
-        when(directResponseDataMock.getIssuerPayload()).thenReturn(ISSUER_PAYLOAD);
-        when(directResponseDataMock.getTransactionId3DS()).thenReturn(TRANSACTION_ID_3DS);
-        when(directResponseDataMock.getMajor3DSVersion()).thenReturn(THREEDS_VERSION);
 
         final Boolean result = testObj.is3DSecureLegacyFlow(directResponseDataMock);
 
@@ -86,7 +83,6 @@ public class DefaultWorldpayDirectResponseServiceTest {
     public void is3DSecureFlexFlowReturnsFalseWhenDirectResponseDataIsLegacyFlow() {
         when(directResponseDataMock.getTransactionStatus()).thenReturn(TransactionStatus.AUTHENTICATION_REQUIRED);
         when(directResponseDataMock.getIssuerURL()).thenReturn(ISSUER_URL);
-        when(directResponseDataMock.getPaRequest()).thenReturn(PA_REQUEST);
 
         final Boolean result = testObj.is3DSecureFlexFlow(directResponseDataMock);
 

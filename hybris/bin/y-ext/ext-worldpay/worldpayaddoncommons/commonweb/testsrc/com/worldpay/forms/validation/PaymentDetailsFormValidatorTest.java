@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 import org.springframework.validation.Errors;
 
@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat;
 
 import static com.worldpay.forms.validation.PaymentDetailsFormValidator.*;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -66,8 +66,8 @@ public class PaymentDetailsFormValidatorTest {
 
     @Before
     public void setUp() {
-        doNothing().when(testObj).validateField(any(Errors.class), anyString(), anyString());
-        doNothing().when(testObj).validateField(any(Errors.class), anyString(), anyString(), anyString());
+        doNothing().when(testObj).validateField(any(), anyString(), anyString());
+        lenient().doNothing().when(testObj).validateField(any(), anyString(), anyString(), anyString());
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
         when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
@@ -215,7 +215,7 @@ public class PaymentDetailsFormValidatorTest {
     @Test
     public void validate_WhenFSIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
-        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
+        lenient().when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
@@ -225,7 +225,7 @@ public class PaymentDetailsFormValidatorTest {
     @Test
     public void validate_WhenFSIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
         when(paymentDetailsFormMock.isDobRequired()).thenReturn(false);
-        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
+        lenient().when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 

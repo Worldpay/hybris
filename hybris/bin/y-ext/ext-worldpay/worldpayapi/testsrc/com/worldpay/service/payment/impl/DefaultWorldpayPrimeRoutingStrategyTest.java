@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
@@ -36,7 +36,7 @@ public class DefaultWorldpayPrimeRoutingStrategyTest {
     public void populateRequestWithAdditionalData_WhenPrimeRoutingIsDisabled_ShouldDoNothing() {
         testObj.populateRequestWithAdditionalData(cartMock, worldpayAdditionalInfoDataMock, authoriseRequestParametersCreatorMock);
 
-        verifyZeroInteractions(authoriseRequestParametersCreatorMock);
+        verifyNoInteractions(authoriseRequestParametersCreatorMock);
         verify(worldpayPrimeRoutingServiceMock, never()).setAuthorisedWithPrimeRoutingOnCart(cartMock);
     }
 

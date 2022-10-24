@@ -21,14 +21,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -67,10 +67,7 @@ public class DefaultWorldpayOrderModificationNotifierStrategyTest {
 
     @Before
     public void setUp() {
-        when(orderModificationModelMock.getType()).thenReturn(PaymentTransactionType.AUTHORIZATION);
         when(orderModificationModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderModificationModelMock.getProcessed()).thenReturn(false);
-        when(orderModificationModelMock.getNotified()).thenReturn(false);
         when(l10nService.getLocalizedString(WORLDPAYNOTIFICATIONS_ERRORS_THERE_ARE_UNPROCESSED_ORDERS)).thenReturn(THERE_ARE_UNPROCESSED_ORDERS);
         when(l10nService.getLocalizedString(WORLDPAYNOTIFICATIONS_ERRORS_UNPROCESSED_ORDERS)).thenReturn(UNPROCESSED_ORDERS);
         when(worldpayHybrisOrderServiceMock.findOrderByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(orderMock);
@@ -80,7 +77,6 @@ public class DefaultWorldpayOrderModificationNotifierStrategyTest {
     @Test
     public void notifyThatOrdersHaveNotBeenProcessed_WhenUnprocessedModification_ShouldReturnedThenPublishTicket() {
         when(orderModificationDaoMock.findUnprocessedAndNotNotifiedOrderModificationsBeforeDate(any(Date.class))).thenReturn(Collections.singletonList(orderModificationModelMock));
-        when(modelServiceMock.create(CsTicketModel.class)).thenReturn(new CsTicketModel());
 
         testObj.notifyThatOrdersHaveNotBeenProcessed(UNPROCESSED_DAYS);
 
@@ -100,8 +96,6 @@ public class DefaultWorldpayOrderModificationNotifierStrategyTest {
 
     @Test
     public void notifyThatOrdersHaveNotBeenProcessed_WhenNoUnprocessedModifications_ShouldNotPublishTickets() {
-        when(orderModificationDaoMock.findUnprocessedAndNotNotifiedOrderModificationsBeforeDate(new Date())).thenReturn(Collections.emptyList());
-
         testObj.notifyThatOrdersHaveNotBeenProcessed(5);
 
         verify(ticketBusinessServiceMock, never()).createTicket(any(CsTicketParameter.class));

@@ -178,12 +178,14 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     public PaymentInfoModel createPaymentInfoApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) {
         validateParameterNotNull(cartModel, CART_MODEL_CANNOT_BE_NULL);
         validateParameterNotNull(applePayAdditionalAuthInfo, "ApplePayAdditionalAuthInfo cannot be null");
+        final WorldpayAPMConfigurationModel worldpayAPMConfigurationModel = apmConfigurationLookupService.getAPMConfigurationForCode(PaymentType.APPLEPAYSSL.getMethodCode());
         final ApplePayPaymentInfoModel paymentInfoModel = modelService.create(ApplePayPaymentInfoModel.class);
         paymentInfoModel.setUser(cartModel.getUser());
         paymentInfoModel.setSaved(false);
         paymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
         paymentInfoModel.setVersion(applePayAdditionalAuthInfo.getVersion());
         paymentInfoModel.setTransactionId(applePayAdditionalAuthInfo.getHeader().getTransactionId());
+        paymentInfoModel.setApmConfiguration(worldpayAPMConfigurationModel);
         cartModel.setPaymentInfo(paymentInfoModel);
         modelService.save(cartModel);
         return updatePaymentInfo(cartModel, paymentInfoModel);
