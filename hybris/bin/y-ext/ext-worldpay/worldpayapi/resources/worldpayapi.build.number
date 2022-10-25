@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Sep 05 17:06:01 UTC 2022
+#Mon Oct 24 15:01:25 UTC 2022
 version.api=2205
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayapi
 description=worldpayapi
-builddate=20220905 1705
-releasedate=20220520 1247
-version=2205.0
+builddate=20221024 1501
+releasedate=20220930 1705
+version=2205.4
 module.name=platform-module

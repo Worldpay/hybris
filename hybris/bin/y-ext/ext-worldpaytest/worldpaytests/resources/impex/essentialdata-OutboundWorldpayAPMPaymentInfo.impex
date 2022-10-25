@@ -1,0 +1,18 @@
+INSERT_UPDATE IntegrationObject; code[unique = true]            ; integrationType(code)
+                               ; OutboundWorldpayAPMPaymentInfo ; INBOUND
+
+INSERT_UPDATE IntegrationObjectItem; integrationObject(code)[unique = true]; code[unique = true]    ; type(code)             ; root[default = false]
+                                   ; OutboundWorldpayAPMPaymentInfo        ; WorldpayAPMPaymentInfo ; WorldpayAPMPaymentInfo ; true ;
+
+INSERT_UPDATE IntegrationObjectItemAttribute; integrationObjectItem(integrationObject(code), code)[unique = true]; attributeName[unique = true]; attributeDescriptor(enclosingType(code), qualifier); returnIntegrationObjectItem(integrationObject(code), code); unique[default = false]; autoCreate[default = false]
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; duplicate                   ; WorldpayAPMPaymentInfo:duplicate                   ;                                                           ;                        ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; paymentType                 ; WorldpayAPMPaymentInfo:paymentType                 ;                                                           ;                        ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; isApm                       ; WorldpayAPMPaymentInfo:isApm                       ;                                                           ;                        ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; saved                       ; WorldpayAPMPaymentInfo:saved                       ;                                                           ;                        ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; worldpayOrderCode           ; WorldpayAPMPaymentInfo:worldpayOrderCode           ;                                                           ;                        ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; subscriptionId              ; WorldpayAPMPaymentInfo:subscriptionId              ;                                                           ; true                   ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; code                        ; WorldpayAPMPaymentInfo:code                        ;                                                           ;                        ;
+                                            ; OutboundWorldpayAPMPaymentInfo:WorldpayAPMPaymentInfo              ; authenticatedShopperID      ; WorldpayAPMPaymentInfo:authenticatedShopperID      ;                                                           ;                        ;
+
+INSERT_UPDATE InboundChannelConfiguration; integrationObject(code)[unique = true]; authenticationType(code)
+                                         ; OutboundWorldpayAPMPaymentInfo        ; BASIC

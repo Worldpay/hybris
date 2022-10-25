@@ -1,0 +1,12 @@
+INSERT_UPDATE IntegrationObject; code[unique = true]              ; integrationType(code)
+                               ; InboundWorldpayOrderModification ; INBOUND
+
+INSERT_UPDATE IntegrationObjectItem; integrationObject(code)[unique = true]; code[unique = true]       ; type(code)                ; root[default = false]
+                                   ; InboundWorldpayOrderModification      ; WorldpayOrderModification ; WorldpayOrderModification ; true ;
+
+INSERT_UPDATE IntegrationObjectItemAttribute; integrationObjectItem(integrationObject(code), code)[unique = true]; attributeName[unique = true]; attributeDescriptor(enclosingType(code), qualifier); returnIntegrationObjectItem(integrationObject(code), code); unique[default = false]; autoCreate[default = false]
+                                            ; InboundWorldpayOrderModification:WorldpayOrderModification         ; code                        ; WorldpayOrderModification:code                     ;                                                           ; true                   ;
+                                            ; InboundWorldpayOrderModification:WorldpayOrderModification         ; worldpayOrderCode           ; WorldpayOrderModification:worldpayOrderCode        ;                                                           ;                        ;
+
+INSERT_UPDATE InboundChannelConfiguration; integrationObject(code)[unique = true]; authenticationType(code)
+                                         ; InboundWorldpayOrderModification      ; BASIC

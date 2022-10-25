@@ -29,6 +29,7 @@ import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
+import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
@@ -152,7 +153,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @PostMapping(value = "/{cartId}/worldpaypaymentdetails")
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentDetailsWsDTO addPaymentDetails(final HttpServletRequest request,
-                                                 @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields)
+                                                 @RequestParam(required = false, defaultValue = FULL_LEVEL) final String fields)
             throws WorldpayException, NoCheckoutCartException {
         final PaymentDetailsWsDTO paymentDetails = new PaymentDetailsWsDTO();
         final Collection<PaymentDetailsWsDTOOption> options = new ArrayList<>();
@@ -285,7 +286,8 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiBaseSiteIdUserIdAndCartIdParam
     public PaymentDataWsDTO getRedirectAuthorise(@RequestBody final PaymentRequestData paymentRequest,
-                                                 final HttpServletRequest request) throws WorldpayException {
+                                                 final HttpServletRequest request,
+                                                 @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
         final String paymentMethod = paymentRequest.getPaymentMethod();
 
         if (!apmAvailabilityFacade.isAvailable(paymentMethod)) {
@@ -303,10 +305,10 @@ public class WorldpayCartsController extends AbstractWorldpayController {
             additionalAuthInfo.setShopperBankCode(paymentRequest.getShopperBankCode());
             final PaymentData paymentData = new PaymentData();
             paymentData.setPostUrl(worldpayDirectOrderFacade.authoriseBankTransferRedirect(additionalAuthInfo, worldpayAdditionalInfoData));
-            return dataMapper.map(paymentData, PaymentDataWsDTO.class);
+            return dataMapper.map(paymentData, PaymentDataWsDTO.class, fields);
         }
 
-        return dataMapper.map(worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, worldpayAdditionalInfoData), PaymentDataWsDTO.class);
+        return dataMapper.map(worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, worldpayAdditionalInfoData), PaymentDataWsDTO.class, fields);
     }
 
     protected PaymentDetailsWsDTO addPaymentDetailsInternal(final HttpServletRequest request,

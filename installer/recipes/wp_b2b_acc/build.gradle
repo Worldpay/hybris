@@ -137,9 +137,9 @@ def pl = platform {
     addons {
         forStoreFronts('yb2bacceleratorstorefront') {
             names('worldpayb2baddon', 'worldpaysampledataaddon', 'b2bacceleratoraddon', 'commerceorgaddon', 'commerceorgsamplesaddon', 'b2bpunchoutaddon',
-                'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon',
+                'accountsummaryaddon', 'assistedservicestorefront', 'captchaaddon', 'customerticketingaddon', 'promotionenginesamplesaddon',
                 'textfieldconfiguratortemplateaddon', 'orderselfserviceaddon', 'smarteditaddon', 'adaptivesearchsamplesaddon',
-                'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon')
+                'consignmenttrackingaddon', 'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'personalizationsearchsamplesaddon')
             template 'yacceleratorstorefront'
         }
     }

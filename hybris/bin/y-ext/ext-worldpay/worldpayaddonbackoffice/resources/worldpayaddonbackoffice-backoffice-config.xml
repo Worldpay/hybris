@@ -368,6 +368,9 @@
                     <editorArea:section name="sec.configuration.worldpay.fs.section">
                         <editorArea:attribute qualifier="enableFS"/>
                     </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.gp.section">
+                        <editorArea:attribute qualifier="enableGP"/>
+                    </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.level23Data.section">
                         <editorArea:attribute qualifier="enableLevel2"/>
                         <editorArea:attribute qualifier="enableLevel3"/>
