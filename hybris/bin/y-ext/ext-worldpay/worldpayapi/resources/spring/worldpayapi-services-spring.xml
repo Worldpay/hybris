@@ -199,6 +199,7 @@
         <constructor-arg name="worldpayUrlService" ref="worldpayUrlService"/>
         <constructor-arg name="worldpayKlarnaService" ref="worldpayKlarnaService"/>
         <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
+        <constructor-arg name="baseSiteService" ref="baseSiteService"/>
         <constructor-arg name="recurringGenerateMerchantTransactionCodeStrategy"
                          ref="recurringGenerateMerchantTransactionCodeStrategy"/>
     </bean>

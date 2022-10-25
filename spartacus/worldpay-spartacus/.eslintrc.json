@@ -1,0 +1,154 @@
+{
+  "extends": "../../.eslintrc.json",
+  "ignorePatterns": [
+    "!**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "projects/worldpay-spartacus/tsconfig.lib.json",
+          "projects/worldpay-spartacus/tsconfig.spec.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": [
+          "error"
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": [
+              "cx",
+              "y",
+              "worldpay",
+              "wp"
+            ],
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": [
+              "cx",
+              "y",
+              "worldpay"
+            ],
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/use-lifecycle-interface": "off",
+        "@typescript-eslint/dot-notation": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/consistent-type-assertions": "error",
+        "dot-notation": "off",
+        "indent": [
+          "error",
+          2
+        ],
+        "max-len": [
+          "error",
+          {
+            "code": 280
+          }
+        ],
+        "no-empty-function": "off",
+        "no-shadow": "error",
+        "no-unused-expressions": "error",
+        "no-use-before-define": "off",
+        "quotes": "error",
+        "semi": "error",
+        "rxjs-angular/prefer-takeuntil": [
+          "warn",
+          {
+            "alias": [
+              "untilDestroyed"
+            ],
+            "checkComplete": false,
+            "checkDecorators": [
+              "Component"
+            ],
+            "checkDestroy": true
+          }
+        ],
+        "rxjs/ban-observables": [
+          "error"
+        ],
+        "rxjs/ban-operators": [
+          "error"
+        ],
+        "rxjs/no-connectable": [
+          "error"
+        ],
+        "rxjs/no-cyclic-action": [
+          "error"
+        ],
+        "rxjs/no-unsafe-takeuntil": [
+          "error"
+        ],
+        "rxjs/no-compat": [
+          "error"
+        ],
+        "rxjs/no-ignored-replay-buffer": [
+          "error"
+        ],
+        "rxjs/no-unsafe-catch": [
+          "error"
+        ],
+        "rxjs/no-unsafe-first": [
+          "error"
+        ],
+        "rxjs/no-unsafe-switchmap": [
+          "error"
+        ],
+        "rxjs/no-async-subscribe": [
+          "error"
+        ],
+        "rxjs/no-create": [
+          "error"
+        ],
+        "rxjs/no-ignored-observable": [
+          "error"
+        ],
+        "rxjs/no-ignored-error": [
+          "off"
+        ],
+        "rxjs/no-ignored-subscription": [
+          "off"
+        ],
+        "rxjs/no-exposed-subjects": [
+          "off"
+        ],
+        "rxjs/no-implicit-any-catch": [
+          "off"
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "rules": {
+        "@angular-eslint/template/eqeqeq": "warn",
+        "@angular-eslint/template/no-negated-async": "warn"
+      }
+    },
+    {
+      "files": [
+        "*.spec.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": [
+          "off"
+        ]
+      }
+    }
+  ]
+}

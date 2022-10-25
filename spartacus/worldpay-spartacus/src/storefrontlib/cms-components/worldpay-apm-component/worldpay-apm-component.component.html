@@ -1,0 +1,83 @@
+<ng-container>
+  <div class="row my-3">
+
+    <div
+      class="col-4 col-md-3 my-2 cc"
+      *ngIf="card$ | async as apm"
+    >
+      <y-worldpay-apm-tile [apm]="apm"></y-worldpay-apm-tile>
+    </div>
+
+    <div
+      class="col-4 col-md-3 my-2"
+      *ngFor="let apm of (apms | async)"
+    >
+      <y-worldpay-apm-tile [apm]="apm"></y-worldpay-apm-tile>
+    </div>
+
+    <div
+      class="col-4 col-md-3 my-2 gpay"
+      *ngIf="googlePay$ | async as googlepayApm"
+    >
+      <y-worldpay-apm-tile [apm]="googlepayApm"></y-worldpay-apm-tile>
+    </div>
+
+    <div
+      class="col-4 col-md-3 my-2 apay"
+      *ngIf="applePay$ | async as applePayApm"
+    >
+      <y-worldpay-apm-tile [apm]="applePayApm"></y-worldpay-apm-tile>
+    </div>
+  </div>
+
+  <div *ngIf="selectedApm$ | async as selectedApm">
+    <div [ngSwitch]="selectedApm.code">
+      <ng-container *ngSwitchCase="paymentMethod.Card"></ng-container>
+
+      <y-worldpay-apm-ideal
+        *ngSwitchCase="paymentMethod.iDeal"
+        [apm]="selectedApm"
+        (setPaymentDetails)="setPaymentDetails.emit($event)"
+      ></y-worldpay-apm-ideal>
+
+      <y-worldpay-apm-googlepay
+        *ngSwitchCase="paymentMethod.GooglePay"
+        [apm]="selectedApm"
+        [billingAddressForm]="billingAddressForm"
+      ></y-worldpay-apm-googlepay>
+
+      <worldpay-applepay
+        *ngSwitchCase="paymentMethod.ApplePay"
+        [billingAddressForm]="billingAddressForm"
+      ></worldpay-applepay>
+    </div>
+
+    <ng-container *ngIf="(isLoading$ | async) === false; else loading">
+      <ng-container *ngIf="showBillingFormAndContinueButton(selectedApm.code)">
+        <y-worldpay-billing-address
+          [billingAddressForm]="billingAddressForm"
+          (sameAsShippingAddressChange)="sameAsShippingAddress$.next($event)"
+        ></y-worldpay-billing-address>
+        <!-- BUTTON SECTION -->
+        <div class="cx-checkout-btns row justify-content-end mb-3">
+          <div class="col-md-12 col-lg-6">
+            <button
+              class="btn btn-block btn-primary"
+              (click)="selectApmPaymentDetails()"
+              [disabled]="(submitting$|async) || (!sameAsShippingAddress$ && this.billingAddressForm.invalid) || processing"
+            >
+              {{ 'common.continue' | cxTranslate }}
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="cx-spinner">
+        <cx-spinner></cx-spinner>
+      </div>
+    </ng-template>
+  </div>
+
+</ng-container>

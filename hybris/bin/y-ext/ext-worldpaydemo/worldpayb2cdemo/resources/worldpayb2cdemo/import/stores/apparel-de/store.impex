@@ -1,0 +1,12 @@
+$currencies = EUR, CHF
+$storeUid = apparel-de
+
+INSERT_UPDATE ProductTaxCode ; productCode[unique = true] ; taxCode ; taxArea[unique = true]
+                             ; premium-gross              ; FR000000; CHF
+                             ; premium-net                ; FR000000; CHF
+                             ; standard-gross             ; FR000000; CHF
+                             ; standard-net               ; FR000000; CHF
+
+# Base Store
+INSERT_UPDATE BaseStore ; uid[unique = true] ; currencies(isocode)
+                        ; $storeUid          ; $currencies

@@ -8,16 +8,25 @@
 </form>
 
 <script type="text/javascript">
-    var $ = window.parent.$;
     var ACC = window.parent.ACC;
+    const parent = window.parent.document;
+    const iframe = parent.querySelector('#DDCIframe').contentWindow.document;
 
-    $('.submit_cseDetails').on('click', function() {
-        document.getElementById('cardNumber').value = $('#number').val();
+    const submit_cseDetails = parent.querySelector('.submit_cseDetails')
+
+    if (submit_cseDetails) {
+      submit_cseDetails.addEventListener('click', function() {
+        iframe.querySelector('#collectionForm #cardNumber').value = parent.querySelector('#number')
         ACC.worldpayCSE.encryptCardDetails();
-    });
+      });
+    }
 
-    $('.btn-place-order').on('click', function() {
-        document.getElementById('cardNumber').value = $('#number').val();
-        document.querySelector("#collectionform").submit();
-    });
+    const btn_place_order = parent.querySelector('.btn-place-order');
+
+    if (btn_place_order) {
+      btn_place_order.addEventListener('click', function() {
+        iframe.querySelector('#collectionForm #cardNumber').value = parent.querySelector('#number')
+        iframe.querySelector("#collectionform").submit();
+      });
+    }
 </script>
