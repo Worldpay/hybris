@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="classpath:/worldpayb2cdemo/integration/hot-folder-bin-range-spring.xml"/>
+
+    <bean id="worldpayb2cdemoSampleDataEventListener" parent="abstractGenericAddOnSampleDataEventListener">
+        <property name="extensionName" value="worldpayb2cdemo"/>
+    </bean>
+
+    <bean id="worldpayb2cdemoCoreDataImportedEventListener" parent="abstractCoreDataImportedEventListener">
+        <property name="supportedChannels">
+            <list value-type="de.hybris.platform.commerceservices.enums.SiteChannel">
+                <value>B2C</value>
+                <value>B2B</value>
+            </list>
+        </property>
+        <property name="addonExtensionMetadata">
+            <bean class="de.hybris.platform.addonsupport.data.AddonExtensionMetadata">
+                <property name="suffixChannel" value="false"/>
+                <property name="baseExtensionName" value="worldpayb2cdemo"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="worldpayBinRangeDao" class="com.worldpay.dao.impl.DefaultWorldpayBinRangeDao">
+        <property name="flexibleSearchService" ref="flexibleSearchService"/>
+        <property name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <bean id="worldpayBinRangeService" class="com.worldpay.service.impl.DefaultWorldpayBinRangeService">
+        <property name="worldpayBinRangeDao" ref="worldpayBinRangeDao"/>
+        <property name="worldpayBinRangeStrategy" ref="worldpayBinRangeStrategy"/>
+    </bean>
+
+    <bean id="worldpayBinRangeStrategy" class="com.worldpay.strategy.impl.GetFirstWorldpayBinRangeStrategy"/>
+
+    <bean id="creditCardPaymentInfoWorldpayBinRangeHandler"
+          class="com.worldpay.attributehandlers.CreditCardPaymentInfoWorldpayBinRangeHandler">
+        <constructor-arg name="worldpayBinRangeService" ref="worldpayBinRangeService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+    </bean>
+
+    <alias name="defaultWorldpayDirectOrderFacadeDemo" alias="worldpayDirectOrderFacade"/>
+    <bean id="defaultWorldpayDirectOrderFacadeDemo" class="com.worldpay.facades.DefaultWorldpayDirectOrderFacadeDemo">
+        <constructor-arg name="ipLookupService" ref="ipLookupService"/>
+        <constructor-arg name="weatherLookupService" ref="weatherLookupService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="directOrderFacade" ref="defaultWorldpayDirectOrderFacade"/>
+    </bean>
+
+    <bean id="worldpayBinRangeConverter" class="com.worldpay.converters.WorldpayBinRangeConverter"/>
+
+    <bean id="worldpayBinRangeFacade" class="com.worldpay.facades.impl.DefaultWorldpayBinRangeFacade">
+        <property name="worldpayBinRangeService" ref="worldpayBinRangeService"/>
+        <property name="worldpayBinRangeConverter" ref="worldpayBinRangeConverter"/>
+    </bean>
+
+    <bean id="worldpayDemoRestTemplate" class="org.springframework.web.client.RestTemplate"/>
+
+    <bean id="weatherLookupService" class="com.worldpay.service.impl.DefaultWeatherLookupService">
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="restTemplate" ref="worldpayDemoRestTemplate"/>
+    </bean>
+
+    <bean id="ipLookupService" class="com.worldpay.service.impl.DefaultIPLookupService">
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="restTemplate" ref="worldpayDemoRestTemplate"/>
+    </bean>
+
+    <alias name="mockAddShippingTrackingInfoToConsignmentStrategy"
+           alias="addShippingTrackingInfoToConsignmentStrategy"/>
+    <bean id="mockAddShippingTrackingInfoToConsignmentStrategy"
+          class="com.worldpay.strategy.impl.MockAddShippingTrackingInfoToConsignmentStrategy">
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
+</beans>

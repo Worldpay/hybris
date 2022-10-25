@@ -70,13 +70,11 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String CARD_EXPIRY_MONTH = "cardExpiryMonth";
     private static final String CARD_EXPIRY_YEAR = "cardExpiryYear";
     private static final String CARD_HOLDER_NAME = "cardHolderName";
-    private static final String CARD_DETAILS_NUMBER = "cardDetailsNumber";
     private static final String CARD_DETAILS_EXPIRY_MONTH = "cardDetailsExpiryMonth";
     private static final String CARD_DETAILS_EXPIRY_YEAR = "cardDetailsExpiryYear";
     private static final String CARD_DETAILS_HOLDER_NAME = "cardDetailsHolderName";
     private static final Date CREATION_TIME = Date.from(Instant.now());
     private static final String ORDER_CODE = "orderCode";
-    private static final Double TOTAL_PRICE = Double.valueOf("100.0");
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String TOKEN_REFERENCE = "tokenReference";
     private static final String APM_CODE = "apmCode";
@@ -772,6 +770,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Test
     public void createPaymentInfoApplePay_ShouldCreateApplePayPaymentInfoAndSetItAsPaymentInfoOnTheCart() {
         when(modelServiceMock.create(ApplePayPaymentInfoModel.class)).thenReturn(applePayPaymentInfoModelMock);
+        when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(PaymentType.APPLEPAYSSL.getMethodCode())).thenReturn(worldpayAPMConfigurationModelMock);
 
         final ApplePayPaymentInfoModel result = (ApplePayPaymentInfoModel) testObj.createPaymentInfoApplePay(cartModelMock, applePayAdditionalAuthInfoMock);
 
@@ -781,6 +780,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(applePayPaymentInfoModelMock).setCode(startsWith(ORDER_CODE));
         verify(applePayPaymentInfoModelMock).setTransactionId(TRANSACTION_ID);
         verify(applePayPaymentInfoModelMock).setVersion(VERSION);
+        verify(applePayPaymentInfoModelMock).setApmConfiguration(worldpayAPMConfigurationModelMock);
         verify(cartModelMock).setPaymentInfo(applePayPaymentInfoModelMock);
         verify(modelServiceMock).save(cartModelMock);
         verify(modelServiceMock).save(applePayPaymentInfoModelMock);

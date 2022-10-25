@@ -1,0 +1,12 @@
+INSERT_UPDATE IntegrationObject; code[unique = true]                 ; integrationType(code)
+                               ; NotifyUnprocessedOrderModifications ; INBOUND
+
+INSERT_UPDATE IntegrationObjectItem; integrationObject(code)[unique = true]; code[unique = true]                        ; type(code)                                 ; root[default = false]
+                                   ; NotifyUnprocessedOrderModifications   ; NotifyUnprocessedOrderModificationsCronJob ; NotifyUnprocessedOrderModificationsCronJob ; true ;
+
+INSERT_UPDATE IntegrationObjectItemAttribute; integrationObjectItem(integrationObject(code), code)[unique = true]            ; attributeName[unique = true]; attributeDescriptor(enclosingType(code), qualifier)              ; returnIntegrationObjectItem(integrationObject(code), code); unique[default = false]; autoCreate[default = false]
+                                            ; NotifyUnprocessedOrderModifications:NotifyUnprocessedOrderModificationsCronJob ; unprocessedTimeInDays       ; NotifyUnprocessedOrderModificationsCronJob:unprocessedTimeInDays ;                                                           ;                        ;
+                                            ; NotifyUnprocessedOrderModifications:NotifyUnprocessedOrderModificationsCronJob ; code                        ; NotifyUnprocessedOrderModificationsCronJob:code                  ;                                                           ; true                   ;
+
+INSERT_UPDATE InboundChannelConfiguration; integrationObject(code)[unique = true]; authenticationType(code)
+                                         ; NotifyUnprocessedOrderModifications                       ; BASIC

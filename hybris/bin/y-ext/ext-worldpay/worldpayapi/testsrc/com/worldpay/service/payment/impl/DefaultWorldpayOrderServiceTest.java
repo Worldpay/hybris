@@ -14,6 +14,7 @@ import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.payment.WorldpayKlarnaService;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
@@ -23,6 +24,7 @@ import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import de.hybris.platform.site.BaseSiteService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,8 +48,6 @@ import static org.mockito.Mockito.when;
 public class DefaultWorldpayOrderServiceTest {
 
     private static final double AMOUNT = 19.3;
-    private static final String KLARNA_CHECKOUT_URL = "klarnaCheckoutURL";
-    private static final String KLARNA_CONFIRMATION_URL = "klarnaConfirmationURL";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String ORDER_DESCRIPTION = "orderDescription";
     private static final String GBP = "GBP";
@@ -84,6 +84,8 @@ public class DefaultWorldpayOrderServiceTest {
     @Mock
     private CommerceCheckoutService commerceCheckoutServiceMock;
     @Mock
+    private BaseSiteService baseSiteServiceMock;
+    @Mock
     private RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategyMock;
     @Mock
     Converter<com.worldpay.data.applepay.Header, Header> internalHeaderConverter;
@@ -101,6 +103,8 @@ public class DefaultWorldpayOrderServiceTest {
     private CartModel cartMock;
     @Mock
     private LanguageModel languageMock;
+    @Mock
+    private BaseSiteModel currentBaseSiteMock;
     @Mock
     private Header internalHeaderMock;
 
@@ -238,6 +242,32 @@ public class DefaultWorldpayOrderServiceTest {
         assertThat(result.getFailureURL()).isEqualTo(FAILURE_URL);
         assertThat(result.getCancelURL()).isEqualTo(CANCEL_URL);
         assertThat(result.getPendingURL()).isEqualTo(PENDING_URL);
+    }
+
+    @Test
+    public void createKlarnaPayment_shouldCreateKlarnaPaymentWithBaseSiteDefaultLanguage_WhenLanguageIsNull() throws WorldpayConfigurationException {
+
+        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
+        when(baseSiteServiceMock.getCurrentBaseSite().getDefaultLanguage()).thenReturn(languageMock);
+
+        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
+        when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
+        when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
+        when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
+
+        final KlarnaPayment result = (KlarnaPayment) testObj.createKlarnaPayment(COUNTRY_CODE, null, EXTRA_DATA, KLARNA_V2_SSL);
+
+        verify(commonI18NServiceMock)
+            .getLocaleForLanguage(baseSiteServiceMock.getCurrentBaseSite().getDefaultLanguage());
+
+        assertThat(result.getPaymentType()).isEqualTo(PaymentType.KLARNAV2SSL.getMethodCode());
+        assertThat(result.getShopperCountryCode()).isEqualTo(COUNTRY_CODE);
+        assertThat(result.getLocale()).isEqualTo(LOCALE);
+        assertThat(result.getSuccessURL()).isEqualTo(SUCCESS_URL);
+        assertThat(result.getFailureURL()).isEqualTo(FAILURE_URL);
+        assertThat(result.getCancelURL()).isEqualTo(CANCEL_URL);
+        assertThat(result.getPendingURL()).isEqualTo(PENDING_URL);
+
     }
 
     @Test(expected = WorldpayConfigurationException.class)
