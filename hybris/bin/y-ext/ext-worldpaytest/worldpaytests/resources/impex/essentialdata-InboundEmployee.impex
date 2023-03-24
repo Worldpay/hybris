@@ -1,0 +1,15 @@
+INSERT_UPDATE IntegrationObject; code[unique = true]; integrationType(code)
+                               ; InboundEmployee    ; INBOUND
+
+INSERT_UPDATE IntegrationObjectItem; integrationObject(code)[unique = true]; code[unique = true]; type(code); root[default = false]
+                                   ; InboundEmployee                       ; Employee           ; Employee  ; true ;
+
+INSERT_UPDATE IntegrationObjectItemAttribute; integrationObjectItem(integrationObject(code), code)[unique = true]; attributeName[unique = true]; attributeDescriptor(enclosingType(code), qualifier); returnIntegrationObjectItem(integrationObject(code), code); unique[default = false]; autoCreate[default = false]
+                                            ; InboundEmployee:Employee                                           ; loginDisabled               ; Employee:loginDisabled                             ;                                                           ;                        ;
+                                            ; InboundEmployee:Employee                                           ; encodedPassword             ; Employee:encodedPassword                           ;                                                           ;                        ;
+                                            ; InboundEmployee:Employee                                           ; passwordEncoding            ; Employee:passwordEncoding                          ;                                                           ;                        ;
+                                            ; InboundEmployee:Employee                                           ; backOfficeLoginDisabled     ; Employee:backOfficeLoginDisabled                   ;                                                           ;                        ;
+                                            ; InboundEmployee:Employee                                           ; uid                         ; Employee:uid                                       ;                                                           ; true                   ;
+
+INSERT_UPDATE InboundChannelConfiguration; integrationObject(code)[unique = true]; authenticationType(code)
+                                         ; InboundEmployee                       ; BASIC

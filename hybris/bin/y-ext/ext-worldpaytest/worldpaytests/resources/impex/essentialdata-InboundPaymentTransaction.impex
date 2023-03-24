@@ -1,0 +1,55 @@
+INSERT_UPDATE IntegrationObject; code[unique = true]; integrationType(code)
+                               ; InboundPaymentTransaction; INBOUND
+
+INSERT_UPDATE IntegrationObjectItem; integrationObject(code)[unique = true]; code[unique = true]; type(code); root[default = false]; itemTypeMatch(code)
+                                   ; InboundPaymentTransaction	; WorldpayFraudSight       	; WorldpayFraudSight       	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; PaymentTransaction       	; PaymentTransaction       	; true	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; PaymentInfo              	; PaymentInfo              	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; WorldpayRiskScore        	; WorldpayRiskScore        	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; PaymentTransactionEntry  	; PaymentTransactionEntry  	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; Currency                 	; Currency                 	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; WorldpayAavResponse      	; WorldpayAavResponse      	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; WorldpayAPMConfiguration 	; WorldpayAPMConfiguration 	; 	; ALL_SUB_AND_SUPER_TYPES	;
+                                   ; InboundPaymentTransaction	; PaymentTransactionType   	; PaymentTransactionType   	; 	; ALL_SUBTYPES           	;
+                                   ; InboundPaymentTransaction	; WorldpayBankConfiguration	; WorldpayBankConfiguration	; 	; ALL_SUB_AND_SUPER_TYPES	;
+
+INSERT_UPDATE IntegrationObjectItemAttribute; integrationObjectItem(integrationObject(code), code)[unique = true]; attributeName[unique = true]; attributeDescriptor(enclosingType(code), qualifier); returnIntegrationObjectItem(integrationObject(code), code); unique[default = false]; autoCreate[default = false]
+                                            ; InboundPaymentTransaction:WorldpayFraudSight       	; score                      	; WorldpayFraudSight:score                       	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayFraudSight       	; reasonCodes                	; WorldpayFraudSight:reasonCodes                 	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayFraudSight       	; id                         	; WorldpayFraudSight:id                          	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:WorldpayFraudSight       	; message                    	; WorldpayFraudSight:message                     	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; riskScore                  	; PaymentTransaction:riskScore                   	; InboundPaymentTransaction:WorldpayRiskScore        	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; info                       	; PaymentTransaction:info                        	; InboundPaymentTransaction:PaymentInfo              	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; currency                   	; PaymentTransaction:currency                    	; InboundPaymentTransaction:Currency                 	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; fraudSight                 	; PaymentTransaction:fraudSight                  	; InboundPaymentTransaction:WorldpayFraudSight       	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; code                       	; PaymentTransaction:code                        	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; paymentProvider            	; PaymentTransaction:paymentProvider             	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; entries                    	; PaymentTransaction:entries                     	; InboundPaymentTransaction:PaymentTransactionEntry  	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransaction       	; worldpayBank               	; PaymentTransaction:worldpayBank                	; InboundPaymentTransaction:WorldpayBankConfiguration	; 	;
+                                            ; InboundPaymentTransaction:PaymentInfo              	; code                       	; PaymentInfo:code                               	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:PaymentInfo              	; paymentType                	; PaymentInfo:paymentType                        	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayRiskScore        	; finalScore                 	; WorldpayRiskScore:finalScore                   	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayRiskScore        	; value                      	; WorldpayRiskScore:value                        	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayRiskScore        	; code                       	; WorldpayRiskScore:code                         	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; aavResponse                	; PaymentTransactionEntry:aavResponse            	; InboundPaymentTransaction:WorldpayAavResponse      	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; transactionStatus          	; PaymentTransactionEntry:transactionStatus      	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; paymentTransaction         	; PaymentTransactionEntry:paymentTransaction     	; InboundPaymentTransaction:PaymentTransaction       	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; code                       	; PaymentTransactionEntry:code                   	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; type                       	; PaymentTransactionEntry:type                   	; InboundPaymentTransaction:PaymentTransactionType   	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; currency                   	; PaymentTransactionEntry:currency               	; InboundPaymentTransaction:Currency                 	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; amount                     	; PaymentTransactionEntry:amount                 	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:PaymentTransactionEntry  	; pending                    	; PaymentTransactionEntry:pending                	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:Currency                 	; isocode                    	; Currency:isocode                               	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:WorldpayAavResponse      	; aavCardholderNameResultCode	; WorldpayAavResponse:aavCardholderNameResultCode	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayAavResponse      	; aavPostcodeResultCode      	; WorldpayAavResponse:aavPostcodeResultCode      	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayAavResponse      	; aavTelephoneResultCode     	; WorldpayAavResponse:aavTelephoneResultCode     	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayAavResponse      	; code                       	; WorldpayAavResponse:code                       	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:WorldpayAavResponse      	; aavEmailResultCode         	; WorldpayAavResponse:aavEmailResultCode         	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayAavResponse      	; aavAddressResultCode       	; WorldpayAavResponse:aavAddressResultCode       	;                                                    	; 	;
+                                            ; InboundPaymentTransaction:WorldpayAPMConfiguration 	; code                       	; WorldpayAPMConfiguration:code                  	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:PaymentTransactionType   	; code                       	; PaymentTransactionType:code                    	;                                                    	; true	;
+                                            ; InboundPaymentTransaction:WorldpayBankConfiguration	; apm                        	; WorldpayBankConfiguration:apm                  	; InboundPaymentTransaction:WorldpayAPMConfiguration 	; 	;
+                                            ; InboundPaymentTransaction:WorldpayBankConfiguration	; code                       	; WorldpayBankConfiguration:code                 	;                                                    	; true	;
+
+INSERT_UPDATE InboundChannelConfiguration; integrationObject(code)[unique = true]; authenticationType(code)
+                                         ; InboundPaymentTransaction             ; BASIC
