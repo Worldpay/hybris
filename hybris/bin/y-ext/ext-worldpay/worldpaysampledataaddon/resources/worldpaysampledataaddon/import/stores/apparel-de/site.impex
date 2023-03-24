@@ -76,7 +76,7 @@ INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]          
 
 
 INSERT_UPDATE WorldpayApplePayConfiguration; identifier[unique = true]; supportedNetworks(code)                        ; countryCode; merchantCapabilities(code)                              ; merchantId              ; merchantName
-                                           ; $siteUid-applePayConfig  ; amex, discover, jcb, maestro, masterCard, visa ; ES         ; supportsCredit, supportsDebit, supports3DS, supportsEMV ; merchant.com.merchant2ecom.spartacus ; worldpay merchant2ecom
+                                           ; $siteUid-applePayConfig  ; amex, discover, jcb, maestro, masterCard, visa ; ES         ; supportsCredit, supportsDebit, supports3DS, supportsEMV ; merchant.MERCHANT2ECOM ; worldpay merchant2ecom
 
 INSERT_UPDATE WorldpayGooglePayConfiguration; identifier[unique = true]; merchantId       ; merchantName     ; environment(code); cardType; gatewayMerchantId           ; allowedCardNetworks(code)             ; allowedAuthMethods(code)
                                             ; $siteUid-googlePayConfig ; $webMerchantCode ; $webMerchantCode ; TEST             ; CARD    ; $googlePayGatewayMerchantId ; AMEX, DISCOVER, JCB, MASTERCARD, VISA ; PAN_ONLY

@@ -34,6 +34,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
     private static final String IN_PROCESS_AUTHORISED = "IN_PROCESS_AUTHORISED";
     private static final String NO_TOKEN = "NoToken";
     private static final String TOKEN_SELECTED_TYPE_PAYPAL = "Paypal";
+    public static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
 
     protected final PaymentServiceMarshaller paymentServiceMarshaller;
 
@@ -129,6 +130,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
             .build();
         populateAavFields(responseForm, payment);
         populateFraudSight(responseForm, payment);
+        populateGuaranteedPayments(responseForm, payment);
 
         return payment;
     }
@@ -152,6 +154,19 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
             fraudSight.setReasonCodes(reasonCodes);
 
             payment.setFraudSight(fraudSight);
+        }
+    }
+
+    private void populateGuaranteedPayments(final ResponseForm responseForm, final Payment payment) {
+        if (responseForm.isUseGuaranteedPayments()) {
+            final RiskScore riskScore = new RiskScore();
+            riskScore.setId(UUID.randomUUID().toString());
+            riskScore.setMessage(responseForm.getGuaranteedPaymentsMessage());
+            riskScore.setFinalScore(String.valueOf(responseForm.getGuaranteedPaymentsScore()));
+            riskScore.setProvider(GUARANTEED_PAYMENTS);
+            riskScore.setTriggeredRules(responseForm.getGuaranteedPaymentsTriggeredRules());
+
+            payment.setRiskScore(riskScore);
         }
     }
 

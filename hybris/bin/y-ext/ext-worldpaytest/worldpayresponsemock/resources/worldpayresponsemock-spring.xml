@@ -29,7 +29,9 @@
         <constructor-arg name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
     </bean>
     <bean id="worldpayTokenCreateResponseBuilder"
-          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder"/>
+          class="com.worldpay.worldpayresponsemock.responses.impl.DefaultWorldpayTokenCreateResponseBuilder">
+        <constructor-arg ref="cardBrandFactory" name="cardBrandFactory"/>
+    </bean>
 
     <bean id="worldpayRestTemplate" class="org.springframework.web.client.RestTemplate"/>
 
@@ -184,6 +186,22 @@
         <value>Irregularities in cardholder-entered information</value>
         <value>High risk email</value>
         <value>FRAUD SUSPICION</value>
+    </util:set>
+
+    <util:set id="guaranteedPaymentsMessages">
+        <value>accept</value>
+        <value>reject</value>
+        <value>hold</value>
+        <value>challenge</value>
+        <value>unavailable</value>
+    </util:set>
+
+    <util:set id="guaranteedPaymentsTriggeredRules">
+        <value>Rule_accept</value>
+        <value>Rule_reject</value>
+        <value>Rule_hold</value>
+        <value>N/A</value>
+        <value>Rule_challenge</value>
     </util:set>
 
 </beans>

@@ -57,6 +57,8 @@ public class DefaultWorldpayApplePayPaymentCheckoutFacade implements WorldpayApp
         addressData.setPostalCode(billingContact.getPostalCode());
         addressData.setCountry(i18NFacade.getCountryForIsocode(StringUtils.upperCase(billingContact.getCountryCode())));
         addressData.setEmail(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail());
+        addressData.setTown(billingContact.getLocality());
+
         setRegion(addressData, billingContact);
 
         userFacade.addAddress(addressData);

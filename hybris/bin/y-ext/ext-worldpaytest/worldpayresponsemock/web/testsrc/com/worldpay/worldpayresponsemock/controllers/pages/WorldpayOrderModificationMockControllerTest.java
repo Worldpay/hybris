@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -57,6 +58,8 @@ public class WorldpayOrderModificationMockControllerTest {
     private static final String RESPONSE_FORM = "responseForm";
     private static final String FRAUD_SIGHT_MESSAGES = "fraudSightMessages";
     private static final String FRAUD_SIGHT_REASON_CODES = "fraudSightReasonCodes";
+    private static final String GUARANTEED_PAYMENTS_MESSAGES = "guaranteedPaymentsMessages";
+    private static final String GUARANTEED_PAYMENTS_REASON_CODES = "guaranteedPaymentsTriggeredRules";
 
     @InjectMocks
     private WorldpayOrderModificationMockController testObj = new WorldpayOrderModificationMockController();
@@ -93,14 +96,20 @@ public class WorldpayOrderModificationMockControllerTest {
     private Set<String> fraudSightReasonCodesMock;
     @Mock
     private WorldpayMockConnector worldpayMockConnectorMock;
+    @Mock
+    private Set<String> guaranteedPaymentsMessagesMock;
+    @Mock
+    private Set<String> guaranteedPaymentsTriggeredRulesMock;
 
     private Set<String> merchantSet;
 
     @Before
     public void setUp() throws WorldpayException {
-        Whitebox.setInternalState(testObj, "fraudSightMessages", fraudSightMessagesMock);
-        Whitebox.setInternalState(testObj, "fraudSightReasonCodes", fraudSightReasonCodesMock);
-        Whitebox.setInternalState(testObj, "possibleEvents", possibleEventsMock);
+        Whitebox.setInternalState(testObj, FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
+        Whitebox.setInternalState(testObj, FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
+        Whitebox.setInternalState(testObj, POSSIBLE_EVENTS, possibleEventsMock);
+        Whitebox.setInternalState(testObj,GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessagesMock);
+        Whitebox.setInternalState(testObj,GUARANTEED_PAYMENTS_REASON_CODES, guaranteedPaymentsTriggeredRulesMock);
 
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(iso8583ResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
@@ -165,6 +174,8 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(modelMock).put(MERCHANTS, merchantSet);
         verify(modelMock).put(FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
         verify(modelMock).put(FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
+        verify(modelMock).put(GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessagesMock);
+        verify(modelMock).put(GUARANTEED_PAYMENTS_REASON_CODES, guaranteedPaymentsTriggeredRulesMock);
     }
 
     @Test

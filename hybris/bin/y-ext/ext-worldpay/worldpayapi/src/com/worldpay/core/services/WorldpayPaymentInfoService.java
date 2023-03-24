@@ -151,4 +151,14 @@ public interface WorldpayPaymentInfoService {
      * @return the cloned address model
      */
     AddressModel cloneAndSetBillingAddressFromCart(final CartModel cartModel, final PaymentInfoModel paymentInfoModel);
+
+    /**
+     * Create an APM payment info for cart
+     *
+     * @param cartModel     the cart model
+     * @param apmCode       the APM code
+     * @param apmName       the APM name
+     * @return              the payment info for the cart
+     */
+    PaymentInfoModel createAPMPaymentInfo (final CartModel cartModel, final String apmCode, final String apmName);
 }

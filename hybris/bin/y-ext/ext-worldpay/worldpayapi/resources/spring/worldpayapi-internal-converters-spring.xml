@@ -462,6 +462,7 @@
           class="com.worldpay.converters.populators.internal.model.token.CardDetailsPopulator">
         <constructor-arg ref="internalAddressConverter" name="internalAddressConverter"/>
         <constructor-arg ref="internalDateConverter" name="internalDateConverter"/>
+        <constructor-arg ref="cardBrandFactory" name="cardBrandFactory"/>
     </bean>
 
     <alias name="defaultCardDetailsConverter" alias="internalCardDetailsConverter"/>
@@ -531,16 +532,23 @@
         <constructor-arg name="internalSessionConverter" ref="internalSessionConverter"/>
     </bean>
 
+    <alias name="defaultRiskEvaluatorConvertersWrapper" alias="riskEvaluatorConvertersWrapper"/>
+    <bean id="defaultRiskEvaluatorConvertersWrapper"
+          class="com.worldpay.converters.populators.internal.model.RiskEvaluatorConvertersWrapper">
+        <constructor-arg name="internalFraudSightDataConverter" ref="internalFraudSightDataConverter"/>
+        <constructor-arg name="internalGuaranteedPaymentsDataConverter" ref="internalGuaranteedPaymentsDataConverter"/>
+    </bean>
+
     <alias name="defaultInternalOrderPopulator" alias="internalOrderPopulator"/>
     <bean id="defaultInternalOrderPopulator" class="com.worldpay.converters.populators.internal.model.OrderPopulator">
-        <constructor-arg name="internalBranchSpecificExtensionConverter"
-                         ref="internalBranchSpecificExtensionConverter"/>
+        <constructor-arg name="internalBranchSpecificExtensionConverter" ref="internalBranchSpecificExtensionConverter"/>
         <constructor-arg name="internalTokenRequestConverter" ref="internalTokenRequestConverter"/>
         <constructor-arg name="internalOrderLinesConverter" ref="internalOrderLinesConverter"/>
-        <constructor-arg name="internalFraudSightDataConverter" ref="internalFraudSightDataConverter"/>
+        <constructor-arg name="riskEvaluatorConvertersWrapper" ref="riskEvaluatorConvertersWrapper"/>
         <constructor-arg name="paymentOrderConvertersWrapper" ref="paymentOrderConvertersWrapper"/>
         <constructor-arg name="threeDS2OrderConvertersWrapper" ref="threeDS2OrderConvertersWrapper"/>
         <constructor-arg name="basicOrderConvertersWrapper" ref="basicOrderConvertersWrapper"/>
+
     </bean>
 
     <alias name="defaultInternalOrderConverter" alias="internalOrderConverter"/>
@@ -745,6 +753,83 @@
         <property name="populators">
             <list>
                 <ref bean="internalDateReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultGuaranteedPaymentsDataConverter" alias="internalGuaranteedPaymentsDataConverter"/>
+    <bean id="defaultGuaranteedPaymentsDataConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.GuaranteedPaymentsData"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalGuaranteedPaymentsDataPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultGuaranteedPaymentsDataPopulator" alias="internalGuaranteedPaymentsDataPopulator"/>
+    <bean id="defaultGuaranteedPaymentsDataPopulator"
+          class="com.worldpay.converters.populators.internal.model.GuaranteedPaymentsDataPopulator">
+        <constructor-arg name="internalPurchaseDiscountConverter" ref="internalPurchaseDiscountConverter"/>
+        <constructor-arg name="internalMembershipConverter" ref="internalMembershipConverter"/>
+        <constructor-arg name="internalProductConverter" ref="internalProductConverter"/>
+        <constructor-arg name="internalUserAccountConverter" ref="internalUserAccountConverter"/>
+    </bean>
+
+    <alias name="defaultInternalPurchaseDiscountPopulator" alias="internalPurchaseDiscountPopulator"/>
+    <bean id="defaultInternalPurchaseDiscountPopulator"
+          class="com.worldpay.converters.populators.internal.model.PurchaseDiscountPopulator"/>
+
+    <alias name="defaultInternalPurchaseDiscountConverter" alias="internalPurchaseDiscountConverter"/>
+    <bean id="defaultInternalPurchaseDiscountConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PurchaseDiscount"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPurchaseDiscountPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultInternalMembershipPopulator" alias="internalMembershipPopulator"/>
+    <bean id="defaultInternalMembershipPopulator"
+          class="com.worldpay.converters.populators.internal.model.MembershipPopulator"/>
+
+    <alias name="defaultInternalMembershipConverter" alias="internalMembershipConverter"/>
+    <bean id="defaultInternalMembershipConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Membership"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalMembershipPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultInternalProductPopulator" alias="internalProductPopulator"/>
+    <bean id="defaultInternalProductPopulator"
+          class="com.worldpay.converters.populators.internal.model.ProductPopulator"/>
+
+    <alias name="defaultInternalProductConverter" alias="internalProductConverter"/>
+    <bean id="defaultInternalProductConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Product"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalProductPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultInternalUserAccountPopulator" alias="internalUserAccountPopulator"/>
+    <bean id="defaultInternalUserAccountPopulator"
+          class="com.worldpay.converters.populators.internal.model.UserAccountPopulator">
+        <constructor-arg name="internalDateConverter" ref="internalDateConverter"/>
+    </bean>
+
+    <alias name="defaultInternalUserAccountConverter" alias="internalUserAccountConverter"/>
+    <bean id="defaultInternalUserAccountConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.UserAccount"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalUserAccountPopulator"/>
             </list>
         </property>
     </bean>

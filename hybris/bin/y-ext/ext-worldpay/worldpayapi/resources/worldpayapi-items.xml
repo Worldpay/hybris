@@ -201,6 +201,14 @@
                     <persistence type="property"/>
                     <description>3DS Challenge session data</description>
                 </attribute>
+                <attribute qualifier="apmCode" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>APM code</description>
+                </attribute>
+                <attribute qualifier="apmName" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>APM name</description>
+                </attribute>
             </attributes>
         </itemtype>
 
@@ -555,7 +563,31 @@
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
+                <attribute qualifier="score" type="java.lang.Double">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property"/>
+                </attribute>
                 <attribute qualifier="extendedResponse" autocreate="true" type="java.lang.String">
+                    <modifiers read="true" write="true" search="true" optional="true"/>
+                    <persistence type="property">
+                        <columntype database="oracle">
+                            <value>CLOB</value>
+                        </columntype>
+                        <columntype database="sqlserver">
+                            <value>nvarchar(max)</value>
+                        </columntype>
+                        <columntype database="mysql">
+                            <value>text</value>
+                        </columntype>
+                        <columntype database="sap">
+                            <value>NCLOB</value>
+                        </columntype>
+                        <columntype>
+                            <value>HYBRIS.LONG_STRING</value>
+                        </columntype>
+                    </persistence>
+                </attribute>
+                <attribute qualifier="triggeredRules" autocreate="true" type="java.lang.String">
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property">
                         <columntype database="oracle">
@@ -953,6 +985,12 @@
                         <persistence type="property"/>
                         <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
                         <description>Enables the FraudSight</description>
+                    </attribute>
+                    <attribute qualifier="enableGP" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the Guaranteed Payments</description>
                     </attribute>
                     <attribute qualifier="enableLevel2" type="java.lang.Boolean">
                         <modifiers optional="false"/>

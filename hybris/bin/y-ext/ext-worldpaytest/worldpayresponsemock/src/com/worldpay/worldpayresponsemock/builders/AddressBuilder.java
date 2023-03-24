@@ -1,9 +1,6 @@
 package com.worldpay.worldpayresponsemock.builders;
 
-import com.worldpay.internal.model.Address;
-import com.worldpay.internal.model.Address1;
-import com.worldpay.internal.model.Address2;
-import com.worldpay.internal.model.Address3;
+import com.worldpay.internal.model.*;
 
 import java.util.List;
 
@@ -129,7 +126,10 @@ public final class AddressBuilder {
         address.setLastName(this.lastName);
         address.setPostalCode(this.postalCode);
         address.setCity(this.city);
-        address.setCountryCode(this.countryCode);
+
+        final CountryCode internalCountryCode = new CountryCode();
+        internalCountryCode.setvalue(this.countryCode);
+        address.setCountryCode(internalCountryCode);
         return address;
     }
 

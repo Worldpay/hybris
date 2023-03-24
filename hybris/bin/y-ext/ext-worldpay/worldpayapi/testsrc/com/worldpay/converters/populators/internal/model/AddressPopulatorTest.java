@@ -98,7 +98,7 @@ public class AddressPopulatorTest {
         assertThat(target.getPostalCode()).isEqualTo(POSTAL_CODE);
         assertThat(target.getCity()).isEqualTo(CITY);
         assertThat(target.getState()).isEqualTo(STATE);
-        assertThat(target.getCountryCode()).isEqualTo(COUNTRY_CODE);
+        assertThat(target.getCountryCode().getvalue()).isEqualTo(COUNTRY_CODE);
         assertThat(target.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3().size()).isEqualTo(TOTAL_OF_FIELDS);
         assertThat(target.getTelephoneNumber()).isEqualTo(TELEPHONE_NUMBER);
     }

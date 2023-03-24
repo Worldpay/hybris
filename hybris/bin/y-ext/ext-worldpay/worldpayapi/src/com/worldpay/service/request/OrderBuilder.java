@@ -37,6 +37,8 @@ public class OrderBuilder {
     private String deviceSession;
     private BranchSpecificExtension branchSpecificExtension;
     private String mandateType;
+    private GuaranteedPaymentsData guaranteedPaymentsData;
+    private String checkoutId;
 
     public OrderBuilder withOrderContent(String orderContent) {
         this.orderContent = orderContent;
@@ -148,16 +150,27 @@ public class OrderBuilder {
         return this;
     }
 
+    OrderBuilder whitGuaranteedPaymentsAttribute(final GuaranteedPaymentsData guaranteedPaymentsData) {
+        this.guaranteedPaymentsData = guaranteedPaymentsData;
+        return this;
+    }
+
+    OrderBuilder whitCheckoutId(final String checkoutId) {
+        this.checkoutId = checkoutId;
+        return this;
+    }
+
     public Order build() {
         final Order order = new Order();
         order.setOrderCode(orderInfo.getOrderCode());
         order.setDescription(orderInfo.getDescription());
         order.setAmount(orderInfo.getAmount());
+        order.setOrderChannel(orderInfo.getOrderChannel());
         order.setPaymentDetails(paymentDetails);
         order.setShopper(shopper);
         order.setShippingAddress(shippingAddress);
-
         order.setDynamicInteractionType(dynamicInteractionType);
+
         Optional.ofNullable(echoData).ifPresent(order::setEchoData);
         Optional.ofNullable(tokenRequest).ifPresent(order::setTokenRequest);
         Optional.ofNullable(orderLines).ifPresent(order::setOrderLines);
@@ -175,6 +188,8 @@ public class OrderBuilder {
         Optional.ofNullable(deviceSession).ifPresent(order::setDeviceSession);
         Optional.ofNullable(branchSpecificExtension).ifPresent(order::setBranchSpecificExtension);
         Optional.ofNullable(mandateType).ifPresent(order::setMandateType);
+        Optional.ofNullable(guaranteedPaymentsData).ifPresent(order::setGuaranteedPaymentsData);
+        Optional.ofNullable(checkoutId).ifPresent(order::setCheckoutId);
 
         return order;
     }

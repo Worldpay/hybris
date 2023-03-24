@@ -29,10 +29,10 @@
         </y:base>
     </context>
 
-    <context type="WorldpayRiskScore" component="base" merge-by="type" principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
+    <context type="WorldpayRiskScore" component="base" merge-by="type">
         <y:base>
             <y:labels>
-                <y:label>'value=' + value + ' finalScore=' + finalScore</y:label>
+                <y:label>(provider!=null ? 'provider=' +  provider  : '') + (message!=null ? ' message=' + message : '') + (finalScore!=null ? ' finalScore=' + finalScore : '') + (score!=null ? ' score=' +  score  : '')</y:label>
             </y:labels>
         </y:base>
     </context>
@@ -367,6 +367,9 @@
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.fs.section">
                         <editorArea:attribute qualifier="enableFS"/>
+                    </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.gp.section">
+                        <editorArea:attribute qualifier="enableGP"/>
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.level23Data.section">
                         <editorArea:attribute qualifier="enableLevel2"/>
