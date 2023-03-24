@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { Card } from '@spartacus/storefront';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -7,7 +7,9 @@ import { ReviewSubmitComponent } from '@spartacus/checkout/components';
 @Component({
   selector: 'y-worldpay-checkout-review-submit',
   templateUrl: './worldpay-checkout-review-submit.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./worldpay-checkout-review-submit.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None,
 })
 export class WorldpayCheckoutReviewSubmitComponent extends ReviewSubmitComponent {
 
@@ -61,7 +63,7 @@ export class WorldpayCheckoutReviewSubmitComponent extends ReviewSubmitComponent
       paymentDetailsTranslation =
         this.translation.translate(
           'paymentCard.apm', {
-            apm: paymentDetails.type
+            apm: paymentDetails.name
           }
         );
     }

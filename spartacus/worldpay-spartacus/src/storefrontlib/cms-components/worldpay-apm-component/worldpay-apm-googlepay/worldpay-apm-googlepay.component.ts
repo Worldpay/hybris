@@ -24,7 +24,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit, OnD
   public nativeWindow = this.winRef.nativeWindow;
   public sameAsShippingAddress$ = new BehaviorSubject<boolean>(true);
   private paymentsClient: any;
-  private drop = new Subject();
+  private drop = new Subject<void>();
 
   error: Observable<string> = of('');
 
@@ -118,6 +118,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit, OnD
 
   ngOnDestroy(): void {
     this.drop.next();
+    this.drop.complete();
   }
 
   private authorisePayment(): void {

@@ -71,11 +71,11 @@
             "alias": [
               "untilDestroyed"
             ],
-            "checkComplete": false,
+            "checkComplete": true,
             "checkDecorators": [
               "Component"
             ],
-            "checkDestroy": true
+            "checkDestroy": false
           }
         ],
         "rxjs/ban-observables": [

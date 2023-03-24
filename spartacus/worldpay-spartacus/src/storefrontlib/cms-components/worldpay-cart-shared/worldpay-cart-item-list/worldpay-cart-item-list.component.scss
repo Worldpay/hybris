@@ -65,8 +65,12 @@
 
 .cx-item-list-items {
   &.is-changed {
-    opacity: 0.7;
+    opacity: 1;
   }
+}
+
+cx-item-counter.readonly input {
+  background-color: transparent;
 }
 
 // ------------------------------------ MEDIA QUERIES ------------------------------------

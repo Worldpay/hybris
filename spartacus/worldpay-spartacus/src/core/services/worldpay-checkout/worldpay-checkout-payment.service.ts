@@ -6,6 +6,7 @@ import {
   getWorldpayCseToken,
   getWorldpayLoading,
   getWorldpayPaymentAddress,
+  getWorldpaySelectedAPM,
   getWorldpayThreeDsChallengeIframeUrl,
   getWorldpayThreeDsChallengeInfo,
   getWorldpayThreeDsDDCIframeUrl,
@@ -18,7 +19,7 @@ import { StateWithWorldpay } from '../../store/worldpay.state';
 import { take } from 'rxjs/operators';
 import { ThreeDsDDCInfo, ThreeDsInfo } from '../../connectors/worldpay.adapter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ApmPaymentDetails } from '../../interfaces';
+import { ApmData, ApmPaymentDetails } from '../../interfaces';
 import { CheckoutActions, CheckoutPaymentService, StateWithCheckout } from '@spartacus/checkout/core';
 import { Router } from '@angular/router';
 
@@ -139,9 +140,16 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService {
     );
   }
 
-  setApmPaymentDetails(paymentDetails: ApmPaymentDetails): Observable<PaymentDetails> {
+  setApmPaymentDetails(apmPaymentDetails: ApmPaymentDetails): Observable<PaymentDetails> {
+    const cartId = this.getCartId();
+    const userId = this.getUserId();
+
     this.checkoutStore.dispatch(
-      new CheckoutActions.CreatePaymentDetailsSuccess(paymentDetails as PaymentDetails)
+      new WorldpayActions.SetAPMPaymentInfo({
+        userId,
+        cartId,
+        apmPaymentDetails
+      })
     );
 
     return this.getPaymentDetails();
@@ -167,8 +175,17 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService {
     return userId;
   }
 
-  private getSerializedUrl(): string {
-    const parameters = `${this.router.serializeUrl(this.router.createUrlTree(['']))}`;
+  private getApm(): ApmData {
+    let apm: ApmData;
+    this.worldpayStore.pipe(select(getWorldpaySelectedAPM))
+      .pipe(take(1))
+      .subscribe(selectedAPM => apm = selectedAPM)
+      .unsubscribe();
+    return apm;
+  }
+
+  private getSerializedUrl(url, params): string {
+    const parameters = `${this.router.serializeUrl(this.router.createUrlTree([url], { queryParams: params }))}`;
     return parameters.length > 1 ? parameters : '/';
   }
 
@@ -177,16 +194,15 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService {
     cardNumber: string,
     jwt: string
   ): void {
-    const actionUrl = encodeURIComponent(ddcUrl);
-    const bin = encodeURIComponent(cardNumber);
-    const actionJwt = encodeURIComponent(jwt);
-    const context = this.getSerializedUrl();
+    const url = this.getSerializedUrl('worldpay-3ds-device-detection', {
+      action: ddcUrl,
+      bin: cardNumber,
+      jwt
+    });
 
     this.worldpayStore.dispatch(
       new WorldpayActions.SetWorldpayDDCIframeUrl(
-        this.sanitizer.bypassSecurityTrustResourceUrl(
-          `${context}worldpay-3ds-device-detection/${actionUrl}/${bin}/${actionJwt}`
-        )
+        this.sanitizer.bypassSecurityTrustResourceUrl(url)
       )
     );
   }
@@ -196,16 +212,15 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService {
     jwt: string,
     merchantData: string
   ): void {
-    const action = encodeURIComponent(challengeUrl);
-    const challengeJwt = encodeURIComponent(jwt);
-    const md = encodeURIComponent(merchantData);
-    const context = this.getSerializedUrl();
+    const url = this.getSerializedUrl('worldpay-3ds-challenge', {
+      action: challengeUrl,
+      md: merchantData,
+      jwt
+    });
 
     this.worldpayStore.dispatch(
       new WorldpayActions.SetWorldpayChallengeIframeUrl(
-        this.sanitizer.bypassSecurityTrustResourceUrl(
-          `${context}worldpay-3ds-challenge/${action}/${md}/${challengeJwt}`
-        )
+        this.sanitizer.bypassSecurityTrustResourceUrl(url)
       )
     );
   }

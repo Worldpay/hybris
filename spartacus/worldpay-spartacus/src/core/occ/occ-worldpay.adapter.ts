@@ -5,7 +5,7 @@ import { Address, CmsComponent, ConverterService, OccEndpointsService, Order, Pa
 import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayAdapter } from '../connectors/worldpay.adapter';
 import { map, pluck } from 'rxjs/operators';
 import { APM_NORMALIZER } from './converters';
-import { ApmData, ApmPaymentDetails, APMRedirectRequestBody, APMRedirectResponse, GooglePayMerchantConfiguration } from '../interfaces';
+import { ApmData, ApmPaymentDetails, APMRedirectRequestBody, APMRedirectResponse, GooglePayMerchantConfiguration, WorldpayApmPaymentInfo } from '../interfaces';
 import { PAYMENT_DETAILS_SERIALIZER } from '@spartacus/checkout/core';
 
 @Injectable()
@@ -341,4 +341,49 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
       {},
     );
   }
+
+  setAPMPaymentInfo(
+    userId: string,
+    cartId: string,
+    apmPaymentDetails: ApmPaymentDetails
+  ): Observable<any> {
+
+    const {
+      billingAddress,
+      code,
+      name,
+      shopperBankCode
+    } = apmPaymentDetails;
+
+    const body: WorldpayApmPaymentInfo = {
+      billingAddress,
+      apmName: shopperBankCode || name,
+      apmCode: code
+    };
+
+    const url = this.occEndpoints.buildUrl('setAPMPaymentInfo', {
+      urlParams: {
+        userId,
+        cartId,
+      },
+    });
+
+    return this.http.post<any>(
+      url,
+      body,
+      {}
+    );
+  }
+
+  isGuaranteedPaymentsEnabled(): Observable<boolean> {
+    const url = this.occEndpoints.buildUrl(
+      'isGuaranteedPaymentsEnabled'
+    );
+
+    return this.http.get<boolean>(
+      url,
+      {},
+    );
+  }
+
 }

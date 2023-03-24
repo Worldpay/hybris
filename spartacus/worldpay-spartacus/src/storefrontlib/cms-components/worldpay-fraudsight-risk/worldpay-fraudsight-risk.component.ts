@@ -71,5 +71,6 @@ export class WorldpayFraudsightRiskComponent implements OnInit, AfterViewInit, O
 
   ngOnDestroy(): void {
     this.drop.next();
+    this.drop.complete();
   }
 }

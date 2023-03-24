@@ -4,7 +4,7 @@ import { InjectionToken, Provider } from '@angular/core';
 import { ActionReducerMap } from '@ngrx/store';
 import { ApmData, PaymentMethod } from '../interfaces';
 
-export const initialState: WorldpayState = {
+export const initialStateWorldPay: WorldpayState = {
   publicKey: '',
   cvn: '',
   cseToken: '',
@@ -19,8 +19,8 @@ export const initialState: WorldpayState = {
   fraudSightEnabled: false,
 };
 
-export const reducer = (
-  state = initialState,
+export const reducerWorldpay = (
+  state = initialStateWorldPay,
   action: WorldpayActions.WorldpayAction
 ): WorldpayState => {
   switch (action.type) {
@@ -235,5 +235,5 @@ export const reducerToken: InjectionToken<ActionReducerMap<WorldpayState>> = new
 
 export const reducerProvider: Provider = {
   provide: reducerToken,
-  useFactory: reducer
+  useFactory: reducerWorldpay
 };

@@ -7,7 +7,7 @@ import { WindowRef } from '@spartacus/core';
   templateUrl: './worldpay-threeds-challenge-iframe-page.component.html'
 })
 export class WorldpayThreedsChallengeIframePageComponent
-  implements OnInit, AfterViewInit {
+implements OnInit, AfterViewInit {
   private readonly ACTION_ROUTE_PARAM: string = 'action';
   private readonly MD_ROUTE_PARAM: string = 'md';
   private readonly JWT_ROUTE_PARAM: string = 'jwt';
@@ -26,11 +26,10 @@ export class WorldpayThreedsChallengeIframePageComponent
 
   ngOnInit(): void {
     this.action = this.sanitizer.bypassSecurityTrustResourceUrl(
-      this.route.snapshot.paramMap.get(this.ACTION_ROUTE_PARAM)
+      this.route.snapshot.queryParams[this.ACTION_ROUTE_PARAM]
     );
-
-    this.md = this.route.snapshot.paramMap.get(this.MD_ROUTE_PARAM);
-    this.jwt = this.route.snapshot.paramMap.get(this.JWT_ROUTE_PARAM);
+    this.md = this.route.snapshot.queryParams[this.MD_ROUTE_PARAM];
+    this.jwt = this.route.snapshot.queryParams[this.JWT_ROUTE_PARAM];
   }
 
   ngAfterViewInit(): void {

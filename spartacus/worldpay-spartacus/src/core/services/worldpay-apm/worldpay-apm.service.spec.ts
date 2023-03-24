@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { WorldpayApmService } from './worldpay-apm.service';
 import { ActiveCartService, CmsService, ConverterService, UserIdService } from '@spartacus/core';
 import { Store, StoreModule } from '@ngrx/store';
-import { reducer } from '../../store/worldpay.reducer';
+import { reducerWorldpay } from '../../store/worldpay.reducer';
 import { WORLDPAY_FEATURE, WorldpayState } from '../../store/worldpay.state';
 import { of } from 'rxjs';
 import { GetAvailableApms, SetSelectedAPM } from '../../store/worldpay.action';
@@ -58,7 +58,7 @@ describe('WorldpayApmService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [StoreModule.forRoot({}), StoreModule.forFeature(WORLDPAY_FEATURE, reducer)],
+      imports: [StoreModule.forRoot({}), StoreModule.forFeature(WORLDPAY_FEATURE, reducerWorldpay)],
       providers: [
         {
           useClass: MockCmsService,

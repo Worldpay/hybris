@@ -2,11 +2,13 @@ import { ApplePayAuthorization, ApplePayPaymentRequest, ThreeDsDDCInfo, ThreeDsI
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { Address } from '@spartacus/core';
 import { ApmData, APMRedirectResponse } from '../interfaces';
+import { WORLDPAY_GUARANTEED_PAYMENTS_FEATURE_KEY, WorldpayGuaranteedState } from './worldpay-guaranteed-payments/worldpay-guaranteed-payments.state';
 
 export const WORLDPAY_FEATURE = 'Worldpay';
 
 export interface StateWithWorldpay {
   [WORLDPAY_FEATURE]: WorldpayState;
+  [WORLDPAY_GUARANTEED_PAYMENTS_FEATURE_KEY]: WorldpayGuaranteedState;
 }
 
 export interface WorldpayState {

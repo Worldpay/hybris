@@ -8,6 +8,7 @@ export const wordlpayOccConfig: OccConfig = {
         createWorldpayPaymentDetails: 'users/${userId}/carts/${cartId}/worldpaypaymentdetails',
         getPublicKey: 'worldpayapi/cse-public-key',
         setPaymentAddress: 'users/${userId}/carts/${cartId}/worldpaybillingaddress',
+        setAPMPaymentInfo: '/users/${userId}/carts/${cartId}/worldpayAPMPaymentInfo',
         getDDC3dsJwt: 'worldpayapi/ddc-3ds-jwt',
         initialPaymentRequest: 'users/${userId}/carts/${cartId}/place-order',
         getOrder: 'users/${userId}/orders/${code}?fields=DEFAULT,deliveryAddress(FULL),deliveryOrderGroups(FULL),consignments(FULL),paymentInfo(FULL)',
@@ -21,6 +22,9 @@ export const wordlpayOccConfig: OccConfig = {
         getAvailableApms: '/users/${userId}/carts/${cartId}/cms/components/availableapmcomponents',
         isFraudSightEnabled: 'worldpayapi/fraudsight/enabled',
         placeRedirectOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-redirect-order',
+
+        /* Guaranteed Payments */
+        isGuaranteedPaymentsEnabled: '/worldpayapi/guaranteedpayments/enabled',
       },
     },
   },
@@ -45,5 +49,7 @@ declare module '@spartacus/core' {
     requestApplePayPaymentRequest?: string | OccEndpoint;
     useExistingPaymentDetails?: string | OccEndpoint;
     validateApplePayMerchant?: string | OccEndpoint;
+    isGuaranteedPaymentsEnabled?: string | OccEndpoint;
+    setAPMPaymentInfo?: string | OccEndpoint;
   }
 }

@@ -521,6 +521,32 @@ describe('OccWorldpayAdapter', () => {
       });
     });
 
+    it('should set APM payment info', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.PayPal,
+        billingAddress: {
+          ...address
+        },
+        name: 'PayPal',
+      };
+
+      service.setAPMPaymentInfo(userId, cartId, apm).subscribe();
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'setAPMPaymentInfo' &&
+        req.body.billingAddress === apm.billingAddress &&
+        req.body.apmName === apm.name &&
+        req.body.apmCode === apm.code
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+
+      mockReq.flush({
+        apm
+      });
+    });
+
     it('should get available apms', () => {
       service.getAvailableApms(userId, cartId).subscribe();
 

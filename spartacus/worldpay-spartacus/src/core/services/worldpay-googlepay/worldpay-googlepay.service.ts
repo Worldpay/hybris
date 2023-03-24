@@ -3,8 +3,7 @@ import { StateWithWorldpay } from '../../store/worldpay.state';
 import { select, Store } from '@ngrx/store';
 import { combineLatest, Observable } from 'rxjs';
 import { getWorldpayGooglePayMerchantConfiguration } from '../../store/worldpay.selectors';
-import * as WorldpayActions from '../../store/worldpay.action';
-import { AuthoriseGooglePayPayment, GetGooglePayMerchantConfiguration } from '../../store/worldpay.action';
+import { AuthoriseGooglePayPayment, GetGooglePayMerchantConfiguration, AuthoriseGooglePayPaymentFail } from '../../store/worldpay.action';
 import { ActiveCartService, Cart, UserIdService } from '@spartacus/core';
 import { filter, take } from 'rxjs/operators';
 import { GooglePayMerchantConfiguration, GooglePayPaymentRequest } from '../../interfaces';
@@ -154,6 +153,6 @@ export class WorldpayGooglepayService {
   }
 
   canceledPaymentRequest(error): void {
-    this.worldpayStore.dispatch(new WorldpayActions.AuthoriseGooglePayPaymentFail(error));
+    this.worldpayStore.dispatch(new AuthoriseGooglePayPaymentFail(error));
   }
 }

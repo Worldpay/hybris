@@ -41,6 +41,7 @@ export class WorldpayApplepayComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.drop.next();
+    this.drop.complete();
   }
 
   placeApplePayOrder(): void {

@@ -4,7 +4,7 @@ import { WorldpayDdcIframePageComponent } from './worldpay-ddc-iframe-page/world
 
 const routes: Routes = [
   {
-    path: 'worldpay-3ds-device-detection/:action/:bin/:jwt',
+    path: 'worldpay-3ds-device-detection',
     component: WorldpayDdcIframePageComponent
   }
 ];
@@ -13,4 +13,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class WorldpayDdcIframeRoutingModule {}
+export class WorldpayDdcIframeRoutingModule {
+}

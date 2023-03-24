@@ -13,6 +13,7 @@ import { worldpayTranslations } from '../assets/worldpay-translations';
 import { WorldpayCheckoutReviewSubmitModule } from '../storefrontlib/cms-components/worldpay-checkout-review-submit/worldpay-checkout-review-submit.module';
 import { WorldpayFraudsightRiskModule } from '../storefrontlib/cms-components/worldpay-fraudsight-risk/worldpay-fraudsight-risk.module';
 import { WorldpayOrderConfirmationModule } from '../storefrontlib/cms-components/worldpay-order-confirmation/worldpay-order-confirmation.module';
+import { WorldpayOrderDetailShippingModule } from '../storefrontlib/cms-components/worldpay-order-detail-shipping/worldpay-order-detail-shipping.module';
 
 @NgModule({
   declarations: [],
@@ -29,6 +30,7 @@ import { WorldpayOrderConfirmationModule } from '../storefrontlib/cms-components
     WorldpayCheckoutReviewSubmitModule,
     Worldpay3dsChallengeIframeRoutingModule,
     WorldpayOrderConfirmationModule,
+    WorldpayOrderDetailShippingModule,
   ],
   providers: [
     provideConfig({

@@ -36,6 +36,8 @@ import static com.worldpay.service.model.payment.PaymentType.CSEDATA;
  */
 public class DefaultWorldpayOrderService implements WorldpayOrderService {
 
+    private static final String WEB = "WEB";
+
     protected final CommonI18NService commonI18NService;
     protected final WorldpayUrlService worldpayUrlService;
     protected final WorldpayKlarnaService worldpayKlarnaService;
@@ -110,6 +112,7 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
         basicOrderInfor.setAmount(amount);
         basicOrderInfor.setDescription(description);
         basicOrderInfor.setOrderCode(worldpayOrderCode);
+        basicOrderInfor.setOrderChannel(WEB);
         return basicOrderInfor;
     }
 

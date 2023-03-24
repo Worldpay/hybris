@@ -2,14 +2,7 @@ import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Address, Order, PaymentDetails } from '@spartacus/core';
 
-import {
-  ApplePayAuthorization,
-  ApplePayPaymentRequest,
-  PlaceOrderResponse,
-  ThreeDsDDCInfo,
-  WorldpayAdapter
-} from './worldpay.adapter';
-import { map } from 'rxjs/operators';
+import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayAdapter } from './worldpay.adapter';
 import { ApmData, ApmPaymentDetails, APMRedirectResponse, GooglePayMerchantConfiguration } from '../interfaces';
 
 @Injectable({
@@ -143,5 +136,17 @@ export class WorldpayConnector {
 
   isFraudSightEnabled(): Observable<boolean> {
     return this.adapter.isFraudSightEnabled();
+  }
+
+  public setAPMPaymentInfo(
+    userId: string,
+    cartId: string,
+    apmPaymentDetails: ApmPaymentDetails
+  ): Observable<any> {
+    return this.adapter.setAPMPaymentInfo(userId, cartId, apmPaymentDetails);
+  }
+
+  isGuaranteedPaymentsEnabled(): Observable<boolean> {
+    return this.adapter.isGuaranteedPaymentsEnabled();
   }
 }

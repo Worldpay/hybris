@@ -1,11 +1,10 @@
 package com.worldpay.converters.populators.internal.model;
 
-import com.worldpay.internal.model.*;
 import com.worldpay.data.BranchSpecificExtension;
-import com.worldpay.data.FraudSightData;
 import com.worldpay.data.Order;
 import com.worldpay.data.OrderLines;
 import com.worldpay.data.token.TokenRequest;
+import com.worldpay.internal.model.*;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
@@ -25,25 +24,26 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
     protected final Converter<BranchSpecificExtension, com.worldpay.internal.model.BranchSpecificExtension> internalBranchSpecificExtensionConverter;
     protected final Converter<TokenRequest, CreateToken> internalTokenRequestConverter;
     protected final Converter<OrderLines, com.worldpay.internal.model.OrderLines> internalOrderLinesConverter;
-    protected final Converter<FraudSightData, com.worldpay.internal.model.FraudSightData> internalFraudSightDataConverter;
     protected final PaymentOrderConvertersWrapper paymentOrderConvertersWrapper;
     protected final ThreeDS2OrderConvertersWrapper threeDS2OrderConvertersWrapper;
     protected final BasicOrderConvertersWrapper basicOrderConvertersWrapper;
+    protected final RiskEvaluatorConvertersWrapper riskEvaluatorConvertersWrapper;
 
     public OrderPopulator(final Converter<BranchSpecificExtension, com.worldpay.internal.model.BranchSpecificExtension> internalBranchSpecificExtensionConverter,
                           final Converter<TokenRequest, CreateToken> internalTokenRequestConverter,
                           final Converter<OrderLines, com.worldpay.internal.model.OrderLines> internalOrderLinesConverter,
-                          final Converter<FraudSightData, com.worldpay.internal.model.FraudSightData> internalFraudSightDataConverter,
                           final PaymentOrderConvertersWrapper paymentOrderConvertersWrapper,
                           final ThreeDS2OrderConvertersWrapper threeDS2OrderConvertersWrapper,
-                          final BasicOrderConvertersWrapper basicOrderConvertersWrapper) {
+                          final BasicOrderConvertersWrapper basicOrderConvertersWrapper,
+                          final RiskEvaluatorConvertersWrapper riskEvaluatorConvertersWrapper) {
+
         this.internalBranchSpecificExtensionConverter = internalBranchSpecificExtensionConverter;
         this.internalTokenRequestConverter = internalTokenRequestConverter;
         this.internalOrderLinesConverter = internalOrderLinesConverter;
-        this.internalFraudSightDataConverter = internalFraudSightDataConverter;
         this.paymentOrderConvertersWrapper = paymentOrderConvertersWrapper;
         this.threeDS2OrderConvertersWrapper = threeDS2OrderConvertersWrapper;
         this.basicOrderConvertersWrapper = basicOrderConvertersWrapper;
+        this.riskEvaluatorConvertersWrapper = riskEvaluatorConvertersWrapper;
     }
 
     /**
@@ -76,6 +76,18 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
             final OrderContent intOrderContent = new OrderContent();
             intOrderContent.setvalue(orderContent);
             childElements.add(intOrderContent);
+        });
+
+        Optional.ofNullable(source.getOrderChannel()).ifPresent(orderChannel -> {
+                final OrderChannel intOrderChannel = new OrderChannel();
+                intOrderChannel.setValue(orderChannel);
+                childElements.add(intOrderChannel);
+        });
+
+        Optional.ofNullable(source.getCheckoutId()).ifPresent(checkoutId -> {
+            final CheckoutId intCheckoutId = new CheckoutId();
+            intCheckoutId.setvalue(checkoutId);
+            childElements.add(intCheckoutId);
         });
 
         populatePaymentRequestDetails(source, childElements);
@@ -140,7 +152,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
                 final Info3DSecure intInfo3dSecure = new Info3DSecure();
                 final PaResponse intPaResponse = new PaResponse();
                 intPaResponse.setvalue(paResponse);
-                intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrDelegatedAuthentication().add(intPaResponse);
+                intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrDelegatedAuthenticationOrTransactionStatusReasonOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
                 childElements.add(intInfo3dSecure);
             });
 
@@ -169,7 +181,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
             .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getFraudSightData())
-            .map(internalFraudSightDataConverter::convert)
+            .map(riskEvaluatorConvertersWrapper.internalFraudSightDataConverter::convert)
             .ifPresent(childElements::add);
 
         if (StringUtils.isNotBlank(source.getDeviceSession())) {
@@ -177,6 +189,10 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
             intDeviceSession.setSessionId(source.getDeviceSession());
             childElements.add(intDeviceSession);
         }
+
+        Optional.ofNullable(source.getGuaranteedPaymentsData())
+            .map(riskEvaluatorConvertersWrapper.internalGuaranteedPaymentsDataConverter::convert)
+            .ifPresent(childElements::add);
     }
 
     private void populatePaymentRequestDetails(final Order source, final List<Object> childElements) {

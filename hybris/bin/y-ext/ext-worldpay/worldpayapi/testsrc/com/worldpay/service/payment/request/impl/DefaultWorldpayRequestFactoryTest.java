@@ -409,7 +409,7 @@ public class DefaultWorldpayRequestFactoryTest {
         assertEquals(tokenMock, requestParameters.getPayment());
         assertEquals(shopperMock, requestParameters.getShopper());
         assertEquals(shippingAddressMock, requestParameters.getShippingAddress());
-        assertNull(requestParameters.getBillingAddress());
+        assertEquals(billingAddressMock, requestParameters.getBillingAddress());
         assertNull(requestParameters.getStatementNarrative());
         assertEquals(additional3DSDataMock, requestParameters.getAdditional3DSData());
         assertEquals(storedCredentialsMock, requestParameters.getStoredCredentials());
@@ -429,7 +429,7 @@ public class DefaultWorldpayRequestFactoryTest {
         assertEquals(tokenMock, requestParameters.getPayment());
         assertEquals(shopperMock, requestParameters.getShopper());
         assertEquals(shippingAddressMock, requestParameters.getShippingAddress());
-        assertNull(requestParameters.getBillingAddress());
+        assertEquals(billingAddressMock, requestParameters.getBillingAddress());
         assertNull(requestParameters.getStatementNarrative());
         assertEquals(additional3DSDataMock, requestParameters.getAdditional3DSData());
         assertEquals(storedCredentialsMock, requestParameters.getStoredCredentials());
@@ -450,7 +450,7 @@ public class DefaultWorldpayRequestFactoryTest {
         assertEquals(tokenMock, requestParameters.getPayment());
         assertEquals(shopperMock, requestParameters.getShopper());
         assertEquals(shippingAddressMock, requestParameters.getShippingAddress());
-        assertNull(requestParameters.getBillingAddress());
+        assertEquals(billingAddressMock, requestParameters.getBillingAddress());
         assertNull(requestParameters.getStatementNarrative());
         assertEquals(additional3DSDataMock, requestParameters.getAdditional3DSData());
         assertEquals(storedCredentialsMock, requestParameters.getStoredCredentials());

@@ -82,5 +82,6 @@ export class WorldpayPaymentFormComponent extends PaymentFormComponent implement
 
   ngOnDestroy(): void {
     this.drop.next();
+    this.drop.complete();
   }
 }

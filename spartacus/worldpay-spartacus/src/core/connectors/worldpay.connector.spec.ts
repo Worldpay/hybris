@@ -95,6 +95,16 @@ class MockWorldpayAdapter implements WorldpayAdapter {
   ).and.callFake((userId: string, cartId: string) => of(null));
 
   isFraudSightEnabled = createSpy('WorldpayAdapter.isFraudSightEnabled').and.callFake(() => of(false));
+
+  isGuaranteedPaymentsEnabled = createSpy('WorldpayAdapter.isFraudSightEnabled').and.callFake(() => of(false));
+
+  setAPMPaymentInfo = createSpy(
+    'WorldpayAdapter.setAPMPaymentInfo'
+  ).and.callFake((userId, cartId, ApmPaymentInfo) =>
+    of(
+      ApmPaymentInfo
+    )
+  );
 }
 
 describe('WorldpayConnector', () => {
@@ -292,6 +302,14 @@ describe('WorldpayConnector', () => {
             }, 'ref', '500x500', 'cse-token', true, deviceSession
           );
 
+          done();
+        });
+    });
+
+    it('should call initialPaymentRequest with FraudSight ID and dateOfBirth', (done) => {
+      service.isGuaranteedPaymentsEnabled()
+        .subscribe(() => {
+          expect(adapter.isGuaranteedPaymentsEnabled).toHaveBeenCalledWith();
           done();
         });
     });

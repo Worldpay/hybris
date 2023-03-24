@@ -123,11 +123,25 @@ declare module '@spartacus/core' {
     subscriptionId?: string;
     dateOfBirth?: string;
   }
+
+  interface Order {
+    worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
+  }
 }
 
 export interface ApmPaymentDetails {
   code: PaymentMethod;
+  name?: string;
 
   // add APM specific optional fields
   shopperBankCode?: string;
+  billingAddress?: Address;
+}
+
+export interface WorldpayApmPaymentInfo {
+  billingAddress?: Address;
+  apmName?: string;
+  apmCode?: string;
+  name?: string;
+  subscriptionId?: string;
 }

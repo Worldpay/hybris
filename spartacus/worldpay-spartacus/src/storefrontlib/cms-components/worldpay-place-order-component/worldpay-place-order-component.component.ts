@@ -147,8 +147,8 @@ export class WorldpayPlaceOrderComponent extends PlaceOrderComponent implements 
       this.worldpayCheckoutPaymentService.getPaymentDetails(),
       this.worldpayCheckoutPaymentService.getCseTokenFromState()
     ]).pipe(
-        takeUntil(this.drop)
-      )
+      takeUntil(this.drop)
+    )
       .subscribe(([termsAndConditions, paymentDetails, pdw, cseToken]) => {
         this.paymentAuthorized =
           termsAndConditions &&

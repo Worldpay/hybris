@@ -161,14 +161,14 @@ export class WorldpayPaymentComponent extends PaymentMethodComponent implements 
       billingAddress = this.worldpayDeliveryAddress;
     }
 
-    const details = {
+    const apmPaymentDetails = {
       ...$event.paymentDetails,
       billingAddress
     };
 
     this.checkoutPaymentService.setPaymentAddress(billingAddress)
       .pipe(
-        switchMap(() => this.checkoutPaymentService.setApmPaymentDetails(details)),
+        switchMap(() => this.checkoutPaymentService.setApmPaymentDetails(apmPaymentDetails)),
         finalize(() => this.processing$.next(false)),
         takeUntil(this.drop),
       )
@@ -210,5 +210,6 @@ export class WorldpayPaymentComponent extends PaymentMethodComponent implements 
   ngOnDestroy(): void {
     super.ngOnDestroy();
     this.drop.next();
+    this.drop.complete();
   }
 }

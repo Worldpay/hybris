@@ -51,8 +51,8 @@ describe('WorldpayCheckoutPaymentService', () => {
     }
   }
 
-  const getSerializedUrl = (): string => {
-    const parameters = `${router.serializeUrl(router.createUrlTree(['']))}`;
+  const getSerializedUrl = (url, params): string => {
+    const parameters = `${router.serializeUrl(router.createUrlTree([url], { queryParams: params }))}`;
     return parameters.length > 1 ? parameters : '/';
   };
 
@@ -150,16 +150,16 @@ describe('WorldpayCheckoutPaymentService', () => {
     const ddcUrl = '/ddc-iframe/action';
     const cardNumber = '4444333322221111';
     const jwt = 'some jwt data';
-    const context = getSerializedUrl();
+    const url = getSerializedUrl('worldpay-3ds-device-detection', {
+      action: ddcUrl,
+      bin: cardNumber,
+      jwt
+    });
 
     service.setThreeDsDDCIframeUrl(ddcUrl, cardNumber, jwt);
 
     expect(worldpayStore.dispatch).toHaveBeenCalledWith(
-      new WorldpayActions.SetWorldpayDDCIframeUrl(
-        `${context}worldpay-3ds-device-detection/${encodeURIComponent(
-          ddcUrl
-        )}/${encodeURIComponent(cardNumber)}/${encodeURIComponent(jwt)}`
-      )
+      new WorldpayActions.SetWorldpayDDCIframeUrl(url)
     );
   });
 
@@ -167,16 +167,16 @@ describe('WorldpayCheckoutPaymentService', () => {
     const challengeUrl = '/challenge-iframe/action';
     const merchantData = '111020020219';
     const jwt = 'some jwt data';
-    const context = getSerializedUrl();
+    const url = getSerializedUrl('worldpay-3ds-challenge', {
+      action: challengeUrl,
+      md: merchantData,
+      jwt
+    });
 
     service.setThreeDsChallengeIframeUrl(challengeUrl, jwt, merchantData);
 
     expect(worldpayStore.dispatch).toHaveBeenCalledWith(
-      new WorldpayActions.SetWorldpayChallengeIframeUrl(
-        `${context}worldpay-3ds-challenge/${encodeURIComponent(
-          challengeUrl
-        )}/${encodeURIComponent(merchantData)}/${encodeURIComponent(jwt)}`
-      )
+      new WorldpayActions.SetWorldpayChallengeIframeUrl(url)
     );
   });
 

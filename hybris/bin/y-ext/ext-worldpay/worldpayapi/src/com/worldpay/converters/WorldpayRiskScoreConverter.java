@@ -6,6 +6,8 @@ import de.hybris.platform.converters.impl.AbstractConverter;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.util.Optional;
+
 /**
  * Converter to transform a {@link RiskScore} received from Worldpay to a {@link WorldpayRiskScoreModel}
  */
@@ -31,15 +33,17 @@ public class WorldpayRiskScoreConverter extends AbstractConverter<RiskScore, Wor
      */
     @Override
     public void populate(final RiskScore riskScore, final WorldpayRiskScoreModel worldpayRiskScoreModel) {
-        worldpayRiskScoreModel.setFinalScore(riskScore.getFinalScore() != null ? Double.valueOf(riskScore.getFinalScore()) : null);
+        Optional.ofNullable(riskScore.getFinalScore()).map(Double::valueOf).ifPresent(worldpayRiskScoreModel::setFinalScore);
         worldpayRiskScoreModel.setExtendedResponse(riskScore.getExtendedResponse());
         worldpayRiskScoreModel.setId(riskScore.getId());
         worldpayRiskScoreModel.setMessage(riskScore.getMessage());
         worldpayRiskScoreModel.setProvider(riskScore.getProvider());
-        worldpayRiskScoreModel.setRgid(riskScore.getRGID() != null ? Long.valueOf(riskScore.getRGID()) : null);
-        worldpayRiskScoreModel.setTRisk(riskScore.getTRisk() != null ? Double.valueOf(riskScore.getTRisk()) : null);
-        worldpayRiskScoreModel.setTScore(riskScore.getTScore() != null ? Double.valueOf(riskScore.getTScore()) : null);
+        Optional.ofNullable(riskScore.getRGID()).map(Long::valueOf).ifPresent(worldpayRiskScoreModel::setRgid);
+        Optional.ofNullable(riskScore.getTRisk()).map(Double::valueOf).ifPresent(worldpayRiskScoreModel::setTRisk);
+        Optional.ofNullable(riskScore.getTScore()).map(Double::valueOf).ifPresent(worldpayRiskScoreModel::setTScore);
         worldpayRiskScoreModel.setValue(riskScore.getValue());
+        worldpayRiskScoreModel.setTriggeredRules(riskScore.getTriggeredRules());
+        Optional.ofNullable(riskScore.getScore()).map(Double::valueOf).ifPresent(worldpayRiskScoreModel::setScore);
     }
 
     @Required

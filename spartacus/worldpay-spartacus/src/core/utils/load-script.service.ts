@@ -13,8 +13,7 @@ export interface Scripts {
   async?: boolean;
   defer?: boolean;
   attributes?: {
-    name: string;
-    value: string;
+    [key: string]: string;
   };
 }
 
@@ -22,6 +21,9 @@ export interface Scripts {
   providedIn: 'root'
 })
 export class LoadScriptService {
+
+  window = this.winRef.nativeWindow as any;
+
   constructor(
     protected winRef: WindowRef
   ) {
@@ -50,7 +52,7 @@ export class LoadScriptService {
     }
 
     if (!isFound) {
-      const node = this.winRef.document.createElement('script');
+      let node = this.winRef.document.createElement('script');
       node.src = src;
       node.id = idScript || Math.floor(Math.random() * 999999).toString();
       node.type = 'text/javascript';
@@ -65,12 +67,27 @@ export class LoadScriptService {
       }
 
       if (attributes) {
-        for (const key of Object.keys(attributes)) {
-          node[key] = attributes[key];
-        }
+        node = this.updateScript(node, attributes);
       }
-
       this.winRef.document.getElementsByTagName('head')[0].appendChild(node);
     }
+
   };
+
+  removeScript(idScript: string): void {
+    const script = this.winRef.document.querySelector(`script#${idScript}`);
+    if (script) {
+      script.remove();
+    }
+  }
+
+  updateScript(node, attributes): any {
+    if (node && attributes) {
+      for (const key of Object.keys(attributes)) {
+        node.setAttribute(key, attributes[key]);
+      }
+    }
+
+    return node;
+  }
 }

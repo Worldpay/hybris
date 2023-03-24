@@ -87,7 +87,7 @@ export const AUTHORISE_GOOGLE_PAY_PAYMENT_FAIL =
 export const AUTHORISE_GOOGLE_PAY_PAYMENT_SUCCESS =
   '[GooglePay] Authorise payment Success';
 
-export const SET_SELECTED_APM = '[Worldpay] Set Selected AMP';
+export const SET_SELECTED_APM = '[Worldpay] Set Selected APM';
 
 export const GET_APM_REDIRECT_URL = '[Worldpay] Get AMP Redirect URL';
 export const GET_APM_REDIRECT_URL_FAIL = '[Worldpay] Get AMP Redirect URL Fail';
@@ -107,7 +107,11 @@ export const START_LOADER = '[Worldpay] Start Loader';
 export const SET_FRAUD_SIGHT_ID = '[Worldpay] Set FraudSight ID';
 
 export const IS_FRAUD_SIGHT_ENABLED = '[Worldpay] Is FraudSight Enabled';
-export const IS_FRAUD_SIGHT_ENABLED_SUCCESS = '[Worldpay] Is FraudSight Enabled Sucess';
+export const IS_FRAUD_SIGHT_ENABLED_SUCCESS = '[Worldpay] Is FraudSight Enabled Success';
+
+export const SET_APM_PAYMENT_INFO = '[Checkout] Set APM payment info';
+export const SET_APM_PAYMENT_INFO_FAIL = '[Checkout] Set APM payment info fail';
+export const SET_APM_PAYMENT_INFO_SUCCESS = '[Checkout] Set APM payment info success';
 
 export class CreateWorldpayPaymentDetails implements Action {
   readonly type = CREATE_WORLDPAY_PAYMENT_DETAILS;
@@ -535,6 +539,33 @@ export class GetFraudSightEnabledSuccess implements Action {
   }
 }
 
+export class SetAPMPaymentInfo implements Action {
+  readonly type = SET_APM_PAYMENT_INFO;
+
+  constructor(
+    public payload: {
+      userId: string;
+      cartId: string;
+      apmPaymentDetails: ApmPaymentDetails;
+    }
+  ) {
+  }
+}
+
+export class SetAPMPaymentInfoFail implements Action {
+  readonly type = SET_APM_PAYMENT_INFO_FAIL;
+
+  constructor(public payload: any) {
+  }
+}
+
+export class SetAPMPaymentInfoSuccess implements Action {
+  readonly type = SET_APM_PAYMENT_INFO_SUCCESS;
+
+  constructor(public apmPaymentInfo: any) {
+  }
+}
+
 export type WorldpayAction =
   | CreateWorldpayPaymentDetails
   | CreateWorldpayPaymentDetailsSuccess
@@ -586,4 +617,7 @@ export type WorldpayAction =
   | StartLoader
   | SetFraudSightId
   | GetFraudSightEnabled
-  | GetFraudSightEnabledSuccess;
+  | GetFraudSightEnabledSuccess
+  | SetAPMPaymentInfo
+  | SetAPMPaymentInfoFail
+  | SetAPMPaymentInfoSuccess;

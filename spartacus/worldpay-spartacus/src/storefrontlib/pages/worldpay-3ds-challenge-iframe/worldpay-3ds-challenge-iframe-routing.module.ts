@@ -4,7 +4,7 @@ import { WorldpayThreedsChallengeIframePageComponent } from './worldpay-threeds-
 
 const routes: Routes = [
   {
-    path: 'worldpay-3ds-challenge/:action/:md/:jwt',
+    path: 'worldpay-3ds-challenge',
     component: WorldpayThreedsChallengeIframePageComponent
   }
 ];
@@ -13,4 +13,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class Worldpay3dsChallengeIframeRoutingModule {}
+export class Worldpay3dsChallengeIframeRoutingModule {
+}

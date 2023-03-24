@@ -434,6 +434,29 @@ export class WorldpayEffects {
         ))
     );
 
+  @Effect()
+  setAPMPaymentInfo$: Observable<| WorldpayActions.SetAPMPaymentInfoSuccess
+    | WorldpayActions.SetAPMPaymentInfoFail
+    | CheckoutActions.CreatePaymentDetailsSuccess> = this.actions$.pipe(
+      ofType(WorldpayActions.SET_APM_PAYMENT_INFO),
+      map((action: any) => action.payload),
+      mergeMap(({
+        userId,
+        cartId,
+        apmPaymentDetails
+      }) => this.worldpayConnector
+        .setAPMPaymentInfo(userId, cartId, apmPaymentDetails)
+        .pipe(
+          switchMap(() => [
+            new WorldpayActions.SetAPMPaymentInfoSuccess(apmPaymentDetails),
+            new CheckoutActions.CreatePaymentDetailsSuccess(apmPaymentDetails)
+          ]),
+          catchError(error =>
+            of(new WorldpayActions.SetAPMPaymentInfoFail(error))
+          )
+        ))
+    );
+
 }
 
 const createGlobalMessageAction = (
@@ -447,5 +470,3 @@ const createGlobalMessageAction = (
   };
   return new GlobalMessageActions.AddMessage(failMessage);
 };
-
-export const effects: any[] = [WorldpayEffects];

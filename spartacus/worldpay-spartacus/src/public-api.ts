@@ -71,6 +71,8 @@ export * from './storefrontlib/cms-components/worldpay-fraudsight-risk/worldpay-
 export * from './storefrontlib/cms-components/worldpay-fraudsight-risk/worldpay-fraudsight-risk.module';
 export * from './storefrontlib/cms-components/worldpay-order-confirmation/worldpay-order-confirmation.module';
 export * from './storefrontlib/cms-components/worldpay-order-confirmation/components/worldpay-order-confirmation-items/worldpay-order-confirmation-items.component';
+export * from './storefrontlib/cms-components/worldpay-order-detail-shipping/worldpay-order-detail-shipping.module';
+export * from './storefrontlib/cms-components/worldpay-order-detail-shipping/worldpay-order-detail-shipping.component';
 export * from './storefrontlib/cms-components/worldpay-payment-component/worldpay-payment-component.component';
 export * from './storefrontlib/cms-components/worldpay-payment-component/worldpay-payment-component.module';
 export * from './storefrontlib/cms-components/worldpay-payment-component/payment-form/worldpay-payment-form.component';

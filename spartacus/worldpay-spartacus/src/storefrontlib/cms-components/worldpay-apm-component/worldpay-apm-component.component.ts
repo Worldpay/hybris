@@ -60,14 +60,14 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
 
   showBillingFormAndContinueButton(code: PaymentMethod): boolean {
     switch (code) {
-      case PaymentMethod.Card:
-      case PaymentMethod.GooglePay:
-      case PaymentMethod.ApplePay:
-      case PaymentMethod.iDeal:
-        return false;
+    case PaymentMethod.Card:
+    case PaymentMethod.GooglePay:
+    case PaymentMethod.ApplePay:
+    case PaymentMethod.iDeal:
+      return false;
 
-      default:
-        return true;
+    default:
+      return true;
     }
   }
 
@@ -86,7 +86,8 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
 
     this.setPaymentDetails.emit({
       paymentDetails: {
-        code: this.paymentDetails.code
+        code: this.paymentDetails.code,
+        name: this.paymentDetails.name,
       },
       billingAddress
     });
@@ -119,5 +120,6 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.drop.next();
+    this.drop.complete();
   }
 }

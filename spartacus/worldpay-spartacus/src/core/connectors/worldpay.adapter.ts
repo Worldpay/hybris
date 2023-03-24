@@ -1,11 +1,6 @@
 import { Observable } from 'rxjs';
 import { Address, Order, PaymentDetails } from '@spartacus/core';
-import {
-  ApmData,
-  ApmPaymentDetails,
-  APMRedirectResponse,
-  GooglePayMerchantConfiguration
-} from '../interfaces';
+import { ApmData, ApmPaymentDetails, APMRedirectResponse, GooglePayMerchantConfiguration } from '../interfaces';
 
 export interface ThreeDsChallengeResponse {
   acsURL: string;
@@ -218,4 +213,22 @@ export abstract class WorldpayAdapter {
    * Check BaseSite configuration to see if FraudSight is enabled
    */
   abstract isFraudSightEnabled(): Observable<boolean>;
+
+  /**
+   * Set APM Payment Information
+   *
+   * @param userId
+   * @param cartId
+   * @param apmPaymentDetails
+   */
+  abstract setAPMPaymentInfo(
+    userId: string,
+    cartId: string,
+    apmPaymentDetails: ApmPaymentDetails
+  ): Observable<any>;
+
+  /**
+   * Check BaseSite configuration to see if Guaranteed Payments is enabled
+   */
+  abstract isGuaranteedPaymentsEnabled(): Observable<boolean>;
 }

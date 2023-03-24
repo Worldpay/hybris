@@ -25,10 +25,10 @@ export class WorldpayDdcIframePageComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.action = this.sanitizer.bypassSecurityTrustResourceUrl(
-      this.route.snapshot.paramMap.get(this.ACTION_ROUTE_PARAM)
+      this.route.snapshot.queryParams[this.ACTION_ROUTE_PARAM]
     );
-    this.bin = this.route.snapshot.paramMap.get(this.BIN_ROUTE_PARAM);
-    this.jwt = this.route.snapshot.paramMap.get(this.JWT_ROUTE_PARAM);
+    this.bin = this.route.snapshot.queryParams[this.BIN_ROUTE_PARAM];
+    this.jwt = this.route.snapshot.queryParams[this.JWT_ROUTE_PARAM];
   }
 
   ngAfterViewInit(): void {
