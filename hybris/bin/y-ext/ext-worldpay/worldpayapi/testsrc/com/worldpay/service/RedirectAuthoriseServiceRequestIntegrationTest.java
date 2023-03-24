@@ -170,7 +170,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
             .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
-        RedirectAuthoriseServiceResponse response = gateway.redirectAuthorise(request);
+        final RedirectAuthoriseServiceResponse response = gateway.redirectAuthorise(request);
         assertTrue(response.isError());
     }
 
@@ -183,6 +183,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
             .withPayment(payment)
             .withShopper(shopper)
             .withStoredCredentials(storedCredentials)
+            .withIncludedPTs(includedPaymentMethods)
             .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 

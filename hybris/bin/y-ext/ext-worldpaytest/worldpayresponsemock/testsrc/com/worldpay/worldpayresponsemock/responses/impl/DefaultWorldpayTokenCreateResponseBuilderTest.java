@@ -10,12 +10,14 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import com.worldpay.factories.CardBrandFactory;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -30,6 +32,8 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
 
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
+    private static final CardBrand testCardBrand = new CardBrand();
+
 
     @InjectMocks
     private DefaultWorldpayTokenCreateResponseBuilder testObj;
@@ -41,7 +45,8 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
     private PaymentTokenCreate paymentTokenCreateMock;
     @Mock
     private AuthenticatedShopperID authenticatedShopperIDMock;
-
+    @Mock
+    private CardBrandFactory cardBrandFactoryMock;
     @Test
     public void buildTokenResponse() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(Collections.singletonList(submitMock));
@@ -49,23 +54,25 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         when(paymentTokenCreateMock.getAuthenticatedShopperID()).thenReturn(authenticatedShopperIDMock);
         when(authenticatedShopperIDMock.getvalue()).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(paymentTokenCreateMock.getCreateToken().getTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
+        testCardBrand.setvalue(CARD_BRAND);
+        when(cardBrandFactoryMock.createCardBrandWithValue(any())).thenReturn(testCardBrand);
 
         final PaymentService result = testObj.buildTokenResponse(paymentServiceMock);
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final Token token = (Token) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken().get(0);
+        final Token token = (Token) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().get(0);
 
         final TokenDetails tokenDetails = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().stream().filter(TokenDetails.class::isInstance).map(TokenDetails.class::cast).findAny().orElseThrow(() -> new IllegalStateException("TokenDetails not present"));
         final PaymentInstrument paymentInstrument = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().stream().filter(PaymentInstrument.class::isInstance).map(PaymentInstrument.class::cast).findAny().orElseThrow(() -> new IllegalStateException("PaymentDetails not present"));
 
-        final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
+        final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
         final Derived derived = cardDetails.getDerived();
         final Date expiryDate = cardDetails.getExpiryDate().getDate();
 
         assertEquals(AUTHENTICATED_SHOPPER_ID, token.getAuthenticatedShopperID().getvalue());
         assertEquals(TOKEN_EVENT_REFERENCE, token.getTokenEventReference());
 
-        assertEquals(CARD_BRAND, derived.getCardBrand());
+        assertEquals(CARD_BRAND, derived.getCardBrand().getvalue());
         assertEquals(CARD_SUB_BRAND, derived.getCardSubBrand());
         assertEquals(ISSUER_COUNTRY_CODE, derived.getIssuerCountryCode());
         assertEquals(OBFUSCATED_PAN, derived.getObfuscatedPAN());

@@ -123,7 +123,6 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final Additional3DSData additional3DSData = worldpayRequestService.createAdditional3DSData(worldpayAdditionalInfoData);
         final RiskData riskData = worldpayRiskDataService.createRiskData(cartModel, worldpayAdditionalInfoData);
         final Token token = worldpayRequestService.createToken(((CreditCardPaymentInfoModel) cartModel.getPaymentInfo()).getSubscriptionId(), worldpayAdditionalInfoData.getSecurityCode());
-
         final String shopperEmailAddress = worldpayCartService.getEmailForCustomer(cartModel);
 
         final Session session = worldpayRequestService.createSession(worldpayAdditionalInfoData);
@@ -140,7 +139,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             .withPayment(token)
             .withShopper(authenticatedShopper)
             .withShippingAddress(worldpayCartService.getAddressFromCart(cartModel, true))
-            .withBillingAddress(null)
+            .withBillingAddress(worldpayCartService.getAddressFromCart(cartModel, false))
             .withStatementNarrative(null)
             .withDynamicInteractionType(dynamicInteractionType)
             .withAdditional3DSData(additional3DSData)
@@ -188,6 +187,8 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             authoriseRequestParametersCreator
                 .withShopper(worldpayRequestService.createShopper(shopperEmailAddress, null, null));
         }
+
+        worldpayAdditionalRequestDataService.populateRequestGuaranteedPayments(cartModel, new WorldpayAdditionalInfoData(), authoriseRequestParametersCreator);
 
         return createGooglePayDirectAuthoriseRequest(authoriseRequestParametersCreator.build());
     }
@@ -278,6 +279,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final String subscriptionId = getSubscriptionId(abstractOrderModel);
         final Token token = worldpayRequestService.createToken(subscriptionId, worldpayAdditionalInfoData.getSecurityCode());
         final Address shippingAddress = worldpayCartService.getAddressFromCart(abstractOrderModel, true);
+        final Address billingAddress = worldpayCartService.getAddressFromCart(abstractOrderModel, false);
         final DynamicInteractionType dynamicInteractionType = worldpayRequestService.getDynamicInteractionType(worldpayAdditionalInfoData);
         final StoredCredentials storedCredentials = createRecurringStoredCredentials(abstractOrderModel, dynamicInteractionType);
 
@@ -287,7 +289,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             .withPayment(token)
             .withShopper(shopper)
             .withShippingAddress(shippingAddress)
-            .withBillingAddress(null)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(null)
             .withDynamicInteractionType(dynamicInteractionType)
             .withAdditional3DSData(additional3DSData)
@@ -336,7 +338,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final Browser browser = worldpayRequestService.createBrowser(worldpayAdditionalInfoData);
         final Shopper shopper = worldpayRequestService.createShopper(shopperEmailAddress, session, browser);
 
-        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+        final AuthoriseRequestParametersCreator requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(orderInfo)
             .withPayment(payment)
@@ -345,10 +347,11 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             .withBillingAddress(billingAddress)
             .withStatementNarrative(statementNarrative)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-            .withOrderLines(orderLines)
-            .build();
+            .withOrderLines(orderLines);
 
-        return createKlarnaDirectAuthoriseRequest(requestParameters);
+        worldpayAdditionalRequestDataService.populateRequestGuaranteedPayments(cartModel, worldpayAdditionalInfoData, requestParameters);
+
+        return createKlarnaDirectAuthoriseRequest(requestParameters.build());
     }
 
     @Override
@@ -362,19 +365,21 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         final String shopperEmailAddress = worldpayCartService.getEmailForCustomer(cartModel);
         final Shopper shopper = worldpayRequestService.createShopper(shopperEmailAddress, null, null);
         final Address shippingAddress = worldpayCartService.getAddressFromCart(cartModel, true);
+        final Address billingAddress = worldpayCartService.getAddressFromCart(cartModel, false);
 
-        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+        final AuthoriseRequestParametersCreator requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
             .withOrderInfo(orderInfo)
             .withPayment(payment)
             .withShopper(shopper)
             .withShippingAddress(shippingAddress)
-            .withBillingAddress(null)
+            .withBillingAddress(billingAddress)
             .withStatementNarrative(null)
-            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
-            .build();
+            .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE);
 
-        return createApplePayDirectAuthoriseRequest(requestParameters);
+        worldpayAdditionalRequestDataService.populateRequestGuaranteedPayments(cartModel, new WorldpayAdditionalInfoData(), requestParameters);
+
+        return createApplePayDirectAuthoriseRequest(requestParameters.build());
     }
 
     @Override

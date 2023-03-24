@@ -39,7 +39,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String CURRENCY_CODE = "GBP";
     private static final int EXPONENT = 2;
     private static final String RISK_VALUE = "99";
-    private static final String FINAL_SCORE = "22";
+    private static final String FINAL_SCORE = "22.0";
     private static final String APM = "APM";
     private static final String RESPONSE_DESCRIPTION = "responseDescription";
     private static final int RESPONSE_CODE = 20;
@@ -80,6 +80,9 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String REVIEW_MESSAGE = "review";
     private static final String REASON_VALUE_1 = "Unusual behaviour for card";
     private static final String REASON_VALUE_2 = "Unusual transaction for merchant";
+    private static final String GP_MESSAGE = "gpMessage";
+    private static final double SCORE = 22.0;
+    private static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
 
     @Mock
     private ResponseForm responseFormMock;
@@ -288,12 +291,12 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
                 final Derived derived = cardDetails.getDerived();
                 assertEquals(DERIVED_CARD_SUB_BRAND_VALUE, derived.getCardSubBrand());
-                assertEquals(DERIVED_CARD_BRAND_VALUE, derived.getCardBrand());
+                assertEquals(DERIVED_CARD_BRAND_VALUE, derived.getCardBrand().getvalue());
                 assertEquals(DERIVED_OBFUSCATED_PAN_VALUE, derived.getObfuscatedPAN());
                 assertEquals(DERIVED_ISSUER_COUNTRY_CODE_VALUE, derived.getIssuerCountryCode());
 
@@ -307,7 +310,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(ADDRESS_LAST_NAME_VALUE, address.getLastName());
                 assertEquals(ADDRESS_POSTAL_CODE_VALUE, address.getPostalCode());
                 assertEquals(ADDRESS_CITY_VALUE, address.getCity());
-                assertEquals(ADDRESS_COUNTRY_CODE_VALUE, address.getCountryCode());
+                assertEquals(ADDRESS_COUNTRY_CODE_VALUE, address.getCountryCode().getvalue());
                 for (Object addressElement : address.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3()) {
                     if (addressElement instanceof Address1) {
                         assertEquals(ADDRESS_1_VALUE, ((Address1) addressElement).getvalue());
@@ -364,7 +367,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0);
+                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
                 assertNotNull(paypal);
 
             } else if (tokenElement instanceof TokenReason) {
@@ -443,5 +446,38 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         assertEquals(String.valueOf(EXPONENT), payment.getAmount().getExponent());
         assertEquals(String.valueOf(EXPONENT), balance.getAmount().getExponent());
         assertEquals(String.valueOf(EXPONENT), accountTx.getAmount().getExponent());
+    }
+
+    @Test
+    public void buildResponse_ShouldReturnAnXMLWithCreditCardDataAndNoGuaranteedPayments() throws WorldpayException {
+        when(responseFormMock.getCcPaymentType()).thenReturn(CC_PAYMENT_TYPE);
+        when(responseFormMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
+        when(responseFormMock.getCardMonth()).thenReturn(CARD_MONTH);
+        when(responseFormMock.getCardYear()).thenReturn(CARD_YEAR);
+        when(responseFormMock.getTestCreditCard()).thenReturn(TEST_CREDIT_CARD);
+        when(responseFormMock.getGuaranteedPaymentsMessage()).thenReturn(GP_MESSAGE);
+        when(responseFormMock.getGuaranteedPaymentsScore()).thenReturn(SCORE);
+        when(responseFormMock.isUseGuaranteedPayments()).thenReturn(Boolean.TRUE);
+
+
+        testObj.buildResponse(responseFormMock);
+
+        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
+        final PaymentService paymentService = paymentServiceCaptor.getValue();
+        verifyCommonFieldsForAPMAndCreditCards(paymentService);
+
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final Payment payment = orderStatusEvent.getPayment();
+
+        assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
+        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getvalue());
+        assertEquals(CARD_MONTH, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getMonth());
+        assertEquals(CARD_YEAR, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getYear());
+        assertEquals(TEST_CREDIT_CARD, payment.getPaymentMethodDetail().getCard().getNumber());
+        assertNotNull(payment.getRiskScore());
+        assertEquals(GUARANTEED_PAYMENTS, payment.getRiskScore().getProvider());
+        assertEquals(FINAL_SCORE, payment.getRiskScore().getFinalScore());
+        assertEquals(GP_MESSAGE, payment.getRiskScore().getMessage());
     }
 }

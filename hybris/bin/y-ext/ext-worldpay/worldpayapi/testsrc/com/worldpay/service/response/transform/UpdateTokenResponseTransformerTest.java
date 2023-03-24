@@ -57,7 +57,7 @@ public class UpdateTokenResponseTransformerTest {
     @Before
     public void setUp() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(replyMock));
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
         when(okReplyMock.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()).thenReturn(singletonList(updateTokenReceivedMock));
         when(updateTokenReceivedMock.getPaymentTokenID()).thenReturn(PAYMENT_TOKEN_ID);
     }
@@ -94,7 +94,7 @@ public class UpdateTokenResponseTransformerTest {
     public void shouldThrowExceptionWhenResponseIsNotOk() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("UpdateTokenResponse did not contain an OK object");
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken()).
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).
                 thenReturn(singletonList(new Shopper()));
 
         testObj.transform(paymentServiceMock);
@@ -102,7 +102,7 @@ public class UpdateTokenResponseTransformerTest {
 
     @Test
     public void shouldThrowExceptionWhenErrorInResponse() throws Exception {
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken())
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken())
                 .thenReturn(singletonList(errorMock));
         when(errorMock.getCode()).thenReturn(ERROR_CODE);
         when(errorMock.getvalue()).thenReturn(ERROR_VALUE);

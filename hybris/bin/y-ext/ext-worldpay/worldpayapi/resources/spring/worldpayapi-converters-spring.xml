@@ -280,4 +280,40 @@
             </list>
         </property>
     </bean>
+
+    <alias name="defaultWorldpayDateConverter" alias="worldpayDateConverter"/>
+    <bean id="defaultWorldpayDateConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Date"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayDatePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="worldpayDatePopulator" class="com.worldpay.converters.populators.WorldpayDatePopulator"/>
+
+    <alias name="defaultWorldpayProductConverter" alias="worldpayProductConverter"/>
+    <bean id="defaultWorldpayProductConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Product"/>
+        <property name="populators">
+            <list>
+                <ref bean="worldpayProductPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="worldpayProductPopulator" class="com.worldpay.converters.populators.WorldpayProductPopulator">
+        <constructor-arg ref="productPriceConverter" name="productPriceConverter"/>
+    </bean>
+
+    <alias name="defaultProductPriceConverter" alias="productPriceConverter"/>
+    <bean id="defaultProductPriceConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="de.hybris.platform.commercefacades.product.data.ProductData"/>
+        <property name="populators">
+            <list>
+                <ref bean="productPricePopulator"/>
+            </list>
+        </property>
+    </bean>
 </beans>

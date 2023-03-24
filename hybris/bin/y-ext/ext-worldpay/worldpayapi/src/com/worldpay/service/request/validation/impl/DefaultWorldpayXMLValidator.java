@@ -26,9 +26,13 @@ public class DefaultWorldpayXMLValidator implements WorldpayXMLValidator {
 
     private static final Schema SCHEMA;
 
+    private static final String SCHEMA_FULL_CHECKING = "http://apache.org/xml/features/validation/schema-full-checking";
+
     static {
         try {
             final SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            sf.setFeature(SCHEMA_FULL_CHECKING, false);
+
             final URL url = WorldpayConstants.class.getResource(WorldpayConstants.XSD_LOCATION);
             SCHEMA = sf.newSchema(url);
         } catch (final SAXException e) {

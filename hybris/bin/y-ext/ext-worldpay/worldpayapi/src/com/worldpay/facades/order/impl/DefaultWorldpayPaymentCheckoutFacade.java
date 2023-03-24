@@ -3,6 +3,8 @@ package com.worldpay.facades.order.impl;
 import com.worldpay.core.checkout.WorldpayCheckoutService;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
+import com.worldpay.service.payment.WorldpayGuaranteedPaymentsStrategy;
+import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
@@ -22,17 +24,23 @@ public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentChec
     protected final CartService cartService;
     protected final CustomerAccountService customerAccountService;
     protected final WorldpayFraudSightStrategy worldpayFraudSightStrategy;
+    protected final WorldpayGuaranteedPaymentsStrategy worldpayGuaranteedPaymentsStrategy;
+    protected final CustomerFacade customerFacade;
 
     public DefaultWorldpayPaymentCheckoutFacade(final CheckoutFacade checkoutFacade,
                                                 final WorldpayCheckoutService worldpayCheckoutService,
                                                 final CartService cartService,
                                                 final CustomerAccountService customerAccountService,
-                                                final WorldpayFraudSightStrategy worldpayFraudSightStrategy) {
+                                                final WorldpayFraudSightStrategy worldpayFraudSightStrategy,
+                                                final WorldpayGuaranteedPaymentsStrategy worldpayGuaranteedPaymentsStrategy,
+                                                final CustomerFacade customerFacade) {
         this.checkoutFacade = checkoutFacade;
         this.worldpayCheckoutService = worldpayCheckoutService;
         this.cartService = cartService;
         this.customerAccountService = customerAccountService;
         this.worldpayFraudSightStrategy = worldpayFraudSightStrategy;
+        this.worldpayGuaranteedPaymentsStrategy = worldpayGuaranteedPaymentsStrategy;
+        this.customerFacade = customerFacade;
     }
 
     /**
@@ -74,6 +82,27 @@ public class DefaultWorldpayPaymentCheckoutFacade implements WorldpayPaymentChec
     @Override
     public boolean isFSEnabled() {
         return worldpayFraudSightStrategy.isFraudSightEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isGPEnabled() {
+        return worldpayGuaranteedPaymentsStrategy.isGuaranteedPaymentsEnabled();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String createCheckoutId() {
+        final String userId = customerFacade.getCurrentCustomer().getCustomerId();
+        if (cartService.hasSessionCart()) {
+            return userId + "_" + cartService.getSessionCart().getCode();
+        } else {
+            return userId;
+        }
     }
 
     protected CartModel getCart() {

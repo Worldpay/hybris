@@ -30,6 +30,7 @@
           class="com.worldpay.service.response.transform.impl.DefaultServiceResponseTransformerHelper">
         <constructor-arg name="internalAmountReverseConverter" ref="internalAmountReverseConverter"/>
         <constructor-arg name="internalDateReverseConverter" ref="internalDateReverseConverter"/>
+        <constructor-arg name="cardBrandFactory" ref="cardBrandFactory"/>
     </bean>
 
     <bean id="abstractServiceResponseTransformer"

@@ -121,8 +121,11 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         b2bCSEPaymentForm.setnDaysOfWeek(daysOfWeek);
         if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
             b2bCSEPaymentForm.setDateOfBirth((Date) model.asMap().get(BIRTHDAY_DATE));
+        }
+        if (worldpayPaymentCheckoutFacade.isFSEnabled() || worldpayPaymentCheckoutFacade.isGPEnabled()) {
             b2bCSEPaymentForm.setDeviceSession((String) model.asMap().get(DEVICE_SESSION));
         }
+
         model.addAttribute(B2B_CSE_PAYMENT_FORM, b2bCSEPaymentForm);
 
         storeCmsPageInModel(model, getContentPageForLabelOrId(MULTI_CHECKOUT_SUMMARY_CMS_PAGE_LABEL));

@@ -33,6 +33,8 @@ public class WorldpayOrderModificationMockController {
 
     protected static final String FRAUD_SIGHT_MESSAGES = "fraudSightMessages";
     protected static final String FRAUD_SIGHT_REASON_CODES = "fraudSightReasonCodes";
+    protected static final String GUARANTEED_PAYMENTS_MESSAGES = "guaranteedPaymentsMessages";
+    protected static final String GUARANTEED_PAYMENTS_TRIGGERED_RULES = "guaranteedPaymentsTriggeredRules";
     protected static final int END_INDEX = 4;
     protected static final int START_INDEX = 6;
     protected static final String XML_RESPONSE = "xmlResponse";
@@ -102,6 +104,12 @@ public class WorldpayOrderModificationMockController {
 
     @Resource
     private WorldpayMockConnector worldpayMockConnector;
+
+    @Resource
+    private Set<String> guaranteedPaymentsMessages;
+
+    @Resource
+    private Set<String> guaranteedPaymentsTriggeredRules;
 
     /**
      * Get form for mocked order modifications
@@ -207,5 +215,7 @@ public class WorldpayOrderModificationMockController {
         model.put(MERCHANTS, worldpayResponseMockMerchantInfoService.getAllMerchantCodes());
         model.put(FRAUD_SIGHT_MESSAGES, fraudSightMessages);
         model.put(FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodes);
+        model.put(GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessages);
+        model.put(GUARANTEED_PAYMENTS_TRIGGERED_RULES, guaranteedPaymentsTriggeredRules);
     }
 }
