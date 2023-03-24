@@ -38,6 +38,7 @@ In order to install the AddOn using one of the recipes, run the following comman
 `HYBRIS_HOME/installer$ ./install.sh -r [RECIPE_NAME] perform`
 
 ## RELEASE NOTES
+
 ### Features:
 - Klarna V2 SSL implemented. The connector no more supports Klarna SSL.
 - Updated Swagger IO end-point annotations for Spartacus.
