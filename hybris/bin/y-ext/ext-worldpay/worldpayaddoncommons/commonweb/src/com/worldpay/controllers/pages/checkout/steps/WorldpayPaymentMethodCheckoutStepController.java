@@ -103,6 +103,9 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
         if (!paymentMethodIsOnline(paymentMethod)) {
             hostedOrderPageData.getParameters().put(PREFERRED_PAYMENT_METHOD_PARAM, paymentMethod);
         }
+
+        getSessionService().setAttribute("paymentMethod", paymentMethod);
+
         return hostedOrderPageData;
     }
 

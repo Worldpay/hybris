@@ -1,0 +1,7 @@
+<div *ngIf="componentData.data$ | async as data"
+     class="wp__apm"
+     [class.wpm__apm--selected]="isSelected">
+  <cx-media [container]="data.media" class="wp__apm-image"></cx-media>
+
+  <p class="wp__apm-label">{{data.name}}</p>
+</div>

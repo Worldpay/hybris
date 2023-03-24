@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
+import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.FULL_LEVEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.AdditionalMatchers.or;
@@ -396,7 +397,7 @@ public class WorldpayCartsControllerTest {
         when(apmAvailabilityFacadeMock.isAvailable(PAYMENT_METHOD_NOT_SUPPORTED)).thenReturn(Boolean.FALSE);
 
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> testObj.getRedirectAuthorise(paymentRequestData, requestMock));
+            () -> testObj.getRedirectAuthorise(paymentRequestData, requestMock, FieldSetLevelHelper.FULL_LEVEL));
 
         assertThat(exception.getMessage()).isEqualTo("Payment method [" + PAYMENT_METHOD_NOT_SUPPORTED + "] is not supported");
     }
@@ -410,10 +411,10 @@ public class WorldpayCartsControllerTest {
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(worldpayBankConfigurationFacadeMock.isBankTransferApm(PaymentType.IDEAL.getMethodCode())).thenReturn(Boolean.TRUE);
 
-        testObj.getRedirectAuthorise(paymentRequestData, requestMock);
+        testObj.getRedirectAuthorise(paymentRequestData, requestMock, FieldSetLevelHelper.FULL_LEVEL);
 
         verify(worldpayDirectOrderFacadeMock).authoriseBankTransferRedirect(any(BankTransferAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
-        verify(dataMapperMock).map(any(BankTransferAdditionalAuthInfo.class), eq(PaymentDataWsDTO.class));
+        verify(dataMapperMock).map(any(), eq(PaymentDataWsDTO.class), eq(FULL_LEVEL));
     }
 
     @Test
@@ -426,10 +427,10 @@ public class WorldpayCartsControllerTest {
         when(worldpayBankConfigurationFacadeMock.isBankTransferApm(PaymentType.CHINA_UNION_PAY.getMethodCode())).thenReturn(Boolean.FALSE);
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(AdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);
 
-        testObj.getRedirectAuthorise(paymentRequestData, requestMock);
+        testObj.getRedirectAuthorise(paymentRequestData, requestMock, FieldSetLevelHelper.FULL_LEVEL);
 
         verify(worldpayHostedOrderFacadeMock).redirectAuthorise(any(AdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
-        verify(dataMapperMock).map(any(AdditionalAuthInfo.class), eq(PaymentDataWsDTO.class));
+        verify(dataMapperMock).map(any(), eq(PaymentDataWsDTO.class), eq(FULL_LEVEL));
     }
 
     @Test

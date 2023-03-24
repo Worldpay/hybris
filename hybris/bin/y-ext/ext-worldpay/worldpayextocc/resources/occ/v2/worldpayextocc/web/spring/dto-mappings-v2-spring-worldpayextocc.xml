@@ -72,4 +72,46 @@
             </map>
         </property>
     </bean>
+
+    <bean parent="fieldSetLevelMapping" id="WorldpayAPMPaymentInfoWsDTOFieldSetLevelMapping">
+        <property name="dtoClass" value="com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="apmCode, apmName, billingAddress(FULL), name, subscriptionId"/>
+                <entry key="DEFAULT"
+                       value="apmCode, apmName, billingAddress(FULL), name, subscriptionId"/>
+                <entry key="FULL"
+                       value="apmCode, apmName, billingAddress(FULL), name, subscriptionId"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean parent="fieldSetLevelMapping" id="cartWsDTOFieldSetLevelMapping">
+        <property name="dtoClass"
+                  value="de.hybris.platform.commercewebservicescommons.dto.order.CartWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="code,guid"/>
+                <entry key="DEFAULT"
+                       value="BASIC,totalItems,totalPrice,totalPriceWithTax,entries(DEFAULT)"/>
+                <entry key="FULL"
+                       value="potentialProductPromotions(FULL),potentialOrderPromotions(FULL),totalUnitCount,store,appliedOrderPromotions(FULL),pickupItemsQuantity,net,calculated,appliedVouchers(FULL),productDiscounts(FULL),totalDiscounts(FULL),subTotal(FULL),orderDiscounts(FULL),entries(FULL),appliedProductPromotions(FULL),totalPrice(FULL),site,deliveryMode(FULL),code,deliveryOrderGroups(FULL),guid,paymentInfo(FULL),pickupOrderGroups(FULL),totalItems,totalPriceWithTax(FULL),deliveryItemsQuantity,totalTax(FULL),user(FULL),deliveryAddress(FULL),deliveryCost(FULL),name,description,savedBy,saveTime,expirationTime,apmCode,apmName"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean parent="fieldSetLevelMapping" id="orderWsDTOFieldSetLevelMapping">
+        <property name="dtoClass"
+                  value="de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="code,guid"/>
+                <entry key="DEFAULT"
+                       value="unconsignedEntries(DEFAULT),status,created,deliveryStatusDisplay,statusDisplay,consignments(DEFAULT),guestCustomer,deliveryStatus,store,appliedOrderPromotions(DEFAULT),pickupItemsQuantity,net,calculated,appliedVouchers(DEFAULT),productDiscounts(DEFAULT),totalDiscounts(DEFAULT),subTotal(DEFAULT),orderDiscounts(DEFAULT),entries(DEFAULT),appliedProductPromotions(DEFAULT),totalPrice(DEFAULT),site,deliveryMode(DEFAULT),code,deliveryOrderGroups(DEFAULT),guid,paymentInfo(DEFAULT),pickupOrderGroups(DEFAULT),totalItems,totalPriceWithTax(DEFAULT),deliveryItemsQuantity,totalTax(DEFAULT),user(DEFAULT),deliveryAddress(DEFAULT),deliveryCost(DEFAULT),cancellable,returnable"/>
+                <entry key="FULL"
+                       value="unconsignedEntries(FULL),status,created,deliveryStatusDisplay,statusDisplay,consignments(FULL),guestCustomer,deliveryStatus,store,appliedOrderPromotions(FULL),pickupItemsQuantity,net,calculated,appliedVouchers(FULL),productDiscounts(FULL),totalDiscounts(FULL),subTotal(FULL),orderDiscounts(FULL),entries(FULL),appliedProductPromotions(FULL),totalPrice(FULL),site,deliveryMode(FULL),code,deliveryOrderGroups(FULL),guid,paymentInfo(FULL),pickupOrderGroups(FULL),totalItems,totalPriceWithTax(FULL),deliveryItemsQuantity,totalTax(FULL),user(FULL),deliveryAddress(FULL),deliveryCost(FULL),cancellable,returnable,worldpayAPMPaymentInfo(FULL)"/>
+            </map>
+        </property>
+    </bean>
+
 </beans>

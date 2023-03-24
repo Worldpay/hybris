@@ -7,6 +7,7 @@ import com.worldpay.data.token.DeleteTokenReply;
 import com.worldpay.data.token.TokenReply;
 import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.enums.DebitCreditIndicator;
+import com.worldpay.factories.CardBrandFactory;
 import com.worldpay.internal.model.Error;
 import com.worldpay.internal.model.*;
 import com.worldpay.service.model.payment.PaymentType;
@@ -26,6 +27,7 @@ import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -122,6 +124,8 @@ public class DefaultServiceResponseTransformerHelperTest {
     private Converter<com.worldpay.internal.model.Amount, com.worldpay.data.Amount> internalAmountReverseConverterMock;
     @Mock
     private Converter<com.worldpay.internal.model.Date, com.worldpay.data.Date> internalDateReverseConverterMock;
+    @Mock
+    private CardBrandFactory cardBrandFactoryMock;
 
     private Amount amount;
     private CVCResultCode cvcResultCode;
@@ -138,6 +142,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     private AuthorisationId authorisationId;
     private SchemeResponse schemeResponse;
     private FraudSight fraudSightResponse;
+    private CardBrand cardBrand;
 
     @Mock
     private UpdateTokenReceived updateTokenReceivedMock;
@@ -162,10 +167,12 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     @Before
     public void setUp() {
-        testObj = new DefaultServiceResponseTransformerHelper(internalAmountReverseConverterMock, internalDateReverseConverterMock);
+        testObj = new DefaultServiceResponseTransformerHelper(internalAmountReverseConverterMock, internalDateReverseConverterMock,
+            cardBrandFactoryMock);
 
         cardHolderName = new CardHolderName();
         cardHolderName.setvalue(CARD_HOLDER_NAME);
+        cardBrand = new CardBrand();
 
         when(amountMock.getValue()).thenReturn(AMOUNT_VALUE);
         when(amountMock.getCurrencyCode()).thenReturn(AMOUNT_CURRENCY_CODE);
@@ -181,12 +188,6 @@ public class DefaultServiceResponseTransformerHelperTest {
         when(dateMock.getHour()).thenReturn(HOUR);
         when(dateMock.getMinute()).thenReturn(MINUTE);
         when(dateMock.getSecond()).thenReturn(SECOND);
-        when(reportingDateMock.getYear()).thenReturn(REPORTING_EXPIRY_YEAR);
-        when(reportingDateMock.getMonth()).thenReturn(REPORTING_EXPIRY_MONTH);
-        when(reportingDateMock.getDayOfMonth()).thenReturn(REPORTING_DAY_OF_MONTH);
-        when(reportingDateMock.getHour()).thenReturn(REPORTING_HOUR);
-        when(reportingDateMock.getMinute()).thenReturn(REPORTING_MINUTE);
-        when(reportingDateMock.getSecond()).thenReturn(REPORTING_SECOND);
         when(journalMock.getJournalType()).thenReturn(AUTHORISED.name());
         when(journalMock.getBookingDate()).thenReturn(bookingDateMock);
         when(bookingDateMock.getDate()).thenReturn(createDate());
@@ -437,6 +438,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
@@ -460,10 +464,10 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("VISA", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
-        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).getExpiryDate().getDate();
+        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0)).getExpiryDate().getDate();
         when(internalDateReverseConverterMock.convert(date)).thenReturn(dateMock);
 
         final Error error = new Error();
@@ -514,8 +518,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.CARTE_BLEUE.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("VISA", "CARTEBLEUE"));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("VISA", "CARTEBLEUE"));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -528,8 +535,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.CARTE_BANCAIRE.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("ECMC", "CB"));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("ECMC", "CB"));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -542,8 +552,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.VISA.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("VISA", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("VISA", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -556,8 +569,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.AIRPLUS.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("AIRPLUS", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("AIRPLUS", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -570,8 +586,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.AMERICAN_EXPRESS.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("AMEX", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("AMEX", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -584,8 +603,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.DANKORT.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("DANKORT", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("DANKORT", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -598,8 +620,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.DINERS.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("DINERS", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("DINERS", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -612,8 +637,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.DISCOVER.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("DISCOVER", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("DISCOVER", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -626,8 +654,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.JCB.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("JCB", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("JCB", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -640,8 +671,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.MAESTRO.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("MAESTRO", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("MAESTRO", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -654,8 +688,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.UATP.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("UATP", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("UATP", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -668,8 +705,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("MONZO", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("MONZO", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -684,6 +724,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
+
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
@@ -708,10 +751,10 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetailsWithoutCardHolderName());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetailsWithoutCardHolderName());
         tokenElements.add(paymentInstrument);
 
-        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).getExpiryDate().getDate();
+        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0)).getExpiryDate().getDate();
         when(internalDateReverseConverterMock.convert(date)).thenReturn(dateMock);
 
         final Error error = new Error();
@@ -764,6 +807,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
@@ -787,7 +833,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetailsWithoutAddress());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetailsWithoutAddress());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -795,7 +841,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         error.setvalue(ERROR_MESSAGE);
         tokenElements.add(error);
 
-        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().get(0)).getExpiryDate().getDate();
+        final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0)).getExpiryDate().getDate();
         when(internalDateReverseConverterMock.convert(date)).thenReturn(dateMock);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -829,6 +875,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
         final TokenReason tokenReason = new TokenReason();
@@ -854,7 +903,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         when(internalDateReverseConverterMock.convert(reportingTokenExpiry.getDate())).thenReturn(reportingDateMock);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetailsWithoutExpiryDate());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetailsWithoutExpiryDate());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -897,6 +946,8 @@ public class DefaultServiceResponseTransformerHelperTest {
     @Test
     public void shouldBuildTokenReplyWithoutDerived() {
         final Token token = new Token();
+        cardBrand = new CardBrand();
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
         intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
@@ -925,7 +976,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenElements.add(tokenDetail);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetailsWithoutDerived());
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetailsWithoutDerived());
         tokenElements.add(paymentInstrument);
 
         final Error error = new Error();
@@ -985,9 +1036,11 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsNotInPaymentTypeNameMethods() {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
+        cardBrand.setvalue(PaymentType.MASTERCARD.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("ECMC", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("ECMC", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -999,9 +1052,11 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsInPaymentTypeNameMethods() {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
+        cardBrand.setvalue(PaymentType.MASTERCARD.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails("ECMC-SSL", null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("ECMC-SSL", null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -1014,8 +1069,11 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
 
+        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
+
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(createCardDetails(null, null));
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails(null, null));
         tokenElements.add(paymentInstrument);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -1061,9 +1119,11 @@ public class DefaultServiceResponseTransformerHelperTest {
     private CardAddress createCardAddress() {
         final CardAddress cardAddress = new CardAddress();
         final Address address = new Address();
+        final CountryCode countryCode = new CountryCode();
+        countryCode.setvalue(COUNTRY_CODE);
         address.setFirstName(CARD_HOLDER_NAME);
         address.setCity(CITY);
-        address.setCountryCode(COUNTRY_CODE);
+        address.setCountryCode(countryCode);
         address.setLastName(LAST_NAME);
         address.setPostalCode(POSTAL_CODE);
         address.setState(STATE);
@@ -1145,7 +1205,9 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     private Derived createDerived(final String cardBrand, final String cardCoBrand) {
         final Derived derived = new Derived();
-        derived.setCardBrand(cardBrand);
+        this.cardBrand = new CardBrand();
+        this.cardBrand.setvalue(cardBrand);
+        derived.setCardBrand(this.cardBrand);
         derived.setCardCoBrand(cardCoBrand);
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(ISSUER_COUNTRY_CODE);

@@ -54,7 +54,7 @@ public class DefaultWorldpayResponseBuilderTest {
         for (final Object paymentServiceElement : paymentServiceElements) {
             if (paymentServiceElement instanceof Reply) {
                 final Reply reply = (Reply) paymentServiceElement;
-                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
                 assertThat(replyElements, hasItems(instanceOf(OrderStatus.class)));
                 for (final Object replyElement : replyElements) {
                     if (replyElement instanceof OrderStatus) {

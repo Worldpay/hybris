@@ -4,8 +4,6 @@ import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactio
 import com.worldpay.data.*;
 import com.worldpay.data.applepay.ApplePay;
 import com.worldpay.data.applepay.Header;
-import com.worldpay.data.klarna.KlarnaMerchantUrls;
-import com.worldpay.data.klarna.KlarnaPayment;
 import com.worldpay.data.klarna.KlarnaRedirectURLs;
 import com.worldpay.data.payment.Cse;
 import com.worldpay.data.payment.PayWithGoogleSSL;
@@ -24,10 +22,12 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.servicelayer.i18n.CommonI18NService;
+import de.hybris.platform.site.BaseSiteService;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.worldpay.service.model.payment.PaymentType.CSEDATA;
 
@@ -36,21 +36,26 @@ import static com.worldpay.service.model.payment.PaymentType.CSEDATA;
  */
 public class DefaultWorldpayOrderService implements WorldpayOrderService {
 
+    private static final String WEB = "WEB";
+
     protected final CommonI18NService commonI18NService;
     protected final WorldpayUrlService worldpayUrlService;
     protected final WorldpayKlarnaService worldpayKlarnaService;
     protected final CommerceCheckoutService commerceCheckoutService;
+    protected final BaseSiteService baseSiteService;
     protected final RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategy;
 
     public DefaultWorldpayOrderService(final CommonI18NService commonI18NService,
                                        final WorldpayUrlService worldpayUrlService,
                                        final WorldpayKlarnaService worldpayKlarnaService,
                                        final CommerceCheckoutService commerceCheckoutService,
+                                       final BaseSiteService baseSiteService,
                                        final RecurringGenerateMerchantTransactionCodeStrategy recurringGenerateMerchantTransactionCodeStrategy) {
         this.commonI18NService = commonI18NService;
         this.worldpayUrlService = worldpayUrlService;
         this.worldpayKlarnaService = worldpayKlarnaService;
         this.commerceCheckoutService = commerceCheckoutService;
+        this.baseSiteService = baseSiteService;
         this.recurringGenerateMerchantTransactionCodeStrategy = recurringGenerateMerchantTransactionCodeStrategy;
     }
 
@@ -107,6 +112,7 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
         basicOrderInfor.setAmount(amount);
         basicOrderInfor.setDescription(description);
         basicOrderInfor.setOrderCode(worldpayOrderCode);
+        basicOrderInfor.setOrderChannel(WEB);
         return basicOrderInfor;
     }
 
@@ -121,7 +127,10 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
             klarnaPaymentType = PaymentType.getPaymentType(klarnaPaymentMethod);
         }
 
-        final String languageCode = commonI18NService.getLocaleForLanguage(language).toLanguageTag();
+        final String languageCode = Optional.ofNullable(language)
+            .map(languageModel -> commonI18NService.getLocaleForLanguage(languageModel).toLanguageTag())
+            .orElseGet(() -> commonI18NService.getLocaleForLanguage(baseSiteService.getCurrentBaseSite().getDefaultLanguage()).toLanguageTag());
+
         final String locale = languageCode.concat("-").concat(countryCode);
         if (Objects.nonNull(klarnaPaymentType)) {
             final KlarnaRedirectURLs klarnaRedirectURLs = new KlarnaRedirectURLs();

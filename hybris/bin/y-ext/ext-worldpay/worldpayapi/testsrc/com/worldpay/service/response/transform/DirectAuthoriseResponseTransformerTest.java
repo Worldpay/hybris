@@ -65,7 +65,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformShouldCreateServiceResponseFromPaymentServiceWithRequestInfoFor3DS1() throws WorldpayModelTransformationException {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
@@ -113,7 +113,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformWhenNoOrderStatus() throws WorldpayModelTransformationException {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Error error = new Error();
         responses.add(error);
 
@@ -128,7 +128,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformShouldCreateServiceResponseFromPaymentServiceWithRequestInfoFor3DS2() throws Exception {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
@@ -182,7 +182,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformShouldCreateServiceResponseFromPaymentServiceWithRequestInfoAndIssuerURLAndPaRequestIsNull() throws WorldpayModelTransformationException {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
@@ -221,7 +221,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformShouldCreateServiceResponseFromPaymentServiceWithPaymentReply() throws WorldpayModelTransformationException {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
@@ -256,7 +256,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformShouldCreateServiceResponseFromPaymentServiceWithReference() throws WorldpayModelTransformationException {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
@@ -294,7 +294,7 @@ public class DirectAuthoriseResponseTransformerTest {
     public void testTransformShouldCreateServiceResponseFromPaymentServiceWithPaymentAndReference() throws WorldpayModelTransformationException {
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);
@@ -338,7 +338,7 @@ public class DirectAuthoriseResponseTransformerTest {
 
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderCode(ORDER_CODE);
         responses.add(orderStatus);

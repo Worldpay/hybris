@@ -49,7 +49,7 @@ public class TokenPopulator implements Populator<Token, TOKENSSL> {
             .map(internalCardDetailsConverter::convert)
             .ifPresent(cardDetails -> {
                 final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
-                intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(cardDetails);
+                intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(cardDetails);
                 tokenElements.add(intPaymentInstrument);
             });
     }

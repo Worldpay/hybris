@@ -42,7 +42,7 @@ public class SecondThreeDSecurePaymentResponseTransformer extends AbstractServic
         response.setMerchantCode(paymentServiceReply.getMerchantCode());
         response.setVersion(paymentServiceReply.getVersion());
 
-        final List<Object> replyAttribute = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> replyAttribute = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = replyAttribute.stream()
                 .filter(OrderStatus.class::isInstance)
                 .map(OrderStatus.class::cast)

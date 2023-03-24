@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
@@ -67,11 +68,14 @@ public class OrderBuilderTest {
     private Amount amount;
     private BasicOrderInfo basicOrderInfo;
     private static final String MANDATE_TYPE = "mandateType";
+    private static final String CHECKOUT_ID = "checkoutId";
 
     @Mock
     private FraudSightData fraudSightDataMock;
     @Mock
     private BranchSpecificExtension level23DataMock;
+    @Mock
+    private GuaranteedPaymentsData guaranteedPaymentsDataMock;
 
     @Before
     public void setUp() throws Exception {
@@ -165,6 +169,8 @@ public class OrderBuilderTest {
         assertEquals(fraudSightDataMock, order.getFraudSightData());
         assertEquals(level23DataMock, order.getBranchSpecificExtension());
         assertEquals(MANDATE_TYPE, order.getMandateType());
+        assertEquals(guaranteedPaymentsDataMock, order.getGuaranteedPaymentsData());
+        assertEquals(CHECKOUT_ID, order.getCheckoutId());
     }
 
     private Order createOrder() {
@@ -187,6 +193,8 @@ public class OrderBuilderTest {
             .withFraudSightAttribute(fraudSightDataMock)
             .withLevel23Data(level23DataMock)
             .withMandateType(MANDATE_TYPE)
+            .whitGuaranteedPaymentsAttribute(guaranteedPaymentsDataMock)
+            .whitCheckoutId(CHECKOUT_ID)
             .build();
     }
 }

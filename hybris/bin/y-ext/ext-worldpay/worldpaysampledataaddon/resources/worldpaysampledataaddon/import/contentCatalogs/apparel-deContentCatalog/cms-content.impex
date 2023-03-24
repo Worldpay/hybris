@@ -57,3 +57,9 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
 
 INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
                          ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,sofortComponent,sofortCHComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,giropayComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent,sepaComponent
+
+INSERT_UPDATE WorldpayGuaranteedPaymentsComponent; $contentCV[unique = true]; uid[unique = true]                  ; name
+                                                 ;                          ; worldpayGuaranteedPaymentsComponent ; "Worldpay Guaranteed Payments Component"
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]; active; cmsComponents(uid, $contentCV)[mode = append]
+                         ;                          ; TopHeaderSlot     ; true  ; worldpayGuaranteedPaymentsComponent
