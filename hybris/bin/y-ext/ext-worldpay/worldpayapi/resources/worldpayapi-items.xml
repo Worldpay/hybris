@@ -954,6 +954,12 @@
                         <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
                         <description>Enables the FraudSight</description>
                     </attribute>
+                    <attribute qualifier="enableGP" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the Guaranteed Payments</description>
+                    </attribute>
                     <attribute qualifier="enableLevel2" type="java.lang.Boolean">
                         <modifiers optional="false"/>
                         <persistence type="property"/>

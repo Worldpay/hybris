@@ -191,7 +191,7 @@ def platform = platform {
 
     addons {
         forStoreFronts('yacceleratorstorefront') {
-            names 'worldpayaddon', 'worldpaysampledataaddon','commerceorgsamplesaddon', 'customerticketingaddon', 'adaptivesearchsamplesaddon',
+            names 'worldpayaddon', 'worldpaysampledataaddon','commerceorgsamplesaddon', 'customerticketingaddon', 'promotionenginesamplesaddon', 'adaptivesearchsamplesaddon',
                     'pcmbackofficesamplesaddon', 'ordermanagementaddon', 'orderselfserviceaddon', 'consignmenttrackingaddon', 'assistedservicestorefront',
                     'xyformssamples', 'xyformsstorefrontcommons', 'smarteditaddon', 'multicountrysampledataaddon'
             template 'yacceleratorstorefront'
