@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
@@ -65,6 +66,9 @@ public class RedirectAuthoriseServiceRequestTest {
     private static final String USD = "USD";
     private static final String EXPONENT = "2";
     private static final String MANDATE_TYPE = "mandateType";
+    private static final String DELIVERY = "DELIVERY";
+    private static final String AMOUNT = "110";
+    private static final String CHECKOUT_ID = "checkoutId";
 
     private TokenRequest tokenRequest;
     private Address shippingAddress;
@@ -85,6 +89,7 @@ public class RedirectAuthoriseServiceRequestTest {
     private OrderLines orderLines;
     private FraudSightData fraudSightData;
     private BranchSpecificExtension branchSpecificExtension;
+    private GuaranteedPaymentsData guaranteedPaymentsData;
 
     @Before
     public void setUp() throws Exception {
@@ -161,6 +166,18 @@ public class RedirectAuthoriseServiceRequestTest {
         cse.setAddress(this.shippingAddress);
         cse.setEncryptedData(ENCRYPTED_DATA);
         payment = cse;
+
+        final GuaranteedPaymentsData guaranteedPaymentsData = new GuaranteedPaymentsData();
+        guaranteedPaymentsData.setUserAccount(new UserAccount());
+        guaranteedPaymentsData.setFulfillmentMethodType(DELIVERY);
+        guaranteedPaymentsData.setTotalShippingCost(AMOUNT);
+        guaranteedPaymentsData.setSurchargeAmount(AMOUNT);
+        guaranteedPaymentsData.setSecondaryAmount(AMOUNT);
+        guaranteedPaymentsData.setProductDetails(Collections.emptyList());
+        guaranteedPaymentsData.setDiscountCodes(Collections.emptyList());
+        guaranteedPaymentsData.setMemberships(Collections.emptyList());
+
+        this.guaranteedPaymentsData = guaranteedPaymentsData;
     }
 
     @Test
@@ -196,6 +213,8 @@ public class RedirectAuthoriseServiceRequestTest {
         assertEquals(fraudSightData, order.getFraudSightData());
         assertEquals(branchSpecificExtension, order.getBranchSpecificExtension());
         assertEquals(MANDATE_TYPE, order.getMandateType());
+        assertEquals(guaranteedPaymentsData, order.getGuaranteedPaymentsData());
+        assertEquals(CHECKOUT_ID, order.getCheckoutId());
     }
 
     private AuthoriseRequestParameters createRequestParameters() {
@@ -220,6 +239,8 @@ public class RedirectAuthoriseServiceRequestTest {
             .withFraudSightData(fraudSightData)
             .withLevel23Data(branchSpecificExtension)
             .withMandateType(MANDATE_TYPE)
+            .withGuaranteedPaymentsData(guaranteedPaymentsData)
+            .withCheckoutId(CHECKOUT_ID)
             .build();
     }
 

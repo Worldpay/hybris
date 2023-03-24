@@ -295,6 +295,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     @Override
     public DirectResponseData authoriseAndTokenize(final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException {
         final CartModel cart = cartService.getSessionCart();
+        removePaymentInfo(cart);
         setAuthenticatedShopperIdOnAdditionalInfoData(worldpayAdditionalInfoData, cart);
         if (Boolean.TRUE.equals(cseAdditionalAuthInfo.getSaveCard())) {
             return internalTokenizeAndAuthorise(cart, worldpayAdditionalInfoData, cseAdditionalAuthInfo);
@@ -302,6 +303,12 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             tokenize(cart, cseAdditionalAuthInfo, worldpayAdditionalInfoData);
             return authorise(worldpayAdditionalInfoData);
         }
+    }
+
+    private void removePaymentInfo(final CartModel cart) {
+        cart.setPaymentInfo(null);
+        cart.setApmCode(StringUtils.EMPTY);
+        cart.setApmName(StringUtils.EMPTY);
     }
 
     protected String handleAuthoriseRedirectServiceResponse(final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayException {

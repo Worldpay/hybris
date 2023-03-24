@@ -28,6 +28,7 @@ import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commerceservices.enums.CountryType;
+import de.hybris.platform.servicelayer.session.SessionService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,6 +88,8 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private ResourceBreadcrumbBuilder resourceBreadcrumbBuilderMock;
     @Mock
     private CMSPageService cmsPageServiceMock;
+    @Mock
+    private SessionService sessionServiceMock;
     @Mock
     private PageTitleResolver pageTitleResolver;
     @Mock(name = "checkoutFlowGroupMap")

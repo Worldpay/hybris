@@ -211,7 +211,9 @@ public class CreateTokenResponseTransformerTest {
         cardAddress.setAddress(address);
         cardDetails.setCardAddress(cardAddress);
         final Derived derived = new Derived();
-        derived.setCardBrand(CARD_BRAND);
+        final CardBrand cardBrand= new CardBrand();
+        cardBrand.setvalue(CARD_BRAND);
+        derived.setCardBrand(cardBrand);
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(DK);
         derived.setObfuscatedPAN(OBFUSCATED_PAN);

@@ -55,6 +55,8 @@ public class WorldpayOrderModificationMockControllerTest {
     private static final String RESPONSE_FORM = "responseForm";
     private static final String FRAUD_SIGHT_MESSAGES = "fraudSightMessages";
     private static final String FRAUD_SIGHT_REASON_CODES = "fraudSightReasonCodes";
+    private static final String GUARANTEED_PAYMENTS_MESSAGES = "guaranteedPaymentsMessages";
+    private static final String GUARANTEED_PAYMENTS_REASON_CODES = "guaranteedPaymentsTriggeredRules";
 
     @InjectMocks
     private WorldpayOrderModificationMockController testObj = new WorldpayOrderModificationMockController();
@@ -91,14 +93,20 @@ public class WorldpayOrderModificationMockControllerTest {
     private Set<String> fraudSightReasonCodesMock;
     @Mock
     private WorldpayMockConnector worldpayMockConnectorMock;
+    @Mock
+    private Set<String> guaranteedPaymentsMessagesMock;
+    @Mock
+    private Set<String> guaranteedPaymentsTriggeredRulesMock;
 
     private Set<String> merchantSet;
 
     @Before
     public void setUp() throws WorldpayException {
-        ReflectionTestUtils.setField(testObj, "fraudSightMessages", fraudSightMessagesMock);
-        ReflectionTestUtils.setField(testObj, "fraudSightReasonCodes", fraudSightReasonCodesMock);
-        ReflectionTestUtils.setField(testObj, "possibleEvents", possibleEventsMock);
+        ReflectionTestUtils.setField(testObj,GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessagesMock);
+        ReflectionTestUtils.setField(testObj,GUARANTEED_PAYMENTS_REASON_CODES, guaranteedPaymentsTriggeredRulesMock);
+        ReflectionTestUtils.setField(testObj, FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
+        ReflectionTestUtils.setField(testObj, FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
+        ReflectionTestUtils.setField(testObj, POSSIBLE_EVENTS, possibleEventsMock);
 
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(iso8583ResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);
@@ -163,6 +171,8 @@ public class WorldpayOrderModificationMockControllerTest {
         verify(modelMock).put(MERCHANTS, merchantSet);
         verify(modelMock).put(FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
         verify(modelMock).put(FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
+        verify(modelMock).put(GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessagesMock);
+        verify(modelMock).put(GUARANTEED_PAYMENTS_REASON_CODES, guaranteedPaymentsTriggeredRulesMock);
     }
 
     @Test

@@ -1,0 +1,6 @@
+<div class="wp__apm"
+     [class.wp__apm--selected]="(selectedApm$ | async)?.code === apm.code">
+  <cx-media [container]="apm.media"></cx-media>
+
+  <p class="wp__apm-label">{{apm.name}}</p>
+</div>

@@ -35,4 +35,18 @@ public interface WorldpayPaymentCheckoutFacade {
      * @return true if enabled, false otherwise
      */
     boolean isFSEnabled();
+
+    /**
+     * Return true if Guaranteed Payments is enabled, false otherwise
+     *
+     * @return true if enabled, false otherwise
+     */
+    boolean isGPEnabled();
+
+    /**
+     * Creates the checkout ID based on user and cart
+     *
+     * @return the value based on user and cart
+     */
+    String createCheckoutId();
 }

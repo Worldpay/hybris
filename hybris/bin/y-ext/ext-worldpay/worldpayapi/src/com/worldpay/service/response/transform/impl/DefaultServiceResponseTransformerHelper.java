@@ -10,6 +10,7 @@ import com.worldpay.data.token.DeleteTokenReply;
 import com.worldpay.data.token.TokenReply;
 import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.enums.order.AuthorisedStatus;
+import com.worldpay.factories.CardBrandFactory;
 import com.worldpay.internal.model.Error;
 import com.worldpay.internal.model.*;
 import com.worldpay.service.model.payment.PaymentType;
@@ -32,11 +33,14 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     protected final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter;
     protected final Converter<com.worldpay.internal.model.Date, Date> internalDateReverseConverter;
+    protected final CardBrandFactory cardBrandFactory;
 
     public DefaultServiceResponseTransformerHelper(final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter,
-                                                   final Converter<com.worldpay.internal.model.Date, Date> internalDateReverseConverter) {
+                                                   final Converter<com.worldpay.internal.model.Date, Date> internalDateReverseConverter,
+                                                   final CardBrandFactory cardBrandFactory) {
         this.internalAmountReverseConverter = internalAmountReverseConverter;
         this.internalDateReverseConverter = internalDateReverseConverter;
+        this.cardBrandFactory = cardBrandFactory;
     }
 
 
@@ -217,6 +221,8 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         riskScore.setRGID(intRiskScore.getRGID());
         riskScore.setTRisk(intRiskScore.getTRisk());
         riskScore.setTScore(intRiskScore.getTScore());
+        riskScore.setTriggeredRules(intRiskScore.getTriggeredRules());
+        riskScore.setScore(intRiskScore.getScore());
         return riskScore;
     }
 
@@ -350,19 +356,20 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     private com.worldpay.data.payment.Card transformCard(final CardDetails intCardDetails) {
         final Derived derived = intCardDetails.getDerived();
         if (derived != null) {
+            setCardBrand(derived);
             final String cvc = intCardDetails.getCvc() == null ? null : intCardDetails.getCvc().getvalue();
             Date expiryDate = null;
             if (intCardDetails.getExpiryDate() != null) {
                 expiryDate = transformDate(intCardDetails.getExpiryDate().getDate());
             }
             final Address address = transformAddress(intCardDetails.getCardAddress());
-            if (StringUtils.isBlank(derived.getCardBrand()) || Arrays.stream(PaymentType.values()).map(PaymentType::getMethodCode).noneMatch(derived.getCardBrand()::equals)) {
+            if (derived.getCardBrand() == null || StringUtils.isBlank(derived.getCardBrand().getvalue()) || Arrays.stream(PaymentType.values()).map(PaymentType::getMethodCode).noneMatch(derived.getCardBrand().getvalue()::equals)) {
                 setCardBrand(derived);
             }
             final String cardHolderName = transformCardHolderName(intCardDetails.getCardHolderName());
 
             final com.worldpay.data.payment.Card card = new com.worldpay.data.payment.Card();
-            card.setPaymentType(PaymentType.getPaymentType(derived.getCardBrand()).getMethodCode());
+            card.setPaymentType(PaymentType.getPaymentType(derived.getCardBrand().getvalue()).getMethodCode());
             card.setCardNumber(derived.getObfuscatedPAN());
             card.setCvc(cvc);
             card.setExpiryDate(expiryDate);
@@ -376,51 +383,65 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     private void setCardBrand(final Derived derived) {
         if (derived.getCardCoBrand() != null) {
-            if ("VISA".equals(derived.getCardBrand()) && "CARTEBLEUE".equals(derived.getCardCoBrand())) {
-                derived.setCardBrand(PaymentType.CARTE_BLEUE.getMethodCode());
+            if ("VISA".equals(derived.getCardBrand().getvalue()) && "CARTEBLEUE".equals(derived.getCardCoBrand())) {
+                derived.setCardBrand(
+                    cardBrandFactory.createCardBrandWithValue(PaymentType.CARTE_BLEUE.getMethodCode()));
             }
 
-            if ("ECMC".equals(derived.getCardBrand()) && "CB".equals(derived.getCardCoBrand())) {
-                derived.setCardBrand(PaymentType.CARTE_BANCAIRE.getMethodCode());
+            if ("ECMC".equals(derived.getCardBrand().getvalue()) && "CB".equals(derived.getCardCoBrand())) {
+                derived.setCardBrand(
+                    cardBrandFactory.createCardBrandWithValue(PaymentType.CARTE_BANCAIRE.getMethodCode()));
             }
-        } else if (StringUtils.isNotEmpty(derived.getCardBrand())) {
-            switch (derived.getCardBrand()) {
+        } else if (derived.getCardBrand() != null && StringUtils.isNotEmpty(derived.getCardBrand().getvalue())) {
+            switch (derived.getCardBrand().getvalue()) {
                 case "VISA":
-                    derived.setCardBrand(PaymentType.VISA.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.VISA.getMethodCode()));
                     break;
                 case "ECMC":
-                    derived.setCardBrand(PaymentType.MASTERCARD.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.MASTERCARD.getMethodCode()));
                     break;
                 case "AIRPLUS":
-                    derived.setCardBrand(PaymentType.AIRPLUS.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.AIRPLUS.getMethodCode()));
                     break;
                 case "AMEX":
-                    derived.setCardBrand(PaymentType.AMERICAN_EXPRESS.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.AMERICAN_EXPRESS.getMethodCode()));
                     break;
                 case "DANKORT":
-                    derived.setCardBrand(PaymentType.DANKORT.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.DANKORT.getMethodCode()));
                     break;
                 case "DINERS":
-                    derived.setCardBrand(PaymentType.DINERS.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.DINERS.getMethodCode()));
                     break;
                 case "DISCOVER":
-                    derived.setCardBrand(PaymentType.DISCOVER.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.DISCOVER.getMethodCode()));
                     break;
                 case "JCB":
-                    derived.setCardBrand(PaymentType.JCB.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.JCB.getMethodCode()));
                     break;
                 case "MAESTRO":
-                    derived.setCardBrand(PaymentType.MAESTRO.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.MAESTRO.getMethodCode()));
                     break;
                 case "UATP":
-                    derived.setCardBrand(PaymentType.UATP.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.UATP.getMethodCode()));
                     break;
                 default:
-                    derived.setCardBrand(PaymentType.CARD_SSL.getMethodCode());
+                    derived.setCardBrand(
+                        cardBrandFactory.createCardBrandWithValue(PaymentType.CARD_SSL.getMethodCode()));
                     break;
             }
         } else {
-            derived.setCardBrand(PaymentType.CARD_SSL.getMethodCode());
+            derived.setCardBrand(
+                cardBrandFactory.createCardBrandWithValue(PaymentType.CARD_SSL.getMethodCode()));
         }
     }
 

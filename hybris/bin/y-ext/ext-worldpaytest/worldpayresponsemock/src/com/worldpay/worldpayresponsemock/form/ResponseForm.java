@@ -72,6 +72,34 @@ public class ResponseForm implements java.io.Serializable {
     private double fraudSightScore;
     private String fraudSightMessage;
     private Set<String> fraudSightReasonCodes;
+    private boolean useGuaranteedPayments;
+    private double guaranteedPaymentsScore;
+    private String guaranteedPaymentsMessage;
+    private String guaranteedPaymentsTriggeredRules;
+
+    public boolean isUseGuaranteedPayments() {
+        return useGuaranteedPayments;
+    }
+
+    public void setUseGuaranteedPayments(boolean useGuaranteedPayments) {
+        this.useGuaranteedPayments = useGuaranteedPayments;
+    }
+
+    public double getGuaranteedPaymentsScore() {
+        return guaranteedPaymentsScore;
+    }
+
+    public void setGuaranteedPaymentsScore(double guaranteedPaymentsScore) {
+        this.guaranteedPaymentsScore = guaranteedPaymentsScore;
+    }
+
+    public String getGuaranteedPaymentsMessage() {
+        return guaranteedPaymentsMessage;
+    }
+
+    public void setGuaranteedPaymentsMessage(String guaranteedPaymentsMessage) {
+        this.guaranteedPaymentsMessage = guaranteedPaymentsMessage;
+    }
 
     public String getSelectedPaymentMethod() {
         return selectedPaymentMethod;
@@ -615,5 +643,13 @@ public class ResponseForm implements java.io.Serializable {
 
     public void setFraudSightReasonCodes(final Set<String> fraudSightReasonCodes) {
         this.fraudSightReasonCodes = fraudSightReasonCodes;
+    }
+
+    public String getGuaranteedPaymentsTriggeredRules() {
+        return guaranteedPaymentsTriggeredRules;
+    }
+
+    public void setGuaranteedPaymentsTriggeredRules(String guaranteedPaymentsTriggeredRules) {
+        this.guaranteedPaymentsTriggeredRules = guaranteedPaymentsTriggeredRules;
     }
 }

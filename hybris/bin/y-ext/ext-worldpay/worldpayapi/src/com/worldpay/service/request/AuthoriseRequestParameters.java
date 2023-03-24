@@ -38,6 +38,8 @@ public final class AuthoriseRequestParameters {
     private PaymentAction action;
     private BranchSpecificExtension branchSpecificExtension;
     private String mandateType;
+    private GuaranteedPaymentsData guaranteedPaymentsData;
+    private String checkoutId;
 
     private AuthoriseRequestParameters() {
     }
@@ -186,6 +188,22 @@ public final class AuthoriseRequestParameters {
         this.mandateType = mandateType;
     }
 
+    public GuaranteedPaymentsData getGuaranteedPaymentsData() {
+        return guaranteedPaymentsData;
+    }
+
+    public void setGuaranteedPaymentsData(GuaranteedPaymentsData guaranteedPaymentsData) {
+        this.guaranteedPaymentsData = guaranteedPaymentsData;
+    }
+
+    public String getCheckoutId() {
+        return checkoutId;
+    }
+
+    public void setCheckoutId(String checkoutId) {
+        this.checkoutId = checkoutId;
+    }
+
     public interface AuthoriseRequestParametersCreator {
         AuthoriseRequestParametersCreator withOrderLines(OrderLines orderLines);
 
@@ -237,6 +255,10 @@ public final class AuthoriseRequestParameters {
 
         AuthoriseRequestParametersCreator withMandateType(String mandateType);
 
+        AuthoriseRequestParametersCreator withGuaranteedPaymentsData(GuaranteedPaymentsData guaranteedPaymentsData);
+
+        AuthoriseRequestParametersCreator withCheckoutId(String checkoutId);
+
         AuthoriseRequestParameters build();
     }
 
@@ -267,6 +289,8 @@ public final class AuthoriseRequestParameters {
         private PaymentAction action;
         private BranchSpecificExtension branchSpecificExtension;
         private String mandateType;
+        private GuaranteedPaymentsData guaranteedPaymentsData;
+        private String checkoutId;
 
         private AuthoriseRequestParametersBuilder() {
         }
@@ -431,6 +455,18 @@ public final class AuthoriseRequestParameters {
         }
 
         @Override
+        public AuthoriseRequestParametersCreator withGuaranteedPaymentsData(final GuaranteedPaymentsData guaranteedPaymentsData) {
+            this.guaranteedPaymentsData = guaranteedPaymentsData;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withCheckoutId(final String checkoutId) {
+            this.checkoutId = checkoutId;
+            return this;
+        }
+
+        @Override
         public AuthoriseRequestParameters build() {
             final AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
 
@@ -459,6 +495,8 @@ public final class AuthoriseRequestParameters {
             parameters.action = action;
             parameters.branchSpecificExtension = branchSpecificExtension;
             parameters.mandateType = mandateType;
+            parameters.guaranteedPaymentsData = guaranteedPaymentsData;
+            parameters.checkoutId = checkoutId;
 
             return parameters;
         }
@@ -491,6 +529,8 @@ public final class AuthoriseRequestParameters {
             ", deviceSession='" + deviceSession + '\'' +
             ", level23data='" + branchSpecificExtension + '\'' +
             ", mandateType='" + mandateType + '\'' +
+            ", guaranteedPaymentsData='" + guaranteedPaymentsData + '\'' +
+            ", checkoutId='" + checkoutId + '\'' +
             ", action=" + action.name() +
             '}';
     }
