@@ -39,6 +39,8 @@ public class OrderPopulatorTest {
     private static final String PA_RESPONSE = "paResponse";
     private static final String DEVICE_SESSION = "deviceSession";
     private static final String MANDATE_TYPE = "mandateType";
+    public static final String ORDER_CHANNEL = "orderChannel";
+    public static final String CHECKOUT_ID = "checkoutId";
 
     @InjectMocks
     private OrderPopulator testObj;
@@ -57,6 +59,10 @@ public class OrderPopulatorTest {
     private ThreeDS2OrderConvertersWrapper threeDS2OrderConvertersWrapperMock;
     @Mock
     private BasicOrderConvertersWrapper basicOrderConvertersWrapperMock;
+    @Mock
+    private RiskEvaluatorConvertersWrapper riskEvaluatorConvertersWrapperMock;
+    @Mock
+    private Converter<GuaranteedPaymentsData, com.worldpay.internal.model.GuaranteedPaymentsData> internalGuaranteedPaymentsDataConverterMock;
 
     @Mock
     private Converter<Amount, com.worldpay.internal.model.Amount> internalAmountConverterMock;
@@ -72,6 +78,12 @@ public class OrderPopulatorTest {
     private Converter<RiskData, com.worldpay.internal.model.RiskData> internalRiskDataConverterMock;
     @Mock
     private Converter<Additional3DSData, com.worldpay.internal.model.Additional3DSData> internalAdditional3DSDataConverter;
+    @Mock
+    private Converter<PaymentMethodMask, com.worldpay.internal.model.PaymentMethodMask> internalPaymentMethodMaskConverterMock;
+    @Mock
+    private Converter<PaymentDetails, com.worldpay.internal.model.PaymentDetails> internalPaymentDetailsConverterMock;
+    @Mock
+    private Converter<PayAsOrder, com.worldpay.internal.model.PayAsOrder> internalPayAsOrderConverterMock;
 
     @Mock
     private Order sourceMock;
@@ -132,20 +144,19 @@ public class OrderPopulatorTest {
     @Mock
     private com.worldpay.internal.model.FraudSightData intFraudSightDataMock;
     @Mock
-    private Converter<PaymentMethodMask, com.worldpay.internal.model.PaymentMethodMask> internalPaymentMethodMaskConverterMock;
+    private GuaranteedPaymentsData guaranteedPaymentsDataMock;
     @Mock
-    private Converter<PaymentDetails, com.worldpay.internal.model.PaymentDetails> internalPaymentDetailsConverterMock;
-    @Mock
-    private Converter<PayAsOrder, com.worldpay.internal.model.PayAsOrder> internalPayAsOrderConverterMock;
+    private com.worldpay.internal.model.GuaranteedPaymentsData intGuaranteedPaymentMock;
 
     @Before
     public void setUp() {
         paymentOrderConvertersWrapperMock = new PaymentOrderConvertersWrapper(internalPaymentMethodMaskConverterMock, internalPaymentDetailsConverterMock, internalPayAsOrderConverterMock, internalPaymentMethodAttributeConverterMock);
         threeDS2OrderConvertersWrapperMock = new ThreeDS2OrderConvertersWrapper(internalRiskDataConverterMock, internalAdditional3DSDataConverter);
         basicOrderConvertersWrapperMock = new BasicOrderConvertersWrapper(internalAmountConverterMock, internalShopperConverterMock, internalAddressConverterMock, internalSessionConverterMock);
+        riskEvaluatorConvertersWrapperMock = new RiskEvaluatorConvertersWrapper(internalFraudSightDataConverterMock, internalGuaranteedPaymentsDataConverterMock);
 
         testObj = new OrderPopulator(internalBranchSpecificExtensionConverterMock, internalTokenRequestConverterMock, internalOrderLinesConverterMock,
-            internalFraudSightDataConverterMock, paymentOrderConvertersWrapperMock, threeDS2OrderConvertersWrapperMock, basicOrderConvertersWrapperMock);
+            paymentOrderConvertersWrapperMock, threeDS2OrderConvertersWrapperMock, basicOrderConvertersWrapperMock, riskEvaluatorConvertersWrapperMock);
 
     }
 
@@ -182,6 +193,26 @@ public class OrderPopulatorTest {
     @Test
     public void populate_WhenGetAmountIsNull_ShouldNotPopulateAmount() {
         when(sourceMock.getAmount()).thenReturn(null);
+
+        final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
+        testObj.populate(sourceMock, target);
+
+        assertThat(target.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession()).isEmpty();
+    }
+
+    @Test
+    public void populate_WhenGetOrderChannelIsNull_ShouldNotPopulateOrderChannel() {
+        when(sourceMock.getOrderChannel()).thenReturn(null);
+
+        final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
+        testObj.populate(sourceMock, target);
+
+        assertThat(target.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession()).isEmpty();
+    }
+
+    @Test
+    public void populate_WhenGetCheckoutIdIsNull_ShouldNotPopulateCheckoutId() {
+        when(sourceMock.getCheckoutId()).thenReturn(null);
 
         final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
         testObj.populate(sourceMock, target);
@@ -523,6 +554,10 @@ public class OrderPopulatorTest {
         when(sourceMock.getFraudSightData()).thenReturn(fraudSightDataMock);
         when(internalFraudSightDataConverterMock.convert(fraudSightDataMock)).thenReturn(intFraudSightDataMock);
         when(sourceMock.getDeviceSession()).thenReturn(DEVICE_SESSION);
+        when(sourceMock.getGuaranteedPaymentsData()).thenReturn(guaranteedPaymentsDataMock);
+        when(internalGuaranteedPaymentsDataConverterMock.convert(guaranteedPaymentsDataMock)).thenReturn(intGuaranteedPaymentMock);
+        when(sourceMock.getOrderChannel()).thenReturn(ORDER_CHANNEL);
+        when(sourceMock.getCheckoutId()).thenReturn(CHECKOUT_ID);
 
         final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
         testObj.populate(sourceMock, target);
@@ -543,7 +578,7 @@ public class OrderPopulatorTest {
             .orElse(null);
 
         assertThat(objectList)
-            .hasSize(22)
+            .hasSize(25)
             .containsSequence(intBillingAddress, intMandate, intBranchSpecificExtensionMock);
     }
 }

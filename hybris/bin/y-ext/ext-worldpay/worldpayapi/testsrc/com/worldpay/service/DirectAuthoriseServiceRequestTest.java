@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,6 +74,9 @@ public class DirectAuthoriseServiceRequestTest {
     private static final String KLARNA_FAILURE_URL = "klarna-failure-redirect-URL";
     private static final String KLARNA_PENDING_URL = "klarna-pending-redirect-URL";
     private static final String KLARNA_SUCCESS_URL = "klarna-success-redirect-URL";
+    private static final String DELIVERY = "DELIVERY";
+    private static final String AMOUNT = "100";
+    private static final String CHECKOUT_ID = "checkoutId";
 
     @SuppressWarnings("PMD.MemberScope")
     @Rule
@@ -99,6 +103,8 @@ public class DirectAuthoriseServiceRequestTest {
     private Shopper shopper;
     private Shopper shopperWithoutBrowserNorSession;
     private Shopper shopperWithShopperID;
+    private GuaranteedPaymentsData guaranteedPaymentsData;
+    private String checkoutId;
 
     @Before
     public void setUp() {
@@ -116,7 +122,7 @@ public class DirectAuthoriseServiceRequestTest {
         final Amount amount = new Amount();
         amount.setExponent("2");
         amount.setCurrencyCode("EUR");
-        amount.setValue("100");
+        amount.setValue(AMOUNT);
         this.amount = amount;
 
         final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
@@ -193,6 +199,19 @@ public class DirectAuthoriseServiceRequestTest {
         visa.setCardHolderName(SHOPPER_NAME);
         this.visa = visa;
 
+        final GuaranteedPaymentsData guaranteedPaymentsData = new GuaranteedPaymentsData();
+        guaranteedPaymentsData.setUserAccount(new UserAccount());
+        guaranteedPaymentsData.setFulfillmentMethodType(DELIVERY);
+        guaranteedPaymentsData.setTotalShippingCost(AMOUNT);
+        guaranteedPaymentsData.setSurchargeAmount(AMOUNT);
+        guaranteedPaymentsData.setSecondaryAmount(AMOUNT);
+        guaranteedPaymentsData.setProductDetails(Collections.emptyList());
+        guaranteedPaymentsData.setDiscountCodes(Collections.emptyList());
+        guaranteedPaymentsData.setMemberships(Collections.emptyList());
+
+        this.guaranteedPaymentsData = guaranteedPaymentsData;
+
+        this.checkoutId = CHECKOUT_ID;
     }
 
     @Test
@@ -301,6 +320,8 @@ public class DirectAuthoriseServiceRequestTest {
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withAdditional3DSData(additional3DSData)
             .withFraudSightData(fraudSightData)
+            .withGuaranteedPaymentsData(guaranteedPaymentsData)
+            .withCheckoutId(checkoutId)
             .withDeviceSession(DEVICE_SESSION_ID)
             .build();
         DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
@@ -325,6 +346,8 @@ public class DirectAuthoriseServiceRequestTest {
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withAdditional3DSData(additional3DSData)
             .withFraudSightData(fraudSightData)
+            .withGuaranteedPaymentsData(guaranteedPaymentsData)
+            .withCheckoutId(checkoutId)
             .withDeviceSession(DEVICE_SESSION_ID)
             .withLevel23Data(branchSpecificExtension)
             .build();
@@ -336,6 +359,8 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(shopperWithShopperID, result.getOrder().getShopper());
         assertEquals(REFERENCE_ID, result.getOrder().getAdditional3DSData().getDfReferenceId());
         assertEquals(fraudSightData, result.getOrder().getFraudSightData());
+        assertEquals(guaranteedPaymentsData, result.getOrder().getGuaranteedPaymentsData());
+        assertEquals(checkoutId, result.getOrder().getCheckoutId());
         assertEquals(shopperFields, result.getOrder().getFraudSightData().getShopperFields());
         assertEquals(DEVICE_SESSION_ID, result.getOrder().getDeviceSession());
         assertEquals(branchSpecificExtension, result.getOrder().getBranchSpecificExtension());
@@ -486,6 +511,7 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(DynamicInteractionType.ECOMMERCE, resultOrder.getDynamicInteractionType());
         assertEquals(tokenRequest, resultOrder.getTokenRequest());
         assertEquals(fraudSightData, result.getOrder().getFraudSightData());
+        assertEquals(guaranteedPaymentsData, result.getOrder().getGuaranteedPaymentsData());
         assertEquals(shopperFields, result.getOrder().getFraudSightData().getShopperFields());
         assertEquals(DEVICE_SESSION_ID, result.getOrder().getDeviceSession());
         assertEquals(branchSpecificExtension, result.getOrder().getBranchSpecificExtension());
@@ -506,6 +532,8 @@ public class DirectAuthoriseServiceRequestTest {
             .withAdditional3DSData(additional3DSData)
             .withRiskData(riskData)
             .withFraudSightData(fraudSightData)
+            .withGuaranteedPaymentsData(guaranteedPaymentsData)
+            .withCheckoutId(checkoutId)
             .withDeviceSession(DEVICE_SESSION_ID)
             .withLevel23Data(branchSpecificExtension)
             .build();

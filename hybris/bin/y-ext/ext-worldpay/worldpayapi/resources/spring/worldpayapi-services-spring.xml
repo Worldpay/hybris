@@ -184,13 +184,19 @@
 
     <alias name="defaultPaymentInfoService" alias="worldpayPaymentInfoService"/>
     <bean id="defaultPaymentInfoService" class="com.worldpay.core.services.impl.DefaultWorldpayPaymentInfoService">
-        <constructor-arg name="configurationService" ref="configurationService"/>
-        <constructor-arg name="enumerationService" ref="enumerationService"/>
-        <constructor-arg name="modelService" ref="modelService"/>
         <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
         <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
         <constructor-arg name="commerceCheckoutService" ref="commerceCheckoutService"/>
         <constructor-arg name="addressService" ref="addressService"/>
+        <constructor-arg name="wrapper" ref="worldpayServiceWrapper"/>
+    </bean>
+
+    <alias name="defaultWorldpayServiceWrapper" alias="worldpayServiceWrapper"/>
+    <bean id="defaultWorldpayServiceWrapper" class="com.worldpay.core.services.impl.WorldpayServicesWrapper">
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="enumerationService" ref="enumerationService"/>
+        <constructor-arg name="sessionService" ref="sessionService"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
     </bean>
 
     <alias name="defaultWorldpayOrderService" alias="worldpayOrderService"/>
@@ -285,6 +291,9 @@
         <constructor-arg name="addressService" ref="addressService"/>
     </bean>
 
+    <alias name="defaultWorldpayCardBrandFactory" alias="cardBrandFactory"/>
+    <bean id="defaultWorldpayCardBrandFactory" class="com.worldpay.factories.impl.DefaultWorldpayCardBrandFactory"/>
+
     <alias name="defaultOrderInquiryService" alias="orderInquiryService"/>
     <bean id="defaultOrderInquiryService" class="com.worldpay.core.services.impl.DefaultOrderInquiryService">
         <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
@@ -360,6 +369,7 @@
           class="com.worldpay.service.payment.impl.DefaultWorldpayAdditionalRequestDataService">
         <constructor-arg name="worldpayDirectDataRequestStrategies" ref="worldpayDirectDataRequestStrategies"/>
         <constructor-arg name="worldpayRedirectDataRequestStrategies" ref="worldpayRedirectDataRequestStrategies"/>
+        <constructor-arg name="worldpayGuaranteedPaymentsStrategy" ref="worldpayGuaranteedPaymentsStrategy"/>
     </bean>
 
 </beans>

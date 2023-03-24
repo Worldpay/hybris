@@ -74,7 +74,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilderTest {
                 assertNotNull(cardDetails);
                 assertNotNull(cardDetails.getCardAddress());
                 assertEquals(OBFUSCATED_PAN, cardDetails.getDerived().getObfuscatedPAN());
-                assertEquals(VISA_SSL, cardDetails.getDerived().getCardBrand());
+                assertEquals(VISA_SSL, cardDetails.getDerived().getCardBrand().getvalue());
             }
         }
 

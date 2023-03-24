@@ -1,0 +1,18 @@
+<div
+  class="cx-order-items container"
+  *ngIf="order$ | async as order"
+>
+  <h4 class="cx-order-items-header">
+    {{ 'checkoutOrderConfirmation.orderItems' | cxTranslate }}
+  </h4>
+
+  <cx-promotions
+    [promotions]="order.appliedOrderPromotions || []"
+  ></cx-promotions>
+
+  <y-worldpay-cart-item-list
+    [items]="order.entries"
+    [readonly]="true"
+    [promotionLocation]="promotionLocation"
+  ></y-worldpay-cart-item-list>
+</div>

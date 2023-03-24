@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Oct 24 15:01:24 UTC 2022
+#Mon Mar 20 15:10:07 UTC 2023
 version.api=2205
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayextocc
 description=worldpayextocc
-builddate=20221024 1501
+builddate=20230320 1510
 releasedate=20220930 1705
 version=2205.4
 module.name=platform-module
