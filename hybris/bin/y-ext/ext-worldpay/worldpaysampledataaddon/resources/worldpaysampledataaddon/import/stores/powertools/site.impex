@@ -89,4 +89,3 @@ INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ;
 
 UPDATE BaseSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier)
                ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid
-
