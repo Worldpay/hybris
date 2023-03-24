@@ -31,7 +31,7 @@ public final class TokenBuilder {
     private String tokenEvent = TokenEvent.NEW.toString();
     private String cardHolderNameValue = CARDHOLDER_NAME;
     private String obfuscatedPAN = OBFUSCATED_PAN;
-    private String cardBrand = VISA_SSL;
+    private String cardBrandCode = VISA_SSL;
     private String cardSubBrand = CREDIT;
     private String issuerCountryCode = GB;
     private String tokenReasonForTokenDetails;
@@ -40,8 +40,10 @@ public final class TokenBuilder {
     private Date tokenExpiryDate;
     private Date cardExpiryDate;
     private Address cardAddress;
+    private final CardBrand cardBrand;
 
     private TokenBuilder() {
+        cardBrand = new CardBrand();
     }
 
     public static TokenBuilder aTokenBuilder() {
@@ -113,7 +115,7 @@ public final class TokenBuilder {
     }
 
     public TokenBuilder withCardBrand(final String cardBrand) {
-        this.cardBrand = cardBrand;
+        this.cardBrandCode = cardBrand;
         return this;
     }
 
@@ -210,6 +212,7 @@ public final class TokenBuilder {
         cardDetails.setCardHolderName(cardHolderName);
         final Derived derived = new Derived();
         derived.setCardSubBrand(cardSubBrand);
+        cardBrand.setvalue(cardBrandCode);
         derived.setCardBrand(cardBrand);
         derived.setObfuscatedPAN(obfuscatedPAN);
         derived.setIssuerCountryCode(issuerCountryCode);

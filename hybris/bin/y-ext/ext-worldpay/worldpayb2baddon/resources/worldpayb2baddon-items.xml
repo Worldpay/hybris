@@ -39,6 +39,11 @@
 					</attribute>
 				</attributes>
 			</itemtype>
+
+			<itemtype code="WorldpayGuaranteedPaymentsComponent" autocreate="true" generate="true"
+					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayGuaranteedPaymentsComponent">
+			</itemtype>
+
 		</typegroup>
 	</itemtypes>
 </items>

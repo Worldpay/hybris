@@ -6,3 +6,5 @@ INSERT_UPDATE ComponentTypeGroups2ComponentType;source(code)[unique=true];target
 ;worldpaypaymentbuttons;WorldpayCCComponent
 ;worldpaypaymentbuttons;WorldpayGooglePayComponent
 ;worldpaypaymentbuttons;WorldpayApplePayComponent
+;wide;WorldpayGuaranteedPaymentsComponent
+;narrow;WorldpayGuaranteedPaymentsComponent

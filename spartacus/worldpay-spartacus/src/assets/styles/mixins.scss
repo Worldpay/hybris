@@ -1,0 +1,245 @@
+$font-size-base: 1rem !default; //16px
+$h1-font-size: $font-size-base * 1.85; //36px
+$h2-font-size: $font-size-base * 1.75; //28px
+$h3-font-size: $font-size-base * 1.375; //22px
+$h4-font-size: $font-size-base * 1.125; //18px
+$h5-font-size: $font-size-base; //16px
+$h6-font-size: $font-size-base !default;
+$small-font-size: $font-size-base * 0.875; //14px
+$gray-100: #f8f9fa !default;
+$light: $gray-100 !default;
+
+$font-weight-light: "light";
+$font-weight-normal: "normal";
+$font-weight-semi: "semi";
+$font-weight-bold: "bold";
+$font-weight-base: $font-weight-normal !default;
+$line-height-base: 1.5 !default;
+$headings-line-height: 1.2 !default;
+$spacer: 1rem !default;
+$headings-margin-bottom: $spacer * .5 !default;
+
+$grid-breakpoints: (
+        xs: 0,
+        sm: 576px,
+        md: 768px,
+        lg: 992px,
+        xl: 1200px
+) !default;
+$headings-font-weight: 500 !default;
+$type: () !default;
+$type: map-merge(
+                (
+                        "1": $h1-font-size $headings-font-weight,
+                        "2": $h2-font-size $headings-font-weight,
+                        "3": $h3-font-size $headings-font-weight,
+                        "4": $h4-font-size $headings-font-weight,
+                        "5": $h5-font-size $headings-font-weight,
+                        "6": $h6-font-size $headings-font-weight,
+                        "7": $small-font-size $font-weight-normal,
+                ),
+                $type
+);
+
+@function breakpoint-next($name, $breakpoints: $grid-breakpoints, $breakpoint-names: map-keys($breakpoints)) {
+  $n: index($breakpoint-names, $name);
+  @return if($n != null and $n < length($breakpoint-names), nth($breakpoint-names, $n + 1), null);
+}
+
+@function breakpoint-min($name, $breakpoints: $grid-breakpoints) {
+  $min: map-get($breakpoints, $name);
+  @return if($min != 0, $min, null);
+}
+
+@function breakpoint-max($name, $breakpoints: $grid-breakpoints) {
+  $next: breakpoint-next($name, $breakpoints);
+  @return if($next, breakpoint-min($next, $breakpoints) - .02, null);
+}
+
+@function breakpoint-infix($name, $breakpoints: $grid-breakpoints) {
+  @return if(breakpoint-min($name, $breakpoints) == null, "", "-#{$name}");
+}
+
+@mixin media-breakpoint-up($name, $breakpoints: $grid-breakpoints) {
+  $min: breakpoint-min($name, $breakpoints);
+  @if $min {
+    @media (min-width: $min) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin media-breakpoint-down($name, $breakpoints: $grid-breakpoints) {
+  $max: breakpoint-max($name, $breakpoints);
+  @if $max {
+    @media (max-width: $max) {
+      @content;
+    }
+  } @else {
+    @content;
+  }
+}
+
+@mixin media-breakpoint-between($lower, $upper, $breakpoints: $grid-breakpoints) {
+  $min: breakpoint-min($lower, $breakpoints);
+  $max: breakpoint-max($upper, $breakpoints);
+
+  @if $min != null and $max != null {
+    @media (min-width: $min) and (max-width: $max) {
+      @content;
+    }
+  } @else if $max == null {
+    @include media-breakpoint-up($lower, $breakpoints) {
+      @content;
+    }
+  } @else if $min == null {
+    @include media-breakpoint-down($upper, $breakpoints) {
+      @content;
+    }
+  }
+}
+
+@mixin media-breakpoint-only($name, $breakpoints: $grid-breakpoints) {
+  $min: breakpoint-min($name, $breakpoints);
+  $max: breakpoint-max($name, $breakpoints);
+
+  @if $min != null and $max != null {
+    @media (min-width: $min) and (max-width: $max) {
+      @content;
+    }
+  } @else if $max == null {
+    @include media-breakpoint-up($name, $breakpoints) {
+      @content;
+    }
+  } @else if $min == null {
+    @include media-breakpoint-down($name, $breakpoints) {
+      @content;
+    }
+  }
+}
+
+@mixin weight($weight: "normal") {
+  @if type-of($weight) != "string" {
+    font-weight: $weight;
+  } @else {
+    @if $weight == "light" {
+      font-weight: var(--cx-font-weight-light);
+    } @else if $weight == "semi" {
+      font-weight: var(--cx-font-weight-semi);
+    } @else if $weight == "normal" or $weight == "reg" {
+      font-weight: var(--cx-font-weight-normal);
+    } @else if $weight == "bold" {
+      font-weight: var(--cx-font-weight-bold);
+    }
+  }
+}
+
+
+@mixin type($size: "default", $weight: "default") {
+  $size_: $font-size-base;
+  $weight_: $font-weight-normal;
+  $lineheight_: $line-height-base;
+  // $marginbottom_: $paragraph-margin-bottom;
+  @if variable-exists(type) {
+    $list: map-get($type, $size);
+    //do size
+    @if map-has-key($type, $size) {
+      $size_: nth($list, 1);
+      $weight_: nth($list, 2);
+      $lineheight_: $headings-line-height;
+      $marginbottom_: $headings-margin-bottom;
+    }
+    //check weight
+    @if $weight != "default" {
+      $weight_: $weight;
+    }
+  } @else {
+    @warn "Variable $type does not exist";
+  }
+  font-size: var(--cx-font-size, $size_);
+  @include weight($weight_);
+  // removing margin as it is assigned per component
+  //add line-height
+  line-height: var(--cx-line-height, $lineheight_);
+}
+
+@mixin checkout-media-style() {
+  @include media-breakpoint-down(md) {
+    display: block;
+    background-color: var(--cx-color-background);
+  }
+
+  .col-md-12 {
+    @include media-breakpoint-down(md) {
+      padding: 0 4.375rem;
+    }
+
+    @include media-breakpoint-down(sm) {
+      padding: 0 2.25rem;
+    }
+  }
+
+  .container {
+    @include media-breakpoint-down(md) {
+      width: 100%;
+    }
+  }
+
+  .cx-checkout-btns {
+    padding: 1rem 0;
+    justify-content: flex-end;
+
+    @include media-breakpoint-down(md) {
+      padding: 1.25rem 0;
+    }
+    @include media-breakpoint-down(sm) {
+      padding: 1.25rem 0;
+    }
+
+    .btn-action {
+      @include media-breakpoint-down(md) {
+        margin: 0 0 1rem;
+      }
+    }
+  }
+
+  .cx-checkout-title {
+    text-transform: capitalize;
+    margin-top: 0;
+    margin-inline-end: auto;
+    margin-bottom: 0;
+    margin-inline-start: auto;
+    padding: 2.375rem 0 1.75rem 0;
+    @include type("3");
+    font-weight: var(--cx-font-weight-normal);
+  }
+
+  .cx-checkout-body {
+    display: flex;
+    align-items: stretch;
+
+    &.row {
+      @include media-breakpoint-down(md) {
+        padding: 0;
+      }
+    }
+  }
+
+  .cx-checkout-text {
+    margin-bottom: 1.25rem;
+
+    @include media-breakpoint-down(md) {
+      padding-inline-start: 3.5rem;
+    }
+    @include media-breakpoint-down(sm) {
+      padding-inline-start: 1.5rem;
+    }
+  }
+
+  .cx-spinner {
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+}

@@ -2,9 +2,12 @@ package com.worldpay.facades.order.impl;
 
 import com.worldpay.core.checkout.WorldpayCheckoutService;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
+import com.worldpay.service.payment.WorldpayGuaranteedPaymentsStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.commercefacades.customer.CustomerFacade;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
+import de.hybris.platform.commercefacades.user.data.CustomerData;
 import de.hybris.platform.commerceservices.customer.CustomerAccountService;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
@@ -27,6 +30,8 @@ import static org.mockito.Mockito.*;
 public class DefaultWorldpayPaymentCheckoutFacadeTest {
 
     private static final String ADDRESS_DATA_ID = "1234";
+    public static final String CART_CODE = "cartCode";
+    public static final String CUSTOMER_ID = "customerID";
 
     @InjectMocks
     private DefaultWorldpayPaymentCheckoutFacade testObj;
@@ -41,6 +46,10 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
     private CustomerAccountService customerAccountServiceMock;
     @Mock
     private WorldpayFraudSightStrategy worldpayFraudSightStrategyMock;
+    @Mock
+    private WorldpayGuaranteedPaymentsStrategy worldpayGuaranteedPaymentsStrategy;
+    @Mock
+    private CustomerFacade customerFacade;
 
     @Mock
     private AddressData addressDataMock;
@@ -52,6 +61,8 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
     private AddressModel paymentAddressMock;
     @Mock
     private CustomerModel customerModelMock;
+    @Mock
+    private CustomerData customerDataMock;
 
     @Before
     public void setUp() {
@@ -61,6 +72,7 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
         when(customerAccountServiceMock.getAddressForCode(customerModelMock, ADDRESS_DATA_ID)).thenReturn(addressModelMock);
         when(addressDataMock.getId()).thenReturn(ADDRESS_DATA_ID);
         when(worldpayFraudSightStrategyMock.isFraudSightEnabled()).thenReturn(true);
+
     }
 
     @Test
@@ -154,5 +166,46 @@ public class DefaultWorldpayPaymentCheckoutFacadeTest {
         testObj.setBillingDetails(addressDataMock);
 
         verify(worldpayCheckoutServiceMock, never()).setShippingAndPaymentAddress(cartModelMock, addressModelMock);
+    }
+
+    @Test
+    public void isGPEnabled_WhenGPIsEnabled_ShouldReturnTrue() {
+        when(worldpayGuaranteedPaymentsStrategy.isGuaranteedPaymentsEnabled()).thenReturn(true);
+        final boolean result = testObj.isGPEnabled();
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void isGPEnabled_WhenGPIsDisabled_ShouldReturnFalse() {
+        when(worldpayGuaranteedPaymentsStrategy.isGuaranteedPaymentsEnabled()).thenReturn(false);
+
+        final boolean result = testObj.isGPEnabled();
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void createCheckoutId_whenCartHasSession_shouldReturnCustomerIdAndCartCode() {
+        when(cartServiceMock.hasSessionCart()).thenReturn(Boolean.TRUE);
+        when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
+        when(cartModelMock.getCode()).thenReturn(CART_CODE);
+        when(customerFacade.getCurrentCustomer()).thenReturn(customerDataMock);
+        when(customerDataMock.getCustomerId()).thenReturn(CUSTOMER_ID);
+
+        final String result = testObj.createCheckoutId();
+
+        assertThat(result).isEqualTo(CUSTOMER_ID + "_" + CART_CODE);
+    }
+
+    @Test
+    public void createCheckoutId_whenCartNoHasSession_shouldReturnCustomerId() {
+        when(cartServiceMock.hasSessionCart()).thenReturn(Boolean.FALSE);
+        when(customerFacade.getCurrentCustomer()).thenReturn(customerDataMock);
+        when(customerDataMock.getCustomerId()).thenReturn(CUSTOMER_ID);
+
+        final String result = testObj.createCheckoutId();
+
+        assertThat(result).isEqualTo(CUSTOMER_ID);
     }
 }

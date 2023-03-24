@@ -1,6 +1,7 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
 import com.worldpay.enums.token.TokenEvent;
+import com.worldpay.factories.CardBrandFactory;
 import com.worldpay.internal.model.*;
 
 import java.time.LocalDateTime;
@@ -11,11 +12,17 @@ import java.util.UUID;
  */
 public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.worldpayresponsemock.responses.WorldpayTokenCreateResponseBuilder {
 
+    protected final CardBrandFactory cardBrandFactory;
+
     private static final String CC_OWNER = "ccOwner";
     private static final String CARD_BRAND = "VISA";
     private static final String CARD_SUB_BRAND = "VISA_CREDIT";
     private static final String ISSUER_COUNTRY_CODE = "N/A";
     private static final String OBFUSCATED_PAN = "4444********1111";
+
+    public DefaultWorldpayTokenCreateResponseBuilder(CardBrandFactory cardBrandFactory) {
+        this.cardBrandFactory = cardBrandFactory;
+    }
 
     /**
      * {@inheritDoc}
@@ -65,7 +72,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
         cardDetails.setCardHolderName(cardHolderName);
 
         final Derived derived = new Derived();
-        derived.setCardBrand(CARD_BRAND);
+        derived.setCardBrand(cardBrandFactory.createCardBrandWithValue(CARD_BRAND));
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(ISSUER_COUNTRY_CODE);
         derived.setObfuscatedPAN(OBFUSCATED_PAN);

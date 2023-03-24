@@ -208,6 +208,7 @@
                 <option value="RMM">Risk Management Module</option>
                 <option value="RG">Risk Guardian</option>
                 <option value="FS">Fraud Sight</option>
+                <option value="GP">Guaranteed Payments</option>
             </form:select>
         </label>
 
@@ -254,6 +255,36 @@
                 <span>Risk reasons:</span>
                 <form:select path="fraudSightReasonCodes" multiple="multiple">
                     <form:options items="${fraudSightReasonCodes}"/>
+                </form:select>
+            </form:label>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Guaranteed Payments</legend>
+
+        <form:label path="useGuaranteedPayments">
+            <span>Enable Guaranteed Payments:</span>
+            <form:checkbox path="useGuaranteedPayments" id="useGuaranteedPayments" value="${useGuaranteedPayments}"/>
+        </form:label>
+
+        <div id="guaranteedPaymentsContainer" class="hide">
+            <form:label path="guaranteedPaymentsScore">
+                <span>Guaranteed Payments score:</span>
+                <form:input type="number" path="guaranteedPaymentsScore" id="guaranteedPaymentsScore"/>
+            </form:label>
+
+            <form:label path="guaranteedPaymentsMessage">
+                <span>Risk decision values:</span>
+                <form:select path="guaranteedPaymentsMessage">
+                    <form:options items="${guaranteedPaymentsMessages}"/>
+                </form:select>
+            </form:label>
+
+            <form:label path="guaranteedPaymentsTriggeredRules">
+                <span>Risk reasons:</span>
+                <form:select path="guaranteedPaymentsTriggeredRules" multiple="multiple">
+                    <form:options items="${guaranteedPaymentsTriggeredRules}"/>
                 </form:select>
             </form:label>
         </div>
@@ -581,6 +612,14 @@
             $('#fraudSightContainer').removeClass('hide');
         } else {
             $('#fraudSightContainer').addClass('hide');
+        }
+    });
+
+    $('#useGuaranteedPayments').change(function () {
+        if (this.checked) {
+            $('#guaranteedPaymentsContainer').removeClass('hide');
+        } else {
+            $('#guaranteedPaymentsContainer').addClass('hide');
         }
     });
 

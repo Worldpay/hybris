@@ -1,6 +1,7 @@
 package com.worldpay.converters.populators.internal.model.token;
 
 import com.worldpay.data.token.CardDetails;
+import com.worldpay.factories.CardBrandFactory;
 import com.worldpay.internal.model.*;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
@@ -17,11 +18,14 @@ public class CardDetailsPopulator implements Populator<CardDetails, com.worldpay
 
     protected final Converter<com.worldpay.data.Address, Address> internalAddressConverter;
     protected final Converter<com.worldpay.data.Date, Date> internalDateConverter;
+    protected final CardBrandFactory cardBrandFactory;
 
     public CardDetailsPopulator(final Converter<com.worldpay.data.Address, com.worldpay.internal.model.Address> internalAddressConverter,
-                                final Converter<com.worldpay.data.Date, com.worldpay.internal.model.Date> internalDateConverter) {
+                                final Converter<com.worldpay.data.Date, com.worldpay.internal.model.Date> internalDateConverter,
+                                final CardBrandFactory cardBrandFactory) {
         this.internalAddressConverter = internalAddressConverter;
         this.internalDateConverter = internalDateConverter;
+        this.cardBrandFactory = cardBrandFactory;
     }
 
     /**
@@ -65,7 +69,7 @@ public class CardDetailsPopulator implements Populator<CardDetails, com.worldpay
             internalDerived.setObfuscatedPAN(cardNumber);
             internalDerived.setIssuerCountryCode(source.getIssuerCountryCode());
             internalDerived.setCardSubBrand(source.getCardSubBrand());
-            internalDerived.setCardBrand(source.getCardBrand());
+            internalDerived.setCardBrand(cardBrandFactory.createCardBrandWithValue(source.getCardBrand()));
             target.setDerived(internalDerived);
         });
     }

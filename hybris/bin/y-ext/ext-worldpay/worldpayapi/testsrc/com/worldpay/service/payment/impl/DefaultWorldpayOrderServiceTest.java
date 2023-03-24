@@ -59,6 +59,7 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String DATA = "data";
     private static final String SIGNATURE = "signature";
     private static final String VERSION = "version";
+    private static final String WEB = "WEB";
 
     private static final String KLARNA_V2_SSL = "KLARNA_V2-SSL";
     private static final String KLARNA_PAYNOW_SSL = "KLARNA_PAYNOW-SSL";
@@ -158,6 +159,7 @@ public class DefaultWorldpayOrderServiceTest {
         assertEquals(amountMock, result.getAmount());
         assertEquals(ORDER_DESCRIPTION, result.getDescription());
         assertEquals(WORLDPAY_ORDER_CODE, result.getOrderCode());
+        assertEquals(WEB, result.getOrderChannel());
     }
 
     @Test
