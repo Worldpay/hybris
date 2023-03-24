@@ -118,6 +118,7 @@
         <ref bean="worldpayFraudSightStrategy"/>
         <ref bean="worldpayPrimeRoutingStrategy"/>
         <ref bean="worldpayLevel23Strategy"/>
+        <ref bean="worldpayGuaranteedPaymentsStrategy"/>
     </util:list>
 
     <util:list id="worldpayRedirectDataRequestStrategies"
@@ -125,6 +126,7 @@
         <ref bean="worldpayFraudSightStrategy"/>
         <ref bean="worldpayLevel23Strategy"/>
         <ref bean="worldpaySepaMandateStrategy"/>
+        <ref bean="worldpayGuaranteedPaymentsStrategy"/>
     </util:list>
 
     <alias name="defaultWorldpaySepaMandateStrategy" alias="worldpaySepaMandateStrategy"/>
@@ -169,4 +171,16 @@
 
     <bean id="worldpayEntryCodeStrategy" class="com.worldpay.transaction.impl.WorldpayEntryCodeStrategyImpl"/>
 
+    <bean id="abstractWorldpayGuaranteedPaymentsStrategy"
+          class="com.worldpay.service.payment.impl.AbstractWorldpayGuaranteedPaymentsStrategy" abstract="true"/>
+
+    <alias name="defaultWorldpayGuaranteedPaymentsStrategy" alias="worldpayGuaranteedPaymentsStrategy"/>
+    <bean id="defaultWorldpayGuaranteedPaymentsStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayGuaranteedPaymentsStrategy"
+          parent="abstractWorldpayGuaranteedPaymentsStrategy">
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="baseSiteService" ref="baseSiteService"/>
+        <constructor-arg name="worldpayDateConverter" ref="worldpayDateConverter"/>
+        <constructor-arg name="worldpayProductConverter" ref="worldpayProductConverter"/>
+    </bean>
 </beans>

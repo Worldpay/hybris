@@ -35,6 +35,7 @@ import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.session.SessionService;
 import de.hybris.platform.servicelayer.user.AddressService;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
@@ -71,13 +72,11 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String CARD_EXPIRY_MONTH = "cardExpiryMonth";
     private static final String CARD_EXPIRY_YEAR = "cardExpiryYear";
     private static final String CARD_HOLDER_NAME = "cardHolderName";
-    private static final String CARD_DETAILS_NUMBER = "cardDetailsNumber";
     private static final String CARD_DETAILS_EXPIRY_MONTH = "cardDetailsExpiryMonth";
     private static final String CARD_DETAILS_EXPIRY_YEAR = "cardDetailsExpiryYear";
     private static final String CARD_DETAILS_HOLDER_NAME = "cardDetailsHolderName";
     private static final Date CREATION_TIME = Date.from(Instant.now());
     private static final String ORDER_CODE = "orderCode";
-    private static final Double TOTAL_PRICE = Double.valueOf("100.0");
     private static final String AUTHENTICATED_SHOPPER_ID = "authenticatedShopperId";
     private static final String TOKEN_REFERENCE = "tokenReference";
     private static final String APM_CODE = "apmCode";
@@ -103,7 +102,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @SuppressWarnings("PMD.MemberScope")
     public ExpectedException thrown = ExpectedException.none();
 
-    @Spy
     @InjectMocks
     private DefaultWorldpayPaymentInfoService testObj;
 
@@ -119,6 +117,10 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private AddressService addressServiceMock;
     @Mock
     private CommerceCheckoutService commerceCheckoutServiceMock;
+    @Mock
+    private SessionService sessionServiceMock;
+    @Mock
+    private WorldpayServicesWrapper worldpayServicesWrapperMock;
 
     @Mock
     private CreditCardPaymentInfoModel creditCardPaymentInfoModelMock;
@@ -186,17 +188,15 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
+        worldpayServicesWrapperMock = new WorldpayServicesWrapper(modelServiceMock, sessionServiceMock, enumerationServiceMock, configurationServiceMock);
+        testObj = new DefaultWorldpayPaymentInfoService(apmConfigurationLookupServiceMock, worldpayMerchantInfoServiceMock, commerceCheckoutServiceMock, addressServiceMock, worldpayServicesWrapperMock);
         when(cartModelMock.getCode()).thenReturn(ORDER_CODE);
         when(cartModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(cartModelMock.getTotalPrice()).thenReturn(TOTAL_PRICE);
-        when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
         when(cartModelMock.getUser()).thenReturn(userModelMock);
         when(orderModelMock.getUser()).thenReturn(userModelMock);
         when(orderModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
+        doReturn(paymentAddressModelMock).when(orderModelMock).getPaymentAddress();
         when(paymentInfoMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(savedCreditCardPaymentInfoMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(worldpayAPMPaymentInfoModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(modelServiceMock.create(PaymentInfoModel.class)).thenReturn(orderPaymentInfoModelMock);
         when(modelServiceMock.create(CreditCardPaymentInfoModel.class)).thenReturn(creditCardPaymentInfoModelMock);
         when(paymentTransactionModelMock.getInfo()).thenReturn(paymentTransactionPaymentInfoModelMock);
@@ -205,7 +205,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(cardMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME);
         when(cardMock.getExpiryDate().getMonth()).thenReturn(CARD_EXPIRY_MONTH);
         when(cardMock.getExpiryDate().getYear()).thenReturn(CARD_EXPIRY_YEAR);
-        when(cardDetailsMock.getCardNumber()).thenReturn(CARD_DETAILS_NUMBER);
         when(cardDetailsMock.getCardHolderName()).thenReturn(CARD_DETAILS_HOLDER_NAME);
         when(cardDetailsMock.getExpiryDate().getMonth()).thenReturn(CARD_DETAILS_EXPIRY_MONTH);
         when(cardDetailsMock.getExpiryDate().getYear()).thenReturn(CARD_DETAILS_EXPIRY_YEAR);
@@ -223,7 +222,9 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(tokenReplyMock.getTokenDetails().getTokenEventReference()).thenReturn(TOKEN_REFERENCE);
         when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.VISA.getMethodCode());
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CREDIT_CARD_MAPPINGS + paymentReplyMock.getPaymentMethodCode())).thenReturn(VISA.getCode());
-        doReturn(DATE_TIME).when(testObj).getDateTime(dateMock);
+        when(dateMock.getYear()).thenReturn("2020");
+        when(dateMock.getDayOfMonth()).thenReturn("15");
+        when(dateMock.getMonth()).thenReturn("2");
         when(tokenReplyMock.getTokenDetails().getPaymentTokenExpiry()).thenReturn(dateMock);
         when(tokenReplyMock.getTokenDetails().getPaymentTokenID()).thenReturn(PAYMENT_TOKEN_ID);
         when(modelServiceMock.clone(paymentTransactionPaymentInfoModelMock, WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
@@ -232,16 +233,14 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(paymentTransactionModelMock.getCreationtime()).thenReturn(CREATION_TIME);
         when(worldpayAPMConfigurationModelMock.getAutoCancelPendingTimeoutInMinutes()).thenReturn(TIMEOUT_IN_MINUTES);
         when(userModelMock.getPaymentInfos()).thenReturn(Arrays.asList(paymentInfoMock, savedCreditCardPaymentInfoMock, savedAPMPaypalPaymentInfoMock, savedAPMGooglePaymentInfoMock));
-        when(savedAPMPaypalPaymentInfoMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(savedAPMGooglePaymentInfoMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
         when(savedCreditCardPaymentInfoMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
         when(applePayAdditionalAuthInfoMock.getVersion()).thenReturn(VERSION);
         when(applePayAdditionalAuthInfoMock.getHeader().getTransactionId()).thenReturn(TRANSACTION_ID);
-        when(modelServiceMock.clone(any(PaymentTransactionModel.class), eq(CreditCardPaymentInfoModel.class))).thenReturn(creditCardPaymentInfoModelMock);
         when(worldpayMerchantInfoServiceMock.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoModelMock);
         when(merchantInfoModelMock.getMerchantCode()).thenReturn(MERCHANT_ID);
         when(cartModelMock.getPaymentTransactions()).thenReturn(List.of(paymentTransactionModelMock));
         when(paymentTransactionModelMock.getCode()).thenReturn(WORLDPAY_ORDER_CODE);
+        when(sessionServiceMock.getAttribute("paymentMethod")).thenReturn("paymentMethod");
     }
 
     @Test
@@ -305,7 +304,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     public void setPaymentInfoModel_ShouldCreateCreditCardPaymentInfoModelWithoutTokenAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
         when(modelServiceMock.clone(paymentTransactionPaymentInfoModelMock, CreditCardPaymentInfoModel.class)).thenReturn(creditCardPaymentInfoModelMock);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(null);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
@@ -319,7 +317,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setType(VISA);
         verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
 
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -327,9 +325,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void setPaymentInfoModel_WhenPaymentTransactionHasACreditCardPaymentInfoThatHasASubscriptionId_ShouldNotCreateCreditCardPaymentInfoModel() throws WorldpayConfigurationException {
-        when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
-
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(null);
         when(paymentTransactionModelMock.getInfo()).thenReturn(creditCardPaymentInfoModelMock);
         when(creditCardPaymentInfoModelMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
@@ -345,13 +340,10 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void setPaymentInfoModel_WhenPaymentTransactionHasACreditCardPaymentInfoThatDoesNotHaveSubscriptionId_ShouldNotCreateCreditCardPaymentInfoModel() throws WorldpayConfigurationException {
-        when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
-
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(null);
         when(paymentTransactionModelMock.getInfo()).thenReturn(creditCardPaymentInfoModelMock);
         when(creditCardPaymentInfoModelMock.getSubscriptionId()).thenReturn(null);
-        when(modelServiceMock.clone(paymentTransactionPaymentInfoModelMock, WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
+        when(modelServiceMock.clone(paymentTransactionModelMock.getInfo(), CreditCardPaymentInfoModel.class)).thenReturn(creditCardPaymentInfoModelMock);
 
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
@@ -367,7 +359,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     public void setPaymentInfoModel_ShouldCreateCreditCardPaymentInfoModelWithTokenAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(false);
         when(modelServiceMock.clone(paymentTransactionPaymentInfoModelMock, CreditCardPaymentInfoModel.class)).thenReturn(creditCardPaymentInfoModelMock);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
@@ -383,7 +374,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setExpiryDate(java.util.Date.from(DATE_TIME.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
 
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -392,14 +383,12 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Test
     public void setPaymentInfoModel_ShouldUseExistingCreditCardForTokenInformationAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(MATCH);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getOrder().getUser()).thenReturn(userModelMock);
         when(savedCreditCardPaymentInfoMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
-        when(savedCreditCardPaymentInfoMock.isSaved()).thenReturn(true);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(savedCreditCardPaymentInfoMock);
         verify(paymentTransactionModelMock).setInfo(savedCreditCardPaymentInfoMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -407,17 +396,15 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void setPaymentInfoModel_IfNotFoundCreditCardForTokenInformation_ShouldCreateItAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
-        doReturn(DATE_TIME).when(testObj).getDateTime(dateMock);
 
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(MATCH);
         when(modelServiceMock.clone(paymentTransactionPaymentInfoModelMock, CreditCardPaymentInfoModel.class)).thenReturn(creditCardPaymentInfoModelMock);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(paymentTransactionModelMock.getOrder().getUser()).thenReturn(userModelMock);
         when(savedCreditCardPaymentInfoMock.getSubscriptionId()).thenReturn(ANOTHER_SUBSCRIPTION_ID);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(creditCardPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(creditCardPaymentInfoModelMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -426,14 +413,13 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Test
     public void setPaymentInfoModel_ShouldCreateAPMPaymentInfoModelAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
         verify(worldpayAPMPaymentInfoModelMock).setApmConfiguration(worldpayAPMConfigurationModelMock);
         verify(worldpayAPMPaymentInfoModelMock).setSaved(false);
         verify(worldpayAPMPaymentInfoModelMock).setTimeoutDate(DateUtils.addMinutes(CREATION_TIME, TIMEOUT_IN_MINUTES));
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(worldpayAPMPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(worldpayAPMPaymentInfoModelMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -442,7 +428,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Test
     public void setPaymentInfoModel_WhenPaymentTypeIsPaypalAndPAMPaymentInfoNotFound_ShouldCreatePaypalTokenizedPaymentInfoAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
         when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.PAYPAL.getMethodCode());
 
@@ -454,7 +439,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(worldpayAPMPaymentInfoModelMock).setSaved(true);
         verify(worldpayAPMPaymentInfoModelMock).setBillingAddress(paymentAddressModelMock);
         verify(worldpayAPMPaymentInfoModelMock).setExpiryDate(java.util.Date.from(DATE_TIME.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.PAYPAL.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.PAYPAL.getMethodCode());
         verify(orderModelMock).setPaymentInfo(worldpayAPMPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(worldpayAPMPaymentInfoModelMock);
         verify(modelServiceMock, times(2)).save(worldpayAPMPaymentInfoModelMock);
@@ -464,7 +449,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Test
     public void setPaymentInfoModel_WhenPaymentTypeIsPaypalAndPAMPaymentInfoIsFound_ShouldUseExistingPaypalTokenizedPaymentInfoAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
         when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.PAYPAL.getMethodCode());
         when(savedAPMPaypalPaymentInfoMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
@@ -472,7 +456,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.PAYPAL.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.PAYPAL.getMethodCode());
         verify(orderModelMock).setPaymentInfo(savedAPMPaypalPaymentInfoMock);
         verify(paymentTransactionModelMock).setInfo(savedAPMPaypalPaymentInfoMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -483,14 +467,13 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
         when(worldpayAPMConfigurationModelMock.getCode()).thenReturn(APM_CODE);
         when(worldpayAPMConfigurationModelMock.getAutoCancelPendingTimeoutInMinutes()).thenReturn(null);
-        when(paymentTransactionModelMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
         verify(worldpayAPMPaymentInfoModelMock).setApmConfiguration(worldpayAPMConfigurationModelMock);
         verify(worldpayAPMPaymentInfoModelMock).setSaved(false);
         verify(worldpayAPMPaymentInfoModelMock).setTimeoutDate(null);
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(worldpayAPMPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(worldpayAPMPaymentInfoModelMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -506,18 +489,16 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void createCreditCardPaymentInfo_ShouldCreateAndPopulateCreditCardPaymentInfoForCreateTokenResponse() {
-        doReturn(CC_PAYMENT_INFO_MODEL_CODE).when(testObj).generateCcPaymentInfoCode(cartModelMock);
-        when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(NEW);
         when(tokenReplyMock.getPaymentInstrument().getPaymentType()).thenReturn(PaymentType.VISA.getMethodCode());
         when(tokenReplyMock.getPaymentInstrument().getBin()).thenReturn(BIN);
         when(cartModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
-        doReturn(clonedAddressMock).when(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, creditCardPaymentInfoModelMock);
+        doReturn(clonedAddressMock).when(addressServiceMock).cloneAddressForOwner(paymentAddressModelMock, creditCardPaymentInfoModelMock);
 
         testObj.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, false, MERCHANT_ID);
 
         verify(modelServiceMock).save(creditCardPaymentInfoModelMock);
-        verify(creditCardPaymentInfoModelMock).setCode(CC_PAYMENT_INFO_MODEL_CODE);
+        verify(creditCardPaymentInfoModelMock).setCode(any());
         verify(creditCardPaymentInfoModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
         verify(creditCardPaymentInfoModelMock).setUser(userModelMock);
         verify(creditCardPaymentInfoModelMock).setSaved(false);
@@ -526,21 +507,19 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(creditCardPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(creditCardPaymentInfoModelMock).setMerchantId(MERCHANT_ID);
         verify(creditCardPaymentInfoModelMock).setBin(BIN);
-        verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, creditCardPaymentInfoModelMock);
+        verify(addressServiceMock).cloneAddressForOwner(cartModelMock.getPaymentAddress(), creditCardPaymentInfoModelMock);
     }
 
     @Test
     public void createCreditCardPaymentInfo_WhenPaymentTypeIsNull_ShouldSetCreditCardTypeToCard() {
-        doReturn(CC_PAYMENT_INFO_MODEL_CODE).when(testObj).generateCcPaymentInfoCode(cartModelMock);
-        when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(NEW);
-        when(cartModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
-        doReturn(clonedAddressMock).when(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, creditCardPaymentInfoModelMock);
+        doReturn(paymentAddressModelMock).when(cartModelMock).getPaymentAddress();
+        doReturn(clonedAddressMock).when(addressServiceMock).cloneAddressForOwner(paymentAddressModelMock, creditCardPaymentInfoModelMock);
 
         testObj.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, false, MERCHANT_ID);
 
         verify(creditCardPaymentInfoModelMock).setType(CreditCardType.CARD);
-        verify(testObj).cloneAndSetBillingAddressFromCart(cartModelMock, creditCardPaymentInfoModelMock);
+        verify(addressServiceMock).cloneAddressForOwner(cartModelMock.getPaymentAddress(), creditCardPaymentInfoModelMock);
     }
 
     @Test
@@ -565,10 +544,8 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void createCreditCardPaymentInfo_ShouldUseExistingCreditCardForTokenInformationAndSaveItToOrderForCreateTokenResponse() {
-        when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(MATCH);
         when(savedCreditCardPaymentInfoMock.isSaved()).thenReturn(false);
-        when(cartModelMock.getPaymentAddress()).thenReturn(paymentAddressModelMock);
 
         testObj.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, true, MERCHANT_ID);
 
@@ -579,7 +556,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void createCreditCardPaymentInfo_IfAlreadySaved_ShouldNotUpdateExistingCard() {
-        when(createTokenResponseMock.getToken()).thenReturn(tokenReplyMock);
         when(tokenReplyMock.getTokenDetails().getTokenEvent()).thenReturn(MATCH);
         when(savedCreditCardPaymentInfoMock.isSaved()).thenReturn(true);
 
@@ -590,8 +566,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void updateAndAttachPaymentInfoModel_WhenIsCalled_ShouldUpdateAndAttachPaymentInfoToOrderAndTransaction() {
-        doReturn(CC_PAYMENT_INFO_MODEL_CODE).when(testObj).generateCcPaymentInfoCode(cartModelMock);
-
         testObj.updateAndAttachPaymentInfoModel(paymentTransactionModelMock, cartModelMock, creditCardPaymentInfoModelMock);
 
         verify(creditCardPaymentInfoModelMock).setWorldpayOrderCode(WORLDPAY_ORDER_CODE);
@@ -711,10 +685,6 @@ public class DefaultWorldpayPaymentInfoServiceTest {
 
     @Test
     public void PaymentInfoGooglePay_ShouldNotCreatePaymentInfoWithGooglePayInformationWhenExistingTokenisedAPMInfoExists() {
-        when(googlePayAdditionAuthInfoMock.getSignedMessage()).thenReturn(SIGNED_MESSAGE);
-        when(googlePayAdditionAuthInfoMock.getSignature()).thenReturn(SIGNATURE);
-        when(googlePayAdditionAuthInfoMock.getProtocolVersion()).thenReturn(PROTOCOL_VERSION);
-        when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(PaymentType.PAYWITHGOOGLESSL.getMethodCode())).thenReturn(worldpayAPMConfigurationModelMock);
         when(savedAPMGooglePaymentInfoMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
         when(savedAPMGooglePaymentInfoMock.isSaved()).thenReturn(true);
 
@@ -809,6 +779,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     @Test
     public void createPaymentInfoApplePay_ShouldCreateApplePayPaymentInfoAndSetItAsPaymentInfoOnTheCart() {
         when(modelServiceMock.create(ApplePayPaymentInfoModel.class)).thenReturn(applePayPaymentInfoModelMock);
+        when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(PaymentType.APPLEPAYSSL.getMethodCode())).thenReturn(worldpayAPMConfigurationModelMock);
 
         final ApplePayPaymentInfoModel result = (ApplePayPaymentInfoModel) testObj.createPaymentInfoApplePay(cartModelMock, applePayAdditionalAuthInfoMock);
 
@@ -818,6 +789,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(applePayPaymentInfoModelMock).setCode(startsWith(ORDER_CODE));
         verify(applePayPaymentInfoModelMock).setTransactionId(TRANSACTION_ID);
         verify(applePayPaymentInfoModelMock).setVersion(VERSION);
+        verify(applePayPaymentInfoModelMock).setApmConfiguration(worldpayAPMConfigurationModelMock);
         verify(cartModelMock).setPaymentInfo(applePayPaymentInfoModelMock);
         verify(modelServiceMock).save(cartModelMock);
         verify(modelServiceMock).save(applePayPaymentInfoModelMock);
@@ -881,7 +853,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     }
 
     private void verifyCardNotCreated() {
-        verify(testObj).savePaymentType(paymentTransactionModelMock, PaymentType.VISA.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.VISA.getMethodCode());
         verify(orderModelMock).setPaymentInfo(savedCreditCardPaymentInfoMock);
         verify(paymentTransactionModelMock).setInfo(savedCreditCardPaymentInfoMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);

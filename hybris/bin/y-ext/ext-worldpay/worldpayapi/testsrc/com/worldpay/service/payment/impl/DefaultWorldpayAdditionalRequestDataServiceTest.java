@@ -23,6 +23,8 @@ public class DefaultWorldpayAdditionalRequestDataServiceTest {
     @Mock
     private WorldpayAdditionalDataRequestStrategy primeRoutingStrategyMock, level23StrategyMock, fraudSightStrategyMock;
     @Mock
+    private WorldpayAdditionalDataRequestStrategy worldpayGuaranteedPaymentsStrategyMock;
+    @Mock
     private AbstractOrderModel cartMock;
     @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
@@ -31,7 +33,7 @@ public class DefaultWorldpayAdditionalRequestDataServiceTest {
 
     @Before
     public void setUp() {
-        testObj = new DefaultWorldpayAdditionalRequestDataService(ImmutableList.of(primeRoutingStrategyMock, level23StrategyMock, fraudSightStrategyMock), ImmutableList.of(level23StrategyMock, fraudSightStrategyMock));
+        testObj = new DefaultWorldpayAdditionalRequestDataService(ImmutableList.of(primeRoutingStrategyMock, level23StrategyMock, fraudSightStrategyMock), ImmutableList.of(level23StrategyMock, fraudSightStrategyMock), worldpayGuaranteedPaymentsStrategyMock);
     }
 
     @Test

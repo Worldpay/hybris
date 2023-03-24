@@ -15,11 +15,14 @@ public class DefaultWorldpayAdditionalRequestDataService implements WorldpayAddi
 
     protected final List<WorldpayAdditionalDataRequestStrategy> worldpayDirectDataRequestStrategies;
     protected final List<WorldpayAdditionalDataRequestStrategy> worldpayRedirectDataRequestStrategies;
+    protected final WorldpayAdditionalDataRequestStrategy worldpayGuaranteedPaymentsStrategy;
 
     public DefaultWorldpayAdditionalRequestDataService(final List<WorldpayAdditionalDataRequestStrategy> worldpayDirectDataRequestStrategies,
-                                                       final List<WorldpayAdditionalDataRequestStrategy> worldpayRedirectDataRequestStrategies) {
+                                                       final List<WorldpayAdditionalDataRequestStrategy> worldpayRedirectDataRequestStrategies,
+                                                       final WorldpayAdditionalDataRequestStrategy worldpayGuaranteedPaymentsStrategy) {
         this.worldpayDirectDataRequestStrategies = worldpayDirectDataRequestStrategies;
         this.worldpayRedirectDataRequestStrategies = worldpayRedirectDataRequestStrategies;
+        this.worldpayGuaranteedPaymentsStrategy = worldpayGuaranteedPaymentsStrategy;
     }
 
     /**
@@ -40,5 +43,15 @@ public class DefaultWorldpayAdditionalRequestDataService implements WorldpayAddi
                                                       final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
                                                       final AuthoriseRequestParametersCreator authoriseRequestParametersCreator) {
         worldpayRedirectDataRequestStrategies.forEach(strategy -> strategy.populateRequestWithAdditionalData(cart, worldpayAdditionalInfoData, authoriseRequestParametersCreator));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void populateRequestGuaranteedPayments(final AbstractOrderModel cart,
+                                                      final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                      final AuthoriseRequestParametersCreator authoriseRequestParametersCreator) {
+        worldpayGuaranteedPaymentsStrategy.populateRequestWithAdditionalData(cart, worldpayAdditionalInfoData, authoriseRequestParametersCreator);
     }
 }

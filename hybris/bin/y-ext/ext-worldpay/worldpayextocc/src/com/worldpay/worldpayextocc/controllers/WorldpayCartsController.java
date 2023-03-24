@@ -1,8 +1,10 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
+import com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO;
 import com.worldpay.dto.payment.PaymentDataWsDTO;
 import com.worldpay.dto.payment.PaymentRequestData;
 import com.worldpay.exception.WorldpayException;
@@ -16,21 +18,26 @@ import com.worldpay.payment.DirectResponseData;
 import com.worldpay.populator.options.PaymentDetailsWsDTOOption;
 import com.worldpay.worldpayextocc.exceptions.NoCheckoutCartException;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
+import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
+import de.hybris.platform.commercewebservicescommons.dto.order.CartWsDTO;
 import de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO;
 import de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO;
 import de.hybris.platform.converters.ConfigurablePopulator;
 import de.hybris.platform.converters.Populator;
+import de.hybris.platform.core.model.order.CartModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
+import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
-import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiFieldsParam;
 import io.swagger.annotations.ApiOperation;
@@ -104,6 +111,14 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     private APMAvailabilityFacade apmAvailabilityFacade;
     @Resource
     protected WorldpayBankConfigurationFacade worldpayBankConfigurationFacade;
+    @Resource
+    protected CartFacade cartFacade;
+    @Resource
+    protected WorldpayPaymentInfoService worldpayPaymentInfoService;
+    @Resource
+    protected CartService cartService;
+    @Resource
+    protected ModelService modelService;
 
 
     /**
@@ -246,6 +261,25 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     public void addBillingAddressToCart(@RequestBody final AddressWsDTO address,
                                         @RequestParam(required = false, defaultValue = DEFAULT_LEVEL) final String fields) {
         saveBillingAddress(address, fields);
+    }
+
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(nickname = "createAPMPaymentInfo", value = "Creates an APM payment info for the cart.", notes = "Creates a payment info and assigns it to the cart.")
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    @PostMapping(value = "/{cartId}/worldpayAPMPaymentInfo", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public CartWsDTO createAPMPaymentInfo (@RequestBody final WorldpayAPMPaymentInfoWsDTO apmPaymentInfoWsDto,
+                                           @ApiFieldsParam @RequestParam(defaultValue = FULL_LEVEL) final String fields) {
+
+        final CartModel cartModel = cartService.getSessionCart();
+        worldpayPaymentInfoService.createAPMPaymentInfo(cartModel, apmPaymentInfoWsDto.getApmCode(), apmPaymentInfoWsDto.getApmName());
+
+        final CartData cartData = cartFacade.getSessionCart();
+        cartData.setApmCode(apmPaymentInfoWsDto.getApmCode());
+        cartData.setApmName(apmPaymentInfoWsDto.getApmName());
+
+        return dataMapper.map(cartData, CartWsDTO.class, fields);
+
     }
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_GUEST", "ROLE_TRUSTED_CLIENT"})

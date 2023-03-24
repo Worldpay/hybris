@@ -29,7 +29,7 @@ public interface WorldpayFraudSightStrategy {
 
     /**
      * Creates the FraudSightData based on the abstractOrder details and worldpayAdditionalInfoData. Override this method if you want to customize
-     * the logic related tot he Fraud Sight payload
+     * the logic related to the Fraud Sight payload
      *
      * @param abstractOrder              the cart
      * @param worldpayAdditionalInfoData the additional info

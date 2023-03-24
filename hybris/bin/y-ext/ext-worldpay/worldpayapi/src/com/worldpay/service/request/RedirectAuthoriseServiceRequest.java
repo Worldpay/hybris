@@ -1,9 +1,8 @@
 package com.worldpay.service.request;
 
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.Order;
-import com.worldpay.data.PaymentDetails;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 
 /**
@@ -47,6 +46,9 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withFraudSightAttribute(requestParameters.getFraudSightData())
             .withLevel23Data(requestParameters.getBranchSpecificExtension())
             .withMandateType(requestParameters.getMandateType())
+            .withDeviceSession(requestParameters.getDeviceSession())
+            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .whitCheckoutId(requestParameters.getCheckoutId())
             .build();
         authRequest.setOrder(reqOrder);
         return authRequest;

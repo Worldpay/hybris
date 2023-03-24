@@ -101,7 +101,7 @@ public class CreateTokenResponseTransformerTest {
 
         final PaymentService paymentServiceReply = new PaymentService();
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Error error = new Error();
         error.setCode(ERROR_CODE);
         error.setvalue(ERROR_VALUE);
@@ -117,7 +117,7 @@ public class CreateTokenResponseTransformerTest {
 
     private PaymentService createServiceReplyCard() {
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Date date = createExpiryDate();
         final Token token = createToken();
 
@@ -130,7 +130,7 @@ public class CreateTokenResponseTransformerTest {
 
         final CardDetails cardDetails = createCardDetails(date);
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(cardDetails);
         tokenResponses.add(paymentInstrument);
 
         when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
@@ -139,7 +139,7 @@ public class CreateTokenResponseTransformerTest {
 
     private PaymentService createServiceReplyPaypal() {
         final Reply reply = new Reply();
-        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrPaymentOptionOrToken();
+        final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Date date = createExpiryDate();
         final Token token = createToken();
 
@@ -153,7 +153,7 @@ public class CreateTokenResponseTransformerTest {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
         paypal.setvalue(PAYPAL_TOKEN);
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSL().add(paypal);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(paypal);
         tokenResponses.add(paymentInstrument);
 
         when(paymentServiceReplyMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(reply));
@@ -211,7 +211,9 @@ public class CreateTokenResponseTransformerTest {
         cardAddress.setAddress(address);
         cardDetails.setCardAddress(cardAddress);
         final Derived derived = new Derived();
-        derived.setCardBrand(CARD_BRAND);
+        final CardBrand cardBrand= new CardBrand();
+        cardBrand.setvalue(CARD_BRAND);
+        derived.setCardBrand(cardBrand);
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(DK);
         derived.setObfuscatedPAN(OBFUSCATED_PAN);

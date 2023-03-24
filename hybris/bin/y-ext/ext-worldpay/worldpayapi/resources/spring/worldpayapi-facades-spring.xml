@@ -18,6 +18,8 @@
         <constructor-arg name="customerAccountService" ref="customerAccountService"/>
         <constructor-arg name="worldpayCheckoutService" ref="worldpayCheckoutService"/>
         <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
+        <constructor-arg name="worldpayGuaranteedPaymentsStrategy" ref="worldpayGuaranteedPaymentsStrategy"/>
+        <constructor-arg name="customerFacade" ref="customerFacade"/>
     </bean>
 
     <alias name="defaultWorldpayApplePayPaymentCheckoutFacade" alias="worldpayApplePayPaymentCheckoutFacade"/>
