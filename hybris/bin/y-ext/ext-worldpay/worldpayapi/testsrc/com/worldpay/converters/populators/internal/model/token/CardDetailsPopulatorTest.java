@@ -3,6 +3,8 @@ package com.worldpay.converters.populators.internal.model.token;
 import com.worldpay.data.Address;
 import com.worldpay.data.Date;
 import com.worldpay.data.token.CardDetails;
+import com.worldpay.factories.CardBrandFactory;
+import com.worldpay.internal.model.CardBrand;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.junit.Before;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +30,8 @@ public class CardDetailsPopulatorTest {
     private static final String CVC_NUMBER = "cvcNumber";
     private static final String ISSUER_COUNTRY_CODE = "issuerCountryCode";
 
+    private CardBrand cardBrand;
+
     @InjectMocks
     private CardDetailsPopulator testObj;
 
@@ -34,21 +39,26 @@ public class CardDetailsPopulatorTest {
     private Converter<Address, com.worldpay.internal.model.Address> internalAddressConverterMock;
     @Mock
     private Converter<com.worldpay.data.Date, com.worldpay.internal.model.Date> internalDateConverterMock;
+    @Mock
+    private CardBrandFactory cardBrandFactoryMock;
 
     @Mock
     private CardDetails sourceMock;
     @Mock
-    private Address cardAddresMock;
+    private Address cardAddressMock;
     @Mock
     private Date expiryDateMock;
     @Mock
-    private com.worldpay.internal.model.Address internalAddresMock;
+    private com.worldpay.internal.model.Address internalAddressMock;
     @Mock
     private com.worldpay.internal.model.Date internalDateMock;
 
     @Before
     public void setup() {
-        testObj = new CardDetailsPopulator(internalAddressConverterMock, internalDateConverterMock);
+        cardBrand = new CardBrand();
+        testObj = new CardDetailsPopulator(internalAddressConverterMock, internalDateConverterMock, cardBrandFactoryMock);
+
+        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -75,7 +85,7 @@ public class CardDetailsPopulatorTest {
     @Test
     public void populate_WhenAddressIsNull_ShouldNotPopulateInternalAddress() {
         when(sourceMock.getCardAddress()).thenReturn(null);
-        lenient().when(internalAddressConverterMock.convert(sourceMock.getCardAddress())).thenReturn(internalAddresMock);
+        lenient().when(internalAddressConverterMock.convert(sourceMock.getCardAddress())).thenReturn(internalAddressMock);
 
         final com.worldpay.internal.model.CardDetails targetMock = new com.worldpay.internal.model.CardDetails();
         testObj.populate(sourceMock, targetMock);
@@ -85,7 +95,8 @@ public class CardDetailsPopulatorTest {
 
     @Test
     public void populate_ShouldPopulateCardDetails() {
-        when(sourceMock.getCardAddress()).thenReturn(cardAddresMock);
+        cardBrand.setvalue(CARD_BRAND);
+        when(sourceMock.getCardAddress()).thenReturn(cardAddressMock);
         when(sourceMock.getCardBrand()).thenReturn(CARD_BRAND);
         when(sourceMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME);
         when(sourceMock.getCardNumber()).thenReturn(CARD_NUMBER);
@@ -94,13 +105,13 @@ public class CardDetailsPopulatorTest {
         when(sourceMock.getExpiryDate()).thenReturn(expiryDateMock);
         when(sourceMock.getIssuerCountryCode()).thenReturn(ISSUER_COUNTRY_CODE);
 
-        lenient().when(internalAddressConverterMock.convert(cardAddresMock)).thenReturn(internalAddresMock);
+        lenient().when(internalAddressConverterMock.convert(cardAddressMock)).thenReturn(internalAddressMock);
         lenient().when(internalDateConverterMock.convert(expiryDateMock)).thenReturn(internalDateMock);
 
         final com.worldpay.internal.model.CardDetails targetMock = new com.worldpay.internal.model.CardDetails();
         testObj.populate(sourceMock, targetMock);
 
-        assertThat(targetMock.getCardAddress().getAddress()).isEqualTo(internalAddresMock);
+        assertThat(targetMock.getCardAddress().getAddress()).isEqualTo(internalAddressMock);
         assertThat(targetMock.getCardHolderName().getvalue()).isEqualTo(CARD_HOLDER_NAME);
         assertThat(targetMock.getCvc().getvalue()).isEqualTo(CVC_NUMBER);
         assertThat(targetMock.getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);

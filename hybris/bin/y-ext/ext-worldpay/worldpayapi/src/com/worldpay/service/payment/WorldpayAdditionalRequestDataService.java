@@ -26,4 +26,13 @@ public interface WorldpayAdditionalRequestDataService {
      * @param authoriseRequestParametersCreator
      */
     void populateRedirectRequestAdditionalData(AbstractOrderModel cart, WorldpayAdditionalInfoData worldpayAdditionalInfoData, AuthoriseRequestParametersCreator authoriseRequestParametersCreator);
+
+    /**
+     * Populated the Guaranteed Payments data for integrations
+     *
+     * @param cart                              the cart model
+     * @param worldpayAdditionalInfoData
+     * @param authoriseRequestParametersCreator
+     */
+    void populateRequestGuaranteedPayments(AbstractOrderModel cart, WorldpayAdditionalInfoData worldpayAdditionalInfoData, AuthoriseRequestParametersCreator authoriseRequestParametersCreator);
 }

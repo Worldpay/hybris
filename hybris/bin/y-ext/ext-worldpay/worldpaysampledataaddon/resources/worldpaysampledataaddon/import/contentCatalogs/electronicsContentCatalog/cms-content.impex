@@ -66,3 +66,9 @@ INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]        
 
 INSERT_UPDATE ContentSlotForPage; $contentCV[unique = true]; uid[unique = true]                         ; position[unique = true]; page(uid, $contentCV)[unique = true]  ; contentSlot(uid, $contentCV)[unique = true]
                                 ;                          ; Side-WorldpayPaymentAndBillingCheckoutPage ; SideContent            ; worldpayPaymentAndBillingCheckoutPage ; SideContent-WorldpayPaymentAndBillingCheckoutPage
+
+INSERT_UPDATE WorldpayGuaranteedPaymentsComponent; $contentCV[unique = true]; uid[unique = true]                  ; name
+                                                 ;                          ; worldpayGuaranteedPaymentsComponent ; "Worldpay Guaranteed Payments Component"
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]; active; cmsComponents(uid, $contentCV)[mode = append]
+                         ;                          ; TopHeaderSlot     ; true  ; worldpayGuaranteedPaymentsComponent

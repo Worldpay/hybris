@@ -84,4 +84,22 @@
     <bean class="de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO">
         <property name="billingAddress" type="java.lang.Boolean"/>
     </bean>
+
+    <bean class="com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO">
+        <property name="apmCode" type="java.lang.String"/>
+        <property name="apmName" type="java.lang.String"/>
+        <property name="billingAddress" type="de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO"/>
+        <property name="name" type="String"/>
+        <property name="subscriptionId" type="String"/>
+    </bean>
+
+    <bean class="de.hybris.platform.commercewebservicescommons.dto.order.CartWsDTO">
+        <property name="apmCode" type="java.lang.String"/>
+        <property name="apmName" type="java.lang.String"/>
+    </bean>
+
+    <bean class="de.hybris.platform.commercewebservicescommons.dto.order.AbstractOrderWsDTO">
+        <property name="worldpayAPMPaymentInfo" type="com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO"/>
+    </bean>
+
 </beans>

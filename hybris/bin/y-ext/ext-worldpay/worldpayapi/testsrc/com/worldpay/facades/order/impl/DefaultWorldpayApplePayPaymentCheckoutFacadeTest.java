@@ -107,7 +107,7 @@ public class DefaultWorldpayApplePayPaymentCheckoutFacadeTest {
         final ApplePayPaymentContact billingAddress = new ApplePayPaymentContact();
         billingAddress.setAddressLines(Arrays.asList("Av Aragon 30", "Planta 8 oficina 999"));
 
-        billingAddress.setAdministrativeArea("Valencia");
+        billingAddress.setLocality("Valencia");
         billingAddress.setCountryCode("es");
         billingAddress.setGivenName("James");
         billingAddress.setFamilyName("Bond");

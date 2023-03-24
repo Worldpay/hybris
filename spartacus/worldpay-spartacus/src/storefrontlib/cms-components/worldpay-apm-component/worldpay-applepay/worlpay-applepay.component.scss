@@ -1,0 +1,9 @@
+.applepay-buy-button {
+  height: 40px;
+  width: 240px;
+
+  border-radius: initial;
+  -webkit-appearance: -apple-pay-button;
+  -apple-pay-button-type: buy;
+  -apple-pay-button-style: black;
+}
