@@ -199,6 +199,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
         doNothing().when(testObj).setupAddPaymentPage(modelMock);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
     }
 
     @Test

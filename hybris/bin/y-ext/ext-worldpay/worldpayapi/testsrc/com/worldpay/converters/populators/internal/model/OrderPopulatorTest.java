@@ -8,6 +8,7 @@ import com.worldpay.data.token.TokenRequest;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.internal.model.BillingAddress;
 import com.worldpay.internal.model.CreateToken;
+import com.worldpay.internal.model.ExtendedOrderDetail;
 import com.worldpay.internal.model.Mandate;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
@@ -83,6 +84,8 @@ public class OrderPopulatorTest {
     private Converter<PaymentDetails, com.worldpay.internal.model.PaymentDetails> internalPaymentDetailsConverterMock;
     @Mock
     private Converter<PayAsOrder, com.worldpay.internal.model.PayAsOrder> internalPayAsOrderConverterMock;
+    @Mock
+    private Converter<AlternativeShippingAddress, com.worldpay.internal.model.AlternativeShippingAddress> internalAlternativeShippingAddressConverterMock;
 
     @Mock
     private Order sourceMock;
@@ -146,12 +149,16 @@ public class OrderPopulatorTest {
     private GuaranteedPaymentsData guaranteedPaymentsDataMock;
     @Mock
     private com.worldpay.internal.model.GuaranteedPaymentsData intGuaranteedPaymentMock;
+    @Mock
+    private AlternativeShippingAddress alternativeShippingAddressMock;
+    @Mock
+    private com.worldpay.internal.model.AlternativeShippingAddress intAlternativeShippingAddressMock;
 
     @Before
     public void setUp() {
         paymentOrderConvertersWrapperMock = new PaymentOrderConvertersWrapper(internalPaymentMethodMaskConverterMock, internalPaymentDetailsConverterMock, internalPayAsOrderConverterMock, internalPaymentMethodAttributeConverterMock);
         threeDS2OrderConvertersWrapperMock = new ThreeDS2OrderConvertersWrapper(internalRiskDataConverterMock, internalAdditional3DSDataConverter);
-        basicOrderConvertersWrapperMock = new BasicOrderConvertersWrapper(internalAmountConverterMock, internalShopperConverterMock, internalAddressConverterMock, internalSessionConverterMock);
+        basicOrderConvertersWrapperMock = new BasicOrderConvertersWrapper(internalAmountConverterMock, internalShopperConverterMock, internalAddressConverterMock, internalSessionConverterMock, internalAlternativeShippingAddressConverterMock);
         riskEvaluatorConvertersWrapperMock = new RiskEvaluatorConvertersWrapper(internalFraudSightDataConverterMock, internalGuaranteedPaymentsDataConverterMock);
 
         testObj = new OrderPopulator(internalBranchSpecificExtensionConverterMock, internalTokenRequestConverterMock, internalOrderLinesConverterMock,
@@ -537,6 +544,8 @@ public class OrderPopulatorTest {
         when(internalGuaranteedPaymentsDataConverterMock.convert(guaranteedPaymentsDataMock)).thenReturn(intGuaranteedPaymentMock);
         when(sourceMock.getOrderChannel()).thenReturn(ORDER_CHANNEL);
         when(sourceMock.getCheckoutId()).thenReturn(CHECKOUT_ID);
+        when(sourceMock.getAlternativeShippingAddress()).thenReturn(alternativeShippingAddressMock);
+        when(internalAlternativeShippingAddressConverterMock.convert(alternativeShippingAddressMock)).thenReturn(intAlternativeShippingAddressMock);
 
         final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
         testObj.populate(sourceMock, target);
@@ -550,6 +559,11 @@ public class OrderPopulatorTest {
             .map(BillingAddress.class::cast)
             .findFirst()
             .orElse(null);
+        final ExtendedOrderDetail intExtendedOrderDetail = objectList.stream()
+                .filter(ExtendedOrderDetail.class::isInstance)
+                .map(ExtendedOrderDetail.class::cast)
+                .findFirst()
+                .orElse(null);
         final Mandate intMandate = objectList.stream()
             .filter(Mandate.class::isInstance)
             .map(Mandate.class::cast)
@@ -557,7 +571,7 @@ public class OrderPopulatorTest {
             .orElse(null);
 
         assertThat(objectList)
-            .hasSize(25)
-            .containsSequence(intBillingAddress, intMandate, intBranchSpecificExtensionMock);
+            .hasSize(26)
+            .containsSequence(intBillingAddress, intBranchSpecificExtensionMock, intExtendedOrderDetail, intMandate);
     }
 }

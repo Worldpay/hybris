@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller("WorldpayAPMComponentController")
 @RequestMapping(value = "/view/WorldpayAPMComponentController")
-public class WorldpayAPMComponentController extends GenericCMSAddOnComponentController {
+public class WorldpayAPMComponentController extends WorldpayGenericCMSAddOnComponentController {
 
     protected static final String IS_AVAILABLE = "isAvailable";
 

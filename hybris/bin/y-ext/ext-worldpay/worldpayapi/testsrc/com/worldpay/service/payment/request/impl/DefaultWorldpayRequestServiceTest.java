@@ -388,4 +388,11 @@ public class DefaultWorldpayRequestServiceTest {
         assertThat(cardTokenRequest.getTokenRequest()).isEqualTo(tokenRequestMock);
         assertThat(cardTokenRequest.getAuthenticatedShopperId()).isEqualTo(AUTHENTICATED_SHOPPER_ID);
     }
+
+    @Test
+    public void createAlternativeShippingAddress_shouldReturnNull_whenStillNotImplemented() {
+        final AlternativeShippingAddress result = testObj.createAlternativeShippingAddress();
+
+        assertThat(result).isNull();
+    }
 }

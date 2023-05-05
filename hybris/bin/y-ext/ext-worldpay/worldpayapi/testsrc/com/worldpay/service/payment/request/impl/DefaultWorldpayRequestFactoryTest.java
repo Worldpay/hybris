@@ -175,6 +175,8 @@ public class DefaultWorldpayRequestFactoryTest {
     private CardDetails cartDetailsMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private AuthoriseRequestParameters.AuthoriseRequestParametersCreator authoriseRequestParametersCreatorMock;
+    @Mock
+    private AlternativeShippingAddress alternativeShippingAddressMock;
 
     @Captor
     private ArgumentCaptor<AuthoriseRequestParameters> authoriseRequestParametersArgumentCaptor;
@@ -589,11 +591,13 @@ public class DefaultWorldpayRequestFactoryTest {
         when(customerModelMock.getSessionLanguage()).thenReturn(languageModelMock);
         when(additionalAuthInfoMock.getStatementNarrative()).thenReturn(STATEMENT_NARRATIVE);
         when(worldpayKlarnaServiceMock.createOrderLines(cartModelMock)).thenReturn(orderLinesMock);
+        when(worldpayRequestServiceMock.createAlternativeShippingAddress()).thenReturn(alternativeShippingAddressMock);
         doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
         doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withShopper(shopperMock);
         doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withStatementNarrative(STATEMENT_NARRATIVE);
         doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withDynamicInteractionType(DynamicInteractionType.ECOMMERCE);
         doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withOrderLines(orderLinesMock);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withAlternativeShippingAddress(alternativeShippingAddressMock);
         when(worldpayRequestServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, null, null)).thenReturn(shopperMock);
         doReturn(getAuthoriseRequestParameters()).when(authoriseRequestParametersCreatorMock).build();
 
@@ -604,6 +608,7 @@ public class DefaultWorldpayRequestFactoryTest {
         verify(authoriseRequestParametersCreatorMock).withStatementNarrative(STATEMENT_NARRATIVE);
         verify(authoriseRequestParametersCreatorMock).withDynamicInteractionType(DynamicInteractionType.ECOMMERCE);
         verify(authoriseRequestParametersCreatorMock).withOrderLines(orderLinesMock);
+        verify(authoriseRequestParametersCreatorMock).withAlternativeShippingAddress(alternativeShippingAddressMock);
         assertThat(result).isNotNull();
     }
 

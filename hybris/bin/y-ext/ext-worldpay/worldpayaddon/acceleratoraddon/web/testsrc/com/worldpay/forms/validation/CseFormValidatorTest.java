@@ -14,6 +14,7 @@ import org.springframework.validation.Errors;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -113,5 +114,19 @@ public class CseFormValidatorTest {
         testObj.validate(csePaymentFormMock, errorsMock);
 
         verify(errorsMock).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
+
+    @Test
+    public void support_WhenClassIsCSEPaymentForm_ShouldReturnTrue() {
+        final boolean result = testObj.supports(CSEPaymentForm.class);
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    public void support_WhenClassIsNotB2BCSEPaymentForm_ShouldReturnFalse() {
+        final boolean result = testObj.supports(String.class);
+
+        assertThat(result).isFalse();
     }
 }

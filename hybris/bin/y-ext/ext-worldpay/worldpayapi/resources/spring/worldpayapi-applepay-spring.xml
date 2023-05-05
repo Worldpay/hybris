@@ -8,7 +8,7 @@
         <property name="password" value="changeit"/>
         <property name="keyStoreType" value="PKCS12"/>
         <!-- You will need to generate your own certificate -->
-        <property name="certificateFile" value="classpath:applepaycert/apple-pay.p12"/>
+        <property name="certificateFile" value="classpath:applepaycert/dummy-certificate.p12"/>
     </bean>
 
     <bean id="worldpayApplePayRestTemplate" class="org.springframework.web.client.RestTemplate">
