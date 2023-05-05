@@ -94,6 +94,20 @@
         <value>SHIPPING_FEE</value>
     </enum>
 
+    <enum class="com.worldpay.enums.alternativeShippingAddress.ShippingMethod">
+        <value>STORE_PICK_UP</value>
+        <value>PICK_UP_POINT</value>
+        <value>REGISTERED_BOX</value>
+        <value>UNREGISTERED_BOX</value>
+    </enum>
+
+    <enum class="com.worldpay.enums.alternativeShippingAddress.ShippingType">
+        <value>NORMAL</value>
+        <value>EXPRESS</value>
+    </enum>
+
+
+
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
@@ -625,6 +639,13 @@
         <property name="mandateType" type="java.lang.String"/>
         <property name="guaranteedPaymentsData" type="com.worldpay.data.GuaranteedPaymentsData"/>
         <property name="checkoutId" type="java.lang.String"/>
+        <property name="alternativeShippingAddress" type="com.worldpay.data.AlternativeShippingAddress"/>
+    </bean>
+
+    <bean class="com.worldpay.data.AlternativeShippingAddress">
+        <property name="address" type="com.worldpay.data.Address"/>
+        <property name="shippingMethod" type="com.worldpay.enums.alternativeShippingAddress.ShippingMethod"/>
+        <property name="shippingType" type="com.worldpay.enums.alternativeShippingAddress.ShippingType"/>
     </bean>
 
     <bean class="com.worldpay.data.OrderLines">

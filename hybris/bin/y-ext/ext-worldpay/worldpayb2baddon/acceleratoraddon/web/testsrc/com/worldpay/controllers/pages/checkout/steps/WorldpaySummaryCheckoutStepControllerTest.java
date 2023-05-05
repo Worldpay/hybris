@@ -248,6 +248,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(worldpayDirectOrderFacadeMock.authoriseRecurringPayment(worldpayAdditionalInfoDataMock)).thenReturn(directResponseDataMock);
         when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
     }
 
     @Test

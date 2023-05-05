@@ -90,6 +90,7 @@ public class RedirectAuthoriseServiceRequestTest {
     private FraudSightData fraudSightData;
     private BranchSpecificExtension branchSpecificExtension;
     private GuaranteedPaymentsData guaranteedPaymentsData;
+    private AlternativeShippingAddress alternativeShippingAddress;
 
     @Before
     public void setUp() throws Exception {
@@ -214,6 +215,7 @@ public class RedirectAuthoriseServiceRequestTest {
         assertEquals(branchSpecificExtension, order.getBranchSpecificExtension());
         assertEquals(MANDATE_TYPE, order.getMandateType());
         assertEquals(guaranteedPaymentsData, order.getGuaranteedPaymentsData());
+        assertEquals(alternativeShippingAddress, order.getAlternativeShippingAddress());
         assertEquals(CHECKOUT_ID, order.getCheckoutId());
     }
 
@@ -241,6 +243,7 @@ public class RedirectAuthoriseServiceRequestTest {
             .withMandateType(MANDATE_TYPE)
             .withGuaranteedPaymentsData(guaranteedPaymentsData)
             .withCheckoutId(CHECKOUT_ID)
+            .withAlternativeShippingAddress(alternativeShippingAddress)
             .build();
     }
 

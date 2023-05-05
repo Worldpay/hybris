@@ -70,8 +70,8 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withOrderLines(requestParameters.getOrderLines())
             .withDeviceSession(requestParameters.getDeviceSession())
-            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
-            .whitCheckoutId(requestParameters.getCheckoutId())
+            .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .withCheckoutId(requestParameters.getCheckoutId())
             .build();
 
         authRequest.setOrder(reqOrder);
@@ -107,8 +107,8 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withFraudSightAttribute(requestParameters.getFraudSightData())
             .withDeviceSession(requestParameters.getDeviceSession())
             .withLevel23Data(requestParameters.getBranchSpecificExtension())
-            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
-            .whitCheckoutId(requestParameters.getCheckoutId())
+            .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .withCheckoutId(requestParameters.getCheckoutId())
             .build();
         authRequest.setOrder(order);
         return authRequest;
@@ -137,8 +137,8 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withDeviceSession(requestParameters.getDeviceSession())
-            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
-            .whitCheckoutId(requestParameters.getCheckoutId())
+            .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .withCheckoutId(requestParameters.getCheckoutId())
             .build();
         authRequest.setOrder(order);
         return authRequest;
@@ -169,8 +169,8 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withTokenRequest(requestParameters.getTokenRequest())
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withDeviceSession(requestParameters.getDeviceSession())
-            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
-            .whitCheckoutId(requestParameters.getCheckoutId())
+            .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .withCheckoutId(requestParameters.getCheckoutId())
             .build();
         authRequest.setOrder(reqOrder);
         return authRequest;
@@ -222,8 +222,8 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withFraudSightAttribute(requestParameters.getFraudSightData())
             .withDeviceSession(requestParameters.getDeviceSession())
             .withLevel23Data(requestParameters.getBranchSpecificExtension())
-            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
-            .whitCheckoutId(requestParameters.getCheckoutId())
+            .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .withCheckoutId(requestParameters.getCheckoutId())
             .build();
         authRequest.setOrder(reqOrder);
         return authRequest;
