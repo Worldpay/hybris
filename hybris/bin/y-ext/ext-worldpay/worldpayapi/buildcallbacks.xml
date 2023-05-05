@@ -25,8 +25,9 @@
                 </else>
             </if>
             <xjc destdir="${ant.xjc.target.dir}/" package="com.worldpay.internal.model"
-                 schema="${ext.worldpayapi.path}/resources/dtd/paymentService_v1.dtd">
-                <arg value="-dtd"/>
+                 schema="${ext.worldpayapi.path}/resources/dtd/paymentService_v1.dtd" fork="true">
+                <arg line="-dtd -verbose"/>
+                <jvmarg value="-DenableExternalEntityProcessing=true"/>
             </xjc>
             <echo message="Worldpay dtd classes created in the gensrc folder"/>
         </sequential>

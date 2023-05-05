@@ -15,7 +15,6 @@ INSERT_UPDATE Media; code[unique = true]  ; $media                              
                    ; sofort-ch-icon       ; $siteResource/sofort-ch-icon.png       ;                             ;                          ; images
                    ; paypal-icon          ; $siteResource/paypal-icon.png          ;                             ;                          ; images
                    ; boleto-icon          ; $siteResource/boleto-icon.png          ;                             ;                          ; images
-                   ; postepay-icon        ; $siteResource/postepay-icon.png        ;                             ;                          ; images
                    ; poli-icon            ; $siteResource/poli-icon.png            ;                             ;                          ; images
                    ; polinz-icon          ; $siteResource/polinz-icon.png          ;                             ;                          ; images
                    ; mistercash-icon      ; $siteResource/mistercash-icon.png      ;                             ;                          ; images
@@ -42,7 +41,6 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; sofortCHComponent       ;                          ; "SOFORT-CH"        ; SOFORT_CH-SSL         ; sofort-ch-icon        ; AssistedServiceSessionReversedRestriction
                                   ; payPalComponent         ;                          ; "PayPal"           ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
                                   ; boletoComponent         ;                          ; "Boleto"           ; BOLETO-SSL            ; boleto-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; postepayComponent       ;                          ; "PostePay"         ; POSTEPAY-SSL          ; postepay-icon         ; AssistedServiceSessionReversedRestriction
                                   ; poliComponent           ;                          ; "POLi"             ; POLI-SSL              ; poli-icon             ; AssistedServiceSessionReversedRestriction
                                   ; polinzComponent         ;                          ; "POLi - NZ"        ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
                                   ; mistercashComponent     ;                          ; "Mistercash"       ; MISTERCASH-SSL        ; mistercash-icon       ; AssistedServiceSessionReversedRestriction
@@ -54,7 +52,7 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; klarnaPayNowComponent   ;                          ; "Klarna Pay Now"   ; KLARNA_PAYNOW-SSL     ; klarna-paynow-icon    ; AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
-                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,boletoComponent,postepayComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent
+                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,boletoComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent
 
 INSERT_UPDATE WorldpayGuaranteedPaymentsComponent; $contentCV[unique = true]; uid[unique = true]                  ; name
                                                  ;                          ; worldpayGuaranteedPaymentsComponent ; "Worldpay Guaranteed Payments Component"

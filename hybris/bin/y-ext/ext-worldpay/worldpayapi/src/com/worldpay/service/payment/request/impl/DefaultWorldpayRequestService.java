@@ -249,15 +249,26 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
         return worldpayDynamicInteractionResolverService.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoData);
     }
 
-    private boolean isMerchantTokenEnabled() {
+    @Override
+    public boolean isMerchantTokenEnabled() {
         return siteConfigService.getBoolean(WORLDPAY_MERCHANT_TOKEN_ENABLED, false);
     }
 
-    private TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason, final boolean merchant) {
+    @Override
+    public TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason, final boolean merchant) {
         final TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setTokenEventReference(tokenEventReference);
         tokenRequest.setTokenReason(tokenReason);
         tokenRequest.setMerchantToken(merchant);
         return tokenRequest;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AlternativeShippingAddress createAlternativeShippingAddress() {
+        //add here your own implementation
+        return null;
     }
 }

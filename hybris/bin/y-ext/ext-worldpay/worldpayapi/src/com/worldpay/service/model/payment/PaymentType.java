@@ -76,7 +76,6 @@ public enum PaymentType implements Serializable {
     PLUSPAY("PLUSPAY-SSL", PLUSPAYSSL.class),
     POLI("POLI-SSL", POLISSL.class),
     POLINZ("POLINZ-SSL", POLINZSSL.class),
-    POSTEPAY("POSTEPAY-SSL", POSTEPAYSSL.class),
     PRZELEWY("PRZELEWY-SSL", PRZELEWYSSL.class),
     QIWI("QIWI-SSL", QIWISSL.class),
     SID("SID-SSL", SIDSSL.class),
