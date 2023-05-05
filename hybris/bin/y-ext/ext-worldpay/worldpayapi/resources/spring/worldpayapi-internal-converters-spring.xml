@@ -530,6 +530,7 @@
         <constructor-arg name="internalShopperConverter" ref="internalShopperConverter"/>
         <constructor-arg name="internalAddressConverter" ref="internalAddressConverter"/>
         <constructor-arg name="internalSessionConverter" ref="internalSessionConverter"/>
+        <constructor-arg name="internalAlternativeShippingAddressConverter" ref="internalAlternativeShippingAddressConverter"/>
     </bean>
 
     <alias name="defaultRiskEvaluatorConvertersWrapper" alias="riskEvaluatorConvertersWrapper"/>
@@ -830,6 +831,22 @@
         <property name="populators">
             <list>
                 <ref bean="internalUserAccountPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultInternalAlternativeShippingAddressPopulator" alias="internalAlternativeShippingAddressPopulator"/>
+    <bean id="defaultInternalAlternativeShippingAddressPopulator"
+          class="com.worldpay.converters.populators.internal.model.AlternativeShippingAddressPopulator">
+        <constructor-arg name="internalAddressConverter" ref="internalAddressConverter"/>
+    </bean>
+
+    <alias name="defaultInternalAlternativeShippingAddressConverter" alias="internalAlternativeShippingAddressConverter"/>
+    <bean id="defaultInternalAlternativeShippingAddressConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.AlternativeShippingAddress"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalAlternativeShippingAddressPopulator"/>
             </list>
         </property>
     </bean>

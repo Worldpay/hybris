@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -52,6 +51,7 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     @SuppressWarnings("PMD.MemberScope")
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Spy
     @InjectMocks
     private WorldpayCheckoutFacadeDecorator testObj;
 
@@ -344,12 +344,6 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     }
 
     @Test
-    public void getDeliveryCountries() {
-        testObj.getDeliveryCountries();
-        verify(checkoutFlowFacadeMock).getDeliveryCountries();
-    }
-
-    @Test
     public void setDeliveryAddressIfAvailable() {
         testObj.setDeliveryAddressIfAvailable();
         verify(checkoutFlowFacadeMock).setDeliveryAddressIfAvailable();
@@ -403,11 +397,6 @@ public class WorldpayCheckoutFacadeDecoratorTest {
         verify(checkoutFlowFacadeMock).consolidateCheckoutCart(PICKUP_POINT_OF_SERVICE_NAME);
     }
 
-    @Test
-    public void getBillingCountries() {
-        testObj.getBillingCountries();
-        verify(checkoutFlowFacadeMock).getBillingCountries();
-    }
 
     @Test
     public void hasNoDeliveryMode() {

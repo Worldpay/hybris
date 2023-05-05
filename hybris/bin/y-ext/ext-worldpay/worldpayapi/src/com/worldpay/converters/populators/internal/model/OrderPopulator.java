@@ -57,7 +57,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         final List<Object> childElements = target.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession();
 
         Optional.ofNullable(source.getOrderCode())
-            .ifPresent(target::setOrderCode);
+                .ifPresent(target::setOrderCode);
 
         Optional.ofNullable(source.getDescription()).ifPresent(description -> {
             final Description intDescription = new Description();
@@ -66,11 +66,11 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         });
 
         Optional.ofNullable(source.getAmount())
-            .map(basicOrderConvertersWrapper.internalAmountConverter::convert)
-            .ifPresent(childElements::add);
+                .map(basicOrderConvertersWrapper.internalAmountConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getInstallationId())
-            .ifPresent(target::setInstallationId);
+                .ifPresent(target::setInstallationId);
 
         Optional.ofNullable(source.getOrderContent()).ifPresent(orderContent -> {
             final OrderContent intOrderContent = new OrderContent();
@@ -79,9 +79,9 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         });
 
         Optional.ofNullable(source.getOrderChannel()).ifPresent(orderChannel -> {
-                final OrderChannel intOrderChannel = new OrderChannel();
-                intOrderChannel.setValue(orderChannel);
-                childElements.add(intOrderChannel);
+            final OrderChannel intOrderChannel = new OrderChannel();
+            intOrderChannel.setValue(orderChannel);
+            childElements.add(intOrderChannel);
         });
 
         Optional.ofNullable(source.getCheckoutId()).ifPresent(checkoutId -> {
@@ -93,96 +93,103 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         populatePaymentRequestDetails(source, childElements);
 
         Optional.ofNullable(source.getShopper())
-            .map(basicOrderConvertersWrapper.internalShopperConverter::convert)
-            .ifPresent(childElements::add);
+                .map(basicOrderConvertersWrapper.internalShopperConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getShippingAddress())
-            .map(basicOrderConvertersWrapper.internalAddressConverter::convert)
-            .ifPresent(address -> {
-                final ShippingAddress intShippingAddress = new ShippingAddress();
-                intShippingAddress.setAddress(address);
-                childElements.add(intShippingAddress);
-            });
+                .map(basicOrderConvertersWrapper.internalAddressConverter::convert)
+                .ifPresent(address -> {
+                    final ShippingAddress intShippingAddress = new ShippingAddress();
+                    intShippingAddress.setAddress(address);
+                    childElements.add(intShippingAddress);
+                });
 
         Optional.ofNullable(source.getBillingAddress())
-            .map(basicOrderConvertersWrapper.internalAddressConverter::convert)
-            .ifPresent(address -> {
-                final BillingAddress intBillingAddress = new BillingAddress();
-                intBillingAddress.setAddress(address);
-                childElements.add(intBillingAddress);
-            });
-
-        Optional.ofNullable(source.getMandateType())
-            .ifPresent(mandateType -> {
-                final Mandate mandate = new Mandate();
-                mandate.setMandateType(mandateType);
-                childElements.add(mandate);
-            });
+                .map(basicOrderConvertersWrapper.internalAddressConverter::convert)
+                .ifPresent(address -> {
+                    final BillingAddress intBillingAddress = new BillingAddress();
+                    intBillingAddress.setAddress(address);
+                    childElements.add(intBillingAddress);
+                });
 
         Optional.ofNullable(source.getBranchSpecificExtension())
-            .map(internalBranchSpecificExtensionConverter::convert)
-            .ifPresent(childElements::add);
+                .map(internalBranchSpecificExtensionConverter::convert)
+                .ifPresent(childElements::add);
+
+        Optional.ofNullable(source.getAlternativeShippingAddress()).ifPresent(altShippingAddress -> {
+            final ExtendedOrderDetail extendedOrderDetail = new ExtendedOrderDetail();
+            extendedOrderDetail.setAlternativeShippingAddress(basicOrderConvertersWrapper
+                    .internalAlternativeShippingAddressConverter.convert(altShippingAddress));
+            childElements.add(extendedOrderDetail);
+        });
+
+        Optional.ofNullable(source.getMandateType())
+                .ifPresent(mandateType -> {
+                    final Mandate mandate = new Mandate();
+                    mandate.setMandateType(mandateType);
+                    childElements.add(mandate);
+                });
 
         Optional.ofNullable(source.getPaymentMethodAttributes())
-            .stream()
-            .flatMap(Collection::stream)
-            .map(paymentOrderConvertersWrapper.internalPaymentMethodAttributeConverter::convert)
-            .forEach(childElements::add);
+                .stream()
+                .flatMap(Collection::stream)
+                .map(paymentOrderConvertersWrapper.internalPaymentMethodAttributeConverter::convert)
+                .forEach(childElements::add);
 
         Optional.ofNullable(source.getStatementNarrative())
-            .ifPresent(statementNarrative -> {
-                final StatementNarrative intStatementNarrative = new StatementNarrative();
-                intStatementNarrative.setvalue(statementNarrative);
-                childElements.add(intStatementNarrative);
-            });
+                .ifPresent(statementNarrative -> {
+                    final StatementNarrative intStatementNarrative = new StatementNarrative();
+                    intStatementNarrative.setvalue(statementNarrative);
+                    childElements.add(intStatementNarrative);
+                });
 
         Optional.ofNullable(source.getEchoData())
-            .ifPresent(echoData -> {
-                final EchoData intEchoData = new EchoData();
-                intEchoData.setvalue(echoData);
-                childElements.add(intEchoData);
-            });
+                .ifPresent(echoData -> {
+                    final EchoData intEchoData = new EchoData();
+                    intEchoData.setvalue(echoData);
+                    childElements.add(intEchoData);
+                });
 
         Optional.ofNullable(source.getTokenRequest())
-            .map(internalTokenRequestConverter::convert)
-            .ifPresent(childElements::add);
+                .map(internalTokenRequestConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getPaResponse())
-            .ifPresent(paResponse -> {
-                final Info3DSecure intInfo3dSecure = new Info3DSecure();
-                final PaResponse intPaResponse = new PaResponse();
-                intPaResponse.setvalue(paResponse);
-                intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrDelegatedAuthenticationOrTransactionStatusReasonOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
-                childElements.add(intInfo3dSecure);
-            });
+                .ifPresent(paResponse -> {
+                    final Info3DSecure intInfo3dSecure = new Info3DSecure();
+                    final PaResponse intPaResponse = new PaResponse();
+                    intPaResponse.setvalue(paResponse);
+                    intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrDelegatedAuthenticationOrTransactionStatusReasonOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
+                    childElements.add(intInfo3dSecure);
+                });
 
         Optional.ofNullable(source.getSession())
-            .map(basicOrderConvertersWrapper.internalSessionConverter::convert)
-            .ifPresent(childElements::add);
+                .map(basicOrderConvertersWrapper.internalSessionConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getOrderLines())
-            .map(internalOrderLinesConverter::convert)
-            .ifPresent(childElements::add);
+                .map(internalOrderLinesConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getDynamicInteractionType())
-            .map(Enum::name)
-            .ifPresent(dynamicInteractionType -> {
-                final DynamicInteractionType intDynamicInteractionType = new DynamicInteractionType();
-                intDynamicInteractionType.setType(dynamicInteractionType);
-                childElements.add(intDynamicInteractionType);
-            });
+                .map(Enum::name)
+                .ifPresent(dynamicInteractionType -> {
+                    final DynamicInteractionType intDynamicInteractionType = new DynamicInteractionType();
+                    intDynamicInteractionType.setType(dynamicInteractionType);
+                    childElements.add(intDynamicInteractionType);
+                });
 
         Optional.ofNullable(source.getRiskData())
-            .map(threeDS2OrderConvertersWrapper.internalRiskDataConverter::convert)
-            .ifPresent(childElements::add);
+                .map(threeDS2OrderConvertersWrapper.internalRiskDataConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getAdditional3DSData())
-            .map(threeDS2OrderConvertersWrapper.internalAdditional3DSDataConverter::convert)
-            .ifPresent(childElements::add);
+                .map(threeDS2OrderConvertersWrapper.internalAdditional3DSDataConverter::convert)
+                .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getFraudSightData())
-            .map(riskEvaluatorConvertersWrapper.internalFraudSightDataConverter::convert)
-            .ifPresent(childElements::add);
+                .map(riskEvaluatorConvertersWrapper.internalFraudSightDataConverter::convert)
+                .ifPresent(childElements::add);
 
         if (StringUtils.isNotBlank(source.getDeviceSession())) {
             final DeviceSession intDeviceSession = new DeviceSession();
@@ -191,8 +198,8 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         }
 
         Optional.ofNullable(source.getGuaranteedPaymentsData())
-            .map(riskEvaluatorConvertersWrapper.internalGuaranteedPaymentsDataConverter::convert)
-            .ifPresent(childElements::add);
+                .map(riskEvaluatorConvertersWrapper.internalGuaranteedPaymentsDataConverter::convert)
+                .ifPresent(childElements::add);
     }
 
     private void populatePaymentRequestDetails(final Order source, final List<Object> childElements) {

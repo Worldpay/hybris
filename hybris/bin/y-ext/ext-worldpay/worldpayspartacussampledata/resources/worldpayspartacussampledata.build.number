@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Mar 20 15:10:08 UTC 2023
+#Thu May 04 13:54:04 UTC 2023
 version.api=2205
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayspartacussampledata
 description=worldpayspartacussampledata
-builddate=20230320 1510
+builddate=20230504 1353
 releasedate=20220930 1705
 version=2205.4
 module.name=platform-module

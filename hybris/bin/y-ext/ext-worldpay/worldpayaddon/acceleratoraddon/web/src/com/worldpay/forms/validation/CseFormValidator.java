@@ -51,7 +51,7 @@ public class CseFormValidator implements Validator {
      * @param birthdayDate the birthday date
      * @return true if valid, false otherwise
      */
-    protected boolean isValidDate(final Date birthdayDate) {
+    private boolean isValidDate(final Date birthdayDate) {
         return birthdayDate != null && birthdayDate.before(new Date());
     }
 }

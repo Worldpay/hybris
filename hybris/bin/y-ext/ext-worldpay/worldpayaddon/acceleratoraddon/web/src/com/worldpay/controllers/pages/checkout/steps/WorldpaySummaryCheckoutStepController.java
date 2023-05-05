@@ -8,7 +8,6 @@ import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCheckoutStep;
@@ -50,6 +49,7 @@ import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/summary")
+@SuppressWarnings("java:S110")
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
     protected static final Logger LOG = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
@@ -69,15 +69,11 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected static final String CSE_PAYMENT_FORM = "csePaymentForm";
 
     @Resource(name = "worldpayCheckoutFacade")
-    private AcceleratorCheckoutFacade checkoutFacade;
-    @Resource(name = "worldpayCheckoutFacade")
     private CheckoutFlowFacade checkoutFlowFacade;
     @Resource
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * {@inheritDoc}
@@ -113,8 +109,8 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         model.addAttribute(REQUEST_SECURITY_CODE, StringUtils.isNotBlank(subscriptionId) && cartData.getPaymentInfo() != null && cartData.getWorldpayAPMPaymentInfo() == null);
         model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
         Optional.ofNullable(cartData.getPaymentInfo())
-            .map(CCPaymentInfoData::getBin)
-            .ifPresent(bin -> model.addAttribute(BIN, bin));
+                .map(CCPaymentInfoData::getBin)
+                .ifPresent(bin -> model.addAttribute(BIN, bin));
         return worldpayAddonEndpointService.getCheckoutSummaryPage();
     }
 
@@ -159,10 +155,10 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     @GetMapping(value = "/express")
     @RequireHardLogIn
     public String performExpressCheckout(final Model model, final RedirectAttributes redirectModel, final HttpServletResponse response)
-        throws CMSItemNotFoundException {
+            throws CMSItemNotFoundException {
         if (getSessionService().getAttribute(WebConstants.CART_RESTORATION) != null
-            && CollectionUtils.isNotEmpty(((CartRestorationData) getSessionService().getAttribute(WebConstants.CART_RESTORATION))
-            .getModifications())) {
+                && CollectionUtils.isNotEmpty(((CartRestorationData) getSessionService().getAttribute(WebConstants.CART_RESTORATION))
+                .getModifications())) {
             return REDIRECT_URL_CART;
         }
 
@@ -177,8 +173,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
                     addFlashMessage(redirectModel, ERROR_MESSAGES_HOLDER, "checkout.express.error.deliveryAddress");
                     returnCode = REDIRECT_URL_ADD_DELIVERY_ADDRESS;
                     break;
-                case ERROR_DELIVERY_MODE:
-                case ERROR_CHEAPEST_DELIVERY_MODE:
+                case ERROR_DELIVERY_MODE, ERROR_CHEAPEST_DELIVERY_MODE:
                     addFlashMessage(redirectModel, ERROR_MESSAGES_HOLDER, "checkout.express.error.deliveryMode");
                     returnCode = REDIRECT_URL_CHOOSE_DELIVERY_METHOD;
                     break;
@@ -261,9 +256,9 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
 
         return arePaymentInfoValid(model, cartData, form) &&
-            areDeliveryInfoValid(model) &&
-            hasTermsAccepted(form, model) &&
-            isCartValid(model, cartData);
+                areDeliveryInfoValid(model) &&
+                hasTermsAccepted(form, model) &&
+                isCartValid(model, cartData);
     }
 
     /**
@@ -280,22 +275,22 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
 
     protected String getSubscriptionId(final CartData cartData) {
         return Optional.ofNullable(cartData.getPaymentInfo())
-            .map(CCPaymentInfoData::getSubscriptionId)
-            .orElseGet(() -> Optional.ofNullable(cartData.getWorldpayAPMPaymentInfo())
-                .map(WorldpayAPMPaymentInfoData::getSubscriptionId)
-                .orElse(null)
-            );
+                .map(CCPaymentInfoData::getSubscriptionId)
+                .orElseGet(() -> Optional.ofNullable(cartData.getWorldpayAPMPaymentInfo())
+                        .map(WorldpayAPMPaymentInfoData::getSubscriptionId)
+                        .orElse(null)
+                );
     }
 
     protected boolean areDeliveryInfoValid(final Model model) {
         return hasDeliveryAddress(model) &&
-            hasDeliveryMode(model);
+                hasDeliveryMode(model);
     }
 
 
     protected boolean isCartValid(final Model model, final CartData cartData) {
         return hasTaxCalculated(cartData, model) &&
-            isCartCalculated(cartData, model);
+                isCartCalculated(cartData, model);
     }
 
     /**
@@ -350,8 +345,8 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private boolean hasTaxCalculated(final CartData cartData, final Model model) {
         if (!getCheckoutFacade().containsTaxValues()) {
             LOG.error(
-                "Cart {} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
-                cartData::getCode);
+                    "Cart {} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
+                    cartData::getCode);
             addErrorMessage(model, "checkout.error.tax.missing");
             return false;
         }
@@ -377,8 +372,8 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final WorldpayAdditionalInfoData info = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         info.setSecurityCode(securityCode);
         Optional
-            .ofNullable(cseAdditionalAuthInfo.getAdditional3DS2())
-            .ifPresent(info::setAdditional3DS2);
+                .ofNullable(cseAdditionalAuthInfo.getAdditional3DS2())
+                .ifPresent(info::setAdditional3DS2);
         return info;
     }
 
