@@ -40,6 +40,7 @@ public final class AuthoriseRequestParameters {
     private String mandateType;
     private GuaranteedPaymentsData guaranteedPaymentsData;
     private String checkoutId;
+    private AlternativeShippingAddress alternativeShippingAddress;
 
     private AuthoriseRequestParameters() {
     }
@@ -204,6 +205,15 @@ public final class AuthoriseRequestParameters {
         this.checkoutId = checkoutId;
     }
 
+    public AlternativeShippingAddress getAlternativeShippingAddress() {
+        return alternativeShippingAddress;
+    }
+
+    public void setAlternativeShippingAddress(AlternativeShippingAddress alternativeShippingAddress) {
+        this.alternativeShippingAddress = alternativeShippingAddress;
+    }
+
+
     public interface AuthoriseRequestParametersCreator {
         AuthoriseRequestParametersCreator withOrderLines(OrderLines orderLines);
 
@@ -258,6 +268,7 @@ public final class AuthoriseRequestParameters {
         AuthoriseRequestParametersCreator withGuaranteedPaymentsData(GuaranteedPaymentsData guaranteedPaymentsData);
 
         AuthoriseRequestParametersCreator withCheckoutId(String checkoutId);
+        AuthoriseRequestParametersCreator withAlternativeShippingAddress(AlternativeShippingAddress alternativeShippingAddress);
 
         AuthoriseRequestParameters build();
     }
@@ -291,6 +302,8 @@ public final class AuthoriseRequestParameters {
         private String mandateType;
         private GuaranteedPaymentsData guaranteedPaymentsData;
         private String checkoutId;
+
+        private AlternativeShippingAddress alternativeShippingAddress;
 
         private AuthoriseRequestParametersBuilder() {
         }
@@ -467,6 +480,12 @@ public final class AuthoriseRequestParameters {
         }
 
         @Override
+        public AuthoriseRequestParametersCreator withAlternativeShippingAddress(final AlternativeShippingAddress alternativeShippingAddress) {
+            this.alternativeShippingAddress = alternativeShippingAddress;
+            return this;
+        }
+
+        @Override
         public AuthoriseRequestParameters build() {
             final AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
 
@@ -497,6 +516,7 @@ public final class AuthoriseRequestParameters {
             parameters.mandateType = mandateType;
             parameters.guaranteedPaymentsData = guaranteedPaymentsData;
             parameters.checkoutId = checkoutId;
+            parameters.alternativeShippingAddress = alternativeShippingAddress;
 
             return parameters;
         }
@@ -531,6 +551,7 @@ public final class AuthoriseRequestParameters {
             ", mandateType='" + mandateType + '\'' +
             ", guaranteedPaymentsData='" + guaranteedPaymentsData + '\'' +
             ", checkoutId='" + checkoutId + '\'' +
+            ", alternativeShippingAddress='" + alternativeShippingAddress + '\'' +
             ", action=" + action.name() +
             '}';
     }

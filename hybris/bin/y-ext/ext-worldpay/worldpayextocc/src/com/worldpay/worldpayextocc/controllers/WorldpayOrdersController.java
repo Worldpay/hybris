@@ -25,12 +25,11 @@ import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
-import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.validators.CompositeValidator;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -177,7 +176,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST"})
     @PostMapping(value = "/users/{userId}/carts/{cartId}/worldpayorders/place-redirect-order")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(nickname = "placeRedirectOrder", value = "Place an order for redirect APMs.", notes = "Place the order after APM success redirect. The response contains the new order data.")
+    @Operation(operationId = "placeRedirectOrder", summary = "Place an order for redirect APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
     @ResponseBody
     public OrderWsDTO placeRedirectOrder(

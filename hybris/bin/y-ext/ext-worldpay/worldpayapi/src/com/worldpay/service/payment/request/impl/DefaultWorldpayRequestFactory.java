@@ -593,6 +593,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             .withStatementNarrative(statementNarrative)
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withOrderLines(orderLines)
+            .withAlternativeShippingAddress(worldpayRequestService.createAlternativeShippingAddress())
             .build();
 
         return createRedirectAuthoriseRequest(authoriseRequestParametersCreator.build());

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
 
+@SuppressWarnings("java:S110")
 public abstract class AbstractWorldpayDirectCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     protected static final String CHECKOUT_ERROR_PAYMENTETHOD_FORMENTRY_INVALID = "checkout.error.paymentethod.formentry.invalid";
@@ -28,18 +29,16 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
     protected static final String DEVICE_SESSION = "DEVICE_SESSION";
 
     @Resource
-    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
-    @Resource
     protected WorldpayDirectResponseFacade worldpayDirectResponseFacade;
     @Resource
     protected WorldpayDDCFacade worldpayDDCFacade;
 
     public String handleDirectResponse(final Model model, final DirectResponseData directResponseData, final HttpServletResponse response) throws CMSItemNotFoundException, WorldpayConfigurationException {
-        if (worldpayDirectResponseFacade.isAuthorised(directResponseData)) {
+        if (Boolean.TRUE.equals(worldpayDirectResponseFacade.isAuthorised(directResponseData))) {
             return redirectToOrderConfirmationPage(directResponseData.getOrderData());
         }
 
-        if (worldpayDirectResponseFacade.is3DSecureLegacyFlow(directResponseData)) {
+        if (Boolean.TRUE.equals(worldpayDirectResponseFacade.is3DSecureLegacyFlow(directResponseData))) {
             final Map<String, String> attributes = worldpayDirectResponseFacade.retrieveAttributesForLegacy3dSecure(directResponseData);
             model.addAllAttributes(attributes);
             response.addHeader(THREED_SECURE_FLOW, Boolean.TRUE.toString());
@@ -47,7 +46,7 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
             return worldpayAddonEndpointService.getAutoSubmit3DSecure();
         }
 
-        if (worldpayDirectResponseFacade.is3DSecureFlexFlow(directResponseData)) {
+        if (Boolean.TRUE.equals(worldpayDirectResponseFacade.is3DSecureFlexFlow(directResponseData))) {
             final Map<String, String> attributes = worldpayDirectResponseFacade.retrieveAttributesForFlex3dSecure(directResponseData);
             model.addAllAttributes(attributes);
             response.addHeader(THREED_SECURE_FLOW, Boolean.TRUE.toString());
@@ -55,7 +54,7 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
             return worldpayAddonEndpointService.getAutoSubmit3DSecureFlex();
         }
 
-        if (worldpayDirectResponseFacade.isCancelled(directResponseData)) {
+        if (Boolean.TRUE.equals(worldpayDirectResponseFacade.isCancelled(directResponseData))) {
             GlobalMessages.addErrorMessage(model, CHECKOUT_MULTI_WORLD_PAY_DECLINED_MESSAGE_DEFAULT);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return getErrorView(model);
