@@ -39,6 +39,7 @@ public class OrderBuilder {
     private String mandateType;
     private GuaranteedPaymentsData guaranteedPaymentsData;
     private String checkoutId;
+    private AlternativeShippingAddress alternativeShippingAddress;
 
     public OrderBuilder withOrderContent(String orderContent) {
         this.orderContent = orderContent;
@@ -150,13 +151,18 @@ public class OrderBuilder {
         return this;
     }
 
-    OrderBuilder whitGuaranteedPaymentsAttribute(final GuaranteedPaymentsData guaranteedPaymentsData) {
+    OrderBuilder withGuaranteedPaymentsAttribute(final GuaranteedPaymentsData guaranteedPaymentsData) {
         this.guaranteedPaymentsData = guaranteedPaymentsData;
         return this;
     }
 
-    OrderBuilder whitCheckoutId(final String checkoutId) {
+    OrderBuilder withCheckoutId(final String checkoutId) {
         this.checkoutId = checkoutId;
+        return this;
+    }
+
+    OrderBuilder withAlternativeShippingAddress(final AlternativeShippingAddress alternativeShippingAddress) {
+        this.alternativeShippingAddress = alternativeShippingAddress;
         return this;
     }
 
@@ -190,6 +196,7 @@ public class OrderBuilder {
         Optional.ofNullable(mandateType).ifPresent(order::setMandateType);
         Optional.ofNullable(guaranteedPaymentsData).ifPresent(order::setGuaranteedPaymentsData);
         Optional.ofNullable(checkoutId).ifPresent(order::setCheckoutId);
+        Optional.ofNullable(alternativeShippingAddress).ifPresent(order::setAlternativeShippingAddress);
 
         return order;
     }

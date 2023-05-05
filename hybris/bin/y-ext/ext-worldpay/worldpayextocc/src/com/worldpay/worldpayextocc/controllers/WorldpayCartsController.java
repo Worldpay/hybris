@@ -41,8 +41,8 @@ import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiFieldsParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -266,7 +266,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(nickname = "createAPMPaymentInfo", value = "Creates an APM payment info for the cart.", notes = "Creates a payment info and assigns it to the cart.")
+    @Operation(operationId = "createAPMPaymentInfo", description = "Creates an APM payment info for the cart.", summary = "Creates a payment info and assigns it to the cart.")
     @ApiBaseSiteIdUserIdAndCartIdParam
     @PostMapping(value = "/{cartId}/worldpayAPMPaymentInfo", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public CartWsDTO createAPMPaymentInfo (@RequestBody final WorldpayAPMPaymentInfoWsDTO apmPaymentInfoWsDto,
@@ -287,9 +287,9 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @PostMapping(value = "/{cartId}/addresses/worldpaydeliveryaddress", consumes = {
             MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(nickname = "createCartDeliveryAndBillingAddress", value = "Creates a delivery and a payment address for the cart.", notes = "Creates an address and assigns it to the cart as the delivery address and the payment address.")
+    @Operation(operationId = "createCartDeliveryAndBillingAddress", summary = "Creates a delivery and a payment address for the cart.", description = "Creates an address and assigns it to the cart as the delivery address and the payment address.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    public AddressWsDTO createCartDeliveryAndBillingAddress(@ApiParam(required = true) @RequestBody final AddressWsDTO address,
+    public AddressWsDTO createCartDeliveryAndBillingAddress(@Parameter(required = true) @RequestBody final AddressWsDTO address,
                                                             @ApiFieldsParam @RequestParam(defaultValue = DEFAULT_LEVEL) final String fields) {
 
         final AddressData addressData = dataMapper.map(address, AddressData.class, fields);

@@ -2,10 +2,10 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.WorldpayCartFacade;
-import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.forms.validation.PaymentDetailsFormValidator;
+import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
@@ -43,6 +43,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/choose-payment-method")
+@SuppressWarnings("java:S110")
 public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
 
     protected static final Logger LOG = LogManager.getLogger(WorldpayChoosePaymentMethodCheckoutStepController.class);
@@ -61,14 +62,13 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     protected static final String CHECKOUT_MULTI_WORLD_PAY_DECLINED_MESSAGE_DEFAULT = "checkout.multi.worldpay.declined.message.default";
 
     protected static final String CHECKOUT_MULTI_TERMS_AND_CONDITIONS = "/checkout/multi/termsAndConditions";
+    protected static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
     @Resource
     protected MessageSource themeSource;
     @Resource
     protected String redirectToPaymentMethod;
 
-    @Resource
-    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
     @Resource(name = "worldpayCheckoutFacade")
     protected AcceleratorCheckoutFacade checkoutFacade;
     @Resource
@@ -79,6 +79,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
     protected AddressDataUtil addressDataUtil;
     @Resource
     protected APMConfigurationLookupService apmConfigurationLookupService;
+    @Resource
+    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * Returns the configured Terms and Conditions URL.
@@ -353,5 +355,26 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
     protected boolean isAPM(final String paymentMethod) {
         return apmConfigurationLookupService.getAllApmPaymentTypeCodes().contains(paymentMethod);
+    }
+
+    /**
+     * @param countryIsoCode     the country iso code
+     * @param useDeliveryAddress the delivery address
+     * @param model              the {@link Model} to be used
+     * @return
+     */
+    @GetMapping(value = "/billingaddressform")
+    public String getCountryAddressForm(@RequestParam("countryIsoCode") final String countryIsoCode,
+                                        @RequestParam("useDeliveryAddress") final boolean useDeliveryAddress, final Model model) {
+        model.addAttribute("supportedCountries", getCountries());
+        model.addAttribute(REGIONS, getI18NFacade().getRegionsForCountryIso(countryIsoCode));
+        model.addAttribute("country", countryIsoCode);
+
+        final PaymentDetailsForm wpPaymentDetailsForm = new PaymentDetailsForm();
+        model.addAttribute(BILLING_ADDRESS_FORM, wpPaymentDetailsForm);
+        if (useDeliveryAddress) {
+            populateAddressForm(countryIsoCode, wpPaymentDetailsForm);
+        }
+        return worldpayAddonEndpointService.getBillingAddressForm();
     }
 }

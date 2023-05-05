@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller("WorldpayGuaranteedPaymentsComponentController")
 @RequestMapping(value = "/view/WorldpayGuaranteedPaymentsComponentController")
-public class WorldpayGuaranteedPaymentsComponentController extends GenericCMSAddOnComponentController {
+public class WorldpayGuaranteedPaymentsComponentController extends WorldpayGenericCMSAddOnComponentController {
 
     private static final String IS_ENABLED = "isEnabled";
     private static final String SCRIPT = "script";
