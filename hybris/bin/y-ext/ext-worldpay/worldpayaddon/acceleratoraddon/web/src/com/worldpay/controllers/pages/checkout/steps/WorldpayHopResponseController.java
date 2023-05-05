@@ -4,9 +4,7 @@ import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHOPNoReturnParamsStrategy;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
-import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
-import com.worldpay.service.WorldpayAddonEndpointService;
 import com.worldpay.service.hop.WorldpayOrderCodeVerificationService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
@@ -38,6 +36,7 @@ import static com.worldpay.enums.order.AuthorisedStatus.*;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay")
+@SuppressWarnings("java:S110")
 public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorldpayHopResponseController.class);
@@ -46,7 +45,6 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     private static final String REDIRECT_URL_CHOOSE_DELIVERY_METHOD = REDIRECT_PREFIX + "/checkout/multi/delivery-method/choose";
     private static final String CHECKOUT_PLACE_ORDER_FAILED = "checkout.placeOrder.failed";
     private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
-    private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
 
     @Resource
     protected Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
@@ -54,8 +52,6 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     protected WorldpayPaymentTransactionService worldpayPaymentTransactionService;
     @Resource
     protected Converter<AbstractOrderModel, OrderData> orderConverter;
-    @Resource
-    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
     protected Set<AuthorisedStatus> apmErrorResponseStatuses;
     @Resource
@@ -190,21 +186,12 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      * @param countryIsoCode     the country iso code
      * @param useDeliveryAddress the delivery address
      * @param model              the {@link Model} to be used
-     * @return
+     * @return the address form
      */
     @GetMapping(value = "/billingaddressform")
     public String getCountryAddressForm(@RequestParam("countryIsoCode") final String countryIsoCode,
                                         @RequestParam("useDeliveryAddress") final boolean useDeliveryAddress, final Model model) {
-        model.addAttribute("supportedCountries", getCountries());
-        model.addAttribute("regions", getI18NFacade().getRegionsForCountryIso(countryIsoCode));
-        model.addAttribute("country", countryIsoCode);
-
-        final PaymentDetailsForm wpPaymentDetailsForm = new PaymentDetailsForm();
-        model.addAttribute(BILLING_ADDRESS_FORM, wpPaymentDetailsForm);
-        if (useDeliveryAddress) {
-            populateAddressForm(countryIsoCode, wpPaymentDetailsForm);
-        }
-        return worldpayAddonEndpointService.getBillingAddressForm();
+        return super.getCountryAddressForm(countryIsoCode, useDeliveryAddress, model);
     }
 
     protected String handleHopResponseWithPaymentStatus(final Model model, final RedirectAttributes redirectAttributes, final RedirectAuthoriseResult response) {

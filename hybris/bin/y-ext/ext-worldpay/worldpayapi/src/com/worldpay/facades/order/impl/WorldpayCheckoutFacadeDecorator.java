@@ -2,8 +2,8 @@ package com.worldpay.facades.order.impl;
 
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorservices.enums.CheckoutPciOptionEnum;
-import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.*;
+import de.hybris.platform.commercefacades.order.impl.DefaultCheckoutFacade;
 import de.hybris.platform.commercefacades.storelocator.data.PointOfServiceData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
@@ -31,7 +31,7 @@ import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParamete
 /**
  * Adds Worldpay functionality by decorating the CheckoutFlowFacade
  */
-public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
+public class WorldpayCheckoutFacadeDecorator extends DefaultCheckoutFacade implements CheckoutFlowFacade {
 
     private static final Logger LOG = LogManager.getLogger(WorldpayCheckoutFacadeDecorator.class);
 
@@ -117,8 +117,8 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
      * {@inheritDoc}
      */
     @Override
-    public List<? extends AddressData> getSupportedDeliveryAddresses(boolean visibleAddressesOnly) {
-        return getCheckoutFlowFacade().getSupportedDeliveryAddresses(visibleAddressesOnly);
+    public List<AddressData> getSupportedDeliveryAddresses(final boolean visibleAddressesOnly) {
+        return (List<AddressData>) checkoutFlowFacade.getSupportedDeliveryAddresses(visibleAddressesOnly);
     }
 
     /**
@@ -157,9 +157,9 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         if (checkIfCurrentUserIsTheCartUser() && StringUtils.isNotBlank(paymentInfoId)) {
             final CustomerModel currentUserForCheckout = getCurrentUserForCheckout();
             final PaymentInfoModel matchingPaymentInfoModel = currentUserForCheckout.getPaymentInfos().stream()
-                .filter(paymentInfoModel -> paymentInfoId.equalsIgnoreCase(paymentInfoModel.getPk().toString()))
-                .findFirst()
-                .orElse(null);
+                    .filter(paymentInfoModel -> paymentInfoId.equalsIgnoreCase(paymentInfoModel.getPk().toString()))
+                    .findFirst()
+                    .orElse(null);
             final CartModel cartModel = getCart();
             if (matchingPaymentInfoModel != null) {
                 cartModel.setPaymentAddress(matchingPaymentInfoModel.getBillingAddress());
@@ -168,8 +168,8 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
                 return commerceCheckoutService.setPaymentInfo(parameter);
             }
             LOG.warn(
-                "Did not find CreditCardPaymentInfoModel for user: {}, cart: {} &  paymentInfoId: {}. PaymentInfo Will not get set.",
-                () -> currentUserForCheckout, cartModel::getCode, () -> paymentInfoId);
+                    "Did not find CreditCardPaymentInfoModel for user: {}, cart: {} &  paymentInfoId: {}. PaymentInfo Will not get set.",
+                    () -> currentUserForCheckout, cartModel::getCode, () -> paymentInfoId);
         }
         return false;
     }
@@ -222,14 +222,6 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         return getCheckoutFlowFacade().setDeliveryMode(deliveryModeCode);
     }
 
-    /**
-     * @deprecated since 1808. Please use {@link CheckoutFacade#getCountries(CountryType)} instead.
-     */
-    @Override
-    @Deprecated(since = "1808")
-    public List<CountryData> getDeliveryCountries() {
-        return getCheckoutFlowFacade().getDeliveryCountries();
-    }
 
     /**
      * {@inheritDoc}
@@ -301,15 +293,6 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
     @Override
     public List<CartModificationData> consolidateCheckoutCart(final String pickupPointOfServiceName) throws CommerceCartModificationException {
         return getCheckoutFlowFacade().consolidateCheckoutCart(pickupPointOfServiceName);
-    }
-
-    /**
-     * @deprecated since 1808. Please use {@link CheckoutFacade#getCountries(CountryType)} instead.
-     */
-    @Override
-    @Deprecated(since = "1808")
-    public List<CountryData> getBillingCountries() {
-        return getCheckoutFlowFacade().getBillingCountries();
     }
 
     /**
@@ -426,6 +409,22 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         return getCheckoutFlowFacade().hasValidCart();
     }
 
+    @Override
+    protected CartModel getCart() {
+        return hasCheckoutCart() ? cartService.getSessionCart() : null;
+    }
+
+    @Override
+    protected boolean checkIfCurrentUserIsTheCartUser() {
+        final CartModel cartModel = getCart();
+        return cartModel != null && cartModel.getUser().equals(getCurrentUserForCheckout());
+    }
+
+    @Override
+    protected CustomerModel getCurrentUserForCheckout() {
+        return checkoutCustomerStrategy.getCurrentUserForCheckout();
+    }
+
     /**
      * Gets checkout flow facade.
      *
@@ -435,36 +434,17 @@ public class WorldpayCheckoutFacadeDecorator implements CheckoutFlowFacade {
         return checkoutFlowFacade;
     }
 
-    protected CartModel getCart() {
-        return hasCheckoutCart() ? cartService.getSessionCart() : null;
-    }
-
-    protected boolean checkIfCurrentUserIsTheCartUser() {
-        final CartModel cartModel = getCart();
-        return cartModel != null && cartModel.getUser().equals(getCurrentUserForCheckout());
-    }
-
-    protected CustomerModel getCurrentUserForCheckout() {
-        return checkoutCustomerStrategy.getCurrentUserForCheckout();
-    }
-
     /**
      * If payment info has billing address it will be set as payment address in session cart.
      */
     protected void setPaymentInfoBillingAddressOnSessionCart() {
         final CartModel sessionCart = getSessionCart();
         Optional.ofNullable(sessionCart.getPaymentInfo())
-            .map(PaymentInfoModel::getBillingAddress)
-            .ifPresent(paymentAddress -> {
-                sessionCart.setPaymentAddress(paymentAddress);
-                cartService.saveOrder(sessionCart);
-            });
+                .map(PaymentInfoModel::getBillingAddress)
+                .ifPresent(paymentAddress -> {
+                    sessionCart.setPaymentAddress(paymentAddress);
+                    cartService.saveOrder(sessionCart);
+                });
     }
 
-    protected CommerceCheckoutParameter createCommerceCheckoutParameter(final CartModel cart, final boolean enableHooks) {
-        final CommerceCheckoutParameter parameter = new CommerceCheckoutParameter();
-        parameter.setEnableHooks(enableHooks);
-        parameter.setCart(cart);
-        return parameter;
-    }
 }

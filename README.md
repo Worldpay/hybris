@@ -40,17 +40,12 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Klarna V2 SSL implemented. The connector no more supports Klarna SSL.
-- Updated Swagger IO end-point annotations for Spartacus.
-- Updated Spartacus recipe with SSL configuration by default.
+- Klarna supports alternative shipping address
 
 ### Breaking changes:
-- eNets APM removed. The connector no more support eNets payment method.
+- Postepay no longer supported
 
 ### Bugs Fixed: 
-- Fixed encode/decode requests and responses for respective languages. Some characters aren't decoded/encoded properly, causing a wrong visualization on The WorldPay dashboard.
-- Fixed order overview information page. Now it's fully populated on Spartacus recipe.
-- Fixed Apple Pay checkout process. Some data wasn't populated as expected causing a failed checkout process.
-- Fixed guest checkout in Spartacus. Some end-points return an “Access denied“ when FE call them.
+- Show APM’s when validation error occurs
 
 

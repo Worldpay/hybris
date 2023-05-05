@@ -90,3 +90,12 @@ INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ;
 UPDATE BaseSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier)
                ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid
 
+
+$enableFS=true
+$enablePR=true
+$enableLevel2=true
+$enableLevel3=true
+$enableGP=true
+UPDATE BaseSite; uid[unique = true]; enableFS[default=$enableFS] ; enablePR[default=$enablePR] ; enableLevel2[default=$enableLevel2] ; enableLevel3[default=$enableLevel3] ; enableGP[default=$enableGP]
+;$siteUid;
+    

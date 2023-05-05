@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
@@ -76,6 +75,8 @@ public class OrderBuilderTest {
     private BranchSpecificExtension level23DataMock;
     @Mock
     private GuaranteedPaymentsData guaranteedPaymentsDataMock;
+    @Mock
+    private AlternativeShippingAddress alternativeShippingAddressMock;
 
     @Before
     public void setUp() throws Exception {
@@ -170,6 +171,7 @@ public class OrderBuilderTest {
         assertEquals(level23DataMock, order.getBranchSpecificExtension());
         assertEquals(MANDATE_TYPE, order.getMandateType());
         assertEquals(guaranteedPaymentsDataMock, order.getGuaranteedPaymentsData());
+        assertEquals(alternativeShippingAddressMock, order.getAlternativeShippingAddress());
         assertEquals(CHECKOUT_ID, order.getCheckoutId());
     }
 
@@ -193,8 +195,9 @@ public class OrderBuilderTest {
             .withFraudSightAttribute(fraudSightDataMock)
             .withLevel23Data(level23DataMock)
             .withMandateType(MANDATE_TYPE)
-            .whitGuaranteedPaymentsAttribute(guaranteedPaymentsDataMock)
-            .whitCheckoutId(CHECKOUT_ID)
+            .withGuaranteedPaymentsAttribute(guaranteedPaymentsDataMock)
+            .withAlternativeShippingAddress(alternativeShippingAddressMock)
+            .withCheckoutId(CHECKOUT_ID)
             .build();
     }
 }
