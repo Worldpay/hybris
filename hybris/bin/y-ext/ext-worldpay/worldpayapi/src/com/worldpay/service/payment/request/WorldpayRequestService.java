@@ -1,15 +1,11 @@
 package com.worldpay.service.payment.request;
 
-import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.*;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason;
 import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.data.Browser;
-import com.worldpay.data.MerchantInfo;
-import com.worldpay.data.Session;
-import com.worldpay.data.Shopper;
 import com.worldpay.data.payment.Payment;
 import com.worldpay.data.payment.StoredCredentials;
 import com.worldpay.data.threeds2.Additional3DSData;
@@ -159,4 +155,27 @@ public interface WorldpayRequestService {
      * @return the {@link DynamicInteractionType}
      */
     DynamicInteractionType getDynamicInteractionType(final WorldpayAdditionalInfoData worldpayAdditionalInfoData);
+
+    /**
+     * Create an {@link AlternativeShippingAddress} object
+     * @return {@link AlternativeShippingAddress}
+     *
+     * Add your custom implementation of this method to create an {@link AlternativeShippingAddress} object
+     */
+    AlternativeShippingAddress createAlternativeShippingAddress();
+
+    /**
+     * Create an {@link AlternativeShippingAddress} object
+     * @return {@link AlternativeShippingAddress}
+     */
+    boolean isMerchantTokenEnabled();
+
+    /**
+     * Creates a tokenRequest object
+     * @param tokenEventReference unique identifier for the token transaction
+     * @param tokenReason refers to the seller so they can be tracked to the site/web.
+     * @param merchant indicates if the merchant token is enabled
+     * @return {@link TokenRequest}
+     */
+    TokenRequest createTokenRequest(final String tokenEventReference, final String tokenReason, final boolean merchant);
 }

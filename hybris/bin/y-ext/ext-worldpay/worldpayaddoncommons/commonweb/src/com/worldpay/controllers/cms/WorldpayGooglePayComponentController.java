@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller("WorldpayGooglePayComponentController")
 @RequestMapping(value = "/view/WorldpayGooglePayComponentController")
-public class WorldpayGooglePayComponentController extends GenericCMSAddOnComponentController {
+public class WorldpayGooglePayComponentController extends WorldpayGenericCMSAddOnComponentController {
     protected static final String GOOGLE_PAY_CONFIG = "googlePaySettings";
 
     @Resource

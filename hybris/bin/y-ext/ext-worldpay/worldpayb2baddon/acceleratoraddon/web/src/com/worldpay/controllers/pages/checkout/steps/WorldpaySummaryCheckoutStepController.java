@@ -7,7 +7,6 @@ import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.forms.B2BCSEPaymentForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
@@ -53,6 +52,7 @@ import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.G
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/summary")
+@SuppressWarnings("java:S110")
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
     private static final Logger LOG = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
@@ -80,8 +80,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
     @Resource
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * Enter step
@@ -100,7 +98,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
             for (final OrderEntryData entry : cartData.getEntries()) {
                 final String productCode = entry.getProduct().getCode();
                 final ProductData product = getProductFacade().getProductForCodeAndOptions(productCode,
-                    Arrays.asList(ProductOption.BASIC, ProductOption.PRICE, ProductOption.VARIANT_MATRIX_BASE, ProductOption.PRICE_RANGE));
+                        Arrays.asList(ProductOption.BASIC, ProductOption.PRICE, ProductOption.VARIANT_MATRIX_BASE, ProductOption.PRICE_RANGE));
                 entry.setProduct(product);
             }
         }
@@ -131,7 +129,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         storeCmsPageInModel(model, getContentPageForLabelOrId(MULTI_CHECKOUT_SUMMARY_CMS_PAGE_LABEL));
         setUpMetaDataForContentPage(model, getContentPageForLabelOrId(MULTI_CHECKOUT_SUMMARY_CMS_PAGE_LABEL));
         model.addAttribute(WebConstants.BREADCRUMBS_KEY,
-            getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.summary.breadcrumb"));
+                getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.summary.breadcrumb"));
         model.addAttribute("metaRobots", "noindex,nofollow");
         setCheckoutStepLinksForModel(model, getCheckoutStep());
 
@@ -251,25 +249,25 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         final boolean requestSecurityCode = b2bCSEPaymentForm.isRequestSecurityCode();
 
         return arePaymentInfoValid(model, subscriptionId, securityCode, requestSecurityCode) &&
-            areDeliveryInfoValid(model) &&
-            hasTermsAccepted(b2bCSEPaymentForm, model) &&
-            isCartValid(model, cartData);
+                areDeliveryInfoValid(model) &&
+                hasTermsAccepted(b2bCSEPaymentForm, model) &&
+                isCartValid(model, cartData);
     }
 
     private boolean isCartValid(final Model model, final CartData cartData) {
         return hasTaxCalculated(cartData, model) &&
-            isCartCalculated(cartData, model);
+                isCartCalculated(cartData, model);
     }
 
     private boolean areDeliveryInfoValid(final Model model) {
         return hasDeliveryAddress(model) &&
-            hasDeliveryMode(model);
+                hasDeliveryMode(model);
     }
 
     private boolean arePaymentInfoValid(final Model model, final String subscriptionId, final String securityCode, final boolean requestSecurityCode) {
         return isSubscriptionIdInValidCondition(subscriptionId, securityCode, requestSecurityCode, model) &&
-            hasRequestedSecurityCode(model, securityCode) &&
-            hasPaymentInfo(model);
+                hasRequestedSecurityCode(model, securityCode) &&
+                hasPaymentInfo(model);
     }
 
     private boolean isCartCalculated(final CartData cartData, final Model model) {
@@ -284,7 +282,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     private boolean hasTaxCalculated(final CartData cartData, final Model model) {
         if (!getCheckoutFacade().containsTaxValues()) {
             LOG.error("Cart {} does not have any tax values, which means the tax calculation was not properly done, placement of order can\'t continue",
-                cartData::getCode);
+                    cartData::getCode);
             addErrorMessage(model, "checkout.error.tax.missing");
             return false;
         }
@@ -374,6 +372,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return getCheckoutStep().nextStep();
     }
 
+    @Override
     protected CheckoutStep getCheckoutStep() {
         return getCheckoutStep(SUMMARY);
     }
@@ -429,7 +428,7 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
     protected void initBinder(final ServletRequestDataBinder binder) {
         final Locale currentLocale = getI18nService().getCurrentLocale();
         final String formatString = getMessageSource().getMessage(TEXT_STORE_DATEFORMAT_KEY, null, DEFAULT_DATEFORMAT,
-            currentLocale);
+                currentLocale);
         final DateFormat dateFormat = new SimpleDateFormat(formatString, currentLocale);
         final CustomDateEditor editor = new CustomDateEditor(dateFormat, true);
         binder.registerCustomEditor(Date.class, editor);

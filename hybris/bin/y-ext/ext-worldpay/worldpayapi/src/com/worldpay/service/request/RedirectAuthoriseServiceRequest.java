@@ -47,8 +47,9 @@ public class RedirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withLevel23Data(requestParameters.getBranchSpecificExtension())
             .withMandateType(requestParameters.getMandateType())
             .withDeviceSession(requestParameters.getDeviceSession())
-            .whitGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
-            .whitCheckoutId(requestParameters.getCheckoutId())
+            .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
+            .withCheckoutId(requestParameters.getCheckoutId())
+            .withAlternativeShippingAddress(requestParameters.getAlternativeShippingAddress())
             .build();
         authRequest.setOrder(reqOrder);
         return authRequest;

@@ -13,15 +13,6 @@ def pl = platform {
         property 'corsfilter.commercewebservices.allowedHeaders', 'origin content-type accept authorization x-anonymous-consents'
         property 'xss.filter.header.Content-Security-Policy', 'frame-ancestors \'self\' http://localhost:4200 https://localhost:4200'
 
-        property 'worldpay.config.3dsecureflex.jwt.alg', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.challengeurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.ddcurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.eventOriginDomain', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.returnurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.challengepreference', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.secondauthorisation.submit.url', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.flowReturnUrl', '<CHANGE_ME>'
-
         property 'worldpay.config.web.merchant.code.electronics', '<CHANGE_ME>'
         property 'worldpay.config.web.merchant.password.electronics', '<CHANGE_ME>'
         property 'worldpay.config.web.merchant.macSecret.electronics', '<CHANGE_ME>'
@@ -138,8 +129,6 @@ def pl = platform {
         extName 'couponfacades'
         extName 'couponservices'
         extName 'promotionenginesamplesaddon'
-        extName 'customercouponservices'
-        extName 'customercouponoccaddon'
 
         extName 'assistedservicestorefront'
         extName 'assistedservicewebservices'
@@ -245,7 +234,7 @@ def pl = platform {
             names('worldpayaddon', 'worldpaysampledataaddon', 'captchaaddon', 'commerceorgsamplesaddon', 'promotionenginesamplesaddon', 'assistedservicestorefront', 'assistedservicecustomerinterestsaddon',
                     'assistedserviceyprofileaddon', 'assistedservicepromotionaddon', 'customerticketingaddon', 'textfieldconfiguratortemplateaddon', 'smarteditaddon',
                     'consignmenttrackingaddon', 'notificationaddon', 'customerinterestsaddon', 'stocknotificationaddon', 'orderselfserviceaddon', 'adaptivesearchsamplesaddon',
-                    'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons', 'personalizationsearchsamplesaddon', 'customercouponoccaddon',
+                    'configurablebundleaddon', 'pcmbackofficesamplesaddon', 'xyformssamples', 'xyformsstorefrontcommons', 'personalizationsearchsamplesaddon',
                     'personalizationyprofilesampledataaddon', 'personalizationaddon', 'profiletagaddon', 'merchandisingaddon', 'merchandisingstorefrontsampledataaddon'
                     // Uncomment the following line if you want to add spartacussampledata to your build
                     // ,'worldpayspartacussampledata'

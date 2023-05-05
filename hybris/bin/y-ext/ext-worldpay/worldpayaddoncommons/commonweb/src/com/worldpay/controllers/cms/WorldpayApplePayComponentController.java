@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller("WorldpayApplePayComponentController")
 @RequestMapping(value = "/view/WorldpayApplePayComponentController")
-public class WorldpayApplePayComponentController extends GenericCMSAddOnComponentController {
+public class WorldpayApplePayComponentController extends WorldpayGenericCMSAddOnComponentController {
     protected static final String APPLE_PAY_CONFIG = "applePaySettings";
 
     @Resource

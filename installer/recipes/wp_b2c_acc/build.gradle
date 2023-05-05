@@ -10,15 +10,6 @@ def pl = platform {
         property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
         property 'testclasses.addonname', 'yacceleratorstorefront'
 
-        property 'worldpay.config.3dsecureflex.jwt.alg', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.challengeurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.ddcurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.eventOriginDomain', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.returnurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.challengepreference', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.secondauthorisation.submit.url', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.flowReturnUrl', '<CHANGE_ME>'
-
         property 'worldpay.config.web.merchant.code.electronics', '<CHANGE_ME>'
         property 'worldpay.config.web.merchant.password.electronics', '<CHANGE_ME>'
         property 'worldpay.config.web.merchant.macSecret.electronics', '<CHANGE_ME>'

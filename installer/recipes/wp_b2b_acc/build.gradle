@@ -12,15 +12,6 @@ def pl = platform {
         property 'testclasses.addonname', 'yb2bacceleratorstorefront'
         property 'ansi.colors', 'true'
 
-        property 'worldpay.config.3dsecureflex.jwt.alg', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.challengeurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.ddcurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.eventOriginDomain', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.returnurl', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.challengepreference', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.secondauthorisation.submit.url', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.flowReturnUrl', '<CHANGE_ME>'
-
         property 'worldpay.config.web.merchant.code.powertools', '<CHANGE_ME>'
         property 'worldpay.config.web.merchant.password.powertools', '<CHANGE_ME>'
         property 'worldpay.config.web.merchant.macSecret.powertools', '<CHANGE_ME>'

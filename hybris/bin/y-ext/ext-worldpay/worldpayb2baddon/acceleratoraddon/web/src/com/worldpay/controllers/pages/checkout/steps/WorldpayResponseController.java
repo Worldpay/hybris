@@ -15,33 +15,21 @@ import javax.annotation.Resource;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay")
+@SuppressWarnings("java:S110")
 public class WorldpayResponseController extends WorldpayChoosePaymentMethodCheckoutStepController {
-
-    private static final String BILLING_ADDRESS_FORM = "wpBillingAddressForm";
-
-    @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
 
     /**
      * Endpoint to get billing address form
      *
-     * @param countryIsoCode
-     * @param useDeliveryAddress
-     * @param model
-     * @return
+     * @param countryIsoCode     the country iso code
+     * @param useDeliveryAddress the delivery address
+     * @param model              the {@link Model} to be used
+     * @return the address form
      */
     @GetMapping(value = "/billingaddressform")
     public String getCountryAddressForm(@RequestParam("countryIsoCode") final String countryIsoCode,
-                                        @RequestParam("useDeliveryAddress") final boolean useDeliveryAddress, final Model model) {
-        model.addAttribute("supportedCountries", getCountries());
-        model.addAttribute("regions", getI18NFacade().getRegionsForCountryIso(countryIsoCode));
-        model.addAttribute("country", countryIsoCode);
-
-        final PaymentDetailsForm wpPaymentDetailsForm = new PaymentDetailsForm();
-        model.addAttribute(BILLING_ADDRESS_FORM, wpPaymentDetailsForm);
-        if (useDeliveryAddress) {
-            populateAddressForm(countryIsoCode, wpPaymentDetailsForm);
-        }
-        return worldpayAddonEndpointService.getBillingAddressForm();
+                                        @RequestParam("useDeliveryAddress") final boolean useDeliveryAddress,
+                                        final Model model) {
+        return super.getCountryAddressForm(countryIsoCode, useDeliveryAddress, model);
     }
 }
