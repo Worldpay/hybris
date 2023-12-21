@@ -1,0 +1,132 @@
+#apparel-uk
+
+$contentCatalog = apparel-uk-spaContentCatalog
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$media = @media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator]
+$siteResource = jar:com.worldpay.constants.WorldpaysampledataaddonConstants&/worldpaysampledataaddon/import/images/apmIcons
+$picture = media(code, $contentCV)
+$lang = en
+
+INSERT_UPDATE ContentPage; $contentCV[unique = true]; uid[unique = true]            ; name                          ; masterTemplate(uid, $contentCV); label; defaultPage[default = 'true']; approvalStatus(code)[default = 'approved']; homepage[default = 'false']
+                         ;                          ; worldpay-3ds-device-detection ; Worldpay 3ds DDC Iframe       ; ContentPage1Template           ; /worldpay-3ds-device-detection
+                         ;                          ; worldpay-3ds-challenge        ; Worldpay 3ds Challenge Iframe ; ContentPage1Template           ; /worldpay-3ds-challenge
+
+
+
+INSERT_UPDATE WorldpayApplePayComponent; uid[unique = true]; $contentCV[unique = true]; name
+                                       ; applePayComponent ;                          ; "Apple Pay"
+
+INSERT_UPDATE WorldpayGooglePayComponent; uid[unique = true] ; $contentCV[unique = true]; name
+                                        ; googlePayComponent ;                          ; "Google Pay"
+
+INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name
+                                 ; creditCardComponent ;                          ; "Credit Card"
+
+INSERT_UPDATE CMSParagraphComponent; uid[unique = true]; $contentCV[unique = true]; name
+                                   ; apmIntroduction   ;                          ; APM Introduction
+
+INSERT_UPDATE AssistedServiceSessionRestriction; $contentCV[unique = true]; uid[unique = true]                ; name                    ; &uid
+                                               ;                          ; AssistedServiceSessionRestriction ; ASM Session Restriction ; AssistedServiceSessionRestriction
+
+INSERT_UPDATE CMSInverseRestriction; $contentCV[unique = true]; name                                          ; originalRestriction(&uid)         ; uid[unique = true]                        ;
+                                   ;                          ; Assisted Service Session Reversed Restriction ; AssistedServiceSessionRestriction ; AssistedServiceSessionReversedRestriction ;
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]                     ; name                          ; cmsComponents(uid, $contentCV)
+                         ;                          ; BodyContentSlot-checkoutPaymentDetails ; Checkout Payment Details Slot ; CheckoutProgressComponent,CheckoutProgressMobileTopComponent,CheckoutPaymentDetailsComponent,CheckoutProgressMobileBottomComponent
+                         ;                          ; SideContentSlot-checkoutPaymentDetails ; Order Summary Slot            ; CheckoutOrderSummaryComponent
+
+
+INSERT_UPDATE ContentSlot; uid[unique = true]                  ; name                                               ; active; cmsComponents(uid, $contentCV)      ; $contentCV[unique = true]
+                         ; BodyContent-Notification-Preference ; Body Content Slot for Notification Preference Page ; true  ; NotificationPreferenceFlexComponent ;
+                         ; BodyContent-My-Interests            ; Body Content Slot for My Interests                 ; true  ; MyInterestsFlexComponent            ;
+
+
+INSERT_UPDATE CMSFlexComponent; $contentCV[unique = true]; uid[unique = true]                  ; name                              ; flexType                        ; &componentRef
+                              ;                          ; NotificationPreferenceFlexComponent ; Notification Preference Component ; NotificationPreferenceComponent ; NotificationPreferenceFlexComponent
+                              ;                          ; MyInterestsFlexComponent            ; Account My Interests Component    ; MyInterestsComponent            ; MyInterestsFlexComponent
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]           ; name                               ; active; cmsComponents(&componentRef)
+                         ;                          ; BodyContentSlot-cancel-order ; Body Content Slot for Cancel Order ; true  ; CancelOrderFlexComponent
+
+INSERT_UPDATE ContentSlotForPage; $contentCV[unique = true]; uid[unique = true]       ; position[unique = true]; page(uid, $contentCV)[unique = true]; contentSlot(uid, $contentCV)
+                                ;                          ; BodyContent-cancel-order ; BodyContent            ; cancel-order                        ; BodyContentSlot-cancel-order
+
+INSERT_UPDATE CMSFlexComponent; $contentCV[unique = true]; uid[unique = true]       ; name                   ; flexType             ; &componentRef
+                              ;                          ; CancelOrderFlexComponent ; Cancel Order Component ; CancelOrderComponent ; CancelOrderFlexComponent
+
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]           ; name                               ; active; cmsComponents(&componentRef)
+                         ;                          ; BodyContentSlot-return-order ; Body Content Slot for Return Order ; true  ; ReturnOrderFlexComponent
+
+INSERT_UPDATE ContentSlotForPage; $contentCV[unique = true]; uid[unique = true]       ; position[unique = true]; page(uid, $contentCV)[unique = true]; contentSlot(uid, $contentCV)
+                                ;                          ; BodyContent-return-order ; BodyContent            ; return-order                        ; BodyContentSlot-return-order
+
+INSERT_UPDATE CMSFlexComponent; $contentCV[unique = true]; uid[unique = true]       ; name                   ; flexType             ; &componentRef
+                              ;                          ; ReturnOrderFlexComponent ; Return Order Component ; ReturnOrderComponent ; ReturnOrderFlexComponent
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]                   ; name                                            ; active; cmsComponents(uid, $contentCV)
+                         ;                          ; BodyContentSlot-confirm-cancel-order ; Body Content Slot for Cancel Order Confirmation ; true  ; CancelOrderConfirmationComponent
+
+INSERT_UPDATE ContentSlotForPage; $contentCV[unique = true]; uid[unique = true]               ; position[unique = true]; page(uid, $contentCV)[unique = true]; contentSlot(uid, $contentCV)
+                                ;                          ; BodyContent-confirm-cancel-order ; BodyContent            ; confirm-cancel-order                ; BodyContentSlot-confirm-cancel-order
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]                   ; name                                            ; active; cmsComponents(&componentRef)
+                         ;                          ; BodyContentSlot-confirm-return-order ; Body Content Slot for Return Order Confirmation ; true  ; ReturnOrderConfirmationFlexComponent
+
+INSERT_UPDATE ContentSlotForPage; $contentCV[unique = true]; uid[unique = true]               ; position[unique = true]; page(uid, $contentCV)[unique = true]; contentSlot(uid, $contentCV)
+                                ;                          ; BodyContent-confirm-return-order ; BodyContent            ; confirm-return-order                ; BodyContentSlot-confirm-return-order
+
+INSERT_UPDATE CMSFlexComponent; $contentCV[unique = true]; uid[unique = true]                   ; name                                ; flexType                         ; &componentRef
+                              ;                          ; ReturnOrderConfirmationFlexComponent ; Return Order Confirmation Component ; ReturnOrderConfirmationComponent ; ReturnOrderConfirmationFlexComponent
+
+# Create medias
+INSERT_UPDATE Media; code[unique = true]  ; $media                                 ; mime[default = 'image/jpeg']; $contentCV[unique = true]; folder(qualifier)
+                   ; alipay-icon          ; $siteResource/alipay-icon.png          ;                             ;                          ; images
+                   ; cc-icon              ; $siteResource/cc-icon.png              ;                             ;                          ; images
+                   ; cup-icon             ; $siteResource/cup-icon.png             ;                             ;                          ; images
+                   ; sofort-icon          ; $siteResource/sofort-icon.png          ;                             ;                          ; images
+                   ; sofort-ch-icon       ; $siteResource/sofort-ch-icon.png       ;                             ;                          ; images
+                   ; paypal-icon          ; $siteResource/paypal-icon.png          ;                             ;                          ; images
+                   ; poli-icon            ; $siteResource/poli-icon.png            ;                             ;                          ; images
+                   ; polinz-icon          ; $siteResource/polinz-icon.png          ;                             ;                          ; images
+                   ; mistercash-icon      ; $siteResource/mistercash-icon.png      ;                             ;                          ; images
+                   ; ideal-icon           ; $siteResource/ideal-icon.png           ;                             ;                          ; images
+                   ; klarna-icon          ; $siteResource/klarna-icon.png          ;                             ;                          ; images
+                   ; google-pay-icon      ; $siteResource/google-pay-icon.png      ;                             ;                          ; images
+                   ; apple-pay-icon       ; $siteResource/apple-pay-icon.png       ;                             ;                          ; images
+                   ; giropay-icon         ; $siteResource/giropay.png              ;                             ;                          ; images
+                   ; klarna-paylater-icon ; $siteResource/klarna-paylater-icon.png ;                             ;                          ; images
+                   ; klarna-paynow-icon   ; $siteResource/klarna-paynow-icon.png   ;                             ;                          ; images
+                   ; klarna-slice-icon    ; $siteResource/klarna-slice-icon.png    ;                             ;                          ; images
+
+INSERT_UPDATE WorldpayApplePayComponent; uid[unique = true]; $contentCV[unique = true]; name        ; $picture[lang = $lang]
+                                       ; applePayComponent ;                          ; "Apple Pay" ; apple-pay-icon
+
+INSERT_UPDATE WorldpayGooglePayComponent; uid[unique = true] ; $contentCV[unique = true]; name         ; $picture[lang = $lang]
+                                        ; googlePayComponent ;                          ; "Google Pay" ; google-pay-icon
+
+INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name          ; $picture[lang = $lang]
+                                 ; creditCardComponent ;                          ; "Credit Card" ; cc-icon
+
+INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name               ; apmConfiguration(code); $picture[lang = $lang]; restrictions(uid, $contentCV)
+                                  ; sofortComponent         ;                          ; "SOFORT"           ; SOFORT-SSL            ; sofort-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; sofortCHComponent       ;                          ; "SOFORT-CH"        ; SOFORT_CH-SSL         ; sofort-ch-icon        ; AssistedServiceSessionReversedRestriction
+                                  ; payPalComponent         ;                          ; "PayPal"           ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; poliComponent           ;                          ; "POLi"             ; POLI-SSL              ; poli-icon             ; AssistedServiceSessionReversedRestriction
+                                  ; polinzComponent         ;                          ; "POLi - NZ"        ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; mistercashComponent     ;                          ; "Mistercash"       ; MISTERCASH-SSL        ; mistercash-icon       ; AssistedServiceSessionReversedRestriction
+                                  ; idealComponent          ;                          ; "iDeal"            ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
+                                  ; giropayComponent        ;                          ; "Giropay"          ; GIROPAY-SSL           ; giropay-icon          ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaComponent         ;                          ; "Klarna"           ; KLARNA_V2-SSL         ; klarna-icon           ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later" ; KLARNA_PAYLATER-SSL   ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"  ; KLARNA_SLICEIT-SSL    ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction
+                                  ; klarnaPayNowComponent   ;                          ; "Klarna Pay Now"   ; KLARNA_PAYNOW-SSL     ; klarna-paynow-icon    ; AssistedServiceSessionReversedRestriction
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
+                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,sofortComponent,poliComponent,mistercashComponent,idealComponent,giropayComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent
+
+INSERT_UPDATE CMSParagraphComponent; $contentCV[unique = true]; uid[unique = true]             ; content[lang = $lang]                                                                                                                                    ;
+                                   ;                          ; WorldpayHelpParagraphComponent ; "<strong>Need Help setting up your Merchants?</strong> <span>Contact Your Worldpay Relationship Manager and they will only be too happy to help!</span>" ;
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]                                ; name             ; active; cmsComponents(uid, $contentCV) ; ; ;
+                         ;                          ; SideContent-WorldpayPaymentAndBillingCheckoutPage ; Put content here ; true  ; WorldpayHelpParagraphComponent ; ; ;

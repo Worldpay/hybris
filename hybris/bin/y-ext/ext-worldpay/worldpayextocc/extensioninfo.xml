@@ -9,6 +9,8 @@
                 
         <requires-extension name="commercewebservices"/>
                 
+        <requires-extension name="swaggerintegration"/>
+                
         <coremodule generated="true" manager="com.worldpay.worldpayextocc.jalo.WorldpayextoccManager" packageroot="com.worldpay.worldpayextocc"/>
             
     </extension>

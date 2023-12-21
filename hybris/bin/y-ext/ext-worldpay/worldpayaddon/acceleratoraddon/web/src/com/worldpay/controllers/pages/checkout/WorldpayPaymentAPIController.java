@@ -3,10 +3,8 @@ package com.worldpay.controllers.pages.checkout;
 import com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
-import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
@@ -16,7 +14,6 @@ import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.GuestForm;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.validation.GuestValidator;
 import de.hybris.platform.acceleratorstorefrontcommons.security.GUIDCookieStrategy;
-import de.hybris.platform.acceleratorstorefrontcommons.util.AddressDataUtil;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.DeliveryModeData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
@@ -41,6 +38,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/checkout/worldpay/payment/api")
+@SuppressWarnings("java:S110")
 public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldpayPaymentAPIController.class);
@@ -49,12 +47,6 @@ public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodChe
     protected Validator cseFormValidator;
     @Resource
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
-    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
-    @Resource(name = "addressDataUtil")
-    protected AddressDataUtil addressDataUtil;
-    @Resource
-    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
     @Resource(name = "guestValidator")
     protected GuestValidator guestValidator;
     @Resource(name = "guidCookieStrategy")

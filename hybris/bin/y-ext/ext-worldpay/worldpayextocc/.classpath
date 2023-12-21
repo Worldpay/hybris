@@ -7,6 +7,7 @@
 				
 	<classpathentry exported="true" kind="src" path="/worldpayapi" />
 	<classpathentry exported="true" kind="src" path="/commercewebservices" />
+	<classpathentry exported="true" kind="src" path="/swaggerintegration" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />

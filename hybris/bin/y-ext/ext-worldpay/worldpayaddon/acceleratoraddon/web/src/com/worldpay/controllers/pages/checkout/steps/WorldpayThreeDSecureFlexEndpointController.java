@@ -6,7 +6,6 @@ import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.ThreeDSecureFlexForm;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
@@ -32,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/3dsecureflex/sop")
+@SuppressWarnings("java:S110")
 public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpayDirectCheckoutStepController {
 
     private static final Logger LOG = LogManager.getLogger(WorldpayThreeDSecureFlexEndpointController.class);
@@ -41,8 +41,6 @@ public class WorldpayThreeDSecureFlexEndpointController extends AbstractWorldpay
     private static final String UNDEFINED_PREFIX = "undefined";
     private static final String CSE_PAYMENT_FORM = "csePaymentForm";
 
-    @Resource
-    private WorldpayAddonEndpointService worldpayAddonEndpointService;
     @Resource
     private ConfigurationService configurationService;
     @Resource

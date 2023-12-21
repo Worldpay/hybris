@@ -1,0 +1,62 @@
+<form
+  (ngSubmit)="submitForm()"
+  class="cx-place-order-form form-check"
+  [formGroup]="checkoutSubmitForm"
+>
+  <div class="form-group">
+    <label>
+      <input
+        formControlName="termsAndConditions"
+        class="form-check-input"
+        type="checkbox"
+      />
+      <span class="form-check-label">
+        {{ 'checkoutReview.confirmThatRead' | cxTranslate }}
+        <a
+          [routerLink]="{ cxRoute: 'termsAndConditions' } | cxUrl"
+          class="cx-tc-link"
+          target="_blank"
+        >
+          {{ 'checkoutReview.termsAndConditions' | cxTranslate }}
+        </a>
+      </span>
+      <cx-form-errors
+        [control]="checkoutSubmitForm.get('termsAndConditions')"
+      ></cx-form-errors>
+    </label>
+  </div>
+  
+  <button type="submit" class="btn btn-primary btn-block btn-submit" [disabled]="!paymentAuthorized || (isLoading$ | async)">
+    {{ 'checkoutReview.placeOrder' | cxTranslate }}
+  </button>
+
+</form>
+
+<iframe
+  *ngIf="ddcIframeUrl$ | async" [src]="ddcIframeUrl$ | async" height="1" width="1"
+  style="display: none;"
+></iframe>
+
+<div class="wp-challenge" *ngIf="challengeIframeUrl$ | async as challengeIframeUrl">
+  <iframe [src]="challengeIframeUrl" [height]="challengeIframeHeight" [width]="challengeIframeWidth"></iframe>
+</div>
+
+<div *ngIf="redirectData$ | async as redirectData" class="d-none">
+  <form
+    ngNoForm [action]="redirectData.postUrl" method="GET"
+    id="redirect-form"
+  >
+    <input
+      *ngFor="let queryParams of queryParams"
+      type="hidden"
+      [name]="queryParams.key" [value]="queryParams.value"
+    />
+    <input
+      *ngFor="let redirectParameter of redirectData.parameters?.entry"
+      type="hidden"
+      [name]="redirectParameter.key"
+      [value]="redirectParameter.value"
+    />
+  
+  </form>
+</div>

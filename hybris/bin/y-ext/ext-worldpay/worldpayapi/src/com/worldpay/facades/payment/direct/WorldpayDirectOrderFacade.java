@@ -164,4 +164,15 @@ public interface WorldpayDirectOrderFacade {
      */
     DirectResponseData executeSecondPaymentAuthorisation3DSecure(final String worldpayOrderCode) throws WorldpayException, InvalidCartException;
 
+    /**
+     * Performs a direct tokenize and authorisation at same time using Client Side Encryption with Worldpay.
+     *
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     * @param cseAdditionalAuthInfo     Object that contains additional authorisation information and the cseToken
+     * @return {@link DirectResponseData} Wrapper object containing information on the response from Worldpay
+     * @throws WorldpayException - something went wrong
+     * @throws InvalidCartException - Cart is not valid
+     */
+    DirectResponseData internalTokenizeAndAuthorise(final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException;
+
 }
