@@ -5,6 +5,7 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
+import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
@@ -30,6 +31,10 @@ public class WorldpayAPMPaymentInfoPopulator implements Populator<AbstractOrderM
                 worldpayAPMPaymentInfoData.setName(worldpayAPMConfigurationModel.getName());
                 Optional.ofNullable(worldpayAPMPaymentInfoModel.getSubscriptionId())
                     .ifPresent(worldpayAPMPaymentInfoData::setSubscriptionId);
+                if (source instanceof CartModel) {
+                    worldpayAPMPaymentInfoData.setApmCode(((CartModel)source).getApmCode());
+                    worldpayAPMPaymentInfoData.setApmName(((CartModel)source).getApmName());
+                }
                 target.setWorldpayAPMPaymentInfo(worldpayAPMPaymentInfoData);
             }
         }

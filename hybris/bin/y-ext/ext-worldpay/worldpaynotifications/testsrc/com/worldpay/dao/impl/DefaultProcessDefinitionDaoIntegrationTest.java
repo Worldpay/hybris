@@ -20,6 +20,7 @@ import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.order.OrderService;
+import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.processengine.model.BusinessProcessModel;
 import de.hybris.platform.processengine.model.ProcessTaskModel;
@@ -106,6 +107,14 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
         addBaseStore(baseSite);
 
         order = createOrder(testProduct);
+        serOrderProcess(order);
+    }
+
+    private void serOrderProcess(OrderModel order) {
+        final OrderProcessModel orderProcess = modelService.create(OrderProcessModel.class);
+        orderProcess.setCode("order-process-" + order.getCode());
+        orderProcess.setProcessDefinitionName("order-process");
+        order.setOrderProcess(Collections.singletonList(orderProcess));
     }
 
     private void addBaseStore(BaseSiteModel baseSite) {

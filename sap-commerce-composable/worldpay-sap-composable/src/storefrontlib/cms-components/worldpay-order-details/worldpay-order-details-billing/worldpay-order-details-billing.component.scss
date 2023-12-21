@@ -1,0 +1,15 @@
+@import "../../../../assets/styles/mixins";
+
+y-worldpay-order-detail-billing {
+  @extend %cx-order-detail-billing !optional;
+
+  .cx-order-details-cards {
+    flex: 1;
+    padding-inline-start: 1rem;
+    margin-inline-end: 1rem;
+  }
+
+  .cx-card-label-bold {
+    font-weight: var(--cx-font-weight-bold);
+  }
+}

@@ -9,6 +9,7 @@
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/hac/classes" kind="src" path="hac/src" />
+	<classpathentry exported="true" output="eclipsebin/hac/classes" kind="src" path="hac/testsrc" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="gensrc" />
 	<classpathentry exported="false" kind="src" path="/platform" />
 				
