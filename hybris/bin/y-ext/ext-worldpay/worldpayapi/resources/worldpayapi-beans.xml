@@ -27,6 +27,7 @@
     <enum class="com.worldpay.enums.order.AuthorisedStatus">
         <value>SIGNED_FORM_RECEIVED</value>
         <value>SENT_FOR_AUTHORISATION</value>
+        <value>WAITING_FOR_AUTHORISATION</value>
         <value>AUTHORISED</value>
         <value>REFUSED</value>
         <value>ERROR</value>
@@ -360,6 +361,8 @@
     </bean>
 
     <bean class="com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData">
+        <property name="apmCode" type="java.lang.String"/>
+        <property name="apmName" type="java.lang.String"/>
         <property name="name" type="String"/>
         <property name="subscriptionId" type="String"/>
     </bean>

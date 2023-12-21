@@ -86,6 +86,7 @@ INSERT_UPDATE WorldpayThreeDS2JsonWebTokenConfiguration; identifier[unique = tru
 
 INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; applePayConfiguration(identifier); googlePayConfiguration(identifier); threeDSFlexJsonWebTokenSettings(identifier); cardAcceptorTaxID
                                            ; webMerchantConfiguration-$siteUid ; $siteUid-applePayConfig          ; $siteUid-googlePayConfig          ; $siteUid-threeDS2Config                    ; $webCardAcceptorTaxId
+                                           ; asmMerchantConfiguration-$siteUid ;                                  ;                                   ; $siteUid-threeDS2Config                    ;
 
 UPDATE BaseSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier); enableLevel2[default = $enableLevel2]
                ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid   ;

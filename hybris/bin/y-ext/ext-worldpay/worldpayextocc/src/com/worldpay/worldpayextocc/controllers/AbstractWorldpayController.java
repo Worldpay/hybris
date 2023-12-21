@@ -6,6 +6,7 @@ import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.dto.order.ThreeDSecureInfoWsDTO;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.facades.WorldpayDirectResponseFacade;
+import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
@@ -20,6 +21,9 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.worldpay.payment.TransactionStatus.AUTHENTICATION_REQUIRED;
@@ -32,6 +36,7 @@ public class AbstractWorldpayController {
 
     protected static final String THREED_SECURE_FLEX_FLOW = "3D-Secure-Flex-Flow";
     protected static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
+    protected static final String FAILED_TO_PLACE_ORDER = "Failed to place Order";
 
     @Resource
     protected CheckoutFacade checkoutFacade;
@@ -41,6 +46,8 @@ public class AbstractWorldpayController {
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
     @Resource(name = "occWorldpayDirectResponseFacade")
     protected WorldpayDirectResponseFacade worldpayDirectResponseFacade;
+    @Resource
+    protected WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
 
     protected CSEAdditionalAuthInfo createCseAdditionalAuthInfo(final PaymentDetailsWsDTO paymentDetailsWsDTO) {
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = new CSEAdditionalAuthInfo();
@@ -98,13 +105,14 @@ public class AbstractWorldpayController {
 
     protected String getSessionId(final HttpServletRequest request) {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return Optional.ofNullable(auth.getDetails())
+        return Optional.ofNullable(auth)
+            .map(Authentication::getDetails)
             .map(OAuth2AuthenticationDetails.class::cast)
             .map(OAuth2AuthenticationDetails::getTokenValue)
             .map(String::hashCode)
             .map(hash -> hash == Integer.MIN_VALUE ? 0 : hash)
             .map(Math::abs)
-            .map(AbstractWorldpayController::stringify)
+            .map(String::valueOf)
             .orElse((String) request.getAttribute("javax.servlet.request.ssl_session_id"));
     }
 
@@ -175,7 +183,16 @@ public class AbstractWorldpayController {
         return placeOrderResponseWsDTO;
     }
 
-    protected static String stringify(Integer abs) {
-        return Integer.toString(abs);
+    protected Map<String, String> getRequestParameterMap(final HttpServletRequest request) {
+        final Map<String, String> map = new HashMap<>();
+
+        final Enumeration<String> myEnum = request.getParameterNames();
+        while (myEnum.hasMoreElements()) {
+            final String paramName = myEnum.nextElement();
+            final String paramValue = request.getParameter(paramName);
+            map.put(paramName, paramValue);
+        }
+
+        return map;
     }
 }

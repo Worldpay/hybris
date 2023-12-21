@@ -3,14 +3,11 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
-import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
-import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
@@ -38,6 +35,7 @@ import java.util.Date;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/cse")
+@SuppressWarnings({"java:S110", "common-java:DuplicatedBlocks"})
 public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
     private static final Logger LOGGER = LogManager.getLogger(WorldpayCseCheckoutStepController.class);
@@ -54,13 +52,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     @Resource
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
-    protected WorldpayAddonEndpointService worldpayAddonEndpointService;
-    @Resource
-    protected WorldpayDDCFacade worldpayDDCFacade;
-    @Resource
     protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
-    @Resource
-    protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
 
     /**
      * Returns the CSE payment details page
@@ -71,6 +63,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      */
     @GetMapping(value = {"/cse-data", "/place-order"})
     @RequireHardLogIn
+    @SuppressWarnings("common-java:DuplicatedBlocks")
     public String getCseDataPage(final Model model) throws CMSItemNotFoundException {
         if (getCheckoutFacade().hasCheckoutCart()) {
             setupAddPaymentPage(model);
@@ -92,8 +85,9 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
      */
     @PostMapping(value = "/add-payment-address")
     @RequireHardLogIn
+    @SuppressWarnings("common-java:DuplicatedBlocks")
     public String addPaymentAddress(final Model model, @Valid final PaymentDetailsForm paymentDetailsForm, final BindingResult bindingResult, final RedirectAttributes redirectAttrs)
-        throws CMSItemNotFoundException {
+            throws CMSItemNotFoundException {
         csePaymentDetailsFormValidator.validate(paymentDetailsForm, bindingResult);
 
         if (addGlobalErrors(model, bindingResult)) {
@@ -126,7 +120,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
     @PostMapping(value = "/place-order")
     @RequireHardLogIn
     public String addCseData(final HttpServletRequest request, final Model model, @Valid final CSEPaymentForm csePaymentForm, final BindingResult bindingResult, final HttpServletResponse response)
-        throws CMSItemNotFoundException {
+            throws CMSItemNotFoundException {
         cseFormValidator.validate(csePaymentForm, bindingResult);
 
         if (addGlobalErrors(model, bindingResult)) {

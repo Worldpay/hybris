@@ -5,16 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.payment.DirectResponseData;
+import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
-import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
@@ -72,8 +71,10 @@ public class WorldpayOccApiController {
                                                         final HttpServletResponse servletResponse) {
         boolean status = false;
         String orderCode = null;
+        DirectResponseData directResponseData = null;
+
         try {
-            final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeSecondPaymentAuthorisation3DSecure(worldpayOrderCode);
+            directResponseData = worldpayDirectOrderFacade.executeSecondPaymentAuthorisation3DSecure(worldpayOrderCode);
             if (directResponseData != null && directResponseData.getOrderData() != null) {
                 orderCode = directResponseData.getOrderData().getCode();
                 status = true;
@@ -82,7 +83,13 @@ public class WorldpayOccApiController {
             LOG.error("Failed to process 3ds challenge", e.getCause());
         }
 
-        return ResponseEntity.ok().body(createChallengeResponse(status, orderCode));
+        if (directResponseData != null &&
+                directResponseData.getOrderData() != null &&
+                Boolean.TRUE.equals(directResponseData.getOrderData().isGuestCustomer())) {
+            return ResponseEntity.ok().body(createGuestChallengeResponse(status, directResponseData.getOrderData()));
+        } else {
+            return ResponseEntity.ok().body(createChallengeResponse(status, orderCode));
+        }
     }
 
     private String createChallengeResponse(final boolean orderCreated, final String orderCode) {
@@ -90,8 +97,25 @@ public class WorldpayOccApiController {
         final String message;
         try {
             message = new ObjectMapper()
-                .writeValueAsString(Map.of("accepted", orderCreated,
-                    "orderCode", StringUtils.defaultString(orderCode)));
+                    .writeValueAsString(Map.of("accepted", orderCreated,
+                            "orderCode", StringUtils.defaultString(orderCode)));
+        } catch (JsonProcessingException e) {
+            LOG.error("failed creating challenge response", e);
+            throw new IllegalStateException(e);
+        }
+
+        return MessageFormat.format(CHALLENGE_HTML_SNIPPET, message);
+    }
+
+    private String createGuestChallengeResponse(final boolean orderCreated, final OrderData orderData) {
+
+        final String message;
+        try {
+            message = new ObjectMapper()
+                    .writeValueAsString(Map.of("accepted", orderCreated,
+                            "orderCode", StringUtils.defaultString(orderData.getCode()),
+                            "guestCustomer", orderData.isGuestCustomer(),
+                            "customerID", StringUtils.defaultString(orderData.getUser().getUid())));
         } catch (JsonProcessingException e) {
             LOG.error("failed creating challenge response", e);
             throw new IllegalStateException(e);
