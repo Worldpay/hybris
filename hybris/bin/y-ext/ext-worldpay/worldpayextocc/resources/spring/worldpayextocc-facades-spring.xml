@@ -32,4 +32,16 @@
         <constructor-arg name="worldpayRedirectOrderService" ref="occWorldpayRedirectOrderService"/>
     </bean>
 
+    <alias name="defaultOCCWorldpayOrderFacade" alias="occWorldpayOrderFacade"/>
+    <bean id="defaultOCCWorldpayOrderFacade" class="com.worldpay.facade.impl.DefaultOCCWorldpayOrderFacade"
+          parent="defaultOrderFacade">
+        <constructor-arg name="orderConverter" ref="orderConverter"/>
+        <constructor-arg name="redirectAuthoriseResultConverter" ref="redirectAuthoriseResultConverter"/>
+        <constructor-arg name="worldpayCheckoutFacadeDecorator" ref="worldpayCheckoutFacadeDecorator"/>
+        <constructor-arg name="worldpayHOPNoReturnParamsStrategy" ref="worldpayHOPNoReturnParamsStrategy"/>
+        <constructor-arg name="worldpayHostedOrderFacade" ref="worldpayHostedOrderFacade"/>
+        <constructor-arg name="worldpayOrderCodeVerificationService" ref="worldpayOrderCodeVerificationService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    </bean>
+
 </beans>

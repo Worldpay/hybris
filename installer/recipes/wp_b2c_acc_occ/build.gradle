@@ -130,6 +130,9 @@ def pl = platform {
         extName 'couponservices'
         extName 'promotionenginesamplesaddon'
 
+        extName 'commercewebservices'
+        extName 'cmsfacades'
+
         extName 'assistedservicestorefront'
         extName 'assistedservicewebservices'
         extName 'assistedserviceyprofileaddon'
@@ -202,7 +205,6 @@ def pl = platform {
         extName 'outboundservices'
         extName 'outboundsync'
         extName 'odata2webservices'
-        extName 'odata2webservicesfeaturetests'
         extName 'integrationbackoffice'
         extName 'integrationmonitoringbackoffice'
         extName 'outboundsyncbackoffice'

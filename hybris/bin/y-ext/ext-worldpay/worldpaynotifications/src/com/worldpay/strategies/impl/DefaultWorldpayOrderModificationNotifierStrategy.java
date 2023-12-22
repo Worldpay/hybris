@@ -64,12 +64,16 @@ public class DefaultWorldpayOrderModificationNotifierStrategy implements Worldpa
         final List<WorldpayOrderModificationModel> unprocessedOrderModifications = orderModificationDao.findUnprocessedAndNotNotifiedOrderModificationsBeforeDate(createDateInPast(days));
         if (!unprocessedOrderModifications.isEmpty()) {
             for (final WorldpayOrderModificationModel worldpayOrderModificationModel : unprocessedOrderModifications) {
-                final String worldpayOrderCode = worldpayOrderModificationModel.getWorldpayOrderCode();
-                final String unprocessedOrderMessage = format("{0} for worldpay order: {1}", l10nService.getLocalizedString(WORLDPAYNOTIFICATIONS_ERRORS_UNPROCESSED_ORDERS), worldpayOrderCode);
-                ticketBusinessService.createTicket(createParameters(unprocessedOrderMessage, worldpayOrderCode));
-                worldpayOrderModificationModel.setNotified(true);
-                modelService.save(worldpayOrderModificationModel);
-                LOG.info(unprocessedOrderMessage);
+                try {
+                    final String worldpayOrderCode = worldpayOrderModificationModel.getWorldpayOrderCode();
+                    final String unprocessedOrderMessage = format("{0} for worldpay order: {1}", l10nService.getLocalizedString(WORLDPAYNOTIFICATIONS_ERRORS_UNPROCESSED_ORDERS), worldpayOrderCode);
+                    ticketBusinessService.createTicket(createParameters(unprocessedOrderMessage, worldpayOrderCode));
+                    worldpayOrderModificationModel.setNotified(true);
+                    modelService.save(worldpayOrderModificationModel);
+                    LOG.info(unprocessedOrderMessage);
+                } catch (Exception e) {
+                    LOG.error("Error while creating ticket for unprocessed order: " + worldpayOrderModificationModel.getWorldpayOrderCode(), e);
+                }
             }
         } else {
             LOG.info("No Unprocessed order were found");

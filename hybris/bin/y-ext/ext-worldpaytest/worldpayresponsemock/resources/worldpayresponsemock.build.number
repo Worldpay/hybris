@@ -1,11 +1,11 @@
 #Ant properties
-#Thu May 04 13:54:03 UTC 2023
+#Fri Dec 22 11:38:41 UTC 2023
 version.api=2205
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayresponsemock
 description=worldpayresponsemock
-builddate=20230504 1353
+builddate=20231222 1138
 releasedate=20220930 1705
 version=2205.4
 module.name=platform-module

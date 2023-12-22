@@ -74,6 +74,7 @@ public class DefaultWorldpayDirectOrderServiceTest {
     private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
     private static final String SESSION_ID = "sessionId";
     private static final String SUBSCRIPTION_ID = "subscriptionId";
+    private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
 
     @Spy
     @InjectMocks
@@ -455,6 +456,8 @@ public class DefaultWorldpayDirectOrderServiceTest {
         when(schemeResponseMock.getTransactionIdentifier()).thenReturn(TRANSACTION_IDENTIFIER);
         when(worldpayPaymentInfoServiceMock.createCreditCardPaymentInfo(cartModelMock, tokenReplyMock, true, MERCHANT_CODE)).thenReturn(creditCardPaymentInfoModelMock);
         when(directAuthoriseServiceResponseMock.getToken()).thenReturn(tokenReplyMock);
+        when(tokenReplyMock.getTokenDetails()).thenReturn(tokenDetailsMock);
+        when(tokenDetailsMock.getTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
 
         testObj.completeAuthorise(directAuthoriseServiceResponseMock, cartModelMock);
 

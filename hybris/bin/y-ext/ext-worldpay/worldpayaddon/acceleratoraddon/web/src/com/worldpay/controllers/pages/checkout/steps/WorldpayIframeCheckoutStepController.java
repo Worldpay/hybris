@@ -2,7 +2,6 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.PaymentDetailsForm;
@@ -30,6 +29,7 @@ import java.util.Date;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/iframe")
+@SuppressWarnings("java:S110")
 public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     protected static final Logger LOGGER = LogManager.getLogger(WorldpayIframeCheckoutStepController.class);
@@ -37,8 +37,6 @@ public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentM
     protected static final String SHOW_NGPP_IFRAME = "showNGPPIframe";
     protected static final String REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS = REDIRECT_PREFIX + "/checkout/multi/worldpay/iframe/add-payment-details";
 
-    @Resource
-    protected WorldpayCartFacade worldpayCartFacade;
     @Resource
     protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
     @Resource
@@ -55,7 +53,7 @@ public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentM
     @PostMapping(value = "/add-payment-details")
     @RequireHardLogIn
     public String addPaymentDetails(final Model model, @Valid final PaymentDetailsForm paymentDetailsForm, final HttpServletRequest httpServletRequest, final BindingResult bindingResult, final RedirectAttributes redirectAttrs)
-        throws CMSItemNotFoundException {
+            throws CMSItemNotFoundException {
 
         paymentDetailsFormValidator.validate(paymentDetailsForm, bindingResult);
         if (addGlobalErrors(model, bindingResult)) {

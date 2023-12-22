@@ -5,7 +5,7 @@ import de.hybris.platform.b2bacceleratorfacades.exception.EntityValidationExcept
 import de.hybris.platform.b2bacceleratorfacades.order.data.B2BReplenishmentRecurrenceEnum;
 import de.hybris.platform.b2bacceleratorfacades.order.data.TriggerData;
 import de.hybris.platform.b2bacceleratorfacades.order.impl.DefaultB2BAcceleratorCheckoutFacade;
-import de.hybris.platform.b2bacceleratorservices.enums.CheckoutPaymentType;
+import de.hybris.platform.b2b.enums.CheckoutPaymentType;
 import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.payment.dto.TransactionStatus;

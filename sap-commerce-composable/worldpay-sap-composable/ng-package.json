@@ -1,0 +1,27 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "allowedNonPeerDependencies": [
+    "@spartacus/asm",
+    "@spartacus/assets",
+    "@spartacus/cart",
+    "@spartacus/checkout",
+    "@spartacus/core",
+    "@spartacus/digital-payments",
+    "@spartacus/order",
+    "@spartacus/organization",
+    "@spartacus/product",
+    "@spartacus/product-configurator",
+    "@spartacus/qualtrics",
+    "@spartacus/setup",
+    "@spartacus/smartedit",
+    "@spartacus/storefinder",
+    "@spartacus/storefront",
+    "@spartacus/styles",
+    "@spartacus/tracking",
+    "@spartacus/user"
+  ],
+  "dest": "../../dist/worldpay-sap-composable",
+  "lib": {
+    "entryFile": "src/public-api.ts"
+  }
+}

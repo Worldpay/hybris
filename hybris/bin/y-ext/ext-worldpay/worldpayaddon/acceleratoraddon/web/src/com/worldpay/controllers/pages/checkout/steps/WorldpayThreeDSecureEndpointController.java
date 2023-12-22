@@ -21,13 +21,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static com.worldpay.payment.TransactionStatus.ERROR;
-import static java.text.MessageFormat.format;
 
 /**
  * Web controller ot handle a secure endpoint in a checkout step
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/3dsecure/sop/response")
+@SuppressWarnings("java:S110")
 public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymentMethodCheckoutStepController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorldpayThreeDSecureEndpointController.class);
@@ -52,7 +52,7 @@ public class WorldpayThreeDSecureEndpointController extends WorldpayChoosePaymen
         TransactionStatus transactionStatus = ERROR;
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.authorise3DSecure(threeDSecureForm.getPaRes(),
-                worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
+                    worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request));
             transactionStatus = responseData.getTransactionStatus();
             if (AUTHORISED.equals(transactionStatus)) {
                 return redirectToOrderConfirmationPage(responseData.getOrderData());

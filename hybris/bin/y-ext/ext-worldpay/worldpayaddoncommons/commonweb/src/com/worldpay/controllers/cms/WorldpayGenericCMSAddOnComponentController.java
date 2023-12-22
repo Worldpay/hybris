@@ -4,6 +4,7 @@
 package com.worldpay.controllers.cms;
 
 import de.hybris.platform.addonsupport.controllers.cms.GenericCMSAddOnComponentController;
+import de.hybris.platform.cms2.model.contents.components.AbstractCMSComponentModel;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -20,6 +21,10 @@ public class WorldpayGenericCMSAddOnComponentController extends GenericCMSAddOnC
     @RequestMapping
     public String handleGet(final HttpServletRequest request, final HttpServletResponse response, final Model model)
             throws Exception {
+        return invokeSuperHandleGet(request, response, model);
+    }
+
+    protected String invokeSuperHandleGet(final HttpServletRequest request, final HttpServletResponse response, final Model model) throws Exception {
         return super.handleGet(request, response, model);
     }
 }

@@ -118,7 +118,6 @@ def pl = platform {
         /* integration-apis */
         extName 'outboundservices'
         extName 'odata2webservices'
-        extName 'odata2webservicesfeaturetests'
 
         extName 'kymaintegrationbackoffice'
 

@@ -1,7 +1,7 @@
 $productCatalog = apparelProductCatalog
 $contentCatalog = apparel-deContentCatalog
 $contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$defaultLanguage = en
+$defaultLanguage = de
 $storeUid = apparel-de
 $siteUid = apparel-de
 $webServiceSiteUid = $siteUidWS
@@ -86,6 +86,7 @@ INSERT_UPDATE WorldpayThreeDS2JsonWebTokenConfiguration; identifier[unique = tru
 
 INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; applePayConfiguration(identifier); googlePayConfiguration(identifier); threeDSFlexJsonWebTokenSettings(identifier); cardAcceptorTaxID
                                            ; webMerchantConfiguration-$siteUid ; $siteUid-applePayConfig          ; $siteUid-googlePayConfig          ; $siteUid-threeDS2Config                    ; $webCardAcceptorTaxId
+                                           ; asmMerchantConfiguration-$siteUid ;                                  ;                                   ; $siteUid-threeDS2Config                    ;
 
 UPDATE BaseSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier)
                ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid
