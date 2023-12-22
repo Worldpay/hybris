@@ -3,7 +3,6 @@ $contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCa
 
 INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name                  ; apmConfiguration(code)
                                   ; poliComponent           ;                          ; "POLI-SSL"            ; POLI-SSL
-                                  ; boletoComponent         ;                          ; "BOLETO-SSL"          ; BOLETO-SSL
                                   ; giropayComponent        ;                          ; "GIROPAY-SSL"         ; GIROPAY-SSL
                                   ; sofortComponent         ;                          ; "SOFORT-SSL"          ; SOFORT-SSL
                                   ; idealComponent          ;                          ; "IDEAL-SSL"           ; IDEAL-SSL

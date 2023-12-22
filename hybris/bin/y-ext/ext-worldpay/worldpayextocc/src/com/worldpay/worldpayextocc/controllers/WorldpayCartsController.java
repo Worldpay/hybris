@@ -362,7 +362,11 @@ public class WorldpayCartsController extends AbstractWorldpayController {
 
         final CartData cartData = checkoutFacade.getCheckoutCart();
         final CCPaymentInfoData paymentInfoData = cartData.getPaymentInfo();
-        return dataMapper.map(paymentInfoData, PaymentDetailsWsDTO.class, fields);
+
+        final PaymentDetailsWsDTO paymentDetailsWsDTO = dataMapper.map(paymentInfoData, PaymentDetailsWsDTO.class, fields);
+        paymentDetailsWsDTO.setDefaultPayment(paymentDetails.getDefaultPayment());
+
+        return paymentDetailsWsDTO;
     }
 
 

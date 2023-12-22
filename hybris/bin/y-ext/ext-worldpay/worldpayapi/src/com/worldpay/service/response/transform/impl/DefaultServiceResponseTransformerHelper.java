@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 /**
  * Default implementation of {@link ServiceResponseTransformerHelper}
  */
+@SuppressWarnings("java:S3516")
 public class DefaultServiceResponseTransformerHelper implements ServiceResponseTransformerHelper {
 
     protected final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter;
@@ -356,7 +357,6 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     private com.worldpay.data.payment.Card transformCard(final CardDetails intCardDetails) {
         final Derived derived = intCardDetails.getDerived();
         if (derived != null) {
-            setCardBrand(derived);
             final String cvc = intCardDetails.getCvc() == null ? null : intCardDetails.getCvc().getvalue();
             Date expiryDate = null;
             if (intCardDetails.getExpiryDate() != null) {
