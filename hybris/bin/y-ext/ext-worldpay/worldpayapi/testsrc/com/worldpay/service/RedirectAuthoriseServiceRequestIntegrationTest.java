@@ -7,7 +7,6 @@ import com.worldpay.data.payment.StoredCredentials;
 import com.worldpay.data.token.TokenRequest;
 import com.worldpay.enums.payment.storedCredentials.Usage;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.exception.WorldpayValidationException;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
@@ -160,7 +159,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
             .build();
     }
 
-    @Test(expected = WorldpayValidationException.class)
+    @Test
     public void createRedirectAuthoriseRequestShouldReturnErrorWhenThereAreMissingFields() throws WorldpayException {
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
             .withMerchantInfo(merchantInfo)
@@ -171,7 +170,8 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
             .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
-      gateway.redirectAuthorise(request);
+        final RedirectAuthoriseServiceResponse response = gateway.redirectAuthorise(request);
+        assertTrue(response.isError());
     }
 
     @Test

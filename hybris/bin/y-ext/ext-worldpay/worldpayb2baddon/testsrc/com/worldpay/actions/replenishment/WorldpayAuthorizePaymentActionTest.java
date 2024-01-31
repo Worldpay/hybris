@@ -22,16 +22,15 @@ import de.hybris.platform.servicelayer.model.ModelService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -66,9 +65,9 @@ public class WorldpayAuthorizePaymentActionTest {
 
     @Before
     public void setUp() throws WorldpayException, InvalidCartException {
-        Whitebox.setInternalState(testObj, "impersonationService", new TestImpersonationService());
-        Whitebox.setInternalState(testObj, "processParameterHelper", processParameterHelperMock);
-        Whitebox.setInternalState(testObj, "modelService", modelServiceMock);
+        ReflectionTestUtils.setField(testObj, "impersonationService", new TestImpersonationService());
+        ReflectionTestUtils.setField(testObj, "processParameterHelper", processParameterHelperMock);
+        ReflectionTestUtils.setField(testObj, "modelService", modelServiceMock);
         when(processParameterHelperMock.getProcessParameterByName(processModelMock, "cart")).thenReturn(clonedCartParameterMock);
         when(clonedCartMock.getSite()).thenReturn(currentSiteMock);
         when(clonedCartParameterMock.getValue()).thenReturn(clonedCartMock);

@@ -34,7 +34,6 @@ public class WorldpayExtensionListAppenderTest {
     public void appendContent_ShouldReturnListOfExtensions() {
         doReturn(Arrays.asList(EXTENSION_1, EXTENSION_2)).when(testObj).getTenantSpecificExtensionNames();
         final List<String> extensionNames = Arrays.asList(EXTENSION_1, EXTENSION_2);
-        when(tenantMock.getTenantSpecificExtensionNames()).thenReturn(extensionNames);
 
         final String result = testObj.appendContent();
 
@@ -44,5 +43,5 @@ public class WorldpayExtensionListAppenderTest {
         }
     }
 }
-    
+
 

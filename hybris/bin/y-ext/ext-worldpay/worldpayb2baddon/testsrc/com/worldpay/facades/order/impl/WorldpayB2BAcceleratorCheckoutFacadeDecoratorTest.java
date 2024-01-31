@@ -1,6 +1,7 @@
 package com.worldpay.facades.order.impl;
 
 import de.hybris.bootstrap.annotations.UnitTest;
+import de.hybris.platform.b2bacceleratorservices.enums.CheckoutPaymentType;
 import de.hybris.platform.b2b.model.B2BCommentModel;
 import de.hybris.platform.b2b.services.B2BCommentService;
 import de.hybris.platform.b2bacceleratorfacades.checkout.data.PlaceOrderData;
@@ -9,7 +10,6 @@ import de.hybris.platform.b2bacceleratorfacades.order.data.B2BPaymentTypeData;
 import de.hybris.platform.b2bacceleratorfacades.order.data.B2BReplenishmentRecurrenceEnum;
 import de.hybris.platform.b2bacceleratorfacades.order.data.TriggerData;
 import de.hybris.platform.b2bacceleratorfacades.order.impl.DefaultB2BAcceleratorCheckoutFacade;
-import de.hybris.platform.b2bacceleratorservices.enums.CheckoutPaymentType;
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
@@ -39,18 +39,21 @@ import de.hybris.platform.store.services.BaseStoreService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
+
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
 
+    @Spy
     @InjectMocks
     private WorldpayB2BAcceleratorCheckoutFacadeDecorator testObj;
     @Mock
@@ -94,52 +97,56 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
     private TriggerModel triggerModelMock;
     @Mock
     private B2BCommentModel b2BCommentModelMock;
+    @Mock
+    private B2BPaymentTypeData b2BPaymentTypeDataMock;
 
     @Before
     public void setUp() {
-        CustomerModel customerModelMock = Mockito.mock(CustomerModel.class);
+        CustomerModel customerModelMock = mock(CustomerModel.class);
 
-        Mockito.when(cartFacadeMock.hasSessionCart()).thenReturn(true);
-        Mockito.when(cartFacadeMock.getSessionCart()).thenReturn(cartDataMock);
-        Mockito.when(cartDataMock.isCalculated()).thenReturn(true);
-        Mockito.when(cartDataMock.getDeliveryAddress()).thenReturn(Mockito.mock(AddressData.class));
-        Mockito.when(cartDataMock.getDeliveryMode()).thenReturn(Mockito.mock(DeliveryModeData.class));
-        Mockito.when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
-        Mockito.when(cartModelMock.getUser()).thenReturn(customerModelMock);
-        Mockito.when(checkoutCustomerStrategy.getCurrentUserForCheckout()).thenReturn(customerModelMock);
+        when(cartFacadeMock.hasSessionCart()).thenReturn(true);
+        when(cartFacadeMock.getSessionCart()).thenReturn(cartDataMock);
+        when(cartDataMock.isCalculated()).thenReturn(true);
+        when(cartDataMock.getDeliveryAddress()).thenReturn(mock(AddressData.class));
+        when(cartDataMock.getDeliveryMode()).thenReturn(mock(DeliveryModeData.class));
+        when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
+        when(b2BPaymentTypeDataMock.getCode()).thenReturn("CARD");
+        doReturn(Collections.singletonList(b2BPaymentTypeDataMock)).when(testObj).getPaymentTypes();
+        when(cartModelMock.getUser()).thenReturn(customerModelMock);
+        when(checkoutCustomerStrategy.getCurrentUserForCheckout()).thenReturn(customerModelMock);
 
-        Mockito.when(i18NService.getCurrentTimeZone()).thenReturn(TimeZone.getDefault());
-        Mockito.when(i18NService.getCurrentLocale()).thenReturn(Locale.getDefault());
-        Mockito.when(baseSiteService.getCurrentBaseSite()).thenReturn(baseSiteModelMock);
-        Mockito.when(baseStoreService.getCurrentBaseStore()).thenReturn(baseStoreModelMock);
+        when(i18NService.getCurrentTimeZone()).thenReturn(TimeZone.getDefault());
+        when(i18NService.getCurrentLocale()).thenReturn(Locale.getDefault());
+        when(baseSiteService.getCurrentBaseSite()).thenReturn(baseSiteModelMock);
+        when(baseStoreService.getCurrentBaseStore()).thenReturn(baseStoreModelMock);
 
-        Mockito.when(modelService.create(TriggerModel.class)).thenReturn(triggerModelMock);
-        Mockito.when(modelService.create(B2BCommentModel.class)).thenReturn(b2BCommentModelMock);
+        when(modelService.create(TriggerModel.class)).thenReturn(triggerModelMock);
+        when(modelService.create(B2BCommentModel.class)).thenReturn(b2BCommentModelMock);
     }
 
     @Test
     public void placeOrderShouldPlaceOrderOnBuyNowWhenAuthorized() throws InvalidCartException {
         PlaceOrderData placeOrderData = createPlaceOrderData(false);
-        PaymentTransactionEntryModel paymentTransactionEntryModelMock = Mockito.mock(PaymentTransactionEntryModel.class);
-        PaymentTransactionModel paymentTransactionModelMock = Mockito.mock(PaymentTransactionModel.class);
+        PaymentTransactionEntryModel paymentTransactionEntryModelMock = mock(PaymentTransactionEntryModel.class);
+        PaymentTransactionModel paymentTransactionModelMock = mock(PaymentTransactionModel.class);
 
-        Mockito.when(paymentTransactionEntryModelMock.getType()).thenReturn(PaymentTransactionType.AUTHORIZATION);
-        Mockito.when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
-        Mockito.when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(paymentTransactionEntryModelMock));
+        when(paymentTransactionEntryModelMock.getType()).thenReturn(PaymentTransactionType.AUTHORIZATION);
+        when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
+        when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.singletonList(paymentTransactionEntryModelMock));
 
         mockPayByCard();
-        Mockito.when(cartModelMock.getPaymentTransactions()).thenReturn(Collections.singletonList(paymentTransactionModelMock));
+        when(cartModelMock.getPaymentTransactions()).thenReturn(Collections.singletonList(paymentTransactionModelMock));
 
         testObj.placeOrder(placeOrderData);
 
-        Mockito.verify(b2BAcceleratorCheckoutFacade, Mockito.times(1)).placeOrder();
+        verify(b2BAcceleratorCheckoutFacade, times(1)).placeOrder();
     }
 
     @Test(expected = EntityValidationException.class)
     public void placeOrderShouldNotPlaceOrderOnBuyNowWhenNotAuthorized() throws InvalidCartException {
         PlaceOrderData placeOrderData = createPlaceOrderData(false);
 
-        Mockito.when(cartModelMock.getPaymentType()).thenReturn(CheckoutPaymentType.CARD);
+        when(cartModelMock.getPaymentType()).thenReturn(CheckoutPaymentType.CARD);
 
         testObj.placeOrder(placeOrderData);
     }
@@ -149,11 +156,11 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
         PlaceOrderData placeOrderData = createPlaceOrderData(true);
 
         mockPayByCard();
-        Mockito.when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
+        when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
 
         testObj.placeOrder(placeOrderData);
 
-        Mockito.verify(b2BAcceleratorCheckoutFacade, Mockito.times(0)).placeOrder();
+        verify(b2BAcceleratorCheckoutFacade, times(0)).placeOrder();
     }
 
     @Test
@@ -161,19 +168,19 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
         PlaceOrderData placeOrderData = createPlaceOrderData(true);
 
         mockPayByCard();
-        Mockito.when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
+        when(triggerModelMock.getRelative()).thenReturn(Boolean.TRUE);
 
         testObj.placeOrder(placeOrderData);
 
-        Mockito.verify(b2BAcceleratorCheckoutFacade, Mockito.times(1)).scheduleOrder(Matchers.any());
+        verify(b2BAcceleratorCheckoutFacade, times(1)).scheduleOrder(Matchers.any());
     }
 
     protected void mockPayByCard() {
-        Mockito.when(cartModelMock.getPaymentType()).thenReturn(CheckoutPaymentType.CARD);
+        when(cartModelMock.getPaymentType()).thenReturn(CheckoutPaymentType.CARD);
         B2BPaymentTypeData b2BPaymentTypeData = new B2BPaymentTypeData();
         b2BPaymentTypeData.setCode("CARD");
-        Mockito.when(cartDataMock.getPaymentType()).thenReturn(b2BPaymentTypeData);
-        Mockito.when(cartDataMock.getPaymentInfo()).thenReturn(new CCPaymentInfoData());
+        when(cartDataMock.getPaymentType()).thenReturn(b2BPaymentTypeData);
+        when(cartDataMock.getPaymentInfo()).thenReturn(new CCPaymentInfoData());
     }
 
 

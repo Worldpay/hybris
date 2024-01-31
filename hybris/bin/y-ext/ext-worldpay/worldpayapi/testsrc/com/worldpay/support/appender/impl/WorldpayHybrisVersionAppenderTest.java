@@ -37,5 +37,5 @@ public class WorldpayHybrisVersionAppenderTest {
         assertTrue(result.contains("Hybris version: " + HYBRIS_VERSION_INFO));
     }
 }
-    
+
 

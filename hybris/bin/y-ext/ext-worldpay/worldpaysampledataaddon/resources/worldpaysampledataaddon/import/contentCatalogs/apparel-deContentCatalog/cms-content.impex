@@ -14,7 +14,6 @@ INSERT_UPDATE Media; code[unique = true]  ; $media                              
                    ; sofort-icon          ; $siteResource/sofort-icon.png          ;                             ;                          ; images
                    ; sofort-ch-icon       ; $siteResource/sofort-ch-icon.png       ;                             ;                          ; images
                    ; paypal-icon          ; $siteResource/paypal-icon.png          ;                             ;                          ; images
-                   ; boleto-icon          ; $siteResource/boleto-icon.png          ;                             ;                          ; images
                    ; poli-icon            ; $siteResource/poli-icon.png            ;                             ;                          ; images
                    ; polinz-icon          ; $siteResource/polinz-icon.png          ;                             ;                          ; images
                    ; mistercash-icon      ; $siteResource/mistercash-icon.png      ;                             ;                          ; images
@@ -41,7 +40,6 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; sofortComponent         ;                          ; "SOFORT"            ; SOFORT-SSL            ; sofort-icon           ; AssistedServiceSessionReversedRestriction
                                   ; sofortCHComponent       ;                          ; "SOFORT-CH"         ; SOFORT_CH-SSL         ; sofort-ch-icon        ; AssistedServiceSessionReversedRestriction
                                   ; payPalComponent         ;                          ; "PayPal"            ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; boletoComponent         ;                          ; "Boleto"            ; BOLETO-SSL            ; boleto-icon           ; AssistedServiceSessionReversedRestriction
                                   ; poliComponent           ;                          ; "POLi"              ; POLI-SSL              ; poli-icon             ; AssistedServiceSessionReversedRestriction
                                   ; polinzComponent         ;                          ; "POLi - NZ"         ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
                                   ; mistercashComponent     ;                          ; "Mistercash"        ; MISTERCASH-SSL        ; mistercash-icon       ; AssistedServiceSessionReversedRestriction
@@ -54,7 +52,7 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; sepaComponent           ;                          ; "Sepa Direct Debit" ; SEPA_DIRECT_DEBIT-SSL ; sepa-icon             ; AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
-                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,sofortComponent,sofortCHComponent,boletoComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,giropayComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent,sepaComponent
+                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,sofortComponent,sofortCHComponent,poliComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,giropayComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent,sepaComponent
 
 INSERT_UPDATE WorldpayGuaranteedPaymentsComponent; $contentCV[unique = true]; uid[unique = true]                  ; name
                                                  ;                          ; worldpayGuaranteedPaymentsComponent ; "Worldpay Guaranteed Payments Component"

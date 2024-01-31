@@ -47,5 +47,5 @@ public class WorldpayPaymentTransactionTypesAppenderTest {
         assertFalse(result.contains("Payment Transaction Types:"));
     }
 }
-    
+
 

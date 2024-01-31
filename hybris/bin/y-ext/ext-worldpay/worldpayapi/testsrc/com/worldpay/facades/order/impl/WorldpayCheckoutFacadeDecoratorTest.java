@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -105,12 +104,8 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     public void setUp() throws CommerceCartModificationException {
         when(addressConverterMock.convert(sourceMock)).thenReturn(addressDataMock);
         when(checkoutFlowFacadeMock.hasCheckoutCart()).thenReturn(true);
-        when(cartFacadeMock.hasSessionCart()).thenReturn(true);
         when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(customerModelMock);
-        when(pointOfServiceServiceMock.getPointOfServiceForName(PICKUP_POINT_OF_SERVICE_NAME)).thenReturn(pointOfServiceModelMock);
-        when(acceleratorCheckoutService.consolidateCheckoutCart(cartModelMock, pointOfServiceModelMock)).thenReturn(Collections.singletonList(commerceCartModificationMock));
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
-        when(cartFacadeMock.getSessionCart()).thenReturn(cartDataMock);
         when(cartModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
     }
 
@@ -169,7 +164,6 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     public void hasNoPaymentInfo_WhenCartDataIsNotNullAndHasPaymentInfoAndAPMPaymentInfo_ShouldReturnFalse() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoDataMock);
-        when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(apmPaymentInfoDataMock);
 
         final boolean result = testObj.hasNoPaymentInfo();
 
@@ -190,7 +184,6 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     @Test
     public void hasNoPaymentInfo_WhenCartHasNoAPMPaymentInfo_ShouldReturnFalse() {
         when(checkoutFlowFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
-        when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
         when(cartDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoDataMock);
 
         final boolean result = testObj.hasNoPaymentInfo();
@@ -267,7 +260,6 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     @Test
     public void setPaymentDetails_WhenCreditCartPaymentInfoFoundForCustomer_ShouldAddPaymentAddressToCart() {
         when(cartModelMock.getPaymentInfo().getBillingAddress()).thenReturn(addressModelMock);
-        when(checkoutFlowFacadeMock.setPaymentDetails(PAYMENT_INFO)).thenReturn(true);
         when(cartModelMock.getUser()).thenReturn(customerModelMock);
         when(customerModelMock.getPaymentInfos()).thenReturn(List.of(paymentInfoModelMock));
         when(paymentInfoModelMock.getPk()).thenReturn(pk);

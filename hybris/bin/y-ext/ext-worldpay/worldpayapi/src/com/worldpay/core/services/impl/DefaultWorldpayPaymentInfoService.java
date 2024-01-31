@@ -3,6 +3,7 @@ package com.worldpay.core.services.impl;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
+import com.worldpay.data.Date;
 import com.worldpay.data.payment.Card;
 import com.worldpay.data.token.CardDetails;
 import com.worldpay.data.token.TokenDetails;
@@ -28,6 +29,7 @@ import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.UserModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.user.AddressService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
@@ -35,8 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.hybris.platform.core.enums.CreditCardType.CARD;
 import static de.hybris.platform.core.enums.CreditCardType.SIMPLE_CLASSNAME;
@@ -206,13 +208,16 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         creditCardPaymentInfoModel.setWorldpayOrderCode(abstractOrderModel.getWorldpayOrderCode());
         creditCardPaymentInfoModel.setUser(abstractOrderModel.getUser());
         creditCardPaymentInfoModel.setMerchantId(merchantId);
-        Optional.ofNullable(tokenReply)
-                .map(TokenReply::getPaymentInstrument)
-                .map(Card::getBin)
-                .ifPresent(creditCardPaymentInfoModel::setBin);
-        setPaymentTypeAndCreditCardType(creditCardPaymentInfoModel, tokenReply.getPaymentInstrument());
+
         cloneAndSetBillingAddressFromCart((CartModel) abstractOrderModel, creditCardPaymentInfoModel);
-        updateCreditCardModel(creditCardPaymentInfoModel, tokenReply, saveCard);
+
+        if (Objects.nonNull(tokenReply) && Objects.nonNull(tokenReply.getPaymentInstrument())) {
+            creditCardPaymentInfoModel.setBin(Objects.nonNull(tokenReply.getPaymentInstrument().getBin()) ?
+                    tokenReply.getPaymentInstrument().getBin() : StringUtils.EMPTY);
+            setPaymentTypeAndCreditCardType(creditCardPaymentInfoModel, tokenReply.getPaymentInstrument());
+            updateCreditCardModel(creditCardPaymentInfoModel, tokenReply, saveCard);
+        }
+
         return creditCardPaymentInfoModel;
     }
 
@@ -313,6 +318,12 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setPaymentType(apmCode);
         paymentInfoModel.setApmConfiguration(apmConfigurationLookupService.getAPMConfigurationForCode(apmCode));
 
+        if (PaymentType.IDEAL.getMethodCode().equals(apmCode)) {
+            cartModel.setShopperBankCode(apmName);
+        } else {
+            cartModel.setShopperBankCode(null);
+        }
+
         cartModel.setPaymentInfo(paymentInfoModel);
         cartModel.setApmCode(apmCode);
         cartModel.setApmName(apmName);
@@ -412,12 +423,25 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
     }
 
     protected CreditCardPaymentInfoModel findMatchingTokenizedCard(final UserModel userModel, final String paymentTokenId) {
-        return userModel.getPaymentInfos().stream()
+
+        final List<CreditCardPaymentInfoModel> creditCardList = userModel.getPaymentInfos().stream()
                 .filter(CreditCardPaymentInfoModel.class::isInstance)
                 .map(CreditCardPaymentInfoModel.class::cast)
                 .filter(card -> paymentTokenId.equals(card.getSubscriptionId()))
+                .collect(Collectors.toList());
+
+        return creditCardList.stream()
+                .filter(card -> Boolean.TRUE.equals(card.isSaved()))
                 .findAny()
-                .orElse(null);
+                .orElse(getCreditCardPaymentInfoModel(creditCardList));
+    }
+
+    private CreditCardPaymentInfoModel getCreditCardPaymentInfoModel(final List<CreditCardPaymentInfoModel> creditCardList) {
+         if (CollectionUtils.isNotEmpty(creditCardList)) {
+            return creditCardList.stream().findFirst().get();
+        } else {
+            return null;
+        }
     }
 
     protected WorldpayAPMPaymentInfoModel findMatchingTokenisedAPM(final UserModel userModel, final String paymentTokenId) {

@@ -75,14 +75,12 @@ public class WorldpayRedirectCheckoutStepControllerTest {
 
         when(paymentDetailsFormMock.getSaveInAccount()).thenReturn(true);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(ONLINE.getMethodCode());
-        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(BIRTHDAY_DATE_VALUE);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
     }
 
     @Test
     public void addPaymentDetails_WhenCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddressAndWhenFSEnabled_ShouldSaveTheAddressAndAddTheDOBRedirectAttribute() throws CMSItemNotFoundException {
-        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(FALSE);
         when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
 
         testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);
@@ -98,7 +96,6 @@ public class WorldpayRedirectCheckoutStepControllerTest {
 
     @Test
     public void addPaymentDetails_WhenCustomerIsAnonymousAndBillingAddressIsDifferentFromShippingAddressAndWhenFSDisabled_ShouldSaveTheAddressAndNotAddTheDOBRedirectAttribute() throws CMSItemNotFoundException {
-        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(FALSE);
         when(userFacadeMock.isAnonymousUser()).thenReturn(TRUE);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
 

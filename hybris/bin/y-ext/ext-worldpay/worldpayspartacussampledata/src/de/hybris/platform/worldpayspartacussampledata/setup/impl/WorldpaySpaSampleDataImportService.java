@@ -18,6 +18,7 @@ public class WorldpaySpaSampleDataImportService extends DefaultAddonSampleDataIm
     private static final String ELECTRONICS = "electronics";
     private static final String POWERTOOLS = "powertools";
     private static final String APPAREL_UK = "apparel-uk";
+    private static final String APPAREL_DE = "apparel-de";
     private static final String SPA = "-spa";
 
     @Override
@@ -25,7 +26,7 @@ public class WorldpaySpaSampleDataImportService extends DefaultAddonSampleDataIm
 
         super.importContentCatalog(context, importRoot, catalogName);
 
-        if (catalogName.equals(ELECTRONICS) || catalogName.equals(POWERTOOLS) || catalogName.equals(APPAREL_UK)) {
+        if (catalogName.equals(ELECTRONICS) || catalogName.equals(POWERTOOLS) || catalogName.equals(APPAREL_UK) || catalogName.equals(APPAREL_DE)) {
             synchronizeContentCatalog(context, catalogName + SPA, true);
         }
 

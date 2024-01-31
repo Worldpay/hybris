@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -39,8 +40,8 @@ public class OrderPopulatorTest {
     private static final String PA_RESPONSE = "paResponse";
     private static final String DEVICE_SESSION = "deviceSession";
     private static final String MANDATE_TYPE = "mandateType";
-    private static final String ORDER_CHANNEL = "orderChannel";
-    private static final String CHECKOUT_ID = "checkoutId";
+    public static final String ORDER_CHANNEL = "orderChannel";
+    public static final String CHECKOUT_ID = "checkoutId";
 
     @InjectMocks
     private OrderPopulator testObj;
@@ -199,6 +200,26 @@ public class OrderPopulatorTest {
     @Test
     public void populate_WhenGetAmountIsNull_ShouldNotPopulateAmount() {
         when(sourceMock.getAmount()).thenReturn(null);
+
+        final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
+        testObj.populate(sourceMock, target);
+
+        assertThat(target.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession()).isEmpty();
+    }
+
+    @Test
+    public void populate_WhenGetOrderChannelIsNull_ShouldNotPopulateOrderChannel() {
+        when(sourceMock.getOrderChannel()).thenReturn(null);
+
+        final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
+        testObj.populate(sourceMock, target);
+
+        assertThat(target.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession()).isEmpty();
+    }
+
+    @Test
+    public void populate_WhenGetCheckoutIdIsNull_ShouldNotPopulateCheckoutId() {
+        when(sourceMock.getCheckoutId()).thenReturn(null);
 
         final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
         testObj.populate(sourceMock, target);

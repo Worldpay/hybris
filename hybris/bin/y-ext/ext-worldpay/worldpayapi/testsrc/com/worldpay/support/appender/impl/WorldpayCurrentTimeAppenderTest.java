@@ -22,5 +22,3 @@ public class WorldpayCurrentTimeAppenderTest {
         assertTrue(result.contains("Time: "));
     }
 }
-    
-

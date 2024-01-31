@@ -73,8 +73,6 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     private WorldpayOrderService worldpayOrderServiceMock;
     @Mock
     private WorldpayServiceGateway worldpayGatewayMock;
-
-
     @Mock
     private SubscriptionAuthorizationRequest subscriptionAuthorizationRequestMock;
     @Mock
@@ -83,8 +81,6 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     private MerchantInfo merchantInfoMock;
     @Mock
     private DirectAuthoriseServiceResponse directAuthoriseServiceResponseMock;
-    @Captor
-    private ArgumentCaptor<DirectAuthoriseServiceRequest> directAuthoriseServiceRequestCaptor;
     @Mock
     private AuthorizationResult authorizationResultMock;
     @Mock
@@ -104,6 +100,9 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
     @Mock
     private BillingInfo billingInfoMock;
 
+    @Captor
+    private ArgumentCaptor<DirectAuthoriseServiceRequest> directAuthoriseServiceRequestCaptor;
+
     @Before
     public void setUp() throws WorldpayException {
         final DefaultWorldpayTokenisedAuthorizationCommand defaultWorldpayTokenisedAuthorizationCommand = new DefaultWorldpayTokenisedAuthorizationCommand(worldpayBillingInfoAddressConverterMock, worldpayAuthorizationResultConverterMock, worldpayMerchantInfoServiceMock, worldpayPaymentTransactionServiceMock, worldpayOrderServiceMock, worldpayGatewayMock, worldpayRequestServiceMock);
@@ -115,7 +114,7 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
         when(worldpayRequestServiceMock.createToken(PAYMENT_TOKEN_ID, SECURITY_CODE)).thenReturn(tokenMock);
         when(worldpayOrderServiceMock.createAmount(CURRENCY, subscriptionAuthorizationRequestMock.getTotalAmount().doubleValue())).thenReturn(amountMock);
         when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), anyString(), eq(amountMock))).thenReturn(basicOrderInfoMock);
-        when(worldpayRequestServiceMock.createAuthenticatedShopper(eq(CUSTOMER_EMAIL), eq(AUTHENTICATED_SHOPPER_ID), any(Session.class), any(Browser.class))).thenReturn(shopperMock);
+        when(worldpayRequestServiceMock.createAuthenticatedShopper(eq(CUSTOMER_EMAIL), eq(AUTHENTICATED_SHOPPER_ID), any(), any())).thenReturn(shopperMock);
         when(shopperMock.getShopperEmailAddress()).thenReturn(CUSTOMER_EMAIL);
         when(basicOrderInfoMock.getAmount()).thenReturn(amountMock);
         when(basicOrderInfoMock.getDescription()).thenReturn(BASIC_ORDER_INFO_DESCRIPTION);
@@ -153,9 +152,6 @@ public class DefaultWorldpayTokenisedAuthorizationCommandTest {
 
     @Test
     public void performShouldReturnErrorAuthorizationDueToMisConfigurationAndShouldNeverTryToDirectAuthorise() throws WorldpayException {
-        when(worldpayGatewayMock.directAuthorise(directAuthoriseServiceRequestCaptor.capture())).thenReturn(directAuthoriseServiceResponseMock);
-        when(authorizationResultMock.getCurrency()).thenReturn(CURRENCY);
-        when(authorizationResultMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED);
         when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(null);
 
         final AuthorizationResult result = testObj.perform(subscriptionAuthorizationRequestMock);

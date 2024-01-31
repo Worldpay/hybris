@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,8 +85,8 @@ public class DefaultWorldpayServiceGatewayTest {
 
     @Before
     public void setUp() throws Exception {
-        Whitebox.setInternalState(testObj, "requestTransformerStrategyMap", requestTransformerStrategyMap);
-        Whitebox.setInternalState(testObj, "responseTransformerStrategyMap", responseTransformerStrategyMap);
+        ReflectionTestUtils.setField(testObj, "requestTransformerStrategyMap", requestTransformerStrategyMap);
+        ReflectionTestUtils.setField(testObj, "responseTransformerStrategyMap", responseTransformerStrategyMap);
         when(configurationServiceMock.getConfiguration()).thenReturn(configurationMock);
         when(configurationMock.getString(WORLDPAY_CONFIG_ENVIRONMENT)).thenReturn(TEST.name());
         requestTransformerStrategyMap.put(serviceRequestMock.getClass().getName(), directAuthoriseRequestTransformerMock);

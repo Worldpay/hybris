@@ -6,6 +6,7 @@ import com.worldpay.exception.WorldpayValidationException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.util.WorldpayConstants;
+import org.apache.commons.collections.CollectionUtils;
 import org.xml.sax.*;
 
 import javax.xml.XMLConstants;
@@ -18,8 +19,6 @@ import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
-import java.util.Optional;
-
 
 /**
  * {@inheritDoc}
@@ -107,7 +106,7 @@ public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller
     }
 
     private void validate(final PaymentService paymentService) throws WorldpayValidationException {
-        Optional.ofNullable(paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0))
-                .orElseThrow(() -> new WorldpayValidationException("No notification target in Worldpay target"));
+        if (CollectionUtils.isEmpty(paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()))
+            throw new WorldpayValidationException("No notification target in Worldpay target");
     }
 }

@@ -89,8 +89,6 @@ public class DefaultWorldpayOrderModificationRefundProcessStrategyTest {
     @Test
     public void processRefundFollowOn_WhenNotificationIsREFUNDAndThereAreMultipleReturnRequest_ShouldTriggerReturnProcess() {
         when(orderModelMock.getReturnRequests()).thenReturn(Arrays.asList(returnRequestMock1, returnRequestMock2));
-        when(returnRequestMock2.getReturnProcess()).thenReturn(singletonList(refundWaitingReturnProcessMock2));
-        when(refundWaitingReturnProcessMock2.getCode()).thenReturn(RETURN_PROCESS_CODE + "_INVALID");
 
         testObj.processRefundFollowOn(orderModelMock, orderNotificationMessageMock);
 

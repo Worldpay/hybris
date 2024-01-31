@@ -31,7 +31,7 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
 
     @InjectMocks
     private DefaultWorldpayBankConfigurationFacade testObj;
-    
+
     @Mock
     private WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupServiceMock;
     @Mock
@@ -85,5 +85,5 @@ public class DefaultWorldpayBankConfigurationFacadeTest {
     }
 
 }
-    
+
 

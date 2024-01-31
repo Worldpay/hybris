@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
@@ -39,7 +39,7 @@ public class WorldpayAbstractServiceResponseConverterTest {
         testObj = Mockito.mock(
             WorldpayAbstractServiceResponseConverter.class,
             Mockito.CALLS_REAL_METHODS);
-        Whitebox.setInternalState(testObj, "worldpayOrderService", worldpayOrderServiceMock);
+        ReflectionTestUtils.setField(testObj, "worldpayOrderService", worldpayOrderServiceMock);
 
         when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(convertedAmount);
     }

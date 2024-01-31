@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -150,7 +150,7 @@ public class DefaultWorldpayCartServiceTest {
 
     @Test
     public void setSessionId_whenInstanceOfOccWorldpay_shouldDoNothig() {
-        Whitebox.setInternalState(testObj, "worldpaySessionService", occWorldpaySessionServiceMock);
+        ReflectionTestUtils.setField(testObj, "worldpaySessionService", occWorldpaySessionServiceMock);
 
         testObj.setSessionId("sessionId");
 

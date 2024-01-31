@@ -18,8 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
@@ -58,7 +58,7 @@ public class DefaultWorldpayOrderNotificationHandlerTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "nonTriggeringOrderStatuses", nonTriggeringOrderStatuses);
+        ReflectionTestUtils.setField(testObj, "nonTriggeringOrderStatuses", nonTriggeringOrderStatuses);
         when(orderMock.getCode()).thenReturn(ORDER_CODE);
         when(orderMock.getStatus()).thenReturn(CREATED);
         when(processDefinitionDaoMock.findWaitingOrderProcesses(ORDER_CODE, CAPTURE)).thenReturn(ImmutableList.of(businessProcessMock1));

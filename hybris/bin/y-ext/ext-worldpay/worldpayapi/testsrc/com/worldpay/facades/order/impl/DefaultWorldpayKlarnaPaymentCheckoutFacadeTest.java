@@ -93,7 +93,6 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
     @Test
     public void shouldInquiryKlarnaOrderStatusShopperRedirect() throws WorldpayException {
         when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
-        when(worldpayServiceGatewayMock.orderInquiry(klarnaOrderInquiryServiceRequestMock)).thenReturn(orderInquiryServiceResponseMock);
         when(orderInquiryServiceResponseMock.getReference().getValue()).thenReturn(KLARNA_CONTENT_ENCODED);
         when(orderInquiryServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.SHOPPER_REDIRECTED);
 
@@ -108,7 +107,6 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
         expectedException.expectMessage("There was a problem placing the order");
 
         when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
-        when(worldpayServiceGatewayMock.orderInquiry(klarnaOrderInquiryServiceRequestMock)).thenReturn(orderInquiryServiceResponseMock);
         when(orderInquiryServiceResponseMock.getReference().getValue()).thenReturn(KLARNA_CONTENT_ENCODED);
         when(orderInquiryServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.ERROR);
 

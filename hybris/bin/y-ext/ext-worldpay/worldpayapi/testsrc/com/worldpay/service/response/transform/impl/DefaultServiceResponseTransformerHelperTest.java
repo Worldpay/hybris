@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.anyString;
+
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -1053,7 +1054,6 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError();
         cardBrand.setvalue(PaymentType.MASTERCARD.getMethodCode());
-        when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(createCardDetails("ECMC-SSL", null));

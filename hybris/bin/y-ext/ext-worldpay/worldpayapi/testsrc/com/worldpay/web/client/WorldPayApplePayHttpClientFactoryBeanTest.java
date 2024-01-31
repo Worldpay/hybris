@@ -54,7 +54,6 @@ public class WorldPayApplePayHttpClientFactoryBeanTest {
     @Test
     public void createInstanceWithNonExistentFileThrowsAnException() throws Exception {
         when(resourceMock.exists()).thenReturn(false);
-        when(resourceMock.isReadable()).thenReturn(false);
         testObj.setCertificateFile(resourceMock);
         testObj.setKeyStoreType(PKCS_12);
         testObj.setPassword(CHANGEIT);

@@ -33,12 +33,12 @@ public class PaymentDetailsDTOValidator implements Validator {
         if (StringUtils.isNotBlank(paymentDetails.getStartMonth()) && StringUtils.isNotBlank(paymentDetails.getStartYear())
                 && StringUtils.isNotBlank(paymentDetails.getExpiryMonth()) && StringUtils.isNotBlank(paymentDetails.getExpiryYear())) {
             final Calendar start = Calendar.getInstance();
-            start.set(Calendar.DAY_OF_MONTH, 0);
+            start.set(Calendar.DAY_OF_MONTH, 1);
             start.set(Calendar.MONTH, Integer.parseInt(paymentDetails.getStartMonth()) - 1);
             start.set(Calendar.YEAR, Integer.parseInt(paymentDetails.getStartYear()) - 1);
 
             final Calendar expiration = Calendar.getInstance();
-            expiration.set(Calendar.DAY_OF_MONTH, 0);
+            expiration.set(Calendar.DAY_OF_MONTH, 1);
             expiration.set(Calendar.MONTH, Integer.parseInt(paymentDetails.getExpiryMonth()) - 1);
             expiration.set(Calendar.YEAR, Integer.parseInt(paymentDetails.getExpiryYear()) - 1);
 

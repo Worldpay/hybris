@@ -11,7 +11,6 @@ import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.Breadcrumb;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
-import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessage;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
 import de.hybris.platform.acceleratorstorefrontcommons.util.AddressDataUtil;
 import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
@@ -168,11 +167,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
         doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaDataMock);
         when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaDataMock)).thenReturn(contentPageModelMock);
-        when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(PAGE_TITLE);
-        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(singletonList(breadCrumbMock));
-        when(siteConfigServiceMock.getBoolean(anyString(), eq(true))).thenReturn(true);
         when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(false);
-        when(cmsPageServiceMock.getFrontendTemplateName(masterTemplateModelMock)).thenReturn(ERROR_PAGE);
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(singletonList(ccPaymentInfoMock));
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
@@ -409,7 +404,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
         final boolean result = testObj.addGlobalErrors(modelMock, bindingResultMock);
 
-        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any(GlobalMessage.class));
+        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
         assertTrue(result);
     }
 
@@ -419,7 +414,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
         final boolean result = testObj.addGlobalErrors(modelMock, bindingResultMock);
 
-        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any(GlobalMessage.class));
+        verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
         assertTrue(result);
     }
 

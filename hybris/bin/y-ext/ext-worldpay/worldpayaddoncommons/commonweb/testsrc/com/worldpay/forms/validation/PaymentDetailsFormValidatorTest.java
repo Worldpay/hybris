@@ -66,8 +66,8 @@ public class PaymentDetailsFormValidatorTest {
 
     @Before
     public void setUp() {
-        doNothing().when(testObj).validateField(any(Errors.class), anyString(), anyString());
-        doNothing().when(testObj).validateField(any(Errors.class), anyString(), anyString(), anyString());
+        doNothing().when(testObj).validateField(any(), anyString(), anyString());
+        doNothing().when(testObj).validateField(any(), anyString(), anyString(), anyString());
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
         when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);

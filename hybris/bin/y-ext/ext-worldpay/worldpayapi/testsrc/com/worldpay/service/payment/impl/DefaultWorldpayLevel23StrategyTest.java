@@ -126,12 +126,8 @@ public class DefaultWorldpayLevel23StrategyTest {
 
     @Test
     public void populateRequestWithAdditionalData_WhenLevel3EnabledAndValidData_ShouldSetLevel3Data() {
-        doReturn(true).when(testObj).isLevel2Enabled(cartMock);
         doReturn(level23DataMock).when(testObj).createLevel23Data(cartMock);
 
-        doNothing().when(testObj).setCustomerReference(any(), any());
-        doNothing().when(testObj).setProductDescription(any(), any());
-        doNothing().when(testObj).setDutyAmount(any(), any());
         when(worldpayLevel23DataValidatorMock.isValidLevel3Data(purchaseList)).thenReturn(true);
 
         testObj.populateRequestWithAdditionalData(cartMock, worldpayAdditionalInfoDataMock, authoriseRequestParametersCreatorMock);
@@ -145,9 +141,6 @@ public class DefaultWorldpayLevel23StrategyTest {
         doReturn(true).when(testObj).isLevel3Enabled(cartMock);
         doReturn(level23DataMock).when(testObj).createLevel23Data(cartMock);
 
-        doNothing().when(testObj).setCustomerReference(any(), any());
-        doNothing().when(testObj).setProductDescription(any(), any());
-        doNothing().when(testObj).setDutyAmount(any(), any());
         when(worldpayLevel23DataValidatorMock.isValidLevel3Data(purchaseList)).thenReturn(false);
         when(worldpayLevel23DataValidatorMock.isValidLevel2Data(purchaseList)).thenReturn(true);
 

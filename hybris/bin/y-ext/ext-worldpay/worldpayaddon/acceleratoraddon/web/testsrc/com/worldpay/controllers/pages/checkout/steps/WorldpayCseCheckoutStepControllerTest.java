@@ -186,7 +186,6 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(Collections.singletonList(ccPaymentInfoMock));
         when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
         when(resourceBreadcrumbBuilder.getBreadcrumbs(anyString())).thenReturn(Collections.singletonList(breadcrumbMock));
-        when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
@@ -310,7 +309,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
         verify(modelMock).addAttribute(CMS_PAGE_MODEL, contentPageModelMock);
         verify(modelMock).addAttribute(IS_FS_ENABLED, true);
-        verify(modelMock).addAttribute(eq(CURRENT_DATE), any(Date.class));
+        verify(modelMock).addAttribute(eq(CURRENT_DATE), any());
     }
 
     @Test
@@ -321,7 +320,7 @@ public class WorldpayCseCheckoutStepControllerTest {
 
         verify(modelMock).addAttribute(CMS_PAGE_MODEL, contentPageModelMock);
         verify(modelMock).addAttribute(IS_FS_ENABLED, false);
-        verify(modelMock).addAttribute(eq(CURRENT_DATE), any(Date.class));
+        verify(modelMock).addAttribute(eq(CURRENT_DATE), any());
     }
 
     @Test

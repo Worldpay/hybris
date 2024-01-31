@@ -92,7 +92,6 @@ public class DefaultWorldpayCaptureCommandTest {
         when(worldpayMerchantInfoService.getMerchantInfoFromTransaction(paymentTransactionModelMock)).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(captureResponseMock.getAmount().getCurrencyCode()).thenReturn(currency.getCurrencyCode());
-        when(captureResponseMock.getAmount().getValue()).thenReturn(AMOUNT);
         when(captureResponseConverterMock.convert(captureResponseMock)).thenReturn(captureResultMock);
         when(worldpayHybrisOrderServiceMock.findOrderByWorldpayOrderCode(WORLDPAY_ORDER_CODE)).thenReturn(orderModelMock);
         when(orderModelMock.getConsignments()).thenReturn(Set.of(consigment1Mock, consigment2Mock));

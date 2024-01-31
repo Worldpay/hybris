@@ -39,7 +39,7 @@ public class WorldpayGooglePayComponentControllerTest {
         config.setCode("Merchant");
 
         when(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData()).thenReturn(config);
-        doNothing().when(testObj).invokeSuperFillModel(any(HttpServletRequest.class), any(Model.class), any(AbstractCMSComponentModel.class));
+        doNothing().when(testObj).invokeSuperFillModel(any(), any(), any());
 
         testObj.fillModel(null, model, null);
 

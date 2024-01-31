@@ -40,12 +40,13 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Klarna supports alternative shipping address
 
-### Breaking changes:
-- Postepay no longer supported
+- Support Composable Storefront 6.4.0
 
-### Bugs Fixed: 
-- Show APM’s when validation error occurs
+### Bug fixes:
+
+- Order information page is not shown when guest users place an order with 3DS challenge
+
+- Date of birth is required for some APMs when Fraud is enabled
 
 

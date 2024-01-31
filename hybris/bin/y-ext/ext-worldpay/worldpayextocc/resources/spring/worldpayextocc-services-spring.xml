@@ -45,7 +45,7 @@
     <bean id="occWorldpayDirectOrderService"
           class="com.worldpay.service.payment.impl.DefaultWorldpayDirectOrderService"
           parent="abstractWorldpayOrderService">
-        <constructor-arg name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
+        <constructor-arg name="worldpayRequestFactory" ref="occWorldpayRequestFactory"/>
         <constructor-arg name="worldpaySessionService" ref="occWorldpaySessionService"/>
         <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
     </bean>
@@ -77,7 +77,28 @@
         <constructor-arg name="worldpayKlarnaService" ref="occWorldpayKlarnaService"/>
         <constructor-arg name="worldpayRiskDataService" ref="worldpayRiskDataService"/>
         <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
-        <constructor-arg name="worldpayRequestService" ref="worldpayRequestService"/>
+        <constructor-arg name="worldpayRequestService" ref="occWorldpayRequestService"/>
         <constructor-arg name="worldpayAdditionalRequestDataService" ref="worldpayAdditionalRequestDataService"/>
+    </bean>
+
+    <bean id="occBankTransferWorldpayUrlService" class="com.worldpay.service.impl.DefaultWorldpayUrlService"
+          parent="abstractWorldpayUrlService">
+        <constructor-arg name="baseSiteService" ref="baseSiteService"/>
+        <constructor-arg name="siteBaseUrlResolutionService" ref="siteBaseUrlResolutionService"/>
+        <property name="successPath" value="${occ.worldpay.config.successURL}"/>
+        <property name="failurePath" value="${occ.worldpay.config.failureURL}"/>
+        <property name="pendingPath" value="${occ.worldpay.config.pendingURL}"/>
+        <property name="cancelPath" value="${occ.worldpay.config.cancelURL}"/>
+    </bean>
+
+    <alias name="defaultOccWorldpayRequestService" alias="occWorldpayRequestService"/>
+    <bean id="defaultOccWorldpayRequestService"
+          class="com.worldpay.service.payment.request.impl.DefaultWorldpayRequestService">
+        <constructor-arg name="bankWorldpayUrlService" ref="occBankTransferWorldpayUrlService"/>
+        <constructor-arg name="siteConfigService" ref="siteConfigService"/>
+        <constructor-arg name="worldpayDynamicInteractionResolverService"
+                         ref="worldpayDynamicInteractionResolverService"/>
+        <constructor-arg name="worldpayOrderCodeVerificationService" ref="worldpayOrderCodeVerificationService"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
     </bean>
 </beans>

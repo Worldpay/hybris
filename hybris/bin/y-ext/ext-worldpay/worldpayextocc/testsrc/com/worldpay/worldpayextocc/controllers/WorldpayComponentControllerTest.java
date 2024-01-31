@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
+
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -39,7 +40,7 @@ public class WorldpayComponentControllerTest {
     @Test
     public void getAvailableApmComponents_ShouldReturnAnObjectWithComponents() {
         when(worldpayAPMComponentFacadeMock.getAllAvailableWorldpayAPMComponents()).thenReturn(List.of(worldpayAPMComponentDataMock));
-        when(dataMapperMock.map(anyObject(), eq(WorldpayAPMComponentsWsDTO.class), anyString())).thenReturn(worldpayAPMComponentsWsDTOMock);
+        when(dataMapperMock.map(any(), eq(WorldpayAPMComponentsWsDTO.class), anyString())).thenReturn(worldpayAPMComponentsWsDTOMock);
 
         final WorldpayAPMComponentsWsDTO result = testObj.getAvailableApmComponents(FIELDS);
 

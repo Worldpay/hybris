@@ -35,9 +35,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)
@@ -75,7 +73,7 @@ public class WorldpayCreateReturnRequestActionTest {
 
     @Before
     public void setUp() {
-        doNothing().when(testObj).sendOutput(anyString(),anyString());
+        doNothing().when(testObj).sendOutput(anyString(),any());
         when(actionContextMock.getData()).thenReturn(orderModelMock);
         when(orderModelMock.getPaymentTransactions()).thenReturn(singletonList(paymentTransactionModelMock));
         when(paymentTransactionModelMock.getInfo()).thenReturn(creditCardPaymentInfoModelMock);

@@ -49,16 +49,12 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
 
     @Test(expected = WorldpayModelTransformationException.class)
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentServiceNullMerchantInfo() throws WorldpayModelTransformationException {
-        when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
-        when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         testObj.transform(secondThreeDSecurePaymentRequestMock);
     }
 
     @Test(expected = WorldpayModelTransformationException.class)
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentServiceNullMerchantInfoCode() throws WorldpayModelTransformationException {
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
-        when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
-        when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         testObj.transform(secondThreeDSecurePaymentRequestMock);
     }
 
@@ -66,7 +62,6 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
     public void testTransformSecondThreeDSecurePaymentRequestToPaymentServiceNullOrderCode() throws WorldpayModelTransformationException {
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_INFO_CODE);
-        when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
         testObj.transform(secondThreeDSecurePaymentRequestMock);
     }
 
@@ -85,7 +80,6 @@ public class SecondThreeDSecurePaymentRequestTransformerTest {
         merchantInfo.setMerchantCode(MERCHANT_CODE);
 
         when(secondThreeDSecurePaymentRequestMock.getMerchantInfo()).thenReturn(merchantInfo);
-        when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_INFO_CODE);
         when(secondThreeDSecurePaymentRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(secondThreeDSecurePaymentRequestMock.getSessionId()).thenReturn(SESSION_ID);
 

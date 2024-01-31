@@ -6,7 +6,6 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.facades.WorldpayDirectResponseFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
 import com.worldpay.payment.DirectResponseData;
-import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import org.springframework.ui.Model;
@@ -15,6 +14,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
+
+import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.addErrorMessage;
 
 @SuppressWarnings("java:S110")
 public abstract class AbstractWorldpayDirectCheckoutStepController extends WorldpayChoosePaymentMethodCheckoutStepController {
@@ -76,4 +77,29 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
     }
 
     protected abstract String getErrorView(Model model) throws CMSItemNotFoundException;
+
+
+    protected boolean hasDeliveryAddress(final Model model) {
+        if (getCheckoutFlowFacade().hasNoDeliveryAddress()) {
+            addErrorMessage(model, "checkout.deliveryAddress.notSelected");
+            return false;
+        }
+        return true;
+    }
+
+    protected boolean hasDeliveryMode(final Model model) {
+        if (getCheckoutFlowFacade().hasNoDeliveryMode()) {
+            addErrorMessage(model, "checkout.deliveryMethod.notSelected");
+            return false;
+        }
+        return true;
+    }
+
+    protected boolean hasPaymentInfo(final Model model) {
+        if (getCheckoutFlowFacade().hasNoPaymentInfo()) {
+            addErrorMessage(model, "checkout.paymentMethod.notSelected");
+            return false;
+        }
+        return true;
+    }
 }

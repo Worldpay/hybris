@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static java.math.BigDecimal.TEN;
 import static org.fest.assertions.Assertions.assertThat;
@@ -73,7 +73,7 @@ public class DefaultWorldpayPlaceOrderFromNotificationStrategyTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "impersonationService", new TestImpersonationService());
+        ReflectionTestUtils.setField(testObj, "impersonationService", new TestImpersonationService());
         when(worldpayOrderModificationModelMock.getOrderNotificationMessage()).thenReturn(SERIALIZED_JSON_STRING);
         when(orderNotificationServiceMock.deserialiseNotification(SERIALIZED_JSON_STRING)).thenReturn(orderNotificationMessageMock);
     }
@@ -105,7 +105,6 @@ public class DefaultWorldpayPlaceOrderFromNotificationStrategyTest {
     public void placeOrderFromNotificationShouldMarkNotificationAsDefectiveWhenThereIsAnErrorPlacingTheOrder() throws InvalidCartException {
         when(orderNotificationMessageMock.getPaymentReply().getAmount()).thenReturn(amountMock);
         when(commerceCheckoutServiceMock.placeOrder(commerceCheckoutParameterCaptor.capture())).thenThrow(new InvalidCartException("Invalid cart exception"));
-        when(commerceOrderResultMock.getOrder()).thenReturn(orderModelMock);
         when(orderNotificationMessageMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(worldpayOrderServiceMock.convertAmount(amountMock)).thenReturn(TEN);
 

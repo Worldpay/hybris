@@ -92,10 +92,8 @@ public class WorldpayIframeCheckoutStepControllerTest {
     @Before
     public void setUp() {
         when(apmConfigurationServiceMock.getAllApmPaymentTypeCodes()).thenReturn(singleton(OTHER_PAYMENT));
-        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(billingAddressMock);
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PAYMENT_METHOD);
         when(paymentDetailsFormMock.getShopperBankCode()).thenReturn(BANK_CODE);
-        when(worldpayPaymentCheckoutFacade.hasBillingDetails()).thenReturn(true);
         doReturn(true).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD);
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), eq(PAYMENT_METHOD));
         doNothing().when(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);

@@ -368,7 +368,9 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         worldpayAdditionalInfoData.setAuthenticatedShopperId(authenticatedShopperId);
     }
 
-    protected DirectResponseData internalTokenizeAndAuthorise(final CartModel cart, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException {
+    @Override
+    public DirectResponseData internalTokenizeAndAuthorise(final CartModel cart, final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+                                                           final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException {
         Preconditions.checkState(Objects.nonNull(cart), CANNOT_AUTHORIZE_PAYMENT_WHERE_THERE_IS_NO_CART_MESSAGE);
 
         final DirectAuthoriseServiceResponse directAuthoriseServiceResponse = worldpayDirectOrderService.createTokenAndAuthorise(cart, worldpayAdditionalInfoData, cseAdditionalAuthInfo);

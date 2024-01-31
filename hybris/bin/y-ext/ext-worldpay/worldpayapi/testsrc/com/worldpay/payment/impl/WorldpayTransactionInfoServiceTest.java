@@ -26,7 +26,6 @@ public class WorldpayTransactionInfoServiceTest {
     @Test
     public void isSuccessfulShouldReturnTrueWhenEntryIsAuthorisedAndAcceptedAndNotPending() throws Exception {
         when(paymentTransactionEntryModelMock.getType()).thenReturn(PaymentTransactionType.AUTHORIZATION);
-        when(paymentTransactionEntryModelMock.getPending()).thenReturn(false);
         when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
 
         final boolean result = testObj.isSuccessful(paymentTransactionEntryModelMock);
@@ -38,7 +37,6 @@ public class WorldpayTransactionInfoServiceTest {
     public void isSuccessfulShouldReturnFalseWhenEntryIsNotAuthorisedAndPending() throws Exception {
         when(paymentTransactionEntryModelMock.getType()).thenReturn(PaymentTransactionType.CAPTURE);
         when(paymentTransactionEntryModelMock.getPending()).thenReturn(true);
-        when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.ACCEPTED.name());
 
         final boolean result = testObj.isSuccessful(paymentTransactionEntryModelMock);
 
@@ -48,7 +46,6 @@ public class WorldpayTransactionInfoServiceTest {
     @Test
     public void isSuccessfulShouldReturnFalseWhenEntryIsNotAccepted() throws Exception {
         when(paymentTransactionEntryModelMock.getType()).thenReturn(PaymentTransactionType.AUTHORIZATION);
-        when(paymentTransactionEntryModelMock.getPending()).thenReturn(false);
         when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(TransactionStatus.REJECTED.name());
 
         final boolean result = testObj.isSuccessful(paymentTransactionEntryModelMock);
@@ -59,7 +56,6 @@ public class WorldpayTransactionInfoServiceTest {
     @Test
     public void isSuccessfulShouldReturnFalseWhenTransactionStatusIsNull() {
         when(paymentTransactionEntryModelMock.getType()).thenReturn(PaymentTransactionType.AUTHORIZATION);
-        when(paymentTransactionEntryModelMock.getPending()).thenReturn(false);
         when(paymentTransactionEntryModelMock.getTransactionStatus()).thenReturn(null);
 
         final boolean result = testObj.isSuccessful(paymentTransactionEntryModelMock);

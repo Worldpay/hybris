@@ -69,6 +69,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String KLARNA_RESPONSE = "klarnaContent";
     private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
     private static final String KLARNA_RESPONSE_PAGE = "pages/klarna/klarnaResponseContentPage";
+    private static final String CONTENT_PAGE_LABEL = "contentPageLabel";
     private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
 
     @Spy
@@ -137,6 +138,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     public void setUp() throws Exception {
         doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), anyString());
 
+        when(contentPageModelMock.getLabel()).thenReturn(CONTENT_PAGE_LABEL);
         when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
         when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
         when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
