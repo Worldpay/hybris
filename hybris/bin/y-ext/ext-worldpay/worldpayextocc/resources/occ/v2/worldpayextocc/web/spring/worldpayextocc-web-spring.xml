@@ -20,9 +20,6 @@
         <property name="validators">
             <list>
                 <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
-                    <property name="fieldPath" value="billingAddress.titleCode"/>
-                </bean>
-                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
                     <property name="fieldPath" value="billingAddress.firstName"/>
                 </bean>
                 <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">

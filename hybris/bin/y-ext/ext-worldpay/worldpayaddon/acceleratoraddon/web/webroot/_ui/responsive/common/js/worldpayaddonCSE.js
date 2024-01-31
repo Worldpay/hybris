@@ -7,6 +7,7 @@ ACC.worldpayCSE = {
         "bindMessageEventListener",
         "fillResolutionForWindowChallenge",
         "bindPlaceOrderForm",
+        ["bindCollectionFormToCseDetails", $('.submit_cseDetails').length > 0],
         ["performJsc", $("#worldpayCsePaymentForm").length > 0 && ACC.isFSEnabled === 'true']
     ],
 
@@ -26,6 +27,7 @@ ACC.worldpayCSE = {
             $("#encryptedData").val(encryptedData);
             return true;
         } else {
+            ACC.worldpayCSE.reloadFrame(document.getElementById('DDCIframe'))
             return false;
         }
     },
@@ -105,6 +107,7 @@ ACC.worldpayCSE = {
                 ACC.addons.worldpayaddon["worldpayaddon.checkout.error.terms.not.accepted"] +
                 "</div></div>"
             );
+            ACC.worldpayCSE.reloadFrame(document.getElementById('DDCIframe'));
         } else if (submit) {
             ACC.worldpayCSE.submitCSEFormAjax('#worldpayCsePaymentForm');
         }
@@ -129,7 +132,36 @@ ACC.worldpayCSE = {
             },
             success: function (res) {
                 if (xhr.getResponseHeader('3D-Secure-Flow') === "false" || !xhr.getResponseHeader('3D-Secure-Flow')) {
-                    $('body').html(res);
+                    var html = document.createElement('div');
+                    html.innerHTML = res;
+                    var alert = $(html).find('.alert-danger');
+                    if(alert.length > 0) {
+                        var $inputList = $('#cardDetailsFieldSet input, #cardDetailsFieldSet select');
+                        var inputObject = {};
+                        $inputList.each(function(index, input) {
+                            if(input.id){
+                              inputObject[input.id] = {
+                                  value: input.value,
+                                  type: input.type
+                              };
+                            }
+                        });
+
+                        $('.main__inner-wrapper').html($(html).find('.main__inner-wrapper').html());
+                        setTimeout(function () {
+                            ACC.worldpayCSE.reloadFrame(document.getElementById('DDCIframe'));
+                            Object.entries(inputObject).forEach(function([key, value]) {
+                                $('#' + key).val(value.value);
+
+                                if(value.type === 'checkbox') {
+                                    $('#' + key).prop('checked', value.value).attr('checked', value.value);
+                                }
+                            });
+                            inputObject= {};
+                        }, 500)
+                    } else {
+                        $('body').html(res);
+                    }
                     window.scrollTo(0, 0);
                 } else {
                     ACC.colorbox.open("", {
@@ -199,6 +231,27 @@ ACC.worldpayCSE = {
         ACC.worldpayCSE.errorCodeMap["306"] = "error-exp-date";
         ACC.worldpayCSE.errorCodeMap["401"] = "error-nameOnCard";
         ACC.worldpayCSE.errorCodeMap["402"] = "error-nameOnCard";
+    },
+
+    reloadFrame: function(iFrame) {
+      iFrame.parentNode.replaceChild(iFrame.cloneNode(), iFrame);
+    },
+
+    /**
+     * Sends the DDC information to worldpay on the checkout page (card select page)
+     * Fills information in the iframe form and sumbits it
+     */
+    bindCollectionFormToCseDetails: function () {
+        const ddcIframe = $("#DDCIframe").contents().find('body');
+        if (ddcIframe !== undefined) {
+            $('.submit_cseDetails').on('click', function () {
+                const collectionForm = ddcIframe.find("#collectionform");
+                collectionForm.find('#cardNumber').value = $('#number').val();
+                ACC.worldpayCSE.encryptCardDetails();
+                collectionForm.submit();
+                document.querySelector("#DDCIframe").contentDocument.querySelector('#collectionForm').submit()
+            });
+        }
     }
 };
 

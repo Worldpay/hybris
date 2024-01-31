@@ -41,12 +41,12 @@ class WorldpayAPMComponentsTest extends AbstractWorldpaySpockTest {
 
         where:
         responseFormat | currency     | country     | expectedAPMs                                                                                                                  | currencyRange
-        JSON           | EUR_CURRENCY | DE_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'GIROPAY-SSL', 'SOFORT-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL', 'SEPA_DIRECT_DEBIT-SSL'] | true
-        JSON           | EUR_CURRENCY | DE_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | false
-        JSON           | EUR_CURRENCY | NL_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'IDEAL-SSL', 'KLARNA_PAYLATER-SSL', 'SEPA_DIRECT_DEBIT-SSL']                                       | true
-        JSON           | GBP_CURRENCY | UK_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | true
-        JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL']                                                                                       | true
-        JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL']                                                                                                    | false
-        JSON           | EUR_CURRENCY | AT_ISO_CODE | ['POLI-SSL', 'BOLETO-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | false
+        JSON           | EUR_CURRENCY | DE_ISO_CODE | ['POLI-SSL', 'GIROPAY-SSL', 'SOFORT-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL', 'SEPA_DIRECT_DEBIT-SSL'] | true
+        JSON           | EUR_CURRENCY | DE_ISO_CODE | ['POLI-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | false
+        JSON           | EUR_CURRENCY | NL_ISO_CODE | ['POLI-SSL', 'IDEAL-SSL', 'KLARNA_PAYLATER-SSL', 'SEPA_DIRECT_DEBIT-SSL']                                       | true
+        JSON           | GBP_CURRENCY | UK_ISO_CODE | ['POLI-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | true
+        JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL']                                                                                                  | true
+        JSON           | SGD_CURRENCY | SG_ISO_CODE | ['POLI-SSL']                                                                                                  | false
+        JSON           | EUR_CURRENCY | AT_ISO_CODE | ['POLI-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                                       | false
     }
 }

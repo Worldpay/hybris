@@ -108,6 +108,8 @@ def pl = platform {
         extName 'couponservices'
         extName 'promotionenginesamplesaddon'
 
+        extName 'commercewebservices'
+
         extName 'assistedservicestorefront'
         extName 'assistedservicewebservices'
         extName 'assistedserviceyprofileaddon'
@@ -131,6 +133,7 @@ def pl = platform {
         extName 'cmssmartedit'
         extName 'cmsbackoffice'
         extName 'cmsocc'
+        extName 'cmsfacades'
 
         extName 'consignmenttrackingaddon'
         extName 'consignmenttrackingmock'

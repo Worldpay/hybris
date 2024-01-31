@@ -145,6 +145,9 @@ def platform = platform {
                 'promotionenginesamplesaddon',
                 'consignmenttrackingaddon',
 
+                'commercewebservices',
+                'cmsfacades',
+
                 'pcmbackofficesamplesaddon',
 
                 'consignmenttrackingocc',

@@ -5,6 +5,7 @@ $defaultLanguage = en
 $storeUid = electronics-spa
 $siteUid = electronics-spa
 $webServiceSiteUid = $siteUidWS
+$urlPatterns=(?i)^https?://[^/]+(/[^?]*)?\?(.*\&)?(site=$siteUid)(|\&.*)$,(?i)^https?://[^/]+/spartacus/$siteUid(|/.*|\?.*|#.*)$,(?i)^https?://[^/]+/$siteUid(|/.*|\?.*|#.*)$,(?i)^https?://$siteUid\.[^/]+(|/.*|\?.*)$,(?i)^https?://api\.hybrisdev\.com(:[\d]+)?/rest/.*$,(?i)^https?://localhost(:[\d]+)?/rest/.*$
 
 UPDATE GenericItem[processor = de.hybris.platform.commerceservices.impex.impl.ConfigPropertyImportProcessor]; pk[unique = true]
 $webMerchantCode = $config-worldpay.config.web.merchant.code.electronics_spa
@@ -32,7 +33,7 @@ $challengeUrl = $config-worldpay.config.3dsecureflex.jwt.challengeurl
 $ddcUrl = $config-worldpay.config.3dsecureflex.jwt.ddcurl
 $flowreturnUrl = $config-worldpay.config.3dsecureflex.jwt.flowReturnUrl
 $authSubmit = $config-worldpay.config.3dsecureflex.secondauthorisation.submit.url
-$occFlowReturnUrl = $config-worldpay.config.3dsecureflex.jwt.occFlowReturnUrl
+$occFlowReturnUrl = $config-worldpay.config.3dsecureflex.jwt.occFlowReturnUrl.electronics
 $eventOriginDomain = $config-worldpay.config.3dsecureflex.jwt.eventOriginDomain
 
 INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; csePublicKey                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ; installationId; statementNarrative     ; orderContent                   ; threeDSFlexChallengePreference(code)
@@ -88,6 +89,6 @@ INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ;
                                            ; webMerchantConfiguration-$siteUid ; $siteUid-applePayConfig          ; $siteUid-googlePayConfig          ; $siteUid-threeDS2Config                    ; $webCardAcceptorTaxId
                                            ; asmMerchantConfiguration-$siteUid ;                                  ;                                   ;
 
-UPDATE BaseSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier)
-               ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid
+UPDATE CMSSite; uid[unique = true]; webMerchantConfiguration(identifier); asmMerchantConfiguration(identifier); replenishmentMerchantConfiguration(identifier);urlPatterns
+               ; $siteUid          ; webMerchantConfiguration-$siteUid   ; asmMerchantConfiguration-$siteUid   ; replenishmentMerchantConfiguration-$siteUid;$urlPatterns
 

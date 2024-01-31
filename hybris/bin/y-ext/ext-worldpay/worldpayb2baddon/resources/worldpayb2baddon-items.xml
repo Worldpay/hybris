@@ -15,35 +15,4 @@
 
 <items 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 			xsi:noNamespaceSchemaLocation="items.xsd">
-
-	<itemtypes>
-		<typegroup name="cms">
-
-			<itemtype code="WorldpayCCComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayCCComponent">
-				<attributes>
-					<attribute type="localized:Media" qualifier="media">
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
-
-			<itemtype code="WorldpayAPMComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayAPMComponent">
-				<attributes>
-					<attribute qualifier="apmConfiguration" type="WorldpayAPMConfiguration">
-						<persistence type="property"/>
-					</attribute>
-					<attribute type="localized:Media" qualifier="media">
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
-
-			<itemtype code="WorldpayGuaranteedPaymentsComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayGuaranteedPaymentsComponent">
-			</itemtype>
-
-		</typegroup>
-	</itemtypes>
 </items>
