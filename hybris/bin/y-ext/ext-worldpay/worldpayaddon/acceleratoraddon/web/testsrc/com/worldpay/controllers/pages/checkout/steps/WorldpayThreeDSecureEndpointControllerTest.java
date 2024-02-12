@@ -26,8 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
 import static com.worldpay.payment.TransactionStatus.REFUSED;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith (MockitoJUnitRunner.class)

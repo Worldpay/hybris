@@ -65,7 +65,6 @@ public class DefaultWorldpayVoidCommandTest {
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(voidServiceResponseConverterMock.convert(cancelResponseMock)).thenReturn(voidResultMock);
         when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(paymentTransactionModelMock);
-        when(voidRequestMock.getRequestToken()).thenReturn(MERCHANT_CODE);
         when(voidRequestMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(voidServiceResponseConverterMock.convert(voidResponseMock)).thenReturn(voidResultMock);
         when(worldpayGatewayMock.voidSale(any(VoidSaleServiceRequest.class))).thenReturn(voidResponseMock);

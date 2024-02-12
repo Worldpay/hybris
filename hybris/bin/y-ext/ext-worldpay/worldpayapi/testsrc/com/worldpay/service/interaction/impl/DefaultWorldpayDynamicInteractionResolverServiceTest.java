@@ -51,8 +51,6 @@ public class DefaultWorldpayDynamicInteractionResolverServiceTest {
     @Test
     public void resolveIterationTypeForContAuth() {
         when(worldpayAdditionalInfoDataMock.isReplenishmentOrder()).thenReturn(true);
-        when(assistedServiceServiceMock.getAsmSession()).thenReturn(assistedServiceSessionMock);
-        when(assistedServiceSessionMock.getAgent()).thenReturn(userModelMock);
 
         final DynamicInteractionType result = testObj.resolveInteractionTypeForDirectIntegration(worldpayAdditionalInfoDataMock);
 

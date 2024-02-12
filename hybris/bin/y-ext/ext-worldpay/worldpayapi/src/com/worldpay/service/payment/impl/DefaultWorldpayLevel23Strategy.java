@@ -1,6 +1,5 @@
 package com.worldpay.service.payment.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.worldpay.data.BranchSpecificExtension;
 import com.worldpay.data.Item;
 import com.worldpay.data.Purchase;
@@ -27,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
@@ -86,18 +86,20 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
         purchase.setShippingAmount(worldpayOrderService.createAmount(currency, abstractOrder.getDeliveryCost()));
         setDutyAmount(abstractOrder, purchase);
 
-        final AddressModel deliveryAddress = abstractOrder.getDeliveryAddress();
-        purchase.setDestinationCountryCode(deliveryAddress.getCountry().getIsocode());
-        purchase.setDestinationPostalCode(deliveryAddress.getPostalcode());
+        Optional.ofNullable(abstractOrder.getDeliveryAddress())
+                .ifPresent(address -> {
+                    purchase.setDestinationCountryCode(address.getCountry().getIsocode());
+                    purchase.setDestinationPostalCode(address.getPostalcode());
+                });
 
         final LocalDateTime orderDate = Instant.ofEpochMilli(abstractOrder.getDate().getTime())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime();
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
         purchase.setOrderDate(WorldpayInternalModelTransformerUtil.newDateFromLocalDateTime(orderDate));
 
         final List<Item> items = abstractOrder.getEntries().stream()
-            .map(orderEntry -> createItem(orderEntry, currency))
-            .collect(Collectors.toList());
+                .map(orderEntry -> createItem(orderEntry, currency))
+                .collect(Collectors.toList());
         purchase.setItem(items);
 
         final BranchSpecificExtension branchSpecificExtension = new BranchSpecificExtension();

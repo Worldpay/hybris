@@ -36,7 +36,6 @@ public class DefaultWorldpayMerchantConfigurationServiceTest {
     @Before
     public void setUp() {
         when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(siteMock1);
-        when(baseSiteServiceMock.getBaseSiteForUID(BASE_SITE_ID)).thenReturn(siteMock1);
     }
 
     @Test
@@ -100,7 +99,6 @@ public class DefaultWorldpayMerchantConfigurationServiceTest {
         when(siteMock1.getActive()).thenReturn(true);
         when(siteMock2.getAsmMerchantConfiguration()).thenReturn(null);
         when(siteMock2.getActive()).thenReturn(true);
-        when(siteMock3.getReplenishmentMerchantConfiguration()).thenReturn(replenishmentMerchantConfigurationMock);
         when(siteMock3.getActive()).thenReturn(false);
 
         final Set<WorldpayMerchantConfigurationModel> result = testObj.getAllSystemActiveSiteMerchantConfigurations();

@@ -3,6 +3,8 @@ package de.hybris.platform.hac.controller;
 import com.worldpay.support.WorldpaySupportEmailService;
 import com.worldpay.support.WorldpaySupportService;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import org.mockito.Answers;
+import org.mockito.Mock;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,8 +27,8 @@ public class WorldpayHACController
 	private WorldpaySupportEmailService worldpaySupportEmailService;
 	@Resource
 	private WorldpaySupportService worldpaySupportService;
-	@Resource
-	private ConfigurationService configurationService;
+	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
+	private ConfigurationService configurationServiceMock;
 
 	@RequestMapping(value = "/supportemail", method = RequestMethod.GET)
 	public String supportEmail(final Model model)
@@ -40,7 +42,7 @@ public class WorldpayHACController
 	{
 		worldpaySupportService.sendSupportEmail();
 
-		String message = "Worldpay support email was sent to: " + configurationService.getConfiguration().getString(WORLDPAY_SUPPORT_EMAIL_CONFIG_KEY);
+		String message = "Worldpay support email was sent to: " + configurationServiceMock.getConfiguration().getString(WORLDPAY_SUPPORT_EMAIL_CONFIG_KEY);
 
 		attributes.addFlashAttribute("send", true);
 		attributes.addFlashAttribute("message", message);

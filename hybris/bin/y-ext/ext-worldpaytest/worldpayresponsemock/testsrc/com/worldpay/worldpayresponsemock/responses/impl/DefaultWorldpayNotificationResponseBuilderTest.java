@@ -257,7 +257,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         when(responseFormMock.getCountryCode()).thenReturn(ADDRESS_COUNTRY_CODE_VALUE);
         when(responseFormMock.getCardExpiryMonth()).thenReturn(CARD_EXPIRY_MONTH_VALUE);
         when(responseFormMock.getCardExpiryYear()).thenReturn(CARD_EXPIRY_YEAR_VALUE);
-        when(responseFormMock.getTokenCardHolderName()).thenReturn(CARD_HOLDER_NAME_VALUE);
         when(responseFormMock.getCardSubBrand()).thenReturn(DERIVED_CARD_SUB_BRAND_VALUE);
         when(responseFormMock.getCardBrand()).thenReturn(DERIVED_CARD_BRAND_VALUE);
         when(responseFormMock.getObfuscatedPAN()).thenReturn(DERIVED_OBFUSCATED_PAN_VALUE);
@@ -383,7 +382,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     @Test
     public void buildResponse_shouldCreateAndPopulateTokenWithoutAuthenticatedShopperIdAndMerchantScope() throws WorldpayException {
         when(responseFormMock.getSelectToken()).thenReturn(CARD_DETAILS);
-        when(responseFormMock.getAuthenticatedShopperId()).thenReturn("WeDontWantThisValue");
         when(responseFormMock.isMerchantToken()).thenReturn(true);
 
         testObj.buildResponse(responseFormMock);

@@ -86,5 +86,5 @@ public class WorldpayConfiguredFlowsAppenderTest {
         assertEquals(4, StringUtils.countMatches(result, ACTIVE_PAGE_TEMPLATE));
     }
 }
-    
+
 

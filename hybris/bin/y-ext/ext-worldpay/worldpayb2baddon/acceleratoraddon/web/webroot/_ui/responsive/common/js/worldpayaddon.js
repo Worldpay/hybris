@@ -209,6 +209,9 @@ ACC.worldpay = {
         if ($('[id="paymentMethod_CC"]:checked').length > 0) {
             $('#dobElement').removeClass('hidden');
             $('#dobRequired').val(ACC.isFSEnabled);
+        } else {
+            $('#dobElement').addClass('hidden');
+            $('#dobRequired').val(false);
         }
     }
 };

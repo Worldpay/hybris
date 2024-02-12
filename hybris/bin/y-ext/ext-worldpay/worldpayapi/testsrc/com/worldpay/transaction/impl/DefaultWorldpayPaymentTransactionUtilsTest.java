@@ -15,14 +15,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,7 +54,7 @@ public class DefaultWorldpayPaymentTransactionUtilsTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "paymentTransactionDependency", Map.of(
+        ReflectionTestUtils.setField(testObj, "paymentTransactionDependency", Map.of(
             CAPTURE, AUTHORIZATION,
             SETTLED, CAPTURE
         ));

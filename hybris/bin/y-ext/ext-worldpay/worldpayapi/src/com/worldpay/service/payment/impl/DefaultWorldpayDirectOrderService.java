@@ -2,14 +2,13 @@ package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
+import com.worldpay.data.token.TokenReply;
+import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.data.MerchantInfo;
-import com.worldpay.data.PaymentReply;
-import com.worldpay.data.SchemeResponse;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.payment.WorldpaySessionService;
@@ -27,6 +26,7 @@ import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -299,11 +299,17 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
 
     protected Optional<String> getTransactionIdentifier(final DirectAuthoriseServiceResponse serviceResponse) {
         return Optional.ofNullable(serviceResponse.getPaymentReply().getSchemeResponse())
-            .map(SchemeResponse::getTransactionIdentifier);
+                .map(SchemeResponse::getTransactionIdentifier);
+    }
+
+    protected Optional<Boolean> checkTokenReferenceExists(final DirectAuthoriseServiceResponse serviceResponse) {
+        return Optional.ofNullable(serviceResponse.getToken())
+                .map(TokenReply::getTokenDetails)
+                .map(tokenDetails -> StringUtils.isNotBlank(tokenDetails.getTokenEventReference()));
     }
 
     protected CreditCardPaymentInfoModel createCreditCardPaymentInfo(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel, final String merchantCode) {
-        final boolean isSavedCard = getTransactionIdentifier(serviceResponse).isPresent();
-        return worldpayPaymentInfoService.createCreditCardPaymentInfo(abstractOrderModel, serviceResponse.getToken(), isSavedCard, merchantCode);
+        final Optional<Boolean> saveCard = checkTokenReferenceExists(serviceResponse);
+        return worldpayPaymentInfoService.createCreditCardPaymentInfo(abstractOrderModel, serviceResponse.getToken(), saveCard.orElse(false), merchantCode);
     }
 }

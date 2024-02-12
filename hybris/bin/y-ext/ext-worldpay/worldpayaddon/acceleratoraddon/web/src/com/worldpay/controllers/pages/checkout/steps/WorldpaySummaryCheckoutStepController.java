@@ -49,7 +49,7 @@ import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/summary")
-@SuppressWarnings("java:S110")
+@SuppressWarnings({"java:S110","Duplicates","java:S1854"})
 public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
     protected static final Logger LOG = LogManager.getLogger(WorldpaySummaryCheckoutStepController.class);
@@ -214,20 +214,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return worldpayAddonEndpointService.getChallengeIframe3dSecureFlex();
     }
 
-    @GetMapping(value = "/back")
-    @RequireHardLogIn
-    @Override
-    public String back(final RedirectAttributes redirectAttributes) {
-        return getCheckoutStep().previousStep();
-    }
-
-    @GetMapping(value = "/next")
-    @RequireHardLogIn
-    @Override
-    public String next(final RedirectAttributes redirectAttributes) {
-        return getCheckoutStep().nextStep();
-    }
-
     protected String authorisePayment(final Model model, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final HttpServletResponse response) throws CMSItemNotFoundException {
         try {
             final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseRecurringPayment(worldpayAdditionalInfoData);
@@ -311,29 +297,6 @@ public class WorldpaySummaryCheckoutStepController extends AbstractWorldpayDirec
         return true;
     }
 
-    protected boolean hasDeliveryAddress(final Model model) {
-        if (getCheckoutFlowFacade().hasNoDeliveryAddress()) {
-            addErrorMessage(model, "checkout.deliveryAddress.notSelected");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean hasDeliveryMode(final Model model) {
-        if (getCheckoutFlowFacade().hasNoDeliveryMode()) {
-            addErrorMessage(model, "checkout.deliveryMethod.notSelected");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean hasPaymentInfo(final Model model) {
-        if (getCheckoutFlowFacade().hasNoPaymentInfo()) {
-            addErrorMessage(model, "checkout.paymentMethod.notSelected");
-            return false;
-        }
-        return true;
-    }
 
     private boolean hasTermsAccepted(final CSEPaymentForm form, final Model model) {
         if (!form.isTermsCheck()) {

@@ -3,10 +3,6 @@ package com.worldpay.service.request.validation.impl;
 import com.worldpay.data.*;
 import com.worldpay.data.Address;
 import com.worldpay.data.Amount;
-import com.worldpay.data.Order;
-import com.worldpay.data.Shopper;
-import com.worldpay.data.Address;
-import com.worldpay.data.Amount;
 import com.worldpay.data.Date;
 import com.worldpay.data.GuaranteedPaymentsData;
 import com.worldpay.data.Order;
@@ -15,7 +11,6 @@ import com.worldpay.data.UserAccount;
 import com.worldpay.data.token.TokenRequest;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.exception.WorldpayValidationException;
-import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.*;
 import com.worldpay.internal.model.Product;
 import com.worldpay.service.model.payment.PaymentType;
@@ -34,6 +29,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;

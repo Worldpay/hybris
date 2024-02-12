@@ -35,8 +35,6 @@ import java.math.BigDecimal;
 
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -99,23 +97,13 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
     @Before
     public void setUp() throws WorldpayException {
-        when(cartModelMock.getTotalPrice()).thenReturn(TOTAL_PRICE);
-        when(cartModelMock.getCurrency()).thenReturn(currencyModelMock);
-        when(currencyModelMock.getIsocode()).thenReturn(GBP);
-        when(cartModelMock.getUser()).thenReturn(customerModelMock);
-        when(modelServiceMock.create(PaymentInfoModel.class)).thenReturn(paymentInfoModelMock);
-        when(worldpayOrderServiceMock.createBasicOrderInfo(eq(WORLDPAY_ORDER_CODE), eq(WORLDPAY_ORDER_CODE), any(Amount.class))).thenReturn(basicOrderInfoMock);
-
         when(worldpayPaymentInfoServiceMock.createPaymentInfo(cartModelMock)).thenReturn(paymentInfoModelMock);
-        when(worldpayCartServiceMock.getAuthenticatedShopperId(cartModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
-        when(worldpayTokenEventReferenceCreationStrategyMock.createTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
         when(worldpayOrderServiceMock.createCheckoutParameterAndSetPaymentInfo(paymentInfoModelMock, bigDecimalMock, cartModelMock)).thenReturn(commerceCheckoutParameterMock);
         when(cartModelMock.getPaymentInfo()).thenReturn(paymentInfoModelMock);
     }
 
     @Test
     public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToTrueWhenPaymentMethodIsCC() {
-        when(redirectAuthoriseResultMock.getSaveCard()).thenReturn(true);
         setUpRedirectAuthoriseResultMock(AUTHORISED, true);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
 
@@ -142,7 +130,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     @Test
     public void testCompleteRedirectAuthoriseAndSetSavedPaymentInfoToTrueWhenPaymentMethodIsAPM() {
         when(cartModelMock.getPaymentInfo()).thenReturn(null);
-        when(redirectAuthoriseResultMock.getSaveCard()).thenReturn(true);
         setUpRedirectAuthoriseResultMock(AUTHORISED, true);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(true, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
 
@@ -169,7 +156,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
 
     @Test
     public void testCompleteRedirectAuthoriseWithNoPendingPaymentTransactionEntryAndSetSavedPaymentInfoToTrue() {
-        when(redirectAuthoriseResultMock.getSaveCard()).thenReturn(true);
         setUpRedirectAuthoriseResultMock(AUTHORISED, false);
         when(worldpayPaymentTransactionServiceMock.createPaymentTransaction(false, MERCHANT_CODE, commerceCheckoutParameterMock)).thenReturn(paymentTransactionModelMock);
 
@@ -204,9 +190,6 @@ public class DefaultWorldpayRedirectOrderServiceTest {
     }
 
     private void setUpRedirectAuthoriseResultMock(final AuthorisedStatus paymentStatus, final boolean pending) {
-        when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(paymentStatus);
-        when(redirectAuthoriseResultMock.getOrderKey()).thenReturn(ORDER_KEY);
         when(redirectAuthoriseResultMock.getPending()).thenReturn(pending);
         when(redirectAuthoriseResultMock.getPaymentAmount()).thenReturn(bigDecimalMock);
     }

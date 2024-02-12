@@ -65,14 +65,6 @@ public class ApplePayControllerTest {
     @Mock
     private ApplePayAdditionalAuthInfo paymentDataMock;
 
-
-    @Before
-    public void setup() {
-        when(baseSiteServiceMock.getCurrentBaseSite()).thenReturn(currentBaseSiteMock);
-        when(siteBaseUrlResolutionServiceMock.getWebsiteUrlForSite(currentBaseSiteMock, true, null)).thenReturn("https://electronics.ypay-daily-responsive.e2y.io/worlpaystorefront/en");
-        when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(customerMock);
-    }
-
     @Test
     public void testAuthoriseOrder() throws WorldpayException, InvalidCartException {
         doNothing().when(worldpayApplePayPaymentCheckoutFacadeMock).saveBillingAddresses(billingContactMock);

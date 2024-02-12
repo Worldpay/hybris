@@ -28,7 +28,7 @@ import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_CAPTURED;
 import static de.hybris.platform.core.enums.OrderStatus.PAYMENT_NOT_CAPTURED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -142,7 +142,7 @@ public class WorldpayTakePaymentActionTest {
         final String result = testObj.execute(processMock);
 
         assertEquals(WAIT, result);
-        verify(paymentServiceMock, never()).capture(anyObject());
+        verify(paymentServiceMock, never()).capture(any());
     }
 
     @Test
@@ -154,6 +154,6 @@ public class WorldpayTakePaymentActionTest {
         final String result = testObj.execute(processMock);
 
         assertEquals(WAIT, result);
-        verify(paymentServiceMock).capture(anyObject());
+        verify(paymentServiceMock).capture(any());
     }
 }

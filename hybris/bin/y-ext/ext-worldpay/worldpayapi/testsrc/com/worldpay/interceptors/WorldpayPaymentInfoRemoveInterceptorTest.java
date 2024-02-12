@@ -78,9 +78,7 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
     @Test
     public void onRemove_WhenCCPaymentInfoTokenIsNotAttachedToUser_ShouldNotDeleteIt() throws Exception {
-        when(creditCardPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(creditCardPaymentInfoModelMock.getUser()).thenReturn(null);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(creditCardPaymentInfoModelMock, interceptorContextMock);
 
@@ -89,9 +87,7 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
     @Test
     public void onRemove_WhenAPMPaymentInfoTokenIsNotAttachedToUser_ShouldNotDeleteIt() throws Exception {
-        when(worldpayAPMPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(worldpayAPMPaymentInfoModelMock.getUser()).thenReturn(null);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(worldpayAPMPaymentInfoModelMock, interceptorContextMock);
 
@@ -100,9 +96,7 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
     @Test
     public void onRemove_WhenDuplicateCCPaymentInfo_shouldNotDeleteToken() throws Exception {
-        when(creditCardPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(creditCardPaymentInfoModelMock.getDuplicate()).thenReturn(true);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(creditCardPaymentInfoModelMock, interceptorContextMock);
 
@@ -111,9 +105,7 @@ public class WorldpayPaymentInfoRemoveInterceptorTest {
 
     @Test
     public void onRemove_WhenDuplicateAPMPaymentInfo_shouldNotDeleteToken() throws Exception {
-        when(worldpayAPMPaymentInfoModelMock.getMerchantId()).thenReturn(MERCHANT_ID);
         when(worldpayAPMPaymentInfoModelMock.getDuplicate()).thenReturn(true);
-        when(worldpayMerchantInfoServiceMock.getMerchantInfoByCode(MERCHANT_ID)).thenReturn(merchantInfoMock);
 
         testObj.onRemove(worldpayAPMPaymentInfoModelMock, interceptorContextMock);
 

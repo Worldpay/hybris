@@ -36,5 +36,5 @@ public class WorldpayUserDisplayNameAppenderTest {
         assertTrue(result.contains("User: " + USER_NAME));
     }
 }
-    
+
 

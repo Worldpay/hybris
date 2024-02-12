@@ -8,7 +8,6 @@ import com.worldpay.internal.model.ShippingSummary;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
@@ -52,8 +51,7 @@ public class AlternativeShippingAddressPopulator implements Populator<Alternativ
             case UNREGISTERED_BOX:
                 return "unregistered box";
             default:
-                return StringUtils.EMPTY;
+                return null;
         }
     }
-
 }

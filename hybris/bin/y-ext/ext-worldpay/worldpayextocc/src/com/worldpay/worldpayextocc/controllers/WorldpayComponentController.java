@@ -31,7 +31,7 @@ public class WorldpayComponentController extends AbstractWorldpayController {
     @ApiOperation(value = "Gets all available apm components", notes = "Returns all available cms apm components", nickname = "getAvailableApmComponents")
     @ApiBaseSiteIdUserIdAndCartIdParam
     public WorldpayAPMComponentsWsDTO getAvailableApmComponents(
-        @ApiParam(value = "Response configuration (list of fields, which should be returned in response)", allowableValues = "BASIC, DEFAULT, FULL") @RequestParam(defaultValue = "DEFAULT") final String fields) {
+            @ApiParam(value = "Response configuration (list of fields, which should be returned in response)", allowableValues = "BASIC, DEFAULT, FULL") @RequestParam(defaultValue = "DEFAULT") final String fields) {
         final WorldpayAPMComponentsData worldpayAPMComponentsData = new WorldpayAPMComponentsData();
         worldpayAPMComponentsData.setApmComponents(worldpayAPMComponentFacade.getAllAvailableWorldpayAPMComponents());
 

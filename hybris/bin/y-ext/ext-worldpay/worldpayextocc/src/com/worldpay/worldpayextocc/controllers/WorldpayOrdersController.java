@@ -5,9 +5,12 @@ import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
+import com.worldpay.facade.OCCWorldpayOrderFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
+import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
+import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
+import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
@@ -18,6 +21,7 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.CartModificationData;
 import de.hybris.platform.commercefacades.order.data.CartModificationDataList;
 import de.hybris.platform.commercefacades.order.data.OrderData;
+import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrategy;
@@ -40,8 +44,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.AccessDeniedException;
+import java.security.AccessControlException;
 import java.util.List;
+import java.util.Map;
 
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static com.worldpay.payment.TransactionStatus.ERROR;
 import static java.text.MessageFormat.format;
@@ -62,7 +70,9 @@ import static java.text.MessageFormat.format;
 public class WorldpayOrdersController extends AbstractWorldpayController {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorldpayOrdersController.class);
-    private static final String FAILED_TO_PLACE_ORDER = "Failed to place Order";
+
+    private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
+    private static final String ANONYMOUS_UID = "anonymous";
 
     // Named like this in order to use the bean definition from commercewebservices
     @Resource(name = "commerceWebServicesCartFacade2")
@@ -78,7 +88,13 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @Resource
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
     @Resource
-    private WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
+    protected WorldpayHostedOrderFacade worldpayHostedOrderFacade;
+    @Resource
+    protected WorldpayAfterRedirectValidationFacade worldpayAfterRedirectValidationFacade;
+    @Resource
+    protected OCCWorldpayOrderFacade occWorldpayOrderFacade;
+    @Resource (name = "defaultWorldpayUserFacade")
+    protected UserFacade worldpayUserFacade;
 
     /**
      * Authorizes cart and places the order. Response contains the new order data.
@@ -98,7 +114,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
      * impersonate as any customer and place order on his behalf
      */
     @Secured(
-        {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+            {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/worldpayorders")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -107,7 +123,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
                                               @RequestParam final String cartId,
                                               @RequestParam final String securityCode,
                                               @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
-        throws InvalidCartException, NoCheckoutCartException, WorldpayException {
+            throws InvalidCartException, NoCheckoutCartException, WorldpayException {
 
         cartLoaderStrategy.loadCart(cartId);
         validateCartForPlaceOrder();
@@ -120,7 +136,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     }
 
     @Secured(
-        {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
+            {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/initial-payment-request")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -160,7 +176,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         TransactionStatus transactionStatus = ERROR;
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.authorise3DSecure(paRes,
-                createWorldpayAdditionalInfo(request, null));
+                    createWorldpayAdditionalInfo(request, null));
             transactionStatus = responseData.getTransactionStatus();
             if (AUTHORISED.equals(transactionStatus)) {
                 return dataMapper.map(responseData.getOrderData(), OrderWsDTO.class, fields);
@@ -181,15 +197,81 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ApiBaseSiteIdUserIdAndCartIdParam
     @ResponseBody
     public OrderWsDTO placeRedirectOrder(
-        @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
+            final HttpServletRequest request,
+            @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
 
+        final Map<String, String> requestParameterMap = getRequestParameterMap(request);
+        final RedirectAuthoriseResult redirectAuthoriseResult = occWorldpayOrderFacade
+                .getRedirectAuthoriseResult(requestParameterMap);
+
+        if (!requestParameterMap.containsKey(PAYMENT_STATUS_PARAMETER_NAME)) {
+            final OrderData orderData = occWorldpayOrderFacade.handleHopResponseWithoutPaymentStatus(redirectAuthoriseResult);
+            return dataMapper.map(orderData, OrderWsDTO.class, fields);
+        }
+
+        if (worldpayAfterRedirectValidationFacade.validateRedirectResponse(requestParameterMap)) {
+            final OrderData orderData = occWorldpayOrderFacade.handleHopResponseWithPaymentStatus(redirectAuthoriseResult);
+            return dataMapper.map(orderData, OrderWsDTO.class, fields);
+        }
+
+        LOG.error(FAILED_TO_PLACE_ORDER);
+        throw new WorldpayException(FAILED_TO_PLACE_ORDER);
+    }
+
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST"})
+    @PostMapping(value = "/users/{userId}/carts/{cartId}/worldpayorders/place-banktransfer-redirect-order")
+    @ApiOperation(nickname = "PlaceBankTransferRedirectOrder", value = "Place an order for redirect Bank APMs.", notes = "Place the order after APM success redirect. The response contains the new order data.")
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    @ResponseBody
+    public OrderWsDTO placeBankTransferRedirectOrder(
+            final HttpServletRequest request,
+            @RequestParam(value = "orderId") final String orderId,
+            @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
+        if (!occWorldpayOrderFacade.isValidEncryptedOrderCode(orderId)) {
+            LOG.error(FAILED_TO_PLACE_ORDER);
+            throw new WorldpayException(FAILED_TO_PLACE_ORDER + " " + REFUSED.name());
+        }
         try {
+            final Map<String, String> requestParameterMap = getRequestParameterMap(request);
+            final RedirectAuthoriseResult redirectAuthoriseResult = occWorldpayOrderFacade.
+                    getRedirectAuthoriseResult(requestParameterMap);
+            worldpayHostedOrderFacade.completeRedirectAuthorise(redirectAuthoriseResult);
+
             final OrderData orderData = worldpayCheckoutFacadeDecorator.placeOrder();
             return dataMapper.map(orderData, OrderWsDTO.class, fields);
+
         } catch (final InvalidCartException e) {
             LOG.error(FAILED_TO_PLACE_ORDER, e);
             throw new WorldpayException(FAILED_TO_PLACE_ORDER);
         }
+    }
+
+    /**
+     * Retrieve the order details for a specific order code for the user ID given.
+     * This method supports guest users as well.
+     * @param userId the user ID
+     * @param orderCode the order code
+     * @param fields
+     * @return the order details
+     */
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST", "ROLE_ANONYMOUS"})
+    @RequestMapping(value = "/orders/{orderCode}/user/{userId}", method = RequestMethod.GET)
+    @ResponseBody
+    @ApiOperation(nickname = "getUserOrders", value = "Get an order.", notes = "Returns specific order details based on a specific order code. The response contains detailed order information.")
+    @ApiBaseSiteIdParam
+    public OrderWsDTO getUserOrders(
+            @PathVariable final String userId,
+            @PathVariable final String orderCode,
+            @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)  {
+
+         if (!ANONYMOUS_UID.equals(userId) && Boolean.TRUE.equals(worldpayUserFacade.isUserExisting(userId))) {
+            final OrderData orderData = occWorldpayOrderFacade.findOrderByCodeAndUserId(orderCode, userId);
+            return dataMapper.map(orderData, OrderWsDTO.class, fields);
+        }
+
+        final String errInfo = String.format("Could not match any user for uid %s", userId);
+        LOG.error(errInfo);
+        throw new AccessControlException("Access is denied");
     }
 
     private CSEAdditionalAuthInfo createCseAdditionalAuthInfo(final String challengeWindowSize, final String dfReferenceId, final Boolean savedCard) {
@@ -249,4 +331,5 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
             throw new InvalidCartException(e);
         }
     }
+
 }

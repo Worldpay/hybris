@@ -119,7 +119,6 @@ public class DirectAuthoriseResponseTransformerTest {
 
         final Token token = new Token();
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
-        when(serviceResponseTransformerHelperMock.buildTokenReply(token)).thenReturn(tokenReplyMock);
 
         testObj.transform(paymentServiceReply);
     }

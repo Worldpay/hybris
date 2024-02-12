@@ -4,7 +4,7 @@ import com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
-import de.hybris.platform.core.model.order.AbstractOrderModel;
+import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class WorldpayAPMPaymentInfoPopulatorTest {
     private WorldpayAPMPaymentInfoPopulator testObj;
 
     @Mock
-    private AbstractOrderModel abstractOrderModelMock;
+    private CartModel abstractOrderModelMock;
     @Mock
     private AbstractOrderData abstractOrderDataMock;
     @Mock

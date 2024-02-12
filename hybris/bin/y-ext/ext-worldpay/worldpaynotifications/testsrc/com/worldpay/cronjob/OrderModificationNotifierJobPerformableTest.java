@@ -25,7 +25,7 @@ public class OrderModificationNotifierJobPerformableTest {
     @Test
     public void performShouldInvokeStrategy() throws Exception {
         testObj.perform(notifyUnprocessedOrderModificationsCronJobModelMock);
-        
+
         verify(worldpayOrderModificationNotifierStrategyMock).notifyThatOrdersHaveNotBeenProcessed(anyInt());
     }
 }

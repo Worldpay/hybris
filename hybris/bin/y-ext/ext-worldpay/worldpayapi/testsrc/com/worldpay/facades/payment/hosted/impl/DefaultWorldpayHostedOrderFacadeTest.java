@@ -69,7 +69,6 @@ public class DefaultWorldpayHostedOrderFacadeTest {
     public void setUp() {
         when(sessionServiceMock.getAttribute(WORLDPAY_MERCHANT_CODE)).thenReturn(MERCHANT_CODE);
         when(cartServiceMock.getSessionCart()).thenReturn(cartModelMock);
-        when(worldpayPaymentInfoServiceMock.createPaymentInfo(cartModelMock)).thenReturn(paymentInfoModelMock);
     }
 
     @Test

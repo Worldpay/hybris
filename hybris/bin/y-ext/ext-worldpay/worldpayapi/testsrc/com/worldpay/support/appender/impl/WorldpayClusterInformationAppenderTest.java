@@ -43,5 +43,5 @@ public class WorldpayClusterInformationAppenderTest {
         assertTrue(result.contains(String.valueOf(CLUSTER_NODE_ID)));
     }
 }
-    
+
 

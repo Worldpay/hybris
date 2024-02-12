@@ -82,13 +82,9 @@ public class DefaultWorldpayFollowOnRefundCommandTest {
         when(worldpayPaymentTransactionServiceMock.getPaymentTransactionFromCode(WORLDPAY_ORDER_CODE)).thenReturn(paymentTransactionModelMock);
 
         when(worldpayOrderServiceMock.createAmount(currency, amount.doubleValue())).thenReturn(amountMock);
-        when(refundServiceResponseMock.getAmount()).thenReturn(amountMock);
-        when(amountMock.getValue()).thenReturn(TOTAL_VALUE);
-        when(amountMock.getCurrencyCode()).thenReturn(GBP);
         when(merchantInfoMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(worldpayRefundServiceConverterMock.convert(refundServiceResponseMock)).thenReturn(refundResultMock);
 
-        when(followOnRefundRequestMock.getRequestToken()).thenReturn(MERCHANT_CODE);
         when(followOnRefundRequestMock.getRequestId()).thenReturn(WORLDPAY_ORDER_CODE);
         when(followOnRefundRequestMock.getTotalAmount()).thenReturn(amount);
         when(followOnRefundRequestMock.getCurrency()).thenReturn(currency);

@@ -1,0 +1,18 @@
+@import "../../../../assets/styles/mixins.scss";
+
+%cx-guest-register-form, y-worldpay-order-guest-register-form {
+  .register-guest {
+    padding: 1.5rem 1rem;
+    display: flex;
+    justify-content: center;
+    background-color: var(--cx-color-background);
+
+    @include media-breakpoint-up(lg) {
+      margin: 0 0 2em;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+  }
+}

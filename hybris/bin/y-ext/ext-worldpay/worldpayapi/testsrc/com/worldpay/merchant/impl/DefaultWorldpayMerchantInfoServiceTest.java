@@ -53,8 +53,6 @@ public class DefaultWorldpayMerchantInfoServiceTest {
 
     @Before
     public void setUp() {
-        when(worldpayMerchantConfigDataMock.getCode()).thenReturn(KNOWN_MERCHANT_CODE);
-        when(anotherWorldpayMerchantConfigDataMock.getCode()).thenReturn(MERCHANT_CODE);
         when(worldpayMerchantConfigurationServiceMock.getAllSystemActiveSiteMerchantConfigurations()).thenReturn(Set.of(worldpayMerchantConfigurationMock));
     }
 
@@ -133,7 +131,6 @@ public class DefaultWorldpayMerchantInfoServiceTest {
     public void createMerchantInfo_shouldCreateMerchantInfoNotUsingMacValidation() {
         when(worldpayMerchantConfigurationMock.getCode()).thenReturn(MERCHANT_CODE);
         when(worldpayMerchantConfigurationMock.getPassword()).thenReturn(MERCHANT_PASSWORD);
-        when(worldpayMerchantConfigurationMock.getMacSecret()).thenReturn(MAC_SECRET);
         when(worldpayMerchantConfigurationMock.getMacValidation()).thenReturn(false);
 
         final MerchantInfo result = testObj.createMerchantInfo(worldpayMerchantConfigurationMock);

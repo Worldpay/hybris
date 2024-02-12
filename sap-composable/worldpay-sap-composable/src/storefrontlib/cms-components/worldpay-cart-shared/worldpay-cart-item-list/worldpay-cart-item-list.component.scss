@@ -1,0 +1,5 @@
+@import "../../../../assets/styles/mixins";
+
+y-worldpay-cart-item-list {
+  @extend %cx-cart-item-list !optional
+}

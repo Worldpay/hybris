@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.ui.ModelMap;
@@ -28,8 +27,6 @@ import static com.worldpay.worldpayresponsemock.controllers.WorldpayResponseMock
 import static com.worldpay.worldpayresponsemock.controllers.pages.WorldpayOrderModificationMockController.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -105,11 +102,11 @@ public class WorldpayOrderModificationMockControllerTest {
 
     @Before
     public void setUp() throws WorldpayException {
-        Whitebox.setInternalState(testObj, FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
-        Whitebox.setInternalState(testObj, FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
-        Whitebox.setInternalState(testObj, POSSIBLE_EVENTS, possibleEventsMock);
-        Whitebox.setInternalState(testObj,GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessagesMock);
-        Whitebox.setInternalState(testObj,GUARANTEED_PAYMENTS_REASON_CODES, guaranteedPaymentsTriggeredRulesMock);
+        ReflectionTestUtils.setField(testObj,GUARANTEED_PAYMENTS_MESSAGES, guaranteedPaymentsMessagesMock);
+        ReflectionTestUtils.setField(testObj,GUARANTEED_PAYMENTS_REASON_CODES, guaranteedPaymentsTriggeredRulesMock);
+        ReflectionTestUtils.setField(testObj, FRAUD_SIGHT_MESSAGES, fraudSightMessagesMock);
+        ReflectionTestUtils.setField(testObj, FRAUD_SIGHT_REASON_CODES, fraudSightReasonCodesMock);
+        ReflectionTestUtils.setField(testObj, POSSIBLE_EVENTS, possibleEventsMock);
 
         when(responseFormMock.getResponseCode()).thenReturn(RESPONSE_CODE);
         when(iso8583ResponseCodesMock.get(RESPONSE_CODE)).thenReturn(RESPONSE_DESCRIPTION);

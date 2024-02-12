@@ -24,6 +24,8 @@ import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CardTypeData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
+import de.hybris.platform.commerceservices.constants.GeneratedCommerceServicesConstants;
+import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +51,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Matchers.*;
+
 import static org.mockito.Mockito.when;
 
 @UnitTest
@@ -122,8 +125,6 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     public void setUp() {
         when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
         when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
-        when(cartFacadeMock.getDeliveryCountries()).thenReturn(deliveryCountries);
-        when(pageTitleResolverMock.resolveContentPageTitle(anyString())).thenReturn(RESOLVED_PAGE_TITLE);
         when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_GROUP);
         when(checkoutFlowGroupMapMock.get(CHECKOUT_GROUP)).thenReturn(checkoutGroupMock);
         when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
@@ -133,7 +134,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldPopulateModelWithBillingCountries() {
-        when(checkoutFacadeMock.getBillingCountries()).thenReturn(billingCountries);
+        when(checkoutFacadeMock.getCountries(CountryType.BILLING)).thenReturn(billingCountries);
 
         final Collection<CountryData> result = testObj.getBillingCountries();
 
@@ -204,7 +205,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     @Test
     public void shouldAddCmsPageToModel() throws CommerceCartModificationException, CMSItemNotFoundException {
-        when(cmsPageServiceMock.getPageForLabelOrId(eq(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL), any(PagePreviewCriteriaData.class))).thenReturn(contentPageModelMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(eq(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL), any())).thenReturn(contentPageModelMock);
 
         testObj.enterStep(model, redirectAttributes);
 

@@ -19,8 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -77,7 +77,7 @@ public class DefaultWorldpayKlarnaServiceTest {
 
     @Before
     public void setUp() throws WorldpayConfigurationException {
-        Whitebox.setInternalState(testObj, "klarnaPayments", klarnaPaymentMethods);
+        ReflectionTestUtils.setField(testObj, "klarnaPayments", klarnaPaymentMethods);
         when(worldpayUrlServiceMock.getFullTermsUrl()).thenReturn(TERMS_URL);
     }
 
@@ -149,7 +149,6 @@ public class DefaultWorldpayKlarnaServiceTest {
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
         when(cartModelMock.getDeliveryMode().getName()).thenReturn(DELIVERY_MODE_NAME);
         when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 9.66D, "GBP")));
-        when(cartModelMock.getTotalDiscounts()).thenReturn(10D);
         when(cartModelMock.getGlobalDiscountValues()).thenReturn(singletonList(new DiscountValue("dv", 10D, true, 10D, "GBP")));
 
         when(cartEntryModelMock.getOrder().getCurrency().getDigits()).thenReturn(2);
@@ -163,7 +162,7 @@ public class DefaultWorldpayKlarnaServiceTest {
         when(commonI18NServiceMock.roundCurrency(anyDouble(), anyInt())).thenAnswer(invocationOnMock -> {
             final Double amount = (Double) invocationOnMock.getArguments()[0];
             final Integer digits = (Integer) invocationOnMock.getArguments()[1];
-            return BigDecimal.valueOf(amount).movePointRight(digits).setScale(digits, RoundingMode.HALF_UP);
+            return BigDecimal.valueOf(amount).movePointRight(digits).setScale(digits, RoundingMode.HALF_UP).doubleValue();
         });
         final OrderLines result = testObj.createOrderLines(cartModelMock);
 
@@ -202,7 +201,6 @@ public class DefaultWorldpayKlarnaServiceTest {
         when(cartModelMock.getCurrency().getDigits()).thenReturn(2);
         when(cartModelMock.getDeliveryMode().getName()).thenReturn(DELIVERY_MODE_NAME);
         when(cartModelMock.getTotalTaxValues()).thenReturn(singletonList(new TaxValue(UK_VAT_FULL, 20, false, 9.66D, "GBP")));
-        when(cartModelMock.getTotalDiscounts()).thenReturn(10D);
         when(cartModelMock.getGlobalDiscountValues()).thenReturn(Arrays.asList(
             new DiscountValue("dv", 10D, true, 10D, "GBP"),
             new DiscountValue("dv2", 10D, false, "GBP"))
@@ -304,7 +302,7 @@ public class DefaultWorldpayKlarnaServiceTest {
         when(commonI18NServiceMock.roundCurrency(anyDouble(), anyInt())).thenAnswer(invocationOnMock -> {
             final Double amount = (Double) invocationOnMock.getArguments()[0];
             final Integer digits = (Integer) invocationOnMock.getArguments()[1];
-            return BigDecimal.valueOf(amount).movePointRight(digits).setScale(digits, RoundingMode.HALF_UP);
+            return BigDecimal.valueOf(amount).movePointRight(digits).setScale(digits, RoundingMode.HALF_UP).doubleValue();
         });
         final OrderLines result = testObj.createOrderLines(cartModelMock);
 

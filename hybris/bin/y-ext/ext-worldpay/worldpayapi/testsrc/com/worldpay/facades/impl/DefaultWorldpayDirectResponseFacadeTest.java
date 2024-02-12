@@ -111,7 +111,6 @@ public class DefaultWorldpayDirectResponseFacadeTest {
     @Test
     public void retrieveAttributesWhenResponseDataIs3dSecureLegacyFlow() throws WorldpayConfigurationException {
         when(worldpayDirectResponseServiceMock.is3DSecureLegacyFlow(directResponseDataMock)).thenReturn(true);
-        when(worldpayAddonEndpointServiceMock.getAutoSubmit3DSecure()).thenReturn(AUTO_SUBMIT_3DS_LEGACY);
         when(directResponseDataMock.getIssuerURL()).thenReturn(ISSUER_URL_VALUE);
         when(directResponseDataMock.getPaRequest()).thenReturn(PA_REQUEST_VALUE);
         when(acceleratorCheckoutFacadeMock.getCheckoutCart().getWorldpayOrderCode()).thenReturn(MERCHANT_VALUE);

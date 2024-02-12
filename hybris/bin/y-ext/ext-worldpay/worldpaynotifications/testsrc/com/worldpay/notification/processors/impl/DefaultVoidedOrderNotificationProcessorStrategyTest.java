@@ -14,8 +14,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -58,7 +58,7 @@ public class DefaultVoidedOrderNotificationProcessorStrategyTest {
 
     @Before
     public void setUp() {
-        Whitebox.setInternalState(testObj, "transactionTemplate", transactionOperationsMock);
+        ReflectionTestUtils.setField(testObj, "transactionTemplate", transactionOperationsMock);
     }
 
     @Test

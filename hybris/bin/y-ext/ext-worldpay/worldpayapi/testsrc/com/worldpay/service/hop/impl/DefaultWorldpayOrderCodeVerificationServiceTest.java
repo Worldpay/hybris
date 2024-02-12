@@ -17,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,7 @@ public class DefaultWorldpayOrderCodeVerificationServiceTest {
 
     @Test
     public void isValidEncryptedOrderId_whenErrorOccursWhileProcessingEncryption_shouldReturnFalseAndNotSaveOrder() throws GeneralSecurityException {
-        doThrow(Exception.class).when(testObj).getSecretKey();
+        doThrow(InvalidKeySpecException.class).when(testObj).getSecretKey();
 
         final boolean result = testObj.isValidEncryptedOrderCode(ENCRYPTED_ORDER_ID);
 

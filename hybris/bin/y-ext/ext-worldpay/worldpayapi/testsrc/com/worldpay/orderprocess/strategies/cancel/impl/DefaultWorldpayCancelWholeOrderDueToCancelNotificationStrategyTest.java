@@ -47,10 +47,8 @@ public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategyTest 
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(orderModelMock.getStatus()).thenReturn(OrderStatus.PAYMENT_CAPTURED);
         when(orderModelMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(orderModelMock.getPaymentTransactions()).thenReturn(List.of(paymentTransactionModelMock));
         when(worldpayPaymentTransactionServiceMock.createNotPendingCancelOrderTransactionEntry(paymentTransactionModelMock))
             .thenReturn(paymentTransactionEntryMock);
-        when(paymentTransactionModelMock.getEntries()).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -67,8 +65,6 @@ public class DefaultWorldpayCancelWholeOrderDueToCancelNotificationStrategyTest 
 
     @Test
     public void cancelOrder_WhenNoPaymentTransactionFound_ShouldSetTheOrderStatusToProcessingError() {
-        when(orderModelMock.getPaymentTransactions()).thenReturn(Collections.emptyList());
-
         testObj.cancelOrder(orderProcessModelMock);
 
         verify(orderModelMock).setStatus(OrderStatus.PROCESSING_ERROR);
