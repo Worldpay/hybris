@@ -1,11 +1,11 @@
 #Ant properties
-#Fri Dec 22 11:38:41 UTC 2023
+#Thu Feb 22 10:53:54 UTC 2024
 version.api=2205
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpaynotifications
 description=worldpaynotifications
-builddate=20231222 1138
+builddate=20240222 1053
 releasedate=20220930 1705
 version=2205.4
 module.name=platform-module

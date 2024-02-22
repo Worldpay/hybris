@@ -14,6 +14,7 @@
         <property name="acceptedTermsAndConditions" type="java.lang.Boolean"/>
         <property name="dateOfBirth" type="java.lang.String" />
         <property name="deviceSession" type="java.lang.String"/>
+        <property name="browserInfo" type="com.worldpay.dto.BrowserInfoWsDTO"/>
     </bean>
 
     <bean class="com.worldpay.dto.order.PlaceOrderResponseWsDTO">
@@ -100,6 +101,16 @@
 
     <bean class="de.hybris.platform.commercewebservicescommons.dto.order.AbstractOrderWsDTO">
         <property name="worldpayAPMPaymentInfo" type="com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO"/>
+    </bean>
+
+    <bean class="com.worldpay.dto.BrowserInfoWsDTO">
+        <property name="javaEnabled" type="Boolean"/>
+        <property name="javascriptEnabled" type="Boolean"/>
+        <property name="language" type="String"/>
+        <property name="colorDepth" type="Integer"/>
+        <property name="screenHeight" type="Integer"/>
+        <property name="screenWidth" type="Integer"/>
+        <property name="timeZone" type="String"/>
     </bean>
 
 </beans>
