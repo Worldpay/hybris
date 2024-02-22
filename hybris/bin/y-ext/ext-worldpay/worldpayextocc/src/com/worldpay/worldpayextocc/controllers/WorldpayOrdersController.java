@@ -3,6 +3,7 @@ package com.worldpay.worldpayextocc.controllers;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facade.OCCWorldpayOrderFacade;
@@ -123,14 +124,15 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     public PlaceOrderResponseWsDTO placeOrder(final HttpServletRequest request,
                                               @RequestParam final String cartId,
                                               @RequestParam final String securityCode,
-                                              @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields)
+                                              @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields,
+                                              @RequestBody final BrowserInfoWsDTO browserInfoWsDTO)
             throws InvalidCartException, NoCheckoutCartException, WorldpayException {
 
         cartLoaderStrategy.loadCart(cartId);
         validateCartForPlaceOrder();
 
         //authorize and placeorder
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, securityCode);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, securityCode, browserInfoWsDTO);
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.authorise(worldpayAdditionalInfoData);
 
         return handleDirectResponse(directResponseData, fields);
@@ -169,7 +171,8 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
                                                    @RequestParam final String cartId,
                                                    @RequestParam final String paRes,
                                                    @RequestParam final String merchantData,
-                                                   @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields) throws ThreeDSecureException, NoCheckoutCartException, InvalidCartException {
+                                                   @RequestParam(defaultValue = FieldSetLevelHelper.DEFAULT_LEVEL) final String fields,
+                                                   @RequestBody BrowserInfoWsDTO browserInfo) throws ThreeDSecureException, NoCheckoutCartException, InvalidCartException {
 
         cartLoaderStrategy.loadCart(cartId);
         validateCartForPlaceOrder(merchantData);
@@ -177,7 +180,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         TransactionStatus transactionStatus = ERROR;
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.authorise3DSecure(paRes,
-                    createWorldpayAdditionalInfo(request, null));
+                    createWorldpayAdditionalInfo(request, null, browserInfo));
             transactionStatus = responseData.getTransactionStatus();
             if (AUTHORISED.equals(transactionStatus)) {
                 return dataMapper.map(responseData.getOrderData(), OrderWsDTO.class, fields);

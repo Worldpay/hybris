@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.worldpay.service.model.payment.PaymentType.IDEAL;
 import static com.worldpay.service.model.payment.PaymentType.UATP;
 import static de.hybris.platform.core.enums.CreditCardType.VISA;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,6 +97,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String VERSION = "EC_v1";
     private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
     private static final String BIN = "bin";
+    private static final String APM_NAME = "apmName";
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -885,6 +887,30 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         testObj.setPaymentInfoOnCart(cartModelMock, null);
 
         verifyNoInteractions(commerceCheckoutServiceMock);
+    }
+
+    @Test
+    public void createAPMPaymentInfo_shouldCreatePaymentInfoModel() {
+        when(cartModelMock.getUser()).thenReturn(userModelMock);
+        when(modelServiceMock.create(WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
+
+        final PaymentInfoModel result = testObj.createAPMPaymentInfo(cartModelMock, APM_CODE, APM_NAME);
+
+        verify(modelServiceMock).save(cartModelMock);
+        verify(modelServiceMock).save(result);
+    }
+
+    @Test
+    public void createAPMPaymentInfo_shouldCreatePaymentInfoModelAndFillBankShopperBank_whenIsIdealAPM() {
+        when(cartModelMock.getUser()).thenReturn(userModelMock);
+        when(modelServiceMock.create(WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
+
+        final PaymentInfoModel result = testObj.createAPMPaymentInfo(cartModelMock, IDEAL.getMethodCode(), APM_NAME);
+
+
+        verify(modelServiceMock).save(cartModelMock);
+        verify(modelServiceMock).save(result);
+        verify(cartModelMock).setShopperBankCode(APM_NAME);
     }
 
     private PaymentInfoModel createPaymentInfo() {
