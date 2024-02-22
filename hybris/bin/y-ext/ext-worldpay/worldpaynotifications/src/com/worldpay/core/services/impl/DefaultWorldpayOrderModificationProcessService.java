@@ -94,14 +94,14 @@ public class DefaultWorldpayOrderModificationProcessService implements WorldpayO
         final Optional<PaymentTransactionModel> paymentTransactionModel = getPaymentTransactionFromCode(worldpayOrderCode);
         if (paymentTransactionModel.isPresent()) {
             final PaymentTransactionModel paymentTransaction = paymentTransactionModel.get();
-            if (AUTHORIZATION.equals(paymentTransactionType)) {
-                worldpayPaymentTransactionTypeStrategiesMap.get(AUTHORIZATION).processModificationMessage((OrderModel) paymentTransaction.getOrder(), orderModificationModel);
-            }
             final AbstractOrderModel abstractOrderModel = paymentTransaction.getOrder();
             if (abstractOrderModel instanceof OrderModel) {
+                if (AUTHORIZATION.equals(paymentTransactionType)) {
+                    worldpayPaymentTransactionTypeStrategiesMap.get(AUTHORIZATION).processModificationMessage((OrderModel) paymentTransaction.getOrder(), orderModificationModel);
+                }
                 success = processOrderModificationNotification(paymentTransactionType, orderModificationModel, worldpayOrderCode, (OrderModel) abstractOrderModel);
-            } else if (abstractOrderModel instanceof CartModel) {
-                LOG.warn(format("Worldpay Order Code [{0}] related to a Cart. Skipping processing modification message.", worldpayOrderCode));
+            } else {
+                LOG.warn(()-> format("Worldpay Order Code [{0}] related to a Cart. Skipping processing modification message.", worldpayOrderCode));
             }
         } else {
             final Optional<CartModel> cart = getCartByWorldpayOrderCode(worldpayOrderCode);
@@ -116,13 +116,16 @@ public class DefaultWorldpayOrderModificationProcessService implements WorldpayO
 
     protected boolean processOrderModificationNotification(final PaymentTransactionType paymentTransactionType, final WorldpayOrderModificationModel orderModificationModel,
                                                            final String worldpayOrderCode, final OrderModel abstractOrderModel) {
+
+        LOG.info(()-> format("Found order for Worldpay Order Code [{0}]. Processing modification message.", worldpayOrderCode));
+
         boolean success = true;
-        LOG.info(format("Found order for Worldpay Order Code [{0}]. Processing modification message.", worldpayOrderCode));
+
         try {
             if (worldpayPaymentTransactionService.isPreviousTransactionCompleted(worldpayOrderCode, paymentTransactionType, abstractOrderModel)) {
                 processMessage(paymentTransactionType, orderModificationModel, abstractOrderModel);
             } else {
-                LOG.info(format("The previous transaction for [{0}] is still pending in worldpayOrder [{1}]", paymentTransactionType, worldpayOrderCode));
+                LOG.info(()-> format("The previous transaction for [{0}] is still pending in worldpayOrder [{1}]", paymentTransactionType, worldpayOrderCode));
             }
         } catch (final Exception exception) {
             setDefectiveNotificationAndReason(orderModificationModel, PROCESSING_ERROR, exception, true);

@@ -7,17 +7,14 @@ import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.core.services.impl.DefaultWorldpayOrderModificationProcessService;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.WorldpayOrderNotificationHandler;
-import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.strategies.WorldpayPlaceOrderFromNotificationStrategy;
 import com.worldpay.strategies.paymenttransaction.WorldpayPaymentTransactionTypeStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.core.enums.OrderStatus;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
-import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
@@ -30,10 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Set;
-
 import static com.worldpay.worldpaynotifications.enums.DefectiveReason.NO_WORLDPAY_CODE_MATCHED;
-import static de.hybris.platform.core.enums.OrderStatus.CANCELLED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertTrue;
@@ -43,10 +37,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayOrderModificationProcessServiceTest {
 
-    private static final String ORDER_CODE = "orderCode";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String SERIALIZED_JSON_STRING = "Serialized json string";
-    private static final String TOKEN_REPLY_AUTHENTICATED_SHOPPER_ID = "tokenReplyAuthenticatedShopperId";
     private static final String PAYMENT_TRANSACTION_NOT_FOUND = "payment transaction not found";
 
     @InjectMocks
@@ -75,12 +67,6 @@ public class DefaultWorldpayOrderModificationProcessServiceTest {
     private CartModel cartModelMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderNotificationMessage orderNotificationMessageMock;
-    @Mock
-    private Set<OrderStatus> nonTriggeringOrderStatusesMock;
-    @Mock
-    private TokenReply tokenReplyMock;
-    @Mock
-    private CustomerModel customerModelMock;
 
     @Before
     public void setUp() {
@@ -225,5 +211,17 @@ public class DefaultWorldpayOrderModificationProcessServiceTest {
         testObj.processOrderModificationMessages(CANCEL);
 
         verify(worldpayOrderNotificationHandlerMock).handleNotificationBusinessProcess(CANCEL, worldpayOrderModificationMock, orderModelMock, orderNotificationMessageMock);
+    }
+
+    @Test
+    public void processOrderModificationMessages_WhenWorldpayOrderCodeRelatesToCartWithAuthorizationTransactionType_ShouldDoNothing() throws WorldpayConfigurationException {
+        when(paymentTransactionModelMock.getOrder()).thenReturn(cartModelMock);
+
+        final boolean result = testObj.processOrderModificationMessages(AUTHORIZATION);
+
+        assertTrue(result);
+        verify(worldpayOrderNotificationHandlerMock, never()).handleNotificationBusinessProcess(AUTHORIZATION, worldpayOrderModificationMock, orderModelMock, orderNotificationMessageMock);
+        verify(worldpayOrderModificationMock, never()).setProcessed(Boolean.TRUE);
+        verify(worldpayOrderModificationMock, never()).setDefective(any(Boolean.class));
     }
 }

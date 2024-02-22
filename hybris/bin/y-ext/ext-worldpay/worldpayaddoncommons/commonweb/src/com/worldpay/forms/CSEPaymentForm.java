@@ -20,6 +20,7 @@ public class CSEPaymentForm {
     private Date dateOfBirth;
     private String deviceSession;
     private boolean dobRequired;
+    private BrowserInfo browserInfo;
 
     public String getCseToken() {
         return cseToken;
@@ -123,5 +124,13 @@ public class CSEPaymentForm {
 
     public void setDobRequired(final boolean dobRequired) {
         this.dobRequired = dobRequired;
+    }
+
+    public BrowserInfo getBrowserInfo() {
+        return browserInfo;
+    }
+
+    public void setBrowserInfo(BrowserInfo browserInfo) {
+        this.browserInfo = browserInfo;
     }
 }

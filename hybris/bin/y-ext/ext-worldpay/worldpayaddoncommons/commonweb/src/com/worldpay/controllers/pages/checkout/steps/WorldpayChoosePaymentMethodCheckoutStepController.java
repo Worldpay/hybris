@@ -3,8 +3,10 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
+import com.worldpay.forms.BrowserInfo;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.forms.validation.PaymentDetailsFormValidator;
+import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.PreValidateCheckoutStep;
@@ -376,5 +378,15 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
             populateAddressForm(countryIsoCode, wpPaymentDetailsForm);
         }
         return worldpayAddonEndpointService.getBillingAddressForm();
+    }
+    
+    protected void setBrowserInfo(final WorldpayAdditionalInfoData worldpayAdditionalInfo, final BrowserInfo browserInfo) {
+        worldpayAdditionalInfo.setJavaEnabled(browserInfo.getJavaEnabled());
+        worldpayAdditionalInfo.setJavascriptEnabled(browserInfo.getJavascriptEnabled());
+        worldpayAdditionalInfo.setLanguage(browserInfo.getLanguage());
+        worldpayAdditionalInfo.setTimeZone(browserInfo.getTimeZone());
+        worldpayAdditionalInfo.setColorDepth(browserInfo.getColorDepth());
+        worldpayAdditionalInfo.setScreenHeight(browserInfo.getScreenHeight());
+        worldpayAdditionalInfo.setScreenWidth(browserInfo.getScreenWidth());
     }
 }

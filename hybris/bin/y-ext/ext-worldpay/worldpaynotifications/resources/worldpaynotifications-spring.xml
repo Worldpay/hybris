@@ -112,7 +112,7 @@
     </bean>
 
     <bean id="orderModificationProcessorJobPerformable" class="com.worldpay.cronjob.OrderModificationProcessorJobPerformable" parent="abstractJobPerformable">
-        <constructor-arg name="worldpayOrderModificationProcessService" ref="worldpayOrderModificationProcessService"/>
+        <constructor-arg name="worldpayOrderModificationProcessService" ref="orderModificationProcessStrategy"/>
     </bean>
     <bean id="orderModificationUnprocessedModificationsNotifierJobPerformable" class="com.worldpay.cronjob.OrderModificationNotifierJobPerformable" parent="abstractJobPerformable">
         <property name="worldpayOrderModificationNotifierStrategy" ref="orderModificationNotifierStrategy"/>
