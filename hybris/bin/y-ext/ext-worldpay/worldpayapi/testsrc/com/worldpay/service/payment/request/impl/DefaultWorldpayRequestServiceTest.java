@@ -68,6 +68,11 @@ public class DefaultWorldpayRequestServiceTest {
     private static final String EXPIRY_YEAR = "2021";
     private static final String EXPIRY_MONTH = "2";
     private static final String CARD_HOLDER_NAME = "Mr J S";
+    private static final String TIME_ZONE = "timeZone";
+    private static final String LANGUAGE = "language";
+    private static final int SCREEN_HEIGHT = 1080;
+    private static final int SCREEN_WIDTH = 1200;
+    private static final int COLOR_DEPTH = 24;
 
     @InjectMocks
     private DefaultWorldpayRequestService testObj;
@@ -162,12 +167,26 @@ public class DefaultWorldpayRequestServiceTest {
         when(worldpayAdditionalInfoDataMock.getDeviceType()).thenReturn(DEVICE_TYPE);
         when(worldpayAdditionalInfoDataMock.getAcceptHeader()).thenReturn(ACCEPT_HEADER);
         when(worldpayAdditionalInfoDataMock.getUserAgentHeader()).thenReturn(USER_AGENT_HEADER);
+        when(worldpayAdditionalInfoDataMock.getJavascriptEnabled()).thenReturn(Boolean.TRUE);
+        when(worldpayAdditionalInfoDataMock.getJavaEnabled()).thenReturn(Boolean.TRUE);
+        when(worldpayAdditionalInfoDataMock.getScreenHeight()).thenReturn(SCREEN_HEIGHT);
+        when(worldpayAdditionalInfoDataMock.getScreenWidth()).thenReturn(SCREEN_WIDTH);
+        when(worldpayAdditionalInfoDataMock.getColorDepth()).thenReturn(COLOR_DEPTH);
+        when(worldpayAdditionalInfoDataMock.getTimeZone()).thenReturn(TIME_ZONE);
+        when(worldpayAdditionalInfoDataMock.getLanguage()).thenReturn(LANGUAGE);
 
         final Browser result = testObj.createBrowser(worldpayAdditionalInfoDataMock);
 
         assertEquals(DEVICE_TYPE, result.getDeviceType());
         assertEquals(ACCEPT_HEADER, result.getAcceptHeader());
         assertEquals(USER_AGENT_HEADER, result.getUserAgentHeader());
+        assertTrue(result.getJavaEnabled());
+        assertTrue(result.getJavascriptEnabled());
+        assertEquals(TIME_ZONE, result.getTimeZone());
+        assertEquals(SCREEN_HEIGHT, result.getScreenHeight().intValue());
+        assertEquals(SCREEN_WIDTH, result.getScreenWidth().intValue());
+        assertEquals(LANGUAGE, result.getLanguage());
+        assertEquals(COLOR_DEPTH, result.getColorDepth().intValue());
     }
 
 

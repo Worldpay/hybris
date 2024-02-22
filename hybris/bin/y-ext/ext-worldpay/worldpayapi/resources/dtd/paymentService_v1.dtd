@@ -972,7 +972,7 @@
     <!ELEMENT shippingInfo EMPTY>
     <!ATTLIST shippingInfo trackingId CDATA #REQUIRED>
 
-    <!ELEMENT browser (acceptHeader?, userAgentHeader?, httpAcceptLanguage?, httpReferer?, activeHeaders?, timeZone?, resolution?, browserLanguage?, macAddress?)>
+    <!ELEMENT browser (acceptHeader?, userAgentHeader?, httpAcceptLanguage?, httpReferer?, activeHeaders?, timeZone?, resolution?, browserLanguage?, macAddress?, browserJavaEnabled?, browserJavaScriptEnabled?, browserColourDepth?, browserScreenHeight?, browserScreenWidth?)>
     <!-- 0=DESKTOP, 1=MOBILE, 2=CONSOLE, 3=TABLET -->
     <!ATTLIST browser deviceType (0|1|2|3) #IMPLIED>
     <!ATTLIST browser deviceOS (ios|android|windows|linux|osx|other) #IMPLIED>
@@ -988,6 +988,11 @@
     <!ELEMENT fontAttr (#PCDATA)>
     <!ELEMENT bodyAttr (#PCDATA)>
     <!ELEMENT macAddress (#PCDATA)>
+	<!ELEMENT browserJavaEnabled (#PCDATA)>
+	<!ELEMENT browserJavaScriptEnabled (#PCDATA)>
+	<!ELEMENT browserColourDepth (#PCDATA)>
+	<!ELEMENT browserScreenHeight (#PCDATA)>
+	<!ELEMENT browserScreenWidth (#PCDATA)>
 
     <!--
     An info3DSecure element contains the Verified by Visa payment authentication

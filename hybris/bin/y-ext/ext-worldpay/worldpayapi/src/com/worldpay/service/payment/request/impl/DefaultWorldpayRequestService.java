@@ -79,6 +79,13 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
         browser.setAcceptHeader(worldpayAdditionalInfo.getAcceptHeader());
         browser.setUserAgentHeader(worldpayAdditionalInfo.getUserAgentHeader());
         browser.setDeviceType(worldpayAdditionalInfo.getDeviceType());
+        browser.setJavaEnabled(worldpayAdditionalInfo.getJavaEnabled());
+        browser.setJavascriptEnabled(worldpayAdditionalInfo.getJavascriptEnabled());
+        browser.setLanguage(worldpayAdditionalInfo.getLanguage());
+        browser.setTimeZone(worldpayAdditionalInfo.getTimeZone());
+        browser.setColorDepth(worldpayAdditionalInfo.getColorDepth());
+        browser.setScreenHeight(worldpayAdditionalInfo.getScreenHeight());
+        browser.setScreenWidth(worldpayAdditionalInfo.getScreenWidth());
         return browser;
     }
 
