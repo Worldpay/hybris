@@ -147,9 +147,34 @@ ACC.worldpayCSE = {
         })
     },
 
+    appendFieldToForm( form) {
+        const browserFields = {
+            'browserInfo.JavaEnabled': navigator.javaEnabled(),
+            'browserInfo.Language': navigator.language || navigator.userLanguage,
+            'browserInfo.ColorDepth': screen.colorDepth,
+            'browserInfo.ScreenHeight': screen.height,
+            'browserInfo.ScreenWidth': screen.width,
+            'browserInfo.TimeZone': new Date().getTimezoneOffset().toString(),
+            'browserInfo.UserAgent': navigator.userAgent,
+            'browserInfo.JavascriptEnabled': true
+        }
+
+        Object.entries(browserFields).forEach(([key, value]) => {
+            $('<input>').attr({
+                type: 'hidden',
+                name: key,
+                value: value
+            }).appendTo(form);
+        });
+    },
+
     submitCSEFormAjax: function (selector) {
         var $form = $(selector);
         var xhr = new XMLHttpRequest();
+        if($('.js-credit-card-type').length > 0) {
+            ACC.worldpayCSE.appendFieldToForm($form[0]);
+        }
+
         $.ajax({
             type: 'POST',
             url: $form.attr('action'),

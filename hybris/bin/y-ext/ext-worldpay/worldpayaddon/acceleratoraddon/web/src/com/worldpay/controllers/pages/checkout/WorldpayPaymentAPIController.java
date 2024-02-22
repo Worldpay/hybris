@@ -1,6 +1,7 @@
 package com.worldpay.controllers.pages.checkout;
 
 import com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController;
+import com.worldpay.data.Browser;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
@@ -112,7 +113,7 @@ public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodChe
             return createDirectResponseDataWithError();
         }
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSEAdditionalAuthInfo(csePaymentForm);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm.getCvc());
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, csePaymentForm);
         try {
             worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
             return worldpayDirectOrderFacade.authorise(worldpayAdditionalInfoData);
@@ -189,9 +190,14 @@ public class WorldpayPaymentAPIController extends WorldpayChoosePaymentMethodChe
         }
     }
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc) {
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final CSEPaymentForm paymentForm) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        worldpayAdditionalInfo.setSecurityCode(cvc);
+        worldpayAdditionalInfo.setSecurityCode(paymentForm.getCvc());
+
+        if (paymentForm.getBrowserInfo() != null) {
+            setBrowserInfo(worldpayAdditionalInfo, paymentForm.getBrowserInfo());
+        }
+
         return worldpayAdditionalInfo;
     }
 }
