@@ -3,6 +3,7 @@ package com.worldpay.worldpayextocc.controllers;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO;
 import com.worldpay.dto.payment.PaymentDataWsDTO;
@@ -226,7 +227,8 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         validatePayment(paymentDetails);
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, cseAdditionalAuthInfo, cartId);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(
+                request, cseAdditionalAuthInfo, cartId, paymentDetails.getBrowserInfo());
         worldpayAdditionalInfoData.setDeviceSession(paymentDetails.getDeviceSession());
         Optional.ofNullable(paymentDetails.getDateOfBirth())
                 .map(this::convertStringToDate)
@@ -351,7 +353,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         validatePayment(paymentDetails);
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request, null);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request);
         try {
             saveBillingAddress(paymentDetails.getBillingAddress(), fields);
 

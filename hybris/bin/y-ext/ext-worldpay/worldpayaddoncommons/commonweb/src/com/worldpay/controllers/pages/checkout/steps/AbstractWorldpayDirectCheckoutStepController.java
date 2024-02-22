@@ -2,15 +2,21 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.facades.WorldpayDirectResponseFacade;
+import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
+import com.worldpay.forms.CSEPaymentForm;
+import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.ui.Model;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +39,8 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
     protected WorldpayDirectResponseFacade worldpayDirectResponseFacade;
     @Resource
     protected WorldpayDDCFacade worldpayDDCFacade;
+    @Resource
+    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     public String handleDirectResponse(final Model model, final DirectResponseData directResponseData, final HttpServletResponse response) throws CMSItemNotFoundException, WorldpayConfigurationException {
         if (Boolean.TRUE.equals(worldpayDirectResponseFacade.isAuthorised(directResponseData))) {
@@ -101,5 +109,21 @@ public abstract class AbstractWorldpayDirectCheckoutStepController extends World
             return false;
         }
         return true;
+    }
+
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final CSEPaymentForm csePaymentForm, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
+        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
+        worldpayAdditionalInfo.setSecurityCode(StringUtils.isNotBlank(csePaymentForm.getCvc()) ? csePaymentForm.getCvc() :csePaymentForm.getSecurityCode());
+        worldpayAdditionalInfo.setDateOfBirth(csePaymentForm.getDateOfBirth());
+        worldpayAdditionalInfo.setDeviceSession(csePaymentForm.getDeviceSession());
+
+        if (csePaymentForm.getBrowserInfo() != null) {
+            setBrowserInfo(worldpayAdditionalInfo, csePaymentForm.getBrowserInfo());
+        }
+
+        if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
+            worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
+        }
+        return worldpayAdditionalInfo;
     }
 }

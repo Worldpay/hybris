@@ -3640,6 +3640,11 @@
         <xs:element name="resolution" type="xs:string" minOccurs="0"/>
         <xs:element name="browserLanguage" type="xs:string" minOccurs="0"/>
         <xs:element name="macAddress" type="xs:string" minOccurs="0"/>
+        <xs:element name="browserJavaEnabled" type="xs:string" minOccurs="0"/>
+        <xs:element name="browserJavaScriptEnabled" type="xs:string" minOccurs="0"/>
+        <xs:element name="browserColourDepth" type="xs:string" minOccurs="0"/>
+        <xs:element name="browserScreenHeight" type="xs:string" minOccurs="0"/>
+        <xs:element name="browserScreenWidth" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="deviceType" type="xs:string"/>
       <xs:attribute name="deviceOS" type="xs:string"/>

@@ -28,14 +28,16 @@
                             <div class="address payment-info-summary">
                                 <c:choose>
                                     <c:when test="${cartData.paymentInfo != null}">
-                                        <strong>
+                                        <div class="js-credit-card-type">
+                                            <strong>
                                                 ${fn:escapeXml(cartData.paymentInfo.accountHolderName)}
-                                        </strong>
-                                        <br>${fn:escapeXml(cartData.paymentInfo.cardTypeData.name)}, ${fn:escapeXml(cartData.paymentInfo.cardNumber)}
-                                        <br>
-                                        <c:if test="${cartData.paymentInfo.expiryMonth lt 10}">0</c:if>
-                                        ${fn:escapeXml(cartData.paymentInfo.expiryMonth)}&nbsp;/&nbsp;${fn:escapeXml(cartData.paymentInfo.expiryYear)}
-                                        <br>
+                                            </strong>
+                                            <br>${fn:escapeXml(cartData.paymentInfo.cardTypeData.name)}, ${fn:escapeXml(cartData.paymentInfo.cardNumber)}
+                                            <br>
+                                            <c:if test="${cartData.paymentInfo.expiryMonth lt 10}">0</c:if>
+                                            ${fn:escapeXml(cartData.paymentInfo.expiryMonth)}&nbsp;/&nbsp;${fn:escapeXml(cartData.paymentInfo.expiryYear)}
+                                            <br>
+                                        </div>
                                     </c:when>
                                     <c:otherwise>
                                         <strong>

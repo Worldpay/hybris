@@ -1,7 +1,9 @@
 package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.data.Additional3DS2Info;
+import com.worldpay.data.Browser;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.dto.order.ThreeDSecureInfoWsDTO;
 import com.worldpay.exception.WorldpayConfigurationException;
@@ -80,16 +82,31 @@ public class AbstractWorldpayController {
     }
 
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc) {
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc,
+                                                                      final BrowserInfoWsDTO browserInfo) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSessionId(getSessionId(request));
         worldpayAdditionalInfo.setSecurityCode(cvc);
-        worldpayAdditionalInfo.setUserAgentHeader(request.getHeader(USER_AGENT));
+
+        if (browserInfo != null) {
+            setBrowserInfo(browserInfo, worldpayAdditionalInfo);
+        }
         return worldpayAdditionalInfo;
     }
 
+    protected void setBrowserInfo(final BrowserInfoWsDTO browserInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfo) {
+        worldpayAdditionalInfo.setJavaEnabled(browserInfo.getJavaEnabled());
+        worldpayAdditionalInfo.setJavascriptEnabled(browserInfo.getJavascriptEnabled());
+        worldpayAdditionalInfo.setLanguage(browserInfo.getLanguage());
+        worldpayAdditionalInfo.setTimeZone(browserInfo.getTimeZone());
+        worldpayAdditionalInfo.setColorDepth(browserInfo.getColorDepth());
+        worldpayAdditionalInfo.setScreenHeight(browserInfo.getScreenHeight());
+        worldpayAdditionalInfo.setScreenWidth(browserInfo.getScreenWidth());
+    }
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final String cartId) {
+
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final CSEAdditionalAuthInfo cseAdditionalAuthInfo,
+                                                                      final String cartId, final BrowserInfoWsDTO browserInfo) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfo.setSessionId(getSessionId(request));
         worldpayAdditionalInfo.setUserAgentHeader(request.getHeader(USER_AGENT));
@@ -98,6 +115,10 @@ public class AbstractWorldpayController {
 
         if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
+        }
+
+        if(browserInfo != null) {
+            setBrowserInfo(browserInfo, worldpayAdditionalInfo);
         }
 
         return worldpayAdditionalInfo;

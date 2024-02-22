@@ -40,11 +40,10 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Support SAP Composable Storefront 6.4.0
-
-
-### Bugs Fixed: 
-- Order information page is not shown when guest users place an order with 3DS challenge
-- Date of birth is required for some APMs when Fraud is enabled
-
+- Added additional Browser data 
+### Breaking changes:
+- Removed Poli Australia - No longer supported
+### Bug fixes:
+- Exception when a worldpay order code relates to a cart that has the transaction type set to AUTHORIZATION 
+- Incorrect spring wiring in worldpaynotifications
 

@@ -53,8 +53,6 @@ public class WorldpayB2BCseCheckoutStepController extends AbstractWorldpayDirect
     protected Validator cseFormValidator;
     @Resource
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
-    protected WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
 
     /**
      * Returns the CSE payment details page
@@ -175,18 +173,6 @@ public class WorldpayB2BCseCheckoutStepController extends AbstractWorldpayDirect
     @RequireHardLogIn
     public String getChallengeIframeContent(final Model model) {
         return worldpayAddonEndpointService.getChallengeIframe3dSecureFlex();
-    }
-
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final B2BCSEPaymentForm b2BCSEPaymentForm, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        worldpayAdditionalInfo.setSecurityCode(b2BCSEPaymentForm.getSecurityCode());
-        worldpayAdditionalInfo.setDateOfBirth(b2BCSEPaymentForm.getDateOfBirth());
-        worldpayAdditionalInfo.setDeviceSession(b2BCSEPaymentForm.getDeviceSession());
-
-        if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
-            worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
-        }
-        return worldpayAdditionalInfo;
     }
 
     /**
