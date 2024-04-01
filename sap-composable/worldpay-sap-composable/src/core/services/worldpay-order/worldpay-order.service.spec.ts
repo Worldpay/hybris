@@ -9,7 +9,7 @@ import { WorldpayApmService } from '../worldpay-apm/worldpay-apm.service';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayConnector } from '../../connectors/worldpay.connector';
 import { BehaviorSubject, NEVER, Observable, ObservedValueOf, of } from 'rxjs';
-import { ApmData, APMRedirectResponse, PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
+import { ApmData, APMRedirectResponse, BrowserInfo, PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
 import { ClearWorldpayPaymentDetailsEvent } from '../../events/worldpay.events';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
 import { DDC3dsJwtSetEvent } from '../../events/checkout-payment.events';
@@ -52,6 +52,17 @@ const mockPaymentDetails: PaymentDetails = {
   expiryYear: '24',
   id: '0001',
   subscriptionId: '000000000',
+};
+
+const browserInfo: BrowserInfo = {
+  javaEnabled: false,
+  language: 'en-GB',
+  colorDepth: 24,
+  screenHeight: 1080,
+  screenWidth: 1920,
+  timeZone: (-60).toString(),
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+  javascriptEnabled: true
 };
 
 class MockUserIdService implements Partial<UserIdService> {
@@ -324,7 +335,8 @@ describe('WorldpayOrderService', () => {
       dfReferenceId,
       cseToken,
       acceptedTermsAndConditions,
-      null
+      null,
+      browserInfo
     );
 
     const paymentDetailsWithoutCardNumber = { ...mockPaymentDetails };
@@ -337,7 +349,8 @@ describe('WorldpayOrderService', () => {
       '600x400',
       cseToken,
       acceptedTermsAndConditions,
-      null
+      null,
+      browserInfo
     );
   });
 

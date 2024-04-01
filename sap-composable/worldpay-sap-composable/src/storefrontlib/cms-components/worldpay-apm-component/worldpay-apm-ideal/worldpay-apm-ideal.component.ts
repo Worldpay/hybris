@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { Address } from '@spartacus/core';
@@ -20,10 +20,20 @@ export class WorldpayApmIdealComponent implements OnDestroy {
   public sameAsShippingAddress: boolean = true;
 
   idealForm: UntypedFormGroup = this.fb.group({
-    bank: this.fb.group({ code: ['', Validators.required] }),
+    bank: this.fb.group({ code: [null] }),
   });
 
-  constructor(protected fb: UntypedFormBuilder) {
+  constructor(
+    protected fb: UntypedFormBuilder,
+    protected cd: ChangeDetectorRef
+  ) {
+  }
+
+  ngOnInit(): void {
+    if (this.apm?.bankConfigurations?.length > 0) {
+      this.idealForm.get('bank').get('code').addValidators(Validators.required);
+      this.cd.detectChanges();
+    }
   }
 
   next(): void {
@@ -42,10 +52,11 @@ export class WorldpayApmIdealComponent implements OnDestroy {
     }
 
     if (valid) {
-      const paymentDetails: ApmPaymentDetails = {
-        code: PaymentMethod.iDeal,
-        shopperBankCode: value.bank.code
-      };
+      const paymentDetails: ApmPaymentDetails = { code: PaymentMethod.iDeal };
+
+      if (value.bank?.code) {
+        Object.assign(paymentDetails, { shopperBankCode: value.bank.code });
+      }
 
       this.submitting$.next(true);
 

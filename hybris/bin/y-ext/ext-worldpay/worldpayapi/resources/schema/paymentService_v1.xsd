@@ -1137,7 +1137,6 @@
         <xs:element name="cancelURL" type="xs:string"/>
         <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
       </xs:sequence>
-      <xs:attribute name="shopperBankCode" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
