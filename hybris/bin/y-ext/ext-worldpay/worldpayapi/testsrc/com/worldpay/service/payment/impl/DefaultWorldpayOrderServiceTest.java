@@ -7,6 +7,7 @@ import com.worldpay.data.ApplePayHeader;
 import com.worldpay.data.BasicOrderInfo;
 import com.worldpay.data.applepay.ApplePay;
 import com.worldpay.data.klarna.KlarnaPayment;
+import com.worldpay.data.payment.AlternativePayment;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Header;
@@ -72,6 +73,7 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String CANCEL_URL = "CANCEL_URL";
     private static final String PAYMENT_PROVIDER = "paymentProvider";
     private static final String LOCALE = "en-GB";
+    private static final String PAYPAL_SSL = "PAYPAL-SSL";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -346,5 +348,22 @@ public class DefaultWorldpayOrderServiceTest {
         testObj.generateWorldpayOrderCode(abstractOrderModelMock);
 
         verify(recurringGenerateMerchantTransactionCodeStrategyMock).generateCode(abstractOrderModelMock);
+    }
+
+    @Test
+    public void createPayPalSSLPayment_shouldCreatePayPalSSLPayment_WhenPayPalSSLIsReceived() throws WorldpayConfigurationException {
+        when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
+        when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
+        when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
+        when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
+
+        final AlternativePayment result = (AlternativePayment) testObj.createPayPalSSLPayment(COUNTRY_CODE, PAYPAL_SSL);
+
+        assertEquals(PaymentType.PAYPAL_SSL.getMethodCode(), result.getPaymentType());
+        assertEquals(SUCCESS_URL, result.getSuccessURL());
+        assertEquals(PENDING_URL, result.getPendingURL());
+        assertEquals(FAILURE_URL, result.getFailureURL());
+        assertEquals(CANCEL_URL, result.getCancelURL());
+        assertEquals(COUNTRY_CODE, result.getShopperCountryCode());
     }
 }

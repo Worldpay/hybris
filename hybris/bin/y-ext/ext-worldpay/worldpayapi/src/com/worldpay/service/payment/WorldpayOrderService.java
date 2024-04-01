@@ -82,6 +82,14 @@ public interface WorldpayOrderService {
      */
     Payment createKlarnaPayment(final String countryCode, final LanguageModel language, final String extraMerchantData, final String klarnaPaymentMethod) throws WorldpayConfigurationException;
 
+    /**
+     * Creates a payment element to be used in paypal-ssl
+     *
+     * @param countryCode         indicates the shopper country code
+     * @param paymentMethod       indicates the payment type
+     * @return Payment object
+     */
+    Payment createPayPalSSLPayment(final String countryCode, final String paymentMethod) throws WorldpayConfigurationException;
 
     /**
      * Creates an Payment of type ApplePay with the requested details

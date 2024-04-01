@@ -43,6 +43,8 @@
         <value>SHOPPER_REDIRECTED</value>
         <value>FAILURE</value>
         <value>VOIDED</value>
+        <value>WAITING_FOR_SHOPPER</value>
+
     </enum>
 
     <enum class="com.worldpay.enums.order.ThreeDSecureVersionEnum">

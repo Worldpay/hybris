@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class IdealPaymentPopulatorTest {
 
-    private static final String SHOPPER_BANK = "shopperBank";
     private static final String SUCCESS_URL = "successURL";
     private static final String FAILURE_URL = "failureURL";
     private static final String CANCEL_URL = "cancelURL";
@@ -36,16 +35,6 @@ public class IdealPaymentPopulatorTest {
     @Test(expected = IllegalArgumentException.class)
     public void populate_WhenTargetIsNull_ShouldThrowAnException() {
         testObj.populate(sourceMock, null);
-    }
-
-    @Test
-    public void populate_WhenGetShopperBankCodeIsNull_ShouldNotPopulateShopperBankCode() {
-        when(sourceMock.getShopperBankCode()).thenReturn(null);
-
-        final IDEALSSL target = new IDEALSSL();
-        testObj.populate(sourceMock, target);
-
-        assertThat(target.getShopperBankCode()).isNull();
     }
 
     @Test
@@ -90,7 +79,6 @@ public class IdealPaymentPopulatorTest {
 
     @Test
     public void populate_WhenSourceAndTargetAreNotNullAndAllTheFieldsAreNotNull_ShouldPopulate() {
-        when(sourceMock.getShopperBankCode()).thenReturn(SHOPPER_BANK);
         when(sourceMock.getSuccessURL()).thenReturn(SUCCESS_URL);
         when(sourceMock.getFailureURL()).thenReturn(FAILURE_URL);
         when(sourceMock.getCancelURL()).thenReturn(CANCEL_URL);
@@ -99,7 +87,6 @@ public class IdealPaymentPopulatorTest {
         final IDEALSSL target = new IDEALSSL();
         testObj.populate(sourceMock, target);
 
-        assertThat(target.getShopperBankCode()).isEqualTo(SHOPPER_BANK);
         assertThat(target.getSuccessURL()).isEqualTo(SUCCESS_URL);
         assertThat(target.getFailureURL()).isEqualTo(FAILURE_URL);
         assertThat(target.getCancelURL()).isEqualTo(CANCEL_URL);
