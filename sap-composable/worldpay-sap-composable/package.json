@@ -1,6 +1,6 @@
 {
   "name": "@worldpay2020/sap-composable",
-  "version": "6.4.0",
+  "version": "6.4.1",
   "dependencies": {
     "tslib": "^2.4.0"
   },
