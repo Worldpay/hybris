@@ -1,7 +1,7 @@
 import { ComponentRef, Injectable, ViewContainerRef } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { Command, CommandService, CommandStrategy, EventService, GlobalMessageService, GlobalMessageType, RoutingService, UserIdService } from '@spartacus/core';
-import { PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
+import {BrowserInfo, CSEPaymentForm, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ClearInitialPaymentRequestEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from '../../events/checkout-payment.events';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
@@ -31,23 +31,10 @@ export class WorldpayOrderService extends OrderService {
    * @param cseToken string
    * @param acceptedTermsAndConditions boolean
    * @param deviceSession string
+   * @param browserInfo BrowserInfo
    * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
    */
-  protected initialPaymentRequestCommand: Command<{
-    paymentDetails: PaymentDetails;
-    dfReferenceId: string;
-    challengeWindowSize: string;
-    cseToken: string;
-    acceptedTermsAndConditions: boolean;
-    deviceSession: string;
-  }, PlaceOrderResponse> = this.commandService.create<{
-    paymentDetails: PaymentDetails;
-    dfReferenceId: string;
-    challengeWindowSize: string;
-    cseToken: string;
-    acceptedTermsAndConditions: boolean;
-    deviceSession: string;
-  }, PlaceOrderResponse>(
+  protected initialPaymentRequestCommand: Command<CSEPaymentForm, PlaceOrderResponse> = this.commandService.create<CSEPaymentForm, PlaceOrderResponse>(
     ({
       paymentDetails,
       dfReferenceId,
@@ -55,7 +42,8 @@ export class WorldpayOrderService extends OrderService {
       cseToken,
       acceptedTermsAndConditions,
       deviceSession,
-    }) => this.checkoutPreconditions().pipe(
+      browserInfo
+    }: CSEPaymentForm) => this.checkoutPreconditions().pipe(
       switchMap(([userId, cartId]) => this.worldpayConnector.initialPaymentRequest(
         userId,
         cartId,
@@ -65,6 +53,7 @@ export class WorldpayOrderService extends OrderService {
         cseToken,
         acceptedTermsAndConditions,
         deviceSession,
+        browserInfo
       ).pipe(
         tap((response: PlaceOrderResponse): void => {
           if (response.threeDSecureNeeded === true) {
@@ -232,6 +221,7 @@ export class WorldpayOrderService extends OrderService {
    * @param cseToken string
    * @param acceptedTermsAndConditions boolean
    * @param deviceSession string
+   * @param browserInfo BrowserInfo
    * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
    */
   initialPaymentRequest(
@@ -240,6 +230,7 @@ export class WorldpayOrderService extends OrderService {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
+    browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse> {
 
     const paymentDetails = { ...unsafePaymentDetails };
@@ -260,6 +251,7 @@ export class WorldpayOrderService extends OrderService {
       challengeWindowSize,
       acceptedTermsAndConditions,
       deviceSession,
+      browserInfo
     });
   }
 

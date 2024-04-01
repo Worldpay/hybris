@@ -3,9 +3,20 @@ import { WorldpayConnector } from './worldpay.connector';
 import { TestBed } from '@angular/core/testing';
 import { take } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
+import { BrowserInfo } from '../interfaces';
 import createSpy = jasmine.createSpy;
 
 const drop = new Subject();
+const browserInfo: BrowserInfo = {
+  javaEnabled: false,
+  language: 'en-GB',
+  colorDepth: 24,
+  screenHeight: 1080,
+  screenWidth: 1920,
+  timeZone: (-60).toString(),
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+  javascriptEnabled: true
+};
 
 class MockWorldpayAdapter implements WorldpayAdapter {
   useExistingPaymentDetails = createSpy(
@@ -149,16 +160,34 @@ describe('WorldpayConnector', () => {
   });
 
   it('should call initialPaymentRequest', (done) => {
-    service.initialPaymentRequest('userId', 'cartId', {
-        cardNumber: '1234123412341234',
-        cvn: '123'
-      }, 'ref', '500x500', 'cse-token', true, null)
+    service.initialPaymentRequest(
+        'userId',
+        'cartId',
+        {
+          cardNumber: '1234123412341234',
+          cvn: '123'
+        },
+        'ref',
+        '500x500',
+        'cse-token',
+        true,
+        null,
+        browserInfo
+      )
       .subscribe(() => {
         expect(adapter.initialPaymentRequest).toHaveBeenCalledWith(
-          'userId', 'cartId', {
+          'userId',
+          'cartId',
+          {
             cardNumber: '1234123412341234',
             cvn: '123'
-          }, 'ref', '500x500', 'cse-token', true, null
+          },
+          'ref',
+          '500x500',
+          'cse-token',
+          true,
+          null,
+          browserInfo
         );
 
         done();
@@ -169,18 +198,35 @@ describe('WorldpayConnector', () => {
 
     it('should call initialPaymentRequest with FraudSight ID and dateOfBirth', (done) => {
       const deviceSession = 'lalalaejogere';
-      service.initialPaymentRequest('userId', 'cartId', {
-          cardNumber: '1234123412341234',
-          cvn: '123',
-          dateOfBirth: '2020-01-01',
-        }, 'ref', '500x500', 'cse-token', true, deviceSession)
+      service.initialPaymentRequest(
+          'userId',
+          'cartId', {
+            cardNumber: '1234123412341234',
+            cvn: '123',
+            dateOfBirth: '2020-01-01',
+          },
+          'ref',
+          '500x500',
+          'cse-token',
+          true,
+          deviceSession,
+          browserInfo
+        )
         .subscribe(() => {
           expect(adapter.initialPaymentRequest).toHaveBeenCalledWith(
-            'userId', 'cartId', {
+            'userId',
+            'cartId',
+            {
               cardNumber: '1234123412341234',
               cvn: '123',
               dateOfBirth: '2020-01-01',
-            }, 'ref', '500x500', 'cse-token', true, deviceSession
+            },
+            'ref',
+            '500x500',
+            'cse-token',
+            true,
+            deviceSession,
+            browserInfo
           );
 
           done();

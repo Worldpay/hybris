@@ -315,13 +315,13 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         paymentInfoModel.setCode(generateCcPaymentInfoCode(cartModel));
         paymentInfoModel.setBillingAddress(cartModel.getPaymentAddress());
         paymentInfoModel.setPaymentType(apmCode);
-        paymentInfoModel.setApmConfiguration(apmConfigurationLookupService.getAPMConfigurationForCode(apmCode));
 
-        if (PaymentType.IDEAL.getMethodCode().equals(apmCode)) {
-            cartModel.setShopperBankCode(apmName);
-        } else {
-            cartModel.setShopperBankCode(null);
-        }
+        final WorldpayAPMConfigurationModel apmConfiguration = apmConfigurationLookupService.getAPMConfigurationForCode(apmCode);
+        paymentInfoModel.setApmConfiguration(apmConfiguration);
+
+        cartModel.setShopperBankCode(Optional.ofNullable(apmConfiguration)
+                .map(WorldpayAPMConfigurationModel::getBank)
+                .orElse(false) ? apmName : null);
 
         cartModel.setPaymentInfo(paymentInfoModel);
         cartModel.setApmCode(apmCode);
@@ -393,7 +393,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
         final PaymentInfoModel paymentTransactionModelInfo = paymentTransactionModel.getInfo();
         if (Boolean.TRUE.equals(paymentTransactionModelInfo.getIsApm())) {
             final TokenReply tokenReply = orderNotificationMessage.getTokenReply();
-            if (tokenReply != null && orderNotificationMessage.getPaymentReply().getPaymentMethodCode().equalsIgnoreCase(PaymentType.PAYPAL.getMethodCode())) {
+            if (tokenReply != null && orderNotificationMessage.getPaymentReply().getPaymentMethodCode().equalsIgnoreCase(PaymentType.PAYPAL_EXPRESS.getMethodCode())) {
                 return createPaypalTokenisedPaymentInfo(paymentTransactionModel, orderNotificationMessage, tokenReply);
             }
             return createWorldpayApmPaymentInfo(paymentTransactionModel);
