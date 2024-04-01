@@ -1,7 +1,7 @@
 import { Injectable, ViewContainerRef } from '@angular/core';
 import { facadeFactory, HttpErrorModel } from '@spartacus/core';
 import { Observable } from 'rxjs';
-import { PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
+import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 import { ORDER_CORE_FEATURE, OrderFacade } from '@spartacus/order/root';
 import { PaymentDetails } from '@spartacus/cart/base/root';
 
@@ -32,6 +32,7 @@ export abstract class WorldpayOrderFacade extends OrderFacade {
    * @param cseToken
    * @param acceptedTermsAndConditions
    * @param deviceSession
+   * @param browserInfo
    */
   abstract initialPaymentRequest(
     unsafePaymentDetails: PaymentDetails,
@@ -39,6 +40,7 @@ export abstract class WorldpayOrderFacade extends OrderFacade {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
+    browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse>;
 
   /**

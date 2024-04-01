@@ -1331,7 +1331,6 @@
     <!ELEMENT PAYPAL-EXPRESS (successURL, failureURL, cancelURL)>
     <!ATTLIST PAYPAL-EXPRESS firstInBillingRun (true|false) #IMPLIED>
     <!ELEMENT IDEAL-SSL (successURL, failureURL, cancelURL, pendingURL?)>
-    <!ATTLIST IDEAL-SSL shopperBankCode (ABN_AMRO|ASN|ING|RABOBANK|SNS|SNS_REGIO|TRIODOS|VAN_LANSCHOT|KNAB|BUNQ|REVOLUT) #REQUIRED>
     <!ELEMENT GIROPAY-SSL (successURL, failureURL, cancelURL, pendingURL?, swiftCode?)>
     <!ATTLIST GIROPAY-SSL shopperCountryCode NMTOKEN #IMPLIED>
     <!ELEMENT NCPB2B-SSL (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>

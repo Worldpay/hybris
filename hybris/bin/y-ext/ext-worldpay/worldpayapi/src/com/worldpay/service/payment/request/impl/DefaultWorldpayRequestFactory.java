@@ -21,6 +21,7 @@ import com.worldpay.service.payment.request.WorldpayRequestService;
 import com.worldpay.service.request.*;
 import com.worldpay.service.request.AuthoriseRequestParameters.AuthoriseRequestParametersCreator;
 import com.worldpay.service.response.CreateTokenResponse;
+import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
@@ -447,6 +448,8 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
 
         if (worldpayKlarnaService.isKlarnaPaymentType(additionalAuthInfo.getPaymentMethod())) {
             return internalGetRedirectAuthoriseServiceRequestForKlarna(cartModel, additionalAuthInfo, authoriseRequestParametersCreator);
+        } else if (PaymentType.PAYPAL_SSL.getMethodCode().equals(additionalAuthInfo.getPaymentMethod())) {
+            return internalGetRedirectAuthoriseServiceRequestForPayPalSSL(cartModel, additionalAuthInfo, authoriseRequestParametersCreator, worldpayAdditionalInfoData);
         } else {
             return internalGetRedirectAuthoriseServiceRequest(cartModel, additionalAuthInfo, authoriseRequestParametersCreator, worldpayAdditionalInfoData);
         }
@@ -454,7 +457,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
 
     protected void addPayPalPaymentMethodAttribute(final AuthoriseRequestParametersCreator authoriseRequestParametersCreator) {
         final PaymentMethodAttribute paypalPaymentMethodAttribute = new PaymentMethodAttribute();
-        paypalPaymentMethodAttribute.setPaymentMethod(PaymentType.PAYPAL.getMethodCode());
+        paypalPaymentMethodAttribute.setPaymentMethod(PaymentType.PAYPAL_EXPRESS.getMethodCode());
         paypalPaymentMethodAttribute.setAttrName("firstInBillingRun");
         paypalPaymentMethodAttribute.setAttrValue("true");
         authoriseRequestParametersCreator.withPaymentMethodAttributes(List.of(paypalPaymentMethodAttribute));
@@ -562,7 +565,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             authoriseRequestParametersCreator
                 .withShopper(shopper)
                 .withTokenRequest(tokenRequest);
-            if (PaymentType.PAYPAL.getMethodCode().equals(additionalAuthInfo.getPaymentMethod())) {
+            if (PaymentType.PAYPAL_EXPRESS.getMethodCode().equals(additionalAuthInfo.getPaymentMethod())) {
                 addPayPalPaymentMethodAttribute(authoriseRequestParametersCreator);
             } else {
                 final StoredCredentials storedCredentials = worldpayRequestService.createStoredCredentials(Usage.FIRST, null, null);
@@ -595,6 +598,27 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
             .withOrderLines(orderLines)
             .withAlternativeShippingAddress(worldpayRequestService.createAlternativeShippingAddress())
             .build();
+
+        return createRedirectAuthoriseRequest(authoriseRequestParametersCreator.build());
+    }
+
+    protected RedirectAuthoriseServiceRequest internalGetRedirectAuthoriseServiceRequestForPayPalSSL(
+            final CartModel cartModel,
+            final AdditionalAuthInfo additionalAuthInfo,
+            final AuthoriseRequestParametersCreator authoriseRequestParametersCreator,
+            final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException {
+
+        final Payment payment = worldpayOrderService.createPayPalSSLPayment(worldpayCartService.getBillingAddress(cartModel, additionalAuthInfo).getCountryCode(),
+                additionalAuthInfo.getPaymentMethod());
+
+        final String customerEmail = worldpayCartService.getEmailForCustomer(cartModel);
+
+        final Shopper shopper = worldpayRequestService.createShopper(customerEmail, null, null);
+
+        authoriseRequestParametersCreator.withPayment(payment)
+                .withShopper(shopper);
+
+        worldpayAdditionalRequestDataService.populateRedirectRequestAdditionalData(cartModel, worldpayAdditionalInfoData, authoriseRequestParametersCreator);
 
         return createRedirectAuthoriseRequest(authoriseRequestParametersCreator.build());
     }

@@ -3,7 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Address, ConverterService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
 import { WorldpayAdapter } from '../connectors/worldpay.adapter';
-import { PlaceOrderResponse, ThreeDsDDCInfo, } from '../interfaces';
+import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo, } from '../interfaces';
 import { Order } from '@spartacus/order/root';
 import { PaymentDetails } from '@spartacus/cart/base/root';
 import { catchError } from 'rxjs/operators';
@@ -64,6 +64,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
+    browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse> {
     const body = {
       ...paymentDetails,
@@ -72,6 +73,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
       cseToken,
       acceptedTermsAndConditions,
       deviceSession,
+      browserInfo
     };
 
     const url = this.occEndpoints.buildUrl(

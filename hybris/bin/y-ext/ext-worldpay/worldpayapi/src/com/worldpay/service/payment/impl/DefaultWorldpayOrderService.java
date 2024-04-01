@@ -148,6 +148,20 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      * {@inheritDoc}
      */
     @Override
+    public Payment createPayPalSSLPayment(final String countryCode, final String paypalPaymentMethod) throws WorldpayConfigurationException {
+
+        return WorldpayInternalModelTransformerUtil.createAlternativePayment(PaymentType.getPaymentType(paypalPaymentMethod),
+                worldpayUrlService.getFullSuccessURL(),
+                worldpayUrlService.getFullFailureURL(),
+                worldpayUrlService.getFullCancelURL(),
+                worldpayUrlService.getFullPendingURL(),
+                countryCode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Payment createApplePayPayment(final ApplePayAdditionalAuthInfo worldpayAdditionalInfoApplePayData) {
         final Header header = new Header();
         header.setEphemeralPublicKey(worldpayAdditionalInfoApplePayData.getHeader().getEphemeralPublicKey());
