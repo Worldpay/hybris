@@ -40,9 +40,6 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Added additional Browser data 
+- Added PayPal-SSL 
 ### Breaking changes:
-- Removed Poli Australia - No longer supported
-### Bug fixes:
-- Exception when a worldpay order code relates to a cart that has the transaction type set to AUTHORIZATION 
-- Incorrect spring wiring in worldpaynotifications
+- iDeal 2.0 implemented 

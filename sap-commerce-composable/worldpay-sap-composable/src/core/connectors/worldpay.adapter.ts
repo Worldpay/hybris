@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { Address } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
-import { PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
+import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 import { PaymentDetails } from '@spartacus/cart/base/root';
 
 export abstract class WorldpayAdapter {
@@ -48,6 +48,7 @@ export abstract class WorldpayAdapter {
    * @param {string} cseToken CSE token
    * @param {string} acceptedTermsAndConditions boolean must be true
    * @param {string} deviceSession optional FraudSight unique session id
+   * @param {BrowserInfo} browserInfo Browser Information
    */
   abstract initialPaymentRequest(
     userId: string,
@@ -58,6 +59,7 @@ export abstract class WorldpayAdapter {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
+    browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse>;
 
   /**

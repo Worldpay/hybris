@@ -81,6 +81,7 @@ public class DefaultWorldpayRequestFactoryTest {
     private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
     private static final String INSTALLATION_ID = "installationId";
     private static final String KLARNA_V2_SSL = "KLARNA_V2-SSL";
+    private static final String PAYPAL_SSL = "PAYPAL-SSL";
 
     @Spy
     @InjectMocks
@@ -624,5 +625,22 @@ public class DefaultWorldpayRequestFactoryTest {
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withAdditional3DSData(additional3DSDataMock)
             .build();
+    }
+
+    @Test
+    public void internalGetRedirectAuthoriseServiceRequestForPayPalSSL_ShouldReturnRedirectAuthoriseServiceRequest() throws WorldpayConfigurationException {
+        when(worldpayOrderServiceMock.createPayPalSSLPayment(COUNTRY_CODE, PAYPAL_SSL)).thenReturn(paymentMock);
+        when(additionalAuthInfoMock.getPaymentMethod()).thenReturn(PAYPAL_SSL);
+        when(billingAddressMock.getCountryCode()).thenReturn(COUNTRY_CODE);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
+        doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withShopper(shopperMock);
+        when(worldpayRequestServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, null, null)).thenReturn(shopperMock);
+        doReturn(getAuthoriseRequestParameters()).when(authoriseRequestParametersCreatorMock).build();
+
+        final RedirectAuthoriseServiceRequest result = testObj.internalGetRedirectAuthoriseServiceRequestForPayPalSSL(cartModelMock, additionalAuthInfoMock, authoriseRequestParametersCreatorMock, worldpayAdditionalInfoDataMock);
+
+        verify(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
+        verify(authoriseRequestParametersCreatorMock).withShopper(shopperMock);
+        assertThat(result).isNotNull();
     }
 }

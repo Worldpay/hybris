@@ -104,6 +104,11 @@
             <value code="verification"/>
         </enumtype>
 
+        <enumtype code="PayPalIntent">
+            <value code="authorise"/>
+            <value code="capture"/>
+        </enumtype>
+
     </enumtypes>
 
     <relations>
@@ -1003,6 +1008,12 @@
                         <persistence type="property"/>
                         <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
                         <description>Enables the Level 3 Data</description>
+                    </attribute>
+                    <attribute qualifier="paypalSSLIntent" type="PayPalIntent">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>authorise</defaultvalue>
+                        <description>PayPal SSL Intent</description>
                     </attribute>
                 </attributes>
             </itemtype>

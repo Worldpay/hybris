@@ -189,7 +189,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 | AliPay                | CN                            | USD             |                    |                      |
 | ApplePay              | All                           | All             | Yes                |                      |
 | Bancontact MisterCash | BE                            | EUR             |                    |                      |
-| Boleto                | BR                            | BRL             |                    |                      |
 | China Union Pay       | CN                            | GBP,EUR,USD,SGD |                    |                      |
 | GiroPay               | DE                            | EUR             |                    |                      |
 | GooglePay             | All                           | All             | Yes                |                      |
@@ -199,7 +198,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 | Klarna Pay Now        | SE,DE,NL,AT                   | EUR,GBP         |                    |                      |
 | Klarna Slice It       | SE,NO,FI,DE,AT,GB,DK,US       | EUR,GBP         |                    |                      |
 | PayPal                | All                           | All             |                    |                      |
-| POLi                  | AU,NZ                         | AU,NZ           |                    |                      |
+| POLi                  | NZ                            | NZ              |                    |                      |
 | Postepay              | IT                            | EUR             |                    |                      |
 | Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                      |
 | Sofort                | AT,BE,FR,DE,CH                | EUR,CHF         |                    |                      |

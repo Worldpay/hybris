@@ -55,7 +55,7 @@ import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDire
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayB2BCseCheckoutStepController.*;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static com.worldpay.service.model.payment.PaymentType.PAYPAL;
+import static com.worldpay.service.model.payment.PaymentType.PAYPAL_EXPRESS;
 import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -262,13 +262,13 @@ public class WorldpayB2BCseCheckoutStepControllerTest {
     @Test
     public void shouldRedirectToPaymentMethodIfNotCreditCardAndNoErrors() throws CMSItemNotFoundException {
         lenient().when(bindingResultMock.hasErrors()).thenReturn(false);
-        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PAYPAL.getMethodCode());
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PAYPAL_EXPRESS.getMethodCode());
         doReturn(REDIRECT_TO_PAYMENT_METHOD).when(testObj).getRedirectToPaymentMethod();
 
         final String result = testObj.addPaymentAddress(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);
 
         verify(redirectAttrsMock).addFlashAttribute(SHOPPER_BANK_CODE, paymentDetailsFormMock.getShopperBankCode());
-        verify(redirectAttrsMock).addFlashAttribute(PAYMENT_METHOD_PARAM, PAYPAL.getMethodCode());
+        verify(redirectAttrsMock).addFlashAttribute(PAYMENT_METHOD_PARAM, PAYPAL_EXPRESS.getMethodCode());
         assertEquals(REDIRECT_TO_PAYMENT_METHOD, result);
     }
 

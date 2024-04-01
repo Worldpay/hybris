@@ -14,6 +14,7 @@ import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraud
 import {
   ApmPaymentDetails,
   APMRedirectResponse,
+  BrowserInfo,
   PlaceOrderResponse,
   ThreeDsDDCInfo,
   ThreeDsInfo,
@@ -48,6 +49,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   nativeWindow: Window = this.winRef.nativeWindow;
   listenerFn: () => void;
   queryParams: { key: string; value: string }[] = [];
+  browserInfo: BrowserInfo;
   protected save: boolean = false;
   private ddcInfoFromState$: Subscription;
   private challengeInfo$: Subscription;
@@ -121,6 +123,17 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       ).subscribe({
         next: ([apm, paymentDetails]): void => {
           if (!apm || apm?.cardType) {
+            if (apm.cardType) {
+              this.browserInfo = {
+                javaEnabled: navigator.javaEnabled(),
+                javascriptEnabled: true,
+                language: navigator.language,
+                colorDepth: screen.colorDepth,
+                screenHeight: screen.height,
+                screenWidth: screen.width,
+                timeZone: new Date().getTimezoneOffset().toString(),
+              };
+            }
             this.executeDDC3dsJwtCommand();
           } else {
             const apmPaymentDetails: ApmPaymentDetails = apm ?? { ...paymentDetails?.data?.worldpayAPMPaymentInfo };
@@ -298,12 +311,14 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
           event.data
         );
         if (deviceData && deviceData.Status) {
+
           this.orderFacade.initialPaymentRequest(
             this.paymentDetails,
             deviceData.SessionId,
             this.cseToken,
             this.checkoutSubmitForm.get('termsAndConditions').value,
-            this.fraudSightId
+            this.fraudSightId,
+            this.browserInfo
           ).pipe(
             takeUntil(this.drop)
           ).subscribe({

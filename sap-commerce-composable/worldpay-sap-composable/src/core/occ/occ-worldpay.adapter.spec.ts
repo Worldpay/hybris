@@ -4,6 +4,7 @@ import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetai
 import { HttpClientModule } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Order } from '@spartacus/order/root';
+import { BrowserInfo } from '../interfaces';
 
 const userId = 'userId';
 const cartId = 'cartId';
@@ -41,6 +42,17 @@ const MockOccModuleConfig: OccConfig = {
 
 const jwt =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+const browserInfo: BrowserInfo = {
+  javaEnabled: false,
+  language: 'en-GB',
+  colorDepth: 24,
+  screenHeight: 1080,
+  screenWidth: 1920,
+  timeZone: (-60).toString(),
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+  javascriptEnabled: true
+};
 
 class MockOccEndpointsService {
   buildUrl(url) {
@@ -156,7 +168,8 @@ describe('OccWorldpayAdapter', () => {
           challengeWindowSize,
           cseToken,
           acceptedTermsAndConditions,
-          null
+          null,
+          browserInfo
         )
         .subscribe();
 
@@ -186,7 +199,8 @@ describe('OccWorldpayAdapter', () => {
         challengeWindowSize,
         dfReferenceId,
         cseToken,
-        acceptedTermsAndConditions
+        acceptedTermsAndConditions,
+        browserInfo
       });
     });
 
@@ -208,7 +222,8 @@ describe('OccWorldpayAdapter', () => {
           challengeWindowSize,
           cseToken,
           acceptedTermsAndConditions,
-          deviceSession
+          deviceSession,
+          browserInfo
         )
         .subscribe();
 
@@ -241,6 +256,7 @@ describe('OccWorldpayAdapter', () => {
         cseToken,
         acceptedTermsAndConditions,
         deviceSession,
+        browserInfo
       });
     });
   });

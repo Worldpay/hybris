@@ -596,6 +596,7 @@
         <entry key="TOKENSSL" value-ref="internalTokenConverter"/>
         <entry key="IDEAL" value-ref="internalIdealPaymentConverter"/>
         <entry key="PAYWITHGOOGLESSL" value-ref="internalGooglePaymentConverter"/>
+        <entry key="PAYPAL_SSL" value-ref="internalPayPalSSLPaymentConverter"/>
     </util:map>
 
     <alias name="defaultCsePaymentPopulator" alias="internalCsePaymentPopulator"/>
@@ -726,6 +727,22 @@
         <property name="populators">
             <list>
                 <ref bean="internalGooglePaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultPayPalSSLPaymentPopulator" alias="internalPayPalSSLPaymentPopulator"/>
+    <bean id="defaultPayPalSSLPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.PayPalSSLPaymentPopulator">
+        <constructor-arg name="baseSiteService" ref="baseSiteService"/>
+    </bean>
+
+    <alias name="defaultPayPalSSLPaymentConverter" alias="internalPayPalSSLPaymentConverter"/>
+    <bean id="defaultPayPalSSLPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.PAYPALSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalPayPalSSLPaymentPopulator"/>
             </list>
         </property>
     </bean>
