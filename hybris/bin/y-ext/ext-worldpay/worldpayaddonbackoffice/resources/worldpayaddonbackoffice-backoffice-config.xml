@@ -375,6 +375,9 @@
                         <editorArea:attribute qualifier="enableLevel2"/>
                         <editorArea:attribute qualifier="enableLevel3"/>
                     </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.paypalssl.section">
+                        <editorArea:attribute qualifier="paypalsslIntent"/>
+                    </editorArea:section>
                 </editorArea:tab>
             </editorArea:editorArea>
         </context>

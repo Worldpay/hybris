@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Address } from '@spartacus/core';
-import { PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
+import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 import { Order } from '@spartacus/order/root';
 import { WorldpayAdapter } from './worldpay.adapter';
 import { PaymentDetails } from '@spartacus/cart/base/root';
@@ -28,6 +28,7 @@ export class WorldpayConnector {
    * @param cseToken - string CSE Token
    * @param acceptedTermsAndConditions - Boolean Accepted Terms And Conditions
    * @param deviceSession - Device Session
+   * @param browserInfo - BrowserInfo Browser information
    */
   public initialPaymentRequest(
     userId: string,
@@ -38,6 +39,7 @@ export class WorldpayConnector {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
+    browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse> {
     return this.adapter.initialPaymentRequest(
       userId,
@@ -48,6 +50,7 @@ export class WorldpayConnector {
       cseToken,
       acceptedTermsAndConditions,
       deviceSession,
+      browserInfo
     );
   }
 

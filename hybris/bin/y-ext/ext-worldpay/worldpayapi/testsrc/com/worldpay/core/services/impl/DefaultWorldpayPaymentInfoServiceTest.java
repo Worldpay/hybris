@@ -98,6 +98,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     private static final String TRANSACTION_IDENTIFIER = "transactionIdentifier";
     private static final String BIN = "bin";
     private static final String APM_NAME = "apmName";
+    private static final String APM_BANK_CODE = "apmBankCode";
 
     @Rule
     @SuppressWarnings("PMD.MemberScope")
@@ -430,7 +431,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     public void setPaymentInfoModel_WhenPaymentTypeIsPaypalAndPAMPaymentInfoNotFound_ShouldCreatePaypalTokenizedPaymentInfoAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
-        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.PAYPAL.getMethodCode());
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.PAYPAL_EXPRESS.getMethodCode());
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
@@ -440,7 +441,7 @@ public class DefaultWorldpayPaymentInfoServiceTest {
         verify(worldpayAPMPaymentInfoModelMock).setSaved(true);
         verify(worldpayAPMPaymentInfoModelMock).setBillingAddress(paymentAddressModelMock);
         verify(worldpayAPMPaymentInfoModelMock).setExpiryDate(java.util.Date.from(DATE_TIME.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.PAYPAL.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.PAYPAL_EXPRESS.getMethodCode());
         verify(orderModelMock).setPaymentInfo(worldpayAPMPaymentInfoModelMock);
         verify(paymentTransactionModelMock).setInfo(worldpayAPMPaymentInfoModelMock);
         verify(modelServiceMock, times(2)).save(worldpayAPMPaymentInfoModelMock);
@@ -451,13 +452,13 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     public void setPaymentInfoModel_WhenPaymentTypeIsPaypalAndPAMPaymentInfoIsFound_ShouldUseExistingPaypalTokenizedPaymentInfoAndSaveItToPaymentTransactionAndOrderForRedirectOrderNotification() throws WorldpayConfigurationException {
         when(paymentTransactionPaymentInfoModelMock.getIsApm()).thenReturn(true);
         when(orderNotificationMessageMock.getTokenReply()).thenReturn(tokenReplyMock);
-        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.PAYPAL.getMethodCode());
+        when(paymentReplyMock.getPaymentMethodCode()).thenReturn(PaymentType.PAYPAL_EXPRESS.getMethodCode());
         when(savedAPMPaypalPaymentInfoMock.getSubscriptionId()).thenReturn(PAYMENT_TOKEN_ID);
         when(savedAPMPaypalPaymentInfoMock.isSaved()).thenReturn(Boolean.TRUE);
 
         testObj.setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
 
-        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.PAYPAL.getMethodCode());
+        verify(paymentTransactionPaymentInfoModelMock).setPaymentType(PaymentType.PAYPAL_EXPRESS.getMethodCode());
         verify(orderModelMock).setPaymentInfo(savedAPMPaypalPaymentInfoMock);
         verify(paymentTransactionModelMock).setInfo(savedAPMPaypalPaymentInfoMock);
         verify(modelServiceMock).saveAll(orderModelMock, paymentTransactionModelMock);
@@ -901,11 +902,26 @@ public class DefaultWorldpayPaymentInfoServiceTest {
     }
 
     @Test
-    public void createAPMPaymentInfo_shouldCreatePaymentInfoModelAndFillBankShopperBank_whenIsIdealAPM() {
+    public void createAPMPaymentInfo_shouldNotCreatePaymentInfoModelAndFillBankShopperBank_whenIsIdealAPM() {
         when(cartModelMock.getUser()).thenReturn(userModelMock);
         when(modelServiceMock.create(WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
 
         final PaymentInfoModel result = testObj.createAPMPaymentInfo(cartModelMock, IDEAL.getMethodCode(), APM_NAME);
+
+
+        verify(modelServiceMock).save(cartModelMock);
+        verify(modelServiceMock).save(result);
+        verify(cartModelMock).setShopperBankCode(null);
+    }
+
+    @Test
+    public void createAPMPaymentInfo_shouldCreatePaymentInfoModelAndFillBankShopperBank_whenAPMHasBank() {
+        when(cartModelMock.getUser()).thenReturn(userModelMock);
+        when(modelServiceMock.create(WorldpayAPMPaymentInfoModel.class)).thenReturn(worldpayAPMPaymentInfoModelMock);
+        when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(APM_BANK_CODE)).thenReturn(worldpayAPMConfigurationModelMock);
+        when(worldpayAPMConfigurationModelMock.getBank()).thenReturn(Boolean.TRUE);
+
+        final PaymentInfoModel result = testObj.createAPMPaymentInfo(cartModelMock, APM_BANK_CODE, APM_NAME);
 
 
         verify(modelServiceMock).save(cartModelMock);

@@ -295,3 +295,24 @@ export interface WorldpayChallengeResponse {
   guestCustomer?: boolean;
   customerID?: string;
 }
+
+export interface BrowserInfo {
+    javaEnabled?: boolean;
+    javascriptEnabled?: boolean;
+    language?: string;
+    colorDepth?: number;
+    screenHeight?: number;
+    screenWidth?: number;
+    timeZone?: string;
+    userAgent?: string;
+}
+
+export interface CSEPaymentForm {
+    paymentDetails?: PaymentDetails;
+    dfReferenceId?: string;
+    challengeWindowSize?: string;
+    cseToken?: string;
+    acceptedTermsAndConditions?: boolean;
+    deviceSession?: string;
+    browserInfo?: BrowserInfo;
+}
