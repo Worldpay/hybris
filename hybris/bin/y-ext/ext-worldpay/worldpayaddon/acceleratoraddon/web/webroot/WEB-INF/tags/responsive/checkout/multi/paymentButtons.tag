@@ -7,7 +7,7 @@
 <c:set var="hasAvailablePaymentMethods" value="false" scope="session"/>
 
 <div id="paymentButtons" <c:if test="${cse eq true}">class="cse"</c:if> data-paymentmethod="${paymentDetailsForm.paymentMethod}">
-    <cms:pageSlot position="PaymentButtons" var="button" element="div" class="cms-payment-button">
+    <cms:pageSlot position="PaymentButtons" var="button" element="div" class="cms-payment-button row">
         <c:set var="hasPaymentButtons" value="true"/>
         <cms:component component="${button}"/>
     </cms:pageSlot>

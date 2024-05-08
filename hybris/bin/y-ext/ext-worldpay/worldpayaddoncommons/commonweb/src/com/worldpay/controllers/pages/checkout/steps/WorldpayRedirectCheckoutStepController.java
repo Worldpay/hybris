@@ -48,6 +48,7 @@ public class WorldpayRedirectCheckoutStepController extends WorldpayChoosePaymen
         final String paymentMethod = paymentDetailsForm.getPaymentMethod();
         if (isAPM(paymentMethod)) {
             redirectAttrs.addFlashAttribute(SHOPPER_BANK_CODE, shopperBankCode);
+            redirectAttrs.addFlashAttribute(ACH_DATA, paymentDetailsForm.getAchForm());
         }
         redirectAttrs.addFlashAttribute(SAVE_PAYMENT_INFO, paymentDetailsForm.getSaveInAccount());
         redirectAttrs.addFlashAttribute(PAYMENT_METHOD_PARAM, paymentDetailsForm.getPaymentMethod());

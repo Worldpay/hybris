@@ -17,7 +17,7 @@ import {
 import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ThreeDsDDCInfo, ThreeDsInfo } from '../../interfaces';
+import { PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
 import { Router } from '@angular/router';
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 import { getBaseHref, trimLastSlashFromUrl } from '../../utils/get-base-href';
@@ -40,6 +40,7 @@ import {
   ThreeDsSetEvent
 } from '../../events/checkout-payment.events';
 import { ClearGooglepayEvent } from '../../events/googlepay.events';
+import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let Worldpay: any;
@@ -202,6 +203,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
     protected platformLocation: PlatformLocation,
     protected globalMessageService: GlobalMessageService,
     protected worldpayConnector: WorldpayConnector,
+    protected worldpayACHFacade: WorldpayACHFacade,
     @Inject(APP_BASE_HREF) protected appBaseHref: string
   ) {
     super(
@@ -614,15 +616,16 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    * Get Payment Details State
    * @since 6.4.0
    */
-  override getPaymentDetailsState(): Observable<QueryState<PaymentDetails | undefined>> {
+  override getPaymentDetailsState(): Observable<QueryState<WorldpayApmPaymentInfo | undefined>> {
     return combineLatest([
       this.getSaveCreditCardValueFromState(),
-      this.getSaveAsDefaultCardValueFromState()
+      this.getSaveAsDefaultCardValueFromState(),
+      this.worldpayACHFacade.getACHPaymentFormValue(),
     ]).pipe(
-      switchMap(([saveCreditCard, setAsDefaultPayment]) => this.checkoutQueryFacade.getCheckoutDetailsState().pipe(
+      switchMap(([saveCreditCard, setAsDefaultPayment, achPaymentFormValue]) => this.checkoutQueryFacade.getCheckoutDetailsState().pipe(
         map(
           (state: QueryState<CheckoutState>) => {
-            const paymentInfo: PaymentDetails = {
+            const paymentInfo: WorldpayApmPaymentInfo = {
               ...state.data?.paymentInfo,
               ...state.data?.worldpayAPMPaymentInfo,
             };
@@ -634,6 +637,11 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
                 paymentInfo.saved = saveCreditCard === true ? saveCreditCard : state.data?.paymentInfo?.saved;
               }
             }
+
+            if (paymentInfo.apmCode === PaymentMethod.ACH) {
+              paymentInfo.achPaymentForm = achPaymentFormValue;
+            }
+
             return {
               ...state,
               data: paymentInfo
@@ -644,7 +652,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
     );
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 }

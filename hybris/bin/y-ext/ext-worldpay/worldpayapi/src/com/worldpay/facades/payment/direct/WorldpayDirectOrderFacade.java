@@ -175,4 +175,13 @@ public interface WorldpayDirectOrderFacade {
      */
     DirectResponseData internalTokenizeAndAuthorise(final CartModel cartModel, final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final CSEAdditionalAuthInfo cseAdditionalAuthInfo) throws WorldpayException, InvalidCartException;
 
+    /**
+     * Performs a request to Worldpay with the payment details of a ACH Direct Debot transaction.
+     *
+     * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
+     * @param additionalAuthInfo         the additional auth info
+     * @return Wrapper object containing information on the response from Worldpay
+     * @throws WorldpayException - something went wrong
+     */
+    DirectResponseData authoriseACHDirectDebit(final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final ACHDirectDebitAdditionalAuthInfo additionalAuthInfo) throws WorldpayException, InvalidCartException;
 }

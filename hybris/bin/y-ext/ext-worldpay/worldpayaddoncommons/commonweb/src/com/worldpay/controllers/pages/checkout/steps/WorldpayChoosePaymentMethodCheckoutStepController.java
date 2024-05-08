@@ -1,6 +1,7 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
+import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.forms.BrowserInfo;
@@ -22,6 +23,7 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
+import de.hybris.platform.enumeration.EnumerationService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -146,6 +148,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepController extends AbstractW
 
         paymentDetailsForm.setBillingAddress(addressForm);
         model.addAttribute(PAYMENT_DETAILS_FORM, paymentDetailsForm);
+        model.addAttribute(ACH_ACCOUNT_TYPES, getACHDirectDebitValues());
     }
 
     /**

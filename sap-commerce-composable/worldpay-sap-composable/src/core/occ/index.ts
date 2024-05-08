@@ -1,4 +1,5 @@
 export * from './adapters/worldpayEndpointConfiguration';
+export * from './adapters/worldpay-ach/occ-worldpay-ach.adapter';
 export * from './adapters/worldpay-apm/occ-worldpay-apm.adapter';
 export * from './adapters/worldpay-applepay/occ-worldpay-applepay.adapter';
 export * from './adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';

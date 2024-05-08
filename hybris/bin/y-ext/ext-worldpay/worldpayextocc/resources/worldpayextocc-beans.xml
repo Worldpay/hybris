@@ -113,4 +113,13 @@
         <property name="timeZone" type="String"/>
     </bean>
 
+    <bean class="com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO">
+        <property name="accountType" type="java.lang.String"/>
+        <property name="accountNumber" type="java.lang.String"/>
+        <property name="routingNumber" type="java.lang.String"/>
+        <property name="checkNumber" type="java.lang.String"/>
+        <property name="companyName" type="java.lang.String"/>
+        <property name="customIdentifier" type="java.lang.String"/>
+    </bean>
+
 </beans>

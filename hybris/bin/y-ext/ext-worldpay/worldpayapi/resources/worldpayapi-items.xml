@@ -104,6 +104,13 @@
             <value code="verification"/>
         </enumtype>
 
+        <enumtype code="AchDirectDebitAccountType">
+            <value code="checking"/>
+            <value code="savings"/>
+            <value code="corporate"/>
+            <value code="corporateSavings"/>
+        </enumtype>
+
         <enumtype code="PayPalIntent">
             <value code="authorise"/>
             <value code="capture"/>

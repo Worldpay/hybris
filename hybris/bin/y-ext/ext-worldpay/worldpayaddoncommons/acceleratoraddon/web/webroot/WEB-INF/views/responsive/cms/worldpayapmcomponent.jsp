@@ -5,7 +5,7 @@
 
 <form:radiobutton id="paymentMethod_${apmConfiguration.code}" path="paymentMethod" disabled="${!isAvailable}"
                   value="${apmConfiguration.code}" cssClass="available-${isAvailable}" data-isBank="${apmConfiguration.bank}"/>
-<label class="available-${isAvailable}" for="paymentMethod_${apmConfiguration.code}">
-    <span>${apmConfiguration.name}</span>
+<label class="available-${isAvailable} col-xs-6 col-sm-6 col-md-4 col-lg-2" for="paymentMethod_${apmConfiguration.code}">
     <img src="${media.url}" title="${apmConfiguration.name}" alt="${apmConfiguration.name}"/>
+    <span>${apmConfiguration.name}</span>
 </label>

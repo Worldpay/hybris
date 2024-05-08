@@ -3,10 +3,7 @@ package com.worldpay.service.payment.request.impl;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.data.*;
 import com.worldpay.data.applepay.ApplePay;
-import com.worldpay.data.payment.Cse;
-import com.worldpay.data.payment.PayWithGoogleSSL;
-import com.worldpay.data.payment.Payment;
-import com.worldpay.data.payment.StoredCredentials;
+import com.worldpay.data.payment.*;
 import com.worldpay.data.threeds2.Additional3DSData;
 import com.worldpay.data.threeds2.RiskData;
 import com.worldpay.data.token.CardDetails;
@@ -178,6 +175,10 @@ public class DefaultWorldpayRequestFactoryTest {
     private AuthoriseRequestParameters.AuthoriseRequestParametersCreator authoriseRequestParametersCreatorMock;
     @Mock
     private AlternativeShippingAddress alternativeShippingAddressMock;
+    @Mock
+    private AchDirectDebitPayment achDirectDebitPaymentMock;
+    @Mock
+    private ACHDirectDebitAdditionalAuthInfo ACHDirectDebitAdditionalAuthInfoMock;
 
     @Captor
     private ArgumentCaptor<AuthoriseRequestParameters> authoriseRequestParametersArgumentCaptor;
@@ -628,8 +629,8 @@ public class DefaultWorldpayRequestFactoryTest {
     }
 
     @Test
-    public void internalGetRedirectAuthoriseServiceRequestForPayPalSSL_ShouldReturnRedirectAuthoriseServiceRequest() throws WorldpayConfigurationException {
-        when(worldpayOrderServiceMock.createPayPalSSLPayment(COUNTRY_CODE, PAYPAL_SSL)).thenReturn(paymentMock);
+    public void internalGetRedirectAuthoriseServiceRequestForAlternativePayments_ShouldReturnRedirectAuthoriseServiceRequest() throws WorldpayConfigurationException {
+        when(worldpayOrderServiceMock.createAlternativePayment(COUNTRY_CODE, PAYPAL_SSL)).thenReturn(paymentMock);
         when(additionalAuthInfoMock.getPaymentMethod()).thenReturn(PAYPAL_SSL);
         when(billingAddressMock.getCountryCode()).thenReturn(COUNTRY_CODE);
         doReturn(authoriseRequestParametersCreatorMock).when(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
@@ -637,10 +638,11 @@ public class DefaultWorldpayRequestFactoryTest {
         when(worldpayRequestServiceMock.createShopper(SHOPPER_EMAIL_ADDRESS, null, null)).thenReturn(shopperMock);
         doReturn(getAuthoriseRequestParameters()).when(authoriseRequestParametersCreatorMock).build();
 
-        final RedirectAuthoriseServiceRequest result = testObj.internalGetRedirectAuthoriseServiceRequestForPayPalSSL(cartModelMock, additionalAuthInfoMock, authoriseRequestParametersCreatorMock, worldpayAdditionalInfoDataMock);
+        final RedirectAuthoriseServiceRequest result = testObj.internalGetRedirectAuthoriseServiceRequestForAlternativePayments(cartModelMock, additionalAuthInfoMock, authoriseRequestParametersCreatorMock, worldpayAdditionalInfoDataMock);
 
         verify(authoriseRequestParametersCreatorMock).withPayment(paymentMock);
         verify(authoriseRequestParametersCreatorMock).withShopper(shopperMock);
         assertThat(result).isNotNull();
     }
+
 }

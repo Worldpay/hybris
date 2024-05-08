@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { GlobalMessageService, GlobalMessageType, QueryState, SemanticPathService } from '@spartacus/core';
 import { WorldpayCheckoutPaymentService } from '../services';
-import { PaymentDetails } from '@spartacus/cart/base/root';
+import { PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -15,18 +15,25 @@ export class WorldpayCheckoutReviewPaymentGuard implements CanActivate {
     protected router: Router,
     protected semanticPathService: SemanticPathService,
     protected globalMessageService: GlobalMessageService,
-    protected checkoutPaymentFacade: WorldpayCheckoutPaymentService,
+    protected worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService,
   ) {
   }
 
   canActivate(): Observable<boolean | UrlTree> {
-    return this.checkoutPaymentFacade.getPaymentDetailsState().pipe(
-      filter((state: QueryState<PaymentDetails>) => !state.loading && !state.error),
-      map((state: QueryState<PaymentDetails>) => state.data),
-      switchMap((data: PaymentDetails) => this.checkoutPaymentFacade.getCseTokenFromState().pipe(
+    return this.worldpayCheckoutPaymentService.getPaymentDetailsState().pipe(
+      filter((state: QueryState<WorldpayApmPaymentInfo>) => !state.loading && !state.error),
+      map((state: QueryState<WorldpayApmPaymentInfo>) => state.data),
+      switchMap((data: WorldpayApmPaymentInfo) => this.worldpayCheckoutPaymentService.getCseTokenFromState().pipe(
         map((cseToken: string): boolean | UrlTree => {
-          // eslint-disable-next-line no-prototype-builtins
-          if (data.hasOwnProperty('cardType') && !data.saved && (!cseToken || cseToken?.length === 0)) {
+          if (
+            (
+              // eslint-disable-next-line no-prototype-builtins
+              data.hasOwnProperty('cardType') &&
+              !data.saved &&
+              (!cseToken || cseToken?.length === 0)
+            ) ||
+            (data.apmCode === PaymentMethod.ACH && data?.achPaymentForm === null)
+          ) {
             this.globalMessageService.add({ key: 'paymentForm.apmChanged' }, GlobalMessageType.MSG_TYPE_ERROR);
             return this.router.parseUrl(this.semanticPathService.get('checkoutPaymentDetails'));
           }
