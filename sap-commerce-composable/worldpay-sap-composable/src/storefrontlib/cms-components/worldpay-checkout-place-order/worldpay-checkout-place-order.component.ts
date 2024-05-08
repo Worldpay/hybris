@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, Renderer2, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { GlobalMessageService, GlobalMessageType, HttpErrorModel, QueryState, RoutingService, WindowRef } from '@spartacus/core';
 import { LaunchDialogService, } from '@spartacus/storefront';
-import { BehaviorSubject, combineLatest, Observable, ObservedValueOf, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import { filter, take, takeUntil } from 'rxjs/operators';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { SafeResourceUrl } from '@angular/platform-browser';
@@ -12,18 +12,19 @@ import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay
 import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
 import {
+  ACHPaymentForm,
   ApmPaymentDetails,
   APMRedirectResponse,
   BrowserInfo,
   PlaceOrderResponse,
   ThreeDsDDCInfo,
   ThreeDsInfo,
-  WorldpayApmPaymentInfo,
   WorldpayChallengeResponse
 } from '../../../core/interfaces';
 import { WorldpayOrderService } from '../../../core/services';
 import { ApmNormalizer } from '../../../core/normalizers';
 import { PaymentDetails } from '@spartacus/cart/base/root';
+import { WorldpayACHFacade } from '../../../core/facade/worldpay-ach.facade';
 
 @Component({
   selector: 'y-worldpay-checkout-place-order',
@@ -34,7 +35,7 @@ import { PaymentDetails } from '@spartacus/cart/base/root';
 })
 export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderComponent implements OnInit, OnDestroy {
 
-  paymentDetails: WorldpayApmPaymentInfo;
+  paymentDetails: ApmPaymentDetails;
   cseToken: string;
   override checkoutSubmitForm: UntypedFormGroup = this.fb.group({
     termsAndConditions: [false, Validators.requiredTrue]
@@ -76,6 +77,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
    * @param worldpayCheckoutPaymentService WorldpayCheckoutPaymentService
    * @param worldpayApmService WorldpayApmService
    * @param worldpayFraudsightService WorldpayFraudsightService
+   * @param worldpayACHFacade
    * @param apmNormalizer
    */
   constructor(
@@ -93,6 +95,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     protected worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService,
     protected worldpayApmService: WorldpayApmService,
     protected worldpayFraudsightService: WorldpayFraudsightService,
+    protected worldpayACHFacade: WorldpayACHFacade,
     protected apmNormalizer: ApmNormalizer
   ) {
     super(
@@ -121,7 +124,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
         take(1),
         takeUntil(this.drop)
       ).subscribe({
-        next: ([apm, paymentDetails]): void => {
+        next: ([apm, paymentDetails, achPaymentFormValue]): void => {
           if (!apm || apm?.cardType) {
             if (apm.cardType) {
               this.browserInfo = {
@@ -137,7 +140,11 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
             this.executeDDC3dsJwtCommand();
           } else {
             const apmPaymentDetails: ApmPaymentDetails = apm ?? { ...paymentDetails?.data?.worldpayAPMPaymentInfo };
-            this.worldpayApmService.getAPMRedirectUrl(apmPaymentDetails, this.save);
+            if (achPaymentFormValue) {
+              this.placeACHOrder(achPaymentFormValue);
+            } else {
+              this.worldpayApmService.getAPMRedirectUrl(apmPaymentDetails, this.save);
+            }
           }
         },
         error: (error: unknown): void => {
@@ -161,12 +168,13 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
 
   /**
    * Trigger Place order for Worldpay APM
-   * @since 6.4.0
+   * @since 6.4.2
    */
-  placeWorldpayOrder(): Observable<[ObservedValueOf<Observable<WorldpayApmPaymentInfo>>, ObservedValueOf<Observable<QueryState<PaymentDetails | undefined>>>]> {
+  placeWorldpayOrder(): Observable<[ApmPaymentDetails, QueryState<PaymentDetails>, ACHPaymentForm]> {
     return combineLatest([
       this.worldpayApmService.getSelectedAPMFromState(),
       this.worldpayCheckoutPaymentService.getPaymentDetailsState(),
+      this.worldpayACHFacade.getACHPaymentFormValue()
     ]);
   }
 
@@ -383,6 +391,11 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       });
   }
 
+  /**
+   * Process the challenge response
+   * @since 6.4.0
+   * @param event MessageEvent
+   */
   private processChallenge(event: MessageEvent): void {
     if (this.challengeHandler) {
       this.nativeWindow.removeEventListener('message', this.challengeHandler, true);
@@ -404,6 +417,23 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       console.log('Failed to process challenge event data', err);
     }
     this.orderFacade.challengeFailed();
+  }
+
+  /**
+   * Place ACH Order
+   * @since 6.4.2
+   * @param achPaymentFormValue
+   */
+  protected placeACHOrder(achPaymentFormValue: ACHPaymentForm): void {
+    this.orderFacade.placeACHOrder(achPaymentFormValue)
+      .pipe(
+        take(1),
+        takeUntil(this.drop)
+      ).subscribe({
+        error: (): void => {
+          this.orderFacade.clearLoading();
+        },
+      });
   }
 
   override ngOnDestroy(): void {

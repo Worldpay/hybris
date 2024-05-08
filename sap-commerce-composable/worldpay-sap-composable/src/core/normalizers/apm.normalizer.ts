@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Converter, Image, OccConfig } from '@spartacus/core';
-import { ApmData, OccApmData, OccApmDataConfiguration, PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
+import { ACHPaymentForm, ApmData, ApmPaymentDetails, OccApmData, OccApmDataConfiguration, PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
+import { WorldpayACHFacade } from '../facade/worldpay-ach.facade';
+import { filter, take, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApmNormalizer implements Converter<OccApmData, ApmData> {
 
-  constructor(protected config: OccConfig) {
+  constructor(
+    protected config: OccConfig,
+    protected worldpayACHFacade: WorldpayACHFacade
+  ) {
   }
 
   convert(source: OccApmData, target?: ApmData): ApmData {
@@ -61,7 +66,7 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
     );
   }
 
-  normalizeApmData(source: WorldpayApmPaymentInfo, target?: WorldpayApmPaymentInfo): WorldpayApmPaymentInfo {
+  normalizeApmData(source: WorldpayApmPaymentInfo, target?: WorldpayApmPaymentInfo): ApmPaymentDetails {
     if (target === undefined) {
       target = { ...source };
     }
@@ -78,11 +83,21 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
       target.shopperBankCode = source.apmName;
     }
 
+    if (source.apmCode === PaymentMethod.ACH) {
+      this.worldpayACHFacade.getACHPaymentFormValue().pipe(
+        filter((value: ACHPaymentForm) => !!value),
+        tap((value: ACHPaymentForm): void => {
+          target.achPaymentForm = value;
+        }),
+        take(1)
+      ).subscribe();
+    }
+
     if (source.apmName && source.apmCode) {
       delete target.apmCode;
       delete target.apmName;
     }
 
-    return target;
+    return target as ApmPaymentDetails;
   }
 }

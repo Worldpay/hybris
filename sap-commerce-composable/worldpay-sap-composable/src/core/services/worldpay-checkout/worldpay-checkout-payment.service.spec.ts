@@ -11,11 +11,12 @@ import { inject, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
 import { WorldpayCheckoutPaymentAdapter } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
-import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent } from '@spartacus/checkout/base/root';
+import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade } from '@spartacus/checkout/base/root';
 import { WorldpayConnector } from '../../connectors/worldpay.connector';
 import { WorldpayAdapter } from '../../connectors/worldpay.adapter';
-import { ThreeDsDDCInfo } from '../../interfaces';
+import { PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
 import { ThreeDsChallengeIframeUrlSetEvent, ThreeDsDDCIframeUrlSetEvent } from '../../events/checkout-payment.events';
+import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
 
 describe('WorldpayCheckoutPaymentService', () => {
   let service: WorldpayCheckoutPaymentService;
@@ -24,8 +25,10 @@ describe('WorldpayCheckoutPaymentService', () => {
   let sanitizer: DomSanitizer;
   let router: Router;
   let platformLocation: PlatformLocation;
+  let checkoutQueryFacade: CheckoutQueryFacade;
   let checkoutPaymentConnector: WorldpayCheckoutPaymentConnector;
   let worldpayConnector: WorldpayConnector;
+  let worldpayACHFacade: WorldpayACHFacade;
   let eventService: EventService;
   let eventServiceSpy: jasmine.Spy;
   const userId: string = 'testUserId';
@@ -133,6 +136,7 @@ describe('WorldpayCheckoutPaymentService', () => {
     });
 
     service = TestBed.inject(WorldpayCheckoutPaymentService);
+    checkoutQueryFacade = TestBed.inject(CheckoutQueryFacade);
     activeCartService = TestBed.inject(ActiveCartFacade);
     userIdService = TestBed.inject(UserIdService);
     sanitizer = TestBed.inject(DomSanitizer);
@@ -140,6 +144,7 @@ describe('WorldpayCheckoutPaymentService', () => {
     checkoutPaymentConnector = TestBed.inject(WorldpayCheckoutPaymentConnector);
     worldpayConnector = TestBed.inject(WorldpayConnector);
     eventService = TestBed.inject(EventService);
+    worldpayACHFacade = TestBed.inject(WorldpayACHFacade);
 
     window['Worldpay'] = {
       encrypt: () => 'dummyCseToken',
@@ -246,5 +251,62 @@ describe('WorldpayCheckoutPaymentService', () => {
     service.getSaveCreditCardValueFromState().subscribe(response => saveCard = response).unsubscribe();
     expect(saveCard).toBeTrue();
   });
+
+  it('should return payment details state with saved and default flags', () => {
+    spyOn(service, 'getSaveCreditCardValueFromState').and.returnValue(of(true));
+    spyOn(service, 'getSaveAsDefaultCardValueFromState').and.returnValue(of(true));
+    spyOn(worldpayACHFacade, 'getACHPaymentFormValue').and.returnValue(of(null));
+    spyOn(checkoutQueryFacade, 'getCheckoutDetailsState').and.returnValue(of({
+      loading: false,
+      error: false,
+      data: {
+        paymentInfo: { id: '1' },
+        worldpayAPMPaymentInfo: { apmCode: 'ACH' }
+      }
+    }));
+
+    service.getPaymentDetailsState().subscribe(state => {
+      expect(state.data.saved).toEqual(true);
+      expect(state.data.defaultPayment).toEqual(true);
+    });
+  });
+
+  it('should return payment details state with ACH payment form', () => {
+    const achPaymentFormValue = { accountNumber: '123456789' };
+    spyOn(service, 'getSaveCreditCardValueFromState').and.returnValue(of(false));
+    spyOn(service, 'getSaveAsDefaultCardValueFromState').and.returnValue(of(false));
+    spyOn(worldpayACHFacade, 'getACHPaymentFormValue').and.returnValue(of(achPaymentFormValue));
+    spyOn(checkoutQueryFacade, 'getCheckoutDetailsState').and.returnValue(of({
+      loading: false,
+      error: false,
+      data: {
+        worldpayAPMPaymentInfo: { apmCode: PaymentMethod.ACH }
+      }
+    }));
+
+    service.getPaymentDetailsState().subscribe(state => {
+      expect(state.data.achPaymentForm).toEqual(achPaymentFormValue);
+    });
+  });
+
+  it('should return payment details state without saved and default flags when no id', () => {
+    spyOn(service, 'getSaveCreditCardValueFromState').and.returnValue(of(true));
+    spyOn(service, 'getSaveAsDefaultCardValueFromState').and.returnValue(of(true));
+    spyOn(worldpayACHFacade, 'getACHPaymentFormValue').and.returnValue(of(null));
+    spyOn(checkoutQueryFacade, 'getCheckoutDetailsState').and.returnValue(of({
+      loading: false,
+      error: false,
+      data: {
+        paymentInfo: {},
+        worldpayAPMPaymentInfo: { apmCode: 'ACH' }
+      }
+    }));
+
+    service.getPaymentDetailsState().subscribe(state => {
+      expect(state.data.saved).toBeUndefined();
+      expect(state.data.defaultPayment).toBeUndefined();
+    });
+  });
+
 });
 

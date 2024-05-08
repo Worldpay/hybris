@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { WORLDPAY_CHECKOUT_PAYMENT_FEATURE } from './worldpay-feature-name';
 import { CheckoutPaymentFacade } from '@spartacus/checkout/base/root';
 import { PaymentDetails } from '@spartacus/cart/base/root';
+import { WorldpayApmPaymentInfo } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -43,9 +44,9 @@ export abstract class WorldpayCheckoutPaymentFacade extends CheckoutPaymentFacad
 
   /**
    * Abstract method used to create new payment details
-   * @since 6.4.0
+   * @since 6.4.2
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  abstract override getPaymentDetailsState(): Observable<QueryState<PaymentDetails | undefined>>;
+  abstract override getPaymentDetailsState(): Observable<QueryState<WorldpayApmPaymentInfo | undefined>>;
 
 }

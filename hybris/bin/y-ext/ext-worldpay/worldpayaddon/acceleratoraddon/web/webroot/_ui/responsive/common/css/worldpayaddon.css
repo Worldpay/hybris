@@ -2,9 +2,13 @@
     margin-bottom: 10px;
 }
 
-.cms-payment-button > input[type=radio],
-.cms-payment-button > label span {
+.cms-payment-button > input[type=radio]{
     display: none;
+}
+
+.cms-payment-button > label span{
+    text-align: center;
+    display: block;
 }
 
 .cms-payment-button > label.available-false {
@@ -13,17 +17,22 @@
 
 .cms-payment-button > label {
     border: 1px solid transparent;
-    width: 65px;
-    height: 50px;
     vertical-align:middle;
-    display: inline-flex;
+    text-align: center;
+    padding: 5px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .cms-payment-button label img {
     pointer-events: none;
-    max-width:60px;
-    max-height:40px;
+    max-width:100px;
     margin: auto;
+    height: 60px;
+    object-fit: contain;
 
 }
 

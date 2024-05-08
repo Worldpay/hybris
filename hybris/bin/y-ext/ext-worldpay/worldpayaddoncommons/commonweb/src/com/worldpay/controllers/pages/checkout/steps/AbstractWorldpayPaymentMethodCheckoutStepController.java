@@ -1,13 +1,13 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
-import com.worldpay.data.Additional3DS2Info;
-import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.*;
+import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
+import com.worldpay.forms.ACHForm;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants;
@@ -17,6 +17,9 @@ import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.commercefacades.order.data.CardTypeData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.enums.CountryType;
+import de.hybris.platform.enumeration.EnumerationService;
+import de.hybris.platform.servicelayer.type.TypeService;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,10 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -52,6 +52,8 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     protected static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
     protected static final int PLUS_YEARS = 11;
     protected static final String REQUEST = "request";
+    protected static final String ACH_ACCOUNT_TYPES = "achAccountTypes";
+    protected static final String ACH_DATA = "ACHData";
 
     @Resource
     protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
@@ -59,6 +61,10 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     protected WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
     protected WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
+    @Resource
+    protected EnumerationService enumerationService;
+    @Resource
+    protected TypeService typeService;
 
     @ModelAttribute("billingCountries")
     public Collection<CountryData> getBillingCountries() {
@@ -120,6 +126,24 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
         return bankTransferAdditionalAuthInfo;
     }
 
+    protected ACHDirectDebitAdditionalAuthInfo createACHDirectDebitAdditionalAuthInfo(final String paymentMethod, final Model model) {
+        final ACHDirectDebitAdditionalAuthInfo achAdditionalAuthInfo = new ACHDirectDebitAdditionalAuthInfo();
+        populateAdditionalAuthInfo(false, paymentMethod, achAdditionalAuthInfo);
+        final ACHForm achForm = (ACHForm) model.asMap().get(ACH_DATA);
+        if (Objects.nonNull(achForm)) {
+            achAdditionalAuthInfo.setAccountNumber(achForm.getAccountNumber());
+            achAdditionalAuthInfo.setCheckNumber(achForm.getCheckNumber());
+            achAdditionalAuthInfo.setCompanyName(achForm.getCompanyName());
+            achAdditionalAuthInfo.setRoutingNumber(achForm.getRoutingNumber());
+            achAdditionalAuthInfo.setCustomIdentifier(achForm.getCustomIdentifier());
+            Optional.ofNullable(achForm.getAccountType())
+                    .map(String::toUpperCase)
+                    .map(AchDirectDebitAccountType::valueOf)
+                    .ifPresent(achAdditionalAuthInfo::setAccountType);
+        }
+        return achAdditionalAuthInfo;
+    }
+
     protected AdditionalAuthInfo createAdditionalAuthInfo(final Boolean savePaymentInfo, final String paymentMethod) {
         final AdditionalAuthInfo additionalAuthInfo = new AdditionalAuthInfo();
         populateAdditionalAuthInfo(savePaymentInfo, paymentMethod, additionalAuthInfo);
@@ -175,5 +199,15 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
 
     protected Boolean getSavePaymentInfo(final Model model) {
         return Optional.ofNullable((Boolean) model.asMap().get(SAVE_PAYMENT_INFO)).orElse(Boolean.FALSE);
+    }
+
+    protected List<Pair<String, String>> getACHDirectDebitValues() {
+
+        final List<Pair<String, String>> types = new ArrayList<>();
+
+        enumerationService.getEnumerationValues(AchDirectDebitAccountType._TYPECODE).
+                forEach(type -> types.add(Pair.of(type.getCode(), typeService.getEnumerationValue(type).getName())));
+
+        return types;
     }
 }

@@ -1,21 +1,30 @@
 # Worldpay Connector for the SAP Spartacus Storefront
-The Worldpay Connector for SAP Spartacus Storefront is an Angular Library that provides the components to integrate WorldPay payment solutions with the SAP Commerce Cloud Spartacus storefront.
+
+The Worldpay Connector for SAP Spartacus Storefront is an Angular Library that provides the components to integrate WorldPay payment solutions with the SAP Commerce Cloud Spartacus
+storefront.
 
 ## About Worldpay from FIS
-Worldpay from FIS is one of the world's leading global eCommerce and payment technology companies. FIS is a leading provider of technology solutions for merchants, banks and capital markets firms globally.
+
+Worldpay from FIS is one of the world's leading global eCommerce and payment technology companies. FIS is a leading provider of technology solutions for merchants, banks and
+capital markets firms globally.
 
 ## About SAP Composable Storefront
-Starting with version 5.0, “SAP Commerce Cloud, composable storefront” is the name for the official release of project “Spartacus” libraries published by SAP. The officially supported composable storefront is available to SAP Commerce Cloud customers. Documentation is available on the SAP Help Portal.
 
-Composable storefront is based off the Spartacus open source code, and is included in the SAP Commerce Cloud license at no extra cost. Composable storefront has a roll-forward update policy.
-Spartacus documentation: [https://sap.github.io/spartacus-docs/](https://sap.github.io/spartacus-docs/). Release information: [https://sap.github.io/spartacus-docs/release-information/](https://sap.github.io/spartacus-docs/release-information/).
+Starting with version 5.0, “SAP Commerce Cloud, composable storefront” is the name for the official release of project “Spartacus” libraries published by SAP. The officially
+supported composable storefront is available to SAP Commerce Cloud customers. Documentation is available on the SAP Help Portal.
+
+Composable storefront is based off the Spartacus open source code, and is included in the SAP Commerce Cloud license at no extra cost. Composable storefront has a roll-forward
+update policy.
+Spartacus documentation: [https://sap.github.io/spartacus-docs/](https://sap.github.io/spartacus-docs/). Release
+information: [https://sap.github.io/spartacus-docs/release-information/](https://sap.github.io/spartacus-docs/release-information/).
 
 ## Requirements
 
 - For the back end, SAP Commerce Cloud version 2105 or higher is required.
 - **[Angular CLI:](https://angular.io/)** Version 15.2.4 is the minimum required. The most recent 15.x version is strongly recommended. Version 16 and higher is not supported.
 - **[npm:](https://www.npmjs.com/)** Version 8.0 or newer.
-- **[Node.js](https://nodejs.org/)**: Version 16.13.0 or a newer 16.x version, or else version 18.10.0 or a newer 18.x version. Node.js 14.20 and newer 14.x versions are supported by Angular 15, but are no longer supported by SAP Commerce Cloud hosting services.
+- **[Node.js](https://nodejs.org/)**: Version 16.13.0 or a newer 16.x version, or else version 18.10.0 or a newer 18.x version. Node.js 14.20 and newer 14.x versions are supported
+  by Angular 15, but are no longer supported by SAP Commerce Cloud hosting services.
 
 **Note:** Some Spartacus features require API endpoints that are only available in newer versions of SAP Commerce Cloud. For more information, see Feature Compatibility.
 
@@ -36,12 +45,15 @@ Run the command `./install.sh` to do a clean install and run the example-storefr
 ```
   npm install @worldpay2020/sap-composable
 ```
+
 or
+
 ```
   npm install @worldpay2020/sap-composable@6.4.0
 ```
 
 ## Configuring SAP Composable Storefront
+
 1. Include Worldpay Module the following in your Spartacus storefront's `app.module.ts` file.
 
 ````typescript
@@ -50,18 +62,18 @@ import { WorldpayModule } from '@worldpay2020/sap-composable';
 @NgModule({
   imports: [
     ...
-    WorldpayModule,
+      WorldpayModule,
   ],
 })
 ````
 
 **Note:** WorldpayModule will include the following modules:
-  
+
 ```typescript 
 @NgModule({
   imports: [
     ...
-    OccWorldpayModule,
+      OccWorldpayModule,
     WorldpayFraudsightRiskModule,
     WorldpayCheckoutPaymentMethodModule,
     WorldpayCheckoutDeliveryAddressModule,
@@ -102,6 +114,7 @@ export class WorldpayModule {
 ```
 
 2. Include Worldpay script before closing the body tag inside the index.html file
+
 ```
 <html>
 ...
@@ -111,39 +124,44 @@ export class WorldpayModule {
 </body>
 </html>
 ```
- 
+
 ## Enable Guaranteed Payments
+
 To enable Guaranteed Payments, you must:
+
 1. add the `WorldpayGuaranteedPaymentsModule` to your `app.module.ts` file:
 
 ```typescript
 @NgModule({
   imports: [
     ...
-    WorldpayModule,
+      WorldpayModule,
     WorldpayGuaranteedPaymentsModule
   ],
 })
 ````
 
 2. Then update your `app.component.html` file using the `<worldpay-guaranteed-payments></worldpay-guaranteed-payments>` tag
+
 ```
 <cx-storefront></cx-storefront>
 <worldpay-guaranteed-payments></worldpay-guaranteed-payments>
 ```
 
 ## Enable FraudSight Risk Module
+
 1. To enable Guaranteed Payments, you must add the ***WorldpayFraudsightRiskModule*** to your `app.module.ts` file:
 
 ```typescript
 @NgModule({
   imports: [
     ...
-    WorldpayModule,
+      WorldpayModule,
     WorldpayFraudsightRiskModule
   ],
 })
 ````
+
 2. Update your environment.ts file with the following configuration:
 
 ```typescript
@@ -157,6 +175,7 @@ export const environment = {
 ```
 
 3. Then update your `app.component.html` file using the ***<worldpay-fraudsight-risk></worldpay-fraudsight-risk>*** tag
+
 ```
 <cx-storefront></cx-storefront>
 <worldpay-fraudsight-risk
@@ -169,15 +188,30 @@ export const environment = {
 ```
 
 ## License
+
 Copyright (c) 2022 Worldpay Ltd.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom
+the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### Release 6.4.2
+
+* Included ACH payment method for United States
+
+### Release 6.4.1
+
+* Updated iDeal 2.0
+* Implemented PayPal SSL
 
 ### Release 6.4.0
+
 * Credit card form
 * Supports Guest checkout
 * 3d Secure

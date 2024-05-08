@@ -1,7 +1,7 @@
 import { ComponentRef, Injectable, ViewContainerRef } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { Command, CommandService, CommandStrategy, EventService, GlobalMessageService, GlobalMessageType, RoutingService, UserIdService } from '@spartacus/core';
-import {BrowserInfo, CSEPaymentForm, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
+import { ACHPaymentForm, BrowserInfo, CSEPaymentForm, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ClearInitialPaymentRequestEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from '../../events/checkout-payment.events';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
@@ -9,9 +9,15 @@ import { ActiveCartFacade, PaymentDetails } from '@spartacus/cart/base/root';
 import { OrderConnector, OrderService } from '@spartacus/order/core';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayConnector } from '../../connectors/worldpay.connector';
-import { ClearWorldpayPaymentDetailsEvent, SetWorldpaySaveAsDefaultCreditCardEvent, SetWorldpaySavedCreditCardEvent } from '../../events/worldpay.events';
+import {
+  ClearWorldpayACHPaymentFormEvent,
+  ClearWorldpayPaymentDetailsEvent,
+  SetWorldpaySaveAsDefaultCreditCardEvent,
+  SetWorldpaySavedCreditCardEvent
+} from '../../events/worldpay.events';
 import { LAUNCH_CALLER, LaunchDialogService } from '@spartacus/storefront';
 import { WorldpayApmConnector } from '../../connectors';
+import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
 
 @Injectable({
   providedIn: 'root'
@@ -154,6 +160,29 @@ export class WorldpayOrderService extends OrderService {
     );
 
   /**
+   * Command used to set APM payment details
+   * @since 6.4.0
+   * @returns Command<ApmPaymentDetails, Cart> - Command with ApmPaymentDetails and Cart
+   */
+  protected placeACHOrderCommand$: Command<ACHPaymentForm, Order> =
+    this.commandService.create<ACHPaymentForm, Order>(
+      (achPaymentForm: ACHPaymentForm) => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]) =>
+          this.worldpayACHConnector.placeACHOrder(
+            userId,
+            cartId,
+            achPaymentForm
+          ).pipe(
+            tap((response: Order): void => {
+              this.placedOrderSuccess(userId, cartId, response);
+              this.eventService.dispatch({}, ClearWorldpayACHPaymentFormEvent);
+            })
+          )
+        )
+      )
+    );
+
+  /**
    * Constructor
    * @param activeCartFacade ActiveCartFacade
    * @param userIdService UserIdService
@@ -166,6 +195,7 @@ export class WorldpayOrderService extends OrderService {
    * @param worldpayCheckoutPaymentService WorldpayCheckoutPaymentService
    * @param worldpayConnector WorldpayConnector
    * @param worldpayApmConnector WorldpayApmConnector
+   * @param worldpayACHConnector WorldpayACHConnector
    */
   constructor(
     protected override activeCartFacade: ActiveCartFacade,
@@ -179,6 +209,7 @@ export class WorldpayOrderService extends OrderService {
     protected worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService,
     protected worldpayConnector: WorldpayConnector,
     protected worldpayApmConnector: WorldpayApmConnector,
+    protected worldpayACHConnector: WorldpayACHConnector
   ) {
     super(activeCartFacade, userIdService, commandService, orderConnector, eventService);
     this.listenTriggerDDC3dsJwtSetEvent();
@@ -312,6 +343,16 @@ export class WorldpayOrderService extends OrderService {
         )
       )
     );
+  }
+
+  /**
+   * Executes the ACH order placement command.
+   * @since 6.4.2
+   * @param achPaymentForm - The form data for the ACH order.
+   * @returns - An Observable of the Order type.
+   */
+  placeACHOrder(achPaymentForm: ACHPaymentForm): Observable<Order> {
+    return this.placeACHOrderCommand$.execute(achPaymentForm);
   }
 
   /**

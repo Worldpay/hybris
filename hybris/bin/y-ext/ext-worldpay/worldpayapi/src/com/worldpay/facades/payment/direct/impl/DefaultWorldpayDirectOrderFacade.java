@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
+import com.worldpay.data.payment.Card;
+import com.worldpay.data.token.TokenDetails;
+import com.worldpay.data.token.TokenReply;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
@@ -13,11 +16,6 @@ import com.worldpay.model.GooglePayPaymentInfoModel;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.data.PaymentReply;
-import com.worldpay.data.Request3DInfo;
-import com.worldpay.data.payment.Card;
-import com.worldpay.data.token.TokenDetails;
-import com.worldpay.data.token.TokenReply;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
@@ -378,10 +376,33 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return handleDirectServiceResponse(directAuthoriseServiceResponse, cart);
     }
 
+    @Override
+    public DirectResponseData authoriseACHDirectDebit(final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final ACHDirectDebitAdditionalAuthInfo additionalAuthInfo) throws WorldpayException, InvalidCartException {
+        final CartModel cart = cartService.getSessionCart();
+        try {
+            final DirectAuthoriseServiceResponse serviceResponse = worldpayDirectOrderService.authoriseACHDirectDebit(cart, additionalAuthInfo, worldpayAdditionalInfoData);
+            return handleACHDirectDebitResponse(serviceResponse, cart);
+        } catch (final WorldpayConfigurationException e) {
+            LOG.error(THERE_IS_NO_CONFIGURATION);
+            throw e;
+        } catch (final InvalidCartException e) {
+            throw new InvalidCartException(MessageFormat.format("There was an error placing the order for cart [{}]", cart.getCode()));
+        }
+    }
+
     protected DirectResponseData handleDirectServiceResponse(final DirectAuthoriseServiceResponse serviceResponse, final AbstractOrderModel abstractOrderModel)
         throws WorldpayException, InvalidCartException {
         if (shouldProcessResponse(serviceResponse)) {
             return processDirectResponse(serviceResponse, abstractOrderModel);
+        } else {
+            return handleErrorOnServiceResponse(serviceResponse);
+        }
+    }
+
+    protected DirectResponseData handleACHDirectDebitResponse(final DirectAuthoriseServiceResponse serviceResponse, final CartModel abstractOrderModel)
+            throws WorldpayException, InvalidCartException {
+        if (shouldProcessACHResponse(serviceResponse)) {
+            return processACHDirectDebitDirectResponse(serviceResponse, abstractOrderModel);
         } else {
             return handleErrorOnServiceResponse(serviceResponse);
         }
@@ -429,6 +450,28 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return response;
     }
 
+    protected DirectResponseData processACHDirectDebitDirectResponse(final DirectAuthoriseServiceResponse serviceResponse,
+                                                                     final CartModel abstractOrderModel) throws InvalidCartException, WorldpayException {
+        final DirectResponseData response = new DirectResponseData();
+        final PaymentReply paymentReply = serviceResponse.getPaymentReply();
+        String merchantCode = worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCode();
+        if (paymentReply != null) {
+            final AuthorisedStatus status = paymentReply.getAuthStatus();
+            if (AUTHORISED.equals(status) || CAPTURED.equals(status)) {
+                worldpayDirectOrderService.completeAuthoriseACHDirectDebit(serviceResponse, abstractOrderModel, merchantCode);
+                handleAuthorisedResponse(response);
+            } else if (REFUSED.equals(status)) {
+                handleRefusedResponse(response, paymentReply.getReturnCode());
+            } else if (CANCELLED.equals(status)) {
+                handleCancelledResponse(response);
+            }
+        } else {
+            final String errorMessage = format(ERROR_AUTHORISING_ORDER, abstractOrderModel.getWorldpayOrderCode());
+            throwWorldpayException(errorMessage);
+        }
+        return response;
+    }
+
     protected DirectResponseData processDirectResponse(final DirectAuthoriseServiceResponse serviceResponse,
                                                        final AbstractOrderModel abstractOrderModel) throws InvalidCartException, WorldpayException {
         final DirectResponseData response = new DirectResponseData();
@@ -462,6 +505,12 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
 
     protected boolean shouldProcessResponse(final DirectAuthoriseServiceResponse serviceResponse) {
         return serviceResponse.getPaymentReply() != null || serviceResponse.get3DSecureFlow().isPresent();
+    }
+
+    protected boolean shouldProcessACHResponse(final DirectAuthoriseServiceResponse serviceResponse) {
+        return serviceResponse.getPaymentReply() != null &&
+                (serviceResponse.getPaymentReply().getAuthStatus().equals(AUTHORISED) ||
+                        serviceResponse.getPaymentReply().getAuthStatus().equals(CAPTURED));
     }
 
     protected boolean shouldProcessRedirect(final DirectAuthoriseServiceResponse serviceResponse) {
