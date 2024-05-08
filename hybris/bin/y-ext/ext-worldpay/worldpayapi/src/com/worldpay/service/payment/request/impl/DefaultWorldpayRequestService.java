@@ -35,8 +35,6 @@ import java.security.GeneralSecurityException;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.worldpay.service.model.payment.PaymentType.IDEAL;
-
 public class DefaultWorldpayRequestService implements WorldpayRequestService {
 
     private static final String WORLDPAY_MERCHANT_TOKEN_ENABLED = "worldpay.merchant.token.enabled";
@@ -79,6 +77,13 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
         browser.setAcceptHeader(worldpayAdditionalInfo.getAcceptHeader());
         browser.setUserAgentHeader(worldpayAdditionalInfo.getUserAgentHeader());
         browser.setDeviceType(worldpayAdditionalInfo.getDeviceType());
+        browser.setJavaEnabled(worldpayAdditionalInfo.getJavaEnabled());
+        browser.setJavascriptEnabled(worldpayAdditionalInfo.getJavascriptEnabled());
+        browser.setLanguage(worldpayAdditionalInfo.getLanguage());
+        browser.setTimeZone(worldpayAdditionalInfo.getTimeZone());
+        browser.setColorDepth(worldpayAdditionalInfo.getColorDepth());
+        browser.setScreenHeight(worldpayAdditionalInfo.getScreenHeight());
+        browser.setScreenWidth(worldpayAdditionalInfo.getScreenWidth());
         return browser;
     }
 
@@ -145,8 +150,7 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
      */
     @Override
     public Payment createBankPayment(final String worldpayOrderCode, final String paymentMethod, final String shopperBankCode) throws WorldpayConfigurationException {
-        if (IDEAL.getMethodCode().equals(paymentMethod)) {
-
+        if (PaymentType.getPaymentType(paymentMethod) != null) {
             String encryptedOrderCode;
             try {
                 encryptedOrderCode = worldpayOrderCodeVerificationService.getEncryptedOrderCode(worldpayOrderCode);
@@ -156,8 +160,9 @@ public class DefaultWorldpayRequestService implements WorldpayRequestService {
 
             final String successURL = bankWorldpayUrlService.getFullSuccessURL() + "?orderId=" + UriUtils.encode(encryptedOrderCode, StandardCharsets.UTF_8.toString());
 
-            return WorldpayInternalModelTransformerUtil.createAlternativeShopperBankCodePayment(PaymentType.IDEAL, shopperBankCode, successURL, bankWorldpayUrlService.getFullFailureURL(), bankWorldpayUrlService.getFullCancelURL(), null, null);
+            return WorldpayInternalModelTransformerUtil.createAlternativeShopperBankCodePayment(PaymentType.getPaymentType(paymentMethod), shopperBankCode, successURL, bankWorldpayUrlService.getFullFailureURL(), bankWorldpayUrlService.getFullCancelURL(), null, null);
         }
+
         return null;
     }
 

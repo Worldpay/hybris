@@ -32,12 +32,12 @@ INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = $lan
                                       ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay          ;                      ; GBP, EUR, USD      ;                                        ;                                                 ; true                             ;
                                       ; ALIPAY-SSL            ; Alipay            ; Alipay                   ;                      ; GBP, EUR, USD, SGD ; CN                                     ; GBP:1:5000, EUR:1:6000, USD:1:8000, SGD:2:10000 ; true                             ;
                                       ; PAYPAL-EXPRESS        ; PayPal            ; PayPal                   ;                      ;                    ;                                        ;                                                 ; true                             ;
+                                      ; PAYPAL-SSL            ; PayPal            ; PayPal                   ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; PAYWITHGOOGLE-SSL     ; Google Pay        ; Google Pay               ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; APPLEPAY-SSL          ; Apple Pay         ; Apple Pay                ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; MISTERCASH-SSL        ; MisterCash        ; MisterCash               ;                      ; EUR                ;                                        ; EUR:1:5000                                      ;                                  ;
-                                      ; POLI-SSL              ; POLi              ; POLi                     ;                      ;                    ;                                        ;                                                 ;                                  ; true
                                       ; POLINZ-SSL            ; POLi-NZ           ; POLi-NZ                  ;                      ;                    ;                                        ;                                                 ; true                             ;
-                                      ; IDEAL-SSL             ; iDeal             ; iDeal                    ; true                 ; EUR                ; NL                                     ;                                                 ; true                             ;
+                                      ; IDEAL-SSL             ; iDeal             ; iDeal                    ;                      ; EUR                ; NL                                     ;                                                 ; true                             ;
                                       ; KLARNA_V2-SSL         ; Klarna            ; Klarna                   ;                      ; EUR, GBP           ; AT, FI, DE, NL, NO, SE, GB             ;                                                 ; true                             ;
                                       ; KLARNA_PAYLATER-SSL   ; Klarna Pay Later  ; Klarna Pay Later         ;                      ; EUR, GBP           ; SE, NO, FI, DE, NL, AT, CH, UK, DK, US ;                                                 ; true                             ;
                                       ; KLARNA_SLICEIT-SSL    ; Klarna Slice It   ; Klarna Slice It          ;                      ; EUR, GBP           ; SE, NO, FI, DE, AT, UK, DK, US         ;                                                 ; true                             ;
@@ -45,15 +45,15 @@ INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = $lan
                                       ; SEPA_DIRECT_DEBIT-SSL ; Sepa Direct Debit ; Sepa Direct Debit        ;                      ; EUR                ; AT,BE,FR,DE,IE,IT,NL,ES                ; EUR:1:10000                                     ;                                  ; true
 
 INSERT_UPDATE WorldpayBankConfiguration; code[unique = true]; name[lang = $lang]; description[lang = $lang]; active[default = false]; apm(code)
-                                       ; ABN_AMRO           ; ABN AMRO          ; ABN AMRO                 ; true                   ; IDEAL-SSL
-                                       ; ASN                ; ASN               ; ASN                      ; true                   ; IDEAL-SSL
-                                       ; ING                ; ING               ; ING                      ; true                   ; IDEAL-SSL
-                                       ; RABOBANK           ; Rabobank          ; Rabobank                 ; true                   ; IDEAL-SSL
-                                       ; SNS                ; SNS               ; SNS Bank                 ; true                   ; IDEAL-SSL
-                                       ; SNS_REGIO          ; SNS Regio         ; SNS Regio Bank           ;                        ; IDEAL-SSL
-                                       ; TRIODOS            ; Triodos           ; Triodos Bank             ; true                   ; IDEAL-SSL
-                                       ; VAN_LANSCHOT       ; Van Lanschot      ; Van Lanschot Bank        ; true                   ; IDEAL-SSL
-                                       ; KNAB               ; Knab              ; Knab bank                ; true                   ; IDEAL-SSL
-                                       ; BUNQ               ; Bunq              ; Bunq bank                ; true                   ; IDEAL-SSL
-                                       ; HANDELSBANKEN      ; Handelsbanken     ; Handelsbanken bank       ; true                   ; IDEAL-SSL
-                                       ; MONEYOU            ; Moneyou           ; Moneyou bank             ; true                   ; IDEAL-SSL
+                                       ; ABN_AMRO           ; ABN AMRO          ; ABN AMRO                 ;                    ;
+                                       ; ASN                ; ASN               ; ASN                      ;                    ;
+                                       ; ING                ; ING               ; ING                      ;                    ;
+                                       ; RABOBANK           ; Rabobank          ; Rabobank                 ;                    ;
+                                       ; SNS                ; SNS               ; SNS Bank                 ;                    ;
+                                       ; SNS_REGIO          ; SNS Regio         ; SNS Regio Bank           ;                    ;
+                                       ; TRIODOS            ; Triodos           ; Triodos Bank             ;                    ;
+                                       ; VAN_LANSCHOT       ; Van Lanschot      ; Van Lanschot Bank        ;                    ;
+                                       ; KNAB               ; Knab              ; Knab bank                ;                    ;
+                                       ; BUNQ               ; Bunq              ; Bunq bank                ;                    ;
+                                       ; HANDELSBANKEN      ; Handelsbanken     ; Handelsbanken bank       ;                    ;
+                                       ; MONEYOU            ; Moneyou           ; Moneyou bank             ;                    ;

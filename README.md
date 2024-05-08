@@ -40,11 +40,7 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Support SAP Composable Storefront 6.4.0
-
-
-### Bugs Fixed: 
-- Order information page is not shown when guest users place an order with 3DS challenge
-- Date of birth is required for some APMs when Fraud is enabled
-
+- Added PayPal-SSL
+### Breaking changes:
+- iDeal 2.0 implemented
 

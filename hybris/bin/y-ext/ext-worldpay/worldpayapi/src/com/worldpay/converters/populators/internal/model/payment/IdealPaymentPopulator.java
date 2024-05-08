@@ -22,9 +22,6 @@ public class IdealPaymentPopulator implements Populator<AlternativeShopperBankCo
         validateParameterNotNull(source, "Source must not be null!");
         validateParameterNotNull(target, "Target list must not be null!");
 
-        Optional.ofNullable(source.getShopperBankCode())
-            .ifPresent(target::setShopperBankCode);
-
         Optional.ofNullable(source.getSuccessURL())
             .ifPresent(target::setSuccessURL);
 

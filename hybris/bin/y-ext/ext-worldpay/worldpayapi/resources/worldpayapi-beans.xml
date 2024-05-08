@@ -43,6 +43,8 @@
         <value>SHOPPER_REDIRECTED</value>
         <value>FAILURE</value>
         <value>VOIDED</value>
+        <value>WAITING_FOR_SHOPPER</value>
+
     </enum>
 
     <enum class="com.worldpay.enums.order.ThreeDSecureVersionEnum">
@@ -156,6 +158,13 @@
         <property name="transactionIdentifier" type="java.lang.String"/>
         <property name="dateOfBirth" type="java.util.Date"/>
         <property name="deviceSession" type="java.lang.String"/>
+        <property name="javaEnabled" type="java.lang.Boolean"/>
+        <property name="javascriptEnabled" type="java.lang.Boolean"/>
+        <property name="language" type="java.lang.String"/>
+        <property name="timeZone" type="java.lang.String"/>
+        <property name="colorDepth" type="java.lang.Integer"/>
+        <property name="screenHeight" type="java.lang.Integer"/>
+        <property name="screenWidth" type="java.lang.Integer"/>
     </bean>
 
     <bean class="com.worldpay.config.merchant.WorldpayMerchantConfigData">
@@ -475,6 +484,13 @@
         <property name="deviceOS" type="java.lang.String"/>
         <property name="httpAcceptLanguage" type="java.lang.String"/>
         <property name="httpReferer" type="java.lang.String"/>
+        <property name="javaEnabled" type="java.lang.Boolean"/>
+        <property name="javascriptEnabled" type="java.lang.Boolean"/>
+        <property name="language" type="java.lang.String"/>
+        <property name="timeZone" type="java.lang.String"/>
+        <property name="colorDepth" type="java.lang.Integer"/>
+        <property name="screenHeight" type="java.lang.Integer"/>
+        <property name="screenWidth" type="java.lang.Integer"/>
     </bean>
 
     <bean class="com.worldpay.data.CustomNumericFields">
