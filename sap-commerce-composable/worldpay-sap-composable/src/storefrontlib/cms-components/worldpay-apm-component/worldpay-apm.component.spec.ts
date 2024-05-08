@@ -65,6 +65,15 @@ class MockWorldpayApplePayComponent {
   @Input() billingAddressForm;
 }
 
+@Component({
+  selector: 'y-worldpay-apm-ach',
+  template: ''
+})
+class MockWorldpayAPMACHComponent {
+  @Input() billingAddressForm;
+  @Input() apm;
+}
+
 class MockOrderConnector implements Partial<OrderConnector> {
 
 }
@@ -90,6 +99,7 @@ describe('WorldpayApmComponent', () => {
     { code: PaymentMethod.PayPal },
     { code: PaymentMethod.ApplePay },
     { code: PaymentMethod.GooglePay },
+    { code: PaymentMethod.ACH },
   ];
 
   const merchantConfig: GooglePayMerchantConfiguration = {
@@ -163,6 +173,7 @@ describe('WorldpayApmComponent', () => {
         MockWorldpayApmIdealComponent,
         MockCxSpinnerComponent,
         MockWorldpayApplePayComponent,
+        MockWorldpayAPMACHComponent
       ],
       providers: [
         {
@@ -261,6 +272,19 @@ describe('WorldpayApmComponent', () => {
 
     fixture.whenStable().then(() => {
       expect(element.query(By.css('y-worldpay-apm-ideal'))).toBeTruthy();
+      done();
+    });
+  });
+
+  it('should show component for ACH', (done) => {
+    apmSubject.next({
+      code: PaymentMethod.ACH
+    });
+
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+      expect(element.query(By.css('y-worldpay-apm-ach'))).toBeTruthy();
       done();
     });
   });

@@ -1,12 +1,16 @@
 package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.core.services.WorldpayCartService;
+import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
 import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
+import com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO;
+import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facade.OCCWorldpayOrderFacade;
+import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
@@ -15,6 +19,7 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
+import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.worldpayextocc.exceptions.NoCheckoutCartException;
 import com.worldpay.worldpayextocc.exceptions.ThreeDSecureException;
 import de.hybris.platform.commercefacades.order.CartFacade;
@@ -26,6 +31,7 @@ import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrategy;
+import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
@@ -44,12 +50,14 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
@@ -97,6 +105,12 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     protected OCCWorldpayOrderFacade occWorldpayOrderFacade;
     @Resource (name = "defaultWorldpayUserFacade")
     protected UserFacade worldpayUserFacade;
+    @Resource(name = "achDirectDebitPaymentDetailsDTOValidator")
+    protected Validator achDirectDebitPaymentDetailsDTOValidator;
+    @Resource
+    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
+    @Resource
+    protected EnumerationService enumerationService;
 
     /**
      * Authorizes cart and places the order. Response contains the new order data.
@@ -250,6 +264,35 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         }
     }
 
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST"})
+    @PostMapping(value = "/users/{userId}/carts/{cartId}/worldpayorders/place-ach-direct-order")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(operationId = "placeACHDirectOrder", summary = "Place an order for redirect APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    @ResponseBody
+    public OrderWsDTO placeACHDirectOrder(
+            final HttpServletRequest request,
+            @RequestBody final AchDirectDebitPaymentWsDTO achDirectDebitPayment,
+            @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
+
+        validate(achDirectDebitPayment, "achDirectDebit", achDirectDebitPaymentDetailsDTOValidator);
+
+        final ACHDirectDebitAdditionalAuthInfo achDirectDebitAdditionalAuthInfo = createACHDirectDebitAdditionalAuthInfo(achDirectDebitPayment);
+        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request);
+
+        try {
+
+            final OrderData orderData = occWorldpayOrderFacade.handleACHDirectDebitResponse(achDirectDebitAdditionalAuthInfo, worldpayAdditionalInfoData);
+            return dataMapper.map(orderData, OrderWsDTO.class, fields);
+
+        } catch (final WorldpayException | InvalidCartException e) {
+
+            LOG.error(FAILED_TO_PLACE_ORDER, e);
+            throw new WorldpayException(FAILED_TO_PLACE_ORDER);
+        }
+
+    }
+
     /**
      * Retrieve the order details for a specific order code for the user ID given.
      * This method supports guest users as well.
@@ -286,6 +329,23 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         cseAdditionalAuthInfo.setAdditional3DS2(additional3DS2);
         cseAdditionalAuthInfo.setSaveCard(savedCard);
         return cseAdditionalAuthInfo;
+    }
+
+    private ACHDirectDebitAdditionalAuthInfo createACHDirectDebitAdditionalAuthInfo(final AchDirectDebitPaymentWsDTO achDirectDebit) {
+        final ACHDirectDebitAdditionalAuthInfo achDirectDebitAdditionalAuthInfo = new ACHDirectDebitAdditionalAuthInfo();
+        achDirectDebitAdditionalAuthInfo.setAccountNumber(achDirectDebit.getAccountNumber());
+        Optional.ofNullable(achDirectDebit.getAccountType())
+                .map(String::toUpperCase)
+                .map(AchDirectDebitAccountType::valueOf)
+                .ifPresent(achDirectDebitAdditionalAuthInfo::setAccountType);
+        achDirectDebitAdditionalAuthInfo.setCompanyName(achDirectDebit.getCompanyName());
+        achDirectDebitAdditionalAuthInfo.setRoutingNumber(achDirectDebit.getRoutingNumber());
+        achDirectDebitAdditionalAuthInfo.setCheckNumber(achDirectDebit.getCheckNumber());
+        achDirectDebitAdditionalAuthInfo.setCustomIdentifier(achDirectDebit.getCustomIdentifier());
+        achDirectDebitAdditionalAuthInfo.setUsingShippingAsBilling(!worldpayPaymentCheckoutFacade.hasBillingDetails());
+        achDirectDebitAdditionalAuthInfo.setSaveCard(Boolean.FALSE);
+        achDirectDebitAdditionalAuthInfo.setPaymentMethod(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        return achDirectDebitAdditionalAuthInfo;
     }
 
 

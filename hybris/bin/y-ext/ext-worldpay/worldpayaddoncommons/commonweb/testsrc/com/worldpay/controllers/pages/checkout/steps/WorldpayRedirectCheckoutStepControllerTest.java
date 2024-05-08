@@ -3,6 +3,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import com.worldpay.forms.ACHForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.forms.validation.PaymentDetailsFormValidator;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -42,6 +43,7 @@ public class WorldpayRedirectCheckoutStepControllerTest {
     private static final String BANK_CODE = "bankCode";
     private static final String PAYMENT_METHOD = "paymentMethod";
     private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final String ACH_DATA = "ACHData";
 
     @Spy
     @InjectMocks
@@ -66,6 +68,8 @@ public class WorldpayRedirectCheckoutStepControllerTest {
     private WorldpayCartFacade worldpayCartFacadeMock;
     @Mock
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
+    @Mock
+    private ACHForm achFormMock;
 
     @Before
     public void setUp() {
@@ -115,14 +119,16 @@ public class WorldpayRedirectCheckoutStepControllerTest {
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PAYMENT_METHOD);
         when(apmConfigurationServiceMock.getAllApmPaymentTypeCodes()).thenReturn(singleton(PAYMENT_METHOD));
         when(paymentDetailsFormMock.getShopperBankCode()).thenReturn(BANK_CODE);
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
 
         testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, bindingResultMock, redirectAttrsMock);
 
-        final InOrder inOrder = inOrder(paymentDetailsFormValidatorMock, testObj, worldpayCartFacadeMock, redirectAttrsMock);
+        final InOrder inOrder = inOrder(paymentDetailsFormValidatorMock, testObj, worldpayCartFacadeMock, redirectAttrsMock, achFormMock);
         inOrder.verify(paymentDetailsFormValidatorMock).validate(paymentDetailsFormMock, bindingResultMock);
         inOrder.verify(testObj).handleAndSaveAddresses(paymentDetailsFormMock);
         inOrder.verify(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
         inOrder.verify(redirectAttrsMock).addFlashAttribute(SHOPPER_BANK_CODE, BANK_CODE);
+        inOrder.verify(redirectAttrsMock).addFlashAttribute(ACH_DATA, achFormMock);
     }
 
     @Test

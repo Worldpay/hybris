@@ -15,11 +15,21 @@ import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay
 import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
 import { PaymentDetails } from '@spartacus/cart/base/root';
 import { Order } from '@spartacus/order/root/model/order.model';
-import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod, PlaceOrderResponse, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../../core/interfaces';
+import {
+  ACHPaymentForm,
+  ApmPaymentDetails,
+  APMRedirectResponse,
+  PaymentMethod,
+  PlaceOrderResponse,
+  ThreeDsDDCInfo,
+  ThreeDsInfo,
+  WorldpayApmPaymentInfo
+} from '../../../core/interfaces';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { WorldpayApmConnector } from '../../../core/connectors';
 import { OccWorldpayApmAdapter } from '../../../core/occ/adapters/worldpay-apm/occ-worldpay-apm.adapter';
 import { WorldpayOrderService } from '../../../core/services';
+import { WorldpayACHFacade } from '../../../core/facade/worldpay-ach.facade';
 import createSpy = jasmine.createSpy;
 
 const mockBillingAddress: Address = {
@@ -110,6 +120,10 @@ class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
 
   setPlacedOrder(): void {
   }
+
+  placeACHOrder(): Observable<Order> {
+    return of(null);
+  }
 }
 
 class MockRoutingService implements Partial<RoutingService> {
@@ -187,6 +201,10 @@ class MockWorldpayApmService implements Partial<WorldpayApmService> {
       name: 'Visa',
     });
   }
+
+  showErrorMessage(): void {
+
+  }
 }
 
 class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightService> {
@@ -207,6 +225,17 @@ class MockGlobalMessageService implements Partial<GlobalMessageService> {
   }
 }
 
+class MockWorldpayACHFacade implements Partial<WorldpayACHFacade> {
+  getACHPaymentFormValue(): Observable<ACHPaymentForm> {
+    return of({
+      accountType: 'checking',
+      routingNumber: '123456789',
+      accountNumber: '123456789',
+      accountHolderName: 'user',
+    });
+  }
+}
+
 describe('WorldpayCheckoutPlaceOrderComponent', () => {
   let component: WorldpayCheckoutPlaceOrderComponent;
   let fixture: ComponentFixture<WorldpayCheckoutPlaceOrderComponent>;
@@ -222,6 +251,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
   let worldpayApmService: WorldpayApmService;
   let worldpayFraudsightService: WorldpayFraudsightService;
+  let worldpayACHFacade: WorldpayACHFacade;
   let globalMessageService: GlobalMessageService;
 
   class MockWorldpayCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentService> {
@@ -265,6 +295,10 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
     }
 
     setThreeDsChallengeIframeUrl(): void {
+
+    }
+
+    setThreeDsDDCIframeUrl(): void {
 
     }
   }
@@ -336,6 +370,10 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
             useClass: MockWorldpayApmService
           },
           {
+            provide: WorldpayACHFacade,
+            useClass: MockWorldpayACHFacade
+          },
+          {
             provide: WorldpayFraudsightService,
             useClass: MockWorldpayFraudsightService
           },
@@ -358,6 +396,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
     globalMessageService = TestBed.inject(GlobalMessageService);
     worldpayCheckoutPaymentService = TestBed.inject(WorldpayCheckoutPaymentService);
     worldpayApmService = TestBed.inject(WorldpayApmService);
+    worldpayACHFacade = TestBed.inject(WorldpayACHFacade);
     placeOrderSpy = spyOn(component, 'placeWorldpayOrder');
     placeOrderSpy.and.callThrough();
     spyOn(orderFacade, 'executeDDC3dsJwtCommand').and.callThrough();
@@ -566,6 +605,37 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
 
     it('removeEventListener', () => {
       expect(component.nativeWindow.removeEventListener).toHaveBeenCalled();
+    });
+  });
+
+  it('should call place ACH Order when ACHForm is valid', () => {
+    component.ngOnInit();
+    controls.termsAndConditions.setValue(true);
+    fixture.detectChanges();
+    spyOn(worldpayApmService, 'getSelectedAPMFromState').and.returnValue(of({
+      code: PaymentMethod.ACH,
+      name: 'ACH'
+    }));
+    spyOn(worldpayACHFacade, 'getACHPaymentFormValue').and.returnValue(
+      of({
+        accountType: 'type1',
+        accountNumber: '123456789',
+        routingNumber: '987654321',
+        checkNumber: '11111',
+        companyName: 'Test Company',
+        customIdentifier: '12345'
+      })
+    );
+    spyOn(orderFacade, 'placeACHOrder').and.callThrough();
+
+    component.submitForm();
+    expect(orderFacade.placeACHOrder).toHaveBeenCalledWith({
+      accountType: 'type1',
+      accountNumber: '123456789',
+      routingNumber: '987654321',
+      checkNumber: '11111',
+      companyName: 'Test Company',
+      customIdentifier: '12345'
     });
   });
 

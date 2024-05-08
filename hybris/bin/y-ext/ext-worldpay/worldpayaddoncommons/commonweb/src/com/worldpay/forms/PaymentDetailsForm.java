@@ -16,6 +16,7 @@ public class PaymentDetailsForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
     private boolean dobRequired;
+    private ACHForm achForm;
 
     public String getPaymentMethod() {
         return paymentMethod;
@@ -80,5 +81,13 @@ public class PaymentDetailsForm {
 
     public void setDobRequired(final boolean dobRequired) {
         this.dobRequired = dobRequired;
+    }
+
+    public ACHForm getAchForm() {
+        return achForm;
+    }
+
+    public void setAchForm(ACHForm achForm) {
+        this.achForm = achForm;
     }
 }

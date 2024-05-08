@@ -597,6 +597,7 @@
         <entry key="IDEAL" value-ref="internalIdealPaymentConverter"/>
         <entry key="PAYWITHGOOGLESSL" value-ref="internalGooglePaymentConverter"/>
         <entry key="PAYPAL_SSL" value-ref="internalPayPalSSLPaymentConverter"/>
+        <entry key="ACHDIRECTDEBITSSL" value-ref="internalACHDirectDebitPaymentConverter"/>
     </util:map>
 
     <alias name="defaultCsePaymentPopulator" alias="internalCsePaymentPopulator"/>
@@ -713,6 +714,20 @@
         <property name="populators">
             <list>
                 <ref bean="internalIdealPaymentPopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultACHDirectDebitPaymentPopulator" alias="internalACHDirectDebitPaymentPopulator"/>
+    <bean id="defaultACHDirectDebitPaymentPopulator"
+          class="com.worldpay.converters.populators.internal.model.payment.ACHDirectDebitPaymentPopulator"/>
+
+    <alias name="defaultACHDirectDebitPaymentConverter" alias="internalACHDirectDebitPaymentConverter"/>
+    <bean id="defaultACHDirectDebitPaymentConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.ACHDIRECTDEBITSSL"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalACHDirectDebitPaymentPopulator"/>
             </list>
         </property>
     </bean>

@@ -2,23 +2,26 @@
   <h3 class="cx-checkout-title d-none d-lg-block d-xl-block">
     {{ 'paymentForm.payment' | cxTranslate }}
   </h3>
-  
+
   <ng-container *ngIf="(isUpdating$ | async) !== true else loading">
-    <div role="status" [attr.aria-label]="'common.loaded' | cxTranslate"></div>
-    
+    <div
+      role="status"
+      [attr.aria-label]="'common.loaded' | cxTranslate"
+    ></div>
+
     <y-worldpay-apm-component
       [apms]="apms$"
       (setPaymentDetails)="setApmPaymentDetails($event)"
       (back)="back()"
       [processing]="processing$| async"
     ></y-worldpay-apm-component>
-    
+
     <ng-container *ngIf="isCardPayment">
       <ng-container *ngIf="cards?.length && !newPaymentFormManuallyOpened;else newPaymentForm">
         <p class="cx-checkout-text">
           {{ 'paymentForm.choosePaymentMethod' | cxTranslate }}
         </p>
-        
+
         <div class="cx-checkout-btns row">
           <div class="col-md-12 col-lg-6">
             <button
@@ -29,7 +32,7 @@
             </button>
           </div>
         </div>
-        
+
         <div class="cx-checkout-body row">
           <div
             class="cx-payment-card col-md-12 col-lg-6"
@@ -45,7 +48,7 @@
             </div>
           </div>
         </div>
-        
+
         <ng-container *ngIf="(selectedPayment$ | async)?.id">
           <div [formGroup]="cvnForm">
             <div class="form-group col-md-7 cVVNumber">
@@ -67,12 +70,12 @@
                   formControlName="cvn"
                   minlength="3"
                 />
-                <cx-form-errors [control]="cvnForm.get('cvn')" [translationParams]="{minLength: '3'}"></cx-form-errors>
+                <cx-form-errors [control]="cvnForm.get('cvn')"></cx-form-errors>
               </label>
             </div>
           </div>
         </ng-container>
-        
+
         <div class="row cx-checkout-btns">
           <div class="col-md-12 col-lg-6">
             <button
@@ -93,7 +96,7 @@
           </div>
         </div>
       </ng-container>
-      
+
       <ng-template #newPaymentForm>
         <!--        TODO: Enable defaultField for next releases: !isGuestCheckout && !!cards?.length-->
         <wp-payment-form
@@ -108,7 +111,7 @@
       </ng-template>
     </ng-container>
   </ng-container>
-  
+
   <ng-template #loading>
     <div class="cx-spinner">
       <cx-spinner></cx-spinner>
