@@ -2,6 +2,7 @@ package com.worldpay.facade.impl;
 
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
+import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHOPNoReturnParamsStrategy;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
@@ -60,6 +61,8 @@ public class DefaultOCCWorldpayOrderFacadeTest {
     private BaseStoreService baseStoreServiceMock;
     @Mock
     private CustomerAccountService customerAccountServiceMock;
+    @Mock
+    private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
 
     @Mock
     private RedirectAuthoriseResult redirectAuthoriseResultMock, redirectAuthoriseResultTwoMock;
@@ -79,7 +82,7 @@ public class DefaultOCCWorldpayOrderFacadeTest {
     public void setUp() {
         testObj = new DefaultOCCWorldpayOrderFacade(worldpayHOPNoReturnParamsStrategyMock, worldpayPaymentTransactionService,
                 orderConverterMock, worldpayCheckoutFacadeDecoratorMock, redirectAuthoriseResultConverterMock,
-                worldpayHostedOrderFacadeMock, worldpayOrderCodeVerificationServiceMock);
+                worldpayHostedOrderFacadeMock, worldpayOrderCodeVerificationServiceMock, worldpayDirectOrderFacadeMock);
         when(redirectAuthoriseResultMock.getOrderCode()).thenReturn(ORDER_CODE);
 
         testObj.setBaseStoreService(baseStoreServiceMock);

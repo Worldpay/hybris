@@ -30,6 +30,7 @@ import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.servicelayer.i18n.I18NService;
 import de.hybris.platform.servicelayer.session.SessionService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,6 +87,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     private static final String SAVED_CARD_SELECTED_ATTRIBUTE = "savedCardSelected";
     private static final String CURRENT_DATE = "currentDate";
     private static final String IS_FS_ENABLED = "isFSEnabled";
+    private static final String TEST = "test";
 
     @Spy
     @InjectMocks
@@ -176,6 +178,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
         when(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail()).thenReturn(EMAIL);
         when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
         when(addressDataUtilMock.convertToAddressData(addressFormMock)).thenReturn(addressDataMock);
+        doReturn(List.of(Pair.of(TEST, TEST))).when(testObj).getACHDirectDebitValues();
     }
 
     @Test

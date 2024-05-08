@@ -15,10 +15,14 @@ import com.worldpay.payment.DirectResponseData;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO;
+import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -215,5 +219,13 @@ public class AbstractWorldpayController {
         }
 
         return map;
+    }
+
+    protected void validate(final Object object, final String objectName, final Validator validator) {
+        final Errors errors = new BeanPropertyBindingResult(object, objectName);
+        validator.validate(object, errors);
+        if (errors.hasErrors()) {
+            throw new WebserviceValidationException(errors);
+        }
     }
 }

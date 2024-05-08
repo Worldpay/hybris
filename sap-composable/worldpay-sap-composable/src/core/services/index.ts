@@ -1,4 +1,5 @@
 export * from './facade-providers';
+export * from './worldpay-ach/worldpay-ach.service';
 export * from './worldpay-apm/worldpay-apm.service';
 export * from './worldpay-applepay/worldpay-applepay.service';
 export * from './worldpay-applepay/worldpay-applepay-session';

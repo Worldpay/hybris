@@ -114,4 +114,16 @@
         </property>
     </bean>
 
+    <bean parent="fieldSetLevelMapping" id="achDirectDebitPaymentWsDTOFieldSetLevelMapping">
+        <property name="dtoClass"
+                  value="com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="accountType,accountNumber,routingNumber,checkNumber,companyName,customIdentifier"/>
+                <entry key="DEFAULT" value="accountType,accountNumber,routingNumber,checkNumber,companyName,customIdentifier"/>
+                <entry key="FULL" value="accountType,accountNumber,routingNumber,checkNumber,companyName,customIdentifier"/>
+            </map>
+        </property>
+    </bean>
+
 </beans>

@@ -10,6 +10,7 @@ import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.order.InvalidCartException;
 
 /**
  * Interface that expose methods to authorise payments encrypted with the Worldpay CSE-library using the direct xml integration.
@@ -124,6 +125,13 @@ public interface WorldpayDirectOrderService {
     void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayConfigurationException;
 
     /**
+     * See {@see completeAuthorise}. Completes the authorization after being validated by the 3D Secure issuer.
+     *
+     * @param cartModel The cart to authorise
+     * @param serviceResponse    {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
+     */
+    void completeAuthoriseACHDirectDebit(final DirectAuthoriseServiceResponse serviceResponse, final CartModel cartModel, String merchantCode);
+    /**
      * Builds the directAuthoriseRequest containing the token identifier and the cvv.
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
      *
@@ -162,4 +170,13 @@ public interface WorldpayDirectOrderService {
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */
     DirectAuthoriseServiceResponse authorise3DSecureAgain(final String worldpayOrderCode) throws WorldpayException;
+
+    /**
+     * @param cartModel                   {@link CartModel} used in the current checkout.
+     * @param achDirectDebitAdditionalAuthInfo Contains the necessary information to authorise the transaction in Worldpay with ACH Direct Debit payment parameters.
+     * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
+     */
+    DirectAuthoriseServiceResponse authoriseACHDirectDebit(final CartModel cartModel,
+                                                           final ACHDirectDebitAdditionalAuthInfo achDirectDebitAdditionalAuthInfo,
+                                                           final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
 }

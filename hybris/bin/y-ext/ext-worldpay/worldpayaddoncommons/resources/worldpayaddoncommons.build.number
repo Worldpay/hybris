@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Apr 01 12:26:20 UTC 2024
+#Wed May 08 12:10:41 UTC 2024
 version.api=2105
 vendor=hybris
 group.id=de.hybris.platform
 name=worldpayaddoncommons
 description=worldpayaddoncommons
-builddate=20240401 1226
+builddate=20240508 1210
 releasedate=20230405 0033
 version=2105.22
 module.name=platform-module

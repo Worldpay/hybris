@@ -40,8 +40,8 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Added PayPal-SSL
-### Breaking changes:
-- iDeal 2.0 implemented
+- Added ACH_DIRECT_DEBIT-SSL
+- APM’s images updated
+
 
 

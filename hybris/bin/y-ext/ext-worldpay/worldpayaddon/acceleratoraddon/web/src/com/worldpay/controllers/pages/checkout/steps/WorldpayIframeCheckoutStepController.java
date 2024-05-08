@@ -69,6 +69,7 @@ public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentM
             redirectAttrs.addFlashAttribute(PAYMENT_METHOD_PARAM, paymentMethod);
             redirectAttrs.addFlashAttribute(SHOPPER_BANK_CODE, shopperBankCode);
             redirectAttrs.addFlashAttribute(SAVE_PAYMENT_INFO, paymentDetailsForm.getSaveInAccount());
+            redirectAttrs.addFlashAttribute(ACH_DATA, paymentDetailsForm.getAchForm());
             return getRedirectToPaymentMethod();
         }
         try {
