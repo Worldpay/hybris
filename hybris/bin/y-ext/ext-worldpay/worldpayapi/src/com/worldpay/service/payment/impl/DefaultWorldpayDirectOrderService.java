@@ -128,6 +128,19 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
      * {@inheritDoc}
      */
     @Override
+    public DirectAuthoriseServiceResponse authoriseACHDirectDebit(final CartModel cartModel,
+                                                                final ACHDirectDebitAdditionalAuthInfo bankTransferAdditionalAuthInfo,
+                                                                final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException {
+        final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
+        final DirectAuthoriseServiceRequest directAuthoriseACHDirectDebitRequest = worldpayRequestFactory.buildDirectAuthoriseACHDirectDebitRequest(
+                merchantInfo, cartModel, bankTransferAdditionalAuthInfo, worldpayAdditionalInfoData);
+        return worldpayServiceGateway.directAuthorise(directAuthoriseACHDirectDebitRequest);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DirectAuthoriseServiceResponse authoriseApplePay(final CartModel cartModel, final ApplePayAdditionalAuthInfo applePayAdditionalAuthInfo) throws WorldpayException {
         final MerchantInfo merchantInfo = worldpayMerchantInfoService.getCurrentSiteMerchant();
         final DirectAuthoriseServiceRequest directAuthoriseApplePayRequest = worldpayRequestFactory.buildApplePayDirectAuthorisationRequest(
@@ -265,6 +278,17 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
             .ifPresent(transactionIdentifier ->
                 worldpayPaymentInfoService.setTransactionIdentifierOnPaymentInfo(paymentInfoModel, transactionIdentifier));
         worldpayPaymentInfoService.updateAndAttachPaymentInfoModel(paymentTransaction, abstractOrderModel, paymentInfoModel);
+    }
+
+    @Override
+    public void completeAuthoriseACHDirectDebit(final DirectAuthoriseServiceResponse serviceResponse, final CartModel cartModel, final String merchantCode) {
+        final PaymentInfoModel paymentInfoModel = Optional.ofNullable(cartModel.getPaymentInfo())
+                .orElse(worldpayPaymentInfoService.createPaymentInfo(cartModel));
+        cloneAndSetBillingAddressFromCart(cartModel, paymentInfoModel);
+        final BigDecimal authorisationAmount = worldpayOrderService.convertAmount(serviceResponse.getPaymentReply().getAmount());
+        final CommerceCheckoutParameter commerceCheckoutParameter = worldpayOrderService.createCheckoutParameterAndSetPaymentInfo(paymentInfoModel, authorisationAmount, cartModel);
+        final PaymentTransactionModel paymentTransaction = worldpayPaymentTransactionService.createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
+        worldpayPaymentTransactionService.createNonPendingAuthorisePaymentTransactionEntry(paymentTransaction, merchantCode, cartModel, authorisationAmount);
     }
 
     /**

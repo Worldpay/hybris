@@ -2,9 +2,11 @@ package com.worldpay.forms.validation;
 
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import com.worldpay.forms.ACHForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
+import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CartData;
@@ -36,6 +38,12 @@ public class PaymentDetailsFormValidatorTest {
     private static final String APM_PAYMENT_METHOD = "apmPaymentMethod";
     private static final String BANK_CODE = "bankCode";
     private static final String BIRTH_DAY_DATE_FORMAT = "dd/MM/yyyy";
+    private static final String ACCOUNT_TYPE = "accountType";
+    private static final String ACCOUNT_NUMBER = "12345678901234567";
+    private static final String ROUTING_NUMBER = "123456789";
+    private static final String CHECK_NUMBER = "123456789012345";
+    private static final String CUSTOM_IDENTIFIER = "12345678901234";
+    private static final String CUSTOM_IDENTIFIER_INVALID = "1234567890123456";
 
     @Spy
     @InjectMocks
@@ -43,6 +51,8 @@ public class PaymentDetailsFormValidatorTest {
 
     @Mock
     private PaymentDetailsForm paymentDetailsFormMock;
+    @Mock
+    private ACHForm achFormMock;
     @Mock
     private Errors errorsMock;
     @Mock
@@ -231,6 +241,189 @@ public class PaymentDetailsFormValidatorTest {
 
         verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
     }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndAchFormIsNull_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(null);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm", "worldpay.achForm.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndAccountTypeIsBlank_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn("");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.accountType", "worldpay.achForm.accountType.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndAccountNumberIsBlank_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn("");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.accountNumber", "worldpay.achForm.accountNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndAccountNumberIsNotNumeric_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn("accountNumber");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.accountNumber", "worldpay.achForm.accountNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndAccountNumberIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn("123456789012345678");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.accountNumber", "worldpay.achForm.accountNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsBlank_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn("");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.routingNumber", "worldpay.achForm.routingNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsNull_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn(null);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.routingNumber", "worldpay.achForm.routingNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsNotNumeric_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn("routingNumber");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.routingNumber", "worldpay.achForm.routingNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn("1234567890");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.routingNumber", "worldpay.achForm.routingNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndCheckNumberIsNotNumeric_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn(ROUTING_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCheckNumber()).thenReturn("checkNumber");
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.checkNumber", "worldpay.achForm.checkNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndCheckNumberIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn(ROUTING_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCheckNumber()).thenReturn(CUSTOM_IDENTIFIER_INVALID);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.checkNumber", "worldpay.achForm.checkNumber.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn(ROUTING_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCheckNumber()).thenReturn(CHECK_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCustomIdentifier()).thenReturn(CUSTOM_IDENTIFIER_INVALID);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock).rejectValue("achForm.customIdentifier", "worldpay.achForm.customIdentifier.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsNotTooLong_shouldNotAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn(ROUTING_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCheckNumber()).thenReturn(CHECK_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCustomIdentifier()).thenReturn(CUSTOM_IDENTIFIER);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock, never()).rejectValue("achForm.customIdentifier", "worldpay.achForm.customIdentifier.invalid");
+    }
+
+    @Test
+    public void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsNull_shouldNotAddError() {
+        when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
+        when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
+        when(paymentDetailsFormMock.getAchForm().getAccountNumber()).thenReturn(ACCOUNT_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getRoutingNumber()).thenReturn(ROUTING_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCheckNumber()).thenReturn(CHECK_NUMBER);
+        when(paymentDetailsFormMock.getAchForm().getCustomIdentifier()).thenReturn(CUSTOM_IDENTIFIER);
+
+        testObj.validate(paymentDetailsFormMock, errorsMock);
+
+        verify(errorsMock, never()).rejectValue("achForm.customIdentifier", "worldpay.achForm.customIdentifier.invalid");
+    }
+
 
     protected void verifyBillingAddressValidation(VerificationMode verificationMode) {
         verify(testObj, verificationMode).validateField(eq(errorsMock), eq(FIELD_BILLING_ADDRESS_FIRST_NAME), anyString());

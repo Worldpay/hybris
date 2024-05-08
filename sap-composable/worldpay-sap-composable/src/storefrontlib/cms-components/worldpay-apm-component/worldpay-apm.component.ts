@@ -84,6 +84,7 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
     case PaymentMethod.GooglePay:
     case PaymentMethod.ApplePay:
     case PaymentMethod.iDeal:
+    case PaymentMethod.ACH:
       return false;
 
     default:

@@ -57,6 +57,7 @@
 
                                         <form:input type="hidden" id="dateOfBirthRequired" path="dobRequired" value="false"/>
                                         <wp-multi-checkout:bankSelect/>
+                                        <wp-multi-checkout:ach/>
                                         <wp-multi-checkout:billingAddress/>
                                         <div class="form-additionals">
                                         </div>

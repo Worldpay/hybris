@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.worldpay.worldpaynotifications</groupId>
     <artifactId>worldpaynotifications-web</artifactId>
-    <version>2105.7</version>
+    <version>6.5.0.0-RC16</version>
 
     <packaging>jar</packaging>
 

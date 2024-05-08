@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.hybris.platform</groupId>
 	<artifactId>worldpaynotifications</artifactId>
-	<version>2105.7</version>
+	<version>6.5.0.0-RC16</version>
 
 	<packaging>jar</packaging>
 

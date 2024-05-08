@@ -9,6 +9,9 @@ export * from './worldpay-address-form/worldpay-address-form.module';
 export * from './worldpay-apm-component/worldpay-apm.component';
 export * from './worldpay-apm-component/worldpay-apm.model';
 export * from './worldpay-apm-component/worldpay-apm.module';
+// apm component ach
+export * from './worldpay-apm-component/worldpay-apm-ach/worldpay-apm-ach.component';
+export * from './worldpay-apm-component/worldpay-apm-ach/worldpay-apm-ach.module';
 // apm component googlepay
 export * from './worldpay-apm-component/worldpay-apm-googlepay/worldpay-apm-googlepay.component';
 export * from './worldpay-apm-component/worldpay-apm-googlepay/worldpay-apm-googlepay.module';
