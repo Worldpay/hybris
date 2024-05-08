@@ -465,12 +465,12 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
 
       component.cvnForm.markAllAsTouched();
       fixture.detectChanges();
-      expect(getErrorMessage().nativeElement.innerText).toEqual('formErrors.required minLength:3');
+      expect(getErrorMessage().nativeElement.innerText).toEqual('formErrors.required');
 
       component.cvnForm.setValue({ cvn: '1' });
       component.cvnForm.markAllAsTouched();
       fixture.detectChanges();
-      expect(getErrorMessage().nativeElement.innerText).toEqual('formErrors.minlength actualLength:1 minLength:3 requiredLength:3');
+      expect(getErrorMessage().nativeElement.innerText).toEqual('formErrors.minlength actualLength:1 requiredLength:3');
       expect(component.cvnForm.valid).toBeFalse();
       expect(getContinueButton().nativeElement.disabled).toBeTrue();
     });

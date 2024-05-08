@@ -1,27 +1,27 @@
 <ng-container>
   <div class="row my-3">
-    
+
     <div
       class="col-6 col-sm-4 col-md-3 my-2 cc"
       *ngIf="card$ | async as cardApm"
     >
       <y-worldpay-apm-tile [apm]="cardApm"></y-worldpay-apm-tile>
     </div>
-    
+
     <div
       class="col-6 col-sm-4 col-md-3 my-2"
       *ngFor="let apm of (apms | async)"
     >
       <y-worldpay-apm-tile [apm]="apm"></y-worldpay-apm-tile>
     </div>
-    
+
     <div
       class="col-6 col-sm-4 col-md-3 my-2 gpay"
       *ngIf="googlePay$ | async as googlepayApm"
     >
       <y-worldpay-apm-tile [apm]="googlepayApm"></y-worldpay-apm-tile>
     </div>
-    
+
     <div
       class="col-6 col-sm-4 col-md-3 my-2 apay"
       *ngIf="applePay$ | async as applePayApm"
@@ -29,30 +29,37 @@
       <y-worldpay-apm-tile [apm]="applePayApm"></y-worldpay-apm-tile>
     </div>
   </div>
-  
+
   <div *ngIf="selectedApm$ | async as selectedApm">
     <div [ngSwitch]="selectedApm.code">
       <ng-container *ngSwitchCase="paymentMethod.Card"></ng-container>
-      
+
       <y-worldpay-apm-ideal
         *ngSwitchCase="paymentMethod.iDeal"
         [apm]="selectedApm"
         (setPaymentDetails)="setPaymentDetails.emit($event)"
         (back)="return()"
       ></y-worldpay-apm-ideal>
-      
+
       <y-worldpay-apm-googlepay
         *ngSwitchCase="paymentMethod.GooglePay"
         [apm]="selectedApm"
         [billingAddressForm]="billingAddressForm"
       ></y-worldpay-apm-googlepay>
-      
+
       <worldpay-applepay
         *ngSwitchCase="paymentMethod.ApplePay"
         [billingAddressForm]="billingAddressForm"
       ></worldpay-applepay>
+
+      <y-worldpay-apm-ach
+        *ngSwitchCase="paymentMethod.ACH"
+        [apm]="selectedApm"
+        (setPaymentDetails)="setPaymentDetails.emit($event)"
+        (back)="return()"
+      ></y-worldpay-apm-ach>
     </div>
-    
+
     <ng-container *ngIf="(isLoading$ | async) !== true; else loading">
       <ng-container *ngIf="showBillingFormAndContinueButton(selectedApm.code)">
         <y-worldpay-billing-address
@@ -81,7 +88,7 @@
         </div>
       </ng-container>
     </ng-container>
-    
+
     <ng-template #loading>
       <div class="cx-spinner">
         <cx-spinner></cx-spinner>

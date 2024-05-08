@@ -33,6 +33,7 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
@@ -87,6 +89,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final Date CURRENT_DATE_VALUE = new Date();
     private static final String DEVICE_SESSION = "device_session";
     private static final String CURRENT_DATE = "currentDate";
+    private static final String TEST = "test";
 
     @Spy
     @InjectMocks
@@ -189,6 +192,7 @@ public class WorldpayCseCheckoutStepControllerTest {
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(true);
         when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+        doReturn(List.of(Pair.of(TEST, TEST))).when(testObj).getACHDirectDebitValues();
     }
 
     @Test

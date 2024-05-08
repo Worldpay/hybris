@@ -14,6 +14,7 @@ import { OccWorldpayApmAdapter } from '../../../core/occ/adapters/worldpay-apm/o
 import { CartNotEmptyGuard, CheckoutAuthGuard } from '@spartacus/checkout/base/components';
 import { OrderAdapter, OrderConnector } from '@spartacus/order/core';
 import { OccOrderAdapter } from '@spartacus/order/occ';
+import { WorldpayApmAchModule } from './worldpay-apm-ach/worldpay-apm-ach.module';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { OccOrderAdapter } from '@spartacus/order/occ';
     WorldpayApmIdealModule,
     WorldpayApmGooglepayModule,
     WorldpayApplepayModule,
+    WorldpayApmAchModule,
   ],
   providers: [
     provideConfig({

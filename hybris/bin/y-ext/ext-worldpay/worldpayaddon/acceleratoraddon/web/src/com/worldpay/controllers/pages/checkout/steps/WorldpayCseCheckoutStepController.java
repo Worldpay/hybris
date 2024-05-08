@@ -1,8 +1,8 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import com.worldpay.forms.PaymentDetailsForm;
@@ -90,6 +90,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
 
         if (addGlobalErrors(model, bindingResult)) {
             model.addAttribute(PAYMENT_DETAILS_FORM, paymentDetailsForm);
+            model.addAttribute(ACH_ACCOUNT_TYPES, getACHDirectDebitValues());
             return handleFormErrors(model, paymentDetailsForm);
         }
 
@@ -102,6 +103,7 @@ public class WorldpayCseCheckoutStepController extends AbstractWorldpayDirectChe
         redirectAttrs.addFlashAttribute(SHOPPER_BANK_CODE, paymentDetailsForm.getShopperBankCode());
         redirectAttrs.addFlashAttribute(PAYMENT_METHOD_PARAM, paymentDetailsForm.getPaymentMethod());
         redirectAttrs.addFlashAttribute(SAVE_PAYMENT_INFO, paymentDetailsForm.getSaveInAccount());
+        redirectAttrs.addFlashAttribute(ACH_DATA, paymentDetailsForm.getAchForm());
         return getRedirectToPaymentMethod();
     }
 

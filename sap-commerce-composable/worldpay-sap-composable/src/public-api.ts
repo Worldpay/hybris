@@ -19,6 +19,8 @@ export * from './core/interfaces';
 export * from './core/connectors/index';
 // events
 export * from './core/events/index';
+//facades
+export * from './core/facade/index';
 // guards
 export * from './core/guards/index';
 // normalizers

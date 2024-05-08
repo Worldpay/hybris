@@ -14,6 +14,10 @@
         <property name="paymentAddressValidator" ref="paymentAddressValidator"/>
     </bean>
 
+    <alias name="defaultACHDirectDebitPaymentDetailsDTOValidator" alias="achDirectDebitPaymentDetailsDTOValidator"/>
+    <bean id="defaultACHDirectDebitPaymentDetailsDTOValidator"
+          class="com.worldpay.worldpayextocc.validator.ACHDirectDebitPaymentDetailsDTOValidator"/>
+
     <alias name="defaultPaymentAddressValidator" alias="paymentAddressValidator"/>
     <bean id="defaultPaymentAddressValidator"
           class="de.hybris.platform.webservicescommons.validators.CompositeValidator">

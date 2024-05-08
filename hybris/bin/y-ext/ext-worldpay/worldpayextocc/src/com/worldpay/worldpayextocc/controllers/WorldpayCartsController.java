@@ -1,13 +1,15 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.data.CSEAdditionalAuthInfo;
-import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO;
 import com.worldpay.dto.payment.PaymentDataWsDTO;
 import com.worldpay.dto.payment.PaymentRequestData;
+import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.APMAvailabilityFacade;
 import com.worldpay.facades.WorldpayBankConfigurationFacade;
@@ -30,10 +32,10 @@ import de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO;
 import de.hybris.platform.converters.ConfigurablePopulator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.CartModel;
-import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
+import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
-import de.hybris.platform.servicelayer.model.ModelService;
+import de.hybris.platform.servicelayer.type.TypeService;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
@@ -48,8 +50,6 @@ import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,10 +58,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.FULL_LEVEL;
@@ -120,7 +117,9 @@ public class WorldpayCartsController extends AbstractWorldpayController {
     @Resource
     protected CartService cartService;
     @Resource
-    protected ModelService modelService;
+    protected EnumerationService enumerationService;
+    @Resource
+    protected TypeService typeService;
 
 
     /**
@@ -310,6 +309,19 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         return apmAvailabilityFacade.isAvailable(paymentMethod);
     }
 
+    @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST",})
+    @GetMapping(value = "/{cartId}/payment-method/achdirectdebit/types")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiBaseSiteIdUserIdAndCartIdParam
+    public String getACHDirectDebitTypes() throws JsonProcessingException {
+        final Map<String,String> map = new HashMap<>();
+
+        enumerationService.getEnumerationValues(AchDirectDebitAccountType._TYPECODE).
+                forEach(type -> map.put(type.getCode(), typeService.getEnumerationValue(type).getName()));
+
+        return new ObjectMapper().writeValueAsString(map);
+    }
+
     /**
      * Endpoint for APM redirect authorise
      *
@@ -334,7 +346,6 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         additionalAuthInfo.setPaymentMethod(paymentMethod);
         additionalAuthInfo.setUsingShippingAsBilling(!worldpayPaymentCheckoutFacade.hasBillingDetails());
         additionalAuthInfo.setSaveCard(paymentRequest.getSave());
-
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request);
 
         if (worldpayBankConfigurationFacade.isBankTransferApm(paymentMethod)) {
@@ -377,14 +388,6 @@ public class WorldpayCartsController extends AbstractWorldpayController {
             throw new NoCheckoutCartException("Cannot add PaymentInfo. There was no checkout cart created yet!");
         }
         validate(paymentDetails, "paymentDetails", paymentDetailsDTOValidator);
-    }
-
-    protected void validate(final Object object, final String objectName, final Validator validator) {
-        final Errors errors = new BeanPropertyBindingResult(object, objectName);
-        validator.validate(object, errors);
-        if (errors.hasErrors()) {
-            throw new WebserviceValidationException(errors);
-        }
     }
 
     protected void saveBillingAddress(final AddressWsDTO address, final String fields) {

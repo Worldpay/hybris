@@ -7,6 +7,7 @@ ACC.worldpay = {
         "populateDeclineCodeTimeout",
         "hideOrShowSaveDetails",
         "bindBanks",
+        "bindACH",
         ["bindDOBInput", ACC.isFSEnabled === 'true'],
         "checkPreviouslySelectedPaymentMethod",
         "onPaymentMethodChange"
@@ -227,6 +228,10 @@ ACC.worldpay = {
                     shopperBankCodeSelectElem.val(selectedBankCode);
                 }
             });
+        } else if (selectedAPM.val() === "ACH_DIRECT_DEBIT-SSL") {
+            const $achElement = $("#achForm");
+            $achElement.removeClass("hidden");
+            $achElement.find('select').prop('disabled', false);
         }
     },
 
@@ -245,6 +250,20 @@ ACC.worldpay = {
                 const $bankElement = $("#bankElement");
                 $bankElement.addClass("hidden");
                 $bankElement.find('select').prop('disabled', true);
+            }
+        });
+    },
+
+    bindACH: function () {
+        $(".cms-payment-button").on("change", function () {
+            const selectedAPM = $("[name='paymentMethod']:checked");
+            const $achElement = $("#achForm");
+            if (selectedAPM.val()==="ACH_DIRECT_DEBIT-SSL") {
+                $achElement.removeClass("hidden");
+                $achElement.find('select').prop('disabled', false);
+            } else {
+                $achElement.addClass("hidden");
+                $achElement.find('select').prop('disabled', true);
             }
         });
     },

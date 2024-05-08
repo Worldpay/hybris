@@ -51,7 +51,17 @@ export const worldpayTranslations = {
     },
     common: {
       formErrors: {
-        minlength: 'Please enter at least {{minLength}} characters.'
+        minlength: 'Please enter at least {{requiredLength}} characters.',
+        maxlength: 'The field cannot exceed {{requiredLength}} characters',
+      },
+      httpHandlers: {
+        validationErrors: {
+          invalid: {
+            routingNumber: 'Routing number is invalid',
+            checkNumber: 'Check number is invalid',
+            accountNumber: 'Account number is invalid',
+          }
+        }
       }
     },
     order: {
@@ -101,7 +111,19 @@ export const worldpayTranslations = {
         publicKey: {
           requestFailed: 'Please contact the webmaster, configuration publicKey is missing.'
         },
-        setAsSaved: 'Save payment details'
+        setAsSaved: 'Save payment details',
+        achForm: {
+          accountType: {
+            label: 'Account type',
+            placeholder: 'Select your account type'
+          },
+          accountNumber: 'Account Number',
+          routingNumber: 'Routing Number',
+          checkNumber: 'Check Number',
+          companyName: 'Company Name',
+          customIdentifier: 'Custom Identifier',
+          noAccountTypesAvailable: 'No account types available',
+        },
       },
     }
   }
