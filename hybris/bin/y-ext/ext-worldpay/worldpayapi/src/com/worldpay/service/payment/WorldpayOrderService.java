@@ -1,11 +1,7 @@
 package com.worldpay.service.payment;
 
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayConfigurationException;
-import com.worldpay.data.Address;
-import com.worldpay.data.Amount;
-import com.worldpay.data.BasicOrderInfo;
 import com.worldpay.data.payment.Cse;
 import com.worldpay.data.payment.PayWithGoogleSSL;
 import com.worldpay.data.payment.Payment;
@@ -83,13 +79,13 @@ public interface WorldpayOrderService {
     Payment createKlarnaPayment(final String countryCode, final LanguageModel language, final String extraMerchantData, final String klarnaPaymentMethod) throws WorldpayConfigurationException;
 
     /**
-     * Creates a payment element to be used in paypal-ssl
+     * Creates a payment element to be used in alternative payments
      *
      * @param countryCode         indicates the shopper country code
      * @param paymentMethod       indicates the payment type
      * @return Payment object
      */
-    Payment createPayPalSSLPayment(final String countryCode, final String paymentMethod) throws WorldpayConfigurationException;
+    Payment createAlternativePayment(final String countryCode, final String paymentMethod) throws WorldpayConfigurationException;
 
     /**
      * Creates an Payment of type ApplePay with the requested details
@@ -109,7 +105,7 @@ public interface WorldpayOrderService {
     Cse createCsePayment(final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final Address billingAddress);
 
     /**
-     * Creates an Payment of type GooglePay with the requested details
+     * Creates a Payment of type GooglePay with the requested details
      *
      * @param protocolVersion
      * @param signature
@@ -143,4 +139,13 @@ public interface WorldpayOrderService {
      * @return the generated code
      */
     String generateWorldpayOrderCode(final AbstractOrderModel abstractOrderModel);
+
+    /**
+     * Creates a Payment of type ACH Direct Debit with the requested details
+     *
+     * @param address
+     * @param achDirectDebitAdditionalAuthInfo
+     * @return
+     */
+    Payment createACHDirectDebitPayment(final Address address, final ACHDirectDebitAdditionalAuthInfo achDirectDebitAdditionalAuthInfo);
 }

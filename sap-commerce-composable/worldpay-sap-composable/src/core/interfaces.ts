@@ -104,6 +104,7 @@ export enum PaymentMethod {
   GooglePay = 'GooglePay',
   iDeal = 'IDEAL-SSL',
   PayPal = 'PayPal',
+  ACH = 'ACH_DIRECT_DEBIT-SSL',
 }
 
 declare module '@spartacus/order/root' {
@@ -173,16 +174,41 @@ declare module '@spartacus/checkout/base/root' {
   }
 }
 
+export interface ACHPaymentFormCommon {
+  accountNumber?: string;
+  routingNumber?: string;
+  checkNumber?: string;
+  companyName?: string;
+  customIdentifier?: string;
+}
+
+export interface ACHPaymentFormRaw extends ACHPaymentFormCommon {
+  accountType?: {
+    code: string;
+  };
+}
+
+export interface ACHPaymentForm extends ACHPaymentFormCommon {
+  accountType?: string;
+}
+
+export interface ACHBankAccountType {
+  code?: string;
+  name?: string;
+}
+
 export interface ApmPaymentDetails extends PaymentDetails {
   code?: PaymentMethod | string;
   name?: string;
   shopperBankCode?: string;
+  achPaymentForm?: ACHPaymentForm;
 }
 
 export interface WorldpayApmPaymentInfo extends PaymentDetails {
   apmCode?: string;
   apmName?: string;
   shopperBankCode?: string;
+  achPaymentForm?: ACHPaymentForm;
 }
 
 export interface ThreeDsChallengeResponse {
@@ -297,22 +323,22 @@ export interface WorldpayChallengeResponse {
 }
 
 export interface BrowserInfo {
-    javaEnabled?: boolean;
-    javascriptEnabled?: boolean;
-    language?: string;
-    colorDepth?: number;
-    screenHeight?: number;
-    screenWidth?: number;
-    timeZone?: string;
-    userAgent?: string;
+  javaEnabled?: boolean;
+  javascriptEnabled?: boolean;
+  language?: string;
+  colorDepth?: number;
+  screenHeight?: number;
+  screenWidth?: number;
+  timeZone?: string;
+  userAgent?: string;
 }
 
 export interface CSEPaymentForm {
-    paymentDetails?: PaymentDetails;
-    dfReferenceId?: string;
-    challengeWindowSize?: string;
-    cseToken?: string;
-    acceptedTermsAndConditions?: boolean;
-    deviceSession?: string;
-    browserInfo?: BrowserInfo;
+  paymentDetails?: PaymentDetails;
+  dfReferenceId?: string;
+  challengeWindowSize?: string;
+  cseToken?: string;
+  acceptedTermsAndConditions?: boolean;
+  deviceSession?: string;
+  browserInfo?: BrowserInfo;
 }

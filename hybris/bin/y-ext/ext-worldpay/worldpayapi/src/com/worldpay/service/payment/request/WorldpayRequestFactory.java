@@ -3,7 +3,6 @@ package com.worldpay.service.payment.request;
 import com.worldpay.data.*;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.*;
 import com.worldpay.service.response.CreateTokenResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
@@ -172,4 +171,20 @@ public interface WorldpayRequestFactory {
      * @throws WorldpayConfigurationException thrown when the URLs are not configured correctly
      */
     RedirectAuthoriseServiceRequest buildRedirectAuthoriseRequest(final MerchantInfo merchantInfo, final CartModel cartModel, final AdditionalAuthInfo additionalAuthInfo, WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException;
+
+    /**
+     * Builds a direct authorise request to send to Worldpay with ACH Direct Debit details
+     *
+     * @param merchantInfo
+     * @param cartModel
+     * @param additionalAuthInfo
+     * @param worldpayAdditionalInfoData
+     * @return Built {@link DirectAuthoriseServiceRequest}
+     * @throws WorldpayConfigurationException thrown when the URLs are not configured correctly
+     */
+    DirectAuthoriseServiceRequest buildDirectAuthoriseACHDirectDebitRequest(final MerchantInfo merchantInfo,
+                                                                            final CartModel cartModel,
+                                                                            final ACHDirectDebitAdditionalAuthInfo additionalAuthInfo,
+                                                                            final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException;
+
 }

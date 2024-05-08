@@ -46,3 +46,11 @@ export class SetWorldpaySaveAsDefaultCreditCardEvent extends CxEvent {
   static override readonly type: string = 'SetWorldpaySaveAsDefaultCreditCardEvent';
   saved: boolean;
 }
+
+/**
+ * Clear Worldpay ACH Payment Form Event
+ * @since 6.4.2
+ */
+export class ClearWorldpayACHPaymentFormEvent extends CxEvent {
+  static override readonly type: string = 'ClearWorldpayACHPaymentFormEvent';
+}

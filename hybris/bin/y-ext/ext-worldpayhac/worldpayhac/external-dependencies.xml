@@ -14,7 +14,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.hybris.platform</groupId>
 	<artifactId>worldpayhac</artifactId>
-	<version>2211.3</version>
+	<version>6.3.0.0-RC15</version>
 
 	<packaging>jar</packaging>
 

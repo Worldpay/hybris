@@ -10,6 +10,10 @@ import { WorldpayCheckoutPaymentService } from './worldpay-checkout/worldpay-che
 import { WorldpayOrderService } from './worldpay-order/worldpay-order.service';
 import { OrderFacade } from '@spartacus/order/root';
 import { OrderService } from '@spartacus/order/core';
+import { WorldpayACHService } from './worldpay-ach/worldpay-ach.service';
+import { WorldpayACHFacade } from '../facade/worldpay-ach.facade';
+import { WorldpayACHAdapter } from '../connectors/worldpay-ach/worldpay-ach.adapter';
+import { OccWorldpayACHAdapter } from '../occ/adapters/worldpay-ach/occ-worldpay-ach.adapter';
 
 export const worldpayFacadeProviders: Provider[] = [
   WorldpayOrderService,
@@ -40,5 +44,14 @@ export const worldpayFacadeProviders: Provider[] = [
   {
     provide: WorldpayCheckoutPaymentFacade,
     useExisting: WorldpayCheckoutPaymentService
+  },
+  WorldpayACHService,
+  {
+    provide: WorldpayACHFacade,
+    useExisting: WorldpayACHService
+  },
+  {
+    provide: WorldpayACHAdapter,
+    useClass: OccWorldpayACHAdapter
   }
 ];

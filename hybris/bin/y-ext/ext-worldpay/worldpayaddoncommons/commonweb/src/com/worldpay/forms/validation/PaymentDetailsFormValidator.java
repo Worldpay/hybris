@@ -5,6 +5,7 @@ import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.APMAvailabilityService;
+import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.order.CartService;
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.validation.Validator;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Objects;
 
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static java.lang.Boolean.FALSE;
@@ -86,6 +88,10 @@ public class PaymentDetailsFormValidator implements Validator {
             }
         }
 
+        if (PaymentType.ACHDIRECTDEBITSSL.getMethodCode().equals(form.getPaymentMethod())) {
+            validateACHDirectDebit(errors, form);
+        }
+
         validateTermsCheck(errors, form);
         // only base property files are resolved - if your property key is in your bundle folder this is will not be found
 
@@ -100,6 +106,55 @@ public class PaymentDetailsFormValidator implements Validator {
 
         if (worldpayPaymentCheckoutFacade.isFSEnabled() && form.isDobRequired() && !isValidDate(form.getDateOfBirth())) {
             errors.reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+        }
+    }
+
+    protected void validateACHDirectDebit(final Errors errors, final PaymentDetailsForm form) {
+        if (form.getAchForm() == null) {
+            errors.rejectValue("achForm", "worldpay.achForm.invalid");
+        } else {
+            validateAccountType(errors, form);
+            validateAccountNumber(errors, form);
+            validateRoutingNumber(errors, form);
+            validateCheckNumber(errors, form);
+            validateCustomIdentifier(errors, form);
+        }
+    }
+
+    private void validateAccountType(final Errors errors, final PaymentDetailsForm form) {
+        if (StringUtils.isBlank(form.getAchForm().getAccountType())) {
+            errors.rejectValue("achForm.accountType", "worldpay.achForm.accountType.invalid");
+        }
+    }
+
+    private void validateAccountNumber(final Errors errors, final PaymentDetailsForm form) {
+        if (StringUtils.isBlank(form.getAchForm().getAccountNumber()) ||
+                !StringUtils.isNumeric(form.getAchForm().getAccountNumber()) ||
+                form.getAchForm().getAccountNumber().length() > 17) {
+            errors.rejectValue("achForm.accountNumber", "worldpay.achForm.accountNumber.invalid");
+        }
+    }
+
+    private void validateRoutingNumber(final Errors errors, final PaymentDetailsForm form) {
+        if (StringUtils.isBlank(form.getAchForm().getRoutingNumber()) ||
+                !StringUtils.isNumeric(form.getAchForm().getRoutingNumber()) ||
+                form.getAchForm().getRoutingNumber().length() < 8 ||
+                form.getAchForm().getRoutingNumber().length() > 9) {
+            errors.rejectValue("achForm.routingNumber", "worldpay.achForm.routingNumber.invalid");
+        }
+    }
+
+    private void validateCheckNumber(final Errors errors, final PaymentDetailsForm form) {
+        if (!StringUtils.isNumeric(form.getAchForm().getCheckNumber()) ||
+                form.getAchForm().getCheckNumber().length() > 15) {
+            errors.rejectValue("achForm.checkNumber", "worldpay.achForm.checkNumber.invalid");
+        }
+    }
+
+    private void validateCustomIdentifier(final Errors errors, final PaymentDetailsForm form) {
+        if (StringUtils.isNotBlank(form.getAchForm().getCustomIdentifier()) &&
+                form.getAchForm().getCustomIdentifier().length() > 15) {
+            errors.rejectValue("achForm.customIdentifier", "worldpay.achForm.customIdentifier.invalid");
         }
     }
 

@@ -8,13 +8,14 @@ import { Store, StoreModule } from '@ngrx/store';
 import { WorldpayApmService } from '../worldpay-apm/worldpay-apm.service';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayConnector } from '../../connectors/worldpay.connector';
-import { BehaviorSubject, NEVER, Observable, ObservedValueOf, of } from 'rxjs';
-import { ApmData, APMRedirectResponse, BrowserInfo, PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
+import { BehaviorSubject, NEVER, Observable, ObservedValueOf, of, throwError } from 'rxjs';
+import { ACHPaymentForm, ApmData, APMRedirectResponse, BrowserInfo, PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
 import { ClearWorldpayPaymentDetailsEvent } from '../../events/worldpay.events';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
 import { DDC3dsJwtSetEvent } from '../../events/checkout-payment.events';
 import { LaunchDialogService } from '@spartacus/storefront';
 import { WorldpayApmAdapter } from '../../connectors';
+import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
 import createSpy = jasmine.createSpy;
 
 const userId = 'userId';
@@ -141,6 +142,13 @@ class MockRoutingService implements Partial<RoutingService> {
   go = createSpy().and.returnValue(of(true).toPromise());
 }
 
+const achPaymentForm: ACHPaymentForm = {
+  accountType: 'checking',
+  routingNumber: '123456789',
+  accountNumber: '123456789',
+  companyName: 'user',
+};
+
 describe('WorldpayOrderService', () => {
   let service: WorldpayOrderService;
   let activeCartFacade: ActiveCartFacade;
@@ -153,6 +161,7 @@ describe('WorldpayOrderService', () => {
   let worldpayApmService: WorldpayApmService;
   let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
   let worldpayConnector: WorldpayConnector;
+  let worldpayACHConnector: WorldpayACHConnector;
   let launchDialogService: LaunchDialogService;
   let routingService: RoutingService;
 
@@ -219,6 +228,12 @@ describe('WorldpayOrderService', () => {
     }
   }
 
+  class MockWorldpayACHConnector implements Partial<WorldpayACHConnector> {
+    placeACHOrder(): Observable<any> {
+      return of({});
+    }
+  }
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -267,6 +282,10 @@ describe('WorldpayOrderService', () => {
           provide: RoutingService,
           useClass: MockRoutingService
         },
+        {
+          provide: WorldpayACHConnector,
+          useClass: MockWorldpayACHConnector
+        }
       ]
     });
     service = TestBed.inject(WorldpayOrderService);
@@ -281,6 +300,7 @@ describe('WorldpayOrderService', () => {
     worldpayApmService = TestBed.inject(WorldpayApmService);
     worldpayCheckoutPaymentService = TestBed.inject(WorldpayCheckoutPaymentService);
     worldpayConnector = TestBed.inject(WorldpayConnector);
+    worldpayACHConnector = TestBed.inject(WorldpayACHConnector);
     routingService = TestBed.inject(RoutingService);
 
     spyOn(eventService, 'dispatch').and.callThrough();
@@ -418,5 +438,24 @@ describe('WorldpayOrderService', () => {
     // @ts-ignore
     service.checkoutPreconditions().subscribe(response => checkoutPreconditions = response);
     expect(checkoutPreconditions).toEqual(['userId', 'cartId']);
+  });
+
+  it('should place ACH order successfully', (done) => {
+    spyOn(worldpayACHConnector, 'placeACHOrder').and.returnValue(of(order));
+    service.placeACHOrder(achPaymentForm).subscribe((response) => {
+      expect(response).toEqual(order);
+      done();
+    });
+  });
+
+  it('should handle error when placing ACH order', (done) => {
+    const error = new Error('Failed to place order');
+    spyOn(worldpayACHConnector, 'placeACHOrder').and.returnValue(throwError(error));
+    service.placeACHOrder(achPaymentForm).subscribe({
+      error: (err) => {
+        expect(err).toEqual(error);
+        done();
+      }
+    });
   });
 });

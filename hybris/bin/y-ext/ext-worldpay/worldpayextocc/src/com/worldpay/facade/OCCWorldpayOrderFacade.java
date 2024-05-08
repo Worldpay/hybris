@@ -1,9 +1,12 @@
 package com.worldpay.facade;
 
+import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import de.hybris.platform.commercefacades.order.OrderFacade;
 import de.hybris.platform.commercefacades.order.data.OrderData;
+import de.hybris.platform.order.InvalidCartException;
 
 import java.util.Map;
 
@@ -46,4 +49,6 @@ public interface OCCWorldpayOrderFacade extends OrderFacade {
      * @return OrderData
      */
     OrderData findOrderByCodeAndUserId(final String orderCode, final String userId);
+
+    OrderData handleACHDirectDebitResponse(final ACHDirectDebitAdditionalAuthInfo achDirectDebit, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException;
 }
