@@ -2,6 +2,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
@@ -27,6 +28,10 @@ import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.constants.GeneratedCommerceServicesConstants;
 import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
+import de.hybris.platform.core.model.enumeration.EnumerationValueModel;
+import de.hybris.platform.enumeration.EnumerationService;
+import de.hybris.platform.servicelayer.type.TypeService;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +42,7 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,11 +54,10 @@ import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaym
 import static com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController.CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB;
 import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -70,6 +75,8 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String REFERENCE_ID = "referenceId";
     private static final String WINDOW_SIZE = "windowSize";
     private static final String CHALLENGE_PREFERENCE = "challengePreference";
+    private static final String CORPORATE = "CORPORATE";
+    private static final String SAVINGS = "SAVINGS";
 
     private final List<CountryData> billingCountries = emptyList();
     private final List<CardTypeData> supportedCardTypes = emptyList();
@@ -120,6 +127,12 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecoratorMock;
     @Mock(name = "checkoutFacade")
     private AcceleratorCheckoutFacade acceleratorCheckoutFacadeMock;
+    @Mock
+    private EnumerationService enumerationServiceMock;
+    @Mock
+    private TypeService typeServiceMock;
+    @Mock
+    private EnumerationValueModel enumerationValueModelOneMock, enumerationValueModelTwoMock;
 
     @Before
     public void setUp() {
@@ -230,6 +243,28 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
         assertEquals(REFERENCE_ID, result.getAdditional3DS2().getDfReferenceId());
         assertEquals(WINDOW_SIZE, result.getAdditional3DS2().getChallengeWindowSize());
         assertEquals(CHALLENGE_PREFERENCE, result.getAdditional3DS2().getChallengePreference());
+    }
+
+    @Test
+    public void shouldGetACHDirectDebitValues() {
+        when(enumerationServiceMock.getEnumerationValues(AchDirectDebitAccountType._TYPECODE)).
+                thenReturn(List.of(AchDirectDebitAccountType.CORPORATE, AchDirectDebitAccountType.SAVINGS));
+        when(typeServiceMock.getEnumerationValue(AchDirectDebitAccountType.CORPORATE)).thenReturn(enumerationValueModelOneMock);
+        when(typeServiceMock.getEnumerationValue(AchDirectDebitAccountType.SAVINGS)).thenReturn(enumerationValueModelTwoMock);
+        when(enumerationValueModelOneMock.getName()).thenReturn(CORPORATE);
+        when(enumerationValueModelTwoMock.getName()).thenReturn(SAVINGS);
+
+        final List<Pair<String, String>> result = testObj.getACHDirectDebitValues();
+
+        assertEquals(2, result.size());
+        result.forEach(pair -> {
+            if (pair.getLeft().equals(AchDirectDebitAccountType.CORPORATE.getCode())) {
+                assertEquals(CORPORATE, pair.getRight());
+            } else {
+                assertEquals(SAVINGS, pair.getRight());
+            }
+        });
+
     }
 
     private class TestWorldpayPaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {

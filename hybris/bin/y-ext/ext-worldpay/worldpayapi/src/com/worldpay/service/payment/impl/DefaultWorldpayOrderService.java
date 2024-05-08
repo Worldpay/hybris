@@ -5,6 +5,7 @@ import com.worldpay.data.*;
 import com.worldpay.data.applepay.ApplePay;
 import com.worldpay.data.applepay.Header;
 import com.worldpay.data.klarna.KlarnaRedirectURLs;
+import com.worldpay.data.payment.AchDirectDebitPayment;
 import com.worldpay.data.payment.Cse;
 import com.worldpay.data.payment.PayWithGoogleSSL;
 import com.worldpay.data.payment.Payment;
@@ -148,14 +149,32 @@ public class DefaultWorldpayOrderService implements WorldpayOrderService {
      * {@inheritDoc}
      */
     @Override
-    public Payment createPayPalSSLPayment(final String countryCode, final String paypalPaymentMethod) throws WorldpayConfigurationException {
+    public Payment createAlternativePayment(final String countryCode, final String paymentMethod) throws WorldpayConfigurationException {
 
-        return WorldpayInternalModelTransformerUtil.createAlternativePayment(PaymentType.getPaymentType(paypalPaymentMethod),
+        return WorldpayInternalModelTransformerUtil.createAlternativePayment(PaymentType.getPaymentType(paymentMethod),
                 worldpayUrlService.getFullSuccessURL(),
                 worldpayUrlService.getFullFailureURL(),
                 worldpayUrlService.getFullCancelURL(),
                 worldpayUrlService.getFullPendingURL(),
                 countryCode);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Payment createACHDirectDebitPayment(final Address address, final ACHDirectDebitAdditionalAuthInfo achDirectDebitAdditionalAuthInfo) {
+
+        final AchDirectDebitPayment payment = new AchDirectDebitPayment();
+        payment.setAccountNumber(achDirectDebitAdditionalAuthInfo.getAccountNumber());
+        payment.setAccountType(achDirectDebitAdditionalAuthInfo.getAccountType());
+        payment.setCompanyName(achDirectDebitAdditionalAuthInfo.getCompanyName());
+        payment.setRoutingNumber(achDirectDebitAdditionalAuthInfo.getRoutingNumber());
+        payment.setCheckNumber(achDirectDebitAdditionalAuthInfo.getCheckNumber());
+        payment.setCustomIdentifier(achDirectDebitAdditionalAuthInfo.getCustomIdentifier());
+        payment.setAddress(address);
+        payment.setPaymentType(achDirectDebitAdditionalAuthInfo.getPaymentMethod());
+        return payment;
     }
 
     /**

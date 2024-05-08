@@ -262,6 +262,41 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return createBankTransferAuthoriseRequest(requestParameters);
     }
 
+    @Override
+    public DirectAuthoriseServiceRequest buildDirectAuthoriseACHDirectDebitRequest(final MerchantInfo merchantInfo,
+            final CartModel cartModel,
+            final ACHDirectDebitAdditionalAuthInfo additionalAuthInfo,
+            final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException {
+
+        final String orderCode = worldpayOrderService.generateWorldpayOrderCode(cartModel);
+        final Amount amount = worldpayOrderService.createAmount(cartModel.getCurrency(), cartModel.getTotalPrice());
+        final BasicOrderInfo orderInfo = worldpayOrderService.createBasicOrderInfo(orderCode, orderCode, amount);
+        final Address billingAddress = worldpayCartService.getBillingAddress(cartModel, additionalAuthInfo);
+
+        final String shopperEmailAddress = worldpayCartService.getEmailForCustomer(cartModel);
+
+        final String statementNarrative = additionalAuthInfo.getStatementNarrative();
+
+        final Session session = worldpayRequestService.createSession(worldpayAdditionalInfoData);
+        final Browser browser = worldpayRequestService.createBrowser(worldpayAdditionalInfoData);
+        final Shopper shopper = worldpayRequestService.createShopper(shopperEmailAddress, session, browser);
+        final DynamicInteractionType dynamicInteractionType = worldpayRequestService.getDynamicInteractionType(worldpayAdditionalInfoData);
+        final Payment payment = worldpayOrderService.createACHDirectDebitPayment(billingAddress, additionalAuthInfo);
+
+        final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(orderInfo)
+                .withPayment(payment)
+                .withShopper(shopper)
+                .withShippingAddress(worldpayCartService.getAddressFromCart(cartModel, true))
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(statementNarrative)
+                .withDynamicInteractionType(dynamicInteractionType)
+                .build();
+
+        return createACHDirectDebitAuthoriseRequest(requestParameters);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -449,7 +484,7 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         if (worldpayKlarnaService.isKlarnaPaymentType(additionalAuthInfo.getPaymentMethod())) {
             return internalGetRedirectAuthoriseServiceRequestForKlarna(cartModel, additionalAuthInfo, authoriseRequestParametersCreator);
         } else if (PaymentType.PAYPAL_SSL.getMethodCode().equals(additionalAuthInfo.getPaymentMethod())) {
-            return internalGetRedirectAuthoriseServiceRequestForPayPalSSL(cartModel, additionalAuthInfo, authoriseRequestParametersCreator, worldpayAdditionalInfoData);
+            return internalGetRedirectAuthoriseServiceRequestForAlternativePayments(cartModel, additionalAuthInfo, authoriseRequestParametersCreator, worldpayAdditionalInfoData);
         } else {
             return internalGetRedirectAuthoriseServiceRequest(cartModel, additionalAuthInfo, authoriseRequestParametersCreator, worldpayAdditionalInfoData);
         }
@@ -499,6 +534,10 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
     }
 
     protected DirectAuthoriseServiceRequest createBankTransferAuthoriseRequest(final AuthoriseRequestParameters requestParameters) {
+        return DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
+    }
+
+    protected DirectAuthoriseServiceRequest createACHDirectDebitAuthoriseRequest(final AuthoriseRequestParameters requestParameters) {
         return DirectAuthoriseServiceRequest.createDirectAuthoriseRequest(requestParameters);
     }
 
@@ -602,13 +641,13 @@ public class DefaultWorldpayRequestFactory implements WorldpayRequestFactory {
         return createRedirectAuthoriseRequest(authoriseRequestParametersCreator.build());
     }
 
-    protected RedirectAuthoriseServiceRequest internalGetRedirectAuthoriseServiceRequestForPayPalSSL(
+    protected RedirectAuthoriseServiceRequest internalGetRedirectAuthoriseServiceRequestForAlternativePayments(
             final CartModel cartModel,
             final AdditionalAuthInfo additionalAuthInfo,
             final AuthoriseRequestParametersCreator authoriseRequestParametersCreator,
             final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayConfigurationException {
 
-        final Payment payment = worldpayOrderService.createPayPalSSLPayment(worldpayCartService.getBillingAddress(cartModel, additionalAuthInfo).getCountryCode(),
+        final Payment payment = worldpayOrderService.createAlternativePayment(worldpayCartService.getBillingAddress(cartModel, additionalAuthInfo).getCountryCode(),
                 additionalAuthInfo.getPaymentMethod());
 
         final String customerEmail = worldpayCartService.getEmailForCustomer(cartModel);

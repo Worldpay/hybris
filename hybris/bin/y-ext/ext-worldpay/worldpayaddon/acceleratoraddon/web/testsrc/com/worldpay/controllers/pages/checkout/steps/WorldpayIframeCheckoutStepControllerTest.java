@@ -7,6 +7,7 @@ import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
+import com.worldpay.forms.ACHForm;
 import com.worldpay.forms.PaymentDetailsForm;
 import com.worldpay.forms.validation.PaymentDetailsFormValidator;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
@@ -53,6 +54,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     private static final String SHOPPER_BANK_CODE = "shopperBankCode";
     private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
     private static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
+    private static final String ACH_DATA = "ACHData";
 
     @Spy
     @InjectMocks
@@ -88,6 +90,8 @@ public class WorldpayIframeCheckoutStepControllerTest {
     private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacadeMock;
     @Mock
     private HttpServletRequest httpServletRequestMock;
+    @Mock
+    private ACHForm achFormMock;
 
     @Before
     public void setUp() {
@@ -172,6 +176,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
         doReturn(PAGE_REDIRECT).when(testObj).getRedirectToPaymentMethod();
         when(apmConfigurationServiceMock.getAllApmPaymentTypeCodes()).thenReturn(singleton(PAYMENT_METHOD));
         when(paymentDetailsFormMock.getSaveInAccount()).thenReturn(true);
+        when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
 
         final String result = testObj.addPaymentDetails(modelMock, paymentDetailsFormMock, httpServletRequestMock, bindingResultMock, redirectAttrbsMock);
 
@@ -182,5 +187,6 @@ public class WorldpayIframeCheckoutStepControllerTest {
         inOrder.verify(worldpayCartFacadeMock).resetDeclineCodeAndShopperBankOnCart(BANK_CODE);
         inOrder.verify(redirectAttrbsMock).addFlashAttribute(SHOPPER_BANK_CODE, BANK_CODE);
         inOrder.verify(redirectAttrbsMock).addFlashAttribute(SAVE_PAYMENT_INFO, true);
+        inOrder.verify(redirectAttrbsMock).addFlashAttribute(ACH_DATA, achFormMock);
     }
 }

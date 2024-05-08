@@ -8,7 +8,7 @@
     <spring:theme var="paymentMethodName" code="worldpay.paymentMethod.applepay" />
 
     <form:radiobutton id="paymentMethod_applePay" path="paymentMethod" cssClass="available-true" value="APPLEPAY-SSL"/>
-    <label class="available-true" for="paymentMethod_applePay" style="display: none;">
+    <label class="available-true col-xs-6 col-sm-6 col-md-4 col-lg-2" for="paymentMethod_applePay" style="display: none;">
         <img src="${media.url}" title="${paymentMethodName}" alt="${paymentMethodName}" />
         <span>${paymentMethodName}</span>
     </label>

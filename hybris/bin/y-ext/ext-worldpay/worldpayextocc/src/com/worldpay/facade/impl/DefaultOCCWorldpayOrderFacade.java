@@ -1,11 +1,15 @@
 package com.worldpay.facade.impl;
 
+import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facade.OCCWorldpayOrderFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
+import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHOPNoReturnParamsStrategy;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
+import com.worldpay.order.data.WorldpayAdditionalInfoData;
+import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.hop.WorldpayOrderCodeVerificationService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.commercefacades.order.data.OrderData;
@@ -33,7 +37,8 @@ public class DefaultOCCWorldpayOrderFacade extends DefaultOrderFacade implements
     private final WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
     private final Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
     private final WorldpayHostedOrderFacade worldpayHostedOrderFacade;
-    private final  WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService;
+    private final WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService;
+    private final WorldpayDirectOrderFacade worldpayDirectOrderFacade;
 
     public DefaultOCCWorldpayOrderFacade(final WorldpayHOPNoReturnParamsStrategy worldpayHOPNoReturnParamsStrategy,
                                          final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
@@ -41,7 +46,8 @@ public class DefaultOCCWorldpayOrderFacade extends DefaultOrderFacade implements
                                          final WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator,
                                          final Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter,
                                          final WorldpayHostedOrderFacade worldpayHostedOrderFacade,
-                                         final WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService) {
+                                         final WorldpayOrderCodeVerificationService worldpayOrderCodeVerificationService,
+                                         final WorldpayDirectOrderFacade worldpayDirectOrderFacade) {
         this.worldpayHOPNoReturnParamsStrategy = worldpayHOPNoReturnParamsStrategy;
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
         this.orderConverter = orderConverter;
@@ -49,6 +55,7 @@ public class DefaultOCCWorldpayOrderFacade extends DefaultOrderFacade implements
         this.redirectAuthoriseResultConverter = redirectAuthoriseResultConverter;
         this.worldpayHostedOrderFacade = worldpayHostedOrderFacade;
         this.worldpayOrderCodeVerificationService = worldpayOrderCodeVerificationService;
+        this.worldpayDirectOrderFacade = worldpayDirectOrderFacade;
     }
 
     /**
@@ -74,6 +81,14 @@ public class DefaultOCCWorldpayOrderFacade extends DefaultOrderFacade implements
         }
         worldpayHostedOrderFacade.completeRedirectAuthorise(result);
         return placeOrder();
+    }
+
+    @Override
+    public OrderData handleACHDirectDebitResponse(final ACHDirectDebitAdditionalAuthInfo achDirectDebit, final WorldpayAdditionalInfoData worldpayAdditionalInfoData) throws WorldpayException, InvalidCartException {
+
+        final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseACHDirectDebit(worldpayAdditionalInfoData, achDirectDebit);
+
+        return directResponseData.getOrderData();
     }
 
     /**

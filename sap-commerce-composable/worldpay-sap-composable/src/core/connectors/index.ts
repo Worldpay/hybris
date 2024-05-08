@@ -1,5 +1,7 @@
 export * from './worldpay.adapter';
 export * from './worldpay.connector';
+export * from './worldpay-ach/worldpay-ach.adapter';
+export * from './worldpay-ach/worldpay-ach.connector';
 export * from './worldpay-apm/worldpay-apm.adapter';
 export * from './worldpay-apm/worldpay-apm.connector';
 export * from './worldpay-applepay/worldpay-applepay.adapter';

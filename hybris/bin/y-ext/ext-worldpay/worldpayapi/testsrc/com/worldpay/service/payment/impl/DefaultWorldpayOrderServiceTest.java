@@ -1,15 +1,14 @@
 package com.worldpay.service.payment.impl;
 
 import com.worldpay.core.services.strategies.RecurringGenerateMerchantTransactionCodeStrategy;
-import com.worldpay.data.Amount;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
-import com.worldpay.data.ApplePayHeader;
-import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.*;
 import com.worldpay.data.applepay.ApplePay;
 import com.worldpay.data.klarna.KlarnaPayment;
+import com.worldpay.data.payment.AchDirectDebitPayment;
 import com.worldpay.data.payment.AlternativePayment;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayModelTransformationException;
+import com.worldpay.internal.model.ACHDIRECTDEBITSSL;
 import com.worldpay.internal.model.Header;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.payment.PaymentType;
@@ -38,9 +37,9 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Locale;
 
+import static com.worldpay.enums.AchDirectDebitAccountType.CHECKING;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -74,6 +73,11 @@ public class DefaultWorldpayOrderServiceTest {
     private static final String PAYMENT_PROVIDER = "paymentProvider";
     private static final String LOCALE = "en-GB";
     private static final String PAYPAL_SSL = "PAYPAL-SSL";
+    private static final String CHECK_NUMBER = "checkNumber";
+    private static final String ACCOUNT_NUMBER = "accountNumber";
+    private static final String ROUTING_NUMBER = "routingNumber";
+    private static final String COMPANY_NAME = "test";
+    private static final String CUSTOM_IDENTIFIER = "CustomIdentifier";
 
     @InjectMocks
     private DefaultWorldpayOrderService testObj;
@@ -351,13 +355,13 @@ public class DefaultWorldpayOrderServiceTest {
     }
 
     @Test
-    public void createPayPalSSLPayment_shouldCreatePayPalSSLPayment_WhenPayPalSSLIsReceived() throws WorldpayConfigurationException {
+    public void createAlternativePayment_shouldCreatePayPalSSLPayment_WhenPayPalSSLIsReceived() throws WorldpayConfigurationException {
         when(worldpayUrlServiceMock.getFullSuccessURL()).thenReturn(SUCCESS_URL);
         when(worldpayUrlServiceMock.getFullCancelURL()).thenReturn(CANCEL_URL);
         when(worldpayUrlServiceMock.getFullFailureURL()).thenReturn(FAILURE_URL);
         when(worldpayUrlServiceMock.getFullPendingURL()).thenReturn(PENDING_URL);
 
-        final AlternativePayment result = (AlternativePayment) testObj.createPayPalSSLPayment(COUNTRY_CODE, PAYPAL_SSL);
+        final AlternativePayment result = (AlternativePayment) testObj.createAlternativePayment(COUNTRY_CODE, PAYPAL_SSL);
 
         assertEquals(PaymentType.PAYPAL_SSL.getMethodCode(), result.getPaymentType());
         assertEquals(SUCCESS_URL, result.getSuccessURL());
@@ -365,5 +369,28 @@ public class DefaultWorldpayOrderServiceTest {
         assertEquals(FAILURE_URL, result.getFailureURL());
         assertEquals(CANCEL_URL, result.getCancelURL());
         assertEquals(COUNTRY_CODE, result.getShopperCountryCode());
+    }
+
+    @Test
+    public void createACHDirectDebitPayment_shouldCreateACHDirectDebitPayment_WhenPayPalSSLIsReceived() throws WorldpayConfigurationException {
+        final ACHDirectDebitAdditionalAuthInfo additionalInfo = new ACHDirectDebitAdditionalAuthInfo();
+        additionalInfo.setRoutingNumber(ROUTING_NUMBER);
+        additionalInfo.setCheckNumber(CHECK_NUMBER);
+        additionalInfo.setAccountNumber(ACCOUNT_NUMBER);
+        additionalInfo.setAccountType(CHECKING);
+        additionalInfo.setCompanyName(COMPANY_NAME);
+        additionalInfo.setCustomIdentifier(CUSTOM_IDENTIFIER);
+        additionalInfo.setPaymentMethod(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
+
+        final AchDirectDebitPayment result = (AchDirectDebitPayment) testObj.createACHDirectDebitPayment(new Address(), additionalInfo);
+
+        assertEquals(PaymentType.ACHDIRECTDEBITSSL.getMethodCode(), result.getPaymentType());
+        assertEquals(ACCOUNT_NUMBER, result.getAccountNumber());
+        assertEquals(CHECKING, result.getAccountType());
+        assertEquals(CHECK_NUMBER, result.getCheckNumber());
+        assertEquals(COMPANY_NAME, result.getCompanyName());
+        assertEquals(ROUTING_NUMBER, result.getRoutingNumber());
+        assertEquals(CUSTOM_IDENTIFIER, result.getCustomIdentifier());
+        assertNotNull(result.getAddress());
     }
 }

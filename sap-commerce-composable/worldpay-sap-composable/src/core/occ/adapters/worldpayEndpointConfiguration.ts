@@ -31,6 +31,9 @@ export const wordlpayOccConfig: OccConfig = {
         getCheckoutDetails: 'users/${userId}/carts/${cartId}?fields=deliveryAddress(FULL),deliveryMode(FULL),paymentInfo(FULL),worldpayAPMPaymentInfo',
         // eslint-disable-next-line max-len
         cart: 'users/${userId}/carts/${cartId}?fields=DEFAULT,potentialProductPromotions,appliedProductPromotions,potentialOrderPromotions,appliedOrderPromotions,entries(totalPrice(formattedValue),product(images(FULL),stock(FULL)),basePrice(formattedValue,value),updateable),totalPrice(formattedValue),totalItems,totalPriceWithTax(formattedValue),totalDiscounts(value,formattedValue),subTotal(formattedValue),totalUnitCount,deliveryItemsQuantity,deliveryCost(formattedValue),totalTax(formattedValue, value),pickupItemsQuantity,net,appliedVouchers,productDiscounts(formattedValue),user,saveTime,name,description,worldpayAPMPaymentInfo(FULL)',
+        // ACH
+        getACHBankAccountTypes: '/users/${userId}/carts/${cartId}/payment-method/achdirectdebit/types',
+        placeACHOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-ach-direct-order',
       },
     },
   },
@@ -62,5 +65,7 @@ declare module '@spartacus/core' {
     placeBankTransferRedirectOrder?: string | OccEndpoint;
     getCheckoutDetails?: string | OccEndpoint;
     cart?: string | OccEndpoint;
+    getACHBankAccountTypes?: string | OccEndpoint;
+    placeACHOrder?: string | OccEndpoint;
   }
 }

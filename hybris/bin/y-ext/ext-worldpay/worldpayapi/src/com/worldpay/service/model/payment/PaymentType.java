@@ -44,6 +44,7 @@ public enum PaymentType implements Serializable {
     NCPSEASON("NCPSEASON-SSL", NCPSEASONSSL.class),
     IDEAL("IDEAL-SSL", IDEALSSL.class),
     ACH("ACH-SSL", ACHSSL.class),
+    ACHDIRECTDEBITSSL("ACH_DIRECT_DEBIT-SSL", ACHDIRECTDEBITSSL.class),
     CARD_SSL("CARD-SSL", CARDSSL.class),
     ABAQOOS("ABAQOOS-SSL", ABAQOOSSSL.class),
     ALIPAY("ALIPAY-SSL", ALIPAYSSL.class),
