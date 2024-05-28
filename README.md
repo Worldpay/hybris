@@ -39,7 +39,6 @@ In order to install the AddOn using one of the recipes, run the following comman
 
 ## RELEASE NOTES
 
-### Features:
-- Added ACH_DIRECT_DEBIT-SSL
-- APM’s images updated
+### BUG FIXES:
+- Error B2B recipe compile
 

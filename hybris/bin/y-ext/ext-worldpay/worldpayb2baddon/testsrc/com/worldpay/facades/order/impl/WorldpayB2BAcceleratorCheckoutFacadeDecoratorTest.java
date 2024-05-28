@@ -1,7 +1,7 @@
 package com.worldpay.facades.order.impl;
 
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.b2b.enums.CheckoutPaymentType;
+import de.hybris.platform.b2bacceleratorservices.enums.CheckoutPaymentType;
 import de.hybris.platform.b2b.model.B2BCommentModel;
 import de.hybris.platform.b2b.services.B2BCommentService;
 import de.hybris.platform.b2bacceleratorfacades.checkout.data.PlaceOrderData;
