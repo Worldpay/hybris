@@ -1,10 +1,9 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Order, OrderFacade } from '@spartacus/order/root';
-import { BehaviorSubject, Observable, of, Subject, Subscription } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { WorldpayApplepayService } from '../../../../core/services/worldpay-applepay/worldpay-applepay.service';
 import { RoutingService } from '@spartacus/core';
-import { UntypedFormGroup } from '@angular/forms';
 import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../../../core/interfaces';
 
 @Component({
@@ -14,8 +13,6 @@ import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderRespo
 })
 export class WorldpayApplepayComponent implements OnInit, OnDestroy {
   @Input() apm: ApmData;
-  @Input() billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
-  public sameAsShippingAddress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   private paymentRequest$: Subscription;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private applePaySession: any;

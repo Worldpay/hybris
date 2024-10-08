@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ConverterService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
+import { ConverterService, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
 import { GooglePayMerchantConfiguration, PlaceOrderResponse } from '../../../interfaces';
 import { WorldpayGooglepayAdapter } from '../../../connectors/worldpay-googlepay/worldpay-googlepay.adapter';
 import { catchError } from 'rxjs/operators';
@@ -15,11 +15,13 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
    * @param http
    * @param occEndpoints
    * @param converter
+   * @param loggerService
    */
   constructor(
     protected http: HttpClient,
     protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService
+    protected converter: ConverterService,
+    protected loggerService: LoggerService
   ) {
   }
 
@@ -43,7 +45,7 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
       }
     );
     return this.http.get<GooglePayMerchantConfiguration>(url).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
     );
   }
 
@@ -78,7 +80,7 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
       }
     );
     return this.http.post<PlaceOrderResponse>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
     );
   }
 }

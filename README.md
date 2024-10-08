@@ -40,6 +40,7 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Added ACH_DIRECT_DEBIT-SSL 
-- APM’s images updated
+- Removed Giropay as APM
+- Updated SAP Commerce version to 2211.28
+- Updated SAP Composable Storefront version to 2211.8
 

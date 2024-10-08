@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { WorldpayApmAdapter } from './worldpay-apm.adapter';
-import { ApmData, ApmPaymentDetails, APMRedirectResponse } from '../../interfaces';
+import { Cart } from '@spartacus/cart/base/root';
+import { PaymentDetails } from "@spartacus/core";
 import { Order } from '@spartacus/order/root';
-import { Cart, PaymentDetails } from '@spartacus/cart/base/root';
+import { Observable } from 'rxjs';
+import { ApmData, ApmPaymentDetails, APMRedirectResponse } from '../../interfaces';
+import { WorldpayApmAdapter } from './worldpay-apm.adapter';
 
 @Injectable({
   providedIn: 'root'

@@ -417,13 +417,15 @@ describe('WorldpayCartItemListComponent', () => {
       TestBed.compileComponents();
       stubSeviceAndCreateComponent();
 
-      const setItems = spyOnProperty(component, 'items', 'set');
+      spyOn(<any>component, '_setItems').and.callThrough();
       const setLoading = spyOnProperty(component, 'setLoading', 'set');
       component.ngOnInit();
 
       expect(component.cartId).toEqual(mockContext.cartId);
       expect(component.hasHeader).toEqual(mockContext.hasHeader);
-      expect(setItems).toHaveBeenCalledWith(mockContext.items);
+      expect(component['_setItems']).toHaveBeenCalledWith(mockContext.items, {
+        forceRerender: false,
+      });
       expect(component.options).toEqual(mockContext.options);
       expect(component.promotionLocation).toEqual(
         mockContext.promotionLocation

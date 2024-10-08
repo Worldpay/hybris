@@ -1,10 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { WorldpayCheckoutPaymentAdapter } from './worldpay-checkout-payment.adapter';
 import { take } from 'rxjs/operators';
+import { Address, PaymentDetails } from '@spartacus/core';
+import { WorldpayCheckoutPaymentAdapter } from './worldpay-checkout-payment.adapter';
 import { WorldpayCheckoutPaymentConnector } from './worldpay-checkout-payment.connector';
-import { Address } from '@spartacus/core';
-import { PaymentDetails } from '@spartacus/cart/base/root';
 import createSpy = jasmine.createSpy;
 
 const mockBillingAddress: Address = {

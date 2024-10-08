@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { APP_BASE_HREF, CommonModule, PlatformLocation } from '@angular/common';
-import { I18nConfig, provideConfig } from '@spartacus/core';
+import { I18nConfig, provideConfig, provideFeatureTogglesFactory } from '@spartacus/core';
 import { OccWorldpayModule } from '../core/occ/occ-worldpay.module';
 import { worldpayTranslations } from '../assets/worldpay-translations';
 import { getBaseHref } from '../core/utils/get-base-href';
@@ -46,6 +46,14 @@ import { WorldpayCartSharedModule } from '../storefrontlib/cms-components';
       deps: [PlatformLocation]
     },
     ...worldpayFacadeProviders,
+
+    provideFeatureTogglesFactory(() => {
+      const appFeatureToggles: any = {
+        a11yCheckoutDeliveryFocus: true,
+        useExtractedBillingAddressComponent: true,
+      };
+      return appFeatureToggles;
+    })
   ],
 })
 

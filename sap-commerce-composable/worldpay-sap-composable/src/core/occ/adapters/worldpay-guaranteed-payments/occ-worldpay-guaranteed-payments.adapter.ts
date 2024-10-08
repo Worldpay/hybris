@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ConverterService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
+import { ConverterService, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
 import { WorldpayGuaranteedPaymentsAdapter } from '../../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.adapter';
 import { catchError } from 'rxjs/operators';
 
@@ -12,11 +12,13 @@ export class OccWorldpayGuaranteedPaymentsAdapter implements WorldpayGuaranteedP
    * @param http
    * @param occEndpoints
    * @param converter
+   * @param loggerService
    */
   constructor(
     protected http: HttpClient,
     protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService
+    protected converter: ConverterService,
+    protected loggerService: LoggerService,
   ) {
   }
 
@@ -33,7 +35,7 @@ export class OccWorldpayGuaranteedPaymentsAdapter implements WorldpayGuaranteedP
       url,
       {},
     ).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
     );
   }
 }

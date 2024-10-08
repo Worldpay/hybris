@@ -1,12 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorldpayAddressFormComponent } from './worldpay-address-form.component';
-import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, Region, Title, UserAddressService, UserService } from '@spartacus/core';
+import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, Region, Title, UserAddressService } from '@spartacus/core';
 import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
-import { AddressFormComponent, FormErrorsModule, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
+import { FormErrorsModule, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
+import { UserProfileFacade } from '@spartacus/user/profile/root';
 import { By } from '@angular/platform-browser';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { ChangeDetectionStrategy, DebugElement } from '@angular/core';
+import { AddressFormComponent } from '@spartacus/user/profile/components';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { take } from 'rxjs/operators';
 import createSpy = jasmine.createSpy;
@@ -113,7 +115,7 @@ describe('WorldpayAddressFormComponent', () => {
   let controls: UntypedFormGroup['controls'];
 
   let userAddressService: UserAddressService;
-  let userService: UserService;
+  let userService: UserProfileFacade;
   let mockGlobalMessageService: any;
   let launchDialogService: LaunchDialogService;
 
@@ -140,7 +142,7 @@ describe('WorldpayAddressFormComponent', () => {
             useClass: MockLaunchDialogService
           },
           {
-            provide: UserService,
+            provide: UserProfileFacade,
             useClass: MockUserService
           },
           {
@@ -158,7 +160,7 @@ describe('WorldpayAddressFormComponent', () => {
       })
       .compileComponents();
 
-    userService = TestBed.inject(UserService);
+    userService = TestBed.inject(UserProfileFacade);
     userAddressService = TestBed.inject(UserAddressService);
     launchDialogService = TestBed.inject(LaunchDialogService);
   });
@@ -292,12 +294,15 @@ describe('WorldpayAddressFormComponent', () => {
   });
 
   it('should emit submitAddress if dialog was closed with selected address as parameter', () => {
+    spyOn(launchDialogService, 'openDialogAndSubscribe');
     const mockAddressVerificationResult: AddressValidation = {
       decision: 'REVIEW',
     };
     dialogClose$.next(mockAddress);
 
     component.openSuggestedAddress(mockAddressVerificationResult);
+
+    expect(launchDialogService.openDialogAndSubscribe).toHaveBeenCalled();
 
     component.submitAddress.pipe(take(1)).subscribe((address) => {
       expect(address).toEqual(mockAddress);
@@ -482,19 +487,18 @@ describe('WorldpayAddressFormComponent', () => {
     });
 
     it('should add validators', () => {
+      expect(component.addressForm.get('line2').valid).toBeTrue();
       component.addressForm.get('country').setValue({ isocode: 'JP' });
       component.addressForm.markAllAsTouched();
       fixture.detectChanges();
       expect(component.addressForm.get('line2').valid).toBeFalse();
       const address1Label = fixture.debugElement.query(By.css('.address1'));
       const address2Label = fixture.debugElement.query(By.css('.address2'));
-      const address2Error = address2Label.query(By.css('cx-form-errors'));
       const zipCodeLabel = fixture.debugElement.query(By.css('.zipCode'));
       const stateLabel = fixture.debugElement.query(By.css('.state'));
 
       expect(address1Label).toBeTruthy();
       expect(address2Label).toBeTruthy();
-      expect(address2Error.nativeElement.innerText).toBe('formErrors.required');
       expect(zipCodeLabel).toBeTruthy();
       expect(stateLabel).toBeTruthy();
 
@@ -515,8 +519,6 @@ describe('WorldpayAddressFormComponent', () => {
       component.addressForm.markAllAsTouched();
       fixture.detectChanges();
       expect(component.addressForm.get('line2').valid).toBeFalse();
-      const address2Error = fixture.debugElement.query(By.css('.address2 cx-form-errors'));
-      expect(address2Error.nativeElement.innerText).toBe('formErrors.required');
 
       component.addressForm.get('country').setValue({ isocode: 'ES' });
       component.addressForm.markAllAsTouched();

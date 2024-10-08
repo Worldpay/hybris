@@ -1,9 +1,8 @@
 import { Injectable, ViewContainerRef } from '@angular/core';
-import { facadeFactory, HttpErrorModel } from '@spartacus/core';
+import { facadeFactory, HttpErrorModel, PaymentDetails } from '@spartacus/core';
+import { OrderFacade, ORDER_CORE_FEATURE } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
-import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
-import { ORDER_CORE_FEATURE, OrderFacade } from '@spartacus/order/root';
-import { PaymentDetails } from '@spartacus/cart/base/root';
+import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',

@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { takeUntil } from 'rxjs/operators';
-import { ApmData, PaymentMethod } from '../../interfaces';
 import { of, Subject } from 'rxjs';
-import { PaymentDetails } from '@spartacus/cart/base/root';
+import { PaymentDetails } from '@spartacus/core';
+import { ApmData, PaymentMethod } from '../../interfaces';
 import { WorldpayGooglepayAdapter } from './worldpay-googlepay.adapter';
 import { WorldpayGooglePayConnector } from './worldpay-googlepay.connector';
 import createSpy = jasmine.createSpy;

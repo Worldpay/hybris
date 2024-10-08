@@ -1,12 +1,12 @@
 import createSpy = jasmine.createSpy;
 import { WorldpayCheckoutPaymentService } from './worldpay-checkout-payment.service';
-import { Address, EventService, UserIdService } from '@spartacus/core';
+import { Address, EventService, PaymentDetails, UserIdService } from '@spartacus/core';
 import { StoreModule } from '@ngrx/store';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 import { Observable, of } from 'rxjs';
-import { ActiveCartFacade, PaymentDetails } from '@spartacus/cart/base/root';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { inject, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
