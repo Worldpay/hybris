@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { backOff, ConverterService, isJaloError, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
+import { backOff, ConverterService, isJaloError, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
 import { catchError } from 'rxjs/operators';
 import { Order } from '@spartacus/order/root';
 import { ACHBankAccountType, ACHPaymentForm } from '../../../interfaces';
@@ -11,14 +11,16 @@ import { WorldpayACHAdapter } from '../../../connectors/worldpay-ach/worldpay-ac
 export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
   /**
    * Constructor
-   * @param http
-   * @param occEndpoints
-   * @param converter
+   * @param http HttpClient
+   * @param occEndpoints OccEndpointsService
+   * @param converter ConverterService
+   * @param loggerService LoggerService
    */
   constructor(
     protected http: HttpClient,
     protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService
+    protected converter: ConverterService,
+    protected loggerService: LoggerService
   ) {
   }
 
@@ -71,7 +73,7 @@ export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
       }
     );
     return this.http.post<Order>(url, body).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })

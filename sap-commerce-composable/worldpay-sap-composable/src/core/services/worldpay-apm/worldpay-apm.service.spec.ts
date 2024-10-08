@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 
 import { WorldpayApmService } from './worldpay-apm.service';
-import { CmsService, ConverterService, EventService, GlobalMessageService, GlobalMessageType, UserIdService } from '@spartacus/core';
+import { CmsService, ConverterService, EventService, GlobalMessageService, GlobalMessageType, PaymentDetails, UserIdService } from '@spartacus/core';
 import { StoreModule } from '@ngrx/store';
 import { NEVER, Observable, of, throwError } from 'rxjs';
 import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod } from '../../interfaces';
 import { OrderDetailsService } from '@spartacus/order/components';
 import { WorldpayApmConnector } from '../../connectors/worldpay-apm/worldpay-apm.connector';
 import { SelectWorldpayAPMEvent, SetWorldpayAPMRedirectResponseEvent } from '../../events/apm.events';
-import { ActiveCartFacade, PaymentDetails } from '@spartacus/cart/base/root';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 import { LaunchDialogService } from '@spartacus/storefront';
 import { WorldpayConnector } from '../../connectors';

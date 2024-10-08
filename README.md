@@ -42,4 +42,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 ### Features:
 - Removed Giropay as APM
 - Updated SAP Commerce version to 2211.28
+- Updated SAP Composable Storefront version to 2211.8
 

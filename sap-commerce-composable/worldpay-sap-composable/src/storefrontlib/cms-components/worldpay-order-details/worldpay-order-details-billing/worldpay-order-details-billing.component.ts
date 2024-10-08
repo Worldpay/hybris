@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ViewEncapsulation } from '@angular/core';
+import { PaymentDetails } from '@spartacus/core';
 import { OrderDetailBillingComponent } from '@spartacus/order/components';
-import { combineLatest, Observable } from 'rxjs';
 import { Card } from '@spartacus/storefront';
+import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PaymentDetails } from '@spartacus/cart/base/root';
 import { generateBillingAddressCard } from '../../../../core/utils/format-address';
 
 @Component({

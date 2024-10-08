@@ -10,27 +10,28 @@ capital markets firms globally.
 
 ## About SAP Composable Storefront
 
-Starting with version 5.0, “SAP Commerce Cloud, composable storefront” is the name for the official release of project “Spartacus” libraries published by SAP. The officially
-supported composable storefront is available to SAP Commerce Cloud customers. Documentation is available on the SAP Help Portal.
+Starting with version 2211.19, composable storefront has aligned its versioning with SAP Commerce Cloud. The previous release of composable storefront was version 6.8. For more
+information,
+see [Changes to Release Numbering and Update Policies for Composable Storefront Starting in February 2024](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/6c7b98dbe68f4a508cac17a207182f4c/5fea969613a341308e2519c5f2827331.html?locale=en-US&version=2211).
 
 Composable storefront is based off the Spartacus open source code, and is included in the SAP Commerce Cloud license at no extra cost. Composable storefront has a roll-forward
 update policy.
-Spartacus documentation: [https://sap.github.io/spartacus-docs/](https://sap.github.io/spartacus-docs/). Release
-information: [https://sap.github.io/spartacus-docs/release-information/](https://sap.github.io/spartacus-docs/release-information/).
+Spartacus documentation: [https://sap.github.io/spartacus-docs/](https://sap.github.io/spartacus-docs/).
+Release information: [https://sap.github.io/spartacus-docs/release-information/](https://sap.github.io/spartacus-docs/release-information/).
 
 ## Requirements
 
-- For the back end, SAP Commerce Cloud version 2105 or higher is required.
-- **[Angular CLI:](https://angular.io/)** Version 15.2.4 is the minimum required. The most recent 15.x version is strongly recommended. Version 16 and higher is not supported.
-- **[npm:](https://www.npmjs.com/)** Version 8.0 or newer.
-- **[Node.js](https://nodejs.org/)**: Version 16.13.0 or a newer 16.x version, or else version 18.10.0 or a newer 18.x version. Node.js 14.20 and newer 14.x versions are supported
-  by Angular 15, but are no longer supported by SAP Commerce Cloud hosting services.
+- If you are working with Spartacus 2211, see the 2211 Angular development environment requirements on
+  the [SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/cfcf687ce2544bba9799aa6c8314ecd0/bf31098d779f4bdebb7a2d0591917363.html?locale=en-US&version=2211).
+- **[Angular CLI:](https://angular.io/)** Version 17.0.0 is the minimum required. The most recent 17.x version is strongly recommended.
+- **[npm:](https://www.npmjs.com/)** Version 10.2.4 or newer.
+- **[Node.js](https://nodejs.org/)**: Version 20.9.0 is the minimum required. The most recent 20.x version is strongly recommended.
 
 **Note:** Some Spartacus features require API endpoints that are only available in newer versions of SAP Commerce Cloud. For more information, see Feature Compatibility.
 
 ## Compatibility
 
-The Connector is compatible with the Spartacus Release 6.4.0
+The Connector is compatible with the Spartacus Release 2211.27.0
 
 ## Installation & Usage
 
@@ -49,7 +50,7 @@ Run the command `./install.sh` to do a clean install and run the example-storefr
 or
 
 ```
-  npm install @worldpay2020/sap-composable@6.4.0
+  npm install @worldpay2020/sap-composable@2211.27.0
 ```
 
 ## Configuring SAP Composable Storefront
@@ -201,9 +202,55 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+### Release 2211.27.0
+
+* Compatible with SAP Commerce Cloud 2211.27.0
+* Supported APM’s:
+
+| Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
+|-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
+| ACH Direct Debit      | US                            | USD             | Yes                | Account type, Account Number, Routing Number, Check Number, Company Name, Custom Identifier |
+| AliPay                | CN                            | USD, EUR        |                    |                                                                                             |
+| ApplePay              | All                           | All             | Yes                |                                                                                             |
+| Bancontact MisterCash | BE                            | EUR             |                    |                                                                                             |
+| China Union Pay       | CN                            | GBP,EUR,USD,SGD |                    |                                                                                             |
+| GiroPay               | GE                            | EUR             |                    |                                                                                             |
+| GooglePay             | All                           | All             | Yes                |                                                                                             |
+| iDeal                 | NL                            | EUR             | Yes                | Bank Code                                                                                   |
+| Klarna                | AT,FI,DE,NL,NO,SE,GB          | EUR,GBP         |                    |                                                                                             |
+| Klarna Pay Later      | SE,NO,FI,DE,NL,AT,CH,GB,DK,US | EUR,GBP         |                    |                                                                                             |
+| Klarna Pay Now        | SE,DE,NL,AT                   | EUR,GBP         |                    |                                                                                             |
+| Klarna Slice It       | SE,NO,FI,DE,AT,GB,DK,US       | EUR,GBP         |                    |                                                                                             |
+| PayPal SSL            | All                           | All             |                    |                                                                                             |
+| POLi                  | NZ                            | NZ              |                    |                                                                                             |
+| Postepay              | IT                            | EUR             |                    |                                                                                             |
+| Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
+| Sofort                | AT,BE,FR,DE,CH                | EUR,CHF         |                    |                                                                                             |
+
 ### Release 6.4.2
 
 * Included ACH payment method for United States
+* Supported APM’s:
+
+| Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
+|-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
+| ACH Direct Debit      | US                            | USD             | Yes                | Account type, Account Number, Routing Number, Check Number, Company Name, Custom Identifier |
+| AliPay                | CN                            | USD, EUR        |                    |                                                                                             |
+| ApplePay              | All                           | All             | Yes                |                                                                                             |
+| Bancontact MisterCash | BE                            | EUR             |                    |                                                                                             |
+| China Union Pay       | CN                            | GBP,EUR,USD,SGD |                    |                                                                                             |
+| GiroPay               | GE                            | EUR             |                    |                                                                                             |
+| GooglePay             | All                           | All             | Yes                |                                                                                             |
+| iDeal                 | NL                            | EUR             | Yes                | Bank Code                                                                                   |
+| Klarna                | AT,FI,DE,NL,NO,SE,GB          | EUR,GBP         |                    |                                                                                             |
+| Klarna Pay Later      | SE,NO,FI,DE,NL,AT,CH,GB,DK,US | EUR,GBP         |                    |                                                                                             |
+| Klarna Pay Now        | SE,DE,NL,AT                   | EUR,GBP         |                    |                                                                                             |
+| Klarna Slice It       | SE,NO,FI,DE,AT,GB,DK,US       | EUR,GBP         |                    |                                                                                             |
+| PayPal SSL            | All                           | All             |                    |                                                                                             |
+| POLi                  | NZ                            | NZ              |                    |                                                                                             |
+| Postepay              | IT                            | EUR             |                    |                                                                                             |
+| Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
+| Sofort                | AT,BE,FR,DE,CH                | EUR,CHF         |                    |                                                                                             |
 
 ### Release 6.4.1
 

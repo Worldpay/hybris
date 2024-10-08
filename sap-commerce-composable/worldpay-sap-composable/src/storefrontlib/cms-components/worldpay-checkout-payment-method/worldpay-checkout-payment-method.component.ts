@@ -1,15 +1,15 @@
 import { Component, HostBinding, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Address, getLastValueSync, GlobalMessageService, GlobalMessageType, TranslationService, UserPaymentService } from '@spartacus/core';
-import { Card } from '@spartacus/storefront';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators';
-import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
-import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
-import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../../core/interfaces';
+import { ActivatedRoute } from '@angular/router';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { CheckoutPaymentMethodComponent, CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
-import { ActiveCartFacade, PaymentDetails } from '@spartacus/cart/base/root';
+import { Address, getLastValueSync, GlobalMessageService, GlobalMessageType, PaymentDetails, TranslationService, UserPaymentService } from '@spartacus/core';
+import { Card } from '@spartacus/storefront';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators';
+import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../../core/interfaces';
+import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
 import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
 
 @Component({

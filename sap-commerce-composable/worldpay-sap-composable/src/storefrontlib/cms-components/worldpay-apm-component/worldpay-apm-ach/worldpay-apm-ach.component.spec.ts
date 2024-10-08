@@ -2,26 +2,24 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { Address, I18nTestingModule } from '@spartacus/core';
 import { FormErrorsModule } from '@spartacus/storefront';
-import { ReactiveFormsModule, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { WorldpayApmAchComponent } from './worldpay-apm-ach.component';
 import { WorldpayACHFacade } from '../../../../core/facade/worldpay-ach.facade';
-import { PaymentMethod } from '../../../../core/interfaces';
+import { ACHPaymentForm, PaymentMethod } from '../../../../core/interfaces';
 import { Component, Input } from '@angular/core';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
 
 const mockBillingAddress: Address = {
-  firstName: 'John',
-  lastName: 'Smith',
-  line1: 'Buckingham Street 5',
-  line2: '1A',
-  phone: '(+11) 111 111 111',
-  postalCode: 'MA8902',
-  town: 'London',
-  country: {
-    name: 'test-country-name',
-    isocode: 'UK',
+  'firstName': 'Test',
+  'lastName': 'User',
+  'line1': '2022 Miami Street',
+  'line2': '',
+  'town': 'South Bend',
+  'country': {
+    'isocode': 'BE'
   },
-  formattedAddress: 'test-formattedAddress',
+  'postalCode': '46613'
 };
 
 const mockACHBankAccountTypesState = of({
@@ -54,6 +52,7 @@ describe('WorldpayApmAchComponent', () => {
   let component: WorldpayApmAchComponent;
   let fixture: ComponentFixture<WorldpayApmAchComponent>;
   const worldpayACHFacade = jasmine.createSpyObj('WorldpayACHFacade', ['getACHBankAccountTypesState', 'getACHPaymentFormValue', 'setACHPaymentFormValue']);
+  let checkoutBillingAddressFormService: CheckoutBillingAddressFormService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -71,33 +70,52 @@ describe('WorldpayApmAchComponent', () => {
           {
             provide: WorldpayACHFacade,
             useValue: worldpayACHFacade
-          }
+          },
+          CheckoutBillingAddressFormService
         ],
       })
       .compileComponents();
 
     fixture = TestBed.createComponent(WorldpayApmAchComponent);
+    checkoutBillingAddressFormService = TestBed.inject(CheckoutBillingAddressFormService);
     component = fixture.componentInstance;
     worldpayACHFacade.placeACHOrder;
     worldpayACHFacade.getACHPaymentFormValue.and.returnValue(of(null));
     worldpayACHFacade.getACHBankAccountTypesState.and.returnValue(mockACHBankAccountTypesState);
-    component.billingAddressForm = new UntypedFormGroup({
-      firstName: new UntypedFormControl(null),
-      lastName: new UntypedFormControl(null),
-      line1: new UntypedFormControl(null),
-      line2: new UntypedFormControl(null),
-      phone: new UntypedFormControl(null),
-      postalCode: new UntypedFormControl(null),
-      town: new UntypedFormControl(null),
-      country: new UntypedFormControl(null),
-      formattedAddress: new UntypedFormControl(null),
-    });
+  });
 
-    component.billingAddressForm.setValue(mockBillingAddress);
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize billing address form and sameAsShippingAddress flag', () => {
+    component.ngOnInit();
+
+    expect(component.billingAddressForm).toBe(checkoutBillingAddressFormService.getBillingAddressForm());
+    expect(component.sameAsShippingAddress).toBe(checkoutBillingAddressFormService.isBillingAddressSameAsDeliveryAddress());
   });
 
   it('should initialize ACH bank account types', () => {
     component.ngOnInit();
+
+    expect(worldpayACHFacade.getACHBankAccountTypesState).toHaveBeenCalled();
+  });
+
+  it('should set ACH bank account types state', () => {
+    component.ngOnInit();
+
+    component.achBankAccountTypesState$.subscribe(state => {
+      expect(state.data).toEqual([
+        {
+          code: 'type1',
+          name: 'Type 1'
+        },
+        {
+          code: 'type2',
+          name: 'Type 2'
+        }
+      ]);
+    });
 
     expect(worldpayACHFacade.getACHBankAccountTypesState).toHaveBeenCalled();
   });
@@ -117,10 +135,32 @@ describe('WorldpayApmAchComponent', () => {
     });
   });
 
-  it('should emit payment details and billing address on next', () => {
-    component.sameAsShippingAddress = false;
+  it('should set ACH payment form value on initialization', () => {
+    const mockValue: ACHPaymentForm = {
+      accountType: 'type1',
+      accountNumber: '123456789',
+      routingNumber: '987654321',
+      checkNumber: '11111',
+      companyName: 'Test Company',
+      customIdentifier: '12345'
+    };
+
+    worldpayACHFacade.getACHPaymentFormValue.and.returnValue(of(mockValue));
+
     component.ngOnInit();
-    fixture.detectChanges();
+
+    expect(component.achForm.value).toEqual({
+      ...mockValue,
+      accountType: { code: mockValue.accountType }
+    });
+
+    expect(worldpayACHFacade.getACHPaymentFormValue).toHaveBeenCalled();
+  });
+
+  it('should emit payment details and billing address when form is valid and sameAsShippingAddress is false', () => {
+    spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
+    spyOn(checkoutBillingAddressFormService, 'isBillingAddressFormValid').and.returnValue(true);
+    spyOn(checkoutBillingAddressFormService, 'getBillingAddress').and.returnValue(mockBillingAddress);
     spyOn(component.setPaymentDetails, 'emit');
 
     component.achForm.setValue({
@@ -132,8 +172,8 @@ describe('WorldpayApmAchComponent', () => {
       customIdentifier: '12345'
     });
 
-    fixture.detectChanges();
     component.next();
+
     expect(component.setPaymentDetails.emit).toHaveBeenCalledWith({
       paymentDetails: {
         code: PaymentMethod.ACH,
@@ -150,7 +190,38 @@ describe('WorldpayApmAchComponent', () => {
     });
   });
 
-  it('should not emit payment details and billing address if form is invalid', () => {
+  it('should emit payment details without billing address when form is valid and sameAsShippingAddress is true', () => {
+    spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
+    spyOn(component.setPaymentDetails, 'emit');
+
+    component.achForm.setValue({
+      accountType: { code: 'type1' },
+      accountNumber: '123456789',
+      routingNumber: '987654321',
+      checkNumber: '11111',
+      companyName: 'Test Company',
+      customIdentifier: '12345'
+    });
+
+    component.next();
+
+    expect(component.setPaymentDetails.emit).toHaveBeenCalledWith({
+      paymentDetails: {
+        code: PaymentMethod.ACH,
+        achPaymentForm: {
+          accountType: 'type1',
+          accountNumber: '123456789',
+          routingNumber: '987654321',
+          checkNumber: '11111',
+          companyName: 'Test Company',
+          customIdentifier: '12345'
+        }
+      },
+      billingAddress: null
+    });
+  });
+
+  it('should not emit payment details when form is invalid', () => {
     spyOn(component.setPaymentDetails, 'emit');
     component.achForm.setValue({
       accountType: { code: null },

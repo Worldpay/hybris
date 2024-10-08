@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
-import { UntypedFormGroup } from '@angular/forms';
 import { Address } from '@spartacus/core';
 import { distinctUntilChanged, first, map, switchMap, take, takeUntil } from 'rxjs/operators';
 import { makeFormErrorsVisible } from '../../../core/utils/make-form-errors-visible';
@@ -9,6 +8,8 @@ import { WorldpayGooglepayService } from '../../../core/services/worldpay-google
 import { ApmData, ApmPaymentDetails, GooglePayMerchantConfiguration, PaymentMethod } from '../../../core/interfaces';
 import { WorldpayApplepayService } from '../../../core/services/worldpay-applepay/worldpay-applepay.service';
 import { WorldpayOrderService } from '../../../core/services';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
+import { UntypedFormGroup } from '@angular/forms';
 
 @Component({
   selector: 'y-worldpay-apm-component',
@@ -31,11 +32,21 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
 
   selectedApm$: Observable<ApmData> = this.worldpayApmService.getSelectedAPMFromState();
   paymentMethod = PaymentMethod;
-  sameAsShippingAddress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  sameAsShippingAddress: boolean = true;
   billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
   submitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   protected paymentDetails: ApmData;
   private drop: Subject<void> = new Subject<void>();
+
+  /**
+   * Injects the CheckoutBillingAddressFormService into the component.
+   * This service is used to manage the billing address form in the checkout process.
+   * @protected
+   * @since 2211.27.0
+   */
+  protected billingAddressFormService = inject(
+    CheckoutBillingAddressFormService
+  );
 
   /**
    * Constructor
@@ -67,7 +78,8 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
         console.error('Failed to initialize FraudSight, check component configuration', error);
       },
     });
-
+    this.billingAddressForm = this.billingAddressFormService.getBillingAddressForm();
+    this.sameAsShippingAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
     this.initializeGooglePay();
     this.initializeApplePay();
   }
@@ -80,15 +92,15 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
    */
   showBillingFormAndContinueButton(code: string): boolean {
     switch (code) {
-    case PaymentMethod.Card:
-    case PaymentMethod.GooglePay:
-    case PaymentMethod.ApplePay:
-    case PaymentMethod.iDeal:
-    case PaymentMethod.ACH:
-      return false;
+      case PaymentMethod.Card:
+      case PaymentMethod.GooglePay:
+      case PaymentMethod.ApplePay:
+      case PaymentMethod.iDeal:
+      case PaymentMethod.ACH:
+        return false;
 
-    default:
-      return true;
+      default:
+        return true;
     }
   }
 
@@ -98,17 +110,16 @@ export class WorldpayApmComponent implements OnInit, OnDestroy {
    */
   selectApmPaymentDetails(): void {
     let billingAddress;
-    if (!this.sameAsShippingAddress$.value) {
-      if (this.billingAddressForm.valid) {
-        billingAddress = this.billingAddressForm.value;
+    if (!this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress()) {
+      if (this.billingAddressFormService.isBillingAddressFormValid()) {
+        billingAddress = this.billingAddressFormService.getBillingAddress();
       } else {
-        makeFormErrorsVisible(this.billingAddressForm);
+        makeFormErrorsVisible(this.billingAddressFormService.getBillingAddressForm());
         return;
       }
     }
 
     this.submitting$.next(true);
-
     this.setPaymentDetails.emit({
       paymentDetails: {
         code: this.paymentDetails.code,

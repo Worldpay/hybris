@@ -1,100 +1,124 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { WorldpayBillingAddressComponent } from './worldpay-billing-address.component';
-import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
-import { Address, Country, I18nModule, I18nTestingModule, MockTranslatePipe, QueryState, UserAddressService, UserPaymentService } from '@spartacus/core';
-import { Observable, of } from 'rxjs';
-import { StoreModule } from '@ngrx/store';
-import { FormErrorsModule } from '@spartacus/storefront';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, MockTranslatePipe, UserAddressService, UserPaymentService } from '@spartacus/core';
+import { EMPTY, of } from 'rxjs';
+import { FormErrorsModule, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CheckoutDeliveryAddressFacade } from '@spartacus/checkout/base/root';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { CheckoutBillingAddressFormComponent, CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
+import createSpy = jasmine.createSpy;
+
+const mockBillingCountries: Country[] = [
+  {
+    isocode: 'CA',
+    name: 'Canada',
+  },
+];
+
+const mockBillingCountriesEmpty: Country[] = [];
+
+const mockAddress: Address = {
+  firstName: 'John',
+  lastName: 'Doe',
+  titleCode: 'mr',
+  line1: 'Toyosaki 2 create on cart',
+  line2: 'line2',
+  town: 'town',
+  region: { isocode: 'JP-27' },
+  postalCode: 'zip',
+  country: { isocode: 'JP' },
+};
 
 @Component({
   selector: 'cx-card',
   template: '',
 })
 class MockCardComponent {
-  @Input() content;
+  @Input()
+  content: any;
 }
 
-const unitedStates: Country = {
-  isocode: 'US',
-  name: 'United States of Murica'
-};
-
-const deliveryAddress: Address = {
-  firstName: 'John',
-  lastName: 'Doe',
-  country: unitedStates
-};
-
-class MockUserAddressService {
-  getRegions(country: Country) {
-    return of([
-      {
-        isocode: 'ca',
-        countryIso: country.isocode
-      },
-      {
-        isocode: 'or',
-        countryIso: country.isocode
-      },
-    ]);
-  }
-}
-
-class MockUserPaymentService {
-  getAllBillingCountries() {
-    return of([unitedStates]);
-  }
-
-  loadBillingCountries() {
-
-  }
-}
-
-class MockCheckoutDeliveryAddressFacade implements Partial<CheckoutDeliveryAddressFacade> {
-  getDeliveryAddressState(): Observable<QueryState<Address>> {
-    return of({
+class MockCheckoutDeliveryService implements Partial<CheckoutDeliveryAddressFacade> {
+  getDeliveryAddressState = createSpy().and.returnValue(
+    of({
       loading: false,
       error: false,
-      data: deliveryAddress
-    });
+      data: undefined
+    })
+  );
+  getAddressVerificationResults = createSpy().and.returnValue(EMPTY);
+  verifyAddress = createSpy();
+  clearAddressVerificationResults = createSpy();
+}
+
+class MockUserPaymentService implements Partial<UserPaymentService> {
+  loadBillingCountries = createSpy();
+  getAllBillingCountries = createSpy().and.returnValue(
+    of(mockBillingCountries)
+  );
+}
+
+class MockGlobalMessageService implements Partial<GlobalMessageService> {
+  add = createSpy();
+}
+
+class MockLaunchDialogService implements Partial<LaunchDialogService> {
+  openDialogAndSubscribe() {
+    return EMPTY;
   }
+}
+
+class MockUserAddressService implements Partial<UserAddressService> {
+  getRegions = createSpy().and.returnValue(of([]));
+  verifyAddress = createSpy().and.returnValue(of({}));
 }
 
 describe('WorldpayBillingAddressComponent', () => {
   let component: WorldpayBillingAddressComponent;
   let fixture: ComponentFixture<WorldpayBillingAddressComponent>;
+  let mockCheckoutDeliveryService: MockCheckoutDeliveryService;
+  let mockUserPaymentService: MockUserPaymentService;
+  let mockGlobalMessageService: MockGlobalMessageService;
   let userAddressService: UserAddressService;
-  let userPaymentService: UserPaymentService;
-  let billingAddressForm: UntypedFormGroup;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    mockCheckoutDeliveryService = new MockCheckoutDeliveryService();
+    mockUserPaymentService = new MockUserPaymentService();
+    mockGlobalMessageService = new MockGlobalMessageService();
+
+    TestBed.configureTestingModule({
         imports: [
-          StoreModule.forRoot({}),
-          I18nTestingModule,
           ReactiveFormsModule,
-          FormErrorsModule,
-          I18nModule,
           NgSelectModule,
+          NgSelectA11yModule,
+          I18nTestingModule,
+          FormErrorsModule,
         ],
         providers: [
-          UntypedFormBuilder,
+          {
+            provide: LaunchDialogService,
+            useClass: MockLaunchDialogService
+          },
+          {
+            provide: CheckoutDeliveryAddressFacade,
+            useValue: mockCheckoutDeliveryService,
+          },
+          {
+            provide: UserPaymentService,
+            useValue: mockUserPaymentService
+          },
+          {
+            provide: GlobalMessageService,
+            useValue: mockGlobalMessageService
+          },
           {
             provide: UserAddressService,
             useClass: MockUserAddressService
           },
-          {
-            provide: UserPaymentService,
-            useClass: MockUserPaymentService
-          },
-          {
-            provide: CheckoutDeliveryAddressFacade,
-            useClass: MockCheckoutDeliveryAddressFacade
-          },
+          CheckoutBillingAddressFormService,
         ],
         declarations: [
           WorldpayBillingAddressComponent,
@@ -102,23 +126,91 @@ describe('WorldpayBillingAddressComponent', () => {
           MockCardComponent
         ],
       })
+      .overrideComponent(CheckoutBillingAddressFormComponent, {
+        set: { changeDetection: ChangeDetectionStrategy.Default },
+      })
       .compileComponents();
-  });
+  }));
 
   beforeEach(() => {
-    billingAddressForm = new UntypedFormGroup({});
-
+    userAddressService = TestBed.inject(UserAddressService);
     fixture = TestBed.createComponent(WorldpayBillingAddressComponent);
     component = fixture.componentInstance;
-    component.billingAddressForm = billingAddressForm;
-    fixture.detectChanges();
-
-    userAddressService = TestBed.inject(UserAddressService);
-    userPaymentService = TestBed.inject(UserPaymentService);
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('ngOnInit()', () => {
+    it('should call ngOnInit to get billing countries', (done) => {
+      mockUserPaymentService.getAllBillingCountries = createSpy().and.returnValue(of(mockBillingCountries));
+      component.ngOnInit();
+      component.countries$.subscribe((countries: Country[]) => {
+        expect(countries).toBe(mockBillingCountries);
+        done();
+      });
+    });
+
+    it('should call ngOnInit to get delivery address set in cart', (done) => {
+      mockCheckoutDeliveryService.getDeliveryAddressState = createSpy().and.returnValue(
+        of({
+          loading: false,
+          error: false,
+          data: mockAddress
+        })
+      );
+      component.ngOnInit();
+      component.deliveryAddress$.subscribe((address) => {
+        expect(address).toBe(mockAddress);
+        done();
+      });
+    });
+
+    it('should call ngOnInit to load billing countries', (done) => {
+      mockUserPaymentService.getAllBillingCountries = createSpy().and.returnValue(of(mockBillingCountriesEmpty));
+
+      component.ngOnInit();
+      component.countries$.subscribe((countries: Country[]) => {
+        expect(countries).toBe(mockBillingCountriesEmpty);
+        expect(mockUserPaymentService.loadBillingCountries).toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should add address with address verification result "accept"', () => {
+      spyOn(component, 'openSuggestedAddress');
+      const mockAddressVerificationResult = { decision: 'ACCEPT' };
+      component.ngOnInit();
+      component['handleAddressVerificationResults'](
+        mockAddressVerificationResult
+      );
+      expect(mockGlobalMessageService.add).not.toHaveBeenCalled();
+      expect(component.openSuggestedAddress).not.toHaveBeenCalled();
+    });
+
+    it('should display error message with address verification result "reject"', () => {
+      const mockAddressVerificationResult: AddressValidation = {
+        decision: 'REJECT',
+      };
+      component.ngOnInit();
+      component['handleAddressVerificationResults'](
+        mockAddressVerificationResult
+      );
+      expect(mockGlobalMessageService.add).toHaveBeenCalled();
+    });
+
+    it('should open suggested address with address verification result "review"', () => {
+      const mockAddressVerificationResult: AddressValidation = {
+        decision: 'REVIEW',
+      };
+      spyOn(component, 'openSuggestedAddress');
+      component.ngOnInit();
+      component['handleAddressVerificationResults'](
+        mockAddressVerificationResult
+      );
+      expect(component.openSuggestedAddress).toHaveBeenCalled();
+    });
   });
 
   it('should populate billing address form if non given', () => {
@@ -138,28 +230,23 @@ describe('WorldpayBillingAddressComponent', () => {
   });
 
   it('should call load billing countries if no countries defined', (done) => {
-    spyOn(userPaymentService, 'getAllBillingCountries').and.returnValue(of([]));
-    spyOn(userPaymentService, 'loadBillingCountries').and.callThrough();
-
+    mockUserPaymentService.getAllBillingCountries = createSpy().and.returnValue(of([]));
     component.ngOnInit();
 
     component.countries$.subscribe((countries) => {
       expect(countries.length).toEqual(0);
-      expect(userPaymentService.loadBillingCountries).toHaveBeenCalled();
+      expect(mockUserPaymentService.loadBillingCountries).toHaveBeenCalled();
       done();
     }).unsubscribe();
   });
 
   it('should not load billing countries if billing countries already loaded', (done) => {
-    spyOn(userPaymentService, 'loadBillingCountries').and.callThrough();
-
     component.ngOnInit();
 
     component.countries$.subscribe((countries) => {
-      expect(countries).toEqual([unitedStates]);
-      expect(userPaymentService.loadBillingCountries).not.toHaveBeenCalled();
+      expect(countries).toEqual(mockBillingCountries);
+      expect(mockUserPaymentService.loadBillingCountries).not.toHaveBeenCalled();
       done();
     }).unsubscribe();
   });
-
 });

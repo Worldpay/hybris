@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { backOff, CmsComponent, ConverterService, isJaloError, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
+import { Injectable } from '@angular/core';
+import { Cart } from '@spartacus/cart/base/root';
+import { backOff, CmsComponent, ConverterService, isJaloError, LoggerService, normalizeHttpError, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { Order } from '@spartacus/order/root';
+import { Observable, throwError } from 'rxjs';
 import { catchError, pluck } from 'rxjs/operators';
 import { WorldpayApmAdapter } from '../../../connectors/worldpay-apm/worldpay-apm.adapter';
 import { ApmData, ApmPaymentDetails, APMRedirectRequestBody, APMRedirectResponse, WorldpayApmPaymentInfo } from '../../../interfaces';
 import { APM_NORMALIZER } from '../../converters';
-import { Order } from '@spartacus/order/root';
-import { Cart, PaymentDetails } from '@spartacus/cart/base/root';
 
 @Injectable()
 export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
@@ -16,11 +16,13 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
    * @param http
    * @param occEndpoints
    * @param converter
+   * @param loggerService
    */
   constructor(
     protected http: HttpClient,
     protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService
+    protected converter: ConverterService,
+    protected loggerService: LoggerService
   ) {
   }
 
@@ -110,7 +112,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       }
     );
     return this.http.post<Order>(url, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -142,7 +144,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       }
     );
     return this.http.post<Order>(url, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -183,7 +185,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     });
 
     return this.http.post<Cart>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -217,7 +219,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     const body = { ...paymentDetails };
 
     return this.http.put<PaymentDetails>(url, body).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
