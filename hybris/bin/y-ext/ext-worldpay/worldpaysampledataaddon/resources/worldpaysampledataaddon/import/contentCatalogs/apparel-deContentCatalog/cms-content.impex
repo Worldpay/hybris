@@ -20,7 +20,6 @@ INSERT_UPDATE Media; code[unique = true]           ; $media                     
                    ; klarna-icon            ; $siteResource/klarna-icon.png           ;                             ;                          ; images
                    ; google-pay-icon        ; $siteResource/google-pay-icon.png       ;                             ;                          ; images
                    ; apple-pay-icon         ; $siteResource/apple-pay-icon.png        ;                             ;                          ; images
-                   ; giropay-icon           ; $siteResource/giropay-icon.png          ;                             ;                          ; images
                    ; klarna-paylater-icon   ; $siteResource/klarna-icon.png           ;                             ;                          ; images
                    ; klarna-paynow-icon     ; $siteResource/klarna-icon.png           ;                             ;                          ; images
                    ; klarna-slice-icon      ; $siteResource/klarna-icon.png           ;                             ;                          ; images
@@ -43,7 +42,6 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; polinzComponent         ;                          ; "POLi"              ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
                                   ; mistercashComponent     ;                          ; "Bancontact"        ; MISTERCASH-SSL        ; bancontact-icon       ; AssistedServiceSessionReversedRestriction
                                   ; idealComponent          ;                          ; "iDeal"             ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
-                                  ; giropayComponent        ;                          ; "Giropay"           ; GIROPAY-SSL           ; giropay-icon          ; AssistedServiceSessionReversedRestriction
                                   ; klarnaComponent         ;                          ; "Klarna"            ; KLARNA_V2-SSL         ; klarna-icon           ; AssistedServiceSessionReversedRestriction
                                   ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later"  ; KLARNA_PAYLATER-SSL   ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
                                   ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"   ; KLARNA_SLICEIT-SSL    ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction
@@ -51,7 +49,7 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; sepaComponent           ;                          ; "Sepa Direct Debit" ; SEPA_DIRECT_DEBIT-SSL ; sepa-icon             ; AssistedServiceSessionReversedRestriction
 
 INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
-                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,sofortComponent,sofortCHComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,giropayComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent,sepaComponent
+                         ;                          ; WorldpayPaymentButtonsSlot ; googlePayComponent,applePayComponent,creditCardComponent,payPalComponent,sofortComponent,sofortCHComponent,polinzComponent,mistercashComponent,idealComponent,klarnaComponent,klarnaPayLaterComponent,klarnaSliceItComponent,klarnaPayNowComponent,sepaComponent
 
 INSERT_UPDATE WorldpayGuaranteedPaymentsComponent; $contentCV[unique = true]; uid[unique = true]                  ; name
                                                  ;                          ; worldpayGuaranteedPaymentsComponent ; "Worldpay Guaranteed Payments Component"
