@@ -1,13 +1,12 @@
 import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { PaymentDetails } from '@spartacus/cart/base/root';
-import { I18nTestingModule } from '@spartacus/core';
+import { I18nTestingModule, PaymentDetails } from '@spartacus/core';
 import { Card, IconTestingModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
-import { WorldpayCheckoutReviewPaymentComponent } from './worldpay-checkout-review-payment.component';
 import { CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
+import { WorldpayCheckoutReviewPaymentComponent } from './worldpay-checkout-review-payment.component';
 import { WorldpayCheckoutPaymentFacade } from '../../../../core/facade/worldpay-checkout-payment.facade';
 import createSpy = jasmine.createSpy;
 

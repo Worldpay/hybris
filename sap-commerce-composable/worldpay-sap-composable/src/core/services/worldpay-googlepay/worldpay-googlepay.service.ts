@@ -21,12 +21,12 @@ export class WorldpayGooglepayService implements OnDestroy {
   protected requestMerchantConfigurationCommand: Command<void, GooglePayMerchantConfiguration> = this.commandService.create<void>(
     () => this.checkoutPreconditions().pipe(
       switchMap(([userId, cartId]) => this.worldpayGooglePayConnector.getGooglePayMerchantConfiguration(userId, cartId).pipe(
-        tap((response: GooglePayMerchantConfiguration): void => {
-          this.eventService.dispatch({
-            googlePayMerchantConfiguration: response
-          }, GooglePayMerchantConfigurationSetEvent);
-        })
-      )
+          tap((response: GooglePayMerchantConfiguration): void => {
+            this.eventService.dispatch({
+              googlePayMerchantConfiguration: response
+            }, GooglePayMerchantConfigurationSetEvent);
+          })
+        )
       )
     ), { strategy: CommandStrategy.Queue }
   );
@@ -177,6 +177,9 @@ export class WorldpayGooglepayService implements OnDestroy {
     ).subscribe({
       next: (response: PlaceOrderResponse): void => {
         this.worldpayOrderService.setPlacedOrder(response.order);
+      },
+      error: (error: unknown): void => {
+        console.log(error);
       }
     });
   }

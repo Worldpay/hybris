@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { WorldpayCheckoutPaymentAdapter } from '../../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
 import { PAYMENT_DETAILS_SERIALIZER } from '@spartacus/checkout/base/core';
-import { PaymentDetails } from '@spartacus/cart/base/root';
 import { OccCheckoutPaymentAdapter } from '@spartacus/checkout/base/occ';
-import { backOff, isJaloError, normalizeHttpError } from '@spartacus/core';
+import { backOff, isJaloError, normalizeHttpError, PaymentDetails } from '@spartacus/core';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { WorldpayCheckoutPaymentAdapter } from '../../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
 
 @Injectable()
 export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter implements WorldpayCheckoutPaymentAdapter {
@@ -41,7 +40,7 @@ export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter
       }
     );
     return this.http.post<PaymentDetails>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.logger))),
       backOff({
         shouldRetry: isJaloError,
       }),
@@ -75,7 +74,7 @@ export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter
     const body = { ...paymentDetails };
 
     return this.http.put<PaymentDetails>(url, body).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.logger))),
       backOff({
         shouldRetry: isJaloError,
       }),

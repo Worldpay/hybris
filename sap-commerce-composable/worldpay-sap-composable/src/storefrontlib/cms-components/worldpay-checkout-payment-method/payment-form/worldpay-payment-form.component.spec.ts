@@ -10,7 +10,19 @@ import { WorldpayPaymentFormComponent } from './worldpay-payment-form.component'
 import { WorldpayFraudsightService } from '../../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
 import { Component, Input } from '@angular/core';
 import { CheckoutDeliveryAddressFacade, CheckoutPaymentFacade } from '@spartacus/checkout/base/root';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
 import createSpy = jasmine.createSpy;
+
+const mockBillingAddress: Address = {
+  firstName: 'John',
+  lastName: 'Doe',
+  line1: 'Green Street',
+  line2: '420',
+  town: 'Montreal',
+  postalCode: 'H3A',
+  country: { isocode: 'CA' },
+  region: { isocodeShort: 'QC' },
+};
 
 @Component({
   selector: 'cx-spinner',
@@ -96,6 +108,21 @@ class MockLaunchDialogService implements Partial<LaunchDialogService> {
   }
 }
 
+class MockCheckoutBillingAddressFormService
+  implements Partial<CheckoutBillingAddressFormService> {
+  getBillingAddress(): Address {
+    return mockBillingAddress;
+  }
+
+  isBillingAddressSameAsDeliveryAddress(): boolean {
+    return true;
+  }
+
+  isBillingAddressFormValid(): boolean {
+    return true;
+  }
+}
+
 describe('WorldpayPaymentFormComponent', () => {
   let component: WorldpayPaymentFormComponent;
   let fixture: ComponentFixture<WorldpayPaymentFormComponent>;
@@ -141,6 +168,10 @@ describe('WorldpayPaymentFormComponent', () => {
           {
             provide: WorldpayFraudsightService,
             useClass: MockWorldpayFraudsightService
+          },
+          {
+            provide: CheckoutBillingAddressFormService,
+            useClass: MockCheckoutBillingAddressFormService,
           },
         ],
         declarations: [

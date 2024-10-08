@@ -1,10 +1,9 @@
-import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { Address } from '@spartacus/core';
-import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
+import { Address, PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
+import { Observable } from 'rxjs';
+import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 import { WorldpayAdapter } from './worldpay.adapter';
-import { PaymentDetails } from '@spartacus/cart/base/root';
 
 @Injectable({
   providedIn: 'root'

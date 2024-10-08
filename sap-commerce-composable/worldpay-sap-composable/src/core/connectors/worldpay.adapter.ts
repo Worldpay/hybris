@@ -1,8 +1,7 @@
-import { Observable } from 'rxjs';
-import { Address } from '@spartacus/core';
+import { Address, PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
-import {BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
-import { PaymentDetails } from '@spartacus/cart/base/root';
+import { Observable } from 'rxjs';
+import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 
 export abstract class WorldpayAdapter {
 

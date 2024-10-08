@@ -1,7 +1,6 @@
-import { Address, CxEvent } from '@spartacus/core';
-import { PaymentDetails } from '@spartacus/cart/base/root';
-import { Order } from '@spartacus/order/root';
 import { SafeResourceUrl } from '@angular/platform-browser';
+import { Address, CxEvent, PaymentDetails } from '@spartacus/core';
+import { Order } from '@spartacus/order/root';
 import { ThreeDsDDCInfo, ThreeDsInfo } from '../interfaces';
 
 /**
