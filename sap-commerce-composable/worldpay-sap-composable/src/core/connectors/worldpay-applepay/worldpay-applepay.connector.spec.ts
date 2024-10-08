@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
+import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
 import { WorldpayApplepayConnector } from './worldpay-applepay.connector';
 import { ApmData, PaymentMethod } from '../../interfaces';
-import { of, Subject } from 'rxjs';
-import { PaymentDetails } from '@spartacus/cart/base/root';
+import { PaymentDetails } from '@spartacus/core';
 import createSpy = jasmine.createSpy;
 
 const drop = new Subject();

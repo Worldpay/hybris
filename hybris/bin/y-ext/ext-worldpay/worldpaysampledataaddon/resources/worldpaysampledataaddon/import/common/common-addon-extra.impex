@@ -277,7 +277,6 @@ INSERT_UPDATE WorldpayCurrencyRange; currency(isocode)[unique = true]; min[uniqu
                                    ; EUR                             ; 1                 ; 10000
 
 INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = en]   ; description[lang = en]; bank[default = false]; currencies(isocode); countries(isocode)            ; currencyRanges(currency(isocode), min, max)  ; automaticRefunds[default = false]; bankTransferRefunds[default = false]
-                                      ; GIROPAY-SSL           ; Giropay           ; GiroPay               ;                      ; EUR                ; DE                            ; EUR:1:2000                                   ; true                             ;
                                       ; SOFORT-SSL            ; Sofort            ; Sofort                ;                      ; EUR                ; AT,BE,FR,DE                   ; EUR:1:2000                                   ; true                             ;
                                       ; SOFORT_CH-SSL         ; Sofort            ; Sofort Switzerland    ;                      ; CHF                ; CH                            ; CHF:1:2000                                   ; true                             ;
                                       ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay       ;                      ; GBP,EUR,USD        ; CN                            ;                                              ; true                             ;

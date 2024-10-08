@@ -1,6 +1,9 @@
 <!-- FORM -->
 <ng-container *ngIf="loading === false; else spinner">
-  <div role="status" [attr.aria-label]="'common.loaded' | cxTranslate"></div>
+  <div
+    role="status"
+    [attr.aria-label]="'common.loaded' | cxTranslate"
+  ></div>
   <form
     (ngSubmit)="next()"
     [formGroup]="paymentForm"
@@ -15,7 +18,7 @@
             <div *ngIf="cardTypes.length !== 0">
               <label aria-required="true">
                 <span class="label-content required">{{
-                  'paymentForm.paymentType' | cxTranslate
+                    'paymentForm.paymentType' | cxTranslate
                   }}</span>
                 <ng-select
                   [inputAttrs]="{ required: 'true' }"
@@ -54,7 +57,7 @@
             ></cx-form-errors>
           </label>
         </div>
-        
+
         <div
           class="form-group"
           *ngIf="isFraudSightEnabled$ | async"
@@ -65,7 +68,7 @@
               class="form-control"
               type="date"
               placeholder="{{ 'paymentForm.dateOfBirth.placeholder' | cxTranslate }}"
-              
+
               formControlName="dateOfBirth"
             />
             <cx-form-errors
@@ -73,7 +76,7 @@
             ></cx-form-errors>
           </label>
         </div>
-        
+
         <div class="form-group">
           <label>
             <span class="label-content">{{ 'paymentForm.cardNumber' | cxTranslate }}</span>
@@ -88,12 +91,12 @@
             ></cx-form-errors>
           </label>
         </div>
-        
+
         <div class="row">
           <div class="form-group col-md-8">
             <label>
               <span class="label-content">{{
-                'paymentForm.expirationDate' | cxTranslate
+                  'paymentForm.expirationDate' | cxTranslate
                 }}</span>
               <div class="cx-payment-form-exp-date row">
                 <div class="cx-payment-form-exp-date-wrapper col-sm-6">
@@ -165,7 +168,7 @@
             </label>
           </div>
         </div>
-        
+
         <div
           class="form-group"
           *ngIf="setAsDefaultField"
@@ -177,11 +180,11 @@
                 class="form-check-input"
                 formControlName="defaultPayment"
               />
-              <span class="form-check-label">{{'paymentForm.setAsDefault' | cxTranslate}}</span>
+              <span class="form-check-label">{{ 'paymentForm.setAsDefault' | cxTranslate }}</span>
             </label>
           </div>
         </div>
-        
+
         <div class="form-group">
           <div class="form-check">
             <label>
@@ -190,20 +193,17 @@
                 class="form-check-input"
                 formControlName="save"
               />
-              <span class="form-check-label">{{'paymentForm.setAsSaved' | cxTranslate}}</span>
+              <span class="form-check-label">{{ 'paymentForm.setAsSaved' | cxTranslate }}</span>
             </label>
           </div>
         </div>
-        
+
         <!-- BILLING -->
-        <y-worldpay-billing-address
-          [billingAddressForm]="billingAddressForm"
-          (sameAsShippingAddressChange)="sameAsDeliveryAddress = $event"
-        ></y-worldpay-billing-address>
+        <y-worldpay-billing-address></y-worldpay-billing-address>
       </div>
     </div>
-    
-    
+
+
     <!-- BUTTON SECTION -->
     <div class="cx-checkout-btns row">
       <div class="col-md-12 col-lg-6">

@@ -1,4 +1,10 @@
+import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
+import { CheckoutPaymentService } from '@spartacus/checkout/base/core';
+import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade, CheckoutState } from '@spartacus/checkout/base/root';
 import {
   Address,
   Command,
@@ -8,24 +14,14 @@ import {
   GlobalMessageService,
   GlobalMessageType,
   LoadUserPaymentMethodsEvent,
-  OCC_USER_ID_ANONYMOUS,
-  Query,
+  OCC_USER_ID_ANONYMOUS, PaymentDetails, Query,
   QueryService,
   QueryState,
   UserIdService
 } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
-import { Router } from '@angular/router';
-import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
-import { getBaseHref, trimLastSlashFromUrl } from '../../utils/get-base-href';
-import { CheckoutPaymentService } from '@spartacus/checkout/base/core';
-import { ActiveCartFacade, PaymentDetails } from '@spartacus/cart/base/root';
-import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade, CheckoutState } from '@spartacus/checkout/base/root';
 import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
-import { WorldpayCheckoutPaymentFacade } from '../../facade/worldpay-checkout-payment.facade';
 import { WorldpayConnector } from '../../connectors/worldpay.connector';
 import {
   ClearInitialPaymentRequestEvent,
@@ -41,6 +37,9 @@ import {
 } from '../../events/checkout-payment.events';
 import { ClearGooglepayEvent } from '../../events/googlepay.events';
 import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
+import { WorldpayCheckoutPaymentFacade } from '../../facade/worldpay-checkout-payment.facade';
+import { PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
+import { getBaseHref, trimLastSlashFromUrl } from '../../utils/get-base-href';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let Worldpay: any;
@@ -148,7 +147,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
                       cartId,
                       paymentDetails: response
                     },
-                    CheckoutPaymentDetailsCreatedEvent
+                      CheckoutPaymentDetailsCreatedEvent
                     );
                   } else {
                     this.eventService.dispatch({ userId }, LoadUserPaymentMethodsEvent);
@@ -182,7 +181,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
               this.eventService.dispatch({
                 address: response
               },
-              SetPaymentAddressEvent
+                SetPaymentAddressEvent
               );
             }))
           )

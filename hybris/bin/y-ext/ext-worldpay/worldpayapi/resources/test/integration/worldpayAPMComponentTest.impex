@@ -23,9 +23,7 @@ INSERT_UPDATE CatalogVersion; catalog(id)[unique = true]; version[unique = true]
                             ; $catalog2-id              ; $catalog2-version     ; true
 
 INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]; name[lang = en]; description[lang = en]; bank[default = false]; currencies(isocode); countries(isocode); automaticRefunds[default = false]; bankTransferRefunds[default = false]
-                                      ; GIROPAY-SSL        ; GIROPAY        ; GiroPay               ;                      ; EUR                ; DE                ; true                             ;
                                       ; IDEAL-SSL          ; iDeal          ; iDeal                 ; true                 ; USD                ; US                ; true                             ;
 
-INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]; $catalogversion1[unique = true]; name      ; apmConfiguration(code)
-                                  ; giropayComponent  ;                                ; "Giropay" ; GIROPAY-SSL
-                                  ; idealComponent    ;                                ; "iDeal"   ; IDEAL-SSL
+INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]; $catalogversion1[unique = true]; name    ; apmConfiguration(code)
+                                  ; idealComponent    ;                                ; "iDeal" ; IDEAL-SSL

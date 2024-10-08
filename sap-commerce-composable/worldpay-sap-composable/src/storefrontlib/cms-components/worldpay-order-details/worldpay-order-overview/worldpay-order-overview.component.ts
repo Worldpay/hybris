@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ViewEncapsulation } from '@angular/core';
+import { DeliveryMode } from '@spartacus/cart/base/root';
+import { Address, PaymentDetails } from '@spartacus/core';
 import { OrderOverviewComponent } from '@spartacus/order/components';
-import { combineLatest, Observable } from 'rxjs';
-import { Card } from '@spartacus/storefront';
-import { filter, map } from 'rxjs/operators';
-import { DeliveryMode, PaymentDetails } from '@spartacus/cart/base/root';
 import { deliveryAddressCard, deliveryModeCard, Order } from '@spartacus/order/root';
-import { Address } from '@spartacus/core';
+import { Card } from '@spartacus/storefront';
+import { combineLatest, Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'y-worldpay-order-overview',

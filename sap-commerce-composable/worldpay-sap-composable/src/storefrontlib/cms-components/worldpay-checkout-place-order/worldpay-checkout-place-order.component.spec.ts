@@ -2,19 +2,19 @@ import { NgZone, Pipe, PipeTransform, Renderer2, ViewContainerRef } from '@angul
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Address, GlobalMessageEntities, GlobalMessageService, I18nTestingModule, QueryState, RoutingService, WindowRef } from '@spartacus/core';
+import { Address, GlobalMessageEntities, GlobalMessageService, I18nTestingModule, PaymentDetails, QueryState, RoutingService, WindowRef } from '@spartacus/core';
 import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Observable, of, throwError } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { CheckoutStepService } from '@spartacus/checkout/base/components';
+import { Order } from '@spartacus/order/root/model/order.model';
 import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
 import { WorldpayCheckoutPaymentAdapter } from '../../../core/connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
 import { OccWorldpayCheckoutPaymentAdapter } from '../../../core/occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
-import { CheckoutStepService } from '@spartacus/checkout/base/components';
-import { ActivatedRoute } from '@angular/router';
 import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
 import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
-import { PaymentDetails } from '@spartacus/cart/base/root';
-import { Order } from '@spartacus/order/root/model/order.model';
 import {
   ACHPaymentForm,
   ApmPaymentDetails,
@@ -25,7 +25,6 @@ import {
   ThreeDsInfo,
   WorldpayApmPaymentInfo
 } from '../../../core/interfaces';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { WorldpayApmConnector } from '../../../core/connectors';
 import { OccWorldpayApmAdapter } from '../../../core/occ/adapters/worldpay-apm/occ-worldpay-apm.adapter';
 import { WorldpayOrderService } from '../../../core/services';

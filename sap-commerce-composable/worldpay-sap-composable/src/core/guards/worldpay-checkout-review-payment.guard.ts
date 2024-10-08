@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { Router, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { GlobalMessageService, GlobalMessageType, QueryState, SemanticPathService } from '@spartacus/core';
@@ -9,7 +9,7 @@ import { PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
 @Injectable({
   providedIn: 'root'
 })
-export class WorldpayCheckoutReviewPaymentGuard implements CanActivate {
+export class WorldpayCheckoutReviewPaymentGuard  {
 
   constructor(
     protected router: Router,
