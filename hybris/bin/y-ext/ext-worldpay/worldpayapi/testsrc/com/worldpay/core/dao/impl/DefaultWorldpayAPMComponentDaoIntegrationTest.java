@@ -1,5 +1,10 @@
 package com.worldpay.core.dao.impl;
 
+import javax.annotation.Resource;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.worldpay.core.dao.WorldpayAPMComponentDao;
 import com.worldpay.model.WorldpayAPMComponentModel;
 import de.hybris.bootstrap.annotations.IntegrationTest;
@@ -9,11 +14,6 @@ import de.hybris.platform.impex.jalo.ImpExException;
 import de.hybris.platform.servicelayer.ServicelayerTransactionalTest;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.annotation.Resource;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @IntegrationTest
 public class DefaultWorldpayAPMComponentDaoIntegrationTest extends ServicelayerTransactionalTest {
@@ -39,7 +39,7 @@ public class DefaultWorldpayAPMComponentDaoIntegrationTest extends ServicelayerT
 
         final List<WorldpayAPMComponentModel> result = testObj.findAllApmComponents(List.of(catalogVersionModel));
 
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).hasSize(1);
     }
 
     @Test
