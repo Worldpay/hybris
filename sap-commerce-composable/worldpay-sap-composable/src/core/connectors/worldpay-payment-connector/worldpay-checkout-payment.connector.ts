@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
+import { CheckoutPaymentConnector } from '@spartacus/checkout/base/core';
+import { PaymentDetails } from "@spartacus/core";
 import { Observable } from 'rxjs';
 import { WorldpayCheckoutPaymentAdapter } from './worldpay-checkout-payment.adapter';
-import { CheckoutPaymentConnector } from '@spartacus/checkout/base/core';
-import { PaymentDetails } from '@spartacus/cart/base/root';
 
 @Injectable({
   providedIn: 'root'

@@ -1,6 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Params, Router, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, Params, Router, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
 import { catchError, map, timeout } from 'rxjs/operators';
@@ -11,7 +11,7 @@ import { WorldpayPlacedOrderStatus } from '../interfaces';
 @Injectable({
   providedIn: 'root',
 })
-export class WorldpayCheckoutPaymentRedirectGuard implements CanActivate {
+export class WorldpayCheckoutPaymentRedirectGuard  {
 
   constructor(
     protected router: Router,

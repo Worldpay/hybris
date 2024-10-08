@@ -2,16 +2,16 @@ import { Component, EventEmitter, Input, Output, Type } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { ActiveCartFacade, PaymentDetails } from '@spartacus/cart/base/root';
-import { CheckoutDeliveryAddressFacade, } from '@spartacus/checkout/base/root';
-import { Address, FeaturesConfig, FeaturesConfigModule, GlobalMessageService, I18nTestingModule, QueryState, UserPaymentService, } from '@spartacus/core';
-import { CardComponent, FormErrorsModule, ICON_TYPE } from '@spartacus/storefront';
+import { ReactiveFormsModule } from '@angular/forms';
 import { BehaviorSubject, EMPTY, Observable, of, Subject } from 'rxjs';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
+import { CheckoutDeliveryAddressFacade, } from '@spartacus/checkout/base/root';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
+import { CardComponent, FormErrorsModule, ICON_TYPE } from '@spartacus/storefront';
+import { Address, FeaturesConfig, FeaturesConfigModule, GlobalMessageService, I18nTestingModule, PaymentDetails, QueryState, UserPaymentService, } from '@spartacus/core';
 import { WorldpayCheckoutPaymentMethodComponent } from './worldpay-checkout-payment-method.component';
 import { WorldpayApmService, WorldpayCheckoutPaymentService } from '../../../core/services';
 import { ApmData } from '../../../core/interfaces';
-import { ReactiveFormsModule } from '@angular/forms';
 import createSpy = jasmine.createSpy;
 
 @Component({

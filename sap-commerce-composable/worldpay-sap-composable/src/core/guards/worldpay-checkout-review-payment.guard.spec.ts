@@ -1,12 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-
-import { WorldpayCheckoutReviewPaymentGuard } from './worldpay-checkout-review-payment.guard';
 import { Router } from '@angular/router';
-import { GlobalMessageService, GlobalMessageType, QueryState, SemanticPathService } from '@spartacus/core';
+import { GlobalMessageService, GlobalMessageType, PaymentDetails, QueryState, SemanticPathService } from '@spartacus/core';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { WorldpayCheckoutReviewPaymentGuard } from './worldpay-checkout-review-payment.guard';
 import { WorldpayCheckoutPaymentService } from '../services';
-import { PaymentDetails } from '@spartacus/cart/base/root';
 import createSpy = jasmine.createSpy;
 
 class MockSemanticPathService implements Partial<SemanticPathService> {

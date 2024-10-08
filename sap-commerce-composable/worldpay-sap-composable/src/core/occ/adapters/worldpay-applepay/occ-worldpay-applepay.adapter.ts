@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ConverterService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
+import { ConverterService, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
 import { WorldpayApplepayAdapter } from '../../../connectors/worldpay-applepay/worldpay-applepay.adapter';
 import { catchError } from 'rxjs/operators';
 import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../../interfaces';
@@ -14,11 +14,13 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
    * @param http
    * @param occEndpoints
    * @param converter
+   * @param loggerService
    */
   constructor(
     protected http: HttpClient,
     protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService
+    protected converter: ConverterService,
+    protected loggerService: LoggerService
   ) {
   }
 
@@ -41,7 +43,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
         }
       });
     return this.http.get<ApplePayPaymentRequest>(url).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
     );
   }
 
@@ -71,7 +73,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
     );
 
     return this.http.post<ValidateMerchant>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
     );
 
   }
@@ -102,7 +104,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
     );
 
     return this.http.post<ApplePayAuthorization>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(normalizeHttpError(error))),
+      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
     );
   }
 }

@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Address, facadeFactory, QueryState } from '@spartacus/core';
-import { Observable } from 'rxjs';
-import { WORLDPAY_CHECKOUT_PAYMENT_FEATURE } from './worldpay-feature-name';
 import { CheckoutPaymentFacade } from '@spartacus/checkout/base/root';
-import { PaymentDetails } from '@spartacus/cart/base/root';
+import { Address, facadeFactory, PaymentDetails, QueryState } from '@spartacus/core';
+import { Observable } from 'rxjs';
 import { WorldpayApmPaymentInfo } from '../interfaces';
+import { WORLDPAY_CHECKOUT_PAYMENT_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',

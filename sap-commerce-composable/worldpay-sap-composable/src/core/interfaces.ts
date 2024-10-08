@@ -1,8 +1,7 @@
-import { Address, CmsComponent } from '@spartacus/core';
-import { MediaContainer } from '@spartacus/storefront';
 import { KeyValue } from '@angular/common';
+import { Address, CardType, CmsComponent, PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
-import { CardType, PaymentDetails } from '@spartacus/cart/base/root';
+import { MediaContainer } from '@spartacus/storefront';
 
 export interface InitialPaymentRequestPayload {
   acceptedTermsAndConditions?: boolean;
@@ -56,7 +55,7 @@ export interface APMRedirectResponse {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mappingLabels?: any;
   parameters?: {
-    entry?: KeyValue<string, string> [];
+    entry?: KeyValue<string, string>[];
   };
   postUrl?: string;
 }
@@ -91,7 +90,7 @@ export interface ApmData {
   bankConfigurations?: {
     code?: string;
     name?: string;
-  } [];
+  }[];
   code?: PaymentMethod | string;
   media?: MediaContainer;
   name?: string;
@@ -119,7 +118,16 @@ declare module '@spartacus/cart/base/root' {
     apmName?: string;
     worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
   }
+}
 
+declare module '@spartacus/order/root' {
+  interface Order {
+    worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
+    replenishmentOrderCode?: string;
+  }
+}
+
+declare module '@spartacus/core' {
   interface PaymentDetails {
     accountHolderName?: string;
     billingAddress?: Address;
@@ -143,22 +151,11 @@ declare module '@spartacus/cart/base/root' {
   }
 }
 
-declare module '@spartacus/order/root' {
-  interface Order {
-    worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
-    replenishmentOrderCode?: string;
-  }
-}
-
 declare module '@spartacus/cart/base/root' {
   interface Cart {
     apmCode?: string;
     apmName?: string;
     worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
-  }
-
-  interface PaymentDetails {
-    dateOfBirth?: string;
   }
 
   enum CartOutlets {

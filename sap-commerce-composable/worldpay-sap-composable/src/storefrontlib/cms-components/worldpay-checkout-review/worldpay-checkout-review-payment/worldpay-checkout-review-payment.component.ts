@@ -1,15 +1,14 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { PaymentDetails } from '@spartacus/cart/base/root';
-import { combineLatest, Observable } from 'rxjs';
-import { Card, ICON_TYPE } from '@spartacus/storefront';
-import { filter, map } from 'rxjs/operators';
-import { paymentMethodCard } from '@spartacus/order/root';
-import { CheckoutStepType } from '@spartacus/checkout/base/root';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
-import { QueryState, TranslationService } from '@spartacus/core';
+import { CheckoutStepType } from '@spartacus/checkout/base/root';
+import { PaymentDetails, QueryState, TranslationService } from '@spartacus/core';
+import { paymentMethodCard } from '@spartacus/order/root';
+import { Card, ICON_TYPE } from '@spartacus/storefront';
+import { combineLatest, Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { WorldpayCheckoutPaymentFacade } from '../../../../core/facade/worldpay-checkout-payment.facade';
-import { generateBillingAddressCard } from '../../../../core/utils';
 import { WorldpayApmPaymentInfo } from '../../../../core/interfaces';
+import { generateBillingAddressCard } from '../../../../core/utils';
 
 @Component({
   selector: 'y-worldpay-checkout-review-payment',
