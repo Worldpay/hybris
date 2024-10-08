@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WorldpayApmComponent } from './worldpay-apm.component';
-import { BehaviorSubject, NEVER, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
 import { WorldpayGooglepayService } from '../../../core/services/worldpay-googlepay/worldpay-googlepay.service';
 import { By } from '@angular/platform-browser';
@@ -10,16 +10,26 @@ import { Address, I18nTestingModule, MockTranslatePipe } from '@spartacus/core';
 import { ApmData, ApmPaymentDetails, GooglePayMerchantConfiguration, PaymentMethod } from '../../../core/interfaces';
 import { UntypedFormGroup } from '@angular/forms';
 import { WorldpayApplepayService } from '../../../core/services/worldpay-applepay/worldpay-applepay.service';
-import { OrderConnector } from '@spartacus/order/core';
 import { LaunchDialogService } from '@spartacus/storefront';
 import { WorldpayOrderService } from '../../../core/services';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
+
+const mockBillingAddress: Address = {
+  firstName: 'John',
+  lastName: 'Doe',
+  line1: 'Green Street',
+  line2: '420',
+  town: 'Montreal',
+  postalCode: 'H3A',
+  country: { isocode: 'CA' },
+  region: { isocodeShort: 'QC' },
+};
 
 @Component({
   selector: 'y-worldpay-billing-address',
   template: ''
 })
 class MockWorldpayBillingAddressComponent {
-  @Input() billingAddressForm;
 }
 
 @Component({
@@ -28,7 +38,6 @@ class MockWorldpayBillingAddressComponent {
 })
 class MockWorldpayApmGooglepayComponent {
   @Input() apm;
-  @Input() billingAddressForm;
 }
 
 @Component({
@@ -45,7 +54,6 @@ class MockWorldpayApmTileComponent {
 })
 class MockWorldpayApmIdealComponent {
   @Input() apm: ApmData;
-  @Input() billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
   @Output() setPaymentDetails = new EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }>();
 }
 
@@ -62,7 +70,6 @@ class MockCxSpinnerComponent {
   template: ''
 })
 class MockWorldpayApplePayComponent {
-  @Input() billingAddressForm;
 }
 
 @Component({
@@ -70,12 +77,25 @@ class MockWorldpayApplePayComponent {
   template: ''
 })
 class MockWorldpayAPMACHComponent {
-  @Input() billingAddressForm;
   @Input() apm;
 }
 
-class MockOrderConnector implements Partial<OrderConnector> {
+class MockCheckoutBillingAddressFormService implements Partial<CheckoutBillingAddressFormService> {
+  getBillingAddress(): Address {
+    return mockBillingAddress;
+  }
 
+  isBillingAddressSameAsDeliveryAddress(): boolean {
+    return true;
+  }
+
+  isBillingAddressFormValid(): boolean {
+    return true;
+  }
+
+  getBillingAddressForm(): UntypedFormGroup {
+    return new UntypedFormGroup({});
+  }
 }
 
 describe('WorldpayApmComponent', () => {
@@ -83,11 +103,6 @@ describe('WorldpayApmComponent', () => {
   let fixture: ComponentFixture<WorldpayApmComponent>;
   let element: DebugElement;
   let worldpayApmService;
-  let worldpayOrderService: WorldpayOrderService;
-  let worldpayApplePayService: WorldpayApplepayService;
-  let worldpayGooglepayService: WorldpayGooglepayService;
-  let spy;
-  let launchDialogService: LaunchDialogService;
 
   const apm = {
     code: PaymentMethod.Card,
@@ -155,10 +170,7 @@ describe('WorldpayApmComponent', () => {
   }
 
   class MockLaunchDialogService implements Partial<LaunchDialogService> {
-    dialogClose: Observable<any> = NEVER;
 
-    openDialogAndSubscribe(): void {
-    }
   }
 
   beforeEach(async () => {
@@ -176,10 +188,6 @@ describe('WorldpayApmComponent', () => {
         MockWorldpayAPMACHComponent
       ],
       providers: [
-        {
-          provide: OrderConnector,
-          useClass: MockOrderConnector
-        },
         {
           provide: WorldpayApmService,
           useClass: MockWorldpayApmService
@@ -200,6 +208,10 @@ describe('WorldpayApmComponent', () => {
           provide: LaunchDialogService,
           useClass: MockLaunchDialogService
         },
+        {
+          provide: CheckoutBillingAddressFormService,
+          useClass: MockCheckoutBillingAddressFormService,
+        },
       ]
     }).compileComponents();
   });
@@ -210,10 +222,6 @@ describe('WorldpayApmComponent', () => {
     element = fixture.debugElement;
 
     worldpayApmService = TestBed.inject(WorldpayApmService);
-    worldpayOrderService = TestBed.inject(WorldpayOrderService);
-    worldpayApplePayService = TestBed.inject(WorldpayApplepayService);
-    worldpayGooglepayService = TestBed.inject(WorldpayGooglepayService);
-    launchDialogService = TestBed.inject(LaunchDialogService);
     apmSubject.next({
       code: PaymentMethod.Card
     });
@@ -259,6 +267,7 @@ describe('WorldpayApmComponent', () => {
 
     fixture.whenStable().then(() => {
       expect(element.query(By.css('y-worldpay-apm-googlepay'))).toBeTruthy();
+      expect(element.query(By.css('y-worldpay-billing-address'))).toBeFalsy();
       done();
     });
   });
@@ -272,6 +281,7 @@ describe('WorldpayApmComponent', () => {
 
     fixture.whenStable().then(() => {
       expect(element.query(By.css('y-worldpay-apm-ideal'))).toBeTruthy();
+      expect(element.query(By.css('y-worldpay-billing-address'))).toBeFalsy();
       done();
     });
   });
@@ -285,6 +295,7 @@ describe('WorldpayApmComponent', () => {
 
     fixture.whenStable().then(() => {
       expect(element.query(By.css('y-worldpay-apm-ach'))).toBeTruthy();
+      expect(element.query(By.css('y-worldpay-billing-address'))).toBeFalsy();
       done();
     });
   });
@@ -298,6 +309,7 @@ describe('WorldpayApmComponent', () => {
 
     fixture.whenStable().then(() => {
       expect(element.query(By.css('worldpay-applepay'))).toBeTruthy();
+      expect(element.query(By.css('y-worldpay-billing-address'))).toBeFalsy();
       done();
     });
   });

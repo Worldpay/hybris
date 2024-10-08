@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
+import { ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { GlobalMessageService, GlobalMessageType } from '@spartacus/core';
 
@@ -11,7 +11,7 @@ export type TypeOfReason =
 @Injectable({
   providedIn: 'root'
 })
-export class WorldpayCheckoutPaymentRedirectFailureGuard implements CanActivate {
+export class WorldpayCheckoutPaymentRedirectFailureGuard  {
 
   /**
    * Constructor

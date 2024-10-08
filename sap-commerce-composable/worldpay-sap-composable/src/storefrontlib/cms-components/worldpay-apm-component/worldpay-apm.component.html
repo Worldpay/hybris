@@ -44,12 +44,10 @@
       <y-worldpay-apm-googlepay
         *ngSwitchCase="paymentMethod.GooglePay"
         [apm]="selectedApm"
-        [billingAddressForm]="billingAddressForm"
       ></y-worldpay-apm-googlepay>
 
       <worldpay-applepay
         *ngSwitchCase="paymentMethod.ApplePay"
-        [billingAddressForm]="billingAddressForm"
       ></worldpay-applepay>
 
       <y-worldpay-apm-ach
@@ -62,10 +60,7 @@
 
     <ng-container *ngIf="(isLoading$ | async) !== true; else loading">
       <ng-container *ngIf="showBillingFormAndContinueButton(selectedApm.code)">
-        <y-worldpay-billing-address
-          [billingAddressForm]="billingAddressForm"
-          (sameAsShippingAddressChange)="sameAsShippingAddress$.next($event)"
-        ></y-worldpay-billing-address>
+        <y-worldpay-billing-address></y-worldpay-billing-address>
         <!-- BUTTON SECTION -->
         <div class="row cx-checkout-btns justify-content-end mb-3">
           <div class="col-md-12 col-lg-6">
@@ -80,7 +75,7 @@
             <button
               class="btn btn-block btn-primary"
               (click)="selectApmPaymentDetails()"
-              [disabled]="(submitting$|async) || (!sameAsShippingAddress$ && this.billingAddressForm.invalid) || processing"
+              [disabled]="(submitting$|async) || (!sameAsShippingAddress && this.billingAddressForm.invalid) || processing"
             >
               {{ 'common.continue' | cxTranslate }}
             </button>

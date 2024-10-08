@@ -1,6 +1,18 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  Input,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
-import { UntypedFormGroup } from '@angular/forms';
 import { filter, first, switchMap, take, takeUntil } from 'rxjs/operators';
 import { EventService, GlobalMessageService, GlobalMessageType, RoutingService, WindowRef } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
@@ -10,8 +22,8 @@ import { makeFormErrorsVisible } from '../../../../core/utils/make-form-errors-v
 import { WorldpayGooglepayService } from '../../../../core/services/worldpay-googlepay/worldpay-googlepay.service';
 import { WorldpayCheckoutPaymentService } from '../../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
 import { ApmData, GooglePayMerchantConfiguration, GooglepayPaymentRequest, OCCResponse } from '../../../../core/interfaces';
-import { Cart } from '@spartacus/cart/base/root';
 import { WorldpayOrderService } from '../../../../core/services';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
 
 @Component({
   selector: 'y-worldpay-apm-googlepay',
@@ -20,15 +32,23 @@ import { WorldpayOrderService } from '../../../../core/services';
 })
 export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() apm: ApmData;
-  @Input() billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
   @ViewChild('gpayBtn', { static: false }) gpayBtn: ElementRef = null;
 
   public nativeWindow: Window = this.winRef.nativeWindow;
-  public sameAsShippingAddress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   protected error$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private paymentsClient: any;
   private drop: Subject<void> = new Subject<void>();
+
+  /**
+   * Injects the CheckoutBillingAddressFormService into the component.
+   * This service is used to manage the billing address form in the checkout process.
+   * @protected
+   * @since 2211.27.0
+   */
+  protected billingAddressFormService = inject(
+    CheckoutBillingAddressFormService
+  );
 
   /**
    * Constructor
@@ -157,15 +177,16 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit, OnD
   private authorisePayment(): void {
     const configReq: Observable<GooglePayMerchantConfiguration> = this.worldpayGooglePayService.getMerchantConfigurationFromState()
       .pipe(first((googlePayMerchantConfiguration: GooglePayMerchantConfiguration) => !!googlePayMerchantConfiguration));
-    let req;
-    if (this.sameAsShippingAddress$.value) {
+    let req: Observable<GooglePayMerchantConfiguration>;
+
+    if (this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress()) {
       req = configReq;
     } else {
-      if (!this.billingAddressForm.valid) {
-        makeFormErrorsVisible(this.billingAddressForm);
+      if (!this.billingAddressFormService.isBillingAddressFormValid()) {
+        makeFormErrorsVisible(this.billingAddressFormService.getBillingAddressForm());
         return;
       }
-      req = this.worldpayCheckoutPaymentService.setPaymentAddress(this.billingAddressForm.value)
+      req = this.worldpayCheckoutPaymentService.setPaymentAddress(this.billingAddressFormService.getBillingAddress())
         .pipe(switchMap(() => configReq));
     }
     combineLatest([
@@ -176,7 +197,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit, OnD
       take(1),
       takeUntil(this.drop)
     ).subscribe({
-      next: ([cart, merchantConfiguration]: [Cart, GooglePayMerchantConfiguration]) => {
+      next: ([cart, merchantConfiguration]): void => {
         this.worldpayOrderService.startLoading(this.vcr);
 
         const paymentDataRequest: GooglepayPaymentRequest = this.worldpayGooglePayService.createFullPaymentRequest(merchantConfiguration, cart);
@@ -184,6 +205,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit, OnD
         this.paymentsClient.loadPaymentData(paymentDataRequest)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .then((paymentRequest: any): void => {
+            console.log('this is a test');
             this.worldpayGooglePayService.authoriseOrder(paymentRequest, false);
           })
           .catch((error: unknown): void => {

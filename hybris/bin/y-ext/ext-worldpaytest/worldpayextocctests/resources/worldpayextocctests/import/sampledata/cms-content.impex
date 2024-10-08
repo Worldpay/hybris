@@ -2,7 +2,6 @@ $contentCatalog = wsTestContentCatalog
 $contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
 
 INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name                  ; apmConfiguration(code)
-                                  ; giropayComponent        ;                          ; "GIROPAY-SSL"         ; GIROPAY-SSL
                                   ; sofortComponent         ;                          ; "SOFORT-SSL"          ; SOFORT-SSL
                                   ; idealComponent          ;                          ; "IDEAL-SSL"           ; IDEAL-SSL
                                   ; klarnaPayLaterComponent ;                          ; "KLARNA_PAYLATER-SSL" ; KLARNA_PAYLATER-SSL

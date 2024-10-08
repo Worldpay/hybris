@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WorldpayBillingAddressComponent } from './worldpay-billing-address.component';
-import { CardModule, FormErrorsModule } from '@spartacus/storefront';
+import { CardModule, FormErrorsModule, NgSelectA11yModule } from '@spartacus/storefront';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { I18nModule } from '@spartacus/core';
@@ -20,6 +20,7 @@ import { OccCheckoutDeliveryAddressAdapter } from '@spartacus/checkout/base/occ'
     NgSelectModule,
     FormErrorsModule,
     I18nModule,
+    NgSelectA11yModule,
   ],
   providers: [
     CheckoutDeliveryAddressConnector,

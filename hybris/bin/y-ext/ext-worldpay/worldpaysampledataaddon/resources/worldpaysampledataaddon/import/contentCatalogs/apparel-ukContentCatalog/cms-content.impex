@@ -7,24 +7,23 @@ $picture = media(code, $contentCV);
 $lang = en
 
 # Create medias
-INSERT_UPDATE Media; code[unique = true]           ; $media                                 ; mime[default = 'image/jpeg']; $contentCV[unique = true]; folder(qualifier)
-                   ; alipay-icon            ; $siteResource/alipay-icon.png          ;                             ;                          ; images
-                   ; cc-icon                ; $siteResource/cc-icon.png              ;                             ;                          ; images
-                   ; cup-icon               ; $siteResource/cup-icon.png             ;                             ;                          ; images
-                   ; sofort-icon            ; $siteResource/sofort-icon.png          ;                             ;                          ; images
-                   ; sofort-ch-icon         ; $siteResource/sofort-ch-icon.png       ;                             ;                          ; images
-                   ; paypal-icon            ; $siteResource/paypal-icon.png          ;                             ;                          ; images
-                   ; polinz-icon            ; $siteResource/polinz-icon.png          ;                             ;                          ; images
-                   ; bancontact-icon        ; $siteResource/bancontact-icon.png      ;                             ;                          ; images
-                   ; ideal-icon             ; $siteResource/ideal-icon.png           ;                             ;                          ; images
-                   ; klarna-icon            ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; google-pay-icon        ; $siteResource/google-pay-icon.png      ;                             ;                          ; images
-                   ; apple-pay-icon         ; $siteResource/apple-pay-icon.png       ;                             ;                          ; images
-                   ; giropay-icon           ; $siteResource/giropay-icon.png         ;                             ;                          ; images
-                   ; klarna-paylater-icon   ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; klarna-paynow-icon     ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; klarna-slice-icon      ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; ach-direct-debit-icon  ; $siteResource/ach-direct-debit-icon.png ;                             ;                          ; images
+INSERT_UPDATE Media; code[unique = true]   ; $media                                  ; mime[default = 'image/jpeg']; $contentCV[unique = true]; folder(qualifier)
+                   ; alipay-icon           ; $siteResource/alipay-icon.png           ;                             ;                          ; images
+                   ; cc-icon               ; $siteResource/cc-icon.png               ;                             ;                          ; images
+                   ; cup-icon              ; $siteResource/cup-icon.png              ;                             ;                          ; images
+                   ; sofort-icon           ; $siteResource/sofort-icon.png           ;                             ;                          ; images
+                   ; sofort-ch-icon        ; $siteResource/sofort-ch-icon.png        ;                             ;                          ; images
+                   ; paypal-icon           ; $siteResource/paypal-icon.png           ;                             ;                          ; images
+                   ; polinz-icon           ; $siteResource/polinz-icon.png           ;                             ;                          ; images
+                   ; bancontact-icon       ; $siteResource/bancontact-icon.png       ;                             ;                          ; images
+                   ; ideal-icon            ; $siteResource/ideal-icon.png            ;                             ;                          ; images
+                   ; klarna-icon           ; $siteResource/klarna-icon.png           ;                             ;                          ; images
+                   ; google-pay-icon       ; $siteResource/google-pay-icon.png       ;                             ;                          ; images
+                   ; apple-pay-icon        ; $siteResource/apple-pay-icon.png        ;                             ;                          ; images
+                   ; klarna-paylater-icon  ; $siteResource/klarna-icon.png           ;                             ;                          ; images
+                   ; klarna-paynow-icon    ; $siteResource/klarna-icon.png           ;                             ;                          ; images
+                   ; klarna-slice-icon     ; $siteResource/klarna-icon.png           ;                             ;                          ; images
+                   ; ach-direct-debit-icon ; $siteResource/ach-direct-debit-icon.png ;                             ;                          ; images
 
 INSERT_UPDATE WorldpayApplePayComponent; uid[unique = true]; $contentCV[unique = true]; name        ; $picture[lang = $lang]
                                        ; applePayComponent ;                          ; "Apple Pay" ; apple-pay-icon
@@ -42,7 +41,6 @@ INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique 
                                   ; polinzComponent         ;                          ; "POLi"             ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
                                   ; mistercashComponent     ;                          ; "Bancontact"       ; MISTERCASH-SSL        ; bancontact-icon       ; AssistedServiceSessionReversedRestriction
                                   ; idealComponent          ;                          ; "iDeal"            ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
-                                  ; giropayComponent        ;                          ; "Giropay"          ; GIROPAY-SSL           ; giropay-icon          ; AssistedServiceSessionReversedRestriction
                                   ; klarnaComponent         ;                          ; "Klarna"           ; KLARNA_V2-SSL         ; klarna-icon           ; AssistedServiceSessionReversedRestriction
                                   ; klarnaPayLaterComponent ;                          ; "Klarna Pay Later" ; KLARNA_PAYLATER-SSL   ; klarna-paylater-icon  ; AssistedServiceSessionReversedRestriction
                                   ; klarnaSliceItComponent  ;                          ; "Klarna Slice It"  ; KLARNA_SLICEIT-SSL    ; klarna-slice-icon     ; AssistedServiceSessionReversedRestriction

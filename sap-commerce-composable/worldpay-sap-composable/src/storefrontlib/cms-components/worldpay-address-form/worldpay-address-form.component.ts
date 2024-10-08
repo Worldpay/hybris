@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
 import { FormControl, Validators } from '@angular/forms';
+import { AddressFormComponent } from "@spartacus/user/profile/components";
 import { Subject } from 'rxjs';
-import { AddressFormComponent } from '@spartacus/storefront';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'y-worldpay-address-form',
