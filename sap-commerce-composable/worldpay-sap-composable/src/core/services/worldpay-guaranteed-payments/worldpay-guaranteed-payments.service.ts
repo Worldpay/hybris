@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { LoadScriptService } from '../../utils/load-script.service';
 import { EventService, Query, QueryService, QueryState, WindowRef } from '@spartacus/core';
-import { WorldpayGuaranteedPaymentsConnector } from '../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
-import { WorldpayGuaranteedPaymentsFacade } from '../../facade/worldpay-guaranteed-payments.facade';
-import { SetGuaranteedPaymentsEnabledEvent, SetGuaranteedPaymentsSessionIdEvent } from '../../events/worldpay.events';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { WorldpayGuaranteedPaymentsConnector } from '../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
+import { SetGuaranteedPaymentsEnabledEvent, SetGuaranteedPaymentsSessionIdEvent } from '../../events/worldpay.events';
+import { WorldpayGuaranteedPaymentsFacade } from '../../facade/worldpay-guaranteed-payments.facade';
+import { LoadScriptService } from '../../utils/load-script.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,9 +29,9 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
    * @returns Query<boolean> - Query with boolean value
    */
   protected fetchIsGuaranteedPaymentsEnabledQuery$: Query<boolean> =
-    this.queryService.create<boolean>(() => this.worldpayGuaranteedPaymentsConnector.isGuaranteedPaymentsEnabled()
+    this.queryService.create<boolean>((): Observable<boolean> => this.worldpayGuaranteedPaymentsConnector.isGuaranteedPaymentsEnabled()
       .pipe(
-        tap((enabled: boolean) => this.setGuaranteedPaymentsEnabledEvent(enabled))
+        tap((enabled: boolean): void => this.setGuaranteedPaymentsEnabledEvent(enabled))
       )
     );
 
@@ -68,7 +68,7 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
    */
   isGuaranteedPaymentsEnabled(): Observable<boolean> {
     return this.isGuaranteedPaymentsEnabledState().pipe(
-      map((state: QueryState<boolean>) => state.data ?? false),
+      map((state: QueryState<boolean>): boolean => state.data ?? false),
     );
   }
 
@@ -88,7 +88,7 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
    */
   getGuaranteedPaymentsEnabledEvent(): Observable<boolean> {
     return this.eventService.get(SetGuaranteedPaymentsEnabledEvent).pipe(
-      map((event: SetGuaranteedPaymentsEnabledEvent) => event.enabled)
+      map((event: SetGuaranteedPaymentsEnabledEvent): boolean => event.enabled)
     );
   }
 
@@ -102,9 +102,13 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
   }
 
   /**
-   * Set Session id
+   * Set Session Id
+   *
+   * This method sets the session ID for Guaranteed Payments and dispatches an event
+   * to notify other parts of the application about the new session ID.
+   *
+   * @param {string} sessionId - The session ID to be set
    * @since 6.4.0
-   * @param sessionId - string
    */
   setSessionId(sessionId: string): void {
     this.sessionId$.next(sessionId);
@@ -113,18 +117,25 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
 
   /**
    * Get Session Id Event
+   *
+   * This method retrieves the session ID for Guaranteed Payments by listening
+   * for the `SetGuaranteedPaymentsSessionIdEvent` and mapping the event to the session ID.
+   *
+   * @returns {Observable<string>} - Observable that emits the session ID
    * @since 6.4.0
-   * @returns Observable<string> - Observable with string value
    */
   getSessionIdEvent(): Observable<string> {
     return this.eventService.get(SetGuaranteedPaymentsSessionIdEvent).pipe(
-      map((event: SetGuaranteedPaymentsSessionIdEvent) => event.sessionId)
+      map((event: SetGuaranteedPaymentsSessionIdEvent): string => event.sessionId || '')
     );
   }
 
   /**
    * Set Session Id Event
-   * @param sessionId - string
+   *
+   * This method dispatches an event to set the session ID for Guaranteed Payments.
+   *
+   * @param {string} sessionId - The session ID to be dispatched
    */
   setSessionIdEvent(sessionId: string): void {
     this.eventService.dispatch({ sessionId }, SetGuaranteedPaymentsSessionIdEvent);
@@ -132,13 +143,18 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
 
   /**
    * Generate Guaranteed Payments script
+   *
+   * This method generates the Guaranteed Payments script by setting the session ID,
+   * creating the necessary script attributes, and either updating an existing script
+   * node or loading a new script if the session ID is provided.
+   *
    * @since 4.3.6
-   * @param sessionId - string
+   * @param {string} sessionId - The session ID to be used for the script
    */
   generateScript(sessionId: string): void {
     this.window.tmx_profiling_started = false;
     this.setSessionId(sessionId);
-    const attributes = {
+    const attributes: { [p: string]: string } = {
       [this.attributeId]: sessionId
     };
     const node: Element = this.document.querySelector(`script#${this.idScript}`);
@@ -159,6 +175,10 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
 
   /**
    * Remove Guaranteed Payments script
+   *
+   * This method removes the Guaranteed Payments script by calling the
+   * `removeScript` method of the `LoadScriptService` with the script tag ID.
+   *
    * @since 4.3.6
    */
   removeScript(): void {

@@ -19,7 +19,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -59,7 +58,7 @@ public class CaptureRequestTransformerTest {
     private com.worldpay.internal.model.Date internalDateMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         testObj = new CaptureRequestTransformer(configurationServiceMock, internalAmountConverter, internalDateConverter);
 
         when(captureRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
@@ -79,8 +78,8 @@ public class CaptureRequestTransformerTest {
         final Capture captureResult = getCaptureResult(result);
         final List<ShippingInfo> shippingInfoResults = captureResult.getShipping().getShippingInfo();
 
-        assertThat(shippingInfoResults.size()).isEqualTo(2);
-        final List<String> trackingIdsFromShippingInfoResults = shippingInfoResults.stream().map(ShippingInfo::getTrackingId).collect(Collectors.toList());
+        assertThat(shippingInfoResults).hasSize(2);
+        final List<String> trackingIdsFromShippingInfoResults = shippingInfoResults.stream().map(ShippingInfo::getTrackingId).toList();
         assertThat(trackingIdsFromShippingInfoResults).contains(TRACKING_ID_1, TRACKING_ID_2);
     }
 
@@ -145,11 +144,11 @@ public class CaptureRequestTransformerTest {
 
     protected Capture getCaptureResult(final PaymentService result) {
         final OrderModification orderModificationResult = getOrderModificationResult(result);
-        return (Capture) orderModificationResult.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().get(0);
+        return (Capture) orderModificationResult.getCancelOrCaptureOrProvideCryptogramOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().get(0);
     }
 
     protected OrderModification getOrderModificationResult(final PaymentService result) {
         final Modify modifyResult = (Modify) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        return (OrderModification) modifyResult.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0);
+        return (OrderModification) modifyResult.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().get(0);
     }
 }

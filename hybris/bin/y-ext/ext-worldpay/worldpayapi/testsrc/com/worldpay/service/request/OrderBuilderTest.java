@@ -77,6 +77,8 @@ public class OrderBuilderTest {
     private GuaranteedPaymentsData guaranteedPaymentsDataMock;
     @Mock
     private AlternativeShippingAddress alternativeShippingAddressMock;
+    @Mock
+    private Exemption exemptionMock;
 
     @Before
     public void setUp() throws Exception {
@@ -173,6 +175,7 @@ public class OrderBuilderTest {
         assertEquals(guaranteedPaymentsDataMock, order.getGuaranteedPaymentsData());
         assertEquals(alternativeShippingAddressMock, order.getAlternativeShippingAddress());
         assertEquals(CHECKOUT_ID, order.getCheckoutId());
+        assertEquals(exemptionMock, order.getExemption());
     }
 
     private Order createOrder() {
@@ -198,6 +201,7 @@ public class OrderBuilderTest {
             .withGuaranteedPaymentsAttribute(guaranteedPaymentsDataMock)
             .withAlternativeShippingAddress(alternativeShippingAddressMock)
             .withCheckoutId(CHECKOUT_ID)
+            .withExemption(exemptionMock)
             .build();
     }
 }

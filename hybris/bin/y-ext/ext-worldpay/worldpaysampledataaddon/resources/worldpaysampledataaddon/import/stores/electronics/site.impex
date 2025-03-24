@@ -94,6 +94,6 @@ $enablePR=true
 $enableLevel2=true
 $enableLevel3=true
 $enableGP=true
-UPDATE BaseSite; uid[unique = true]; enableFS[default=$enableFS] ; enablePR[default=$enablePR] ; enableLevel2[default=$enableLevel2] ; enableLevel3[default=$enableLevel3] ; enableGP[default=$enableGP]
-;$siteUid;
-    
+$enableEE=true
+UPDATE BaseSite; uid[unique = true]; enableFS[default = $enableFS]; enablePR[default = $enablePR]; enableLevel2[default = $enableLevel2]; enableLevel3[default = $enableLevel3]; enableGP[default = $enableGP]; enableEE[default = $enableEE]
+               ; $siteUid          ;

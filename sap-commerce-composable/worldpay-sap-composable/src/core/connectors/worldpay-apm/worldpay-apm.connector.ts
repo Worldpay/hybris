@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cart } from '@spartacus/cart/base/root';
-import { PaymentDetails } from "@spartacus/core";
+import { PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
 import { ApmData, ApmPaymentDetails, APMRedirectResponse } from '../../interfaces';
@@ -13,8 +13,11 @@ export class WorldpayApmConnector {
 
   /**
    * Constructor
+   *
+   * Initializes the WorldpayApmConnector with the provided WorldpayApmAdapter.
+   *
+   * @param adapter - WorldpayApmAdapter instance used for making APM-related requests
    * @since 6.4.0
-   * @param adapter - WorldpayApmAdapter
    */
   constructor(
     protected adapter: WorldpayApmAdapter
@@ -22,23 +25,28 @@ export class WorldpayApmConnector {
   }
 
   /**
-   * Redirect authorise APM payment
-   * @since 6.4.0
+   * Authorise APM Redirect
+   *
+   * This method sends a request to authorise an Alternative Payment Method (APM) redirect.
+   * It uses the provided user ID, card ID, APM payment details, and a flag indicating whether to save the payment details.
+   * The response is an observable emitting the APM redirect response.
+   *
    * @param userId - User ID
-   * @param cardId string
-   * @param apm ApmPaymentDetails
-   * @param save boolean
-   * @returns Observable<APMRedirectResponse> - APMRedirectResponse as Observable
+   * @param cartId - Card ID
+   * @param apm - APM payment details
+   * @param save - Flag indicating whether to save the payment details
+   * @returns Observable<APMRedirectResponse> - Observable emitting the APM redirect response
+   * @since 6.4.0
    */
   authoriseApmRedirect(
     userId: string,
-    cardId: string,
+    cartId: string,
     apm: ApmPaymentDetails,
     save: boolean
   ): Observable<APMRedirectResponse> {
     return this.adapter.authoriseApmRedirect(
       userId,
-      cardId,
+      cartId,
       apm,
       save
     );
@@ -73,12 +81,17 @@ export class WorldpayApmConnector {
   }
 
   /**
-   * Try placing the order after the user has been sent back from PSP to Spartacus
-   * @since 6.4.0
+   * Place Bank Transfer Order Redirect
+   *
+   * This method attempts to place an order after the user has been redirected back from the Payment Service Provider (PSP) to Spartacus.
+   * It uses the provided user ID, cart ID, and order ID.
+   * The response is an observable emitting the placed order.
+   *
    * @param userId - User ID
    * @param cartId - Cart ID
    * @param orderId - Order ID
-   * @returns Observable<Order> - Order as Observable
+   * @returns Observable<Order> - Observable emitting the placed order
+   * @since 6.4.0
    */
   placeBankTransferOrderRedirect(
     userId: string,
@@ -105,12 +118,16 @@ export class WorldpayApmConnector {
   }
 
   /**
-   * Use existing payment details
-   * @since 6.4.0
+   * Use Existing Payment Details
+   *
+   * This method uses the provided existing payment details for the given user and cart.
+   * The response is an observable emitting the payment details.
+   *
    * @param userId - User ID
-   * @param cartId
-   * @param paymentDetails PaymentDetails
-   * @returns Observable<PaymentDetails> - PaymentDetails as Observable
+   * @param cartId - Cart ID
+   * @param paymentDetails - Payment details to be used
+   * @returns Observable<PaymentDetails> - Observable emitting the payment details
+   * @since 6.4.0
    */
   public useExistingPaymentDetails(
     userId: string,

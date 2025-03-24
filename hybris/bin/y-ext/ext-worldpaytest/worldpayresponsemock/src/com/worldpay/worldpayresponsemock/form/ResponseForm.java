@@ -76,6 +76,10 @@ public class ResponseForm implements java.io.Serializable {
     private double guaranteedPaymentsScore;
     private String guaranteedPaymentsMessage;
     private String guaranteedPaymentsTriggeredRules;
+    private String exemptionResponseReason;
+    private String exemptionResponseResult;
+    private String exemptionType;
+    private String exemptionPlacement;
 
     public boolean isUseGuaranteedPayments() {
         return useGuaranteedPayments;
@@ -651,5 +655,37 @@ public class ResponseForm implements java.io.Serializable {
 
     public void setGuaranteedPaymentsTriggeredRules(String guaranteedPaymentsTriggeredRules) {
         this.guaranteedPaymentsTriggeredRules = guaranteedPaymentsTriggeredRules;
+    }
+
+    public String getExemptionResponseReason() {
+        return exemptionResponseReason;
+    }
+
+    public void setExemptionResponseReason(String exemptionResponseReason) {
+        this.exemptionResponseReason = exemptionResponseReason;
+    }
+
+    public String getExemptionResponseResult() {
+        return exemptionResponseResult;
+    }
+
+    public void setExemptionResponseResult(String exemptionResponseResult) {
+        this.exemptionResponseResult = exemptionResponseResult;
+    }
+
+    public String getExemptionType() {
+        return exemptionType;
+    }
+
+    public void setExemptionType(String exemptionType) {
+        this.exemptionType = exemptionType;
+    }
+
+    public String getExemptionPlacement() {
+        return exemptionPlacement;
+    }
+
+    public void setExemptionPlacement(String exemptionPlacement) {
+        this.exemptionPlacement = exemptionPlacement;
     }
 }

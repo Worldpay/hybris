@@ -57,11 +57,11 @@ public class OrderInquiryRequestTransformer implements ServiceRequestTransformer
         if (request instanceof OrderInquiryServiceRequest) {
             final OrderInquiry orderInquiry = new OrderInquiry();
             orderInquiry.setOrderCode(request.getOrderCode());
-            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiry().add(orderInquiry);
+            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiry().add(orderInquiry);
         } else if (request instanceof KlarnaOrderInquiryServiceRequest) {
             final KlarnaConfirmationInquiry klarnaConfirmationInquiry = new KlarnaConfirmationInquiry();
             klarnaConfirmationInquiry.setOrderCode(request.getOrderCode());
-            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiry().add(klarnaConfirmationInquiry);
+            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiry().add(klarnaConfirmationInquiry);
         }
     }
 }

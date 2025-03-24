@@ -1,12 +1,13 @@
+import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
-import { HttpClientModule } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { OccWorldpayApmAdapter } from './occ-worldpay-apm.adapter';
+import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
 import { ApmPaymentDetails, PaymentMethod } from '../../../interfaces';
+import { OccWorldpayApmAdapter } from './occ-worldpay-apm.adapter';
 
 const userId = 'userId';
 const cartId = 'cartId';
+const orderId = '000001';
 const address: Address = {
   line1: 'The House',
   line2: 'The Road',
@@ -35,6 +36,18 @@ class MockOccEndpointsService {
     return url;
   }
 }
+
+const errorResponse = {
+  error: {
+    errors: [{
+      type: 'test',
+      message: 'Test error message'
+    }]
+  },
+  headers: new HttpHeaders().set('xxx', 'xxx'),
+  status: 500,
+  statusText: 'Request Error',
+};
 
 describe('OccWorldpayApmAdapter', () => {
   let service: OccWorldpayApmAdapter;
@@ -65,148 +78,341 @@ describe('OccWorldpayApmAdapter', () => {
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
   });
 
-  it('should POST authoriseApmRedirect without bankShopperCode', () => {
-    const apm: ApmPaymentDetails = {
-      code: PaymentMethod.PayPal
-    };
+  describe('authoriseApmRedirect', () => {
+    it('should POST authoriseApmRedirect without bankShopperCode', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.PayPal
+      };
+      const save = true;
+      service.authoriseApmRedirect(userId, cartId, apm, save).subscribe();
 
-    const save = true;
-    service.authoriseApmRedirect(userId, cartId, apm, save).subscribe();
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'authoriseApmRedirect' &&
+        req.body.paymentMethod === PaymentMethod.PayPal &&
+        req.body.save === save
+      );
 
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'POST' &&
-      req.urlWithParams === 'authoriseApmRedirect' &&
-      req.body.paymentMethod === PaymentMethod.PayPal &&
-      req.body.save === save
-    );
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({
+        paymentMethod: PaymentMethod.PayPal,
+        save
+      });
+    });
 
-    expect(mockReq.cancelled).toBeFalsy();
+    it('should POST authoriseApmRedirect with bankShopperCode', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.iDeal,
+        shopperBankCode: 'ING'
+      };
+      const save = false;
+      service.authoriseApmRedirect(userId, cartId, apm, save).subscribe();
 
-    mockReq.flush({
-      paymentMethod: PaymentMethod.PayPal,
-      save
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'authoriseApmRedirect' &&
+        req.body.paymentMethod === PaymentMethod.iDeal &&
+        req.body.shopperBankCode === 'ING'
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({
+        paymentMethod: PaymentMethod.iDeal,
+        save,
+        shopperBankCode: 'ING'
+      });
+    });
+
+    it('should handle error when authoriseApmRedirect fails', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.PayPal
+      };
+      const save = true;
+      const errorResponse = {
+        status: 500,
+        statusText: 'Server Error'
+      };
+
+      service.authoriseApmRedirect(userId, cartId, apm, save).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
+        }
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'authoriseApmRedirect'
+      );
+
+      mockReq.flush(null, errorResponse);
+    });
+
+    it('should POST authoriseApmRedirect with bankShopperCode for iDeal', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.iDeal,
+        shopperBankCode: 'ING'
+      };
+      const save = false;
+      service.authoriseApmRedirect(userId, cartId, apm, save).subscribe();
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'authoriseApmRedirect' &&
+        req.body.paymentMethod === PaymentMethod.iDeal &&
+        req.body.shopperBankCode === 'ING'
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+
+      mockReq.flush({
+        paymentMethod: PaymentMethod.iDeal,
+        save,
+        shopperBankCode: 'ING'
+      });
     });
   });
 
-  it('should POST authoriseApmRedirect with bankShopperCode for iDeal', () => {
-    const apm: ApmPaymentDetails = {
-      code: PaymentMethod.iDeal,
-      shopperBankCode: 'ING'
-    };
-    const save = false;
-    service.authoriseApmRedirect(userId, cartId, apm, save).subscribe();
+  describe('getAvailableAmps', () => {
+    it('should get available APMs for a given cart', () => {
+      service.getAvailableApms(userId, cartId).subscribe();
 
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'POST' &&
-      req.urlWithParams === 'authoriseApmRedirect' &&
-      req.body.paymentMethod === PaymentMethod.iDeal &&
-      req.body.shopperBankCode === 'ING'
-    );
-
-    expect(mockReq.cancelled).toBeFalsy();
-
-    mockReq.flush({
-      paymentMethod: PaymentMethod.iDeal,
-      save,
-      shopperBankCode: 'ING'
-    });
-  });
-
-  it('should set APM payment info using serAPMPaymentInfo method', () => {
-    const apm: ApmPaymentDetails = {
-      code: PaymentMethod.PayPal,
-      billingAddress: {
-        ...address
-      },
-      name: 'PayPal',
-    };
-
-    service.setAPMPaymentInfo(userId, cartId, apm).subscribe();
-
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'POST' &&
-      req.urlWithParams === 'setAPMPaymentInfo' &&
-      req.body.billingAddress === apm.billingAddress &&
-      req.body.apmName === apm.name &&
-      req.body.apmCode === apm.code
-    );
-
-    expect(mockReq.cancelled).toBeFalsy();
-
-    mockReq.flush({
-      apm
-    });
-  });
-
-  it('should get available apms using getAvailableApms method', () => {
-    service.getAvailableApms(userId, cartId).subscribe();
-
-    const mockReq = httpMock.expectOne(
-      req =>
+      const mockReq = httpMock.expectOne(req =>
         req.method === 'GET' &&
         req.urlWithParams === 'getAvailableApms'
-    );
+      );
 
-    expect(mockReq.cancelled).toBeFalsy();
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush([]);
+    });
 
-    mockReq.flush({});
-  });
+    it('should handle error when getAvailableApms fails', () => {
+      const errorResponse = {
+        status: 500,
+        statusText: 'Server Error'
+      };
 
-  it('should be able to use existing payment details using useExistingPaymentDetails method', () => {
-    service.useExistingPaymentDetails(userId, cartId, paymentDetails)
-      .subscribe(result => {
-        expect(result).toEqual(paymentDetails);
+      service.getAvailableApms(userId, cartId).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
+        }
       });
 
-    expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
-      'useExistingPaymentDetails',
-      {
-        urlParams: {
-          userId,
-          cartId
-        },
-        queryParams: {
-          paymentDetailsId: 'aaa123'
-        }
-      }
-    );
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'GET' &&
+        req.urlWithParams === 'getAvailableApms'
+      );
 
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'PUT' &&
-      req.urlWithParams === 'useExistingPaymentDetails'
-    );
-
-    expect(mockReq.cancelled).toBeFalsy();
-    expect(mockReq.request.responseType).toEqual('json');
-    mockReq.flush(paymentDetails);
+      mockReq.flush(null, errorResponse);
+    });
   });
 
-  it('should be able to use existing payment details using useExistingPaymentDetails method', () => {
-    service.useExistingPaymentDetails(userId, cartId, paymentDetails)
-      .subscribe(result => {
-        expect(result).toEqual(paymentDetails);
+  describe('placeRedirectOrder', () => {
+    it('should place redirect order successfully', () => {
+      service.placeRedirectOrder(userId, cartId).subscribe((order) => {
+        expect(order).toBeTruthy();
       });
 
-    expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
-      'useExistingPaymentDetails',
-      {
-        urlParams: {
-          userId,
-          cartId
-        },
-        queryParams: {
-          paymentDetailsId: 'aaa123'
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'placeRedirectOrder'
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({});
+    });
+
+    it('should handle error when placeRedirectOrder fails', () => {
+
+      service.placeRedirectOrder(userId, cartId).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
         }
-      }
-    );
+      });
 
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'PUT' &&
-      req.urlWithParams === 'useExistingPaymentDetails'
-    );
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'placeRedirectOrder'
+      );
 
-    expect(mockReq.cancelled).toBeFalsy();
-    expect(mockReq.request.responseType).toEqual('json');
-    mockReq.flush(paymentDetails);
+      mockReq.flush(errorResponse.error, {
+        status: errorResponse.status,
+        statusText: errorResponse.statusText,
+      });
+    });
+  });
+
+  describe('placeBankTransferOrderRedirect', () => {
+    it('should place bank transfer order redirect successfully', () => {
+      service.placeBankTransferOrderRedirect(userId, cartId, orderId).subscribe((order) => {
+        expect(order).toBeTruthy();
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'placeBankTransferRedirectOrder'
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({});
+    });
+
+    it('should handle error when placeBankTransferOrderRedirect fails', () => {
+
+      service.placeBankTransferOrderRedirect(userId, cartId, orderId).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
+          expect(error.details).toEqual([{
+            type: 'test',
+            message: 'Test error message'
+          }]);
+        }
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'placeBankTransferRedirectOrder'
+      );
+
+      mockReq.flush(errorResponse.error, {
+        status: errorResponse.status,
+        statusText: errorResponse.statusText,
+      });
+    });
+  });
+
+  describe('setAPMPaymentInfo', () => {
+    it('should set APM payment info successfully', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.PayPal,
+        billingAddress: {
+          ...address
+        },
+        name: 'PayPal',
+      };
+
+      service.setAPMPaymentInfo(userId, cartId, apm).subscribe((cart) => {
+        expect(cart).toBeTruthy();
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'setAPMPaymentInfo' &&
+        req.body.billingAddress === apm.billingAddress &&
+        req.body.apmName === apm.name &&
+        req.body.apmCode === apm.code
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({});
+    });
+
+    it('should handle error when setAPMPaymentInfo fails', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.PayPal,
+        billingAddress: {
+          ...address
+        },
+        name: 'PayPal',
+      };
+
+      service.setAPMPaymentInfo(userId, cartId, apm).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
+          expect(error.details).toEqual([{
+            type: 'test',
+            message: 'Test error message'
+          }]);
+        }
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'setAPMPaymentInfo'
+      );
+
+      mockReq.flush(errorResponse.error, {
+        status: errorResponse.status,
+        statusText: errorResponse.statusText,
+      });
+    });
+
+    it('should set APM payment info with shopperBankCode', () => {
+      const apm: ApmPaymentDetails = {
+        code: PaymentMethod.iDeal,
+        billingAddress: {
+          ...address
+        },
+        name: 'iDeal',
+        shopperBankCode: 'ING'
+      };
+
+      service.setAPMPaymentInfo(userId, cartId, apm).subscribe((cart) => {
+        expect(cart).toBeTruthy();
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'setAPMPaymentInfo' &&
+        req.body.billingAddress === apm.billingAddress &&
+        req.body.apmName === apm.shopperBankCode &&
+        req.body.apmCode === apm.code
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({});
+    });
+  });
+
+  describe('useExistingPaymentDetails', () => {
+    it('should use existing payment details successfully', () => {
+      service.useExistingPaymentDetails(userId, cartId, paymentDetails).subscribe((details) => {
+        expect(details).toEqual(paymentDetails);
+      });
+
+      expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
+        'useExistingPaymentDetails',
+        {
+          urlParams: {
+            userId,
+            cartId
+          },
+          queryParams: {
+            paymentDetailsId: 'aaa123'
+          }
+        }
+      );
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'PUT' &&
+        req.urlWithParams === 'useExistingPaymentDetails' &&
+        req.body.id === paymentDetails.id
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      expect(mockReq.request.responseType).toEqual('json');
+      mockReq.flush(paymentDetails);
+    });
+
+    it('should handle error when useExistingPaymentDetails fails', () => {
+      service.useExistingPaymentDetails(userId, cartId, paymentDetails).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(500);
+          expect(error.details).toEqual([{
+            type: 'test',
+            message: 'Test error message'
+          }]);
+        }
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'PUT' &&
+        req.urlWithParams === 'useExistingPaymentDetails'
+      );
+
+      mockReq.flush(errorResponse.error, {
+        status: errorResponse.status,
+        statusText: errorResponse.statusText,
+      });
+    });
   });
 });

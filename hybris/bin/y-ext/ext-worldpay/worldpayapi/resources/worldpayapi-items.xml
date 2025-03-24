@@ -456,6 +456,18 @@
                     <modifiers read="true" write="true" search="true" optional="true"/>
                     <persistence type="property"/>
                 </attribute>
+                <attribute qualifier="exemptionResponseResult" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="exemptionResponseReason" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="exemptionType" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
+                <attribute qualifier="exemptionPlacement" type="java.lang.String">
+                    <persistence type="property"/>
+                </attribute>
             </attributes>
             <indexes>
                 <index name="requestIdIdx">
@@ -852,6 +864,15 @@
                     <persistence type="property"/>
                     <description>Card Acceptor Tax ID for Level 2/3 data</description>
                 </attribute>
+                <attribute qualifier="routingEnabled" type="java.lang.Boolean">
+                    <persistence type="property"/>
+                    <description>Determines if the transaction is done using routing for EFTPOS</description>
+                    <defaultvalue>Boolean.FALSE</defaultvalue>
+                </attribute>
+                <attribute qualifier="routingMID" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Routing Merchant ID for EFTPOS</description>
+                </attribute>
             </attributes>
             <indexes>
                 <index name="idIdx" unique="true">
@@ -1015,6 +1036,12 @@
                         <persistence type="property"/>
                         <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
                         <description>Enables the Level 3 Data</description>
+                    </attribute>
+                    <attribute qualifier="enableEE" type="java.lang.Boolean">
+                        <modifiers optional="false"/>
+                        <persistence type="property"/>
+                        <defaultvalue>java.lang.Boolean.FALSE</defaultvalue>
+                        <description>Enables the Exemption Engine</description>
                     </attribute>
                     <attribute qualifier="paypalSSLIntent" type="PayPalIntent">
                         <modifiers optional="false"/>

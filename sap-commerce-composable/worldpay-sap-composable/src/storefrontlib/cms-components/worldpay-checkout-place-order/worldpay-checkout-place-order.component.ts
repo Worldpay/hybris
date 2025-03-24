@@ -1,14 +1,18 @@
-import { ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, Renderer2, ViewContainerRef, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnDestroy, OnInit, Renderer2, ViewContainerRef, ViewEncapsulation } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { CheckoutPlaceOrderComponent, CheckoutStepService } from '@spartacus/checkout/base/components';
-import { GlobalMessageService, GlobalMessageType, HttpErrorModel, PaymentDetails, QueryState, RoutingService, WindowRef } from '@spartacus/core';
+import { GlobalMessageService, GlobalMessageType, HttpErrorModel, LoggerService, PaymentDetails, QueryState, RoutingService, WindowRef } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { LaunchDialogService } from '@spartacus/storefront';
-import { BehaviorSubject, combineLatest, Observable, Subject, Subscription } from 'rxjs';
-import { filter, take, takeUntil } from 'rxjs/operators';
-import { WorldpayACHFacade } from '../../../core/facade/worldpay-ach.facade';
+import { WorldpayACHFacade } from '@worldpay-facade/worldpay-ach.facade';
+import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
+import { WorldpayCheckoutPaymentService } from '@worldpay-services/worldpay-checkout/worldpay-checkout-payment.service';
+import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 import {
   ACHPaymentForm,
   ApmPaymentDetails,
@@ -17,18 +21,15 @@ import {
   PlaceOrderResponse,
   ThreeDsDDCInfo,
   ThreeDsInfo,
+  WorldpayApmPaymentInfo,
   WorldpayChallengeResponse
 } from '../../../core/interfaces';
 import { ApmNormalizer } from '../../../core/normalizers';
 import { WorldpayOrderService } from '../../../core/services';
-import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
-import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
-import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
 
 @Component({
   selector: 'y-worldpay-checkout-place-order',
   templateUrl: './worldpay-checkout-place-order.component.html',
-  styleUrls: ['worldpay-checkout-place-order.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -51,33 +52,36 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   queryParams: { key: string; value: string }[] = [];
   browserInfo: BrowserInfo;
   protected save: boolean = false;
+  protected logger: LoggerService = inject(LoggerService);
   private ddcInfoFromState$: Subscription;
   private challengeInfo$: Subscription;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private ddcHandler: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private challengeHandler: any;
-  private drop: Subject<void> = new Subject<void>();
+  private destroyRef: DestroyRef = inject(DestroyRef);
   private fraudSightId: string;
 
   /**
-   * Constructor
-   * @param orderFacade WorldpayOrderService
-   * @param routingService RoutingService
-   * @param fb UntypedFormBuilder
-   * @param launchDialogService LaunchDialogService
-   * @param vcr ViewContainerRef
-   * @param globalMessageService GlobalMessageService
-   * @param checkoutStepService CheckoutStepService
-   * @param activatedRoute ActivatedRoute
-   * @param ngZone NgZone
-   * @param winRef WindowRef
-   * @param renderer Renderer2
-   * @param worldpayCheckoutPaymentService WorldpayCheckoutPaymentService
-   * @param worldpayApmService WorldpayApmService
-   * @param worldpayFraudsightService WorldpayFraudsightService
-   * @param worldpayACHFacade
-   * @param apmNormalizer
+   * Constructor for the WorldpayCheckoutPlaceOrderComponent.
+   *
+   * @param {WorldpayOrderService} orderFacade - The Worldpay order service.
+   * @param {RoutingService} routingService - The routing service.
+   * @param {UntypedFormBuilder} fb - The form builder.
+   * @param {LaunchDialogService} launchDialogService - The launch dialog service.
+   * @param {ViewContainerRef} vcr - The view container reference.
+   * @param {GlobalMessageService} globalMessageService - The global message service.
+   * @param {CheckoutStepService} checkoutStepService - The checkout step service.
+   * @param {ActivatedRoute} activatedRoute - The activated route.
+   * @param {NgZone} ngZone - The Angular zone service.
+   * @param {WindowRef} winRef - The window reference.
+   * @param {Renderer2} renderer - The renderer.
+   * @param {WorldpayCheckoutPaymentService} worldpayCheckoutPaymentService - The Worldpay checkout payment service.
+   * @param {WorldpayApmService} worldpayApmService - The Worldpay APM service.
+   * @param {WorldpayFraudsightService} worldpayFraudsightService - The Worldpay fraudsight service.
+   * @param {WorldpayACHFacade} worldpayACHFacade - The Worldpay ACH facade.
+   * @param {ApmNormalizer} apmNormalizer - The APM normalizer.
+   * @since 6.4.0
    */
   constructor(
     protected override orderFacade: WorldpayOrderService,
@@ -107,7 +111,11 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   }
 
   /**
-   * Submit the checkout form
+   * Submits the checkout form. If the form is valid, it starts the loading process,
+   * handles the DDC iframe and challenge iframe, and places the Worldpay order.
+   * If the form is invalid, it marks all form controls as touched.
+   *
+   * @override
    * @since 4.3.6
    */
   override submitForm(): void {
@@ -121,9 +129,9 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
 
       this.placeWorldpayOrder().pipe(
         take(1),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       ).subscribe({
-        next: ([apm, paymentDetails, achPaymentFormValue]): void => {
+        next: ([apm, paymentDetails, achPaymentFormValue]: [ApmPaymentDetails, QueryState<PaymentDetails>, ACHPaymentForm]): void => {
           if (!apm || apm?.cardType) {
             if (apm.cardType) {
               this.browserInfo = {
@@ -158,15 +166,19 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   }
 
   /**
-   * Execute DDC3dsJwt Command
+   * Executes the DDC3dsJwt command and subscribes to its observable.
+   * The subscription is automatically unsubscribed when the component is destroyed.
+   *
    * @since 6.4.0
    */
   executeDDC3dsJwtCommand(): void {
-    this.orderFacade.executeDDC3dsJwtCommand().pipe(takeUntil(this.drop)).subscribe();
+    this.orderFacade.executeDDC3dsJwtCommand().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   /**
-   * Trigger Place order for Worldpay APM
+   * Combines the latest values from the selected APM, payment details, and ACH payment form value observables.
+   *
+   * @returns {Observable<[ApmPaymentDetails, QueryState<PaymentDetails>, ACHPaymentForm]>} An observable emitting the combined values.
    * @since 6.4.2
    */
   placeWorldpayOrder(): Observable<[ApmPaymentDetails, QueryState<PaymentDetails>, ACHPaymentForm]> {
@@ -185,7 +197,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     this.worldpayCheckoutPaymentService.getPaymentDetailsState()
       .pipe(
         filter((paymentDetails: QueryState<PaymentDetails>) => paymentDetails && Object.keys(paymentDetails).length > 0),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (paymentDetails: QueryState<PaymentDetails>): void => {
@@ -196,7 +208,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       .unsubscribe();
 
     this.worldpayCheckoutPaymentService.getCseTokenFromState()
-      .pipe(takeUntil(this.drop))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (cseToken: string): void => {
           this.cseToken = cseToken;
@@ -206,7 +218,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     this.orderFacade.getOrderDetails()
       .pipe(
         filter((order: Order): boolean => order && Object.keys(order).length !== 0),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (): void => {
@@ -228,9 +240,10 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       this.worldpayCheckoutPaymentService.getPaymentDetailsState(),
       this.worldpayCheckoutPaymentService.getCseTokenFromState()
     ])
-      .pipe(takeUntil(this.drop))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: ([termsAndConditions, paymentDetails]): void => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        next: ([termsAndConditions, paymentDetails]: [any, QueryState<WorldpayApmPaymentInfo>, string]): void => {
           this.paymentAuthorized =
             termsAndConditions &&
             paymentDetails?.data &&
@@ -241,14 +254,15 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     this.worldpayApmService.getWorldpayAPMRedirectUrlFromState()
       .pipe(
         filter((response: APMRedirectResponse) => !!response),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (redirectData: APMRedirectResponse): void => {
           this.redirectData$.next(redirectData);
           if (redirectData.postUrl) {
-            new URLSearchParams(redirectData.postUrl.split('?')[1]).forEach((value, key) => {
-              const found = redirectData.parameters?.entry?.filter((entry) => entry.key === key);
+            new URLSearchParams(redirectData.postUrl.split('?')[1]).forEach((value: string, key: string): void => {
+              // eslint-disable-next-line @typescript-eslint/typedef
+              const found = redirectData.parameters?.entry?.filter((entry): boolean => entry.key === key);
               if (!found) {
                 this.queryParams.push({
                   key,
@@ -257,8 +271,8 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
               }
             });
           }
-          this.ngZone.run(() => {
-            setTimeout(() => {
+          this.ngZone.run((): void => {
+            setTimeout((): void => {
               const form: HTMLFormElement = this.winRef.document.querySelector('#redirect-form');
               if (form) {
                 form.submit();
@@ -271,10 +285,42 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     this.worldpayFraudsightService.getFraudSightIdFromState()
       .pipe(
         take(1),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (res: string) => this.fraudSightId = res
+      });
+  }
+
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    if (this.ddcHandler) {
+      this.nativeWindow.removeEventListener('message', this.ddcHandler, true);
+    }
+    if (this.challengeHandler) {
+      this.nativeWindow.removeEventListener('message', this.challengeHandler, true);
+    }
+
+    if (this.listenerFn) {
+      this.listenerFn();
+    }
+  }
+
+  /**
+   * Place ACH Order
+   * @since 6.4.2
+   * @param achPaymentFormValue
+   */
+  protected placeACHOrder(achPaymentFormValue: ACHPaymentForm): void {
+    this.orderFacade.placeACHOrder(achPaymentFormValue)
+      .pipe(
+        take(1),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+        error: (error: unknown): void => {
+          this.logger.error('Failed to place ACH order', error);
+          this.orderFacade.clearLoading();
+        },
       });
   }
 
@@ -290,13 +336,13 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     this.ddcInfoFromState$ = this.worldpayCheckoutPaymentService.getDDCInfoFromState()
       .pipe(
         filter((threeDsDDCInfo: ThreeDsDDCInfo): boolean => (!!threeDsDDCInfo && threeDsDDCInfo?.jwt?.length !== 0 && !!this.paymentDetails?.cardNumber)),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: ({
           ddcUrl,
           jwt
-        }): void => {
+        }: ThreeDsDDCInfo): void => {
           this.worldpayCheckoutPaymentService.setThreeDsDDCIframeUrl(
             ddcUrl,
             this.paymentDetails.cardNumber,
@@ -307,9 +353,14 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   }
 
   /**
-   * Event handler for the Device Data Collection
+   * Processes the Device Data Collection (DDC) response event.
+   * If the event origin matches the expected URL, it parses the event data and
+   * initiates the initial payment request with the parsed device data.
+   * If the DDC response is valid, it sets the placed order on the order facade.
+   * If an error occurs during the process, it logs the error and shows an error message.
    *
-   * @param event event from the DDT iframe
+   * @param {MessageEvent} event - The message event from the DDC iframe.
+   * @since 6.4.0
    */
   private processDdc(event: MessageEvent): void {
     if (event.origin.includes('https://centinelapistag.cardinalcommerce.com')) {
@@ -327,7 +378,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
             this.fraudSightId,
             this.browserInfo
           ).pipe(
-            takeUntil(this.drop)
+            takeUntilDestroyed(this.destroyRef)
           ).subscribe({
             next: (response: PlaceOrderResponse): void => {
               this.orderFacade.setPlacedOrder(response.order);
@@ -341,7 +392,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
           return;
         }
       } catch (err) {
-        console.log('failed to process ddc response', err);
+        this.logger.error('failed to process ddc response', err);
       }
 
       this.globalMessageService.add({ key: 'checkoutReview.threeDsChallengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
@@ -350,22 +401,26 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   }
 
   /**
-   * Show the 3ds Challenge when challenge is given during the initial payment request.
-   * Initial payment request is kicked of after DDC - see this.processDdc
+   * Handles the 3DS challenge iframe by subscribing to the ThreeDsChallengeInfo observable.
+   * If the challenge info is available, it sets the iframe URL and dimensions.
+   * Unregisters the message handler for device detection and registers a new handler for the challenge response.
+   *
+   * @private
+   * @since 6.4.0
    */
   private challengeIframeHandler(): void {
     this.challengeInfo$ = this.worldpayCheckoutPaymentService.getThreeDsChallengeInfoFromState()
       .pipe(
         filter((challengeInfo: ThreeDsInfo): boolean => !!challengeInfo),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: ({
           threeDSFlexData,
           merchantData
-        }): void => {
+        }: ThreeDsInfo): void => {
           if (!threeDSFlexData || !threeDSFlexData.jwt) {
-            console.log('3ds flow not implemented');
+            this.logger.log('3ds flow not implemented');
             return;
           }
           this.challengeIframeHeight = 400;
@@ -391,9 +446,14 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
   }
 
   /**
-   * Process the challenge response
+   * Processes the challenge response event.
+   * If the challenge handler exists, it removes the event listener for the challenge handler.
+   * Attempts to parse the event data as a WorldpayChallengeResponse.
+   * If the response contains an 'accepted' property, it either calls challengeAccepted or challengeFailed on the order facade.
+   * Logs an error if parsing the event data fails.
+   *
+   * @param {MessageEvent} event - The message event containing the challenge response.
    * @since 6.4.0
-   * @param event MessageEvent
    */
   private processChallenge(event: MessageEvent): void {
     if (this.challengeHandler) {
@@ -413,42 +473,8 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
         return;
       }
     } catch (err) {
-      console.log('Failed to process challenge event data', err);
+      this.logger.error('Failed to process challenge event data', err);
     }
     this.orderFacade.challengeFailed();
-  }
-
-  /**
-   * Place ACH Order
-   * @since 6.4.2
-   * @param achPaymentFormValue
-   */
-  protected placeACHOrder(achPaymentFormValue: ACHPaymentForm): void {
-    this.orderFacade.placeACHOrder(achPaymentFormValue)
-      .pipe(
-        take(1),
-        takeUntil(this.drop)
-      ).subscribe({
-        error: (): void => {
-          this.orderFacade.clearLoading();
-        },
-      });
-  }
-
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    if (this.ddcHandler) {
-      this.nativeWindow.removeEventListener('message', this.ddcHandler, true);
-    }
-    if (this.challengeHandler) {
-      this.nativeWindow.removeEventListener('message', this.challengeHandler, true);
-    }
-
-    if (this.listenerFn) {
-      this.listenerFn();
-    }
-
-    this.drop.next();
-    this.drop.complete();
   }
 }

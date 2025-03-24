@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
-import { Address } from '@spartacus/core';
-import { makeFormErrorsVisible } from '../../../../core/utils/make-form-errors-visible';
-import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../../../core/interfaces';
 import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
+import { Address } from '@spartacus/core';
+import { makeFormErrorsVisible } from '@worldpay-utils/make-form-errors-visible';
+import { BehaviorSubject } from 'rxjs';
+import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../../../core/interfaces';
 
 @Component({
   selector: 'y-worldpay-apm-ideal',
@@ -13,11 +13,14 @@ import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/comp
 })
 export class WorldpayApmIdealComponent implements OnDestroy {
   @Input() apm: ApmData;
-  @Output() setPaymentDetails = new EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }>();
+  @Output() setPaymentDetails: EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }> = new EventEmitter<{
+    paymentDetails: ApmPaymentDetails;
+    billingAddress: Address
+  }>();
   @Output() back: EventEmitter<void> = new EventEmitter<void>();
 
   public billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
-  public submitting$ = new BehaviorSubject<boolean>(false);
+  public submitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public sameAsShippingAddress: boolean = true;
 
   /**
@@ -36,7 +39,7 @@ export class WorldpayApmIdealComponent implements OnDestroy {
    * @protected
    * @since 2211.27.0
    */
-  protected billingAddressFormService = inject(
+  protected billingAddressFormService: CheckoutBillingAddressFormService = inject(
     CheckoutBillingAddressFormService
   );
 
@@ -65,7 +68,7 @@ export class WorldpayApmIdealComponent implements OnDestroy {
     const {
       valid,
       value
-    } = this.idealForm;
+    }: UntypedFormGroup = this.idealForm;
 
     this.sameAsShippingAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
 
@@ -83,7 +86,7 @@ export class WorldpayApmIdealComponent implements OnDestroy {
 
       this.submitting$.next(true);
 
-      let billingAddress = null;
+      let billingAddress: Address = null;
       if (!this.sameAsShippingAddress) {
         billingAddress = this.billingAddressFormService.getBillingAddress();
       }

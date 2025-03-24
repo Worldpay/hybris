@@ -1,7 +1,7 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Address, ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
 import { OccWorldpayGooglepayAdapter } from './occ-worldpay-googlepay.adapter';
 
 const userId = 'userId';
@@ -179,6 +179,53 @@ describe('OccWorldpayGooglepayAdapter', () => {
       expect(mockReq.cancelled).toBeFalsy();
 
       mockReq.flush({});
+    });
+  });
+
+  it('should handle error when getGooglePayMerchantConfiguration fails', () => {
+    const userId = 'user123';
+    const cartId = 'cart123';
+
+    service.getGooglePayMerchantConfiguration(userId, cartId).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+      }
+    });
+
+    const mockReq = httpMock.expectOne(req =>
+      req.method === 'GET' &&
+      req.urlWithParams === 'getGooglePayMerchantConfiguration'
+    );
+
+    expect(mockReq.cancelled).toBeFalsy();
+    mockReq.flush('Error', {
+      status: 500,
+      statusText: 'Server Error'
+    });
+  });
+
+  it('should handle error when authoriseGooglePayPayment fails', () => {
+    const userId = 'user123';
+    const cartId = 'cart123';
+    const token = 'invalid-token';
+    const billingAddress = { line1: '123 Main St' };
+    const saved = false;
+
+    service.authoriseGooglePayPayment(userId, cartId, token, billingAddress, saved).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+      }
+    });
+
+    const mockReq = httpMock.expectOne(req =>
+      req.method === 'POST' &&
+      req.urlWithParams === 'authoriseGooglePayPayment'
+    );
+
+    expect(mockReq.cancelled).toBeFalsy();
+    mockReq.flush('Error', {
+      status: 500,
+      statusText: 'Server Error'
     });
   });
 });

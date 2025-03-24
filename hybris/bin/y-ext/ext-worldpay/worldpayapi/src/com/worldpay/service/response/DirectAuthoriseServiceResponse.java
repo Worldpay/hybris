@@ -1,12 +1,13 @@
 package com.worldpay.service.response;
 
-import com.worldpay.enums.order.ThreeDSecureFlowEnum;
-import com.worldpay.enums.order.ThreeDSecureVersionEnum;
-import com.worldpay.service.WorldpayServiceGateway;
+import com.worldpay.data.ExemptionResponseInfo;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.RedirectReference;
 import com.worldpay.data.Request3DInfo;
 import com.worldpay.data.token.TokenReply;
+import com.worldpay.enums.order.ThreeDSecureFlowEnum;
+import com.worldpay.enums.order.ThreeDSecureVersionEnum;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +31,7 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
     private RedirectReference redirectReference;
     private TokenReply token;
     private String echoData;
+    private ExemptionResponseInfo exemptionResponseInfo;
 
     /**
      * Determines if the response needs 3d secure authentication.
@@ -115,5 +117,13 @@ public class DirectAuthoriseServiceResponse extends AbstractServiceResponse {
 
     public void setToken(final TokenReply token) {
         this.token = token;
+    }
+
+    public ExemptionResponseInfo getExemptionResponseInfo() {
+        return exemptionResponseInfo;
+    }
+
+    public void setExemptionResponseInfo(final ExemptionResponseInfo exemptionResponseInfo) {
+        this.exemptionResponseInfo = exemptionResponseInfo;
     }
 }

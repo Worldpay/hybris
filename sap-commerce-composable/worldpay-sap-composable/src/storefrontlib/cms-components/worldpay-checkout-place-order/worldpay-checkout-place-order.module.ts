@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { I18nModule, provideConfig, UrlModule } from '@spartacus/core';
-import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
-import { FormErrorsModule, IconModule, SpinnerModule } from '@spartacus/storefront';
-import { ReactiveFormsModule } from '@angular/forms';
-import { WorldpayCheckoutPaymentConnector } from '../../../core/connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
-import { OccWorldpayCheckoutPaymentAdapter } from '../../../core/occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
-import { WorldpayCheckoutPaymentAdapter } from '../../../core/connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
 import { OrderFacade } from '@spartacus/order/root';
+import { FormErrorsModule, IconModule, SpinnerModule } from '@spartacus/storefront';
+import { WorldpayCheckoutPaymentAdapter } from '@worldpay-connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
+import { WorldpayCheckoutPaymentConnector } from '@worldpay-connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
+import { OccWorldpayCheckoutPaymentAdapter } from '@worldpay-occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
 import { WorldpayOrderService } from '../../../core/services';
+import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
 
 @NgModule({
   imports: [

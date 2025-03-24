@@ -5,6 +5,8 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.data.Amount;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayExemptionService;
+import com.worldpay.service.payment.WorldpayExemptionStrategy;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
@@ -49,6 +51,8 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
     private WorldpayOrderService worldpayOrderServiceMock;
     @Mock
     private WorldpayFraudSightStrategy worldpayFraudSightStrategyMock;
+    @Mock
+    private WorldpayExemptionStrategy worldpayExemptionStrategyMock;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderNotificationMessage orderNotificationMessageMock;
@@ -68,7 +72,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
     private BaseSiteModel siteMock;
 
     private List<PaymentTransactionEntryModel> pendingAuthorizationTransactionEntries;
-    private TransactionOperations transactionOperationsMock = new TransactionOperations() {
+    private final TransactionOperations transactionOperationsMock = new TransactionOperations() {
         @Override
         public <T> T execute(final TransactionCallback<T> transactionCallback) throws TransactionException {
             return transactionCallback.doInTransaction(transactionStatusMock);
@@ -77,7 +81,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
 
     @Before
     public void setUp() {
-        testObj = new DefaultAuthorisedOrderNotificationProcessorStrategy(modelServiceMock, transactionOperationsMock, worldpayPaymentTransactionServiceMock, worldpayPaymentInfoServiceMock, worldpayOrderServiceMock, worldpayFraudSightStrategyMock);
+        testObj = new DefaultAuthorisedOrderNotificationProcessorStrategy(modelServiceMock, transactionOperationsMock, worldpayPaymentTransactionServiceMock, worldpayPaymentInfoServiceMock, worldpayOrderServiceMock, worldpayFraudSightStrategyMock, worldpayExemptionStrategyMock);
         pendingAuthorizationTransactionEntries = Arrays.asList(paymentTransactionEntryModelMock, paymentTransactionEntryModelMock);
         when(worldpayPaymentTransactionServiceMock.getPendingPaymentTransactionEntriesForType(paymentTransactionModelMock, AUTHORIZATION)).thenReturn(pendingAuthorizationTransactionEntries);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
@@ -118,6 +122,22 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategyTest {
         verify(modelServiceMock).save(paymentTransactionModelMock);
         verify(worldpayPaymentTransactionServiceMock).addRiskScore(paymentTransactionModelMock, paymentReplyMock);
         verify(worldpayFraudSightStrategyMock).addFraudSight(paymentTransactionModelMock, paymentReplyMock);
+    }
+
+    @Test
+    public void processNotificationMessage_WhenEEEnabled_shouldProcessAuthorisedNotificationAndSetRiskScoreAndSetFraudSight() throws WorldpayConfigurationException {
+        when(worldpayExemptionStrategyMock.isExemptionEnabled(siteMock)).thenReturn(true);
+
+        testObj.processNotificationMessage(paymentTransactionModelMock, orderNotificationMessageMock);
+
+        verify(worldpayPaymentTransactionServiceMock).updateEntriesStatus(pendingAuthorizationTransactionEntries, ACCEPTED.name());
+        verify(worldpayPaymentTransactionServiceMock).updateEntriesAmount(pendingAuthorizationTransactionEntries, paymentReplyMock.getAmount());
+        verify(paymentTransactionModelMock).setPlannedAmount(BigDecimal.valueOf(10.6d));
+        verify(worldpayPaymentInfoServiceMock).setPaymentInfoModel(paymentTransactionModelMock, orderModelMock, orderNotificationMessageMock);
+        verify(paymentTransactionModelMock).setApmOpen(false);
+        verify(modelServiceMock).save(paymentTransactionModelMock);
+        verify(worldpayPaymentTransactionServiceMock).addRiskScore(paymentTransactionModelMock, paymentReplyMock);
+        verify(worldpayExemptionStrategyMock).addExemptionResponse(paymentTransactionModelMock, paymentReplyMock);
     }
 
     @Test

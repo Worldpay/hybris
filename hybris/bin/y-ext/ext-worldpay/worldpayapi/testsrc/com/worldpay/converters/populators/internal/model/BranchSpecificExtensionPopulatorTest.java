@@ -49,7 +49,7 @@ public class BranchSpecificExtensionPopulatorTest {
         final com.worldpay.internal.model.BranchSpecificExtension target = new com.worldpay.internal.model.BranchSpecificExtension();
         testObj.populate(sourceMock, target);
 
-        assertThat(target.getAirlineOrPurchaseOrHotelOrLodging()).isEmpty();
+        assertThat(target.getAirlineOrRailwayOrCarRentalOrPurchaseOrHotelOrLodgingOrFerryOrEvents()).isEmpty();
     }
 
     @Test
@@ -60,6 +60,6 @@ public class BranchSpecificExtensionPopulatorTest {
         final com.worldpay.internal.model.BranchSpecificExtension target = new com.worldpay.internal.model.BranchSpecificExtension();
         testObj.populate(sourceMock, target);
 
-        assertThat(target.getAirlineOrPurchaseOrHotelOrLodging()).isEqualTo(List.of(intPurchaseMock));
+        assertThat(target.getAirlineOrRailwayOrCarRentalOrPurchaseOrHotelOrLodgingOrFerryOrEvents()).isEqualTo(List.of(intPurchaseMock));
     }
 }

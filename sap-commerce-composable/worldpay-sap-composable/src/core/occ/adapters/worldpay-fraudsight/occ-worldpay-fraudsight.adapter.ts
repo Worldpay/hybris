@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { ConverterService, OccEndpointsService } from '@spartacus/core';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { WorldpayFraudsightAdapter } from '../../../connectors/worldpay-fraudsight/worldpay-fraudsight.adapter';
 
@@ -19,7 +19,8 @@ export class OccWorldpayFraudsightAdapter implements WorldpayFraudsightAdapter {
    * @since 6.4.0
    */
   isFraudSightEnabled(): Observable<boolean> {
-    const url = this.occEndpoints.buildUrl('isFraudSightEnabled');
+    const url: string = this.occEndpoints.buildUrl('isFraudSightEnabled');
+    // eslint-disable-next-line @typescript-eslint/typedef
     const options = {
       responseType: 'text' as 'json'
     };

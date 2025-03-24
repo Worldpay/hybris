@@ -1,20 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { backOff, ConverterService, isJaloError, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
-import { catchError } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { backOff, ConverterService, HttpErrorModel, isJaloError, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
-import { ACHBankAccountType, ACHPaymentForm } from '../../../interfaces';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { WorldpayACHAdapter } from '../../../connectors/worldpay-ach/worldpay-ach.adapter';
+import { ACHBankAccountType, ACHPaymentForm } from '../../../interfaces';
 
 @Injectable()
 export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
   /**
-   * Constructor
-   * @param http HttpClient
-   * @param occEndpoints OccEndpointsService
-   * @param converter ConverterService
-   * @param loggerService LoggerService
+   * Constructor for OccWorldpayACHAdapter
+   * @param {HttpClient} http - The HTTP client for making requests
+   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoint URLs
+   * @param {ConverterService} converter - Service for converting data
+   * @param {LoggerService} loggerService - Service for logging errors
    */
   constructor(
     protected http: HttpClient,
@@ -25,17 +25,18 @@ export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
   }
 
   /**
-   * Redirect authorise APM payment
+   * Get ACH Bank Account Types
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @returns {Observable<ACHBankAccountType[]>} An observable that emits the list of ACH bank account types.
    * @since 6.4.2
-   * @param userId - User ID
-   * @param cartId - Cart ID
    */
   getACHBankAccountTypes(
     userId: string,
     cartId: string,
   ): Observable<ACHBankAccountType[]> {
 
-    const url = this.occEndpoints.buildUrl(
+    const url: string = this.occEndpoints.buildUrl(
       'getACHBankAccountTypes',
       {
         urlParams: {
@@ -51,18 +52,19 @@ export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
   }
 
   /**
-   * Get a list of all available APM's for the given cart
+   * Place an ACH order
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @param {ACHPaymentForm} achPaymentForm - ACH Payment Form
+   * @returns {Observable<Order>} An observable that emits the order details.
    * @since 4.3.6
-   * @param userId - User ID
-   * @param cartId - Cart ID
-   * @param achPaymentForm - ACH Payment Form
    */
   placeACHOrder(
     userId: string,
     cartId: string,
     achPaymentForm: ACHPaymentForm
   ): Observable<Order> {
-    const body = achPaymentForm;
+    const body: ACHPaymentForm = achPaymentForm;
     const url: string = this.occEndpoints.buildUrl(
       'placeACHOrder',
       {
@@ -73,7 +75,7 @@ export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
       }
     );
     return this.http.post<Order>(url, body).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })

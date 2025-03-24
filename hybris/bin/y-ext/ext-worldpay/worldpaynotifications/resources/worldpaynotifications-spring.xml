@@ -172,6 +172,7 @@
         <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
         <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
         <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
+        <constructor-arg name="worldpayExemptionStrategy" ref="worldpayExemptionStrategy"/>
     </bean>
 
     <alias alias="capturedOrderNotificationProcessorStrategy" name="defaultCapturedOrderNotificationProcessorStrategy"/>

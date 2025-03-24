@@ -60,7 +60,6 @@ public class DefaultWorldpayServiceGatewayTest {
     private GenericDao<AbstractOrderModel> abstractOrderGenericDaoMock;
     @Mock
     private ModelService modelServiceMock;
-
     @Mock
     private Configuration configurationMock;
     @Mock

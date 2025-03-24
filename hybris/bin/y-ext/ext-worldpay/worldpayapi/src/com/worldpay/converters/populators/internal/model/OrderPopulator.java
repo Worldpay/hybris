@@ -1,6 +1,7 @@
 package com.worldpay.converters.populators.internal.model;
 
 import com.worldpay.data.BranchSpecificExtension;
+import com.worldpay.data.Exemption;
 import com.worldpay.data.Order;
 import com.worldpay.data.OrderLines;
 import com.worldpay.data.token.TokenRequest;
@@ -8,7 +9,7 @@ import com.worldpay.internal.model.*;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +25,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
     protected final Converter<BranchSpecificExtension, com.worldpay.internal.model.BranchSpecificExtension> internalBranchSpecificExtensionConverter;
     protected final Converter<TokenRequest, CreateToken> internalTokenRequestConverter;
     protected final Converter<OrderLines, com.worldpay.internal.model.OrderLines> internalOrderLinesConverter;
+    protected final Converter<Exemption, com.worldpay.internal.model.Exemption> internalExemptionConverter;
     protected final PaymentOrderConvertersWrapper paymentOrderConvertersWrapper;
     protected final ThreeDS2OrderConvertersWrapper threeDS2OrderConvertersWrapper;
     protected final BasicOrderConvertersWrapper basicOrderConvertersWrapper;
@@ -32,6 +34,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
     public OrderPopulator(final Converter<BranchSpecificExtension, com.worldpay.internal.model.BranchSpecificExtension> internalBranchSpecificExtensionConverter,
                           final Converter<TokenRequest, CreateToken> internalTokenRequestConverter,
                           final Converter<OrderLines, com.worldpay.internal.model.OrderLines> internalOrderLinesConverter,
+                          final Converter<Exemption, com.worldpay.internal.model.Exemption> internalExemptionConverter,
                           final PaymentOrderConvertersWrapper paymentOrderConvertersWrapper,
                           final ThreeDS2OrderConvertersWrapper threeDS2OrderConvertersWrapper,
                           final BasicOrderConvertersWrapper basicOrderConvertersWrapper,
@@ -40,6 +43,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         this.internalBranchSpecificExtensionConverter = internalBranchSpecificExtensionConverter;
         this.internalTokenRequestConverter = internalTokenRequestConverter;
         this.internalOrderLinesConverter = internalOrderLinesConverter;
+        this.internalExemptionConverter = internalExemptionConverter;
         this.paymentOrderConvertersWrapper = paymentOrderConvertersWrapper;
         this.threeDS2OrderConvertersWrapper = threeDS2OrderConvertersWrapper;
         this.basicOrderConvertersWrapper = basicOrderConvertersWrapper;
@@ -54,7 +58,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         validateParameterNotNull(source, "Source must not be null!");
         validateParameterNotNull(target, "Target list must not be null!");
 
-        final List<Object> childElements = target.getDescriptionOrAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrInfo3DSecureOrSession();
+        final List<Object> childElements = target.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession();
 
         Optional.ofNullable(source.getOrderCode())
                 .ifPresent(target::setOrderCode);
@@ -159,7 +163,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
                     final Info3DSecure intInfo3dSecure = new Info3DSecure();
                     final PaResponse intPaResponse = new PaResponse();
                     intPaResponse.setvalue(paResponse);
-                    intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrDelegatedAuthenticationOrTransactionStatusReasonOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
+                    intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrThreeRIOrDelegatedAuthenticationOrTransactionStatusReasonOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
                     childElements.add(intInfo3dSecure);
                 });
 
@@ -185,6 +189,10 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
 
         Optional.ofNullable(source.getAdditional3DSData())
                 .map(threeDS2OrderConvertersWrapper.internalAdditional3DSDataConverter::convert)
+                .ifPresent(childElements::add);
+
+        Optional.ofNullable(source.getExemption())
+                .map(internalExemptionConverter::convert)
                 .ifPresent(childElements::add);
 
         Optional.ofNullable(source.getFraudSightData())

@@ -31,7 +31,7 @@ Release information: [https://sap.github.io/spartacus-docs/release-information/]
 
 ## Compatibility
 
-The Connector is compatible with the Spartacus Release 2211.27.0
+The Connector is compatible with the Spartacus Release 2211.32.1
 
 ## Installation & Usage
 
@@ -43,15 +43,23 @@ Run the command `./install.sh` to do a clean install and run the example-storefr
 
 - Install `@worldpay2020/sap-composable` to your Spartacus project - final name pending
 
-```
-  npm install @worldpay2020/sap-composable
-```
+    - #### Using npm
+    ```bash
+     npm install @worldpay2020/sap-composable
+    ```
+    - #### Using npm   (specific version)
+   ```bash
+     npm install @worldpay2020/sap-composable@2211.32.1
+    ```
 
-or
-
-```
-  npm install @worldpay2020/sap-composable@2211.27.0
-```
+    - #### Using yarn
+    ```bash
+    yarn install @worldpay2020/sap-composable
+    ```
+    - #### Using yarn   (specific version)
+    ```bash
+    yarn install @worldpay2020/sap-composable@2211.32.1
+    ```
 
 ## Configuring SAP Composable Storefront
 
@@ -71,11 +79,12 @@ import { WorldpayModule } from '@worldpay2020/sap-composable';
 **Note:** WorldpayModule will include the following modules:
 
 ```typescript 
+
 @NgModule({
   imports: [
-    ...
-      OccWorldpayModule,
-    WorldpayFraudsightRiskModule,
+  ...
+    CommonModule,
+    OccWorldpayModule,
     WorldpayCheckoutPaymentMethodModule,
     WorldpayCheckoutDeliveryAddressModule,
     WorldpayDdcIframeModule,
@@ -87,14 +96,6 @@ import { WorldpayModule } from '@worldpay2020/sap-composable';
     WorldpayOrderConfirmationModule,
     WorldpayOrderDetailsModule,
   ],
-  ...
-})
-```
-
-- Add additional translations
-
-```typescript
-@NgModule({
   providers: [
     provideConfig({
       i18n: {
@@ -107,9 +108,17 @@ import { WorldpayModule } from '@worldpay2020/sap-composable';
       deps: [PlatformLocation]
     },
     ...worldpayFacadeProviders,
-  ],
-})
 
+    provideFeatureTogglesFactory(() => {
+      const appFeatureToggles: any = {
+        a11yCheckoutDeliveryFocus: true,
+        useExtractedBillingAddressComponent: true,
+      };
+      return appFeatureToggles;
+    })
+  ],
+  ...
+})
 export class WorldpayModule {
 }
 ```
@@ -202,9 +211,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-### Release 2211.27.0
+### Release 2211.2X
 
-* Compatible with SAP Commerce Cloud 2211.27.0
+* Compatible with SAP Commerce Cloud 2211.2X
 * Supported APM’s:
 
 | Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |

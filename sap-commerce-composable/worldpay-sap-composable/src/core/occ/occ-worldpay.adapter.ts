@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Address, ConverterService, LoggerService, normalizeHttpError, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { Address, ConverterService, HttpErrorModel, LoggerService, OccEndpointsService, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -18,6 +18,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
   }
 
   public getPublicKey(): Observable<string> {
+    // eslint-disable-next-line @typescript-eslint/typedef
     const options = {
       responseType: 'text' as 'json'
     };
@@ -35,6 +36,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
     address: Address
   ): Observable<Address> {
 
+    // eslint-disable-next-line @typescript-eslint/typedef
     const body = {
       ...address,
       visibleInAddressBook: false,
@@ -66,6 +68,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
     deviceSession: string,
     browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse> {
+    // eslint-disable-next-line @typescript-eslint/typedef
     const body = {
       ...paymentDetails,
       challengeWindowSize,
@@ -76,7 +79,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
       browserInfo
     };
 
-    const url = this.occEndpoints.buildUrl(
+    const url: string = this.occEndpoints.buildUrl(
       'initialPaymentRequest',
       {
         urlParams: {
@@ -111,7 +114,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
       }
     );
     return this.http.get(url).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
 }

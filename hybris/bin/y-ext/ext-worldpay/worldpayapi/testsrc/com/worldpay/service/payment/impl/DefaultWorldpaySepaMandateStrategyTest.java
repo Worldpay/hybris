@@ -30,9 +30,9 @@ public class DefaultWorldpaySepaMandateStrategyTest {
     @Mock
     private WorldpayAdditionalInfoData worldpayAdditionalInfoDataMock;
 
-    private List<PaymentType> listWithSEPAPayment = List.of(PaymentType.SEPA);
-    private List<PaymentType> listWithoutSEPAPayment = List.of(PaymentType.SOFORT);
-    private List<PaymentType> listWitNullModelClass = List.of(PaymentType.ONLINE);
+    private final List<PaymentType> listWithSEPAPayment = List.of(PaymentType.SEPA);
+    private final List<PaymentType> listWithoutSEPAPayment = List.of(PaymentType.KLARNAV2SSL);
+    private final List<PaymentType> listWitNullModelClass = List.of(PaymentType.ONLINE);
 
     @Test
     public void populateRequestWithAdditionalData_WhenGetIncludedPTsIsNull_ShouldNotPopulateMandateType() {

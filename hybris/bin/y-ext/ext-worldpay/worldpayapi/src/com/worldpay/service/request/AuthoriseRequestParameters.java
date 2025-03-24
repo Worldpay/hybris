@@ -11,6 +11,7 @@ import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.service.model.payment.PaymentType;
 
 import java.util.List;
+import java.util.Optional;
 
 public final class AuthoriseRequestParameters {
     private MerchantInfo merchantInfo;
@@ -41,6 +42,8 @@ public final class AuthoriseRequestParameters {
     private GuaranteedPaymentsData guaranteedPaymentsData;
     private String checkoutId;
     private AlternativeShippingAddress alternativeShippingAddress;
+    private Exemption exemption;
+    private String routingMID;
 
     private AuthoriseRequestParameters() {
     }
@@ -213,6 +216,21 @@ public final class AuthoriseRequestParameters {
         this.alternativeShippingAddress = alternativeShippingAddress;
     }
 
+    public Exemption getExemption() {
+        return exemption;
+    }
+
+    public void setExemption(final Exemption exemption) {
+        this.exemption = exemption;
+    }
+
+    public String getRoutingMID() {
+        return routingMID;
+    }
+
+    public void setRoutingMID(String routingMID) {
+        this.routingMID = routingMID;
+    }
 
     public interface AuthoriseRequestParametersCreator {
         AuthoriseRequestParametersCreator withOrderLines(OrderLines orderLines);
@@ -268,7 +286,12 @@ public final class AuthoriseRequestParameters {
         AuthoriseRequestParametersCreator withGuaranteedPaymentsData(GuaranteedPaymentsData guaranteedPaymentsData);
 
         AuthoriseRequestParametersCreator withCheckoutId(String checkoutId);
+
         AuthoriseRequestParametersCreator withAlternativeShippingAddress(AlternativeShippingAddress alternativeShippingAddress);
+
+        AuthoriseRequestParametersCreator withExemption(Exemption exemption);
+
+        AuthoriseRequestParametersCreator withRoutingMID(String routingMID);
 
         AuthoriseRequestParameters build();
     }
@@ -302,8 +325,9 @@ public final class AuthoriseRequestParameters {
         private String mandateType;
         private GuaranteedPaymentsData guaranteedPaymentsData;
         private String checkoutId;
-
+        private Exemption exemption;
         private AlternativeShippingAddress alternativeShippingAddress;
+        private String routingMID;
 
         private AuthoriseRequestParametersBuilder() {
         }
@@ -486,6 +510,18 @@ public final class AuthoriseRequestParameters {
         }
 
         @Override
+        public AuthoriseRequestParametersCreator withExemption(final Exemption exemption) {
+            this.exemption = exemption;
+            return this;
+        }
+
+        @Override
+        public AuthoriseRequestParametersCreator withRoutingMID(String routingMID) {
+            this.routingMID = routingMID;
+            return this;
+        }
+
+        @Override
         public AuthoriseRequestParameters build() {
             final AuthoriseRequestParameters parameters = new AuthoriseRequestParameters();
 
@@ -517,6 +553,8 @@ public final class AuthoriseRequestParameters {
             parameters.guaranteedPaymentsData = guaranteedPaymentsData;
             parameters.checkoutId = checkoutId;
             parameters.alternativeShippingAddress = alternativeShippingAddress;
+            parameters.exemption = exemption;
+            parameters.routingMID = routingMID;
 
             return parameters;
         }
@@ -552,7 +590,9 @@ public final class AuthoriseRequestParameters {
             ", guaranteedPaymentsData='" + guaranteedPaymentsData + '\'' +
             ", checkoutId='" + checkoutId + '\'' +
             ", alternativeShippingAddress='" + alternativeShippingAddress + '\'' +
-            ", action=" + action.name() +
+            ", exemption='" + exemption + '\'' +
+            ", routingMID='" + routingMID + '\'' +
+            ", action=" + Optional.ofNullable(action).map(Enum::name).orElse(null) +
             '}';
     }
 }

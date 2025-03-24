@@ -136,7 +136,7 @@ public class WorldpayCartsControllerTest {
     @Before
     public void setUp() throws WorldpayException, InvalidCartException {
         lenient().when(dataMapperMock.map(addressWsDTOMock, AddressData.class, DEFAULT_LEVEL)).thenReturn(addressDataMock);
-        when(apmAvailabilityFacadeMock.isAvailable(or(eq(PaymentType.IDEAL.getMethodCode()), eq(PaymentType.CHINA_UNION_PAY.getMethodCode())))).thenReturn(Boolean.TRUE);
+        when(apmAvailabilityFacadeMock.isAvailable(or(eq(PaymentType.IDEAL.getMethodCode()), eq(PaymentType.VISA.getMethodCode())))).thenReturn(Boolean.TRUE);
         doReturn(SESSION_ID).when(testObj).getSessionId(requestMock);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(Boolean.TRUE);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
@@ -420,11 +420,11 @@ public class WorldpayCartsControllerTest {
     @Test
     public void getRedirectAuthorise_WhenIsNotBankTransfer_ShouldCallRedirectAuthorise() throws WorldpayException {
         final PaymentRequestData paymentRequestData = new PaymentRequestData();
-        paymentRequestData.setPaymentMethod(PaymentType.CHINA_UNION_PAY.getMethodCode());
+        paymentRequestData.setPaymentMethod(PaymentType.VISA.getMethodCode());
 
         doReturn(SESSION_ID).when(testObj).getSessionId(requestMock);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
-        when(worldpayBankConfigurationFacadeMock.isBankTransferApm(PaymentType.CHINA_UNION_PAY.getMethodCode())).thenReturn(Boolean.FALSE);
+        when(worldpayBankConfigurationFacadeMock.isBankTransferApm(PaymentType.VISA.getMethodCode())).thenReturn(Boolean.FALSE);
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(AdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);
 
         testObj.getRedirectAuthorise(paymentRequestData, requestMock, FieldSetLevelHelper.FULL_LEVEL);

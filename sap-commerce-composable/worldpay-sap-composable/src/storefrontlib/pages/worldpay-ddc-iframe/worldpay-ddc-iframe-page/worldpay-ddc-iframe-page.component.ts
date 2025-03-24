@@ -1,20 +1,20 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { WindowRef } from '@spartacus/core';
+import { ActivatedRoute } from '@angular/router';
+import { LoggerService, WindowRef } from '@spartacus/core';
 
 @Component({
   templateUrl: './worldpay-ddc-iframe-page.component.html'
 })
 export class WorldpayDdcIframePageComponent implements OnInit, AfterViewInit {
+  action: SafeResourceUrl;
+  bin: string;
+  jwt: string;
+  protected logger: LoggerService = inject(LoggerService);
   private readonly ACTION_ROUTE_PARAM: string = 'action';
   private readonly BIN_ROUTE_PARAM: string = 'bin';
   private readonly JWT_ROUTE_PARAM: string = 'jwt';
   private readonly FORM_SELECTOR: string = '#collectionForm';
-
-  action: SafeResourceUrl;
-  bin: string;
-  jwt: string;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -33,7 +33,7 @@ export class WorldpayDdcIframePageComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!this.winRef.isBrowser()) {
-      console.log('SSR - skipping WorldpayDdcIframePageComponent After View Init');
+      this.logger.log('SSR - skipping WorldpayDdcIframePageComponent After View Init');
       return;
     }
 

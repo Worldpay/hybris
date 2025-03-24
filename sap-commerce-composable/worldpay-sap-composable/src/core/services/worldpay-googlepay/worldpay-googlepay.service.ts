@@ -1,26 +1,29 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
-import { Command, CommandService, CommandStrategy, EventService, GlobalMessageService, OCC_USER_ID_ANONYMOUS, UserIdService } from '@spartacus/core';
-import { map, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
-import { GooglePayMerchantConfiguration, GooglepayPaymentRequest, GooglePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
-import { WorldpayGooglePayConnector } from '../../connectors/worldpay-googlepay/worldpay-googlepay.connector';
-import { GooglePayMerchantConfigurationSetEvent } from '../../events/googlepay.events';
-import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
+import { Address, Command, CommandService, CommandStrategy, EventService, GlobalMessageService, LoggerService, OCC_USER_ID_ANONYMOUS, UserIdService } from '@spartacus/core';
 import { OrderPlacedEvent } from '@spartacus/order/root';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { map, switchMap, take, tap } from 'rxjs/operators';
+import { WorldpayGooglePayConnector } from '../../connectors/worldpay-googlepay/worldpay-googlepay.connector';
 import { ClearWorldpayPaymentStateEvent } from '../../events';
+import { GooglePayMerchantConfigurationSetEvent } from '../../events/googlepay.events';
+import { GooglePayMerchantConfiguration, GooglepayPaymentRequest, GooglePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
+import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WorldpayGooglepayService implements OnDestroy {
+export class WorldpayGooglepayService {
 
   protected googlePayMerchantConfiguration$: BehaviorSubject<GooglePayMerchantConfiguration> = new BehaviorSubject<GooglePayMerchantConfiguration>(null);
-  protected drop: Subject<void> = new Subject<void>();
+  protected destroyRef: DestroyRef = inject(DestroyRef);
+  protected logger: LoggerService = inject(LoggerService);
 
   protected requestMerchantConfigurationCommand: Command<void, GooglePayMerchantConfiguration> = this.commandService.create<void>(
-    () => this.checkoutPreconditions().pipe(
-      switchMap(([userId, cartId]) => this.worldpayGooglePayConnector.getGooglePayMerchantConfiguration(userId, cartId).pipe(
+    (): Observable<GooglePayMerchantConfiguration> => this.checkoutPreconditions().pipe(
+      switchMap(([userId, cartId]: [string, string]): Observable<GooglePayMerchantConfiguration> =>
+        this.worldpayGooglePayConnector.getGooglePayMerchantConfiguration(userId, cartId).pipe(
           tap((response: GooglePayMerchantConfiguration): void => {
             this.eventService.dispatch({
               googlePayMerchantConfiguration: response
@@ -37,10 +40,11 @@ export class WorldpayGooglepayService implements OnDestroy {
       ({
         paymentRequest,
         savePaymentMethod
-      }) => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) => {
-          const billingAddress = paymentRequest.paymentMethodData.info.billingAddress;
-          const token = JSON.parse(paymentRequest.paymentMethodData.tokenizationData.token);
+      }: { paymentRequest: GooglePayPaymentRequest; savePaymentMethod: boolean }): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<PlaceOrderResponse> => {
+          const billingAddress: Address = paymentRequest.paymentMethodData.info.billingAddress;
+          // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+          const token: any = JSON.parse(paymentRequest.paymentMethodData.tokenizationData.token);
           return this.worldpayGooglePayConnector.authoriseGooglePayPayment(userId, cartId, token, billingAddress, savePaymentMethod).pipe(
             tap((response: PlaceOrderResponse): void => {
               this.eventService.dispatch({}, ClearWorldpayPaymentStateEvent);
@@ -88,30 +92,6 @@ export class WorldpayGooglepayService implements OnDestroy {
   }
 
   /**
-   * Listen to GooglePayMerchantConfigurationSetEvent
-   * @since 6.4.0
-   */
-  protected onGooglePayMerchantConfigurationSetEvent(): void {
-    this.eventService.get(GooglePayMerchantConfigurationSetEvent).subscribe({
-      next: (event: GooglePayMerchantConfigurationSetEvent): void => {
-        this.setGooglepayMerchantConfiguration(event.googlePayMerchantConfiguration);
-      }
-    });
-  }
-
-  /**
-   * Listen to ClearWorldpayStateEvent
-   * @since 6.4.0
-   */
-  protected onClearWorldpayStateEvent(): void {
-    this.eventService.get(ClearWorldpayPaymentStateEvent).subscribe({
-      next: (): void => {
-        this.setGooglepayMerchantConfiguration(null);
-      }
-    });
-  }
-
-  /**
    * Set the google pay merchant configuration in state
    * @since 6.4.0
    * @param googlePayMerchantConfiguration
@@ -141,24 +121,7 @@ export class WorldpayGooglepayService implements OnDestroy {
    * @since 6.4.0
    */
   public requestMerchantConfiguration(): void {
-    this.executeRequestMerchantConfiguration().pipe(takeUntil(this.drop)).subscribe();
-  }
-
-  /**
-   * Execute Authorise Order Command
-   * @since 6.4.0
-   * @param paymentRequest - GooglePayPaymentRequest
-   * @param savePaymentMethod - boolean 'true' to save payment data.
-   * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
-   */
-  protected executeAuthoriseOrderCommand(
-    paymentRequest: GooglePayPaymentRequest,
-    savePaymentMethod: boolean
-  ): Observable<PlaceOrderResponse> {
-    return this.authoriseOrderCommand.execute({
-      paymentRequest,
-      savePaymentMethod
-    });
+    this.executeRequestMerchantConfiguration().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   /**
@@ -173,13 +136,13 @@ export class WorldpayGooglepayService implements OnDestroy {
   ): void {
     this.executeAuthoriseOrderCommand(paymentRequest, savePaymentMethod).pipe(
       take(1),
-      takeUntil(this.drop)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response: PlaceOrderResponse): void => {
         this.worldpayOrderService.setPlacedOrder(response.order);
       },
       error: (error: unknown): void => {
-        console.log(error);
+        this.logger.log(error);
       }
     });
   }
@@ -268,7 +231,7 @@ export class WorldpayGooglepayService implements OnDestroy {
       this.activeCartFacade.isGuestCart(),
     ]).pipe(
       take(1),
-      map(([userId, cartId, isGuestCart]): [string, string] => {
+      map(([userId, cartId, isGuestCart]: [string, string, boolean]): [string, string] => {
         if (
           !userId ||
           !cartId ||
@@ -281,8 +244,44 @@ export class WorldpayGooglepayService implements OnDestroy {
     );
   }
 
-  ngOnDestroy(): void {
-    this.drop.next();
-    this.drop.complete();
+  /**
+   * Listen to GooglePayMerchantConfigurationSetEvent
+   * @since 6.4.0
+   */
+  protected onGooglePayMerchantConfigurationSetEvent(): void {
+    this.eventService.get(GooglePayMerchantConfigurationSetEvent).subscribe({
+      next: (event: GooglePayMerchantConfigurationSetEvent): void => {
+        this.setGooglepayMerchantConfiguration(event.googlePayMerchantConfiguration);
+      }
+    });
+  }
+
+  /**
+   * Listen to ClearWorldpayStateEvent
+   * @since 6.4.0
+   */
+  protected onClearWorldpayStateEvent(): void {
+    this.eventService.get(ClearWorldpayPaymentStateEvent).subscribe({
+      next: (): void => {
+        this.setGooglepayMerchantConfiguration(null);
+      }
+    });
+  }
+
+  /**
+   * Execute Authorise Order Command
+   * @since 6.4.0
+   * @param paymentRequest - GooglePayPaymentRequest
+   * @param savePaymentMethod - boolean 'true' to save payment data.
+   * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
+   */
+  protected executeAuthoriseOrderCommand(
+    paymentRequest: GooglePayPaymentRequest,
+    savePaymentMethod: boolean
+  ): Observable<PlaceOrderResponse> {
+    return this.authoriseOrderCommand.execute({
+      paymentRequest,
+      savePaymentMethod
+    });
   }
 }

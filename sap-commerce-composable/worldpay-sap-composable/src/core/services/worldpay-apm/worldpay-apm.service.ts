@@ -1,4 +1,7 @@
-import { Inject, Injectable } from '@angular/core';
+import { APP_BASE_HREF, KeyValue, PlatformLocation } from '@angular/common';
+import { inject, Inject, Injectable } from '@angular/core';
+import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
+import { CheckoutDeliveryAddressCreatedEvent, CheckoutDeliveryAddressSetEvent, CheckoutPaymentDetailsSetEvent } from '@spartacus/checkout/base/root';
 import {
   CmsService,
   Command,
@@ -10,6 +13,7 @@ import {
   GlobalMessageService,
   GlobalMessageType,
   HttpErrorModel,
+  LoggerService,
   OCC_USER_ID_ANONYMOUS,
   Query,
   QueryNotifier,
@@ -18,13 +22,8 @@ import {
   UserIdService,
   WindowRef
 } from '@spartacus/core';
-import { map, switchMap, take, tap } from 'rxjs/operators';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { COMPONENT_APM_NORMALIZER } from '../../occ/converters';
-import { ApmData, ApmPaymentDetails, APMRedirectResponse, OccCmsComponentWithMedia, PaymentMethod } from '../../interfaces';
-import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
-import { WorldpayApmFacade } from '../../facade/worldpay-apm-facade';
-import { CheckoutDeliveryAddressCreatedEvent, CheckoutDeliveryAddressSetEvent, CheckoutPaymentDetailsSetEvent } from '@spartacus/checkout/base/root';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 import { WorldpayApmConnector } from '../../connectors/worldpay-apm/worldpay-apm.connector';
 import {
   ClearWorldpayPaymentDetailsEvent,
@@ -33,10 +32,12 @@ import {
   SetWorldpaySaveAsDefaultCreditCardEvent,
   SetWorldpaySavedCreditCardEvent
 } from '../../events/worldpay.events';
-import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
-import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
+import { WorldpayApmFacade } from '../../facade/worldpay-apm-facade';
+import { ApmData, ApmPaymentDetails, APMRedirectResponse, OccCmsComponentWithMedia, PaymentMethod } from '../../interfaces';
+import { COMPONENT_APM_NORMALIZER } from '../../occ/converters';
 import { getBaseHref, trimLastSlashFromUrl } from '../../utils';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
+import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 
 @Injectable({
   providedIn: 'root'
@@ -45,20 +46,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
   baseHref: string;
   protected selectedApm$: BehaviorSubject<ApmPaymentDetails> = new BehaviorSubject<ApmPaymentDetails>(null);
   protected apmRedirectUrl$: BehaviorSubject<APMRedirectResponse> = new BehaviorSubject<APMRedirectResponse>(null);
-
-  /**
-   * Reload events for selected APM
-   * @since 6.4.0
-   * @returns QueryNotifier[] - Array of QueryNotifier
-   */
-  protected reloadSelectedApmEvents(): QueryNotifier[] {
-    return [
-      CurrencySetEvent,
-      CheckoutDeliveryAddressSetEvent,
-      CheckoutDeliveryAddressCreatedEvent
-    ];
-  }
-
+  protected logger: LoggerService = inject(LoggerService);
   /**
    * Command used to get available APMs
    * @since 6.4.0
@@ -66,8 +54,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   protected getAvailableApmQuery$: Query<ApmData[]> =
     this.queryService.create<ApmData[]>(
-      () => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
+      (): Observable<ApmData[]> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<ApmData[]> =>
           this.worldpayApmConnector.getAvailableApms(userId, cartId)
         )
       ),
@@ -77,14 +65,15 @@ export class WorldpayApmService implements WorldpayApmFacade {
     );
 
   /**
-   * Command used to set APM payment details
+   * Command used to set APM payment details.
+   * Executes the command to set the APM payment details and dispatches the CheckoutPaymentDetailsSetEvent.
+   * @type {Command<ApmPaymentDetails, Cart>}
    * @since 6.4.0
-   * @returns Command<ApmPaymentDetails, Cart> - Command with ApmPaymentDetails and Cart
    */
   protected setApmPaymentDetailsCommand$: Command<ApmPaymentDetails, Cart> =
     this.commandService.create<ApmPaymentDetails, Cart>(
-      (apmPaymentDetails: ApmPaymentDetails) => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
+      (apmPaymentDetails: ApmPaymentDetails): Observable<Cart> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<Cart> =>
           this.worldpayApmConnector.setAPMPaymentInfo(
             userId,
             cartId,
@@ -109,16 +98,16 @@ export class WorldpayApmService implements WorldpayApmFacade {
 
   /**
    * Command used to get APM redirect url
-   * @since 6.4.0
    * @returns Command<{ apm: ApmPaymentDetails; save: boolean }, APMRedirectResponse> - Command with ApmPaymentDetails and APMRedirectResponse
+   * @since 6.4.0
    */
   protected getWorldpayAPMRedirectUrlCommand$: Command<{ apm: ApmPaymentDetails; save: boolean }, APMRedirectResponse> =
     this.commandService.create<{ apm: ApmPaymentDetails; save: boolean }, APMRedirectResponse>(
       ({
         apm,
         save
-      }) => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
+      }: { apm: ApmPaymentDetails; save: boolean }): Observable<APMRedirectResponse> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<APMRedirectResponse> =>
           this.worldpayApmConnector.authoriseApmRedirect(userId, cartId, apm, save).pipe(
             tap(
               (apmRedirect: APMRedirectResponse): void => {
@@ -185,7 +174,10 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Checks if the conditions for checkout are met
+   * Checks if the conditions for checkout are met.
+   * Combines the user ID, cart ID, and guest cart status to determine if checkout can proceed.
+   * Throws an error if any of the conditions are not met.
+   * @returns {Observable<[string, string]>} An observable emitting a tuple containing the user ID and cart ID.
    * @since 6.4.0
    */
   checkoutPreconditions(): Observable<[string, string]> {
@@ -195,7 +187,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
       this.activeCartFacade.isGuestCart(),
     ]).pipe(
       take(1),
-      map(([userId, cartId, isGuestCart]): [string, string] => {
+      map(([userId, cartId, isGuestCart]: [string, string, boolean]): [string, string] => {
         if (
           !userId ||
           !cartId ||
@@ -209,7 +201,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Returns the current state of the available apms loading
+   * Returns an observable that emits the loading state of the available APMs.
+   * @returns {Observable<boolean>} An observable emitting a boolean indicating the loading state.
    * @since 6.4.0
    */
   getLoading(): Observable<boolean> {
@@ -217,10 +210,11 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get APM component by id
+   * Retrieves the APM component by its ID and associates it with a payment method code.
+   * @param {string} componentUid - The unique identifier of the component.
+   * @param {PaymentMethod} code - The payment method code to associate with the component.
+   * @returns {Observable<ApmData>} An observable emitting the APM data with the associated payment method code.
    * @since 6.4.0
-   * @param componentUid string
-   * @param code PaymentMethod
    */
   getApmComponentById(componentUid: string, code: PaymentMethod): Observable<ApmData> {
     return this.cmsService.getComponentData<OccCmsComponentWithMedia>(componentUid)
@@ -233,9 +227,10 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get selected APM
+   * Selects an APM (Alternative Payment Method) and updates the selected APM state.
+   * Dispatches the SelectWorldpayAPMEvent with the selected APM details.
+   * @param {ApmPaymentDetails} apm - The APM payment details to select.
    * @since 6.4.0
-   * @param apm
    */
   selectAPM(apm: ApmPaymentDetails): void {
     this.selectedApm$.next(apm);
@@ -243,7 +238,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get selected APM from state
+   * Get selected APM from state.
+   * @returns {Observable<ApmPaymentDetails>} An observable emitting the selected APM payment details.
    * @since 6.4.0
    */
   getSelectedAPMFromState(): Observable<ApmPaymentDetails> {
@@ -251,7 +247,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get selected APM from state
+   * Get selected APM event.
+   * @returns {Observable<ApmData>} An observable emitting the selected APM data.
    * @since 6.4.0
    */
   getSelectedAPMEvent(): Observable<ApmData> {
@@ -261,7 +258,10 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get APM redirect url
+   * Retrieves the Worldpay APM redirect URL.
+   * @param {ApmPaymentDetails} apm - The APM payment details.
+   * @param {boolean} save - Indicates whether to save the payment details.
+   * @returns {Observable<APMRedirectResponse>} An observable emitting the APM redirect response.
    * @since 6.4.0
    */
   getWorldpayAPMRedirectUrl(apm: ApmPaymentDetails, save: boolean): Observable<APMRedirectResponse> {
@@ -272,18 +272,18 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Set APM redirect url
+   * Sets the Worldpay APM redirect URL.
+   * @param {APMRedirectResponse} apmRedirectUrl - The APM redirect response to set.
    * @since 6.4.0
-   * @param apmRedirectUrl APMRedirectResponse
    */
   setWorldpayAPMRedirectUrl(apmRedirectUrl: APMRedirectResponse): void {
     this.apmRedirectUrl$.next(apmRedirectUrl);
   }
 
   /**
-   * Set APM redirect url event
+   * Dispatches the SetWorldpayAPMRedirectResponseEvent with the provided APM redirect URL.
+   * @param {APMRedirectResponse} apmRedirectUrl - The APM redirect response to set and dispatch.
    * @since 6.4.0
-   * @param apmRedirectUrl
    */
   setWorldpayAPMRedirectUrlEvent(apmRedirectUrl: APMRedirectResponse): void {
     this.setWorldpayAPMRedirectUrl(apmRedirectUrl);
@@ -293,7 +293,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get APM redirect url
+   * Retrieves the Worldpay APM redirect URL from the state.
+   * @returns {Observable<APMRedirectResponse>} An observable emitting the APM redirect response.
    * @since 6.4.0
    */
   getWorldpayAPMRedirectUrlFromState(): Observable<APMRedirectResponse> {
@@ -303,13 +304,19 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Redirect authorise APM payment
+   * Retrieves the state of available APMs (Alternative Payment Methods).
+   * @returns {Observable<QueryState<ApmData[]>>} An observable emitting the query state of available APMs.
    * @since 6.4.0
    */
   requestAvailableApmsState(): Observable<QueryState<ApmData[]>> {
     return this.getAvailableApmQuery$.getState();
   }
 
+  /**
+   * Returns an observable that emits the loading state of the available APMs.
+   * @returns {Observable<boolean>} An observable emitting a boolean indicating the loading state.
+   * @since 6.4.0
+   */
   getWorldpayAvailableApmsLoading(): Observable<boolean> {
     return this.requestAvailableApmsState().pipe(
       map((queryState: QueryState<ApmData[]>) => queryState.loading),
@@ -317,7 +324,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get available APMs
+   * Retrieves the available APMs (Alternative Payment Methods).
+   * @returns {Observable<ApmData[]>} An observable emitting an array of APM data.
    * @since 6.4.0
    */
   getWorldpayAvailableApms(): Observable<ApmData[]> {
@@ -327,20 +335,20 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Get Worldpay APM Redirect Url
+   * Retrieves the APM (Alternative Payment Method) redirect URL and updates the state.
+   * @param {ApmData} apm - The APM data.
+   * @param {boolean} save - Indicates whether to save the payment details.
    * @since 6.4.0
-   * @param apm ApmData
-   * @param save boolean
    */
   getAPMRedirectUrl(apm: ApmData, save: boolean): void {
     this.getWorldpayAPMRedirectUrl(apm, save).pipe(
       take(1)
     ).subscribe({
       next: (response: APMRedirectResponse): void => {
-        const apmRedirect = { ...response };
+        const apmRedirect: APMRedirectResponse = { ...response };
         if (apmRedirect?.parameters?.entry?.length > 0) {
-          const currentHost = this.winRef.location.host;
-          apmRedirect.parameters.entry.forEach((entry, index) => {
+          const currentHost: string = this.winRef.location.host;
+          apmRedirect.parameters.entry.forEach((entry: KeyValue<string, string>, index: number): void => {
             const entryValue: string = entry.value.toLowerCase();
             if (entryValue.toLowerCase().includes(currentHost.toLowerCase()) && !entryValue.includes(this.baseHref.toLowerCase())) {
               apmRedirect.parameters.entry[index].value = entryValue.replace(currentHost, currentHost + this.baseHref);
@@ -351,14 +359,16 @@ export class WorldpayApmService implements WorldpayApmFacade {
       },
       error: (error: unknown): void => {
         this.worldpayOrderService.clearLoading();
+        this.logger.error('WorldpayApmService getAPMRedirectUrl error', error);
         this.showErrorMessage(error as HttpErrorModel);
       }
     });
   }
 
   /**
-   * Show error message
-   * @param error HttpErrorModel
+   * Displays an error message using the GlobalMessageService.
+   * @param {HttpErrorModel} error - The error model containing the error details.
+   * @since 6.4.0
    */
   showErrorMessage(error: HttpErrorModel): void {
     const errorMessage: string = error?.details?.[0]?.message || ' ';
@@ -375,22 +385,37 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
-   * Clear Worldpay Payment Details Event
+   * Listens for the SetWorldpaySavedCreditCardEvent and updates the save credit card value in the WorldpayCheckoutPaymentService.
+   * @returns {Observable<void>} An observable that completes when the event is processed.
    * @since 6.4.0
    */
   setWorldpaySavedCreditCardEvent(): Observable<void> {
     return this.eventService.get(SetWorldpaySavedCreditCardEvent).pipe(
-      map((event: SetWorldpaySavedCreditCardEvent) => this.worldpayCheckoutPaymentService.setSaveCreditCardValue(event.saved))
+      map((event: SetWorldpaySavedCreditCardEvent) => this.worldpayCheckoutPaymentService.setSaveCreditCardValue(event?.saved))
     );
   }
 
   /**
-   * Clear Worldpay Payment Details Event
+   * Listens for the SetWorldpaySaveAsDefaultCreditCardEvent and updates the save as default card value in the WorldpayCheckoutPaymentService.
+   * @returns {Observable<void>} An observable that completes when the event is processed.
    * @since 6.4.0
    */
   setWorldpaySaveAsDefaultCreditCardEvent(): Observable<void> {
     return this.eventService.get(SetWorldpaySaveAsDefaultCreditCardEvent).pipe(
-      map((event: SetWorldpaySaveAsDefaultCreditCardEvent) => this.worldpayCheckoutPaymentService.setSaveAsDefaultCardValue(event.saved))
+      map((event: SetWorldpaySaveAsDefaultCreditCardEvent) => this.worldpayCheckoutPaymentService.setSaveAsDefaultCardValue(event?.saved))
     );
+  }
+
+  /**
+   * Reload events for selected APM
+   * @since 6.4.0
+   * @returns QueryNotifier[] - Array of QueryNotifier
+   */
+  protected reloadSelectedApmEvents(): QueryNotifier[] {
+    return [
+      CurrencySetEvent,
+      CheckoutDeliveryAddressSetEvent,
+      CheckoutDeliveryAddressCreatedEvent
+    ];
   }
 }

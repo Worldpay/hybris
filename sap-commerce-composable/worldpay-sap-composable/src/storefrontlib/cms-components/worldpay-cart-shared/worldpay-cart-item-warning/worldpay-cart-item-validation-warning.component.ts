@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { map } from 'rxjs/operators';
-import { ICON_TYPE } from '@spartacus/storefront';
 import { CartValidationStateService } from '@spartacus/cart/base/core';
+import { CartModification } from '@spartacus/cart/base/root';
+import { ICON_TYPE } from '@spartacus/storefront';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'cx-cart-item-validation-warning',
@@ -12,16 +14,14 @@ export class WorldpayCartItemValidationWarningComponent {
   @Input()
     code: string | undefined;
 
-  iconTypes = ICON_TYPE;
-  isVisible = true;
+  iconTypes: typeof ICON_TYPE = ICON_TYPE;
+  isVisible: boolean = true;
 
-  cartModification$ =
+  cartModification$: Observable<CartModification> =
     this.cartValidationStateService.cartValidationResult$.pipe(
-      map((modificationList) =>
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+      map((modificationList: CartModification[]): CartModification =>
         modificationList.find(
-          (modification) => modification?.entry?.product?.code === this.code
+          (modification: CartModification): boolean => modification?.entry?.product?.code === this.code
         )
       )
     );

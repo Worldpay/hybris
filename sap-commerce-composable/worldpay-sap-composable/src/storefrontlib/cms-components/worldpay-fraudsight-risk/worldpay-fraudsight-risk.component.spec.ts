@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { WorldpayFraudsightRiskComponent } from './worldpay-fraudsight-risk.component';
-import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
-import { Observable, of } from 'rxjs';
-import { QueryState, WindowRef } from '@spartacus/core';
 import { NgZone } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { QueryState, WindowRef } from '@spartacus/core';
+import { Observable, of } from 'rxjs';
+import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
+import { WorldpayFraudsightRiskComponent } from './worldpay-fraudsight-risk.component';
 
 class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightService> {
   isFraudSightEnabledFromState(): Observable<boolean> {
@@ -75,11 +75,13 @@ describe('WorldpayFraudsightRiskComponent', () => {
   });
 
   it('should not be browser', () => {
+    spyOn(console, 'log');
     spyWinRef.and.returnValue(false);
     enabledSpy.and.returnValue(of(false));
     fixture.detectChanges();
     expect(component).toBeTruthy();
     expect(service.setFraudSightId).not.toHaveBeenCalled();
+    expect(console.log).toHaveBeenCalledWith('SSR - skipping FraudSight initialization');
   });
 
   describe('should be browser', () => {

@@ -1,0 +1,8 @@
+y-worldpay-order-confirmation-shipping {
+  max-width: var(--cx-page-width-max);
+  padding-inline: 15px;
+  margin-inline: auto;
+
+  @extend %cx-order-confirmation-shipping !optional;
+}
+

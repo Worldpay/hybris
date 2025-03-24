@@ -22,14 +22,6 @@ public class AbstractServiceRequest implements ServiceRequest {
         this.orderCode = orderCode;
     }
 
-    protected static void checkParameters(final String requestType, final Object... params) {
-        for (final Object param : params) {
-            if (param == null) {
-                throw new IllegalArgumentException("Required parameter to create " + requestType + " cannot be null");
-            }
-        }
-    }
-
     @Override
     public MerchantInfo getMerchantInfo() {
         return merchantInfo;
@@ -58,5 +50,13 @@ public class AbstractServiceRequest implements ServiceRequest {
     @Override
     public void setCookie(final String cookie) {
         this.cookie = cookie;
+    }
+
+    protected static void checkParameters(final String requestType, final Object... params) {
+        for (final Object param : params) {
+            if (param == null) {
+                throw new IllegalArgumentException("Required parameter to create " + requestType + " cannot be null");
+            }
+        }
     }
 }

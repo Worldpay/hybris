@@ -40,6 +40,7 @@ public class OrderBuilder {
     private GuaranteedPaymentsData guaranteedPaymentsData;
     private String checkoutId;
     private AlternativeShippingAddress alternativeShippingAddress;
+    private Exemption exemption;
 
     public OrderBuilder withOrderContent(String orderContent) {
         this.orderContent = orderContent;
@@ -166,6 +167,11 @@ public class OrderBuilder {
         return this;
     }
 
+    public OrderBuilder withExemption(final Exemption exemption) {
+        this.exemption = exemption;
+        return this;
+    }
+
     public Order build() {
         final Order order = new Order();
         order.setOrderCode(orderInfo.getOrderCode());
@@ -191,6 +197,7 @@ public class OrderBuilder {
         Optional.ofNullable(storedCredentials).ifPresent(credentials -> addStoredCredentials(order, credentials));
         Optional.ofNullable(paymentMethodAttributes).ifPresent(order::setPaymentMethodAttributes);
         Optional.ofNullable(fraudSightData).ifPresent(order::setFraudSightData);
+        Optional.ofNullable(exemption).ifPresent(order::setExemption);
         Optional.ofNullable(deviceSession).ifPresent(order::setDeviceSession);
         Optional.ofNullable(branchSpecificExtension).ifPresent(order::setBranchSpecificExtension);
         Optional.ofNullable(mandateType).ifPresent(order::setMandateType);

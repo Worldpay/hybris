@@ -13,6 +13,10 @@
             <editorArea:tab name="customersupportbackoffice.tab.general" >
                 <editorArea:section name="customersupportbackoffice.section.order.general.properties">
                     <editorArea:attribute qualifier="riskScore"/>
+                    <editorArea:attribute qualifier="exemptionPlacement"/>
+                    <editorArea:attribute qualifier="exemptionType"/>
+                    <editorArea:attribute qualifier="exemptionResponseResult"/>
+                    <editorArea:attribute qualifier="exemptionResponseReason"/>
                     <editorArea:attribute qualifier="fraudSight"/>
                     <editorArea:attribute qualifier="info"/>
                     <editorArea:attribute qualifier="worldpayBank" readonly="true"/>
@@ -199,6 +203,8 @@
                         <editorArea:attribute qualifier="excludedPaymentTypes"/>
                         <editorArea:attribute qualifier="includedPaymentTypes"/>
                         <editorArea:attribute qualifier="cardAcceptorTaxID"/>
+                        <editorArea:attribute qualifier="routingEnabled"/>
+                        <editorArea:attribute qualifier="routingMID"/>
                     </editorArea:section>
                 </editorArea:tab>
                 <editorArea:tab name="tab.configuration.worldpay.merchant.applepay.payments">
@@ -377,6 +383,9 @@
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.paypalssl.section">
                         <editorArea:attribute qualifier="paypalsslIntent"/>
+                    </editorArea:section>
+                    <editorArea:section name="sec.configuration.worldpay.ee.section">
+                        <editorArea:attribute qualifier="enableEE"/>
                     </editorArea:section>
                 </editorArea:tab>
             </editorArea:editorArea>

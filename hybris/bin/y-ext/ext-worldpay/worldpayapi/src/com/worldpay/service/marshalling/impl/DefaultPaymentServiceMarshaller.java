@@ -35,8 +35,8 @@ public class DefaultPaymentServiceMarshaller implements PaymentServiceMarshaller
 
         try {
             final Object unmarshalledObject = getUnmarshaller().unmarshal(source);
-            if (unmarshalledObject instanceof PaymentService) {
-                return (PaymentService) unmarshalledObject;
+            if (unmarshalledObject instanceof PaymentService paymentService) {
+                return paymentService;
             } else {
                 throw new WorldpayModelTransformationException("Message received from Worldpay is not a PaymentService message");
             }

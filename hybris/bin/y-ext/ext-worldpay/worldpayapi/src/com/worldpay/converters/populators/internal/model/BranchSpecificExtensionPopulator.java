@@ -32,7 +32,7 @@ public class BranchSpecificExtensionPopulator implements Populator<BranchSpecifi
         validateParameterNotNull(source, "Source must not be null!");
         validateParameterNotNull(target, "Target list must not be null!");
 
-        final List<Object> targetList = target.getAirlineOrPurchaseOrHotelOrLodging();
+        final List<Object> targetList = target.getAirlineOrRailwayOrCarRentalOrPurchaseOrHotelOrLodgingOrFerryOrEvents();
         Optional.ofNullable(source.getPurchase())
             .map(internalPurchaseConverter::convertAll)
             .ifPresent(targetList::addAll);

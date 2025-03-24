@@ -5,9 +5,11 @@ import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayExemptionStrategy;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
+import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
@@ -18,6 +20,7 @@ import org.springframework.transaction.support.TransactionOperations;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
@@ -35,19 +38,22 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
     protected final WorldpayPaymentInfoService worldpayPaymentInfoService;
     protected final WorldpayOrderService worldpayOrderService;
     protected final WorldpayFraudSightStrategy worldpayFraudSightStrategy;
+    protected final WorldpayExemptionStrategy worldpayExemptionStrategy;
 
     public DefaultAuthorisedOrderNotificationProcessorStrategy(final ModelService modelService,
                                                                final TransactionOperations transactionTemplate,
                                                                final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
                                                                final WorldpayPaymentInfoService worldpayPaymentInfoService,
                                                                final WorldpayOrderService worldpayOrderService,
-                                                               final WorldpayFraudSightStrategy worldpayFraudSightStrategy) {
+                                                               final WorldpayFraudSightStrategy worldpayFraudSightStrategy,
+                                                               final WorldpayExemptionStrategy worldpayExemptionStrategy) {
         this.modelService = modelService;
         this.transactionTemplate = transactionTemplate;
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
         this.worldpayPaymentInfoService = worldpayPaymentInfoService;
         this.worldpayOrderService = worldpayOrderService;
         this.worldpayFraudSightStrategy = worldpayFraudSightStrategy;
+        this.worldpayExemptionStrategy = worldpayExemptionStrategy;
     }
 
     /**
@@ -81,9 +87,7 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
         final PaymentReply paymentReply = orderNotificationMessage.getPaymentReply();
         worldpayPaymentTransactionService.addRiskScore(paymentTransactionModel, paymentReply);
 
-        if (worldpayFraudSightStrategy.isFraudSightEnabled(paymentTransactionModel.getOrder().getSite())) {
-            worldpayFraudSightStrategy.addFraudSight(paymentTransactionModel, paymentReply);
-        }
+        addSiteRelatedAttributesToPaymentTransaction(paymentTransactionModel, paymentReply);
 
         paymentTransactionModel.setApmOpen(Boolean.FALSE);
 
@@ -92,4 +96,23 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
         worldpayPaymentTransactionService.updateEntriesAmount(paymentTransactionEntries, orderNotificationMessage.getPaymentReply().getAmount());
         modelService.save(paymentTransactionModel);
     }
+
+    protected void addSiteRelatedAttributesToPaymentTransaction(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
+        Optional.ofNullable(paymentTransactionModel)
+            .map(PaymentTransactionModel::getOrder)
+            .map(AbstractOrderModel::getSite)
+            .ifPresent(site -> addSiteAttributes(site, paymentTransactionModel, paymentReply));
+
+    }
+
+    protected void addSiteAttributes(final BaseSiteModel site, PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
+        if (worldpayFraudSightStrategy.isFraudSightEnabled(site)) {
+            worldpayFraudSightStrategy.addFraudSight(paymentTransactionModel, paymentReply);
+        }
+
+        if (worldpayExemptionStrategy.isExemptionEnabled(site)) {
+            worldpayExemptionStrategy.addExemptionResponse(paymentTransactionModel, paymentReply);
+        }
+    }
+
 }

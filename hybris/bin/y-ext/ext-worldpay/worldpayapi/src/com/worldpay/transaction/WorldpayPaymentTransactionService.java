@@ -214,4 +214,6 @@ public interface WorldpayPaymentTransactionService {
     PaymentTransactionEntryModel createNotPendingCancelOrderTransactionEntry(PaymentTransactionModel paymentTransactionModel);
 
     void addFraudSightToPaymentTransaction(PaymentTransactionModel paymentTransaction, PaymentReply paymentReply);
+
+    void addExemptionResponseToPaymentTransaction(PaymentTransactionModel paymentTransaction, PaymentReply paymentReply);
 }

@@ -1,20 +1,11 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { OccConfig, OccEndpointsService } from '@spartacus/core';
 import { OccWorldpayApplepayAdapter } from './occ-worldpay-applepay.adapter';
 
 const userId = 'userId';
 const cartId = 'cartId';
-const address: Address = {
-  line1: 'The House',
-  line2: 'The Road',
-  postalCode: 'AA1 2BB'
-};
-const paymentDetails: PaymentDetails = {
-  id: 'aaa123',
-  cardNumber: '1234123412341234'
-};
 
 const MockOccModuleConfig: OccConfig = {
   backend: {
@@ -38,7 +29,6 @@ class MockOccEndpointsService {
 describe('OccWorldpayApplepayAdapter', () => {
   let service: OccWorldpayApplepayAdapter;
   let httpMock: HttpTestingController;
-  let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
 
   beforeEach(() => {
@@ -59,81 +49,141 @@ describe('OccWorldpayApplepayAdapter', () => {
 
     service = TestBed.inject(OccWorldpayApplepayAdapter);
     httpMock = TestBed.inject(HttpTestingController);
-    converter = TestBed.inject(ConverterService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
   });
 
-  it('should GET API requestApplePayPaymentRequest', () => {
-    service.requestApplePayPaymentRequest(userId, cartId).subscribe();
-
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'GET' &&
-      req.urlWithParams === 'requestApplePayPaymentRequest'
-    );
-
-    expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
-      'requestApplePayPaymentRequest',
-      {
-        urlParams: {
-          userId,
-          cartId
-        }
-      }
-    );
-
-    expect(mockReq.cancelled).toBeFalsy();
-
-    mockReq.flush({});
+  afterEach(() => {
+    httpMock.verify();
   });
 
-  it('should POST API validateApplePayMerchant', () => {
-    const validationURL = 'https://valid.url.apple.com';
-    service.validateApplePayMerchant(userId, cartId, validationURL).subscribe();
+  describe('requestApplePayPaymentRequest', () => {
+    it('should build URL and make GET request for Apple Pay Payment Request', () => {
+      service.requestApplePayPaymentRequest(userId, cartId).subscribe();
 
-    const mockReq = httpMock.expectOne(
-      req =>
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'GET' &&
+        req.urlWithParams === 'requestApplePayPaymentRequest'
+      );
+
+      expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
+        'requestApplePayPaymentRequest',
+        {
+          urlParams: {
+            userId,
+            cartId
+          }
+        }
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({});
+    });
+
+    it('should handle error when requestApplePayPaymentRequest fails', () => {
+      const error = new ErrorEvent('Network error');
+      service.requestApplePayPaymentRequest(userId, cartId).subscribe({
+        error: (err) => {
+          expect(err).toBeTruthy();
+        }
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'GET' &&
+        req.urlWithParams === 'requestApplePayPaymentRequest'
+      );
+
+      mockReq.error(error);
+    });
+  });
+
+  describe('validateApplePayMerchant', () => {
+    it('should build URL and make POST request for Apple Pay Merchant Validation', () => {
+      const validationURL = 'https://valid.url.apple.com';
+      service.validateApplePayMerchant(userId, cartId, validationURL).subscribe();
+
+      const mockReq = httpMock.expectOne(
+        req =>
+          req.method === 'POST' &&
+          req.urlWithParams === 'validateApplePayMerchant' &&
+          req.body.validationURL === validationURL
+      );
+
+      expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
+        'validateApplePayMerchant',
+        {
+          urlParams: {
+            userId,
+            cartId
+          }
+        }
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({ validationURL });
+    });
+
+    it('should handle error when validateApplePayMerchant fails', () => {
+      const validationURL = 'https://valid.url.apple.com';
+      const error = new ErrorEvent('Network error');
+      service.validateApplePayMerchant(userId, cartId, validationURL).subscribe({
+        error: (err) => {
+          expect(err).toBeTruthy();
+        }
+      });
+
+      const mockReq = httpMock.expectOne(
+        req =>
+          req.method === 'POST' &&
+          req.urlWithParams === 'validateApplePayMerchant' &&
+          req.body.validationURL === validationURL
+      );
+
+      mockReq.error(error);
+    });
+  });
+
+  describe('authorizeApplePayPayment', () => {
+    it('should build URL and make POST request for Apple Pay Payment Authorization', () => {
+      const request = { request: 'bar' };
+      service.authorizeApplePayPayment(userId, cartId, request).subscribe();
+
+      const mockReq = httpMock.expectOne(req =>
         req.method === 'POST' &&
-        req.urlWithParams === 'validateApplePayMerchant' &&
-        req.body.validationURL === validationURL
-    );
+        req.urlWithParams === 'authorizeApplePayPayment' &&
+        req.body.request === 'bar'
+      );
 
-    expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
-      'validateApplePayMerchant',
-      {
-        urlParams: {
-          userId,
-          cartId
+      expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
+        'authorizeApplePayPayment',
+        {
+          urlParams: {
+            userId,
+            cartId
+          }
         }
-      }
-    );
+      );
 
-    expect(mockReq.cancelled).toBeFalsy();
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush({ request });
+    });
 
-    mockReq.flush({ validationURL });
-  });
-
-  it('should POST API authorizeApplePayPayment', () => {
-    const request = { request: 'bar' };
-    service.authorizeApplePayPayment(userId, cartId, request).subscribe();
-
-    const mockReq = httpMock.expectOne(req =>
-      req.method === 'POST' &&
-      req.urlWithParams === 'authorizeApplePayPayment' &&
-      req.body.request === 'bar'
-    );
-
-    expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
-      'authorizeApplePayPayment',
-      {
-        urlParams: {
-          userId,
-          cartId
+    it('should handle error when authorizeApplePayPayment fails', () => {
+      const request = { request: 'bar' };
+      const error = new ErrorEvent('Network error');
+      service.authorizeApplePayPayment(userId, cartId, request).subscribe({
+        error: (err) => {
+          expect(err).toBeTruthy();
         }
-      }
-    );
+      });
 
-    expect(mockReq.cancelled).toBeFalsy();
-    mockReq.flush({ request });
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'POST' &&
+        req.urlWithParams === 'authorizeApplePayPayment' &&
+        req.body.request === 'bar'
+      );
+
+      mockReq.error(error);
+    });
   });
 });

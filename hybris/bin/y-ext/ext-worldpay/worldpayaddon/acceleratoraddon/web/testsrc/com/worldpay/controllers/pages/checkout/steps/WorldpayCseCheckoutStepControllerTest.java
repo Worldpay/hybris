@@ -76,7 +76,6 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String CART_DATA = "cartData";
     private static final String SESSION_ID = "sessionID";
     private static final String BILLING_ERROR_VIEW = "billingErrorView";
-    private static final String RESOLVED_PAGE_TITLE = "resolvedPageTitle";
     private static final String CSE_PAYMENT_DETAILS_PAGE = "CSEPaymentDetailsPage";
     private static final String THREEDSFLEX_JSON_WEB_TOKEN_VALUE = "THREEDSFLEX_JSON_WEB_TOKEN_VALUE";
     private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE = "EVENT_ORIGIN_DOMAIN_VALUE";

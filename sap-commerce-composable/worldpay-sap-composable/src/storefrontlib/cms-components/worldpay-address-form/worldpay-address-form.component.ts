@@ -1,19 +1,17 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, Validators } from '@angular/forms';
-import { AddressFormComponent } from "@spartacus/user/profile/components";
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { AddressFormComponent } from '@spartacus/user/profile/components';
 
 @Component({
   selector: 'y-worldpay-address-form',
   templateUrl: './worldpay-address-form.component.html',
-  styleUrls: ['./worldpay-address-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class WorldpayAddressFormComponent extends AddressFormComponent implements OnInit, OnDestroy {
-  private drop: Subject<void> = new Subject<void>();
   jpLabel: string = '';
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
   /**
    * Getter for the line2 field
@@ -26,9 +24,10 @@ export class WorldpayAddressFormComponent extends AddressFormComponent implement
   override ngOnInit(): void {
     super.ngOnInit();
     this.addressForm.get('country').valueChanges.pipe(
-      takeUntil(this.drop)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (value): void => {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      next: (value: any): void => {
         if (value?.isocode?.toLowerCase() === 'jp') {
           this.line2Field.setValidators(Validators.required);
           this.jpLabel = '.jp';
@@ -44,7 +43,5 @@ export class WorldpayAddressFormComponent extends AddressFormComponent implement
 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    this.drop.next();
-    this.drop.complete();
   }
 }

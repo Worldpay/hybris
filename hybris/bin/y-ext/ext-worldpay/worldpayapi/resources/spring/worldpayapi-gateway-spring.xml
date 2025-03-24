@@ -30,12 +30,13 @@
           class="com.worldpay.service.response.transform.impl.DefaultServiceResponseTransformerHelper">
         <constructor-arg name="internalAmountReverseConverter" ref="internalAmountReverseConverter"/>
         <constructor-arg name="internalDateReverseConverter" ref="internalDateReverseConverter"/>
+        <constructor-arg name="exemptionResponseReverseConverter" ref="exemptionResponseReverseConverter"/>
         <constructor-arg name="cardBrandFactory" ref="cardBrandFactory"/>
     </bean>
 
     <bean id="abstractServiceResponseTransformer"
           class="com.worldpay.service.response.transform.AbstractServiceResponseTransformer" abstract="true">
-        <property name="serviceResponseTransformerHelper" ref="serviceResponseTransformerHelper"/>
+        <constructor-arg name="serviceResponseTransformerHelper" ref="serviceResponseTransformerHelper"/>
     </bean>
 
     <bean id="addBackOfficeCodeResponseTransformer"
@@ -48,7 +49,7 @@
 
     <bean id="captureResponseTransformer" class="com.worldpay.service.response.transform.CaptureResponseTransformer"
           parent="abstractServiceResponseTransformer">
-            <constructor-arg name="internalAmountReverseConverter" ref="internalAmountReverseConverter"/>
+        <constructor-arg name="internalAmountReverseConverter" ref="internalAmountReverseConverter"/>
     </bean>
 
     <bean id="createTokenResponseTransformer"
@@ -61,7 +62,9 @@
 
     <bean id="directAuthoriseResponseTransformer"
           class="com.worldpay.service.response.transform.DirectAuthoriseResponseTransformer"
-          parent="abstractServiceResponseTransformer"/>
+          parent="abstractServiceResponseTransformer">
+        <constructor-arg name="exemptionResponseReverseConverter" ref="exemptionResponseReverseConverter"/>
+    </bean>
 
     <bean id="redirectAuthoriseResponseTransformer" class="com.worldpay.service.response.transform.RedirectAuthoriseResponseTransformer"
           parent="abstractServiceResponseTransformer"/>
