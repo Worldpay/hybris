@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.hybris.platform</groupId>
     <artifactId>worldpaytests</artifactId>
-    <version>5.7.0.7-SNAPSHOT</version>
+    <version>2211.32</version>
 
     <packaging>jar</packaging>
 

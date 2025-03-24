@@ -1,19 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
-import { Component } from '@angular/core';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { FormErrorsModule } from '@spartacus/storefront';
-import { Address, I18nTestingModule, MockTranslatePipe } from '@spartacus/core';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
-import { WorldpayApmIdealComponent } from './worldpay-apm-ideal.component';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
+import { Address, I18nTestingModule, MockTranslatePipe } from '@spartacus/core';
+import { FormErrorsModule } from '@spartacus/storefront';
+import { MockWorldpayBillingAddressComponent } from '@worldpay-tests/components';
 import { ApmData, PaymentMethod } from '../../../../core/interfaces';
-
-@Component({
-  selector: 'y-worldpay-billing-address',
-  template: ''
-})
-class MockWorldpayBillingAddressComponent {
-}
+import { WorldpayApmIdealComponent } from './worldpay-apm-ideal.component';
 
 describe('WorldpayApmIdealComponent', () => {
   let component: WorldpayApmIdealComponent;

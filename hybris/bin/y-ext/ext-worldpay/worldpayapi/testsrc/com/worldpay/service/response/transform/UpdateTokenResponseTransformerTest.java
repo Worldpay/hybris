@@ -28,8 +28,6 @@ import static org.mockito.Mockito.when;
 public class UpdateTokenResponseTransformerTest {
 
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
-    private static final String ERROR_CODE = "errorCode";
-    private static final String ERROR_VALUE = "errorValue";
     private static final String ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE = "Update Token Response has no reply message or the reply type is not the expected one";
 
     @InjectMocks
@@ -57,8 +55,8 @@ public class UpdateTokenResponseTransformerTest {
     @Before
     public void setUp() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(replyMock));
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
-        when(okReplyMock.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()).thenReturn(singletonList(updateTokenReceivedMock));
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
+        when(okReplyMock.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()).thenReturn(singletonList(updateTokenReceivedMock));
     }
 
     @Test
@@ -93,7 +91,7 @@ public class UpdateTokenResponseTransformerTest {
     public void shouldThrowExceptionWhenResponseIsNotOk() throws Exception {
         thrown.expect(WorldpayModelTransformationException.class);
         thrown.expectMessage("UpdateTokenResponse did not contain an OK object");
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).
                 thenReturn(singletonList(new Shopper()));
 
         testObj.transform(paymentServiceMock);

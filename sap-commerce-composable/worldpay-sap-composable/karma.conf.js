@@ -11,7 +11,8 @@ module.exports = function (config) {
       require("karma-chrome-launcher"),
       require("karma-jasmine-html-reporter"),
       require("karma-coverage-istanbul-reporter"),
-      require("@angular-devkit/build-angular/plugins/karma")
+      require("@angular-devkit/build-angular/plugins/karma"),
+      require('karma-coverage'),
     ],
     client: {
       clearContext: false // leave Jasmine Spec Runner output visible in browser
@@ -20,6 +21,23 @@ module.exports = function (config) {
       dir: require("path").join(__dirname, "../../coverage/worldpay-sap-composable"),
       reports: ["html", "lcovonly", "text-summary"],
       fixWebpackSourcePaths: true
+    },
+    coverageReporter: {
+      dir: require('path').join(__dirname, './coverage/angular-unit-test'),
+      subdir: '.',
+      reporters: [
+        {type: 'html'},
+        {type: 'text-summary'}
+      ],
+      check: {
+        emitWarning: false,
+        global: {
+          statements: 75,
+          branches: 75,
+          functions: 75,
+          lines: 75,
+        }
+      }
     },
     customLaunchers: {
       ChromeHeadlessCI: {
@@ -34,7 +52,7 @@ module.exports = function (config) {
         ]
       }
     },
-    reporters: ["progress", "kjhtml"],
+    reporters: ['progress', 'kjhtml', 'coverage'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
@@ -42,6 +60,9 @@ module.exports = function (config) {
     browsers: isCI ? ['ChromeHeadlessCI'] : ['Chrome'],
     singleRun: false,
     restartOnFileChange: true,
-    files: []
+    files: [],
+    preprocessors: {
+      'src/**/*.js': ['coverage'],
+    },
   });
 };

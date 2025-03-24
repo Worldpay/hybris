@@ -28,6 +28,23 @@
         <constructor-arg name="worldpayServiceGateway" ref="worldpayServiceGateway"/>
     </bean>
 
+    <bean id="abstractWorldpayExemptionStrategy"
+          class="com.worldpay.service.payment.impl.AbstractWorldpayExemptionStrategy"
+          abstract="true">
+        <constructor-arg name="baseSiteService" ref="baseSiteService"/>
+    </bean>
+
+    <alias name="defaultWorldpayExemptionStrategy" alias="worldpayExemptionStrategy"/>
+    <bean id="defaultWorldpayExemptionStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayExemptionStrategy"
+          parent="abstractWorldpayExemptionStrategy">
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
+    <alias name="defaultWorldpayExemptionService" alias="worldpayExemptionService"/>
+    <bean id="defaultWorldpayExemptionService"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayExemptionService"/>
+
     <alias name="defaultWorldpayRedirectOrderService" alias="worldpayRedirectOrderService"/>
     <bean id="defaultWorldpayRedirectOrderService"
           class="com.worldpay.service.payment.impl.DefaultWorldpayRedirectOrderService"
@@ -48,6 +65,7 @@
         <constructor-arg name="worldpayRequestFactory" ref="worldpayRequestFactory"/>
         <constructor-arg name="worldpaySessionService" ref="worldpaySessionService"/>
         <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="worldpayRequestRetryStrategyList" ref="worldpayRequestRetryStrategies"/>
     </bean>
 
     <alias name="defaultWorldpayRequestService" alias="worldpayRequestService"/>
@@ -138,6 +156,7 @@
         <constructor-arg name="worldpayBankConfigurationService" ref="worldpayBankConfigurationLookupService"/>
         <constructor-arg name="worldpayPaymentTransactionUtils" ref="worldpayPaymentTransactionUtils"/>
         <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
+        <constructor-arg name="worldpayExemptionStrategy" ref="worldpayExemptionStrategy"/>
     </bean>
 
     <alias alias="worldpayCartService" name="defaultWorldpayCartService"/>

@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { GlobalMessageService, GlobalMessageType, PaymentDetails, QueryState, SemanticPathService } from '@spartacus/core';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { WorldpayCheckoutReviewPaymentGuard } from './worldpay-checkout-review-payment.guard';
 import { WorldpayCheckoutPaymentService } from '../services';
+import { WorldpayCheckoutReviewPaymentGuard } from './worldpay-checkout-review-payment.guard';
 import createSpy = jasmine.createSpy;
 
 class MockSemanticPathService implements Partial<SemanticPathService> {
@@ -90,8 +90,6 @@ describe('WorldpayCheckoutReviewPaymentGuard', () => {
         }
       }
     }));
-
-    ;
 
     checkoutPaymentFacade.getPaymentDetailsState().subscribe((val) => {
       expect(val.data.saved).toBeFalse();

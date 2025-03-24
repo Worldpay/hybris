@@ -1,13 +1,17 @@
 import { TestBed } from '@angular/core/testing';
-
-import { ApmNormalizer } from './apm.normalizer';
 import { Image, OccConfig } from '@spartacus/core';
+import { of } from 'rxjs';
 import { ApmData, OccApmData, PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
 
-const MockOccModuleConfig: OccConfig = {
+import { ApmNormalizer } from './apm.normalizer';
+
+const MockOccModuleConfig = {
   backend: {
     media: {
       baseUrl: 'https://localhost:9002'
+    },
+    occ: {
+      baseUrl: 'https://occ.localhost:9002',
     }
   }
 };
@@ -15,6 +19,7 @@ const MockOccModuleConfig: OccConfig = {
 describe('ApmNormalizerService', () => {
   let service: ApmNormalizer;
   let source: OccApmData;
+  let occConfig: OccConfig;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -26,6 +31,7 @@ describe('ApmNormalizerService', () => {
       ]
     });
     service = TestBed.inject(ApmNormalizer);
+    occConfig = TestBed.inject(OccConfig);
     source = {
       apmConfiguration: {
         code: PaymentMethod.iDeal,
@@ -155,4 +161,119 @@ describe('ApmNormalizerService', () => {
     expect(result).toEqual({});
   });
 
+  describe('normalizeImageUrl', () => {
+    it('should return the same URL if it is an absolute URL', () => {
+      const absoluteUrl = 'http://example.com/image.jpg';
+      expect(service['normalizeImageUrl'](absoluteUrl)).toEqual(absoluteUrl);
+    });
+
+    it('should return the same URL if it is a data URL', () => {
+      const dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA';
+      expect(service['normalizeImageUrl'](dataUrl)).toEqual(dataUrl);
+    });
+
+    it('should return the same URL if it starts with //', () => {
+      const protocolRelativeUrl = '//example.com/image.jpg';
+      expect(service['normalizeImageUrl'](protocolRelativeUrl)).toEqual(protocolRelativeUrl);
+    });
+
+    it('should prepend the base URL if the URL is relative', () => {
+      const relativeUrl = '/media/image.jpg';
+      const expectedUrl = 'https://localhost:9002/media/image.jpg';
+      expect(service['normalizeImageUrl'](relativeUrl)).toEqual(expectedUrl);
+    });
+  });
+
+  describe('normalizeApmData', () => {
+    it('should return a target object with the same properties as the source object when target is undefined', () => {
+      const source: WorldpayApmPaymentInfo = {
+        apmCode: 'code',
+        apmName: 'name',
+        shopperBankCode: 'bankCode',
+        billingAddress: { firstName: 'firstName' },
+        name: 'name',
+        subscriptionId: 'subscriptionId'
+      };
+
+      const result = service.normalizeApmData(source);
+
+      expect(result).toEqual({
+        name: 'name',
+        shopperBankCode: 'bankCode',
+        billingAddress: { firstName: 'firstName' },
+        subscriptionId: 'subscriptionId',
+        code: 'code'
+      });
+    });
+
+    it('should set the code property to PaymentMethod.Card when source has a cardType property', () => {
+      const source: WorldpayApmPaymentInfo = {
+        cardType: {
+          code: 'VISA',
+          name: 'visa'
+        }
+      };
+      const target: WorldpayApmPaymentInfo = {};
+
+      const result = service.normalizeApmData(source, target);
+
+      expect(result.code).toEqual(PaymentMethod.Card);
+    });
+
+    it('should set the code property to the value of the apmCode property when source has an apmCode property', () => {
+      const source: WorldpayApmPaymentInfo = {
+        apmCode: 'code'
+      };
+      const target: WorldpayApmPaymentInfo = {};
+
+      const result = service.normalizeApmData(source, target);
+
+      expect(result.code).toEqual('code');
+    });
+
+    it('should set the shopperBankCode property to the value of the apmName property when source name is "ideal"', () => {
+      const source: WorldpayApmPaymentInfo = {
+        name: 'iDeal',
+        apmName: 'bankName'
+      };
+      const target: WorldpayApmPaymentInfo = {};
+
+      const result = service.normalizeApmData(source, target);
+
+      expect(result.shopperBankCode).toEqual('bankName');
+    });
+
+    it('should populate achPaymentForm when source apmCode is ACH', (done) => {
+      const source: WorldpayApmPaymentInfo = {
+        apmCode: PaymentMethod.ACH
+      };
+      const target: WorldpayApmPaymentInfo = {};
+
+      spyOn(service['worldpayACHFacade'], 'getACHPaymentFormValue').and.returnValue(of({ accountNumber: '123456' }));
+
+      service.normalizeApmData(source, target);
+
+      setTimeout(() => {
+        expect(target.achPaymentForm).toEqual({ accountNumber: '123456' });
+        done();
+      }, 0);
+    });
+
+    it('should delete apmCode and apmName properties when both are present in source', () => {
+      const source: WorldpayApmPaymentInfo = {
+        apmCode: 'code',
+        apmName: 'name'
+      };
+      const target: WorldpayApmPaymentInfo = {};
+
+      const result = service.normalizeApmData(source, target);
+
+      // @ts-ignore
+      expect(result.apmCode).toBeUndefined();
+      // @ts-ignore
+      expect(result.apmName).toBeUndefined();
+      expect(result.code).toBe('code');
+      expect(result.name).toBeUndefined();
+    });
+  });
 });

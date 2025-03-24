@@ -42,7 +42,7 @@ public class DeleteTokenRequestTransformerTest {
     private ConfigurationService configurationServiceMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(VERSION);
     }
 
@@ -62,8 +62,8 @@ public class DeleteTokenRequestTransformerTest {
         assertEquals(VERSION, result.getVersion());
         assertTrue(result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) instanceof Modify);
         final Modify modify = (Modify) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        assertTrue(modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0) instanceof PaymentTokenDelete);
-        final PaymentTokenDelete paymentTokenDelete = (PaymentTokenDelete) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0);
+        assertTrue(modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().get(0) instanceof PaymentTokenDelete);
+        final PaymentTokenDelete paymentTokenDelete = (PaymentTokenDelete) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().get(0);
         assertEquals(paymentTokenDeleteMock, paymentTokenDelete);
     }
 }

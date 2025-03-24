@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ConverterService, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
-import { WorldpayApplepayAdapter } from '../../../connectors/worldpay-applepay/worldpay-applepay.adapter';
+import { Injectable } from '@angular/core';
+import { HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
+import { WorldpayApplepayAdapter } from '@worldpay-connectors/worldpay-applepay/worldpay-applepay.adapter';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../../interfaces';
 
@@ -11,24 +11,28 @@ import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from 
 export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
   /**
    * Constructor
-   * @param http
-   * @param occEndpoints
-   * @param converter
-   * @param loggerService
+   * @param {HttpClient} http - The HTTP client for making requests
+   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoints
+   * @param {LoggerService} loggerService - Service for logging errors
+   * @since 4.3.6
    */
   constructor(
     protected http: HttpClient,
     protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService,
     protected loggerService: LoggerService
   ) {
   }
 
   /**
    * Request Apple Pay Payment Request
+   *
+   * This method builds the URL for requesting an Apple Pay payment request and makes an HTTP GET request to that URL.
+   * It catches any errors that occur during the request and normalizes them using the logger service.
+   *
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @returns {Observable<ApplePayPaymentRequest>} - Observable of Apple Pay Payment Request
    * @since 4.3.6
-   * @param userId - User ID
-   * @param cartId
    */
   public requestApplePayPaymentRequest(
     userId: string,
@@ -43,23 +47,28 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
         }
       });
     return this.http.get<ApplePayPaymentRequest>(url).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
 
   /**
    * Validate Apple Pay Merchant
+   *
+   * This method builds the URL for validating an Apple Pay merchant and makes an HTTP POST request to that URL with the validation URL in the body.
+   * It catches any errors that occur during the request and normalizes them using the logger service.
+   *
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @param {string} validationURL - Validation URL
+   * @returns {Observable<ValidateMerchant>} - Observable of Validate Merchant response
    * @since 4.3.6
-   * @param userId - User ID
-   * @param cartId
-   * @param validationURL
    */
   validateApplePayMerchant(
     userId: string,
     cartId: string,
     validationURL: string
   ): Observable<ValidateMerchant> {
-    const body = {
+    const body: { validationURL: string; } = {
       validationURL
     };
     const url: string = this.occEndpoints.buildUrl(
@@ -73,24 +82,28 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
     );
 
     return this.http.post<ValidateMerchant>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
-
   }
 
   /**
    * Authorize Apple Pay Payment
+   *
+   * This method builds the URL for authorizing an Apple Pay payment and makes an HTTP POST request to that URL with the request payload in the body.
+   * It catches any errors that occur during the request and normalizes them using the logger service.
+   *
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @param {any} request - Authorization request payload
+   * @returns {Observable<ApplePayAuthorization>} - Observable of Apple Pay Authorization response
    * @since 4.3.6
-   * @param userId - User ID
-   * @param cartId
-   * @param request
    */
   authorizeApplePayPayment(
     userId: string,
     cartId: string,
     request: any
   ): Observable<ApplePayAuthorization> {
-    const body = {
+    const body: { request: string; } = {
       ...request
     };
     const url: string = this.occEndpoints.buildUrl(
@@ -104,7 +117,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
     );
 
     return this.http.post<ApplePayAuthorization>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
 }

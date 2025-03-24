@@ -101,7 +101,7 @@ public class PaymentTokenCreatePopulatorTest {
         final com.worldpay.internal.model.PaymentTokenCreate targetMock = new com.worldpay.internal.model.PaymentTokenCreate();
         testObj.populate(sourceMock, targetMock);
 
-        assertThat(targetMock.getPaymentInstrumentOrCSEDATA()).isEmpty();
+        assertThat(targetMock.getPaymentInstrumentOrCSEDATAOrPosPaymentInstrument()).isEmpty();
     }
 
     @Test
@@ -121,6 +121,6 @@ public class PaymentTokenCreatePopulatorTest {
         assertThat(targetMock.getAuthenticatedShopperID().getvalue()).isEqualTo(SHOPPER_ID);
         assertThat(targetMock.getCreateToken()).isEqualTo(createTokenMock);
         assertThat(targetMock.getStoredCredentials()).isEqualTo(intStoreCredentialsMock);
-        assertThat(targetMock.getPaymentInstrumentOrCSEDATA().get(0)).isEqualTo(intPaymentMock);
+        assertThat(targetMock.getPaymentInstrumentOrCSEDATAOrPosPaymentInstrument().get(0)).isEqualTo(intPaymentMock);
     }
 }

@@ -1,10 +1,10 @@
-import { OccWorldpayAdapter } from './occ-worldpay.adapter';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { BrowserInfo } from '../interfaces';
+import { OccWorldpayAdapter } from './occ-worldpay.adapter';
 
 const userId = 'userId';
 const cartId = 'cartId';
@@ -319,6 +319,25 @@ describe('OccWorldpayAdapter', () => {
       mockReq.flush({
         userId,
         code: '100',
+      });
+    });
+
+    it('should handle error when getOrder fails', () => {
+      service.getOrder(userId, '100', undefined).subscribe({
+        error: (error) => {
+          expect(error).toBeTruthy();
+        }
+      });
+
+      const mockReq = httpMock.expectOne(req =>
+        req.method === 'GET' &&
+        req.urlWithParams === 'getOrder'
+      );
+
+      expect(mockReq.cancelled).toBeFalsy();
+      mockReq.flush('Error', {
+        status: 500,
+        statusText: 'Server Error'
       });
     });
   });

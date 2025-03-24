@@ -1,5 +1,5 @@
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
-import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { inject, Inject, Injectable, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
@@ -14,7 +14,10 @@ import {
   GlobalMessageService,
   GlobalMessageType,
   LoadUserPaymentMethodsEvent,
-  OCC_USER_ID_ANONYMOUS, PaymentDetails, Query,
+  LoggerService,
+  OCC_USER_ID_ANONYMOUS,
+  PaymentDetails,
+  Query,
   QueryService,
   QueryState,
   UserIdService
@@ -38,7 +41,7 @@ import {
 import { ClearGooglepayEvent } from '../../events/googlepay.events';
 import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
 import { WorldpayCheckoutPaymentFacade } from '../../facade/worldpay-checkout-payment.facade';
-import { PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
+import { ACHPaymentForm, PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
 import { getBaseHref, trimLastSlashFromUrl } from '../../utils/get-base-href';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,7 +61,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
   protected subscriptions: Subscription = new Subscription();
   protected saveCreditCard$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   protected saveAsDefaultCreditCard$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-
+  protected logger: LoggerService = inject(LoggerService);
   /**
    * Get Public Key Query
    * @since 6.4.0
@@ -102,9 +105,9 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       ({
         paymentDetails,
         cseToken
-      }) =>
+      }: { paymentDetails: PaymentDetails; cseToken: string }): Observable<PaymentDetails> =>
         this.checkoutPreconditions().pipe(
-          switchMap(([userId, cartId]) =>
+          switchMap(([userId, cartId]: [string, string]): Observable<PaymentDetails> =>
             this.checkoutPaymentConnector.createWorldpayPaymentDetails(userId, cartId, paymentDetails, cseToken)
               .pipe(
                 tap((response: PaymentDetails): void => {
@@ -135,9 +138,9 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    */
   protected override setPaymentMethodCommand: Command<PaymentDetails, PaymentDetails> =
     this.commandService.create<PaymentDetails>(
-      (paymentDetails: PaymentDetails) =>
+      (paymentDetails: PaymentDetails): Observable<PaymentDetails> =>
         this.checkoutPreconditions().pipe(
-          switchMap(([userId, cartId]) =>
+          switchMap(([userId, cartId]: [string, string]): Observable<PaymentDetails> =>
             this.checkoutPaymentConnector.useExistingPaymentDetails(userId, cartId, paymentDetails)
               .pipe(
                 tap((response: PaymentDetails): void => {
@@ -147,7 +150,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
                       cartId,
                       paymentDetails: response
                     },
-                      CheckoutPaymentDetailsCreatedEvent
+                    CheckoutPaymentDetailsCreatedEvent
                     );
                   } else {
                     this.eventService.dispatch({ userId }, LoadUserPaymentMethodsEvent);
@@ -174,14 +177,14 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    */
   protected setPaymentAddressCommand: Command<Address, Address> =
     this.commandService.create<Address>(
-      (address: Address) =>
+      (address: Address): Observable<Address> =>
         this.checkoutPreconditions().pipe(
-          switchMap(([userId, cartId]) => this.worldpayConnector.setPaymentAddress(userId, cartId, address).pipe(
+          switchMap(([userId, cartId]: [string, string]): Observable<Address> => this.worldpayConnector.setPaymentAddress(userId, cartId, address).pipe(
             tap((response: Address) => {
               this.eventService.dispatch({
                 address: response
               },
-                SetPaymentAddressEvent
+              SetPaymentAddressEvent
               );
             }))
           )
@@ -386,7 +389,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
     this.generatePublicKey().subscribe({
       next: (key: string) => this.setPublicKey(key),
       error: (error: unknown): void => {
-        console.log('Failed obtaining public key', { error });
+        this.logger.log('Failed obtaining public key', { error });
       }
     });
 
@@ -458,7 +461,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    * @param params { [key: string]: string }
    */
   getSerializedUrl(url: string, params: { [key: string]: string }): string {
-    const paramURL = this.router.serializeUrl(this.router.createUrlTree([url], { queryParams: params }));
+    const paramURL: string = this.router.serializeUrl(this.router.createUrlTree([url], { queryParams: params }));
     return this.baseHref ? (this.baseHref + paramURL).replace('//', '/') : paramURL;
   }
 
@@ -474,7 +477,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
     cardNumber: string,
     jwt: string
   ): void {
-    const url = this.getSerializedUrl('worldpay-3ds-device-detection', {
+    const url: string = this.getSerializedUrl('worldpay-3ds-device-detection', {
       action: ddcUrl,
       bin: cardNumber,
       jwt
@@ -496,13 +499,12 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
     jwt: string,
     merchantData: string
   ): void {
-    const url = this.getSerializedUrl('worldpay-3ds-challenge', {
+    const url: string = this.getSerializedUrl('worldpay-3ds-challenge', {
       action: challengeUrl,
       md: merchantData,
       jwt
     });
 
-    // @ts-ignore
     const safeUrl: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     this.eventService.dispatch({ worldpayChallengeIframeUrl: safeUrl }, ThreeDsChallengeIframeUrlSetEvent);
   }
@@ -615,39 +617,40 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    * Get Payment Details State
    * @since 6.4.0
    */
-  override getPaymentDetailsState(): Observable<QueryState<WorldpayApmPaymentInfo | undefined>> {
+  override getPaymentDetailsState(): Observable<QueryState<WorldpayApmPaymentInfo>> {
     return combineLatest([
       this.getSaveCreditCardValueFromState(),
       this.getSaveAsDefaultCardValueFromState(),
       this.worldpayACHFacade.getACHPaymentFormValue(),
     ]).pipe(
-      switchMap(([saveCreditCard, setAsDefaultPayment, achPaymentFormValue]) => this.checkoutQueryFacade.getCheckoutDetailsState().pipe(
-        map(
-          (state: QueryState<CheckoutState>) => {
-            const paymentInfo: WorldpayApmPaymentInfo = {
-              ...state.data?.paymentInfo,
-              ...state.data?.worldpayAPMPaymentInfo,
-            };
+      switchMap(([saveCreditCard, setAsDefaultPayment, achPaymentFormValue]: [boolean, boolean, ACHPaymentForm]): Observable<QueryState<WorldpayApmPaymentInfo>> =>
+        this.checkoutQueryFacade.getCheckoutDetailsState().pipe(
+          map(
+            (state: QueryState<CheckoutState>): QueryState<WorldpayApmPaymentInfo> => {
+              const paymentInfo: WorldpayApmPaymentInfo = {
+                ...state.data?.paymentInfo,
+                ...state.data?.worldpayAPMPaymentInfo,
+              };
 
-            if (paymentInfo.id) {
-              paymentInfo.defaultPayment = setAsDefaultPayment === true ? setAsDefaultPayment : state.data?.paymentInfo?.defaultPayment;
+              if (paymentInfo.id) {
+                paymentInfo.defaultPayment = setAsDefaultPayment === true ? setAsDefaultPayment : state.data?.paymentInfo?.defaultPayment;
 
-              if (saveCreditCard) {
-                paymentInfo.saved = saveCreditCard === true ? saveCreditCard : state.data?.paymentInfo?.saved;
+                if (saveCreditCard) {
+                  paymentInfo.saved = saveCreditCard === true ? saveCreditCard : state.data?.paymentInfo?.saved;
+                }
               }
-            }
 
-            if (paymentInfo.apmCode === PaymentMethod.ACH) {
-              paymentInfo.achPaymentForm = achPaymentFormValue;
-            }
+              if (paymentInfo.apmCode === PaymentMethod.ACH) {
+                paymentInfo.achPaymentForm = achPaymentFormValue;
+              }
 
-            return {
-              ...state,
-              data: paymentInfo
-            };
-          }
-        )
-      )),
+              return {
+                ...state,
+                data: paymentInfo
+              };
+            }
+          )
+        )),
     );
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { ActivatedRouteSnapshot, Params } from '@angular/router';
 import { GlobalMessageService, GlobalMessageType } from '@spartacus/core';
+import { Observable, of } from 'rxjs';
 
 export type TypeOfReason =
   | 'cancel'
@@ -11,7 +11,7 @@ export type TypeOfReason =
 @Injectable({
   providedIn: 'root'
 })
-export class WorldpayCheckoutPaymentRedirectFailureGuard  {
+export class WorldpayCheckoutPaymentRedirectFailureGuard {
 
   /**
    * Constructor
@@ -28,11 +28,11 @@ export class WorldpayCheckoutPaymentRedirectFailureGuard  {
    * @param route ActivatedRouteSnapshot
    */
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const params = route.queryParams;
+    const params: Params = route.queryParams;
 
     // eslint-disable-next-line no-prototype-builtins
     if (params && typeof params === 'object' && params.hasOwnProperty('reason')) {
-      const key = this.getReasonMessageKey(params.reason);
+      const key: string = this.getReasonMessageKey(params.reason);
       if (key) {
         this.globalMessageService.add(
           {
@@ -46,21 +46,17 @@ export class WorldpayCheckoutPaymentRedirectFailureGuard  {
   }
 
   protected getReasonMessageKey(reason: TypeOfReason): string {
-    let key;
     switch (reason) {
     case 'cancel':
-      key = 'checkoutReview.redirectPaymentCancelled';
-      break;
+      return 'checkoutReview.redirectPaymentCancelled';
 
     case 'error':
     case 'failure':
-      key = 'checkoutReview.redirectPaymentFailed';
-      break;
+      return 'checkoutReview.redirectPaymentFailed';
 
     default:
-      break;
+      return null;
     }
-    return key;
   }
 
 }

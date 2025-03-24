@@ -11,8 +11,6 @@ INSERT_UPDATE Media; code[unique = true]   ; $media                             
                    ; alipay-icon           ; $siteResource/alipay-icon.png           ;                             ;                          ; images
                    ; cc-icon               ; $siteResource/cc-icon.png               ;                             ;                          ; images
                    ; cup-icon              ; $siteResource/cup-icon.png              ;                             ;                          ; images
-                   ; sofort-icon           ; $siteResource/sofort-icon.png           ;                             ;                          ; images
-                   ; sofort-ch-icon        ; $siteResource/sofort-ch-icon.png        ;                             ;                          ; images
                    ; paypal-icon           ; $siteResource/paypal-icon.png           ;                             ;                          ; images
                    ; polinz-icon           ; $siteResource/polinz-icon.png           ;                             ;                          ; images
                    ; bancontact-icon       ; $siteResource/bancontact-icon.png       ;                             ;                          ; images
@@ -35,8 +33,6 @@ INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = tru
                                  ; creditCardComponent ;                          ; "Card" ; cc-icon
 
 INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name               ; apmConfiguration(code); $picture[lang = $lang]; restrictions(uid, $contentCV)
-                                  ; sofortComponent         ;                          ; "Sofort"           ; SOFORT-SSL            ; sofort-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; sofortCHComponent       ;                          ; "Sofort"           ; SOFORT_CH-SSL         ; sofort-ch-icon        ; AssistedServiceSessionReversedRestriction
                                   ; payPalComponent         ;                          ; "PayPal"           ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
                                   ; polinzComponent         ;                          ; "POLi"             ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
                                   ; mistercashComponent     ;                          ; "Bancontact"       ; MISTERCASH-SSL        ; bancontact-icon       ; AssistedServiceSessionReversedRestriction

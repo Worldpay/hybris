@@ -13,6 +13,10 @@ import com.worldpay.service.response.ServiceResponse;
  */
 public class CreateTokenResponseTransformer extends AbstractServiceResponseTransformer {
 
+    public CreateTokenResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        super(serviceResponseTransformerHelper);
+    }
+
     @Override
     public ServiceResponse transform(final PaymentService paymentService) throws WorldpayModelTransformationException {
         final CreateTokenResponse createTokenResponse = new CreateTokenResponse();
@@ -24,15 +28,15 @@ public class CreateTokenResponseTransformer extends AbstractServiceResponseTrans
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
-        if (getServiceResponseTransformerHelper().checkForError(createTokenResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(createTokenResponse, intReply)) {
             return createTokenResponse;
         }
-        intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Token.class::isInstance)
             .map(Token.class::cast)
             .findAny()
-            .ifPresent(response -> createTokenResponse.setToken(getServiceResponseTransformerHelper().buildTokenReply(response)));
+            .ifPresent(response -> createTokenResponse.setToken(serviceResponseTransformerHelper.buildTokenReply(response)));
 
         return createTokenResponse;
     }

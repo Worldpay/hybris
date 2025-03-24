@@ -1,18 +1,19 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CmsConfig, FeaturesConfigModule, I18nModule, provideConfig } from '@spartacus/core';
-import { WorldpayOrderConfirmationItemsComponent } from './worldpay-order-confirmation-items/worldpay-order-confirmation-items.component';
-import { CardModule, FormErrorsModule, OutletModule, PasswordVisibilityToggleModule, PromotionsModule, PwaModule } from '@spartacus/storefront';
-import { OrderConfirmationOrderEntriesContext, OrderConfirmationTotalsComponent, OrderDetailBillingComponent, OrderDetailsService } from '@spartacus/order/components';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CmsConfig, FeaturesConfigModule, I18nModule, provideConfig } from '@spartacus/core';
+import { OrderConfirmationOrderEntriesContext, OrderConfirmationTotalsComponent, OrderDetailBillingComponent, OrderDetailsService } from '@spartacus/order/components';
 import { OrderConfirmationOrderEntriesContextToken, OrderFacade } from '@spartacus/order/root';
-import { WorldpayOrderConfirmationShippingComponent } from './worldpay-order-confirmation-shipping/worldpay-order-confirmation-shipping.component';
+import { CardModule, FormErrorsModule, OutletModule, PasswordVisibilityToggleModule, PromotionsModule, PwaModule } from '@spartacus/storefront';
 import { WorldpayCheckoutPaymentRedirectGuard } from '../../../core/guards';
-import { WorldpayOrderOverviewComponent } from '../worldpay-order-details/worldpay-order-overview/worldpay-order-overview.component';
 import { WorldpayOrderService } from '../../../core/services';
+import { WorldpayOrderOverviewComponent } from '../worldpay-order-details/worldpay-order-overview/worldpay-order-overview.component';
+import { WorldpayOrderConfirmationItemsComponent } from './worldpay-order-confirmation-items/worldpay-order-confirmation-items.component';
+import { WorldpayOrderConfirmationShippingComponent } from './worldpay-order-confirmation-shipping/worldpay-order-confirmation-shipping.component';
 import { WorldpayOrderConfirmationThankYouMessageComponent } from './worldpay-order-confirmation-thank-you-message/worldpay-order-confirmation-thank-you-message.component';
 import { WorldpayOrderGuestRegisterFormComponent } from './worldpay-order-guest-register-form/worldpay-order-guest-register-form.component';
 
+// eslint-disable-next-line @typescript-eslint/typedef
 const orderConfirmationComponents = [
   WorldpayOrderConfirmationItemsComponent,
   WorldpayOrderConfirmationThankYouMessageComponent,

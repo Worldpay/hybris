@@ -1,8 +1,6 @@
 package com.worldpay.service.notification;
 
-import com.worldpay.data.JournalReply;
-import com.worldpay.data.PaymentReply;
-import com.worldpay.data.WebformRefundReply;
+import com.worldpay.data.*;
 import com.worldpay.data.token.TokenReply;
 
 import java.io.Serializable;
@@ -71,12 +69,12 @@ public class OrderNotificationMessage implements Serializable {
     @Override
     public String toString() {
         return "OrderNotificationMessage{" +
-                "orderCode='" + orderCode + '\'' +
-                ", merchantCode='" + merchantCode + '\'' +
-                ", paymentReply=" + paymentReply +
-                ", journalReply=" + journalReply +
-                ", tokenReply=" + tokenReply +
-                ", webformRefundReply=" + webformRefundReply +
-                '}';
+            "orderCode='" + orderCode + '\'' +
+            ", merchantCode='" + merchantCode + '\'' +
+            ", paymentReply=" + paymentReply +
+            ", journalReply=" + journalReply +
+            ", tokenReply=" + tokenReply +
+            ", webformRefundReply=" + webformRefundReply +
+            '}';
     }
 }

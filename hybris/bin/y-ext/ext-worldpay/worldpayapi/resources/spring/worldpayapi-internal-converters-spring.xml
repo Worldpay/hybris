@@ -371,6 +371,50 @@
         </property>
     </bean>
 
+    <alias name="defaultExemptionReversePopulator" alias="internalExemptionReversePopulator"/>
+    <bean id="defaultExemptionReversePopulator"
+          class="com.worldpay.converters.populators.reverse.internal.model.ExemptionReversePopulator"/>
+
+    <alias name="defaultExemptionReverseConverter" alias="internalExemptionReverseConverter"/>
+    <bean id="defaultExemptionReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.Exemption"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalExemptionReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultExemptionResponseReversePopulator" alias="exemptionResponseReversePopulator"/>
+    <bean id="defaultExemptionResponseReversePopulator"
+          class="com.worldpay.converters.populators.reverse.internal.model.ExemptionResponseReversePopulator">
+        <constructor-arg name="internalExemptionReverseConverter" ref="internalExemptionReverseConverter"/>
+    </bean>
+
+    <alias name="defaultExemptionResponseReverseConverter" alias="exemptionResponseReverseConverter"/>
+    <bean id="defaultExemptionResponseReverseConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.data.ExemptionResponseInfo"/>
+        <property name="populators">
+            <list>
+                <ref bean="exemptionResponseReversePopulator"/>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultExemptionPopulator" alias="internalExemptionPopulator"/>
+    <bean id="defaultExemptionPopulator"
+          class="com.worldpay.converters.populators.internal.model.ExemptionPopulator"/>
+
+    <alias name="defaultExemptionConverter" alias="internalExemptionConverter"/>
+    <bean id="defaultExemptionConverter" parent="abstractPopulatingConverter">
+        <property name="targetClass" value="com.worldpay.internal.model.Exemption"/>
+        <property name="populators">
+            <list>
+                <ref bean="internalExemptionPopulator"/>
+            </list>
+        </property>
+    </bean>
+
     <alias name="defaultAuthenticationRiskDataPopulator" alias="internalAuthenticationRiskDataPopulator"/>
     <bean id="defaultAuthenticationRiskDataPopulator"
           class="com.worldpay.converters.populators.internal.model.threeds2.AuthenticationRiskDataPopulator">
@@ -545,6 +589,7 @@
         <constructor-arg name="internalBranchSpecificExtensionConverter" ref="internalBranchSpecificExtensionConverter"/>
         <constructor-arg name="internalTokenRequestConverter" ref="internalTokenRequestConverter"/>
         <constructor-arg name="internalOrderLinesConverter" ref="internalOrderLinesConverter"/>
+        <constructor-arg name="internalExemptionConverter" ref="internalExemptionConverter"/>
         <constructor-arg name="riskEvaluatorConvertersWrapper" ref="riskEvaluatorConvertersWrapper"/>
         <constructor-arg name="paymentOrderConvertersWrapper" ref="paymentOrderConvertersWrapper"/>
         <constructor-arg name="threeDS2OrderConvertersWrapper" ref="threeDS2OrderConvertersWrapper"/>

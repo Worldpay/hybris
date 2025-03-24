@@ -6,12 +6,12 @@ import { WindowRef } from '@spartacus/core';
  * @param windowRef
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createApplePaySession = (windowRef: WindowRef): any => {
+export const createApplePaySession: (windowRef: WindowRef) => any = (windowRef: WindowRef): any => {
   if (!windowRef.isBrowser()) {
     return null;
   }
 
   const applePaySession: string = 'ApplePaySession';
-  // @ts-ignore
-  return windowRef.nativeWindow[applePaySession];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (windowRef.nativeWindow as Record<string, any>)[applePaySession];
 };

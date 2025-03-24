@@ -1,18 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { WorldpayApmComponent } from './worldpay-apm.component';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
-import { WorldpayGooglepayService } from '../../../core/services/worldpay-googlepay/worldpay-googlepay.service';
-import { By } from '@angular/platform-browser';
 import { Component, DebugElement, EventEmitter, Input, Output } from '@angular/core';
-import { Address, I18nTestingModule, MockTranslatePipe } from '@spartacus/core';
-import { ApmData, ApmPaymentDetails, GooglePayMerchantConfiguration, PaymentMethod } from '../../../core/interfaces';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
-import { WorldpayApplepayService } from '../../../core/services/worldpay-applepay/worldpay-applepay.service';
-import { LaunchDialogService } from '@spartacus/storefront';
-import { WorldpayOrderService } from '../../../core/services';
+import { By } from '@angular/platform-browser';
 import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
+import { Address, I18nTestingModule, MockTranslatePipe } from '@spartacus/core';
+import { LaunchDialogService } from '@spartacus/storefront';
+import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
+import { WorldpayApplepayService } from '@worldpay-services/worldpay-applepay/worldpay-applepay.service';
+import { WorldpayGooglepayService } from '@worldpay-services/worldpay-googlepay/worldpay-googlepay.service';
+import { MockCxSpinnerComponent, MockWorldpayBillingAddressComponent } from '@worldpay-tests/components';
+import { MockLaunchDialogService } from '@worldpay-tests/services/launch-dialog.service.mock';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { ApmData, ApmPaymentDetails, GooglePayMerchantConfiguration, PaymentMethod } from '../../../core/interfaces';
+import { WorldpayOrderService } from '../../../core/services';
+import { WorldpayApmComponent } from './worldpay-apm.component';
+
+const makeErrorsVisible = jasmine.createSpy('makeErrorsVisible').and.returnValue(null);
 
 const mockBillingAddress: Address = {
   firstName: 'John',
@@ -24,13 +27,6 @@ const mockBillingAddress: Address = {
   country: { isocode: 'CA' },
   region: { isocodeShort: 'QC' },
 };
-
-@Component({
-  selector: 'y-worldpay-billing-address',
-  template: ''
-})
-class MockWorldpayBillingAddressComponent {
-}
 
 @Component({
   selector: 'y-worldpay-apm-googlepay',
@@ -55,14 +51,6 @@ class MockWorldpayApmTileComponent {
 class MockWorldpayApmIdealComponent {
   @Input() apm: ApmData;
   @Output() setPaymentDetails = new EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }>();
-}
-
-@Component({
-  selector: 'cx-spinner',
-  template: ''
-})
-class MockCxSpinnerComponent {
-
 }
 
 @Component({
@@ -103,6 +91,10 @@ describe('WorldpayApmComponent', () => {
   let fixture: ComponentFixture<WorldpayApmComponent>;
   let element: DebugElement;
   let worldpayApmService;
+  let checkoutBillingAddressFormService: CheckoutBillingAddressFormService;
+  let worldpayGooglepayService: WorldpayGooglepayService;
+  let worldpayOrderService: WorldpayOrderService;
+  let worldpayApplepayService: WorldpayApplepayService;
 
   const apm = {
     code: PaymentMethod.Card,
@@ -163,14 +155,10 @@ describe('WorldpayApmComponent', () => {
     }
   }
 
-  class MockWorldpayApplepayService {
+  class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {
     applePayButtonAvailable() {
-      return of(true);
+      return true;
     }
-  }
-
-  class MockLaunchDialogService implements Partial<LaunchDialogService> {
-
   }
 
   beforeEach(async () => {
@@ -222,15 +210,249 @@ describe('WorldpayApmComponent', () => {
     element = fixture.debugElement;
 
     worldpayApmService = TestBed.inject(WorldpayApmService);
+    checkoutBillingAddressFormService = TestBed.inject(CheckoutBillingAddressFormService);
+    worldpayGooglepayService = TestBed.inject(WorldpayGooglepayService);
+    worldpayOrderService = TestBed.inject(WorldpayOrderService);
+    worldpayApplepayService = TestBed.inject(WorldpayApplepayService);
     apmSubject.next({
       code: PaymentMethod.Card
     });
-
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('ngAfterViewInit', () => {
+    it('should initialize component and set default card payment method', () => {
+      // @ts-ignore
+      spyOn(component, 'selectDefaultCardPaymentMethod').and.callThrough();
+      component.ngAfterViewInit();
+      expect(component['selectDefaultCardPaymentMethod']).toHaveBeenCalled();
+    });
+
+    it('should set sameAsDeliveryAddress based on checkoutBillingAddressFormService', () => {
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
+      component.ngAfterViewInit();
+      expect(component.sameAsDeliveryAddress).toBeFalse();
+    });
+
+    it('should handle error during initialization', () => {
+      const error = new Error('error');
+      spyOn(console, 'error');
+      spyOn(worldpayApmService.getSelectedAPMFromState(), 'subscribe').and.callFake(() => {
+        throw error;
+      });
+      component.ngAfterViewInit();
+      expect(console.error).toHaveBeenCalledWith('Failed to initialize FraudSight, check component configuration', error);
+    });
+
+    it('should initialize billing address form', () => {
+      spyOn(checkoutBillingAddressFormService, 'getBillingAddressForm').and.callThrough();
+      component.ngAfterViewInit();
+      expect(checkoutBillingAddressFormService.getBillingAddressForm).toHaveBeenCalled();
+    });
+
+    it('should initialize Google Pay', () => {
+      // @ts-ignore
+      spyOn(component, 'initializeGooglePay').and.callThrough();
+      component.ngAfterViewInit();
+      expect(component['initializeGooglePay']).toHaveBeenCalled();
+    });
+
+    it('should initialize Apple Pay', () => {
+      // @ts-ignore
+      spyOn(component, 'initializeApplePay').and.callThrough();
+      component.ngAfterViewInit();
+      expect(component['initializeApplePay']).toHaveBeenCalled();
+    });
+  });
+
+  describe('setSameAsDeliveryAddress', () => {
+    it('should set sameAsDeliveryAddress to true', () => {
+      component.setSameAsDeliveryAddress(true);
+      expect(component.sameAsDeliveryAddress).toBeTrue();
+    });
+
+    it('should set sameAsDeliveryAddress to false', () => {
+      component.setSameAsDeliveryAddress(false);
+      expect(component.sameAsDeliveryAddress).toBeFalse();
+    });
+  });
+
+  describe('showBillingFormAndContinueButton', () => {
+    it('should return false for Card payment method', () => {
+      expect(component.showBillingFormAndContinueButton(PaymentMethod.Card)).toBeFalse();
+    });
+
+    it('should return false for Google Pay payment method', () => {
+      expect(component.showBillingFormAndContinueButton(PaymentMethod.GooglePay)).toBeFalse();
+    });
+
+    it('should return false for Apple Pay payment method', () => {
+      expect(component.showBillingFormAndContinueButton(PaymentMethod.ApplePay)).toBeFalse();
+    });
+
+    it('should return false for iDeal payment method', () => {
+      expect(component.showBillingFormAndContinueButton(PaymentMethod.iDeal)).toBeFalse();
+    });
+
+    it('should return false for ACH payment method', () => {
+      expect(component.showBillingFormAndContinueButton(PaymentMethod.ACH)).toBeFalse();
+    });
+
+    it('should return true for unknown payment method', () => {
+      expect(component.showBillingFormAndContinueButton('UnknownMethod')).toBeTrue();
+    });
+  });
+
+  describe('selectApmPaymentDetails', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+    it('should emit payment details and billing address when billing address is same as delivery address', () => {
+      spyOn(component.setPaymentDetails, 'emit');
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
+
+      component.selectApmPaymentDetails();
+
+      expect(component.setPaymentDetails.emit).toHaveBeenCalledWith({
+        paymentDetails: {
+          code: component['paymentDetails'].code,
+          name: component['paymentDetails'].name,
+        },
+        billingAddress: undefined
+      });
+    });
+
+    it('should emit payment details and billing address when billing address form is valid', () => {
+      spyOn(component.setPaymentDetails, 'emit');
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressFormValid').and.returnValue(true);
+      spyOn(checkoutBillingAddressFormService, 'getBillingAddress').and.returnValue(mockBillingAddress);
+
+      component.selectApmPaymentDetails();
+
+      expect(component.setPaymentDetails.emit).toHaveBeenCalledWith({
+        paymentDetails: {
+          code: component['paymentDetails'].code,
+          name: component['paymentDetails'].name,
+        },
+        billingAddress: mockBillingAddress
+      });
+    });
+
+    it('should make form errors visible and not emit payment details when billing address form is invalid', () => {
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressFormValid').and.returnValue(false);
+      spyOn(component.setPaymentDetails, 'emit');
+
+      component.selectApmPaymentDetails();
+      expect(component.setPaymentDetails.emit).not.toHaveBeenCalled();
+    });
+
+    it('should set submitting state to true when billing address is same as delivery address', () => {
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
+
+      component.selectApmPaymentDetails();
+
+      expect(component.submitting$.value).toBeTrue();
+    });
+
+    it('should set submitting state to true when billing address form is valid', () => {
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
+      spyOn(checkoutBillingAddressFormService, 'isBillingAddressFormValid').and.returnValue(true);
+
+      component.selectApmPaymentDetails();
+
+      expect(component.submitting$.value).toBeTrue();
+    });
+  });
+
+  describe('selectDefaultCardPaymentMethod', () => {
+    it('should select default card payment method when apm is not provided', () => {
+      spyOn(worldpayApmService, 'selectAPM');
+      component['selectDefaultCardPaymentMethod'](null);
+      expect(worldpayApmService.selectAPM).toHaveBeenCalledWith({ code: PaymentMethod.Card });
+    });
+
+    it('should set payment details when apm is provided', () => {
+      const mockApm: ApmData = {
+        code: PaymentMethod.GooglePay,
+        name: 'Google Pay'
+      };
+      component['selectDefaultCardPaymentMethod'](mockApm);
+      expect(component['paymentDetails']).toEqual(mockApm);
+    });
+  });
+
+  describe('initializeGooglePay', () => {
+    it('should initialize Google Pay and set googlePay$ observable', () => {
+      const mockApmData: ApmData = {
+        code: PaymentMethod.GooglePay,
+        name: 'Google Pay'
+      };
+      spyOn(worldpayApmService, 'getApmComponentById').and.returnValue(of(mockApmData));
+      spyOn(worldpayGooglepayService, 'requestMerchantConfiguration');
+      spyOn(worldpayGooglepayService, 'getMerchantConfigurationFromState').and.returnValue(of(merchantConfig));
+
+      component['initializeGooglePay']();
+
+      component.googlePay$.subscribe((apmData) => {
+        expect(apmData).toEqual(mockApmData);
+      });
+      expect(worldpayGooglepayService.requestMerchantConfiguration).toHaveBeenCalled();
+    });
+
+    it('should not set googlePay$ observable if merchant configuration is not available', (doneFn) => {
+      const mockApmData: ApmData = {
+        code: PaymentMethod.GooglePay,
+        name: 'Google Pay'
+      };
+      spyOn(console, 'error');
+      spyOn(worldpayApmService, 'getApmComponentById').and.returnValue(of(mockApmData));
+      spyOn(worldpayGooglepayService, 'requestMerchantConfiguration');
+      spyOn(worldpayGooglepayService, 'getMerchantConfigurationFromState').and.returnValue(throwError(() => new Error('error')));
+
+      component['initializeGooglePay']();
+
+      component.googlePay$.subscribe({
+        next: (apmData) => {
+          expect(apmData).toBeUndefined();
+          doneFn();
+        },
+        error: () => {
+          doneFn();
+        }
+      });
+      expect(worldpayGooglepayService.requestMerchantConfiguration).toHaveBeenCalled();
+    });
+  });
+
+  describe('initializeApplePay', () => {
+    it('should initialize Apple Pay and set applePay$ observable when Apple Pay button is available', () => {
+      const mockApmData: ApmData = {
+        code: PaymentMethod.ApplePay,
+        name: 'Apple Pay'
+      };
+      spyOn(worldpayApplepayService, 'applePayButtonAvailable').and.returnValue(true);
+      spyOn(worldpayApmService, 'getApmComponentById').and.returnValue(of(mockApmData));
+
+      component['initializeApplePay']();
+
+      component.applePay$.subscribe((apmData) => {
+        expect(apmData).toEqual(mockApmData);
+      });
+    });
+
+    it('should not set applePay$ observable when Apple Pay button is not available', () => {
+      spyOn(worldpayApplepayService, 'applePayButtonAvailable').and.returnValue(false);
+      spyOn(worldpayApmService, 'getApmComponentById').and.returnValue(of(undefined));
+
+      component['initializeApplePay']();
+      expect(worldpayApmService.getApmComponentById).not.toHaveBeenCalled();
+      expect(component.applePay$).toBeUndefined();
+    });
   });
 
   it('should not show spinner by default', () => {
@@ -340,6 +562,14 @@ describe('WorldpayApmComponent', () => {
       expect(backButton).toBeFalsy();
       done();
     });
+  });
+
+  it('should emit back event when return is called', () => {
+    spyOn(component.back, 'emit');
+
+    component.return();
+
+    expect(component.back.emit).toHaveBeenCalled();
   });
 
 });

@@ -1,13 +1,13 @@
 <form
   (ngSubmit)="submitForm()"
-  class="cx-place-order-form form-check"
   [formGroup]="checkoutSubmitForm"
+  class="cx-place-order-form form-check"
 >
   <div class="form-group">
     <label>
       <input
-        formControlName="termsAndConditions"
         class="form-check-input"
+        formControlName="termsAndConditions"
         type="checkbox"
       />
       <span class="form-check-label">
@@ -25,38 +25,58 @@
       ></cx-form-errors>
     </label>
   </div>
-  
-  <button type="submit" class="btn btn-primary btn-block btn-submit" [disabled]="!paymentAuthorized || (isLoading$ | async)">
+
+  <button
+    [disabled]="!paymentAuthorized || (isLoading$ | async)"
+    class="btn btn-primary btn-block btn-submit"
+    type="submit"
+  >
     {{ 'checkoutReview.placeOrder' | cxTranslate }}
   </button>
 
 </form>
 
 <iframe
-  *ngIf="ddcIframeUrl$ | async" [src]="ddcIframeUrl$ | async" height="1" width="1"
-  style="display: none;"
+  *ngIf="ddcIframeUrl$ | async"
+  [src]="ddcIframeUrl$ | async"
+  height="1"
+  style="visibility: hidden"
+  width="1"
 ></iframe>
 
-<div class="wp-challenge" *ngIf="challengeIframeUrl$ | async as challengeIframeUrl">
-  <iframe [src]="challengeIframeUrl" [height]="challengeIframeHeight" [width]="challengeIframeWidth"></iframe>
+<div
+  *ngIf="challengeIframeUrl$ | async as challengeIframeUrl"
+  class="wp-challenge"
+>
+  <iframe
+    [height]="challengeIframeHeight"
+    [src]="challengeIframeUrl"
+    [width]="challengeIframeWidth"
+  ></iframe>
 </div>
 
-<div *ngIf="redirectData$ | async as redirectData" class="d-none">
+<div
+  *ngIf="redirectData$ | async as redirectData"
+  class="d-none"
+>
   <form
-    ngNoForm [action]="redirectData.postUrl" method="GET"
+    [action]="redirectData.postUrl"
     id="redirect-form"
+    method="GET"
+    ngNoForm
   >
     <input
       *ngFor="let queryParams of queryParams"
+      [name]="queryParams.key"
+      [value]="queryParams.value"
       type="hidden"
-      [name]="queryParams.key" [value]="queryParams.value"
     />
     <input
       *ngFor="let redirectParameter of redirectData.parameters?.entry"
-      type="hidden"
       [name]="redirectParameter.key"
       [value]="redirectParameter.value"
+      type="hidden"
     />
-  
+
   </form>
 </div>

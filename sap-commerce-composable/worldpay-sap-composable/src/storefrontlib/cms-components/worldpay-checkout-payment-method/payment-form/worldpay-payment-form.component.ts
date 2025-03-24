@@ -1,21 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { GlobalMessageService, TranslationService, UserAddressService, UserPaymentService } from '@spartacus/core';
-import { LaunchDialogService } from '@spartacus/storefront';
-import { Observable, Subject } from 'rxjs';
-import { WorldpayFraudsightService } from '../../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
-import { distinctUntilChanged, takeUntil, withLatestFrom } from 'rxjs/operators';
 import { CheckoutPaymentFormComponent } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutPaymentFacade } from '@spartacus/checkout/base/root';
+import { GlobalMessageService, LoggerService, TranslationService, UserAddressService, UserPaymentService } from '@spartacus/core';
+import { LaunchDialogService } from '@spartacus/storefront';
+import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
+import { Observable } from 'rxjs';
+import { distinctUntilChanged, withLatestFrom } from 'rxjs/operators';
 
 @Component({
   selector: 'wp-payment-form',
   templateUrl: './worldpay-payment-form.component.html',
-  styleUrls: ['./worldpay-payment-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent implements OnInit, OnDestroy {
+export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent implements OnInit {
   override paymentForm: UntypedFormGroup = this.fb.group({
     defaultPayment: [false],
     save: [false],
@@ -30,7 +30,8 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
     cvn: ['', Validators.required]
   });
   isFraudSightEnabled$: Observable<boolean> = this.worldpayFraudsightService.isFraudSightEnabledFromState();
-  private drop: Subject<void> = new Subject<void>();
+  protected logger: LoggerService = inject(LoggerService);
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
   constructor(
     protected override checkoutPaymentFacade: CheckoutPaymentFacade,
@@ -62,7 +63,7 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
 
     this.paymentForm.get('defaultPayment').valueChanges.pipe(
       distinctUntilChanged(),
-      takeUntil(this.drop)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (value: boolean): void => {
         if (value === true) {
@@ -73,7 +74,7 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
 
     this.paymentForm.get('save').valueChanges.pipe(
       withLatestFrom(this.paymentForm.get('defaultPayment').valueChanges),
-      takeUntil(this.drop)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: ([save, defaultPayment]: [boolean, boolean]): void => {
         if (save === false && defaultPayment === true) {
@@ -85,9 +86,9 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
 
   protected toggleDateOfBirthControl(): void {
     this.isFraudSightEnabled$
-      .pipe(takeUntil(this.drop))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (enabled) => {
+        next: (enabled: boolean): void => {
           if (enabled) {
             this.paymentForm.addControl('dateOfBirth', this.fb.control('', [
               Validators.required
@@ -96,12 +97,7 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
             this.paymentForm.removeControl('dateOfBirth');
           }
         },
-        error: (err: unknown) => console.error(err)
+        error: (err: unknown): void => this.logger.error(err)
       });
-  }
-
-  ngOnDestroy(): void {
-    this.drop.next();
-    this.drop.complete();
   }
 }

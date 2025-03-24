@@ -1,21 +1,12 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { Address, CmsOrderDetailOverviewComponent, I18nTestingModule, PaymentDetails, TranslationService, } from '@spartacus/core';
-import { Observable, of } from 'rxjs';
-import { WorldpayOrderOverviewComponent } from './worldpay-order-overview.component';
-import { Card, CmsComponentData } from '@spartacus/storefront';
-import { Component, Input } from '@angular/core';
 import { DeliveryMode } from '@spartacus/cart/base/root';
+import { Address, CmsOrderDetailOverviewComponent, I18nTestingModule, PaymentDetails, TranslationService, } from '@spartacus/core';
+import { OrderDetailsService, OrderOverviewComponentService } from '@spartacus/order/components';
 import { Order, ReplenishmentOrder } from '@spartacus/order/root';
-import { OrderDetailsService } from '@spartacus/order/components';
-
-@Component({
-  selector: 'cx-card',
-  template: ''
-})
-class MockCardComponent {
-  @Input()
-  content: Card;
-}
+import { CmsComponentData } from '@spartacus/storefront';
+import { MockCxCardComponent } from '@worldpay-tests/components';
+import { EMPTY, Observable, of } from 'rxjs';
+import { WorldpayOrderOverviewComponent } from './worldpay-order-overview.component';
 
 const mockDeliveryAddress: Address = {
   firstName: 'John',
@@ -111,6 +102,12 @@ const mockOrder: Order = {
 const mockUnformattedAddress = 'test1, , test3, test4';
 const mockFormattedAddress = 'test1, test2, test3, test4';
 
+class MockTranslationService {
+  translate(): Observable<string> {
+    return EMPTY;
+  }
+}
+
 class MockOrderDetailsService {
   isOrderDetailsLoading(): Observable<boolean> {
     return of(false);
@@ -118,6 +115,12 @@ class MockOrderDetailsService {
 
   getOrderDetails() {
     return of(mockOrder);
+  }
+}
+
+class MockOrderOverviewComponentService {
+  shouldShowDeliveryMode(_mode: DeliveryMode): boolean {
+    return true;
   }
 }
 
@@ -134,14 +137,25 @@ describe('WorldpayOrderOverviewComponent', () => {
   let fixture: ComponentFixture<WorldpayOrderOverviewComponent>;
   let translationService: TranslationService;
   let orderDetailsService: OrderDetailsService;
+  let componentService: OrderOverviewComponentService;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
         imports: [I18nTestingModule],
-        declarations: [WorldpayOrderOverviewComponent, MockCardComponent],
+        declarations: [
+          WorldpayOrderOverviewComponent,
+          MockCxCardComponent
+        ],
         providers: [
-
+          {
+            provide: TranslationService,
+            useClass: MockTranslationService
+          },
+          {
+            provide: OrderOverviewComponentService,
+            useClass: MockOrderOverviewComponentService,
+          },
           {
             provide: OrderDetailsService,
             useClass: MockOrderDetailsService
@@ -158,9 +172,9 @@ describe('WorldpayOrderOverviewComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WorldpayOrderOverviewComponent);
     component = fixture.componentInstance;
-    component = fixture.componentInstance;
     translationService = TestBed.inject(TranslationService);
     orderDetailsService = TestBed.inject(OrderDetailsService);
+    componentService = TestBed.inject(OrderOverviewComponentService);
   });
 
   it('should create', () => {
@@ -392,24 +406,21 @@ describe('WorldpayOrderOverviewComponent', () => {
   });
 
   describe('when paymentInfo is defined', () => {
-    let spy;
-    beforeEach(() => {
-      spy = spyOn(translationService, 'translate');
-      spy.and.callThrough();
-    });
 
-    it('should call getPaymentInfoCardContent(payment: PaymentDetails)', () => {
+    it('should call getPaymentInfoCardContent(payment: PaymentDetails)', (doneFn) => {
+      const mockOrderWithPayment = { ...mockOrder };
+      spyOn(translationService, 'translate').and.returnValue(of('paymentForm.payment'));
+      spyOn(component, 'getPaymentDetailsLineTranslation').and.returnValue(of('12/2026'));
       spyOn(component, 'getPaymentInfoCardContent').and.callThrough();
 
       component
-        .getPaymentInfoCardContent(mockOrder)
+        .getPaymentInfoCardContent(mockOrderWithPayment)
         .subscribe((data) => {
           expect(data).toBeTruthy();
           expect(data.title).toEqual('paymentForm.payment');
-          expect(data.textBold).toEqual(
-            mockOrder.paymentInfo.accountHolderName
-          );
-          expect(data.text).toEqual([mockOrder.paymentInfo.cardNumber, 'paymentCard.expires month:12 year:2026']);
+          expect(data.textBold).toEqual(mockOrderWithPayment.paymentInfo.accountHolderName);
+          expect(data.text).toEqual([mockOrderWithPayment.paymentInfo.cardNumber, '12/2026']);
+          doneFn();
         })
         .unsubscribe();
 
@@ -418,29 +429,43 @@ describe('WorldpayOrderOverviewComponent', () => {
       );
     });
 
-    it('should call getPaymentInfoCardContent(payment: PaymentDetails) with APM selected', () => {
-      spy.and.returnValue(of('Payment Method'));
-      spyOn(component, 'getPaymentInfoCardContent').and.callThrough();
-      const apmOrder = {
+    it('should return card content with APM details when order has APM payment info', (doneFn) => {
+      const mockOrderWithAPM = {
         ...mockOrder,
-        paymentInfo: { expiryYear: null },
+        paymentInfo: {
+          expiryYear: null,
+          accountHolderName: null,
+          cardNumber: null
+        },
         worldpayAPMPaymentInfo: { name: 'iDeal' }
       };
+      spyOn(component, 'getPaymentDetailsLineTranslation').and.returnValue(of('12/2026'));
+      spyOn(translationService, 'translate').and.returnValue(of('paymentForm.payment'));
+
       component
-        .getPaymentInfoCardContent(apmOrder)
+        .getPaymentInfoCardContent(mockOrderWithAPM)
         .subscribe((data) => {
           expect(data).toBeTruthy();
-          expect(data.title).toEqual('Payment Method');
-          expect(data.textBold).toEqual(undefined);
-          expect(data.text).toEqual([undefined, 'Payment Method']);
+          expect(data.title).toEqual('paymentForm.payment');
+          expect(data.textBold).toEqual(mockOrderWithAPM.paymentInfo.accountHolderName);
+          expect(data.text).toEqual([mockOrderWithAPM.paymentInfo.cardNumber, '12/2026']);
+          doneFn();
         })
         .unsubscribe();
-
-      expect(component.getPaymentInfoCardContent).toHaveBeenCalledWith(apmOrder);
     });
 
-    it('should trigger getBillingAddressCardContent(billingAddress: Address)', () => {
+    it('should isPaymentInfoCardFull be falsy when paymentInfo is partial', () => {
+      expect(
+        component.isPaymentInfoCardFull({
+          ...mockOrder.paymentInfo,
+          expiryMonth: undefined,
+        })
+      ).toBeFalsy();
+    });
+
+    it('should call getBillingAddressCardContent(billingAddress: Address)', () => {
       spyOn(component, 'getBillingAddressCardContent').and.callThrough();
+      spyOn(translationService, 'translate').and.returnValue(of('paymentForm.billingAddress'));
 
       const billingAddress = mockOrder.paymentInfo.billingAddress;
 
@@ -462,6 +487,52 @@ describe('WorldpayOrderOverviewComponent', () => {
       expect(component.getBillingAddressCardContent).toHaveBeenCalledWith(
         billingAddress
       );
+    });
+
+    describe('getDeliveryAddressCard', () => {
+      it('should return card with formatted address when country name is provided', (doneFn) => {
+        const mockAddress = { ...mockDeliveryAddress };
+        spyOn(translationService, 'translate').and.returnValues(
+          of('shipTo'),
+          of('phoneNumber'),
+          of('mobileNumber')
+        );
+
+        component.getDeliveryAddressCard(mockAddress, 'UK').subscribe((card) => {
+          expect(card.title).toBe('shipTo');
+          expect(card.textBold).toBe(`${mockAddress.firstName} ${mockAddress.lastName}`);
+          expect(card.text).toEqual([
+            mockAddress.line1,
+            mockAddress.line2,
+            `${mockAddress.town}, UK`,
+            mockAddress.postalCode,
+            'phoneNumber: ' + mockAddress.phone
+          ]);
+          doneFn();
+        });
+      });
+
+      it('should return card with formatted address when country name is not provided', (doneFn) => {
+        const mockAddress = { ...mockDeliveryAddress };
+        spyOn(translationService, 'translate').and.returnValues(
+          of('shipTo'),
+          of('phoneNumber'),
+          of('mobileNumber')
+        );
+
+        component.getDeliveryAddressCard(mockAddress).subscribe((card) => {
+          expect(card.title).toBe('shipTo');
+          expect(card.textBold).toBe(`${mockAddress.firstName} ${mockAddress.lastName}`);
+          expect(card.text).toEqual([
+            mockAddress.line1,
+            mockAddress.line2,
+            `${mockAddress.town}, ${mockAddress.country.name}`,
+            mockAddress.postalCode,
+            'phoneNumber: ' + mockAddress.phone
+          ]);
+          doneFn();
+        });
+      });
     });
   });
 
@@ -588,4 +659,107 @@ describe('WorldpayOrderOverviewComponent', () => {
       expect(address).toEqual(mockFormattedAddress);
     });
   });
+
+  describe('isPaymentInfoCardFull', () => {
+    it('should return true when card number, expiry month, and expiry year are defined', () => {
+      const payment: PaymentDetails = {
+        cardNumber: '1234',
+        expiryMonth: '12',
+        expiryYear: '2026',
+      };
+      expect(component.isPaymentInfoCardFull(payment)).toBeTrue();
+    });
+
+    it('should return false when card number is undefined', () => {
+      const payment: PaymentDetails = {
+        cardNumber: undefined,
+        expiryMonth: '12',
+        expiryYear: '2026',
+      };
+      expect(component.isPaymentInfoCardFull(payment)).toBeFalse();
+    });
+
+    it('should return false when expiry month is undefined', () => {
+      const payment: PaymentDetails = {
+        cardNumber: '1234',
+        expiryMonth: undefined,
+        expiryYear: '2026',
+      };
+      expect(component.isPaymentInfoCardFull(payment)).toBeFalse();
+    });
+
+    it('should return false when expiry year is undefined', () => {
+      const payment: PaymentDetails = {
+        cardNumber: '1234',
+        expiryMonth: '12',
+        expiryYear: undefined,
+      };
+      expect(component.isPaymentInfoCardFull(payment)).toBeFalse();
+    });
+
+    it('should return false when payment is null', () => {
+      const payment: PaymentDetails = null;
+      expect(component.isPaymentInfoCardFull(payment)).toBeFalse();
+    });
+  });
+
+  describe('getPaymentDetailsLineTranslation', () => {
+    it('should return translation for card expiry date when expiryYear is defined', (doneFn) => {
+      const mockOrder = {
+        paymentInfo: {
+          expiryMonth: '12',
+          expiryYear: '2026'
+        }
+      } as Order;
+      spyOn(translationService, 'translate').and.returnValue(of('expires 12/2026'));
+
+      component.getPaymentDetailsLineTranslation(mockOrder).subscribe((translation) => {
+        expect(translation).toBe('expires 12/2026');
+        doneFn();
+      });
+    });
+
+    it('should return translation for APM name when expiryYear is not defined but APM name is defined', (doneFn) => {
+      const mockOrder = { worldpayAPMPaymentInfo: { name: 'iDeal' } } as Order;
+      spyOn(translationService, 'translate').and.returnValue(of('APM iDeal'));
+
+      component.getPaymentDetailsLineTranslation(mockOrder).subscribe((translation) => {
+        expect(translation).toBe('APM iDeal');
+        doneFn();
+      });
+    });
+
+    it('should return undefined when neither expiryYear nor APM name is defined', (doneFn) => {
+      const mockOrder = {
+        paymentInfo: {},
+        worldpayAPMPaymentInfo: {}
+      } as Order;
+
+      component.getPaymentDetailsLineTranslation(mockOrder).subscribe((translation) => {
+        expect(translation).toBeUndefined();
+        doneFn();
+      });
+    });
+  });
+
+  describe('getDeliveryModeCard', () => {
+    it('should return card with delivery mode details', (doneFn) => {
+      const mockDeliveryMode: DeliveryMode = {
+        name: 'Standard Shipping',
+        description: '3-5 days',
+        deliveryCost: {
+          formattedValue: '$5.00',
+        },
+      };
+      spyOn(translationService, 'translate').and.returnValue(of('Delivery Method'));
+
+      component.getDeliveryModeCard(mockDeliveryMode).subscribe((card) => {
+        expect(card.title).toBe('Delivery Method');
+        expect(card.textBold).toBe(mockDeliveryMode.name);
+        expect(card.text).toEqual([mockDeliveryMode.description, mockDeliveryMode.deliveryCost.formattedValue]);
+        doneFn();
+      });
+    });
+  });
+
 });

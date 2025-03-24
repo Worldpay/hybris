@@ -9,6 +9,7 @@ import com.worldpay.data.Amount;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.RiskScore;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayExemptionStrategy;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import com.worldpay.transaction.WorldpayPaymentTransactionUtils;
@@ -58,6 +59,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     protected final WorldpayBankConfigurationLookupService worldpayBankConfigurationService;
     protected final WorldpayPaymentTransactionUtils worldpayPaymentTransactionUtils;
     protected final WorldpayFraudSightStrategy worldpayFraudSightStrategy;
+    protected final WorldpayExemptionStrategy worldpayExemptionStrategy;
 
     public DefaultWorldpayPaymentTransactionService(final ModelService modelService,
                                                     final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao,
@@ -65,7 +67,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
                                                     final Populator<PaymentReply, WorldpayAavResponseModel> worldpayAavResponsePopulator,
                                                     final WorldpayBankConfigurationLookupService worldpayBankConfigurationService,
                                                     final WorldpayPaymentTransactionUtils worldpayPaymentTransactionUtils,
-                                                    final WorldpayFraudSightStrategy worldpayFraudSightStrategy) {
+                                                    final WorldpayFraudSightStrategy worldpayFraudSightStrategy,
+                                                    final WorldpayExemptionStrategy worldpayExemptionStrategy) {
         this.modelService = modelService;
         this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
         this.worldpayRiskScoreConverter = worldpayRiskScoreConverter;
@@ -73,6 +76,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         this.worldpayBankConfigurationService = worldpayBankConfigurationService;
         this.worldpayPaymentTransactionUtils = worldpayPaymentTransactionUtils;
         this.worldpayFraudSightStrategy = worldpayFraudSightStrategy;
+        this.worldpayExemptionStrategy = worldpayExemptionStrategy;
     }
 
     /**
@@ -367,6 +371,13 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public void addFraudSightToPaymentTransaction(final PaymentTransactionModel paymentTransaction, final PaymentReply paymentReply) {
         if (worldpayFraudSightStrategy.isFraudSightEnabled()) {
             worldpayFraudSightStrategy.addFraudSight(paymentTransaction, paymentReply);
+        }
+    }
+
+    @Override
+    public void addExemptionResponseToPaymentTransaction(final PaymentTransactionModel paymentTransaction, final PaymentReply paymentReply) {
+        if (worldpayExemptionStrategy.isExemptionEnabled()) {
+            worldpayExemptionStrategy.addExemptionResponse(paymentTransaction, paymentReply);
         }
     }
 

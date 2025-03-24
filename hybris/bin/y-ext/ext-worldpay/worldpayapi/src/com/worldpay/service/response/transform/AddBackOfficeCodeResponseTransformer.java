@@ -13,6 +13,10 @@ import com.worldpay.service.response.ServiceResponse;
  */
 public class AddBackOfficeCodeResponseTransformer extends AbstractServiceResponseTransformer {
 
+    public AddBackOfficeCodeResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        super(serviceResponseTransformerHelper);
+    }
+
     /**
      * (non-Javadoc)
      *
@@ -29,18 +33,18 @@ public class AddBackOfficeCodeResponseTransformer extends AbstractServiceRespons
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
-        if (getServiceResponseTransformerHelper().checkForError(addBackOfficeCodeResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(addBackOfficeCodeResponse, intReply)) {
             return addBackOfficeCodeResponse;
         }
 
-        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
 
-        final BackofficeCodeReceived intBackOfficeCodeReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+        final BackofficeCodeReceived intBackOfficeCodeReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(BackofficeCodeReceived.class::isInstance)
             .map(BackofficeCodeReceived.class::cast)

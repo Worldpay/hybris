@@ -58,7 +58,7 @@ public class PaymentTokenUpdatePopulator implements Populator<UpdateTokenRequest
             .map(internalCardDetailsConverter::convert)
             .ifPresent(intCardDetails -> {
                 final PaymentInstrument intPaymentInstrument = new PaymentInstrument();
-                intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails()
+                intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder()
                     .add(intCardDetails);
                 target.setPaymentInstrument(intPaymentInstrument);
             });

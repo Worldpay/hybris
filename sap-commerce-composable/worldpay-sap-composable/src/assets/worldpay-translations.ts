@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/typedef
 export const worldpayTranslations = {
   en: {
     address: {

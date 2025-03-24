@@ -41,7 +41,7 @@ class WorldpayAPMComponentsTest extends AbstractWorldpaySpockTest {
 
         where:
         responseFormat | currency     | country     | expectedAPMs                                                                         | currencyRange
-        JSON           | EUR_CURRENCY | DE_ISO_CODE | ['SOFORT-SSL', 'KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL', 'SEPA_DIRECT_DEBIT-SSL'] | true
+        JSON           | EUR_CURRENCY | DE_ISO_CODE | ['KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL', 'SEPA_DIRECT_DEBIT-SSL'] | true
         JSON           | EUR_CURRENCY | DE_ISO_CODE | ['KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                        | false
         JSON           | EUR_CURRENCY | NL_ISO_CODE | ['IDEAL-SSL', 'KLARNA_PAYLATER-SSL', 'SEPA_DIRECT_DEBIT-SSL']                        | true
         JSON           | GBP_CURRENCY | UK_ISO_CODE | ['KLARNA_PAYLATER-SSL', 'KLARNA_SLICEIT-SSL']                                        | true

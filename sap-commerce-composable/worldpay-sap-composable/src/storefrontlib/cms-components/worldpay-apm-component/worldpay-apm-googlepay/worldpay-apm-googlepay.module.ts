@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.component';
+import { NgModule } from '@angular/core';
+import { WorldpayGooglepayAdapter } from '@worldpay-connectors/worldpay-googlepay/worldpay-googlepay.adapter';
+import { WorldpayGooglePayConnector } from '@worldpay-connectors/worldpay-googlepay/worldpay-googlepay.connector';
+import { OccWorldpayGooglepayAdapter } from '@worldpay-occ/adapters/worldpay-googlepay/occ-worldpay-googlepay.adapter';
 import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
-import { WorldpayGooglePayConnector } from '../../../../core/connectors/worldpay-googlepay/worldpay-googlepay.connector';
-import { WorldpayGooglepayAdapter } from '../../../../core/connectors/worldpay-googlepay/worldpay-googlepay.adapter';
-import { OccWorldpayGooglepayAdapter } from '../../../../core/occ/adapters/worldpay-googlepay/occ-worldpay-googlepay.adapter';
+import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.component';
 
 @NgModule({
   declarations: [WorldpayApmGooglepayComponent],

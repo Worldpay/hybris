@@ -166,9 +166,9 @@ public final class TokenBuilder {
         Optional.ofNullable(tokenEventReference).ifPresent(token::setTokenEventReference);
         final TokenReason tokenReason = new TokenReason();
         tokenReason.setvalue(tokenReasonValue);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenReason);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(tokenDetails);
-        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError().add(createPaymentInstrument());
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(tokenReason);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(tokenDetails);
+        token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(createPaymentInstrument());
 
         return token;
     }
@@ -185,7 +185,7 @@ public final class TokenBuilder {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
         paypal.setvalue(StringUtils.EMPTY);
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(paypal);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(paypal);
         return paymentInstrument;
     }
 
@@ -219,7 +219,7 @@ public final class TokenBuilder {
 
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(cardDetails);
         return paymentInstrument;
     }
 

@@ -9,7 +9,6 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Specific class for transforming an {@link CaptureServiceRequest} into a {@link PaymentService} object
@@ -75,8 +74,8 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
 
         setShippingInfo(captureRequest.getTrackingIds(), capture);
 
-        orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(capture);
-        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(orderModification);
+        orderModification.getCancelOrCaptureOrProvideCryptogramOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().add(capture);
+        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().add(orderModification);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
         return paymentService;
     }
@@ -92,7 +91,7 @@ public class CaptureRequestTransformer implements ServiceRequestTransformer {
     protected List<ShippingInfo> getShippingInfos(final List<String> trackingIds) {
         return trackingIds.stream()
             .map(this::getShippingInfoWithTrackingId)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     protected ShippingInfo getShippingInfoWithTrackingId(final String trackingId) {

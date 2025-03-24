@@ -13,7 +13,7 @@
     <!--
     The root element paymentService needs two attributes :
     - version : The DTD version.
-    - merchantCode : The code that identifies the merchant
+    - merchantCode : The code that identifies the merchantApmPaymentMethodConfigServiceTest
 
     The paymentService can have the following child elements:
     - submit : merchants submit information to the payment service like orders or batches
@@ -36,13 +36,17 @@
     -->
     <!ELEMENT submit  (order | orderBatch | shopper | futurePayAgreement | makeFuturePayPayment | identifyMeRequest | paymentTokenCreate | challenge)>
 
-    <!ELEMENT modify  (orderModification | batchModification | accountBatchModification | futurePayAgreementModification | paymentTokenUpdate | paymentTokenDelete)>
+    <!ELEMENT modify  (orderModification | batchModification | accountBatchModification | futurePayAgreementModification | paymentTokenUpdate | paymentTokenDelete
+        | deleteNetworkPaymentToken)>
 
-    <!ELEMENT inquiry (orderInquiry | klarnaConfirmationInquiry | batchInquiry | accountBatchInquiry | refundableAmountInquiry | shopperAuthentication | priceInquiry | bankAccountInquiry | identifyMeInquiry | paymentOptionsInquiry | paymentTokenInquiry | shopperTokenRetrieval | cardCheckInquiry | echeckInquiry | bankDetailsInquiry)>
+    <!ELEMENT inquiry (orderInquiry | klarnaConfirmationInquiry | batchInquiry | accountBatchInquiry | refundableAmountInquiry | shopperAuthentication |
+        priceInquiry | bankAccountInquiry | identifyMeInquiry | paymentOptionsInquiry | cardAuthenticationCapabilitiesInquiry | paymentTokenInquiry |
+        shopperTokenRetrieval | cardCheckInquiry | echeckInquiry | bankDetailsInquiry | retrieveInstalmentPlans | cardHolderNameInquiry)>
 
     <!ELEMENT reply   ((orderStatus* | batchStatus | error | addressCheckResponse |
         refundableAmount | accountBatch | shopper | ok |
-        futurePayAgreementStatus | shopperAuthenticationResult | futurePayPaymentResult | pricePoint | checkCardResponse | echeckVerificationResponse | paymentOption* | token*), retry?)>
+        futurePayAgreementStatus | shopperAuthenticationResult | futurePayPaymentResult | pricePoint | checkCardResponse |
+        checkCardHolderNameResponse | echeckVerificationResponse | paymentOption* | token*), retry?, actions?)>
     <!ATTLIST reply   complete (true|false) #IMPLIED >
 
     <!ELEMENT verify  (addressCheck)>
@@ -56,7 +60,7 @@
                          status of an order
     - report           : Order report or transfer report.
     -->
-    <!ELEMENT notify  (orderStatusEvent | report )>
+    <!ELEMENT notify  ((orderStatusEvent, encryptedData?) | report ) >
     <!ATTLIST notify  messageType  (TransferReport | OrderReport | CaptureReport | EventReport | BatchReport)  #IMPLIED >
 
     <!ELEMENT identifyMeRequest (address, birthDate?, gender?, shopperDocuments?, session?, hcgAdditionalData?)>
@@ -87,6 +91,10 @@
     <!-- ================================ -->
     <!ELEMENT order  (( description,
         amount,
+        cashbackAmount?,
+        gratuityAmount?,
+        (secondaryAmount | surchargeAmount)?,
+        donationAmount?,
         risk?,
         orderContent?,
         orderChannel?,
@@ -96,6 +104,7 @@
         shopper?,
         shippingAddress?,
         billingAddress?,
+        hostPaymentOrderAttribute?,
         branchSpecificExtension?,
         extendedOrderDetail?,
         redirectPageAttribute?,
@@ -110,6 +119,7 @@
         mandate?,
         authorisationAmountStatus?,
         dynamic3DS?,
+        accountUpdaterRequest?,
         (createToken|createTokenApproval)?,
         orderLines?,
         subMerchantData?,
@@ -125,7 +135,12 @@
         deviceSession?,
         dynamicCurrencyConversion?,
         overrideNarrative?,
-        GuaranteedPaymentsData?)
+        GuaranteedPaymentsData?,
+        delivery?,
+        fundingTransfer?,
+        externalProcessor?,
+        processBatchTime?,
+        occurredAt?)
         | (info3DSecure,
         session)) >
 
@@ -154,10 +169,30 @@
     <!ELEMENT dynamic3DS EMPTY>
     <!ATTLIST dynamic3DS overrideAdvice (do3DS | no3DS) #REQUIRED>
 
+    <!ELEMENT accountUpdaterRequest EMPTY>
+    <!ATTLIST accountUpdaterRequest allowRealTimeUpdate (true | false) #IMPLIED>
+
     <!ELEMENT overrideNarrative (#PCDATA)>
 
+    <!--Account Funding Transaction fields-->
+    <!ELEMENT fundingParty (accountReference?, fullName?, fundingAddress?, fundingData?)>
+    <!ELEMENT paymentPurpose (#PCDATA)>
+    <!ELEMENT fundingTransfer (paymentPurpose?, fundingParty*)>
+    <!ATTLIST fundingTransfer type CDATA  #IMPLIED>
+    <!ATTLIST fundingTransfer category CDATA  #REQUIRED>
+    <!ELEMENT accountReference (#PCDATA)>
+    <!ATTLIST accountReference accountType CDATA  #IMPLIED>
+    <!ATTLIST fundingParty type (sender|recipient) #REQUIRED>
+    <!ELEMENT fundingAddress  (((street?, houseName?, houseNumber?, houseNumberExtension?) | (address1?, address2?, address3?)),
+        postalCode?,
+        city?,
+        state?,
+        countryCode?,
+        emailAddress?)>
+    <!ELEMENT fundingData (birthDate?, telephoneNumber?)>
+
     <!--GuaranteedPaymentsData additional fields-->
-    <!ELEMENT GuaranteedPaymentsData (secondaryAmount, surchargeAmount, userAccount?, memberships?, discountCodes, productDetails, fulfillmentMethodType, totalShippingCost, sellers?,
+    <!ELEMENT GuaranteedPaymentsData (secondaryAmount, surchargeAmount, userAccount?, memberships?, discountCodes, productDetails, fulfillmentMethodType?, totalShippingCost, sellers?,
         installment?)>
     <!ELEMENT secondaryAmount EMPTY>
     <!ATTLIST secondaryAmount value NMTOKEN #REQUIRED>
@@ -195,7 +230,8 @@
     <!ELEMENT purchaseDiscountPercentage (#PCDATA)>
 
     <!ELEMENT productDetails (product+)>
-    <!ELEMENT product (itemName, itemPrice, itemQuantity, itemIsDigital, itemCategory, itemSubCategory, itemId, itemImage?, itemUrl?, shipmentId?, shopperSubscription?)>
+    <!ELEMENT product (itemName, itemPrice, itemQuantity, itemIsDigital, itemCategory, itemSubCategory, itemId, itemImage?, itemUrl?,
+        shipmentId?, digitalDeliveryName?, digitalDeliveryEmail?, shopperSubscription?, travel?)>
     <!ELEMENT itemName (#PCDATA)>
     <!ELEMENT itemPrice (#PCDATA)>
     <!ELEMENT itemQuantity (#PCDATA)>
@@ -206,9 +242,11 @@
     <!ELEMENT itemImage (#PCDATA)>
     <!ELEMENT itemUrl (#PCDATA)>
     <!ELEMENT shipmentId (#PCDATA)>
+    <!ELEMENT digitalDeliveryName (#PCDATA)>
+    <!ELEMENT digitalDeliveryEmail (#PCDATA)>
 
     <!ELEMENT fulfillmentMethodType EMPTY>
-    <!ATTLIST fulfillmentMethodType value CDATA #REQUIRED>
+    <!ATTLIST fulfillmentMethodType value CDATA #IMPLIED>
     <!ELEMENT totalShippingCost (#PCDATA)>
 
     <!ELEMENT sellers (seller+)>
@@ -251,6 +289,66 @@
     <!ELEMENT installmentTotalValue (#PCDATA)>
     <!ELEMENT installmentValue (#PCDATA)>
 
+    <!ELEMENT travel (transportationMethod?, tripPassengers, tripDetail?)>
+    <!ELEMENT transportationMethod (#PCDATA)>
+    <!ELEMENT tripPassengers (tripPassenger+)>
+    <!ELEMENT tripPassenger (passengerId, passengerFirstName?, passengerLastName?, passengerDateOfBirth?, passengerEmail?, passengerPhone?,
+        passengerMembershipLast4?, passengerIdentityDocument?, ticketStatus?, ancillaryPurchases?)>
+    <!ELEMENT passengerId (#PCDATA)>
+    <!ELEMENT passengerFirstName (#PCDATA)>
+    <!ELEMENT passengerLastName (#PCDATA)>
+    <!ELEMENT passengerDateOfBirth ( date )>
+    <!ELEMENT passengerEmail (#PCDATA)>
+    <!ELEMENT passengerPhone (#PCDATA)>
+    <!ELEMENT passengerMembershipLast4 (#PCDATA)>
+
+    <!ELEMENT passengerIdentityDocument (identityDocumentType?, identityDocumentIssuanceGeo?, identityDocumentLast4?,
+        identityDocumentIssuanceDate?, identityDocumentExpiryDate?)>
+    <!ELEMENT identityDocumentType (#PCDATA)>
+    <!ELEMENT identityDocumentIssuanceGeo (#PCDATA)>
+    <!ELEMENT identityDocumentLast4 (#PCDATA)>
+    <!ELEMENT identityDocumentIssuanceDate ( date )>
+    <!ELEMENT identityDocumentExpiryDate ( date )>
+
+    <!ELEMENT ticketStatus (#PCDATA)>
+
+    <!ELEMENT ancillaryPurchases (ancillaryPurchase+)>
+    <!ELEMENT ancillaryPurchase (ancillaryPurchaseType?, ancillaryPurchaseItemName?, ancillaryPurchaseItemPrice?,
+        ancillaryPurchaseTypeQuantity?, ancillaryPurchaseCurrency?)>
+    <!ELEMENT ancillaryPurchaseType (#PCDATA)>
+    <!ELEMENT ancillaryPurchaseItemName (#PCDATA)>
+    <!ELEMENT ancillaryPurchaseItemPrice (#PCDATA)>
+    <!ELEMENT ancillaryPurchaseTypeQuantity (#PCDATA)>
+    <!ELEMENT ancillaryPurchaseCurrency (#PCDATA)>
+
+    <!ELEMENT tripDetail (tripSlice, tripIsFlexible?, tripIsInsured?, milesUsed?, numberMilesUsed?, milesBalance?, milesCompanyName?, partnerMilesUsed?)>
+    <!ELEMENT tripSlice (slicePrice?, sliceCurrency?, bookingClass?, tripSliceLegs?)>
+    <!ELEMENT slicePrice (#PCDATA)>
+    <!ELEMENT sliceCurrency (#PCDATA)>
+    <!ELEMENT bookingClass (#PCDATA)>
+    <!ELEMENT tripSliceLegs (tripSliceLeg+)>
+    <!ELEMENT tripSliceLeg (routeCode?, departureCity?, departureState?, departureCountryCode?, departurePortCode?, arrivalCity?,
+        arrivalState?, arrivalCountryCode?, arrivalPortCode?, departureDateTime?, arrivalDateTime?, carrierName?)>
+    <!ELEMENT routeCode (#PCDATA)>
+    <!ELEMENT departureState (#PCDATA)>
+    <!ELEMENT departureCountryCode (#PCDATA)>
+    <!ELEMENT departurePortCode (#PCDATA)>
+    <!ELEMENT arrivalState (#PCDATA)>
+    <!ELEMENT arrivalCountryCode (#PCDATA)>
+    <!ELEMENT arrivalPortCode (#PCDATA)>
+    <!ELEMENT departureDateTime ( date )>
+    <!ELEMENT arrivalDateTime ( date )>
+    <!ELEMENT carrierName (#PCDATA)>
+
+    <!ELEMENT tripIsFlexible (#PCDATA)>
+    <!ELEMENT tripIsInsured (#PCDATA)>
+    <!ELEMENT milesUsed (#PCDATA)>
+    <!ELEMENT numberMilesUsed (#PCDATA)>
+    <!ELEMENT milesBalance (#PCDATA)>
+    <!ELEMENT milesCompanyName (#PCDATA)>
+    <!ELEMENT partnerMilesUsed (#PCDATA)>
+
+
     <!--Order Lines element added in order to support
         line items for Klarna integration -->
     <!ELEMENT orderLines (orderTaxAmount?, termsURL?, lineItem+)>
@@ -258,11 +356,11 @@
         reference?,
         name,
         quantity,
-        quantityUnit,
+        quantityUnit?,
         unitPrice,
-        taxRate,
+        taxRate?,
         totalAmount,
-        totalTaxAmount,
+        totalTaxAmount?,
         totalDiscountAmount?,
         productURL?,
         imageURL?)>
@@ -274,7 +372,11 @@
     <!ELEMENT giftCard EMPTY>
     <!ELEMENT storeCredit EMPTY>
     <!ELEMENT surcharge EMPTY>
+    <!ELEMENT first (#PCDATA)>
+    <!ELEMENT middle (#PCDATA)>
+    <!ELEMENT last (#PCDATA)>
     <!ELEMENT name (#PCDATA)>
+    <!ELEMENT fullName (first?, middle?, last?)>
     <!ELEMENT quantity (#PCDATA)>
     <!ELEMENT quantityUnit (#PCDATA)>
     <!ELEMENT unitPrice (#PCDATA)>
@@ -289,7 +391,7 @@
         Create token element added to be used for requests
         of creating a new token in the Token Store.
     -->
-    <!ELEMENT createToken (tokenEventReference?, tokenReason?, shortLifeMins?, paymentTokenExpiry?)>
+    <!ELEMENT createToken (tokenEventReference?, tokenReason?, shortLifeMins?, paymentTokenExpiry?, selectedScheme?)>
     <!ATTLIST createToken tokenScope (shopper | merchant)    'shopper'>
     <!ATTLIST createToken tokenOptIn (silent | notify | ask) #IMPLIED>
     <!ELEMENT tokenEventReference (#PCDATA)>
@@ -312,7 +414,7 @@
         cvcLevel NMTOKEN  #IMPLIED>
 
 
-    <!ELEMENT pricePoint (	locale,
+    <!ELEMENT pricePoint (    locale,
         pricing,
         comments) >
 
@@ -328,7 +430,7 @@
         exchangeFactor NMTOKEN  #IMPLIED>
 
     <!ELEMENT pricing EMPTY>
-    <!ATTLIST pricing 	amount NMTOKEN  #IMPLIED
+    <!ATTLIST pricing    amount NMTOKEN  #IMPLIED
         amountExSalesTax NMTOKEN  #IMPLIED
         amountIncSalesTax NMTOKEN  #IMPLIED
         amountReceivableGross NMTOKEN  #IMPLIED
@@ -525,12 +627,13 @@
     <!--
         Define paymentTokenCreate element used for requests of creating a new token without payment.
     -->
-    <!ELEMENT paymentTokenCreate (authenticatedShopperID?,createToken?,(paymentInstrument | CSE-DATA), storedCredentials?)>
+    <!ELEMENT paymentTokenCreate (authenticatedShopperID?,createToken?,(paymentInstrument | CSE-DATA | posPaymentInstrument), storedCredentials?)>
 
     <!-- CHILD ELEMENTS OF MODIFY ELEMENT -->
     <!-- ================================ -->
     <!ELEMENT orderModification  (cancel |
         capture |
+        provideCryptogram |
         refund |
         revoke |
         addBackOfficeCode |
@@ -556,6 +659,8 @@
 
     <!ELEMENT paymentTokenDelete (paymentTokenID, authenticatedShopperID?, tokenEventReference?, tokenReason? )>
     <!ATTLIST paymentTokenDelete tokenScope (shopper | merchant) 'shopper'>
+
+    <!ELEMENT deleteNetworkPaymentToken (tokenId?, networkToken? )>
 
     <!-- CHILD ELEMENTS OF INQUIRY ELEMENT -->
     <!-- ================================= -->
@@ -596,15 +701,19 @@
         countryCode NMTOKEN  #IMPLIED
         maximumBilledMessages NMTOKEN  #IMPLIED >
     <!ELEMENT paymentOptionsInquiry  EMPTY>
-    <!ATTLIST paymentOptionsInquiry  	countryCode NMTOKEN  #REQUIRED >
+    <!ATTLIST paymentOptionsInquiry    countryCode NMTOKEN  #REQUIRED >
     <!ELEMENT bankAccountInquiry EMPTY>
     <!ATTLIST bankAccountInquiry source NMTOKEN #REQUIRED>
     <!ATTLIST bankAccountInquiry shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT identifyMeInquiry EMPTY>
     <!ATTLIST identifyMeInquiry orderCode CDATA  #REQUIRED >
+    <!ELEMENT devicePayload (#PCDATA )>
+    <!ELEMENT cardAuthenticationCapabilitiesInquiry (paymentTokenInquiry?,cardNumber?,shopperEmailAddress,devicePayload)>
+    <!ATTLIST cardAuthenticationCapabilitiesInquiry transactionId NMTOKEN  #REQUIRED>
     <!ELEMENT paymentTokenInquiry (authenticatedShopperID?, paymentTokenID)>
     <!ATTLIST paymentTokenInquiry tokenScope (shopper | merchant) 'shopper'>
     <!ATTLIST paymentTokenInquiry detokenisation (true|false) 'false'>
+    <!ATTLIST paymentTokenInquiry markUsed (true|false) 'false'>
     <!ELEMENT shopperTokenRetrieval (authenticatedShopperID)>
     <!ELEMENT cardCheckInquiry (paymentDetails)>
     <!ELEMENT echeckInquiry (paymentDetails)>
@@ -613,6 +722,10 @@
     <!ATTLIST bankDetailsInquiry pageNumber NMTOKEN #REQUIRED>
     <!ATTLIST bankDetailsInquiry pageSize NMTOKEN #REQUIRED>
     <!ATTLIST bankDetailsInquiry bankCode CDATA #IMPLIED>
+    <!ELEMENT retrieveInstalmentPlans (paymentInstrument , amount)>
+    <!ATTLIST retrieveInstalmentPlans scheme (VISA | SOUTHKOREA) #REQUIRED>
+    <!ELEMENT cardHolderNameInquiry (paymentMethod?, recipient?)>
+
 
     <!-- CHILD ELEMENTS OF REPLY ELEMENT -->
     <!-- =============================== -->
@@ -657,6 +770,7 @@
             extendExpiryDateReceived|
             orderReceived |
             cancelRetryDone |
+            cryptogramReceived |
             voidSaleReceived)) >
 
     <!ELEMENT voidReceived EMPTY >
@@ -703,16 +817,19 @@
     <!ELEMENT orderReceived (token?) >
     <!ATTLIST orderReceived orderCode CDATA #REQUIRED>
 
+    <!ELEMENT cryptogramReceived EMPTY >
+    <!ATTLIST cryptogramReceived orderCode CDATA #REQUIRED>
+
     <!ELEMENT qrCode (#PCDATA)>
     <!ELEMENT orderStatus ( (((reference,bankAccount?,apmEnrichedData?) |
         error | apmEnrichedData |
-        (payment, qrCode?, cardBalance?, paymentAdditionalDetails?, billingAddressDetails?, exemptionResponse?, ((payment* , orderModification?) | journal | reference)) |
+        (payment, qrCode?, cardBalance?, paymentAdditionalDetails?, billingAddressDetails?, exemptionResponse?, instalmentPlan?, retryDetails?, ((payment*, orderModification?) | journal | reference)) |
         requestInfo |
         challengeRequired |
         fxApprovalRequired |
         pbbaRTP |
         content
-        ), JournalTypeDetail*, token?, date?, echoData?, payAsOrderUseNewOrderCode?) | authenticateResponse)>
+        ), JournalTypeDetail*, token?, date?, echoData?, payAsOrderUseNewOrderCode?, selectedScheme?) | authenticateResponse)>
     <!ATTLIST orderStatus  orderCode CDATA  #REQUIRED >
 
     <!--
@@ -728,7 +845,7 @@
     <!ATTLIST batchStatus  settlementBatchId NMTOKEN  #IMPLIED
         transactions      NMTOKEN  #REQUIRED
         merchantBatchCode CDATA    #REQUIRED
-        status             (	ORDERS_SAVED |
+        status             (    ORDERS_SAVED |
             PROCESSED |
             PROCESSED_WITH_ERRORS |
             CANCELLED )  #REQUIRED >
@@ -750,7 +867,7 @@
     - 10 : ERROR_PRIME_ROUTING : invalid prime routing request (not enabled, invalid network name, etc.)
     - 11 : ERROR_L2_L3_DATA : the XML supplied for the purchase element was invalid
     - 12 : ERROR_LODGING_DATA : the XML supplied for the lodgingInfo element ws invalid
-    - 13 : ERROR_SPLIT_AUTH : there was an error in communication with Cardinal
+    - 13 : ERROR_3DS_FLEX : there was an error in communication with Cardinal
     - 14 : ERROR_TOKEN_MANAGEMENT_SERVICE : there was an error in the processing or communication with the TMS service
     -->
     <!ELEMENT error  (#PCDATA )>
@@ -765,9 +882,44 @@
     <!ELEMENT totalPayments (#PCDATA) >
     <!ELEMENT paymentAmounts  (amount*)>
 
+    <!ELEMENT actions (
+        action+)>
+
+    <!ELEMENT action (
+        type?,
+        href?,
+        method?,
+        transactionId?,
+        appSchemeUrl?,
+        appLinkUrl?,
+        appId?,
+        voucherType?,
+        displayType?,
+        voucherDetails? )>
+
+    <!ELEMENT method (#PCDATA )>
+    <!ELEMENT orderId (#PCDATA )>
+    <!ELEMENT href (#PCDATA )>
+    <!ELEMENT appSchemeUrl (#PCDATA )>
+    <!ELEMENT appLinkUrl (#PCDATA )>
+    <!ELEMENT appId (#PCDATA )>
+    <!ELEMENT voucherType (#PCDATA )>
+    <!ELEMENT displayType (#PCDATA )>
+
+    <!ELEMENT voucherDetails (
+        imageURL?,
+        imageSmallURL?,
+        imageLargeURL?,
+        expiration? )>
+
+    <!ELEMENT imageSmallURL (#PCDATA )>
+    <!ELEMENT imageLargeURL (#PCDATA )>
+    <!ELEMENT expiration (date )>
+
     <!-- CHILD ELEMENTS OF NOTIFY ELEMENT -->
     <!-- ================================ -->
-    <!ELEMENT orderStatusEvent  (payment, paymentAdditionalDetails?, billingAddressDetails?, token?, journal, shopperWebformRefundDetails?, payAsOrderUseNewOrderCode?)>
+    <!ELEMENT orderStatusEvent  (payment, paymentAdditionalDetails?, billingAddressDetails?, token?, exemptionResponse?, journal, shopperWebformRefundDetails?,
+        payAsOrderUseNewOrderCode?, selectedScheme?)>
     <!ATTLIST orderStatusEvent  orderCode CDATA  #REQUIRED
         backOfficeCode CDATA #IMPLIED
         agreementId NMTOKEN #IMPLIED
@@ -792,7 +944,7 @@
         accountType            NMTOKEN  #IMPLIED
         acquirerCode           NMTOKEN  #IMPLIED
         acquirerAccountCode    NMTOKEN  #IMPLIED
-        brandId  			 	 NMTOKEN  #IMPLIED	 >
+        brandId                 NMTOKEN  #IMPLIED     >
 
     <!-- CHILD ELEMENTS OF ORDER ELEMENT -->
     <!-- =============================== -->
@@ -811,10 +963,35 @@
     <amount value="12345" currencyCode="USD" exponent="2"/>
     -->
     <!ELEMENT amount EMPTY>
-    <!ATTLIST amount  value					NMTOKEN  #REQUIRED
-        currencyCode			NMTOKEN  #REQUIRED
-        exponent				(0 | 2 | 3 )  #REQUIRED
-        debitCreditIndicator	(debit | credit )  'credit' >
+    <!ATTLIST amount  value                    NMTOKEN  #REQUIRED
+        currencyCode            NMTOKEN  #REQUIRED
+        exponent                (0 | 2 | 3 )  #REQUIRED
+        debitCreditIndicator    (debit | credit )  'credit' >
+
+    <!--
+    Point of Sale transaction: cashback amount.
+    This amount is already included in the amount element. (This specifies the cashback part).
+    Currency and exponent are the same as the amount element.
+    -->
+    <!ELEMENT cashbackAmount EMPTY>
+    <!ATTLIST cashbackAmount value NMTOKEN #REQUIRED>
+
+    <!--
+    Point of Sale transaction: gratuity amount (tip).
+    This amount is already included in the amount element. (This specifies the gratuity part).
+    Currency and exponent are the same as the amount element.
+    -->
+    <!ELEMENT gratuityAmount EMPTY>
+    <!ATTLIST gratuityAmount value NMTOKEN #REQUIRED>
+
+    <!--
+    Point of Sale transaction: donation amount.
+    This amount is already included in the amount element. (This specifies the donation part).
+    Currency and exponent are the same as the amount element.
+    -->
+    <!ELEMENT donationAmount EMPTY>
+    <!ATTLIST donationAmount value NMTOKEN #REQUIRED>
+
     <!ELEMENT orderContent  (#PCDATA )>
 
     <!ELEMENT orderChannel EMPTY>
@@ -823,11 +1000,11 @@
     <!ELEMENT checkoutId (#PCDATA)>
 
     <!ELEMENT authorisationAmountStatus EMPTY>
-    <!ATTLIST authorisationAmountStatus	value (actual | estimated ) #REQUIRED>
+    <!ATTLIST authorisationAmountStatus    value (actual | estimated ) #REQUIRED>
 
     <!ELEMENT paymentMethodMask  ( storedCredentials? , (include ) ,  (include | exclude )* )>
 
-    <!ELEMENT paymentDetails  (	(VISA-SSL | ECMC-SSL | BHS-SSL | NEWDAY-SSL | IKEA-SSL | AMEX-SSL | ELV-SSL |
+    <!ELEMENT paymentDetails  (    (VISA-SSL | ECMC-SSL | BHS-SSL | NEWDAY-SSL | IKEA-SSL | AMEX-SSL | ELV-SSL |
         SEPA_DIRECT_DEBIT-SSL |
         DINERS-SSL | CB-SSL | AIRPLUS-SSL | UATP-SSL |
         CARTEBLEUE-SSL | SOLO_GB-SSL|
@@ -841,8 +1018,8 @@
         SINGLE_UNSIGNED_DD_FR-SSL|
         PERMANENT_SIGNED_DD_GB-SSL|
         PERMANENT_UNSIGNED_DD_GB-SSL|
-        PAYOUT-BANK | VISACHECKOUT-SSL | MASTERPASS-SSL | PAYPAL-EXPRESS | GIROPAY-SSL | MAESTRO-SSL | SWITCH-SSL |
-        NCPB2B-SSL | NCPSEASON-SSL | NCPGMM-SSL | IDEAL-SSL | ACH-SSL | ACH_DIRECT_DEBIT-SSL | CARD-SSL | ABAQOOS-SSL |
+        PAYOUT-BANK | VISACHECKOUT-SSL | PAYPAL-EXPRESS | GIROPAY-SSL | MAESTRO-SSL | SWITCH-SSL |
+        NCPB2B-SSL | NCPSEASON-SSL | NCPGMM-SSL | IDEAL-SSL | ACH_DIRECT_DEBIT-SSL | CARD-SSL | ABAQOOS-SSL |
         AGMO-SSL | ALIPAY-SSL | ALIPAYMOBILE-SSL| BALOTO-SSL | BANKAXESS-SSL |BANKLINKNORDEA-SSL |
         BILLDESK-SSL | BILLINGPARTNER-SSL | CASHU-SSL | DINEROMAIL_7ELEVEN-SSL | DINEROMAIL_OXXO-SSL |
         DINEROMAIL_ONLINE_BT-SSL | DINEROMAIL_SERVIPAG-SSL | EKONTO-SSL |
@@ -859,7 +1036,7 @@
         OPENBANKING-SSL |
         SEVENELEVEN_MY-SSL | PETRONAS-SSL | ENETS_SG-SSL | CASH_TH-SSL | ATM_ID-SSL |
         TOKEN-SSL |
-        ENETS-SSL | CHINAUNIONPAY-SSL |
+        CHINAUNIONPAY-SSL |
         ENVOY_TRANSFER_AUD-BANK | ENVOY_TRANSFER_CAD-BANK | ENVOY_TRANSFER_CHF-BANK | ENVOY_TRANSFER_CZK-BANK |
         ENVOY_TRANSFER_DKK-BANK | ENVOY_TRANSFER_EUR-BANK | ENVOY_TRANSFER_GBP-BANK | ENVOY_TRANSFER_HKD-BANK |
         ENVOY_TRANSFER_HUF-BANK | ENVOY_TRANSFER_JPY-BANK | ENVOY_TRANSFER_NOK-BANK | ENVOY_TRANSFER_NZD-BANK |
@@ -868,37 +1045,60 @@
         TRANSFER_AT-BANK | TRANSFER_BE-BANK | TRANSFER_CH-BANK | TRANSFER_DE-BANK | TRANSFER_DK-BANK |
         TRANSFER_ES-BANK | TRANSFER_FI-BANK | TRANSFER_FR-BANK | TRANSFER_GB-BANK | TRANSFER_GR-BANK |
         TRANSFER_IT-BANK | TRANSFER_JP-BANK | TRANSFER_LU-BANK | TRANSFER_NL-BANK | TRANSFER_NO-BANK |
-        TRANSFER_PL-BANK | TRANSFER_SE-BANK | TRANSFER_US-BANK | EMVCO_TOKEN-SSL | APPLEPAY-SSL | ANDROIDPAY-SSL | SAMSUNGPAY-SSL | PAYWITHGOOGLE-SSL | KLARNA-SSL | KLARNA_PAYLATER-SSL |
+        TRANSFER_PL-BANK | TRANSFER_SE-BANK | TRANSFER_US-BANK | EMVCO_TOKEN-SSL | APPLEPAY-SSL | ANDROIDPAY-SSL |
+        SAMSUNGPAY-SSL | PAYWITHGOOGLE-SSL | CLICKTOPAY-SSL | KLARNA-SSL | KLARNA_PAYLATER-SSL |
         KLARNA_PAYNOW-SSL | KLARNA_SLICEIT-SSL | KLARNA_V2-SSL | WECHATPAY-SSL | BILLKEY-SSL | INIPAY-SSL |
         WEBPAY-SSL |
-        PBBA-SSL |
+        PBBA-SSL | APM |
         MERCADOPAGO-SSL | PAYPAL-SSL | FPX-SSL | AFTERPAY-SSL | CLEARPAY-SSL | ALIPAY_HK-SSL | GRABPAY-SSL | MAE-SSL | TRUEMONEY-SSL |
-        BANKTRANSFER-SSL | TOUCHNGO-SSL | BOOST-SSL |
-        SVS_GIFTCARD-SSL |
+        BANKTRANSFER-SSL | TOUCHNGO-SSL | BOOST-SSL | LINEPAY-SSL | PROMPTPAY-SSL | ALIPAY_CN-SSL |
+        SVS_GIFTCARD-SSL | KAKAOPAY-SSL |
         TROY-SSL | UPI-SSL | UPEX-SSL |
-        FF_DISBURSE-SSL |
-        FF_MONEYTRANSFER-SSL | EPS_ENV-SSL |
+        FF_DISBURSE-SSL | FF_MONEYTRANSFER-SSL | FF_HPP-SSL | EPS_ENV-SSL | MYBANK-SSL | SATISPAY-SSL | BANCOMATPAY-SSL | BLIK-SSL | PAYBYBANK_AU-SSL |
+        OXXO-SSL |
         (cardNumber, expiryDate, cardHolderName,
             (cvc | issueNumber | startDate)? ) |
         POSRequest |
         (cardSwipe, cvc?) |
         CSE-DATA
         ), sdwoData?, MVV?, retailerCountry?,storedCredentials?, localDateTimeAtPOS?, session?, info3DSecure?, captcha?, existingAuthorisationCode?,
-        routingMID?,businessApplication?)>
+        routingMID?, additionalCOFData?, businessApplication?,  instalmentPlan?, selectedScheme?)>
     <!ATTLIST paymentDetails  action  (AUTHORISE | REFUND | OFFLINEAUTHORISE | ACCOUNTVERIFICATION | SALE | AUTHENTICATE)  'AUTHORISE' >
     <!ELEMENT customerToken (tokenId?, description?)>
     <!ATTLIST customerToken  usage (SUBSCRIPTION | USE) #IMPLIED>
+    <!ELEMENT externalProcessor (#PCDATA)>
+
     <!-- CHILD ELEMENT OF customerToken ELEMENT -->
     <!ELEMENT tokenId (#PCDATA)>
+    <!ELEMENT networkToken (#PCDATA)>
 
-    <!ELEMENT storedCredentials (schemeTransactionIdentifier?)>
+    <!ELEMENT storedCredentials (schemeTransactionIdentifier?, threeRIData?, isConsumerConsentReceived?)>
     <!ATTLIST storedCredentials usage (NA | FIRST | USED) #REQUIRED
-        merchantInitiatedReason (NA | REAUTH | UNSCHEDULED | DELAYED | INSTALMENT | INCREMENTAL | RECURRING | RESUBMISSION | NOSHOW) #IMPLIED>
-    <!-- CHILD ELEMENT OF storedCredentials ELEMENT -->
+        merchantInitiatedReason (NA | REAUTH | UNSCHEDULED | DELAYED | INSTALMENT | INCREMENTAL | RECURRING | RESUBMISSION | NOSHOW) #IMPLIED
+        customerInitiatedReason (RECURRING | UNSCHEDULED | INSTALMENT) #IMPLIED>
+    <!-- CHILD ELEMENTS OF storedCredentials ELEMENT -->
     <!ELEMENT schemeTransactionIdentifier (#PCDATA)>
+    <!ELEMENT threeRIData (recurringEndDate?, recurringFrequency?, priorAuthenticationData?)>
+    <!ELEMENT isConsumerConsentReceived (#PCDATA)>
+
+    <!-- CHILD ELEMENTS OF threeRIData ELEMENT -->
+    <!ELEMENT recurringEndDate (date)>
+    <!ELEMENT recurringFrequency (#PCDATA)>
+    <!ELEMENT priorAuthenticationData (dsTransactionId, acsTransactionId, authenticationTimestamp)>
+
+    <!-- CHILD ELEMENT OF additionalCOFData ELEMENT -->
+    <!ELEMENT additionalCOFData (totalPaymentCount?,uniqueId?,sequenceIndicator?,validationReference?)>
+    <!ATTLIST additionalCOFData paymentType (FIXED_AMOUNT | VARIABLE_AMOUNT) #IMPLIED
+        frequencyOfMIT (DAILY | WEEKLY | BI_WEEKLY | MONTHLY | QUARTERLY | BI_ANNUALLY | ANNUALLY | UNSCHEDULED) #IMPLIED>
+    <!ELEMENT totalPaymentCount (#PCDATA)>
+    <!ELEMENT uniqueId (#PCDATA)>
+    <!ELEMENT sequenceIndicator (#PCDATA)>
+    <!ELEMENT validationReference (#PCDATA)>
+
     <!-- CHILD ELEMENT OF businessApplication ELEMENT -->
     <!ELEMENT businessApplication EMPTY>
     <!ATTLIST businessApplication type (HIGH_RISK_SECURITIES_PURCHASE | FUND_TRANSFER | WALLET_TRANSFER) #IMPLIED>
+
     <!ELEMENT payAsOrder  (amount, storedCredentials?)>
     <!ATTLIST payAsOrder  orderCode CDATA  #REQUIRED
         merchantCode NMTOKEN  #IMPLIED
@@ -923,8 +1123,8 @@
 
     <!-- CHILD ELEMENTS OF PAYMENT ADDITIONAL DETAILS ELEMENT -->
     <!-- ================================= -->
-    <!ELEMENT shopperId	(#PCDATA )>
-    <!ELEMENT shopperStatus	(#PCDATA )>
+    <!ELEMENT shopperId    (#PCDATA )>
+    <!ELEMENT shopperStatus    (#PCDATA )>
     <!ELEMENT shopperCountryCode (#PCDATA )>
 
 
@@ -945,7 +1145,7 @@
 
     <!-- CHILD ELEMENTS OF SHIPPING ADDRESS DETAILS ELEMENT -->
     <!-- ================================= -->
-    <!ELEMENT addressStatus	(#PCDATA )>
+    <!ELEMENT addressStatus    (#PCDATA )>
     <!ELEMENT addressSource (#PCDATA )>
 
     <!ELEMENT billingAddress  (address? )>
@@ -959,7 +1159,7 @@
         countryCode?)>
 
 
-    <!ELEMENT branchSpecificExtension (airline|purchase|hotel|lodging)>
+    <!ELEMENT branchSpecificExtension (airline|railway|carRental|purchase|hotel|lodging|ferry|events)>
     <!ELEMENT extendedOrderDetail (marketplaceCustomer?, marketplaceCustomerPayment?, marketplaceCustomerPaymentSummary?, alternativeShippingAddress?,eventBooking*, reservationDetails*)>
     <!-- To enable pay connect for PBBA payments, the following elements are mandatory:
         - userAgentHeader
@@ -988,19 +1188,20 @@
     <!ELEMENT fontAttr (#PCDATA)>
     <!ELEMENT bodyAttr (#PCDATA)>
     <!ELEMENT macAddress (#PCDATA)>
-	<!ELEMENT browserJavaEnabled (#PCDATA)>
-	<!ELEMENT browserJavaScriptEnabled (#PCDATA)>
-	<!ELEMENT browserColourDepth (#PCDATA)>
-	<!ELEMENT browserScreenHeight (#PCDATA)>
-	<!ELEMENT browserScreenWidth (#PCDATA)>
+    <!ELEMENT browserJavaEnabled (#PCDATA)>
+    <!ELEMENT browserJavaScriptEnabled (#PCDATA)>
+    <!ELEMENT browserColourDepth (#PCDATA)>
+    <!ELEMENT browserScreenHeight (#PCDATA)>
+    <!ELEMENT browserScreenWidth (#PCDATA)>
 
     <!--
     An info3DSecure element contains the Verified by Visa payment authentication
     response data necessary to complete a 3D Secure transaction.
     -->
     <!ELEMENT info3DSecure ((paResponse|(mpiProvider,mpiResponse)|attemptedAuthentication|completedAuthentication|(threeDSVersion?, merchantName?, xid?,
-        dsTransactionId?, cavv?, eci, delegatedAuthentication?, transactionStatusReason?, challengeCancelIndicator?, networkScore?, cardBrand?, cavvAlgorithm?))?)>
-    <!ATTLIST info3DSecure challengePreference (noPreference | noChallengeRequested | challengeRequested | challengeMandated) #IMPLIED
+        dsTransactionId?, cavv?, eci, threeRI?, delegatedAuthentication?, transactionStatusReason?, challengeCancelIndicator?, networkScore?, cardBrand?,
+        cavvAlgorithm?))?)>
+    <!ATTLIST info3DSecure challengePreference (noPreference | noChallengeRequested | challengeRequested | challengeMandated | dataOnly) #IMPLIED
         effectiveAuthenticationType (challenge | frictionless | frictionlessDelegated) #IMPLIED>
     <!ELEMENT paResponse (#PCDATA)>
     <!ELEMENT mpiProvider (#PCDATA)>
@@ -1008,6 +1209,8 @@
     <!ELEMENT xid (#PCDATA)>
     <!ELEMENT cavv (#PCDATA)>
     <!ELEMENT eci (#PCDATA)>
+    <!ELEMENT threeRI EMPTY>
+    <!ATTLIST threeRI value (true|false) #REQUIRED>
     <!ELEMENT dsTransactionId (#PCDATA)>
     <!ELEMENT merchantName (#PCDATA)>
     <!ELEMENT threeDSVersion (#PCDATA)>
@@ -1019,13 +1222,33 @@
     <!ELEMENT existingAuthorisationCode (#PCDATA)>
     <!ELEMENT routingMID (#PCDATA)>
 
+    <!ELEMENT instalmentPlan ((planId, planRef?, numberOfInstalments, termsId?)|(planId, planRef?, planAcceptanceId?, planActivationStatus?))>
+    <!ELEMENT planId (#PCDATA )>
+    <!ELEMENT planRef (#PCDATA )>
+    <!ELEMENT numberOfInstalments (#PCDATA )>
+    <!ELEMENT termsId (#PCDATA )>
+    <!ELEMENT planAcceptanceId (#PCDATA)>
+    <!ELEMENT planActivationStatus (#PCDATA)>
+    <!ATTLIST instalmentPlan scheme (VISA | SOUTHKOREA) #REQUIRED>
+
+    <!ELEMENT paymentAttempt EMPTY>
+    <!ATTLIST paymentAttempt
+        lastEvent CDATA #REQUIRED
+        responseCode CDATA #REQUIRED
+        responseDescription CDATA #REQUIRED
+        MAC CDATA #IMPLIED
+        detail CDATA #REQUIRED>
+
+    <!ELEMENT retryDetails (paymentAttempt+)>
+
     <!--
     The subMerchantData elements contains the basic details that need to be provided
     by the payment intermediary on behalf of the subsidiary
     -->
-    <!ELEMENT subMerchantData (pfId, isoId?, subName, subId, subStreet, subCity, subState?, subCountryCode, subPostalCode, subTaxId?, subEmailAddress?,
+    <!ELEMENT subMerchantData (pfId+, isoId?, subName, subId, subStreet, subCity, subState?, subCountryCode, subPostalCode, subTaxId?, subEmailAddress?,
         subTelephone?)>
     <!ELEMENT pfId (#PCDATA)>
+    <!ATTLIST pfId scheme CDATA  #IMPLIED>
     <!ELEMENT isoId (#PCDATA)>
     <!ELEMENT subName (#PCDATA)>
     <!ELEMENT subId (#PCDATA)>
@@ -1054,10 +1277,12 @@
     <!ELEMENT reference  (#PCDATA )>
     <!ATTLIST reference id NMTOKEN  #IMPLIED >
     <!-- Element cardNumber in payment is deprecated, use attribute number in paymentMethodDetail.card instead -->
-    <!ELEMENT payment  (	localDateTimeAtPOS?,
+    <!ELEMENT payment  (    localDateTimeAtPOS?,
         paymentMethod ,
         paymentMethodDetail? ,
         amount ,
+        secondaryAmount? ,
+        surchargeAmount? ,
         lastEvent? ,
         OCTTxnID? ,
         refundReference? ,
@@ -1079,20 +1304,16 @@
         cardHolderName? ,
         issuerCountryCode? ,
         issuerName?,
+        ThreeDSOutcomeInAuthorisation? ,
         POSResponse?,
         balance* ,
         cardNumber?,
         cardUpdated?,
+        paymentInstrumentUpdated?,
         cardPAR?,
         hashedCardNumber?,
         riskScore?,
         FraudSight?,
-        ACHOrderId?,
-        checkpointSummary?,
-        fraudShieldIndicators?,
-        newRoutingNumber?,
-        newAccountNumber?,
-        newBankAccountType?,
         shippingAddress?,
         shopperEmailAddress?,
         consumerTrackingReference?,
@@ -1105,6 +1326,7 @@
         subPaymentMethod?,
         apmEnrichedData?,
         schemeResponse?,
+        emvcoTokenDetails?,
         dateTime?,
         fastFunds?,
         accountUpdater?,
@@ -1115,15 +1337,20 @@
         gatewayCode?,
         OCTTxnId?,
         cardBin?,
-        MAC?)>
+        networkPaymentToken?,
+        merchantToken?,
+        MAC?,
+        fundingLinkId?,
+        acquirerResponseEci?,
+        authenticationOptimisationService?)>
 
-    <!ELEMENT authenticateResponse (threeDSOutcome) >
+    <!ELEMENT authenticateResponse (threeDSOutcome | authenticationOptimisationService) >
 
     <!-- CHILD ELEMENTS OF authenticateResponse -->
 
     <!ELEMENT threeDSOutcome (threeDSVersion?, enrolled?, eci?, xid?, dsTransactionId?, signatureVerification?,
         cavv?, authenticationStatus?, cardHolderInformation?, challengePreference?,
-        effectiveAuthenticationType?, transactionStatusReason?, challengeCancelIndicator?, networkScore?, cardBrand?, cavvAlgorithm?) >
+        effectiveAuthenticationType?, transactionStatusReason?, challengeCancelIndicator?, networkScore?, cardBrand?, cavvAlgorithm?, acsTransactionId?) >
 
     <!-- END CHILD ELEMENTS OF authenticateResponse -->
 
@@ -1154,7 +1381,12 @@
 
     <!--cavvAlgorithm datatype: Numeric, length: 1 -->
     <!ELEMENT cavvAlgorithm (#PCDATA) >
+
+    <!ELEMENT acsTransactionId (#PCDATA) >
     <!-- END CHILD ELEMENTS OF threeDSOutcome -->
+
+    <!ELEMENT authenticationOptimisationService (#PCDATA) >
+    <!ATTLIST authenticationOptimisationService decision (no3DS) #REQUIRED>
 
     <!-- challengeRequired may be sent in response to an order with payment details where the shopper needs to authenticate
     themselves with their card issuer using 3DS Flex -->
@@ -1173,7 +1405,7 @@
 
     <!ELEMENT requestInfo  (request3DSecure)>
 
-    <!ELEMENT cardBalance		(amount )>
+    <!ELEMENT cardBalance        (amount )>
 
     <!-- CHILD ELEMENTS OF ORDERBATCH ELEMENT -->
     <!-- ==================================== -->
@@ -1204,6 +1436,22 @@
 
     <!ELEMENT checkCardResponse (cardType?, issuerCountryCode?, billingCurrencyCode?, disbursementBlocked?, gamblingDisbursementBlocked?, mtBlocked?, schemeSupportedByFfs?, fastFunds?)>
 
+    <!ELEMENT checkCardHolderNameResponse (firstNameCardHolderMatchDecision?, lastNameCardHolderMatchDecision?, middleNameCardHolderMatchDecision?,
+        nameCardHolderMatchDecision?, nameCardHolderResult?, actionCode?, responseCode?)>
+    <!ATTLIST checkCardHolderNameResponse providerType CDATA #IMPLIED>
+    <!ELEMENT firstNameCardHolderMatchDecision (#PCDATA )>
+    <!ATTLIST firstNameCardHolderMatchDecision description CDATA #IMPLIED>
+    <!ELEMENT lastNameCardHolderMatchDecision (#PCDATA )>
+    <!ATTLIST lastNameCardHolderMatchDecision description CDATA #IMPLIED>
+    <!ELEMENT middleNameCardHolderMatchDecision (#PCDATA )>
+    <!ATTLIST middleNameCardHolderMatchDecision description CDATA #IMPLIED>
+    <!ELEMENT nameCardHolderMatchDecision (#PCDATA )>
+    <!ATTLIST nameCardHolderMatchDecision description CDATA #IMPLIED>
+    <!ELEMENT nameCardHolderResult (#PCDATA )>
+    <!ATTLIST nameCardHolderResult description CDATA #IMPLIED>
+    <!ATTLIST actionCode description CDATA #IMPLIED>
+    <!ATTLIST responseCode description CDATA #IMPLIED>
+
     <!ELEMENT refundableAmount ( (amount, date? ) | error )>
     <!ATTLIST refundableAmount orderCode CDATA  #REQUIRED >
 
@@ -1228,27 +1476,11 @@
     <!ELEMENT exclude EMPTY>
     <!ATTLIST exclude  code NMTOKEN  #REQUIRED >
 
-
-    <!-- CHILD ELEMENTS OF REQUESTINFO ELEMENT -->
-    <!-- ===================================== -->
     <!--
     request3DSecure may be sent in response to an order with payment details where the shopper needs to authenticate
     themselves with their card issuer using 3D Secure.
-
-    Example of a request3DSecure message:
-    <reply>
-        <orderStatus orderCode='1234'>
-            <requestInfo>
-                <request3DSecure>
-                    <paRequest>somebase64encodeddata<paRequest>
-                    <issuerURL>http://www.xxx.com/xyz.html</issuerURL>
-                </request3DSecure>
-            </requestInfo>
-            <echoData>AABBCC</echoData>
-        </orderStatus>
-    </reply>
     -->
-    <!ELEMENT request3DSecure ((paRequest, issuerURL)|(mpiRequest, mpiURL?))>
+    <!ELEMENT request3DSecure (mpiRequest, mpiURL?)>
     <!ELEMENT paRequest (#PCDATA)>
     <!ELEMENT issuerURL (#PCDATA)>
 
@@ -1267,56 +1499,57 @@
     <!ELEMENT bankAccountIdentifier (#PCDATA)>
     <!ELEMENT paymentServiceUsername (#PCDATA)>
     <!ELEMENT shopperPSUId (#PCDATA)>
+    <!ELEMENT purposeOfPaymentCode (#PCDATA)>
 
     <!-- CHILD ELEMENTS OF PAYMENTDETAILS ELEMENT -->
     <!-- ======================================== -->
-    <!ELEMENT VISA-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?)>
-    <!ELEMENT ECMC-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?)>
-    <!ELEMENT AMEX-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT DINERS-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT CB-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT VISA-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?, purposeOfPaymentCode?)>
+    <!ELEMENT ECMC-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?, purposeOfPaymentCode?)>
+    <!ELEMENT AMEX-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT DINERS-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT CB-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
     <!ELEMENT CARTEBLEUE-SSL (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT DANKORT-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT DISCOVER-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?)>
-    <!ELEMENT JCB-SSL	 	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT AURORE-SSL	 (cardNumber, birthDate,  cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT GECAPITAL-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT AIRPLUS-SSL	 (cardNumber, expiryDate, cardHolderName?, cvc?, cardAddress?,cardSwipe?, enhancedRiskData? )>
-    <!ELEMENT UATP-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, enhancedRiskData? )>
-    <!ELEMENT SWITCH-SSL	 (cardNumber, expiryDate, cardHolderName, (issueNumber | (startDate, issueNumber?) ), cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT MAESTRO-SSL	 (cardNumber, expiryDate, cardHolderName, startDate?, issueNumber?, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT SOLO_GB-SSL	 (cardNumber, expiryDate, cardHolderName, (issueNumber | (startDate, issueNumber?) ), cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT LASER-SSL		 (cardNumber, expiryDate, cardHolderName, startDate?, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT BHS-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT NEWDAY-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT IKEA-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT HIPERCARD-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT SOROCRED-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT ELO-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?)>
+    <!ELEMENT DANKORT-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT DISCOVER-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?)>
+    <!ELEMENT JCB-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT AURORE-SSL     (cardNumber, birthDate,  cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT GECAPITAL-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT AIRPLUS-SSL     (cardNumber, expiryDate, cardHolderName?, cvc?, cardAddress?,cardSwipe?, enhancedRiskData? )>
+    <!ELEMENT UATP-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, enhancedRiskData? )>
+    <!ELEMENT SWITCH-SSL     (cardNumber, expiryDate, cardHolderName, (issueNumber | (startDate, issueNumber?) ), cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT MAESTRO-SSL     (cardNumber, expiryDate, cardHolderName, startDate?, issueNumber?, cvc?, cardAddress?,cardSwipe?, purposeOfPaymentCode? )>
+    <!ELEMENT SOLO_GB-SSL     (cardNumber, expiryDate, cardHolderName, (issueNumber | (startDate, issueNumber?) ), cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT LASER-SSL         (cardNumber, expiryDate, cardHolderName, startDate?, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT BHS-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT NEWDAY-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT IKEA-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT HIPERCARD-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT SOROCRED-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT ELO-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe?, comboCard?)>
     <!ELEMENT CARNET-SSL            (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT ARGENCARD-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT CABAL-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT CENCOSUD-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT COOPEPLUS-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT CREDIMAS-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT ITALCRED-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT NARANJA-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT NATIVA-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT NEVADA-SSL	 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT NEXO-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT SVS_GIFTCARD-SSL 	 (cardNumber, pin? )>
+    <!ELEMENT ARGENCARD-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT CABAL-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT CENCOSUD-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT COOPEPLUS-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT CREDIMAS-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT ITALCRED-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT NARANJA-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT NATIVA-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT NEVADA-SSL     (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT NEXO-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT SVS_GIFTCARD-SSL     (cardNumber, pin? )>
     <!ELEMENT TARJETASHOPPING-SSL (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
-    <!ELEMENT TROY-SSL		 (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
+    <!ELEMENT TROY-SSL         (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
     <!ELEMENT UPI-SSL (cardNumber, expiryDate?, cardHolderName?, cvc?, parameter+, cardAddress?)>
     <!ELEMENT UPEX-SSL (cardNumber, expiryDate?, cardHolderName?, cvc?, cardAddress?, cardSwipe?, comboCard?)>
-    <!ELEMENT FF_DISBURSE-SSL (recipient)>
-    <!ELEMENT FF_MONEYTRANSFER-SSL (sender?, recipient)>
+    <!ELEMENT FF_DISBURSE-SSL (recipient, purposeOfPayment?)>
+    <!ELEMENT FF_MONEYTRANSFER-SSL (sender?, recipient, purposeOfPayment?)>
     <!ATTLIST FF_MONEYTRANSFER-SSL action (pushOnly|pullOnly) #REQUIRED
         recipientMatchesSender (true|false) #IMPLIED>
-    <!ELEMENT ELV-SSL	(iban, accountHolderName, bankName?, bankLocation?, creditScoring?)>
+    <!ELEMENT FF_HPP-SSL (paymentInstrument | (cvc, session))>
+    <!ELEMENT ELV-SSL    (iban, accountHolderName, bankName?, bankLocation?, creditScoring?)>
     <!ELEMENT SEPA_DIRECT_DEBIT-SSL (bankAccount-SEPA)>
     <!ELEMENT bankAccount-SEPA (iban, accountHolderName)>
-    <!ELEMENT ACH-SSL	(authentication | deposit | validation | verification)>
     <!ELEMENT ACH_DIRECT_DEBIT-SSL (echeckSale | echeckVerification)>
     <!ELEMENT PERMANENT_SIGNED_DD_NL-FAX EMPTY>
     <!--<!ELEMENT SINGLE_UNSIGNED_DD_NL-SSL (BankAccount_NL)>-->
@@ -1327,10 +1560,10 @@
     <!--<!ELEMENT SINGLE_SIGNED_DD_ES-SSL (BankAccount_ES)>-->
     <!ELEMENT PAYOUT-BANK EMPTY>
     <!ELEMENT VISACHECKOUT-SSL (callId, extraData?)>
-    <!ELEMENT MASTERPASS-SSL (successURL, failureURL, cancelURL, cardAddress?)>
     <!ELEMENT PAYPAL-EXPRESS (successURL, failureURL, cancelURL)>
     <!ATTLIST PAYPAL-EXPRESS firstInBillingRun (true|false) #IMPLIED>
     <!ELEMENT IDEAL-SSL (successURL, failureURL, cancelURL, pendingURL?)>
+    <!ATTLIST IDEAL-SSL shopperBankCode (ABN_AMRO|ASN|ING|RABOBANK|SNS|SNS_REGIO|TRIODOS|VAN_LANSCHOT|KNAB|BUNQ|REVOLUT|YOURSAFE|NATIONALE_NEDERLANDEN|N26) #IMPLIED>
     <!ELEMENT GIROPAY-SSL (successURL, failureURL, cancelURL, pendingURL?, swiftCode?)>
     <!ATTLIST GIROPAY-SSL shopperCountryCode NMTOKEN #IMPLIED>
     <!ELEMENT NCPB2B-SSL (cardNumber, expiryDate, cardHolderName, cvc?, cardAddress?,cardSwipe? )>
@@ -1342,9 +1575,9 @@
     <!ATTLIST ABAQOOS-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT AGMO-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST AGMO-SSL shopperCountryCode NMTOKEN #REQUIRED>
-    <!ELEMENT ALIPAY-SSL (successURL, cancelURL, pendingURL)>
+    <!ELEMENT ALIPAY-SSL (successURL, cancelURL, pendingURL, failureURL?)>
     <!ATTLIST ALIPAY-SSL shopperCountryCode NMTOKEN #REQUIRED>
-    <!ELEMENT ALIPAYMOBILE-SSL (successURL, cancelURL, pendingURL)>
+    <!ELEMENT ALIPAYMOBILE-SSL (successURL, cancelURL, pendingURL, failureURL?)>
     <!ATTLIST ALIPAYMOBILE-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT BALOTO-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST BALOTO-SSL shopperCountryCode NMTOKEN #REQUIRED>
@@ -1402,9 +1635,9 @@
     <!ATTLIST MULTIBANCO-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT NEOSURF-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST NEOSURF-SSL shopperCountryCode NMTOKEN #REQUIRED>
-    <!ELEMENT OPENBANKING-SSL (bankAccountDetails?, customerToken?, paymentServiceUsername?, successURL?, cancelURL?, pendingURL?)>
+    <!ELEMENT OPENBANKING-SSL (bankAccountDetails?, customerToken?, paymentServiceUsername?, successURL?, cancelURL?, pendingURL?, failureURL?)>
     <!ATTLIST OPENBANKING-SSL shopperCountryCode NMTOKEN #REQUIRED>
-    <!ATTLIST OPENBANKING-SSL shopperBankCode CDATA #REQUIRED>
+    <!ATTLIST OPENBANKING-SSL shopperBankCode CDATA #IMPLIED>
     <!ELEMENT PAYSAFECARD-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST PAYSAFECARD-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT PAGA-SSL (successURL, cancelURL, pendingURL)>
@@ -1433,8 +1666,6 @@
     <!ATTLIST SKRILL-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT SOFORT-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST SOFORT-SSL shopperCountryCode NMTOKEN #REQUIRED>
-    <!ELEMENT ENETS-SSL (successURL, cancelURL, pendingURL)>
-    <!ATTLIST ENETS-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT CHINAUNIONPAY-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST CHINAUNIONPAY-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT SOFORT_CH-SSL (successURL, cancelURL, pendingURL)>
@@ -1507,6 +1738,18 @@
     <!ATTLIST ENVOY_TRANSFER_ZAR-BANK shopperCountryCode NMTOKEN #REQUIRED>
     <!ELEMENT EPS_ENV-SSL (successURL, cancelURL, pendingURL)>
     <!ATTLIST EPS_ENV-SSL shopperCountryCode NMTOKEN #REQUIRED>
+    <!ELEMENT MYBANK-SSL (successURL, cancelURL, pendingURL)>
+    <!ATTLIST MYBANK-SSL shopperCountryCode NMTOKEN #REQUIRED>
+    <!ELEMENT BANCOMATPAY-SSL (successURL?, cancelURL?, pendingURL?)>
+    <!ATTLIST BANCOMATPAY-SSL shopperCountryCode NMTOKEN #REQUIRED>
+    <!ELEMENT SATISPAY-SSL (successURL, cancelURL, pendingURL)>
+    <!ATTLIST SATISPAY-SSL shopperCountryCode NMTOKEN #REQUIRED>
+    <!ELEMENT BLIK-SSL (successURL, cancelURL, pendingURL)>
+    <!ATTLIST BLIK-SSL shopperCountryCode NMTOKEN #REQUIRED>
+    <!ELEMENT PAYBYBANK_AU-SSL (successURL, cancelURL, pendingURL)>
+    <!ATTLIST PAYBYBANK_AU-SSL shopperCountryCode NMTOKEN #REQUIRED>
+    <!ELEMENT OXXO-SSL (successURL, failureURL)>
+    <!ATTLIST OXXO-SSL shopperCountryCode NMTOKEN #REQUIRED>
 
     <!ELEMENT ASTROPAYCARD-SSL (pan,cvv,expiryDate,successURL, cancelURL, pendingURL)>
     <!ATTLIST ASTROPAYCARD-SSL shopperCountryCode NMTOKEN #REQUIRED>
@@ -1523,6 +1766,8 @@
     <!ATTLIST BOLETO-SSL shopperCountryCode NMTOKEN #REQUIRED>
     <!-- CPF field can be used for CNPj also -->
     <!ELEMENT BOLETO-HTML (cpf, firstName?, lastName?)>
+    <!ELEMENT selectedScheme EMPTY>
+    <!ATTLIST selectedScheme shopperSelection CDATA #IMPLIED>
 
     <!--EXEMPTION fields-->
     <!ELEMENT exemption EMPTY>
@@ -1575,13 +1820,21 @@
     <!ATTLIST TOKEN-SSL tokenType (XiSecure | OmniToken | STS) #IMPLIED>
     <!ATTLIST TOKEN-SSL tokenScope (shopper | merchant) #IMPLIED>
     <!ATTLIST TOKEN-SSL captureCvc (true | false) #IMPLIED>
-    <!ELEMENT paymentInstrument (cardDetails | paypal | sepa | emvcoTokenDetails | SAMSUNGPAY-SSL | PAYWITHGOOGLE-SSL | APPLEPAY-SSL | EMVCO_TOKEN-SSL | obdetails)>
-    <!ELEMENT cardDetails (cardNumber?, expiryDate?, cardHolderName?, cvc?, cardAddress?, derived?, encryptedPAN?)>
+    <!ELEMENT paymentInstrument (cardDetails | paypal | sepa | emvcoTokenDetails | SAMSUNGPAY-SSL | PAYWITHGOOGLE-SSL | APPLEPAY-SSL | EMVCO_TOKEN-SSL | obdetails | accountHolder)>
+    <!ELEMENT cardDetails (cardNumber?, expiryDate?, cardHolderName?, cvc?, cardAddress?, derived?, encryptedPAN?, fullName?)>
     <!ELEMENT obdetails (OPENBANKING-SSL?,shopper?,billingAddress?)>
-
+    <!ELEMENT posPaymentInstrument (cardNumber, expiryDate)>
+    <!-- Beneficiary token elements -->
+    <!ELEMENT accountHolder (bankDetail?, accountHolderAddress?, entity?)>
+    <!ELEMENT bankDetail (bankAccountIdentifier?, sortCode?, bankName?, accountType?, bankCode?, branchCode?, accountHolderName?)>
+    <!ELEMENT accountHolderAddress (address1?, address2?, address3?, postalCode?, city?, state?, countryCode?, telephoneNumber?, emailAddress?)>
+    <!ELEMENT sortCode (#PCDATA)>
+    <!ELEMENT beneficiaryName (#PCDATA)>
+    <!ELEMENT accountType (#PCDATA)>
+    <!ELEMENT entity (#PCDATA)>
 
     <!ELEMENT paypal (#PCDATA)>
-    <!ELEMENT emvcoTokenDetails (tokenNumber?, type?, expiryDate?, cardHolderName?)>
+    <!ELEMENT emvcoTokenDetails (tokenNumber?, tokenId?, type?, expiryDate?, cardHolderName?)>
     <!ELEMENT sepa (mandateId?, iban?, shopperEmailAddress?, accountHolderName?, mandateSignatureDate?)>
 
     <!ELEMENT derived (cardBrand, cardSubBrand, cardCoBrand?, issuerCountryCode, obfuscatedPAN?, bin?)>
@@ -1591,7 +1844,7 @@
     <!ELEMENT obfuscatedPAN  (#PCDATA )>
     <!ELEMENT bin (#PCDATA )>
 
-    <!ELEMENT token (authenticatedShopperID?, tokenEventReference?, ((tokenReason?, tokenDetails, paymentInstrument, schemeResponse?) | error) )>
+    <!ELEMENT token (authenticatedShopperID?, tokenEventReference?, ((tokenReason?, tokenDetails, paymentInstrument, schemeResponse?, selectedScheme?) | error) )>
     <!-- tokenEventReference, tokenReason will be populated for create token and order inquiry response. -->
 
     <!ELEMENT tokenDetails (paymentTokenID, paymentTokenExpiry, reportingTokenID?, reportingTokenExpiry?, tokenEventReference?, tokenReason)>
@@ -1611,6 +1864,8 @@
     <!ELEMENT sender ((fundReference | ((paymentTokenID, authenticatedShopperID?)?, paymentInstrument?)), address?)>
     <!ATTLIST sender tokenScope (shopper | merchant) 'shopper'>
     <!ATTLIST sender fundType (DebitAccount | CreditAccount | StagedDigitalWallet | NonStagedDigitalWallet | MerchantWallet | CreditCard | DebitCard | PrepaidCard | Cash | Card) 'CreditAccount'>
+    <!ATTLIST sender captureCvc (true | false) #IMPLIED>
+    <!ELEMENT purposeOfPayment (#PCDATA)>
     <!ELEMENT recipient ((fundReference | ((paymentTokenID, authenticatedShopperID?)?, paymentInstrument?)), (address | countryCode)?)>
     <!ATTLIST recipient tokenScope (shopper | merchant) 'shopper'>
     <!ATTLIST recipient fundType (CreditCard | DebitCard | PrepaidCard | DebitAccount | CreditAccount | StagedDigitalWallet | NonStagedDigitalWallet | MerchantWallet | Cash | Card) #IMPLIED>
@@ -1656,16 +1911,18 @@
     <!ELEMENT TRANSFER_SE-BANK EMPTY>
     <!ELEMENT TRANSFER_US-BANK EMPTY>
 
-    <!ELEMENT EMVCO_TOKEN-SSL	 (tokenNumber, expiryDate, cardHolderName?, cryptogram?, tokenRequestorID?, eciIndicator?) >
-    <!ATTLIST EMVCO_TOKEN-SSL	 type (APPLEPAY|ANDROIDPAY|SAMSUNGPAY|GOOGLEPAY|NETWORKTOKEN) #REQUIRED>
+    <!ELEMENT EMVCO_TOKEN-SSL     (tokenNumber?, expiryDate?, tokenId?, cardHolderName?, cvc?, cryptogram?, tokenRequestorID?, eciIndicator?, comboCard?) >
+    <!ATTLIST EMVCO_TOKEN-SSL     type (APPLEPAY|ANDROIDPAY|SAMSUNGPAY|GOOGLEPAY|NETWORKTOKEN) #REQUIRED>
 
-    <!ELEMENT APPLEPAY-SSL       (header, signature, version, data, tokenRequestorID?, cardAddress?) >
+    <!ELEMENT APPLEPAY-SSL       (header, signature, version, data, tokenRequestorID?, cardAddress?, comboCard?) >
 
     <!ELEMENT ANDROIDPAY-SSL       (ephemeralPublicKey, encryptedMessage, tag) >
 
-    <!ELEMENT SAMSUNGPAY-SSL      (ThreeDS)>
+    <!ELEMENT SAMSUNGPAY-SSL      (ThreeDS, comboCard?)>
 
-    <!ELEMENT PAYWITHGOOGLE-SSL (protocolVersion, signature, signedMessage)>
+    <!ELEMENT PAYWITHGOOGLE-SSL (protocolVersion, signature, signedMessage, comboCard?)>
+
+    <!ELEMENT CLICKTOPAY-SSL (encryptedPayload)>
 
     <!ELEMENT KLARNA-SSL (purchaseCountry, shopperLocale, merchantUrls, extraMerchantData?) >
 
@@ -1684,7 +1941,7 @@
     <!ELEMENT CASH_TH-SSL            (successURL, failureURL, pendingURL)>
     <!ELEMENT ATM_ID-SSL             (successURL, failureURL, pendingURL)>
 
-    <!ELEMENT PBBA-SSL (returnURL, delivery, cookieId?)>
+    <!ELEMENT PBBA-SSL (returnURL, delivery?, cookieId?)>
     <!ELEMENT returnURL (#PCDATA )>
     <!ELEMENT delivery (date?)>
     <!ATTLIST delivery type (ship|digital|collect) #REQUIRED>
@@ -1694,10 +1951,6 @@
     <!ELEMENT cookieId (#PCDATA)>
     <!ELEMENT cookieExpiryDays (#PCDATA)>
 
-    <!ELEMENT GPP-SSL (successURL?, cancelURL?, pendingURL?, failureURL?)>
-    <!ATTLIST GPP-SSL paymentMethod CDATA #REQUIRED
-        intent (authorise|capture) 'authorise' >
-
     <!ELEMENT MERCADOPAGO-SSL (successURL?, cancelURL?, pendingURL?, failureURL?)>
     <!ATTLIST MERCADOPAGO-SSL intent (authorise|capture|enrol) 'capture'
         shopperCountryCode NMTOKEN #IMPLIED>
@@ -1705,14 +1958,18 @@
     <!ELEMENT PAYPAL-SSL (successURL?, cancelURL?, pendingURL?, failureURL?)>
     <!ATTLIST PAYPAL-SSL intent (authorise|capture) 'authorise' >
 
-    <!ELEMENT AFTERPAY-SSL (successURL?, cancelURL?, pendingURL?, failureURL?)>
+    <!ELEMENT AFTERPAY-SSL (successURL, cancelURL, pendingURL, failureURL)>
     <!ATTLIST AFTERPAY-SSL intent (authorise|capture) 'authorise' >
 
-    <!ELEMENT CLEARPAY-SSL (successURL?, cancelURL, pendingURL, failureURL?)>
+    <!ELEMENT CLEARPAY-SSL (successURL, cancelURL, pendingURL, failureURL)>
     <!ATTLIST CLEARPAY-SSL intent (authorise|capture) 'authorise' >
 
     <!ELEMENT ALIPAY_HK-SSL (successURL?, cancelURL?, pendingURL?, failureURL?)>
-    <!ATTLIST ALIPAY_HK-SSL intent (authorise|capture) 'authorise' >
+    <!ATTLIST ALIPAY_HK-SSL intent (capture) 'capture'
+        shopperCountryCode NMTOKEN #IMPLIED >
+
+    <!ELEMENT ALIPAY_CN-SSL (successURL?, cancelURL?, pendingURL?, failureURL?)>
+    <!ATTLIST ALIPAY_CN-SSL intent (capture) 'capture'>
 
     <!-- eGHL PAYMENT METHOD START -->
 
@@ -1737,7 +1994,23 @@
     <!ELEMENT BOOST-SSL (successURL, cancelURL, pendingURL, failureURL)>
     <!ATTLIST BOOST-SSL intent (capture) 'capture' >
 
+    <!ELEMENT LINEPAY-SSL (successURL, cancelURL, pendingURL, failureURL)>
+    <!ATTLIST LINEPAY-SSL intent (capture) 'capture' >
+
+    <!ELEMENT PROMPTPAY-SSL (successURL, cancelURL, pendingURL, failureURL)>
+    <!ATTLIST PROMPTPAY-SSL intent (capture) 'capture' >
+
+    <!ELEMENT KAKAOPAY-SSL (successURL, pendingURL, failureURL)>
+
     <!-- eGHL PAYMENT METHOD END -->
+
+    <!-- Generic element for generic APMs START-->
+
+    <!ELEMENT APM (successURL?, failureURL?, cancelURL?, pendingURL?)>
+    <!ATTLIST APM paymentMethodName NMTOKEN #REQUIRED
+        shopperCountryCode NMTOKEN #IMPLIED>
+
+    <!-- Generic element for generic APMs END -->
 
     <!ELEMENT receipts (receipt*)>
 
@@ -1757,7 +2030,7 @@
 
     <!ELEMENT session EMPTY>
 
-    <!ATTLIST session  shopperIPAddress	NMTOKEN  #IMPLIED
+    <!ATTLIST session  shopperIPAddress    NMTOKEN  #IMPLIED
         id               NMTOKEN  #IMPLIED >
 
     <!ELEMENT deviceSession (sessionId)>
@@ -1770,7 +2043,10 @@
         lessThanMinimumValue |
         unsupportedLocalCard |
         unsupportedCard |
-        noInformationAvailable) #REQUIRED>
+        noInformationAvailable |
+        ratesUnavailable |
+        unauthorisedRequest |
+        invalidRequest) #REQUIRED>
 
     <!ELEMENT dynamicCurrencyConversionData (amount, date)>
 
@@ -1798,16 +2074,16 @@
     <!--
     CHILD ELEMENTS OF SDWODATA ELEMENT
     -->
-    <!ELEMENT retailerMcc		(#PCDATA)>
+    <!ELEMENT retailerMcc        (#PCDATA)>
     <!ELEMENT operatorName      (#PCDATA)>
-    <!ELEMENT retailerName		(#PCDATA)>
+    <!ELEMENT retailerName        (#PCDATA)>
     <!ELEMENT retailerStreet    (#PCDATA)>
-    <!ELEMENT retailerPostCode	(#PCDATA)>
-    <!ELEMENT retailerCity		(#PCDATA)>
-    <!ELEMENT retailerState		(#PCDATA)>
-    <!ELEMENT retailerCountry	(#PCDATA)>
-    <!ELEMENT visaMvv		    (#PCDATA)>
-    <!ELEMENT mcWalletId	    (#PCDATA)>
+    <!ELEMENT retailerPostCode    (#PCDATA)>
+    <!ELEMENT retailerCity        (#PCDATA)>
+    <!ELEMENT retailerState        (#PCDATA)>
+    <!ELEMENT retailerCountry    (#PCDATA)>
+    <!ELEMENT visaMvv            (#PCDATA)>
+    <!ELEMENT mcWalletId        (#PCDATA)>
 
     <!ELEMENT MVV (#PCDATA)>
 
@@ -1864,6 +2140,9 @@
     <!ELEMENT signedMessage (#PCDATA)>
     <!ELEMENT protocolVersion (#PCDATA)>
 
+    <!--CHILD ELEMENTS FOR CLICKTOPAY-SSL PAYMENT METHOD -->
+    <!ELEMENT encryptedPayload (#PCDATA)>
+
     <!-- CHILD ELEMENTS OF CB-SSL, CARTEBLEUE-SSL, VISA-SSL, -->
     <!-- DISCOVER-SSL, JCB-SSL, LASER-SSL, DANKORT-SSL, JCB-SSL, -->
     <!-- ECMC-SSL, AMEX-SSL, DINERS-SSL, AURORE-SSL, GECAPITAL, -->
@@ -1890,25 +2169,6 @@
     <!ELEMENT cardAddress  (address )>
 
     <!ELEMENT encryptedData  (#PCDATA )>
-
-    <!-- CHILD ELEMENTS OF ACH-SSL -->
-    <!ELEMENT authentication ((licenseNumber, licenseState)?, birthDate?, ssn?, shopperEmailAddress?, firstName, lastName, address)>
-    <!ELEMENT deposit (authenticationId?, firstName, lastName, bankAccountType, routingNumber, accountNumber, checkNumber?,businessName?, addendaRecord?,doVerification?)>
-    <!ELEMENT validation (firstName, lastName, bankAccountType, routingNumber, accountNumber, doVerification?)>
-    <!ELEMENT verification (bankAccountType, routingNumber, accountNumber)>
-    <!ELEMENT licenseNumber  (#PCDATA)>
-    <!ELEMENT licenseState  (#PCDATA)>
-    <!ELEMENT ssn  (#PCDATA)>
-    <!ELEMENT businessName (#PCDATA)>
-    <!ELEMENT addendaRecord (#PCDATA)>
-    <!ELEMENT authenticationId (#PCDATA)>
-    <!ELEMENT ACHOrderId (#PCDATA)>
-    <!ELEMENT checkpointSummary (#PCDATA)>
-    <!ELEMENT fraudShieldIndicators (#PCDATA)>
-    <!ELEMENT newRoutingNumber (#PCDATA)>
-    <!ELEMENT newAccountNumber (#PCDATA)>
-    <!ELEMENT newBankAccountType (#PCDATA)>
-    <!ELEMENT doVerification EMPTY>
 
     <!-- CHILD ELEMENTS OF ACH_DIRECT_DEBIT-SSL -->
     <!ELEMENT echeckSale (companyName?, billingAddress, bankAccountType, accountNumber, routingNumber, checkNumber?, customIdentifier?)>
@@ -1937,9 +2197,11 @@
          order. If shopper uses eCheck payment method then screen can will authentication
          fields only if authentication flag is 'Y'  -->
 
-    <!ELEMENT paymentMethodAttribute (paymentMethod, attrName, attrValue)>
+    <!ELEMENT paymentMethodAttribute (paymentMethod, attrName?, attrValue?, attribute*)>
     <!ELEMENT attrName (#PCDATA)>
     <!ELEMENT attrValue (#PCDATA)>
+    <!ELEMENT attribute (#PCDATA)>
+    <!ATTLIST attribute key CDATA #IMPLIED >
 
     <!-- Used to specify the text displayed on the shoppers' statement.  Only supported by certain acquirers -->
     <!ELEMENT statementNarrative (#PCDATA)>
@@ -1958,7 +2220,7 @@
     <!ELEMENT originalAmount ( amountNoCurrency )>
     <!ELEMENT mpiTermURL (#PCDATA)>
 
-    <!ELEMENT localAcquirer (#PCDATA)>
+    <!ELEMENT localAcquirer (code?, description?)>
 
     <!ELEMENT acquirerReturnDescription (#PCDATA )>
 
@@ -2288,41 +2550,48 @@
     <!ELEMENT creditScoring (birthDate,address)>
     <!-- The birthDate element represents the date of birth -->
     <!-- of the account holder, which is used in credit scoring -->
-    <!ELEMENT birthDate	(date)>
+    <!ELEMENT birthDate    (date)>
 
     <!-- CHILD ELEMENTS OF MAESTRO-SSL, SOLO_GB-SSL ELEMENT -->
     <!ELEMENT issueNumber (#PCDATA)>
 
     <!-- CHILD ELEMENT OF paymentDetails ELEMENT -->
-    <!ELEMENT POSRequest (ISO8583Request | WeChatPay) >
+    <!ELEMENT POSRequest ((ISO8583Request | WeChatPay)) >
 
     <!ATTLIST POSRequest isRetry (true|false) 'false'
         isOfflineAuth (true|false) #REQUIRED
         requestBalance (true|false) 'false'
         allowPartialAuth (true|false) 'false'
         isDeferredAuth (true|false) 'false' >
-    <!ELEMENT ISO8583Request (((cardNumber, expiryDate) | encryptedData), transmissionDate, systemsTraceAuditNumber, localDateTimeAtPOS, originalLocalDateTimeAtPOS?,
-        POSEntryMode, POSConditionCode, track?, terminalData, applicationPANSequenceNumber?, CVMR?, reasonForOnline?, ISOResponseIndicator?,
-        AuthorisationId?, authorisationResponseCode?, acquirerMerchantId, issuerCardData?, cardholderIdentificationMethod?, EMVRequest?, onlinePIN?, singleTapPIN?) >
+    <!ELEMENT ISO8583Request (((cardNumber, expiryDate, cvc?, billingAddress?) | encryptedData | TOKEN-SSL), transmissionDate, systemsTraceAuditNumber,
+        localDateTimeAtPOS, originalLocalDateTimeAtPOS?,
+        POSEntryMode, POSConditionCode, cardholderActivatedTerminal?, track?, terminalData, applicationPANSequenceNumber?, CVMR?, reasonForOnline?, ISOResponseIndicator?,
+        AuthorisationId?, authorisationResponseCode?, acquirerMerchantId, issuerCardData?, cardholderIdentificationMethod?, EMVRequest?, onlinePIN?,
+        singleTapPIN?, retrievalReferenceNumber?, cardBrand?, POSBankAccount?) >
     <!ATTLIST ISO8583Request chipCard (true|false) 'false' >
 
     <!-- CHILD ELEMENTS FOR WeChatPay -->
     <!ELEMENT WeChatPay (quickPayAuthCode, terminalData) >
     <!ELEMENT quickPayAuthCode (#PCDATA )>
 
-    <!ELEMENT POSReversal (transmissionDate, systemsTraceAuditNumber, localDateTimeAtPOS) >
+    <!ELEMENT POSBankAccount (#PCDATA) >
+    <!ATTLIST POSBankAccount iban CDATA #REQUIRED >
 
-    <!ELEMENT transmissionDate	(date)>
+    <!ELEMENT POSReversal (transmissionDate, systemsTraceAuditNumber, localDateTimeAtPOS, applicationData?, cryptogram?, verificationResults?) >
+
+    <!ELEMENT transmissionDate    (date)>
     <!ELEMENT systemsTraceAuditNumber (#PCDATA)>
     <!ELEMENT originalLocalDateTimeAtPOS (date)>
     <!ELEMENT POSEntryMode (#PCDATA)>
     <!ELEMENT POSConditionCode (#PCDATA)>
+    <!ELEMENT cardholderActivatedTerminal (#PCDATA)>
 
-    <!ELEMENT terminalData (terminalId, entryCapability?, CAMDataCorrect?, ARQCVerified?, ownerName, ownerLocation, storeId?, terminalModel?, singleTapEnabled?)>
-    <!ATTLIST terminalData type (default|mobile) 'default' >
+    <!ELEMENT terminalData (terminalId, entryCapability?, authenticationCapability?, CAMDataCorrect?, ARQCVerified?, ownerName, ownerLocation, storeId?, terminalModel?, singleTapEnabled?)>
+    <!ATTLIST terminalData type (default|mobile|tapToPhone|mposIntegratedReader|mposExternalReader) 'default' >
 
     <!ELEMENT terminalId (#PCDATA)>
     <!ELEMENT entryCapability (#PCDATA)>
+    <!ELEMENT authenticationCapability (#PCDATA)>
     <!ELEMENT CAMDataCorrect (#PCDATA)>
     <!ELEMENT ARQCVerified (#PCDATA)>
     <!ELEMENT ownerName (#PCDATA )>
@@ -2340,7 +2609,7 @@
     <!ELEMENT EMVRequest (application, terminal, transaction, unpredictable)>
 
     <!ELEMENT application (ICCCryptogramInformation, ICCCryptogramType, ICCAppUsageControl?,
-        ICCAppId, cryptogram, interchangeProfile, transactionCounter, applicationEffectiveDate?)>
+        ICCAppId, cryptogram, cryptogramAmount?, cryptogramOtherAmount?, interchangeProfile, transactionCounter, applicationEffectiveDate?)>
 
     <!-- Hexadecimal comments in this section refer to the EMV tag Id, see http://www.emvlab.org -->
     <!ELEMENT ICCCryptogramInformation (#PCDATA)> <!-- 9F27 -->
@@ -2348,6 +2617,11 @@
     <!ELEMENT ICCAppUsageControl (#PCDATA)> <!-- 9F07 -->
     <!ELEMENT ICCAppId (#PCDATA)> <!-- 4F -->
     <!ELEMENT cryptogram (#PCDATA)> <!-- 9F26 -->
+    <!ELEMENT cryptogramAmount EMPTY>
+    <!ATTLIST cryptogramAmount value NMTOKEN #REQUIRED
+        currencyCodeNum NMTOKEN #REQUIRED> <!-- 9F02 - for value; 5F2A - for currencyCodeNum -->
+    <!ELEMENT cryptogramOtherAmount EMPTY>
+    <!ATTLIST cryptogramOtherAmount value NMTOKEN #REQUIRED>    <!-- 9F03 -->
     <!ELEMENT interchangeProfile (#PCDATA)> <!-- 82-->
     <!ELEMENT transactionCounter (#PCDATA)> <!-- 9F36 -->
     <!ELEMENT applicationEffectiveDate (#PCDATA)> <!-- 5F25 -->
@@ -2359,7 +2633,7 @@
 
     <!ELEMENT terminal (TAVN, capabilities, verificationResults, transactionStatusInfo?)>
     <!ATTLIST terminal countryCode  NMTOKEN #REQUIRED
-        serialNumber	NMTOKEN #IMPLIED
+        serialNumber    NMTOKEN #IMPLIED
         type         NMTOKEN #REQUIRED > <!-- serialNumber => 9F1E, type => 9F35 -->
 
     <!ELEMENT TAVN (#PCDATA)> <!-- 9F08 -->
@@ -2380,10 +2654,13 @@
     <!ELEMENT encryptedPINBlock (#PCDATA)>
     <!ELEMENT PINEncryptionMetadata (#PCDATA)>
     <!ELEMENT singleTapPIN (#PCDATA)>
+    <!ELEMENT retrievalReferenceNumber (#PCDATA)>
 
     <!ELEMENT POSResponse ((ISO8583Response, balanceReturn?) | inquiryURL)>
     <!ELEMENT balanceReturn (amount)>
-    <!ELEMENT ISO8583Response (authorisationResponseCode, EMVResponse?, transactionResponder?, singleTapRequested?)>
+    <!ELEMENT ISO8583Response (authorisationResponseCode, acquirerAuthorisationResponse?, EMVResponse?, transactionResponder?, singleTapRequested?)>
+    <!ELEMENT acquirerAuthorisationResponse (responseCode, responseDescription)>
+    <!ELEMENT responseDescription (#PCDATA)>
     <!ELEMENT EMVResponse (authenticationData,script)>
     <!ELEMENT authenticationData (ARPC)>
     <!ELEMENT script (#PCDATA)>
@@ -2421,84 +2698,103 @@
 
     <!-- CHILD ELEMENTS OF PAYMENT ELEMENT -->
     <!-- ================================= -->
-    <!ELEMENT paymentMethodDetail		(card?)>
-    <!ELEMENT card	(issueNumber?,expiryDate?, family?)>
-    <!ATTLIST card	number	CDATA #IMPLIED
-        hash	CDATA #IMPLIED
-        type	(creditcard | debitcard) #IMPLIED
-        code	CDATA #IMPLIED >
-    <!ELEMENT balance		(amount )>
-    <!ATTLIST balance		accountType NMTOKEN  #REQUIRED >
-    <!ELEMENT paymentMethod		(#PCDATA )>
+    <!ELEMENT paymentMethodDetail        (card?)>
+    <!ELEMENT card    (issueNumber?,expiryDate?, family?)>
+    <!ATTLIST card    number    CDATA #IMPLIED
+        hash    CDATA #IMPLIED
+        type    (creditcard | debitcard) #IMPLIED
+        code    CDATA #IMPLIED >
+    <!ELEMENT balance        (amount )>
+    <!ATTLIST balance        accountType NMTOKEN  #REQUIRED >
+    <!ELEMENT paymentMethod        (#PCDATA )>
     <!ELEMENT parameter (#PCDATA)>
     <!ATTLIST parameter key CDATA #REQUIRED>
     <!ELEMENT apmEnrichedData (parameter+)>
     <!ELEMENT schemeResponse (schemeName?, actionCode?, responseCode?, transactionIdentifier?)>
-    <!ELEMENT ISO8583ReturnCode	EMPTY>
-    <!ATTLIST ISO8583ReturnCode	code        NMTOKEN  #REQUIRED
+    <!ELEMENT ISO8583ReturnCode    EMPTY>
+    <!ATTLIST ISO8583ReturnCode    code        NMTOKEN  #REQUIRED
         description CDATA    #REQUIRED >
     <!ELEMENT ISO20022TransactionReasonCode EMPTY>
-    <!ATTLIST ISO20022TransactionReasonCode code   		NMTOKEN #REQUIRED
+    <!ATTLIST ISO20022TransactionReasonCode code        NMTOKEN #REQUIRED
         description CDATA   #REQUIRED >
     <!ELEMENT retry EMPTY>
-    <!ATTLIST retry status      		CDATA 	  #REQUIRED
-        retryCount  		NMTOKEN   #REQUIRED
-        retryMaxCount  		NMTOKEN   #REQUIRED
+    <!ATTLIST retry status            CDATA      #REQUIRED
+        retryCount        NMTOKEN   #REQUIRED
+        retryMaxCount        NMTOKEN   #REQUIRED
         retryDaysRemaining  NMTOKEN   #REQUIRED >
-    <!ELEMENT IssuerResponseCode	EMPTY>
-    <!ATTLIST IssuerResponseCode	code        NMTOKEN  #REQUIRED
+    <!ELEMENT IssuerResponseCode    EMPTY>
+    <!ATTLIST IssuerResponseCode    code        NMTOKEN  #REQUIRED
         description CDATA    #REQUIRED >
-    <!ELEMENT lastEvent		(#PCDATA )>
+    <!ELEMENT lastEvent        (#PCDATA )>
     <!ELEMENT MAC (#PCDATA)>
+    <!ATTLIST MAC description CDATA  #IMPLIED>
+    <!ELEMENT fundingLinkId (#PCDATA)>
     <!ELEMENT OCTTxnID (#PCDATA)>
-    <!ELEMENT refundReference	(#PCDATA )>
-    <!ELEMENT thirdPartyReference	(#PCDATA )>
+    <!ELEMENT refundReference    (#PCDATA )>
+    <!ELEMENT thirdPartyReference    (#PCDATA )>
     <!ELEMENT AuthorisationId EMPTY>
     <!ATTLIST AuthorisationId  id NMTOKEN  #REQUIRED >
     <!ATTLIST AuthorisationId  by NMTOKEN  #IMPLIED >
     <!ELEMENT cardUpdated  (#PCDATA )>
     <!ELEMENT OCTTxnId (#PCDATA)>
+    <!ELEMENT paymentInstrumentUpdated EMPTY>
+    <!ATTLIST paymentInstrumentUpdated type CDATA  #REQUIRED >
     <!ELEMENT cardBin EMPTY>
-    <!ATTLIST cardBin  cardClass			NMTOKEN  #REQUIRED
-        productType			NMTOKEN  #REQUIRED
-        issuerCountryCode	NMTOKEN  #REQUIRED
-        issuerName			NMTOKEN  #REQUIRED>
+    <!ATTLIST cardBin  cardClass            NMTOKEN  #REQUIRED
+        productType            NMTOKEN  #REQUIRED
+        issuerCountryCode    NMTOKEN  #REQUIRED
+        issuerName            NMTOKEN  #REQUIRED>
+    <!ELEMENT networkPaymentToken (tokenNumber)>
+    <!ELEMENT acquirerResponseEci (#PCDATA)>
+
+    <!-- START ELEMENT merchantToken (and sub-elements) -->
+    <!ELEMENT merchantToken (merchantTokenMetadata?) >
+    <!ATTLIST merchantToken merchantTokenIdentifier CDATA #REQUIRED >
+    <!ELEMENT merchantTokenMetadata (cardArt?, cardMetadata?)>
+    <!ELEMENT cardArt EMPTY>
+    <!ATTLIST cardArt name CDATA #IMPLIED
+        type CDATA #IMPLIED
+        url CDATA #IMPLIED>
+    <!ELEMENT cardMetadata EMPTY>
+    <!ATTLIST cardMetadata expirationDate CDATA #IMPLIED
+        fpanSuffix CDATA #IMPLIED>
+    <!--  END  ELEMENT merchantToken (and sub-elements) -->
 
     <!-- Agency Fee authorisation ID. Sometimes used for Acquirers in specific countries like Colombia.-->
     <!ELEMENT AgentFeeAuthorisationId EMPTY>
     <!ATTLIST AgentFeeAuthorisationId  id NMTOKEN  #REQUIRED >
 
-    <!ELEMENT CVCResultCode	EMPTY>
+    <!ELEMENT CVCResultCode    EMPTY>
     <!ATTLIST CVCResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT AVSResultCode	EMPTY>
+    <!ELEMENT AVSResultCode    EMPTY>
     <!ATTLIST AVSResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT AAVAddressResultCode	EMPTY>
+    <!ELEMENT AAVAddressResultCode    EMPTY>
     <!ATTLIST AAVAddressResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT AAVPostcodeResultCode	EMPTY>
+    <!ELEMENT AAVPostcodeResultCode    EMPTY>
     <!ATTLIST AAVPostcodeResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT AAVCardholderNameResultCode	EMPTY>
+    <!ELEMENT AAVCardholderNameResultCode    EMPTY>
     <!ATTLIST AAVCardholderNameResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT AAVTelephoneResultCode	EMPTY>
+    <!ELEMENT AAVTelephoneResultCode    EMPTY>
     <!ATTLIST AAVTelephoneResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT AAVEmailResultCode	EMPTY>
+    <!ELEMENT AAVEmailResultCode    EMPTY>
     <!ATTLIST AAVEmailResultCode description NMTOKENS #REQUIRED >
-    <!ELEMENT ThreeDSecureResult	(eci?, cavv?, cardHolderInformation?)>
+    <!ELEMENT ThreeDSecureResult    (eci?, cavv?, cardHolderInformation?, dsTransactionId?, acsTransactionId?, challengeCancelIndicator?, transactionStatusReason?)>
     <!ATTLIST ThreeDSecureResult description NMTOKENS #REQUIRED>
-    <!ELEMENT issuerCountryCode		(#PCDATA )>
-    <!ELEMENT issuerName	(#PCDATA )>
+    <!ELEMENT issuerCountryCode        (#PCDATA )>
+    <!ELEMENT issuerName    (#PCDATA )>
 
     <!ELEMENT riskScore EMPTY>
-    <!ATTLIST riskScore value 				CDATA #IMPLIED
-        provider 			CDATA #IMPLIED
-        id 					CDATA #IMPLIED
-        finalScore 			CDATA #IMPLIED
-        score 				CDATA #IMPLIED
-        RGID 				CDATA #IMPLIED
-        tScore 				CDATA #IMPLIED
-        tRisk 				CDATA #IMPLIED
-        message 			CDATA #IMPLIED
-        extendedResponse	CDATA #IMPLIED
-        triggeredRules		CDATA #IMPLIED>
+    <!ATTLIST riskScore value                CDATA #IMPLIED
+        provider            CDATA #IMPLIED
+        id                    CDATA #IMPLIED
+        finalScore            CDATA #IMPLIED
+        score                CDATA #IMPLIED
+        RGID                CDATA #IMPLIED
+        tScore                CDATA #IMPLIED
+        tRisk                CDATA #IMPLIED
+        message            CDATA #IMPLIED
+        extendedResponse    CDATA #IMPLIED
+        triggeredRules        CDATA #IMPLIED>
 
     <!ELEMENT FraudSight (reasonCodes, insights?) >
     <!ATTLIST FraudSight score   CDATA #REQUIRED
@@ -2516,9 +2812,9 @@
     <!-- END - CHILD ELEMENTS OF FraudSight -->
 
     <!ELEMENT pbbaRTP (BRN, ApTransactionId, ApTRId, CFI?)>
-    <!ATTLIST pbbaRTP	confirmExpiry	CDATA #REQUIRED
-        retrievalExpiry	CDATA #REQUIRED
-        cookieStatus	(N|Y) #REQUIRED>
+    <!ATTLIST pbbaRTP    confirmExpiry    CDATA #REQUIRED
+        retrievalExpiry    CDATA #REQUIRED
+        cookieStatus    (N|Y) #REQUIRED>
     <!ELEMENT BRN (#PCDATA)>
     <!ELEMENT ApTransactionId (#PCDATA)>
     <!ELEMENT ApTRId (#PCDATA)>
@@ -2571,7 +2867,7 @@
 
     <!-- CHILD ELEMENTS OF ORDERMODIFICATION ELEMENT -->
     <!-- ================================================== -->
-    <!ELEMENT cancel (amount?, localDateTimeAtPOS?, (POSRequest | POSReversal)?)>
+    <!ELEMENT cancel (amount?, localDateTimeAtPOS?, (POSRequest | POSReversal)?, occurredAt?)>
     <!-- The cancel immediate attribute can only used for EMV transactions.
          If the merchant is not participating in EMV the value is not checked.
          When the value is set to 'yes', a cancel will be processed directly,
@@ -2580,26 +2876,37 @@
          be the same! -->
     <!ATTLIST cancel immediate (yes|no) 'no' >
     <!ATTLIST cancel instant (true|false) #IMPLIED >
-    <!ELEMENT cancelOrRefund EMPTY>
+    <!ATTLIST cancel merchantCode CDATA #IMPLIED >
+    <!ELEMENT cancelOrRefund (amount?, POSReversal?)>
+    <!ATTLIST cancelOrRefund merchantCode CDATA #IMPLIED >
     <!ELEMENT POSCaptureRequest ((cryptogram, ICCCryptogramInformation)?, transactionStatusInfo?)>
     <!ATTLIST POSCaptureRequest isRetry (true|false) 'false'>
-    <!ELEMENT capture  (localDateTimeAtPOS?, date?, amount, branchSpecificExtension?, POSCaptureRequest?, shipping?, orderLines? )>
+    <!ELEMENT provideCryptogram (cryptogram, ICCCryptogramInformation, transactionStatusInfo?)>
+    <!ATTLIST provideCryptogram instant (true|false) #IMPLIED >
+    <!ELEMENT capture  (localDateTimeAtPOS?, date?, amount, surchargeAmount?, branchSpecificExtension?, POSCaptureRequest?, shipping?, orderLines?, splitFunded?,
+        e2eIdentity?, processBatchTime?, occurredAt?)>
     <!ATTLIST capture reference CDATA #IMPLIED >
     <!ATTLIST capture instant (true|false) #IMPLIED >
     <!ATTLIST capture sequenceNumber CDATA #IMPLIED>
     <!ATTLIST capture totalCount CDATA #IMPLIED>
+    <!ELEMENT splitFunded EMPTY>
+    <!ATTLIST splitFunded reference CDATA #IMPLIED>
+    <!ATTLIST splitFunded countryCode CDATA #IMPLIED>
     <!ELEMENT defend  (disputeDefence | (disputeDefence? , disputeAttachment))>
-    <!ELEMENT refund  (amount, branchSpecificExtension?, reason?, iban?, warning?, orderLines? )>
+    <!ELEMENT refund  (amount, (secondaryAmount | surchargeAmount)?, branchSpecificExtension?, reason?, iban?, warning?, orderLines?, splitFunded?, e2eIdentity?,
+        processBatchTime?, occurredAt?)>
     <!ATTLIST refund reference CDATA #IMPLIED >
     <!ATTLIST refund paymentId CDATA #IMPLIED >
     <!ATTLIST refund immediate (true|false) #IMPLIED >
     <!ATTLIST refund shopperWebformRefund (true|false) #IMPLIED >
+    <!ATTLIST refund fastRefund (true|false) #IMPLIED >
     <!ATTLIST refund merchantCode CDATA #IMPLIED >
     <!ELEMENT addBackOfficeCode EMPTY>
     <!ATTLIST addBackOfficeCode backOfficeCode CDATA #REQUIRED >
     <!ELEMENT authorise EMPTY>
     <!ATTLIST authorise authorisationCode CDATA #REQUIRED >
-    <!ELEMENT increaseAuthorisation (amount, storedCredentials?)>
+    <!ELEMENT amexSubsequentOrderCode (#PCDATA)>
+    <!ELEMENT increaseAuthorisation (amount, storedCredentials?, amexSubsequentOrderCode?)>
     <!ELEMENT revoke EMPTY>
     <!ELEMENT extendExpiryDate EMPTY>
     <!ELEMENT cancelRefund EMPTY>
@@ -2607,6 +2914,8 @@
     <!ATTLIST cancelRetry reference CDATA #IMPLIED >
     <!ELEMENT voidSale EMPTY>
     <!ELEMENT approve EMPTY>
+    <!ELEMENT processBatchTime  (#PCDATA )>
+    <!ELEMENT occurredAt (#PCDATA)>
 
     <!-- CHILD ELEMENTS OF DEFEND ELEMENT -->
     <!-- ====================================== -->
@@ -2622,16 +2931,16 @@
 
     <!-- CHILD ELEMENTS OF ORDERINQUIRY ELEMENT -->
     <!-- ====================================== -->
-    <!ELEMENT cardSearch	(startDate )>
-    <!ATTLIST cardSearch	cardNumber NMTOKEN  #REQUIRED >
-    <!ELEMENT dateSearch	(fromDate, untilDate )>
+    <!ELEMENT cardSearch    (startDate )>
+    <!ATTLIST cardSearch    cardNumber NMTOKEN  #REQUIRED >
+    <!ELEMENT dateSearch    (fromDate, untilDate )>
     <!ATTLIST dateSearch journalTypeFilter CDATA #IMPLIED>
-    <!ELEMENT creationDate	(date )>
-    <!ELEMENT fromDate	(date )>
-    <!ELEMENT untilDate	(date )>
-    <!ELEMENT bookingDate	(date )>
-    <!ELEMENT lastDate	(date )>
-    <!ELEMENT startDate	(date )>
+    <!ELEMENT creationDate    (date )>
+    <!ELEMENT fromDate    (date )>
+    <!ELEMENT untilDate    (date )>
+    <!ELEMENT bookingDate    (date )>
+    <!ELEMENT lastDate    (date )>
+    <!ELEMENT startDate    (date )>
     <!ELEMENT date EMPTY>
     <!ATTLIST date  dayOfMonth NMTOKEN  #IMPLIED
         month      NMTOKEN  #REQUIRED
@@ -2643,17 +2952,17 @@
 
     <!-- CHILD ELEMENTS OF SHOPPER ELEMENT -->
     <!-- ===================================== -->
-    <!ELEMENT shopperEmailAddress		(#PCDATA )>
-    <!ELEMENT authenticatedShopperID	(#PCDATA )>
+    <!ELEMENT shopperEmailAddress        (#PCDATA )>
+    <!ELEMENT authenticatedShopperID    (#PCDATA )>
     <!ELEMENT shopperDetails            (firstName?,
         lastName?,
         telephoneNumber? )>
-    <!ELEMENT shopperToken				(((maxAmount?, subscriptionDetails?) | tokenId?), label?)>
+    <!ELEMENT shopperToken                (((maxAmount?, subscriptionDetails?) | tokenId?), label?)>
 
-    <!ELEMENT maxAmount	EMPTY>
-    <!ATTLIST maxAmount	value	NMTOKEN #REQUIRED>
-    <!ELEMENT subscriptionDetails	EMPTY>
-    <!ATTLIST subscriptionDetails	recurrence (ANNUAL|MONTHLY|WEEKLY|DAILY) 'MONTHLY'>
+    <!ELEMENT maxAmount    EMPTY>
+    <!ATTLIST maxAmount    value    NMTOKEN #REQUIRED>
+    <!ELEMENT subscriptionDetails    EMPTY>
+    <!ATTLIST subscriptionDetails    recurrence (ANNUAL|MONTHLY|WEEKLY|DAILY) 'MONTHLY'>
     <!ELEMENT label (#PCDATA)>
 
     <!-- CHILD ELEMENTS OF ALL ADDRESS ELEMENTS -->
@@ -2661,7 +2970,7 @@
     <!-- Note: The form of address which contains a street, is deprecated, and should no longer be used.
                The address1 is now optional, as some merchants are supplying an address only for the
                purpose of performing an AVS check, which requires just the postalCode and countryCode. -->
-    <!ELEMENT address  (	firstName?,
+    <!ELEMENT address  (    firstName?,
         lastName?,
         ((street, houseName?, houseNumber?, houseNumberExtension?)
             | (address1?, address2?, address3?)),
@@ -2671,23 +2980,24 @@
         countryCode,
         telephoneNumber?,
         emailAddress? )>
+    <!ATTLIST address    relaxPostalCodeCheck    (true | false) #IMPLIED>
 
     <!-- CHILD ELEMENTS OF ADDRESS ELEMENT -->
     <!-- ================================= -->
-    <!ELEMENT firstName		(#PCDATA )>
-    <!ELEMENT lastName		(#PCDATA )>
-    <!ELEMENT street		(#PCDATA )>
-    <!ELEMENT houseName		(#PCDATA )>
-    <!ELEMENT houseNumber		(#PCDATA )>
-    <!ELEMENT houseNumberExtension	(#PCDATA )>
-    <!ELEMENT address1			(#PCDATA )>
-    <!ELEMENT address2			(#PCDATA )>
-    <!ELEMENT address3			(#PCDATA )>
-    <!ELEMENT postalCode		(#PCDATA )>
-    <!ELEMENT city			(#PCDATA )>
-    <!ELEMENT state			(#PCDATA )>
-    <!ELEMENT countryCode		(#PCDATA )>
-    <!ELEMENT telephoneNumber	(#PCDATA )>
+    <!ELEMENT firstName        (#PCDATA )>
+    <!ELEMENT lastName        (#PCDATA )>
+    <!ELEMENT street        (#PCDATA )>
+    <!ELEMENT houseName        (#PCDATA )>
+    <!ELEMENT houseNumber        (#PCDATA )>
+    <!ELEMENT houseNumberExtension    (#PCDATA )>
+    <!ELEMENT address1            (#PCDATA )>
+    <!ELEMENT address2            (#PCDATA )>
+    <!ELEMENT address3            (#PCDATA )>
+    <!ELEMENT postalCode        (#PCDATA )>
+    <!ELEMENT city            (#PCDATA )>
+    <!ELEMENT state            (#PCDATA )>
+    <!ELEMENT countryCode        (#PCDATA )>
+    <!ELEMENT telephoneNumber    (#PCDATA )>
     <!ELEMENT emailAddress (#PCDATA )>
 
     <!ELEMENT invoiceNumber (#PCDATA)>
@@ -2703,92 +3013,156 @@
         secProgTrvl? )>
 
 
-
     <!-- CHILD ELEMENTS OF ALL TICKET-DETAILS ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT bookingSystemTrvl		(#PCDATA ) >
+    <!ELEMENT bookingSystemTrvl        (#PCDATA ) >
     <!ELEMENT isSeatSale  (#PCDATA)>
     <!ELEMENT isWithChild (#PCDATA)>
     <!ELEMENT purchaseType (#PCDATA)>
-    <!ELEMENT isPackageTrvl	(#PCDATA)>
-    <!ELEMENT isFlexTicket	(#PCDATA)>
+    <!ELEMENT isPackageTrvl    (#PCDATA)>
+    <!ELEMENT isFlexTicket    (#PCDATA)>
     <!ELEMENT isInsPurchased  (#PCDATA)>
     <!ELEMENT secProgTrvl (#PCDATA)>
 
     <!-- CHILD ELEMENTS OF ALL HOTEL ELEMENTS -->
+    <!ELEMENT hotelReservationDetails ( reference?, guestReservationCount?, hosts?, reservations, insurances?, parties, affiliateName?)>
+    <!ELEMENT hosts ( host* )>
+    <!ELEMENT reservations ( reservation+ )>
+    <!ELEMENT host (  id?, registrationDate?, reservationCount?)>
+    <!ELEMENT reservation (hotelName, hotelLocation, start, end, numberOfRooms?, partiesIndex, deliveryMethod?, deliveryRecipient,
+        amount, classification?)>
     <!-- The hotel data is deprecated for use in BranchSpecificExtension, instead lodging must be used  -->
     <!-- ================================= -->
-    <!ELEMENT hotel  (	checkInDate, checkOutDate      )>
+    <!ELEMENT hotel  (     hotelReservationDetails+ | (checkInDate, checkOutDate)  )>
+
+    <!-- CHILD ELEMENTS OF HOTELRESERVATIONDETAILS -->
+    <!ELEMENT    guestReservationCount (#PCDATA)>
+
+    <!-- CHILD ELEMENTS OF RESERVATION -->
+    <!ELEMENT    numberOfRooms (#PCDATA)>
+    <!ELEMENT    partiesIndex (#PCDATA)>
 
     <!-- CHILD ELEMENTS OF ALL CHECKINDATE ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT checkInDate  (	date	)>
+    <!ELEMENT checkInDate  (    date    )>
 
     <!-- CHILD ELEMENTS OF ALL CHECKOUTDATE ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT checkOutDate  (	date	)>
+    <!ELEMENT checkOutDate  (    date    )>
+
+    <!-- CHILD ELEMENTS OF HOTELRESERVATIONDETAILS -->
+    <!ELEMENT    hotelName (#PCDATA)>
+    <!ELEMENT    hotelLocation (address1, postalCode, city, countryCode)>
+
+    <!-- CHILD ELEMENTS OF HOST -->
+    <!ELEMENT    id (#PCDATA)>
 
     <!-- CHILD ELEMENTS OF ALL AIRLINE ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT airline  (	airlineName,
+    <!ELEMENT airline  (    airlineName,
         passenger,
         (ticket|nonTicket),
         agent,
         agentFeeAmounts?,
         totalAirlineTaxes?)>
     <!-- Code, length 3, consists of the IATA airline code -->
-    <!ATTLIST airline	code NMTOKEN #REQUIRED
+    <!ATTLIST airline    code NMTOKEN #REQUIRED
         planNumber (03|06|09|12|00) #IMPLIED>
 
     <!-- CHILD ELEMENTS OF ALL AIRLINENAME ELEMENTS -->
     <!-- ================================= -->
     <!-- Contains the name of an airline as it may appear on a bill -->
-    <!ELEMENT	airlineName  (	#PCDATA )>
+    <!ELEMENT    airlineName  (    #PCDATA )>
+
+
+    <!-- CHILD ELEMENTS OF ALL RAILWAY ELEMENTS -->
+    <!-- ====================================== -->
+    <!ELEMENT railway   (   railwayName,
+        passenger,
+        (ticket|nonTicket),
+        agent,
+        agentFeeAmounts?,
+        totalRailwayTaxes?)>
+    <!ATTLIST railway    code NMTOKEN #REQUIRED
+        planNumber (03|06|09|12|00) #IMPLIED>
+
+    <!-- CHILD ELEMENTS OF ALL RAILWAYNAME ELEMENTS -->
+    <!-- ========================================== -->
+    <!-- Contains the name of a railway as it may appear on a bill -->
+    <!ELEMENT    railwayName  (    #PCDATA )>
+
+
+    <!-- CHILD ELEMENTS OF ALL CARRENTAL ELEMENTS -->
+    <!-- ================================= -->
+    <!ELEMENT carRental     (   passenger,
+        checkInDate,
+        checkOutDate,
+        duration,
+        rentalRate,
+        returnLocation,
+        customerServicePhone,
+        agent?,
+        agentFeeAmounts?,
+        insurance?,
+        affiliateName?,
+        totalCarRentalTaxes?)>
+    <!ATTLIST carRental    agreementNumber NMTOKEN #REQUIRED>
+
+    <!ELEMENT    returnLocation    ( location )>
+    <!ELEMENT    rentalRate        ( amount )>
+
 
     <!-- CHILD ELEMENTS OF ALL PASSENGER ELEMENTS -->
     <!-- ================================= -->
     <!-- Contains the name of a passenger  -->
-    <!ELEMENT	passenger  (#PCDATA	)>
-    <!ELEMENT	isFreqFlyer   (	#PCDATA	)>
-    <!ATTLIST	passenger	code NMTOKEN #REQUIRED
+    <!ELEMENT    passenger  (#PCDATA    )>
+    <!ELEMENT    isFreqFlyer   (    #PCDATA    )>
+    <!ATTLIST    passenger    code NMTOKEN #REQUIRED
         isFreqFlyer (0|1) #IMPLIED
         passengerSpecificData CDATA #IMPLIED >
 
     <!-- CHILD ELEMENTS OF ALL TICKET ELEMENTS -->
     <!-- ================================= -->
     <!-- Code consists of the ticket number -->
-    <!ELEMENT ticket  (	issuer,
-        flight*,
+    <!ELEMENT ticket  (    issuer,
+        issueDate?,
+        (flight*|train*),
         ticketAmounts?,
         invoiceNumber?)>
-    <!ATTLIST ticket	code NMTOKEN #REQUIRED
+    <!ATTLIST ticket    code NMTOKEN #REQUIRED
         restricted (0|1) #REQUIRED
         passengerCount NMTOKEN #IMPLIED
+        adultCount NMTOKEN #IMPLIED
+        childCount NMTOKEN #IMPLIED
         returnTicket (0|1) #IMPLIED>
 
     <!-- CHILD ELEMENTS OF ALL NONTICKET ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT nonTicket  (	#PCDATA	)>
-    <!ATTLIST nonTicket	subCode NMTOKEN #IMPLIED>
+    <!ELEMENT nonTicket  (    #PCDATA    )>
+    <!ATTLIST nonTicket    subCode NMTOKEN #IMPLIED>
 
     <!-- CHILD ELEMENTS OF ALL AGENT ELEMENTS -->
     <!-- ================================= -->
     <!-- Code, length 8, consists of the IATA travel agency code -->
     <!-- Agent element, contains name of travel agent -->
-    <!ELEMENT agent	(	#PCDATA )>
-    <!ATTLIST agent	code NMTOKEN #REQUIRED
+    <!ELEMENT agent    (    #PCDATA )>
+    <!ATTLIST agent    code NMTOKEN #REQUIRED
         city CDATA   #IMPLIED >
 
-    <!ELEMENT totalAirlineTaxes	( amountNoCurrency )>
+    <!ELEMENT totalAirlineTaxes    ( amountNoCurrency )>
+    <!ELEMENT totalRailwayTaxes    ( amountNoCurrency )>
+    <!ELEMENT totalCarRentalTaxes    ( amountNoCurrency )>
 
     <!-- CHILD ELEMENTS OF ALL ISSUER ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT issuer  (	address, ticketDetails?)>
+    <!ELEMENT issuer  (    address, ticketDetails?)>
+
+    <!ELEMENT issueDate ( date )>
 
     <!-- CHILD ELEMENTS OF ALL FLIGHT ELEMENTS -->
     <!-- ================================= -->
     <!-- carrierCode, length 2, consists of the IATA carrier code -->
-    <!ELEMENT flight  (	departureAirport,
+    <!ELEMENT flight  (    departureAirport,
         arrivalAirport,
         departureDate,
         fare,
@@ -2797,11 +3171,29 @@
         insurance?,
         affiliateName?)>
 
-    <!ATTLIST flight	carrierCode NMTOKEN #REQUIRED
+    <!ATTLIST flight    carrierCode NMTOKEN #REQUIRED
         stopOverCode (0|1) #IMPLIED
         flightCode CDATA   #IMPLIED
         isChartered  (0|1) #IMPLIED
         domestic     (0|1) #IMPLIED >
+
+    <!-- CHILD ELEMENTS OF ALL TRAIN ELEMENTS -->
+    <!-- ===================================== -->
+    <!ELEMENT train    (    departureStation,
+        arrivalStation,
+        departureDate,
+        fare,
+        tax,
+        reservationItinerary?,
+        insurance?,
+        affiliateName?)>
+
+    <!ATTLIST train        carrierCode        NMTOKEN #REQUIRED
+        stopOverCode    (0|1) #IMPLIED
+        trainCode        CDATA #IMPLIED
+        isChartered        (0|1) #IMPLIED
+        domestic        (0|1) #IMPLIED >
+
 
     <!-- CHILD ELEMENTS OF ALL RESERVATIONITINERARY ELEMENTS -->
     <!-- ================================= -->
@@ -2841,7 +3233,7 @@
 
 
     <!-- structure to defining information pertaining to an individual -->
-    <!ELEMENT party (	reference?,
+    <!ELEMENT party (    reference?,
         firstName?,
         lastName?,
         salutation?) >
@@ -2871,32 +3263,41 @@
     <!-- CHILD ELEMENTS OF ALL ARRIVALAIRPORT ELEMENTS -->
     <!-- ================================= -->
     <!-- Consists of the 3 chars IATA airport code -->
-    <!ELEMENT arrivalAirport  (	#PCDATA )>
+    <!ELEMENT arrivalAirport  (    #PCDATA )>
+
+    <!-- CHILD ELEMENTS OF ALL DEPARTURESTATION ELEMENTS -->
+    <!-- =============================================== -->
+    <!ELEMENT departureStation ( #PCDATA )>
+
+    <!-- CHILD ELEMENTS OF ALL ARRIVALSTATION ELEMENTS -->
+    <!-- ============================================= -->
+    <!ELEMENT arrivalStation ( #PCDATA )>
 
     <!-- CHILD ELEMENTS OF ALL DEPARTUREDATE ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT departureDate  (	date	)>
+    <!ELEMENT departureDate  (    date    )>
 
     <!-- CHILD ELEMENTS OF ALL FARE ELEMENTS -->
     <!-- ================================= -->
     <!-- class consists of the single character IATA
             travel class code -->
-    <!ELEMENT fare 	EMPTY>
-    <!ATTLIST fare	class NMTOKEN #REQUIRED
+    <!ELEMENT fare    EMPTY>
+    <!ATTLIST fare    class NMTOKEN #REQUIRED
         basis NMTOKEN #IMPLIED>
 
     <!-- CHILD ELEMENTS OF ALL FARE ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT tax 	(	amount	)	>
+    <!ELEMENT tax    (    amount    )    >
 
     <!-- CHILD ELEMENTS OF ALL TICKETAMOUNTS ELEMENTS -->
     <!-- ================================= -->
-    <!ELEMENT ticketAmounts (ticketFare,ticketFareVAT?, airportTax?, agentFee?, agentFeeVAT?, baseRefundVAT?, agentFeeBaseRefundVAT?)>
+    <!ELEMENT ticketAmounts (ticketFare, ticketFareVAT?, (airportTax|stationTax)?, agentFee?, agentFeeVAT?, baseRefundVAT?, agentFeeBaseRefundVAT?)>
     <!ELEMENT agentFeeAmounts (agentFee, agentFeeVAT?, agentFeeBaseRefundVAT?)>
     <!ELEMENT ticketFare (amountNoCurrency)>
     <!ELEMENT ticketFareVAT (amountNoCurrency)>
     <!ELEMENT airportTax (amountNoCurrency)>
-    <!ELEMENT agentFee	(amountNoCurrency)>
+    <!ELEMENT stationTax (amountNoCurrency)>
+    <!ELEMENT agentFee    (amountNoCurrency)>
     <!ELEMENT agentFeeVAT (amountNoCurrency)>
     <!ELEMENT baseRefundVAT (amountNoCurrency)>
     <!ELEMENT agentFeeBaseRefundVAT (amountNoCurrency)>
@@ -2925,12 +3326,17 @@
     <!-- can be TRAIN, FERRY, CAR, BUS, HOTEL, CRUISE)  -->
     <!ELEMENT reservationType (#PCDATA) >
 
+    <!ELEMENT events (
+        eventBooking+) >
+
     <!-- Event Booking -->
     <!ELEMENT eventBooking (
         name?,
         company?,
         eventType?,
+        arenaName?,
         location?,
+        eventLocation?,
         start?,
         end?,
         ticketed?,
@@ -2942,6 +3348,30 @@
     <!ELEMENT eventType  (#PCDATA )>
     <!ELEMENT ticketed  (#PCDATA )>
 
+    <!ELEMENT ferry (
+        ferryReservationDetails+ ) >
+
+    <!ELEMENT ferryReservationDetails (
+        reference?,
+        itineraries?,
+        insurances?,
+        affiliateName? )>
+
+    <!ELEMENT itineraries (
+        reservationItinerary+ )>
+
+    <!ELEMENT insurances (
+        insurance+ )>
+
+    <!ELEMENT eventLocation (
+        eventAddress?,
+        postalCode?,
+        city?,
+        country?)>
+
+    <!ELEMENT eventAddress (#PCDATA )>
+    <!ELEMENT country (#PCDATA )>
+    <!ELEMENT arenaName (#PCDATA )>
     <!-- voucher -->
     <!ELEMENT voucher (
         name?,
@@ -2970,7 +3400,7 @@
     <!ELEMENT alternativeShippingAddress (shippingSummary?, address?) >
 
     <!ELEMENT shippingSummary EMPTY >
-    <!ATTLIST shippingSummary 	shippingMethod CDATA #REQUIRED
+    <!ATTLIST shippingSummary    shippingMethod CDATA #REQUIRED
         shippingType CDATA #REQUIRED >
 
     <!ELEMENT marketplaceAccountIdentifier (#PCDATA) >
@@ -3006,6 +3436,10 @@
         orderDate?,
         shippingDate?,
         taxExempt?,
+        taxInvoiceIndicator?,
+        taxInvoiceDiscountIndicator?,
+        taxTotalInclusiveIndicator?,
+        transactionTaxIndicator?,
         item*,
         shippingCourier?)>
 
@@ -3018,6 +3452,10 @@
         itemTotal?,
         itemTotalWithTax?,
         itemDiscountAmount?,
+        itemTaxRate?,
+        lineDiscountIndicator?,
+        itemLocalTaxRate?,
+        itemLocalTaxAmount?,
         taxAmount?,
         categories?,
         pageURL?,
@@ -3050,7 +3488,14 @@
     <!ELEMENT orderDate                 (date)>
     <!ELEMENT shippingDate              (date)>
     <!ELEMENT taxExempt                 (#PCDATA)>
-
+    <!ELEMENT taxTotalInclusiveIndicator (#PCDATA)>
+    <!ELEMENT itemTaxRate                (#PCDATA)>
+    <!ELEMENT lineDiscountIndicator     (#PCDATA)>
+    <!ELEMENT itemLocalTaxRate          (#PCDATA)>
+    <!ELEMENT itemLocalTaxAmount        (amount)>
+    <!ELEMENT taxInvoiceIndicator       (#PCDATA)>
+    <!ELEMENT taxInvoiceDiscountIndicator (#PCDATA)>
+    <!ELEMENT transactionTaxIndicator   (#PCDATA)>
     <!ELEMENT productCode               (#PCDATA)>
     <!ELEMENT commodityCode             (#PCDATA)>
     <!ELEMENT unitCost                  (amount)>
@@ -3076,7 +3521,6 @@
     <!ATTLIST authenticationRiskData authenticationMethod (guestCheckout | localAccount | federatedAccount | issuerCredentials | thirdPartyAuthentication | fidoAuthenticator | fidoAuthenticatorSignedData | fidoAuthenticatorManaged | assuranceData) #IMPLIED>
     <!ELEMENT authenticationTimestamp (date)>
     <!ELEMENT alternateAuthenticationData (#PCDATA)>
-    <!ATTLIST alternateAuthenticationData method (staticPasscode | smsOTP | physicalReaderOTP | appOTP | otherOTP | KBA | biometricsOOB | loginOOB | otherOOB | other | pushConfirmation) #IMPLIED>
 
     <!ELEMENT shopperAccountRiskData (
         shopperAccountCreationDate?,
@@ -3122,7 +3566,8 @@
     <!ATTLIST additional3DSData
         dfReferenceId CDATA #REQUIRED
         challengeWindowSize (250x400 | 390x400 | 500x600 | 600x400 | fullPage) '390x400'
-        challengePreference (noPreference | noChallengeRequested | challengeRequested | challengeMandated | SCAAlreadyPerformed) 'noPreference'
+        challengePreference (noPreference | noChallengeRequested | challengeRequested | challengeMandated
+            | SCAAlreadyPerformed | TRAAlreadyPerformed | dataOnly) 'noPreference'
         javaScriptEnabled (true | false) 'true'
         externalAcquirerId CDATA #IMPLIED
         deviceChannel (Browser | SDK) #IMPLIED
@@ -3157,3 +3602,23 @@
     <!ELEMENT fireSafetyIndicator (#PCDATA)>
     <!ELEMENT lodgingCharge (chargeType+)>
     <!ELEMENT chargeType (#PCDATA)>
+
+    <!ELEMENT outcome (#PCDATA)>
+    <!ELEMENT ThreeDSOutcomeInAuthorisation (eci?, outcome?, reasonCode?)>
+
+    <!-- time to live for hpp payments-->
+    <!ELEMENT hostPaymentOrderAttribute    EMPTY>
+    <!ATTLIST hostPaymentOrderAttribute    timeToLiveInMin NMTOKEN #REQUIRED>
+
+    <!-- CHILD ELEMENTS OF CAPTURE/REFUND FOR END TO END IDENTITY BUNDLE-->
+    <!ELEMENT e2eIdentity EMPTY >
+    <!ATTLIST e2eIdentity
+        merchantId CDATA #IMPLIED
+        entityId CDATA #IMPLIED
+        entityReference CDATA #IMPLIED
+        resourceId CDATA #IMPLIED
+        resourceReference CDATA #IMPLIED
+        commandId CDATA #IMPLIED
+        commandReference CDATA #IMPLIED
+        orderReference CDATA #IMPLIED
+        >

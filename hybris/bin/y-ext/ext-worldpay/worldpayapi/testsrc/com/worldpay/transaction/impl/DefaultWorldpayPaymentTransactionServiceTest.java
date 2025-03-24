@@ -10,6 +10,7 @@ import com.worldpay.data.Amount;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.RiskScore;
 import com.worldpay.service.notification.OrderNotificationMessage;
+import com.worldpay.service.payment.WorldpayExemptionStrategy;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
 import com.worldpay.transaction.WorldpayPaymentTransactionUtils;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -83,6 +84,8 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private WorldpayFraudSightStrategy worldpayFraudSightStrategyMock;
     @Mock
     private WorldpayBankConfigurationLookupService worldpayBankConfigurationServiceMock;
+    @Mock
+    private WorldpayExemptionStrategy worldpayExemptionStrategyMock;
 
     @Mock
     private PaymentTransactionEntryModel authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndAcceptedAndPendingEntryMock, authorisedAndRejectedAndPendingEntryMock, pendingCaptureEntryMock, pendingCancelEntryMock;
@@ -598,6 +601,22 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         testObj.addFraudSightToPaymentTransaction(paymentTransactionModelMock, paymentReplyMock);
 
         verify(worldpayFraudSightStrategyMock, never()).addFraudSight(paymentTransactionModelMock, paymentReplyMock);
+    }
+
+    @Test
+    public void addExemptionResponseToPaymentTransaction_shouldTryToAddTheExemption_WhenEEIsEnabled() {
+        when(worldpayExemptionStrategyMock.isExemptionEnabled()).thenReturn(true);
+
+        testObj.addExemptionResponseToPaymentTransaction(paymentTransactionModelMock, paymentReplyMock);
+
+        verify(worldpayExemptionStrategyMock).addExemptionResponse(paymentTransactionModelMock, paymentReplyMock);
+    }
+
+    @Test
+    public void addExemptionResponseToPaymentTransaction_shouldNotTryToAddTheExemption_WhenEEIsDisabled() {
+        testObj.addExemptionResponseToPaymentTransaction(paymentTransactionModelMock, paymentReplyMock);
+
+        verify(worldpayExemptionStrategyMock, never()).addExemptionResponse(paymentTransactionModelMock, paymentReplyMock);
     }
 
     protected void verifyPaymentTransactionEntry(final PaymentTransactionEntryModel result, final PaymentTransactionType transactionType, final Boolean pendingFlag) {

@@ -4,7 +4,6 @@ import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.http.ServiceReply;
 import com.worldpay.service.response.ServiceResponse;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Optional;
 
@@ -13,7 +12,11 @@ import java.util.Optional;
  */
 public abstract class AbstractServiceResponseTransformer implements ServiceResponseTransformer {
 
-    private ServiceResponseTransformerHelper serviceResponseTransformerHelper;
+    protected final ServiceResponseTransformerHelper serviceResponseTransformerHelper;
+
+    protected AbstractServiceResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        this.serviceResponseTransformerHelper = serviceResponseTransformerHelper;
+    }
 
     /**
      * (non-Javadoc)
@@ -30,12 +33,4 @@ public abstract class AbstractServiceResponseTransformer implements ServiceRespo
 
     public abstract ServiceResponse transform(PaymentService paymentService) throws WorldpayModelTransformationException;
 
-    public ServiceResponseTransformerHelper getServiceResponseTransformerHelper() {
-        return serviceResponseTransformerHelper;
-    }
-
-    @Required
-    public void setServiceResponseTransformerHelper(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
-        this.serviceResponseTransformerHelper = serviceResponseTransformerHelper;
-    }
 }

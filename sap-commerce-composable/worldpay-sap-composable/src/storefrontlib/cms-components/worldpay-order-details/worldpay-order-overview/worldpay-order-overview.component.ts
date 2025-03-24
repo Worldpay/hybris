@@ -5,13 +5,12 @@ import { Address, PaymentDetails } from '@spartacus/core';
 import { OrderOverviewComponent } from '@spartacus/order/components';
 import { deliveryAddressCard, deliveryModeCard, Order } from '@spartacus/order/root';
 import { Card } from '@spartacus/storefront';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'y-worldpay-order-overview',
   templateUrl: './worldpay-order-overview.component.html',
-  styleUrls: ['./worldpay-order-overview.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
@@ -38,7 +37,7 @@ export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
       this.getPaymentDetailsLineTranslation(order),
     ]).pipe(
       filter(() => Boolean(order)),
-      map(([textTitle, textExpires]) => ({
+      map(([textTitle, textExpires]: [string, string]): Card => ({
         title: textTitle,
         textBold: order?.paymentInfo?.accountHolderName,
         text: [order?.paymentInfo?.cardNumber, textExpires],
@@ -52,7 +51,7 @@ export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
    * @param order any | Order
    */
   getPaymentDetailsLineTranslation(order: Order): Observable<string> {
-    let paymentDetailsTranslation: Observable<string>;
+    let paymentDetailsTranslation: Observable<string> = of(undefined);
     if (order?.paymentInfo?.expiryYear) {
       paymentDetailsTranslation = this.translation.translate('paymentCard.expires', {
         month: order.paymentInfo.expiryMonth ?? '',
@@ -81,7 +80,7 @@ export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
       this.translation.translate('addressCard.phoneNumber'),
       this.translation.translate('addressCard.mobileNumber'),
     ]).pipe(
-      map(([textTitle, textPhone, textMobile]) =>
+      map(([textTitle, textPhone, textMobile]: [string, string, string]): Card =>
         deliveryAddressCard(
           textTitle,
           textPhone,
@@ -101,6 +100,6 @@ export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
   getDeliveryModeCard(deliveryMode: DeliveryMode): Observable<Card> {
     return combineLatest([
       this.translation.translate('checkoutMode.deliveryMethod'),
-    ]).pipe(map(([textTitle]) => deliveryModeCard(textTitle, deliveryMode)));
+    ]).pipe(map(([textTitle]: [string]): Card => deliveryModeCard(textTitle, deliveryMode)));
   }
 }

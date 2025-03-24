@@ -1,13 +1,11 @@
 package com.worldpay.service.response.transform;
 
+import com.worldpay.data.*;
 import com.worldpay.internal.model.*;
-import com.worldpay.data.ErrorDetail;
-import com.worldpay.data.JournalReply;
-import com.worldpay.data.PaymentReply;
-import com.worldpay.data.WebformRefundReply;
 import com.worldpay.data.token.DeleteTokenReply;
 import com.worldpay.data.token.TokenReply;
 import com.worldpay.data.token.UpdateTokenReply;
+import com.worldpay.internal.model.ExemptionResponse;
 import com.worldpay.service.response.ServiceResponse;
 
 /**
@@ -70,4 +68,12 @@ public interface ServiceResponseTransformerHelper {
      * @return
      */
     JournalReply buildJournalReply(final Journal intJournal);
+
+    /**
+     * Builds a ExemptionResponse using the Exemption response passed as parameter
+     *
+     * @param intExemptionResponse
+     * @return
+     */
+    ExemptionResponseInfo buildExemptionResponse(final ExemptionResponse intExemptionResponse);
 }

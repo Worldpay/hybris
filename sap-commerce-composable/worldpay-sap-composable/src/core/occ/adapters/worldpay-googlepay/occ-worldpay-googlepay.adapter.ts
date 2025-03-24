@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ConverterService, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
-import { GooglePayMerchantConfiguration, PlaceOrderResponse } from '../../../interfaces';
-import { WorldpayGooglepayAdapter } from '../../../connectors/worldpay-googlepay/worldpay-googlepay.adapter';
+import { Injectable } from '@angular/core';
+import { ConverterService, HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { WorldpayGooglepayAdapter } from '../../../connectors/worldpay-googlepay/worldpay-googlepay.adapter';
+import { GooglePayMerchantConfiguration, PlaceOrderResponse } from '../../../interfaces';
 
 @Injectable()
 export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
 
   /**
-   * Constructor
-   * @param http
-   * @param occEndpoints
-   * @param converter
-   * @param loggerService
+   * Constructor for OccWorldpayGooglepayAdapter
+   * @param {HttpClient} http - The HTTP client for making requests
+   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoint URLs
+   * @param {ConverterService} converter - Service for converting data
+   * @param {LoggerService} loggerService - Service for logging errors
    */
   constructor(
     protected http: HttpClient,
@@ -27,15 +27,16 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
 
   /**
    * Get GooglePay Merchant Configuration
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @returns {Observable<GooglePayMerchantConfiguration>} An observable that emits the GooglePay merchant configuration.
    * @since 6.4.0
-   * @param userId - User ID
-   * @param cartId
    */
   getGooglePayMerchantConfiguration(
     userId: string,
     cartId: string
   ): Observable<GooglePayMerchantConfiguration> {
-    const url = this.occEndpoints.buildUrl(
+    const url: string = this.occEndpoints.buildUrl(
       'getGooglePayMerchantConfiguration',
       {
         urlParams: {
@@ -45,18 +46,19 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
       }
     );
     return this.http.get<GooglePayMerchantConfiguration>(url).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
 
   /**
-   * Authorise Googlepay Payment
+   * Authorise GooglePay Payment
+   * @param {string} userId - User ID
+   * @param {string} cartId - Cart ID
+   * @param {any} token - Payment token
+   * @param {any} billingAddress - Billing address
+   * @param {boolean} saved - Indicates if the payment method should be saved
+   * @returns {Observable<PlaceOrderResponse>} An observable that emits the response of the place order request.
    * @since 6.4.0
-   * @param userId - User ID
-   * @param cartId
-   * @param token
-   * @param billingAddress
-   * @param saved
    */
   authoriseGooglePayPayment(
     userId: string,
@@ -65,12 +67,13 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
     billingAddress: any,
     saved: boolean
   ): Observable<PlaceOrderResponse> {
+    // eslint-disable-next-line @typescript-eslint/typedef
     const body = {
       token,
       billingAddress,
       saved
     };
-    const url = this.occEndpoints.buildUrl(
+    const url: string = this.occEndpoints.buildUrl(
       'authoriseGooglePayPayment',
       {
         urlParams: {
@@ -80,7 +83,7 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
       }
     );
     return this.http.post<PlaceOrderResponse>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
 }

@@ -1,5 +1,5 @@
 import { CheckoutPaymentAdapter } from '@spartacus/checkout/base/core';
-import { PaymentDetails } from "@spartacus/core";
+import { PaymentDetails } from '@spartacus/core';
 import { Observable } from 'rxjs';
 
 export abstract class WorldpayCheckoutPaymentAdapter extends CheckoutPaymentAdapter {

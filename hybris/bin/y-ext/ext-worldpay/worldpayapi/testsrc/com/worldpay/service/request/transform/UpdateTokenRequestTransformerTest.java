@@ -42,7 +42,7 @@ public class UpdateTokenRequestTransformerTest {
     private PaymentTokenUpdate paymentTokenUpdateMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn("1.4");
     }
 
@@ -61,8 +61,8 @@ public class UpdateTokenRequestTransformerTest {
         assertEquals(MERCHANT_CODE, result.getMerchantCode());
         assertTrue(result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0) instanceof Modify);
         final Modify modify = (Modify) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        assertTrue(modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0) instanceof PaymentTokenUpdate);
-        final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0);
+        assertTrue(modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().get(0) instanceof PaymentTokenUpdate);
+        final PaymentTokenUpdate paymentTokenUpdate = (PaymentTokenUpdate) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().get(0);
         assertEquals(paymentTokenUpdateMock, paymentTokenUpdate);
     }
 }

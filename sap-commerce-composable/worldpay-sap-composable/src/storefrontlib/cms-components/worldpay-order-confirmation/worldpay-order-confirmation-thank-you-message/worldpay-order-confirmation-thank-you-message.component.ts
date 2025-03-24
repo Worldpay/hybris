@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
-import { OrderConfirmationThankYouMessageComponent } from '@spartacus/order/components';
-import { Observable } from 'rxjs';
-import { Order, OrderFacade } from '@spartacus/order/root';
-import { filter, withLatestFrom } from 'rxjs/operators';
-import { GlobalMessageService, TranslationService } from '@spartacus/core';
 import { ActivatedRoute, Params } from '@angular/router';
+import { GlobalMessageService, TranslationService } from '@spartacus/core';
+import { OrderConfirmationThankYouMessageComponent } from '@spartacus/order/components';
+import { Order, OrderFacade } from '@spartacus/order/root';
+import { Observable } from 'rxjs';
+import { filter, withLatestFrom } from 'rxjs/operators';
 
 @Component({
   selector: 'y-worldpay-order-confirmation-thank-you-message-component',
   templateUrl: './worldpay-order-confirmation-thank-you-message.component.html',
-  styleUrls: ['./worldpay-order-confirmation-thank-you-message.component.scss']
 })
 export class WorldpayOrderConfirmationThankYouMessageComponent extends OrderConfirmationThankYouMessageComponent {
 

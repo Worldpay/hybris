@@ -11,7 +11,7 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 public interface APMConfigurationLookupService {
 
     /**
-     * Returns {@link WorldpayAPMConfigurationModel} related to the payment type code (i.e. SOFORT-SSL)
+     * Returns {@link WorldpayAPMConfigurationModel} related to the payment type code (i.e. KLARNA-SSL)
      * @param paymentTypeCode the payment type
      * @return the aPM configuration for code
      */

@@ -1,22 +1,22 @@
 import createSpy = jasmine.createSpy;
-import { WorldpayCheckoutPaymentService } from './worldpay-checkout-payment.service';
-import { Address, EventService, PaymentDetails, UserIdService } from '@spartacus/core';
-import { StoreModule } from '@ngrx/store';
+import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
+import { inject, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
-import { Observable, of } from 'rxjs';
-import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { inject, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
-import { WorldpayCheckoutPaymentAdapter } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
+import { StoreModule } from '@ngrx/store';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade } from '@spartacus/checkout/base/root';
-import { WorldpayConnector } from '../../connectors/worldpay.connector';
+import { Address, EventService, PaymentDetails, UserIdService } from '@spartacus/core';
+import { Observable, of } from 'rxjs';
+import { WorldpayCheckoutPaymentAdapter } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
+import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
 import { WorldpayAdapter } from '../../connectors/worldpay.adapter';
-import { PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
+import { WorldpayConnector } from '../../connectors/worldpay.connector';
 import { ThreeDsChallengeIframeUrlSetEvent, ThreeDsDDCIframeUrlSetEvent } from '../../events/checkout-payment.events';
 import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
+import { PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
+import { WorldpayCheckoutPaymentService } from './worldpay-checkout-payment.service';
 
 describe('WorldpayCheckoutPaymentService', () => {
   let service: WorldpayCheckoutPaymentService;

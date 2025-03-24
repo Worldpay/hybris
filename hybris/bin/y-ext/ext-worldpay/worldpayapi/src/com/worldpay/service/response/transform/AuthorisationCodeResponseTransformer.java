@@ -13,6 +13,10 @@ import com.worldpay.service.response.ServiceResponse;
  */
 public class AuthorisationCodeResponseTransformer extends AbstractServiceResponseTransformer {
 
+    public AuthorisationCodeResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        super(serviceResponseTransformerHelper);
+    }
+
     /**
      * (non-Javadoc)
      *
@@ -29,11 +33,11 @@ public class AuthorisationCodeResponseTransformer extends AbstractServiceRespons
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
-        if (getServiceResponseTransformerHelper().checkForError(authorisationCodeResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(authorisationCodeResponse, intReply)) {
             return authorisationCodeResponse;
         }
 
-        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
@@ -41,7 +45,7 @@ public class AuthorisationCodeResponseTransformer extends AbstractServiceRespons
             .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
 
 
-        final AuthorisationCodeReceived intAuthorisationCodeReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+        final AuthorisationCodeReceived intAuthorisationCodeReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(AuthorisationCodeReceived.class::isInstance)
             .map(AuthorisationCodeReceived.class::cast)

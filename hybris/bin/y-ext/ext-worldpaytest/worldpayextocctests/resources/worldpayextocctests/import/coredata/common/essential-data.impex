@@ -6,7 +6,7 @@
 
 $lang = en
 $contentCatalog = wsTestContentCatalog
-$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Online])[default=$contentCatalog:Online]
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default = $contentCatalog]), CatalogVersion.version[default = Online])[default = $contentCatalog:Online]
 
 # Create oAuth2 clients
 INSERT_UPDATE OAuthClientDetails; clientId[unique = true]; resourceIds; scope    ; authorizedGrantTypes                                         ; authorities         ; clientSecret; registeredRedirectUri
@@ -26,15 +26,13 @@ INSERT_UPDATE WorldpayCurrencyRange; currency(isocode)[unique = true]; min[uniqu
                                    ; EUR                             ; 1                 ; 10000
 
 INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = $lang]; description[lang = $lang]; bank[default = false]; currencies(isocode); countries(isocode)                     ; currencyRanges(currency(isocode), min, max)     ; automaticRefunds[default = false]; bankTransferRefunds[default = false]
-                                      ; SOFORT-SSL            ; SOFORT            ; Sofort                   ;                      ; EUR                ; AT, BE, FR, DE                         ; EUR:1:2000                                      ; true                             ;
-                                      ; SOFORT_CH-SSL         ; SOFORT-CH         ; Sofort Switzerland       ;                      ; CHF                ; CH                                     ; CHF:1:2000                                      ; true                             ;
                                       ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay          ;                      ; GBP, EUR, USD      ;                                        ;                                                 ; true                             ;
                                       ; ALIPAY-SSL            ; Alipay            ; Alipay                   ;                      ; GBP, EUR, USD, SGD ; CN                                     ; GBP:1:5000, EUR:1:6000, USD:1:8000, SGD:2:10000 ; true                             ;
                                       ; PAYPAL-EXPRESS        ; PayPal            ; PayPal                   ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; PAYPAL-SSL            ; PayPal            ; PayPal                   ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; PAYWITHGOOGLE-SSL     ; Google Pay        ; Google Pay               ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; APPLEPAY-SSL          ; Apple Pay         ; Apple Pay                ;                      ;                    ;                                        ;                                                 ; true                             ;
-                                      ; MISTERCASH-SSL        ; Bancontact        ; Bancontact               ;                      ; EUR                ;                                        ; EUR:1:5000                                      ;                             ;
+                                      ; MISTERCASH-SSL        ; Bancontact        ; Bancontact               ;                      ; EUR                ;                                        ; EUR:1:5000                                      ;                                  ;
                                       ; POLINZ-SSL            ; POLi-NZ           ; POLi-NZ                  ;                      ;                    ;                                        ;                                                 ; true                             ;
                                       ; IDEAL-SSL             ; iDeal             ; iDeal                    ;                      ; EUR                ; NL                                     ;                                                 ; true                             ;
                                       ; KLARNA_V2-SSL         ; Klarna            ; Klarna                   ;                      ; EUR, GBP           ; AT, FI, DE, NL, NO, SE, GB             ;                                                 ; true                             ;

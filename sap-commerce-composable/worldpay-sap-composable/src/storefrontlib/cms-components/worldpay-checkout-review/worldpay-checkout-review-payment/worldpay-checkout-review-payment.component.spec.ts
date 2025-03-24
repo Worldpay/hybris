@@ -1,13 +1,15 @@
-import { Component, Input, Pipe, PipeTransform } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { I18nTestingModule, PaymentDetails } from '@spartacus/core';
-import { Card, IconTestingModule } from '@spartacus/storefront';
-import { of } from 'rxjs';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
+import { I18nTestingModule, PaymentDetails, TranslationService } from '@spartacus/core';
+import { IconTestingModule } from '@spartacus/storefront';
+import { WorldpayCheckoutPaymentFacade } from '@worldpay-facade/worldpay-checkout-payment.facade';
+import { MockCxCardComponent } from '@worldpay-tests/components';
+import { MockUrlPipe } from '@worldpay-tests/pipes';
+import { of } from 'rxjs';
+import { WorldpayApmPaymentInfo } from '../../../../core/interfaces';
 import { WorldpayCheckoutReviewPaymentComponent } from './worldpay-checkout-review-payment.component';
-import { WorldpayCheckoutPaymentFacade } from '../../../../core/facade/worldpay-checkout-payment.facade';
 import createSpy = jasmine.createSpy;
 
 const mockPaymentDetails: PaymentDetails = {
@@ -74,26 +76,10 @@ class MockCheckoutStepService {
   );
 }
 
-@Component({
-  selector: 'cx-card',
-  template: '',
-})
-class MockCardComponent {
-  @Input()
-  content: Card;
-}
-
-@Pipe({
-  name: 'cxUrl',
-})
-class MockUrlPipe implements PipeTransform {
-  transform(): any {
-  }
-}
-
 describe('WorldpayCheckoutReviewPaymentComponent', () => {
   let component: WorldpayCheckoutReviewPaymentComponent;
   let fixture: ComponentFixture<WorldpayCheckoutReviewPaymentComponent>;
+  let translationService: TranslationService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -101,7 +87,7 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
       declarations: [
         WorldpayCheckoutReviewPaymentComponent,
         MockUrlPipe,
-        MockCardComponent,
+        MockCxCardComponent,
       ],
       providers: [
         {
@@ -117,6 +103,7 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
 
     fixture = TestBed.createComponent(WorldpayCheckoutReviewPaymentComponent);
     component = fixture.componentInstance;
+    translationService = TestBed.inject(TranslationService);
     fixture.detectChanges();
   });
 
@@ -185,6 +172,38 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
         mockPaymentDetailsWithLine2.billingAddress?.town + ', ' + mockPaymentDetailsWithLine2.billingAddress?.region?.isocode + ', ' + mockPaymentDetailsWithLine2.billingAddress?.country?.isocode,
         mockPaymentDetailsWithLine2.billingAddress?.postalCode,
       ]);
+    });
+  });
+
+  it('should translate payment details line for APM', () => {
+    const paymentDetails = { name: 'Paypal' } as WorldpayApmPaymentInfo;
+    let translation: string | undefined;
+    spyOn(translationService, 'translate').and.returnValue(of('translated APM'));
+
+    component['getPaymentDetailsLineTranslation'](paymentDetails).subscribe((result) => {
+      translation = result;
+    });
+
+    expect(translation).toEqual('translated APM');
+    expect(translationService.translate).toHaveBeenCalledWith('paymentCard.apm', { apm: paymentDetails.name });
+  });
+
+  it('should translate payment details line for card with expiry date', () => {
+    const paymentDetails = {
+      expiryMonth: '12',
+      expiryYear: '2023'
+    } as WorldpayApmPaymentInfo;
+    let translation: string | undefined;
+    spyOn(translationService, 'translate').and.returnValue(of('expires month:12 year:2023'));
+
+    component['getPaymentDetailsLineTranslation'](paymentDetails).subscribe((result) => {
+      translation = result;
+    });
+
+    expect(translation).toEqual('expires month:12 year:2023');
+    expect(translationService.translate).toHaveBeenCalledWith('paymentCard.expires', {
+      month: paymentDetails.expiryMonth,
+      year: paymentDetails.expiryYear
     });
   });
 
