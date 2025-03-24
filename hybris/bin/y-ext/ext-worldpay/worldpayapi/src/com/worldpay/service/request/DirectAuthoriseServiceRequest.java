@@ -39,6 +39,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withStatementNarrative(requestParameters.getStatementNarrative())
             .withPaymentDetails(WorldpayInternalModelTransformerUtil.createPaymentDetailsFromRequestParameters(requestParameters))
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
+            .withExemption(requestParameters.getExemption())
             .build();
         reqOrder.setOrderLines(requestParameters.getOrderLines());
         authRequest.setOrder(reqOrder);
@@ -109,6 +110,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withLevel23Data(requestParameters.getBranchSpecificExtension())
             .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
             .withCheckoutId(requestParameters.getCheckoutId())
+            .withExemption(requestParameters.getExemption())
             .build();
         authRequest.setOrder(order);
         return authRequest;
@@ -224,6 +226,7 @@ public class DirectAuthoriseServiceRequest extends AuthoriseServiceRequest {
             .withLevel23Data(requestParameters.getBranchSpecificExtension())
             .withGuaranteedPaymentsAttribute(requestParameters.getGuaranteedPaymentsData())
             .withCheckoutId(requestParameters.getCheckoutId())
+            .withExemption(requestParameters.getExemption())
             .build();
         authRequest.setOrder(reqOrder);
         return authRequest;

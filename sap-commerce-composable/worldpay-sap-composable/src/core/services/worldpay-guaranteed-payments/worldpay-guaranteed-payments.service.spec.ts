@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { EventService, QueryService, QueryState, WindowRef } from '@spartacus/core';
+import { SetGuaranteedPaymentsSessionIdEvent } from '@worldpay-events/guaranteed-payments.events';
+import { of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { WorldpayGuaranteedPaymentsConnector } from '../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
+import { LoadScriptService } from '../../utils/load-script.service';
 
 import { WorldpayGuaranteedPaymentsService } from './worldpay-guaranteed-payments.service';
-import { LoadScriptService } from '../../utils/load-script.service';
-import { EventService, QueryService, QueryState, WindowRef } from '@spartacus/core';
-import { WorldpayGuaranteedPaymentsConnector } from '../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
-import { of } from 'rxjs';
 import createSpy = jasmine.createSpy;
 
 class MockWorldpayGuaranteedPaymentsConnector implements Partial<WorldpayGuaranteedPaymentsConnector> {
@@ -23,6 +25,7 @@ describe('WorldpayGuaranteedPaymentsService', () => {
   let loadScriptService: LoadScriptService;
   let winRef: WindowRef;
   let queryService: QueryService;
+  let eventService: EventService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -44,6 +47,7 @@ describe('WorldpayGuaranteedPaymentsService', () => {
     loadScriptService = TestBed.inject(LoadScriptService);
     winRef = TestBed.inject(WindowRef);
     queryService = TestBed.inject(QueryService);
+    eventService = TestBed.inject(EventService);
   });
 
   it('should be created', () => {
@@ -131,9 +135,46 @@ describe('WorldpayGuaranteedPaymentsService', () => {
 
     it('should get session id event using getSessionIdEvent method', () => {
       spyOn(service, 'getSessionIdEvent').and.callThrough();
-      service.getSessionIdEvent()
-        .subscribe(result => expect(result).toBe('testId'));
+      service.getSessionIdEvent().subscribe(result => expect(result).toBe('testId'));
       expect(service.getSessionIdEvent).toHaveBeenCalled();
+    });
+
+    it('should return session id from event', () => {
+      let sessionId = 'testSessionId';
+      eventService.dispatch({ sessionId }, SetGuaranteedPaymentsSessionIdEvent);
+      service.getSessionIdEvent().subscribe(id => sessionId = id);
+      expect(sessionId).toEqual('testSessionId');
+    });
+
+    it('should return empty string if no session id event is found', () => {
+      let sessionId = '';
+      eventService.dispatch({ sessionId: null }, SetGuaranteedPaymentsSessionIdEvent);
+      service.getSessionIdEvent().subscribe(id => sessionId = id);
+      expect(sessionId).toEqual('');
+    });
+
+    it('should map event to session id', (doneFn) => {
+      const event = { sessionId: 'testSessionId' };
+      spyOn(eventService, 'get').and.returnValue(of(event));
+      eventService.dispatch(event, SetGuaranteedPaymentsSessionIdEvent);
+      const result = eventService.get(SetGuaranteedPaymentsSessionIdEvent).pipe(
+        map((event: SetGuaranteedPaymentsSessionIdEvent): string => event.sessionId || '')
+      );
+      result.subscribe(sessionId => {
+        expect(sessionId).toEqual('testSessionId');
+        doneFn();
+      });
+    })
+    ;
+
+    it('should return empty string if session id is null', () => {
+      const event = { sessionId: null };
+      spyOn(eventService, 'get').and.returnValue(of(event));
+      eventService.dispatch(event, SetGuaranteedPaymentsSessionIdEvent);
+      const result = eventService.get(SetGuaranteedPaymentsSessionIdEvent).pipe(
+        map((event: SetGuaranteedPaymentsSessionIdEvent): string => event.sessionId || '')
+      );
+      result.subscribe(sessionId => expect(sessionId).toEqual(''));
     });
   });
 
@@ -159,9 +200,60 @@ describe('WorldpayGuaranteedPaymentsService', () => {
     });
   });
 
+  it('should set session id and generate script when session id is provided', () => {
+    spyOn(service, 'setSessionId').and.callThrough();
+    spyOn(loadScriptService, 'loadScript').and.callThrough();
+    service.generateScript('testSessionId');
+    expect(service.setSessionId).toHaveBeenCalledWith('testSessionId');
+    expect(loadScriptService.loadScript).toHaveBeenCalledWith({
+      idScript: 'sig-api',
+      src: 'https://cdn-scripts.signifyd.com/api/script-tag.js',
+      defer: true,
+      attributes: { 'data-order-session-id': 'testSessionId' },
+    });
+  });
+
+  it('should update existing script if node is found', () => {
+    const mockNode = document.createElement('script');
+    mockNode.id = 'sig-api';
+    mockNode.type = 'text/javascript';
+    mockNode.defer = true;
+    mockNode.setAttribute('data-order-session-id', 'testSessionId');
+
+    document.body.appendChild(mockNode);
+    service.window['SIGNIFYD_GLOBAL'] = {
+      init: () => {
+      }
+    };
+    spyOn(service, 'removeScript').and.callThrough();
+    spyOn(loadScriptService, 'updateScript').and.callThrough();
+    spyOn(service.window.SIGNIFYD_GLOBAL, 'init').and.callThrough();
+    service.generateScript('testSessionId');
+    expect(service.removeScript).toHaveBeenCalled();
+    expect(service.window.SIGNIFYD_GLOBAL.init).toHaveBeenCalled();
+    document.body.removeChild(mockNode);
+  });
+
+  it('should not generate script if session id is not provided', () => {
+    spyOn(loadScriptService, 'loadScript').and.callThrough();
+    service.generateScript('');
+    expect(loadScriptService.loadScript).not.toHaveBeenCalled();
+  });
+
   it('should call remove script', () => {
     spyOn(loadScriptService, 'removeScript').and.callThrough();
     loadScriptService.removeScript('test');
     expect(loadScriptService.removeScript).toHaveBeenCalledWith('test');
   });
+
+  it('should call removeScript with the correct script tag id', () => {
+    spyOn(loadScriptService, 'removeScript').and.callThrough();
+    service.removeScript();
+    expect(loadScriptService.removeScript).toHaveBeenCalledWith('script-tag-tmx');
+  });
+
+  it('should not throw an error when removeScript is called', () => {
+    expect(() => service.removeScript()).not.toThrow();
+  });
+
 });

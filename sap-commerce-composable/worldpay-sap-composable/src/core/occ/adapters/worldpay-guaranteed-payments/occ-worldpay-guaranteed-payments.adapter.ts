@@ -1,18 +1,19 @@
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ConverterService, LoggerService, normalizeHttpError, OccEndpointsService } from '@spartacus/core';
-import { WorldpayGuaranteedPaymentsAdapter } from '../../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.adapter';
+import { Injectable } from '@angular/core';
+import { ConverterService, HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
+import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { WorldpayGuaranteedPaymentsAdapter } from '../../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.adapter';
 
 @Injectable()
 export class OccWorldpayGuaranteedPaymentsAdapter implements WorldpayGuaranteedPaymentsAdapter {
   /**
-   * Constructor
-   * @param http
-   * @param occEndpoints
-   * @param converter
-   * @param loggerService
+   * Constructor for OccWorldpayGuaranteedPaymentsAdapter
+   * @param {HttpClient} http - The HTTP client for making requests
+   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoint URLs
+   * @param {ConverterService} converter - Service for converting data
+   * @param {LoggerService} loggerService - Service for logging errors
+   * @since 4.3.6
    */
   constructor(
     protected http: HttpClient,
@@ -24,10 +25,11 @@ export class OccWorldpayGuaranteedPaymentsAdapter implements WorldpayGuaranteedP
 
   /**
    * Method used to fetch Guaranteed payment Status.
+   * @returns {Observable<boolean>} An observable that emits the guaranteed payment status.
    * @since 4.3.6
    */
   isGuaranteedPaymentsEnabled(): Observable<boolean> {
-    const url = this.occEndpoints.buildUrl(
+    const url: string = this.occEndpoints.buildUrl(
       'isGuaranteedPaymentsEnabled'
     );
 
@@ -35,7 +37,7 @@ export class OccWorldpayGuaranteedPaymentsAdapter implements WorldpayGuaranteedP
       url,
       {},
     ).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
 }

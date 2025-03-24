@@ -1,18 +1,25 @@
 /* eslint-disable no-prototype-builtins */
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Params, Router, UrlTree } from '@angular/router';
-import { Observable, of } from 'rxjs';
 import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
-import { catchError, map, timeout } from 'rxjs/operators';
 import { Order } from '@spartacus/order/root';
-import { WorldpayOrderService } from '../services';
+import { Observable, of } from 'rxjs';
+import { catchError, map, timeout } from 'rxjs/operators';
 import { WorldpayPlacedOrderStatus } from '../interfaces';
+import { WorldpayOrderService } from '../services';
 
 @Injectable({
   providedIn: 'root',
 })
-export class WorldpayCheckoutPaymentRedirectGuard  {
+export class WorldpayCheckoutPaymentRedirectGuard {
 
+  /**
+   * Constructor for WorldpayCheckoutPaymentRedirectGuard.
+   * @param {Router} router - The Angular Router service.
+   * @param {WorldpayOrderService} worldpayOrderService - The service for handling Worldpay orders.
+   * @param {SemanticPathService} semanticPathService - The service for handling semantic paths.
+   * @param {GlobalMessageService} globalMessageService - The service for displaying global messages.
+   */
   constructor(
     protected router: Router,
     protected worldpayOrderService: WorldpayOrderService,
@@ -22,9 +29,10 @@ export class WorldpayCheckoutPaymentRedirectGuard  {
   }
 
   /**
-   * Performs the redirect place order API call
+   * Determines if the route can be activated based on the query parameters.
+   * @param {ActivatedRouteSnapshot} route - The snapshot of the current route.
+   * @returns {Observable<boolean | UrlTree>} An observable that emits a boolean or UrlTree indicating whether the route can be activated.
    * @since 4.3.6
-   * @param route ActivatedRouteSnapshot
    */
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
     const params: Params = route.queryParams;
@@ -51,7 +59,9 @@ export class WorldpayCheckoutPaymentRedirectGuard  {
   }
 
   /**
-   * Performs the redirect place order API call
+   * Performs the redirect place order API call.
+   * @returns {Observable<boolean | UrlTree>} An observable that emits a boolean or UrlTree indicating the result of the redirect place order API call.
+   * @protected
    * @since 4.3.6
    */
   protected placeRedirectOrder(): Observable<boolean | UrlTree> {
@@ -63,7 +73,10 @@ export class WorldpayCheckoutPaymentRedirectGuard  {
   }
 
   /**
-   * Performs the redirect place order API call
+   * Performs the bank transfer redirect order API call.
+   * @param {string} orderId - The ID of the order to be redirected.
+   * @returns {Observable<boolean | UrlTree>} An observable that emits a boolean or UrlTree indicating the result of the bank transfer redirect order API call.
+   * @protected
    * @since 4.3.6
    */
   protected placeBankTransferRedirectOrder(orderId: string): Observable<boolean | UrlTree> {
@@ -75,7 +88,9 @@ export class WorldpayCheckoutPaymentRedirectGuard  {
   }
 
   /**
-   * Lookup existing order, or redirect to order history page
+   * Lookup existing order, or redirect to order history page.
+   * @returns {Observable<boolean | UrlTree>} An observable that emits a boolean or UrlTree indicating the result of the lookup order operation.
+   * @protected
    * @since 4.3.6
    */
   protected lookUpOrder(): Observable<boolean | UrlTree> {
@@ -91,9 +106,11 @@ export class WorldpayCheckoutPaymentRedirectGuard  {
   }
 
   /**
-   * Redirects to order confirmation page
+   * Redirects to order confirmation page based on the validation result.
+   * @param {boolean} validator - A boolean indicating whether the validation passed.
+   * @returns {Observable<boolean | UrlTree>} An observable that emits a boolean or UrlTree indicating the result of the redirection.
+   * @protected
    * @since 6.4.0
-   * @param validator boolean
    */
   protected redirectToOrderConfirmation(validator: boolean): Observable<boolean | UrlTree> {
     if (validator) {

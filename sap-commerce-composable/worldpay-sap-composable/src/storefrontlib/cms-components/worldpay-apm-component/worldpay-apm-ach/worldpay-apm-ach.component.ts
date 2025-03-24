@@ -1,12 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
 import { Address, QueryState } from '@spartacus/core';
+import { WorldpayACHFacade } from '@worldpay-facade/worldpay-ach.facade';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { filter, map, tap } from 'rxjs/operators';
 import { ACHBankAccountType, ACHPaymentForm, ApmData, ApmPaymentDetails, PaymentMethod } from '../../../../core/interfaces';
 import { makeFormErrorsVisible } from '../../../../core/utils';
-import { WorldpayACHFacade } from '../../../../core/facade/worldpay-ach.facade';
-import { filter, map, takeUntil, tap } from 'rxjs/operators';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
 
 @Component({
   selector: 'y-worldpay-apm-ach',
@@ -15,7 +16,10 @@ import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/comp
 })
 export class WorldpayApmAchComponent implements OnInit, OnDestroy {
   @Input() apm: ApmData;
-  @Output() setPaymentDetails = new EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }>();
+  @Output() setPaymentDetails: EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }> = new EventEmitter<{
+    paymentDetails: ApmPaymentDetails;
+    billingAddress: Address
+  }>();
   @Output() back: EventEmitter<void> = new EventEmitter<void>();
 
   achBankAccountTypesState$: Observable<QueryState<ACHBankAccountType[]>>;
@@ -23,8 +27,6 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
   public submitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public sameAsShippingAddress: boolean = true;
   public billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
-  private drop: Subject<void> = new Subject<void>();
-
   /**
    * Form group for ACH payment details.
    * @since 6.4.2
@@ -43,16 +45,17 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
     companyName: this.fb.control(null, [Validators.maxLength(40)]),
     customIdentifier: this.fb.control(null, [Validators.maxLength(15)]),
   });
-
+  protected destroyRef: DestroyRef = inject(DestroyRef);
   /**
    * Injects the CheckoutBillingAddressFormService into the component.
    * This service is used to manage the billing address form in the checkout process.
    * @protected
    * @since 2211.27.0
    */
-  protected billingAddressFormService = inject(
+  protected billingAddressFormService: CheckoutBillingAddressFormService = inject(
     CheckoutBillingAddressFormService
   );
+  private drop: Subject<void> = new Subject<void>();
 
   /**
    * Constructor for WorldpayApmAchComponent.
@@ -98,7 +101,7 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
           accountType: { code: value.accountType }
         });
       }),
-      takeUntil(this.drop)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -124,7 +127,7 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
     const {
       valid,
       value
-    } = this.achForm;
+    }: UntypedFormGroup = this.achForm;
 
     this.sameAsShippingAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
 
@@ -145,7 +148,7 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
 
       this.submitting$.next(true);
 
-      let billingAddress = null;
+      let billingAddress: Address = null;
       if (!this.sameAsShippingAddress) {
         billingAddress = this.billingAddressFormService.getBillingAddress();
       }
@@ -173,8 +176,6 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.submitting$.next(false);
-    this.drop.next();
-    this.drop.complete();
   }
 
 }

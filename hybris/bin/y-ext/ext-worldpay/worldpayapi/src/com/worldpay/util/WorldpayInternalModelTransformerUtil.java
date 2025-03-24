@@ -57,6 +57,7 @@ public class WorldpayInternalModelTransformerUtil {
         paymentDetails.setSession(requestParameters.getShopper() != null ? requestParameters.getShopper().getSession() : null);
         paymentDetails.setStoredCredentials(requestParameters.getStoredCredentials());
         paymentDetails.setAction(requestParameters.getAction());
+        paymentDetails.setRoutingMID(requestParameters.getRoutingMID());
 
         return paymentDetails;
     }

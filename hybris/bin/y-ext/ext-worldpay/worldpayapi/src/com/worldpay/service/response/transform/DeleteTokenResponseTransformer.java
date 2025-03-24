@@ -14,6 +14,10 @@ import com.worldpay.service.response.ServiceResponse;
  */
 public class DeleteTokenResponseTransformer extends AbstractServiceResponseTransformer {
 
+    public DeleteTokenResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        super(serviceResponseTransformerHelper);
+    }
+
     @Override
     public ServiceResponse transform(final PaymentService paymentService) throws WorldpayModelTransformationException {
 
@@ -25,23 +29,23 @@ public class DeleteTokenResponseTransformer extends AbstractServiceResponseTrans
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
         final DeleteTokenResponse deleteTokenResponse = new DeleteTokenResponse();
-        if (getServiceResponseTransformerHelper().checkForError(deleteTokenResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(deleteTokenResponse, intReply)) {
             return deleteTokenResponse;
         }
 
-        final Ok okResponse = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok okResponse = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("DeleteTokenResponse did not contain an OK object"));
 
-        okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+        okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(DeleteTokenReceived.class::isInstance)
             .map(DeleteTokenReceived.class::cast)
             .findAny()
-            .ifPresent(deleteTokenReceived -> deleteTokenResponse.setDeleteTokenResponse(getServiceResponseTransformerHelper().buildDeleteTokenReply(deleteTokenReceived)));
+            .ifPresent(deleteTokenReceived -> deleteTokenResponse.setDeleteTokenResponse(serviceResponseTransformerHelper.buildDeleteTokenReply(deleteTokenReceived)));
 
         return deleteTokenResponse;
     }

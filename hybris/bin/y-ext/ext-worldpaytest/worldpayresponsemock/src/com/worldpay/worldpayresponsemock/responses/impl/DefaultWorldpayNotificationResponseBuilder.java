@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import static com.worldpay.worldpayresponsemock.builders.AddressBuilder.anAddressBuilder;
 import static com.worldpay.worldpayresponsemock.builders.AmountBuilder.anAmountBuilder;
+import static com.worldpay.worldpayresponsemock.builders.ExemptionResponseBuilder.aExemptionResponseBuilder;
 import static com.worldpay.worldpayresponsemock.builders.JournalBuilder.aJournalBuilder;
 import static com.worldpay.worldpayresponsemock.builders.PaymentBuilder.aPaymentBuilder;
 import static com.worldpay.worldpayresponsemock.builders.TokenBuilder.aTokenBuilder;
@@ -62,6 +63,8 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
         orderStatusEvent.setPayment(payment);
         final Journal journal = createJournal(responseForm, amount);
         orderStatusEvent.setJournal(journal);
+        final ExemptionResponse exemptionResponse = createExemptionResponse(responseForm);
+        orderStatusEvent.setExemptionResponse(exemptionResponse);
 
         if (!StringUtils.equalsIgnoreCase(responseForm.getSelectToken(), NO_TOKEN)) {
             final Token token = createToken(responseForm);
@@ -74,7 +77,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
         }
 
         final ISO8583ReturnCode iso8583ReturnCode = generateReturnCode(responseForm);
-        notify.getOrderStatusEventOrReport().add(orderStatusEvent);
+        notify.getOrderStatusEventOrEncryptedDataOrReport().add(orderStatusEvent);
         payment.setISO8583ReturnCode(iso8583ReturnCode);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(notify);
         return paymentServiceMarshaller.marshal(paymentService);
@@ -200,6 +203,15 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
 
         return aJournalBuilder().withAmount(amount).withJournalType(responseForm.getJournalType())
             .withBookingDate(responseForm.getCurrentDay(), responseForm.getCurrentMonth(), responseForm.getCurrentYear())
+            .build();
+    }
+
+    protected ExemptionResponse createExemptionResponse(final ResponseForm responseForm) {
+        return aExemptionResponseBuilder()
+            .withExemptionResponseReason(responseForm.getExemptionResponseReason())
+            .withExemptionResponseResult(responseForm.getExemptionResponseResult())
+            .withExemptionPlacement(responseForm.getExemptionPlacement())
+            .withExemptionType(responseForm.getExemptionType())
             .build();
     }
 

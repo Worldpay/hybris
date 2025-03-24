@@ -48,7 +48,7 @@ public class RefundRequestTransformerTest {
     private MerchantInfo merchantInfoMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(CONFIG_VERSION);
         when(requestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
         when(requestMock.getMerchantInfo().getMerchantCode()).thenReturn(MERCHANT_CODE);
@@ -91,8 +91,8 @@ public class RefundRequestTransformerTest {
         final PaymentService result = testObj.transform(requestMock);
 
         final Modify modify = (Modify) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderModification orderModification = (OrderModification) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().get(0);
-        final Refund refund = (Refund) orderModification.getCancelOrCaptureOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().get(0);
+        final OrderModification orderModification = (OrderModification) modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().get(0);
+        final Refund refund = (Refund) orderModification.getCancelOrCaptureOrProvideCryptogramOrRefundOrRevokeOrAddBackOfficeCodeOrAuthoriseOrIncreaseAuthorisationOrCancelOrRefundOrDefendOrShopperWebformRefundDetailsOrExtendExpiryDateOrCancelRefundOrCancelRetryOrVoidSaleOrApprove().get(0);
 
         assertThat(refund.getAmount()).isEqualTo(internalAmountMock);
         assertThat(refund.getReference()).isEqualTo(REFERENCE);

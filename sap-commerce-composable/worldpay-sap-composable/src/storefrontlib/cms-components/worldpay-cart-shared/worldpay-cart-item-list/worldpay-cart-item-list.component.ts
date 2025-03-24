@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import { CartItemListComponent } from '@spartacus/cart/base/components';
 import { AbstractControl, FormControl } from '@angular/forms';
+import { CartItemListComponent } from '@spartacus/cart/base/components';
 
 @Component({
   selector: 'y-worldpay-cart-item-list',
   templateUrl: './worldpay-cart-item-list.component.html',
-  styleUrls: ['./worldpay-cart-item-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })

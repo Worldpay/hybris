@@ -61,6 +61,6 @@ public class PaymentTokenCreatePopulator implements Populator<CardTokenRequest, 
 
         Optional.ofNullable(source.getPayment())
             .map(internalPaymentConverterStrategy::convertPayment)
-            .ifPresent(intPayment -> target.getPaymentInstrumentOrCSEDATA().add(intPayment));
+            .ifPresent(intPayment -> target.getPaymentInstrumentOrCSEDATAOrPosPaymentInstrument().add(intPayment));
     }
 }

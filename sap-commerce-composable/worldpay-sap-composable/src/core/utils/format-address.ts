@@ -9,7 +9,8 @@ import { Card } from '@spartacus/storefront';
  * @param appendText - Text to append
  * @returns string[] - Array of strings
  */
-export const formatTextAddressContent = (
+
+export const formatTextAddressContent: (address: Address, prependText: string, appendText: string) => string[] = (
   address: Address,
   prependText: string = null,
   appendText: string = null
@@ -18,7 +19,7 @@ export const formatTextAddressContent = (
   const region: string = address?.region?.isocode ? address?.region?.isocode + ', ' : '';
   const town: string = address?.town ? address.town + ', ' : '';
   const countryIsoCode: string = address?.country?.isocode ?? '';
-  const countryData = town + region + countryIsoCode;
+  const countryData: string = town + region + countryIsoCode;
 
   if (prependText) {
     textContent.push(prependText);
@@ -59,7 +60,7 @@ export const formatTextAddressContent = (
  * @param address - Address
  * @returns Card - Card
  */
-export const generateAddressCard = (address: Address): Card => ({
+export const generateAddressCard: (address: Address) => Card = (address: Address): Card => ({
   textBold: address.firstName + ' ' + address.lastName,
   text: formatTextAddressContent(address, null, null),
 });
@@ -72,7 +73,7 @@ export const generateAddressCard = (address: Address): Card => ({
  * @param billingAddress - Billing Address
  * @returns Card - Card
  */
-export const generateBillingAddressCard = (
+export const generateBillingAddressCard: (textTitle: string, textBillTo: string, billingAddress: Address) => Card = (
   textTitle: string,
   textBillTo: string,
   billingAddress: Address

@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { I18nTestingModule, PaymentDetails } from '@spartacus/core';
+import { I18nTestingModule, PaymentDetails, TranslationService } from '@spartacus/core';
+import { OrderDetailsService } from '@spartacus/order/components';
 import { Order } from '@spartacus/order/root';
 import { Observable, of } from 'rxjs';
 import { WorldpayOrderDetailsBillingComponent } from './worldpay-order-details-billing.component';
-import { OrderDetailsService } from '@spartacus/order/components';
 
 const mockPaymentDetails: PaymentDetails = {
   accountHolderName: 'Name',
@@ -58,6 +58,8 @@ class MockTranslationService {
 describe('OrderDetailsBillingComponent', () => {
   let component: WorldpayOrderDetailsBillingComponent;
   let fixture: ComponentFixture<WorldpayOrderDetailsBillingComponent>;
+  let translationService: TranslationService;
+  let orderDetailsService: OrderDetailsService;
 
   beforeEach(
     waitForAsync(() => {
@@ -79,6 +81,8 @@ describe('OrderDetailsBillingComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WorldpayOrderDetailsBillingComponent);
     component = fixture.componentInstance;
+    translationService = TestBed.inject(TranslationService);
+    orderDetailsService = TestBed.inject(OrderDetailsService);
   });
 
   it('should create', () => {
@@ -120,6 +124,32 @@ describe('OrderDetailsBillingComponent', () => {
         mockPaymentDetails2.billingAddress?.town + ', ' + mockPaymentDetails2.billingAddress?.region?.isocode + ', ' + mockPaymentDetails2.billingAddress?.country?.isocode,
         mockPaymentDetails2.billingAddress?.postalCode,
       ]);
+    });
+  });
+
+  it('should return APM payment details translation when APM name is provided', () => {
+    const mockOrder = {
+      worldpayAPMPaymentInfo: {
+        name: 'PayPal'
+      }
+    };
+    spyOn(translationService, 'translate').and.returnValue(of('paymentCard.apm'));
+
+    component.getPaymentDetailsLineTranslation(mockOrder).subscribe((translation) => {
+      expect(translation).toEqual('paymentCard.apm');
+      expect(translationService.translate).toHaveBeenCalledWith('paymentCard.apm', { apm: 'PayPal' });
+    });
+  });
+
+  it('should return undefined when neither expiry year nor APM name is provided', () => {
+    const mockOrder = {
+      paymentInfo: {}
+    };
+    spyOn(translationService, 'translate');
+
+    component.getPaymentDetailsLineTranslation(mockOrder).subscribe((translation) => {
+      expect(translation).toBeUndefined();
+      expect(translationService.translate).not.toHaveBeenCalled();
     });
   });
 });

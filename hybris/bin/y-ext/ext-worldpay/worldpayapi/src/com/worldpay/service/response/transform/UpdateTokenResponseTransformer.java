@@ -1,11 +1,11 @@
 package com.worldpay.service.response.transform;
 
+import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.Ok;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.internal.model.Reply;
 import com.worldpay.internal.model.UpdateTokenReceived;
-import com.worldpay.data.token.UpdateTokenReply;
 import com.worldpay.service.response.ServiceResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 
@@ -14,6 +14,10 @@ import com.worldpay.service.response.UpdateTokenResponse;
  * to be handled in an easier way.
  */
 public class UpdateTokenResponseTransformer extends AbstractServiceResponseTransformer {
+
+    public UpdateTokenResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        super(serviceResponseTransformerHelper);
+    }
 
     @Override
     public ServiceResponse transform(final PaymentService paymentService) throws WorldpayModelTransformationException {
@@ -26,17 +30,17 @@ public class UpdateTokenResponseTransformer extends AbstractServiceResponseTrans
             .orElseThrow(() -> new WorldpayModelTransformationException("Update Token Response has no reply message or the reply type is not the expected one"));
 
         final UpdateTokenResponse updateTokenResponse = new UpdateTokenResponse();
-        if (getServiceResponseTransformerHelper().checkForError(updateTokenResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(updateTokenResponse, intReply)) {
             return updateTokenResponse;
         }
-        final Ok okResponse = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok okResponse = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("UpdateTokenResponse did not contain an OK object"));
 
-        okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+        okResponse.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(UpdateTokenReceived.class::isInstance)
             .map(UpdateTokenReceived.class::cast)
@@ -47,6 +51,6 @@ public class UpdateTokenResponseTransformer extends AbstractServiceResponseTrans
     }
 
     private UpdateTokenReply buildUpdateReplyToken(final UpdateTokenReceived updateTokenReceived) {
-        return getServiceResponseTransformerHelper().buildUpdateTokenReply(updateTokenReceived);
+        return serviceResponseTransformerHelper.buildUpdateTokenReply(updateTokenReceived);
     }
 }

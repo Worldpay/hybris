@@ -3,14 +3,13 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { PaymentDetails } from '@spartacus/core';
 import { OrderDetailBillingComponent } from '@spartacus/order/components';
 import { Card } from '@spartacus/storefront';
-import { combineLatest, Observable } from 'rxjs';
+import { generateBillingAddressCard } from '@worldpay-utils/format-address';
+import { combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { generateBillingAddressCard } from '../../../../core/utils/format-address';
 
 @Component({
   selector: 'y-worldpay-order-detail-billing',
   templateUrl: './worldpay-order-details-billing.component.html',
-  styleUrls: ['./worldpay-order-details-billing.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class WorldpayOrderDetailsBillingComponent extends OrderDetailBillingComponent {
@@ -25,7 +24,7 @@ export class WorldpayOrderDetailsBillingComponent extends OrderDetailBillingComp
       this.translationService.translate('paymentForm.payment'),
       this.getPaymentDetailsLineTranslation(order),
     ]).pipe(
-      map(([textTitle, textExpires]) => ({
+      map(([textTitle, textExpires]: [string, string]): Card => ({
         title: textTitle,
         textBold: order?.paymentInfo?.accountHolderName,
         text: [
@@ -42,7 +41,7 @@ export class WorldpayOrderDetailsBillingComponent extends OrderDetailBillingComp
    * @param order any | Order
    */
   getPaymentDetailsLineTranslation(order: any): Observable<string> {
-    let paymentDetailsTranslation: Observable<string>;
+    let paymentDetailsTranslation: Observable<string> = of(undefined);
     if (order?.paymentInfo?.expiryYear) {
       paymentDetailsTranslation = this.translationService.translate('paymentCard.expires', {
         month: order.paymentInfo.expiryMonth ?? '',
@@ -69,7 +68,7 @@ export class WorldpayOrderDetailsBillingComponent extends OrderDetailBillingComp
       this.translationService.translate('paymentForm.billingAddress'),
       this.translationService.translate('addressCard.billTo'),
     ]).pipe(
-      map(([billingAddress, billTo]) =>
+      map(([billingAddress, billTo]: [string, string]): Card =>
         generateBillingAddressCard(billingAddress, billTo, paymentDetails.billingAddress)
       )
     );

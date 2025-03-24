@@ -77,6 +77,8 @@ public class DirectAuthoriseServiceRequestTest {
     private static final String DELIVERY = "DELIVERY";
     private static final String AMOUNT = "100";
     private static final String CHECKOUT_ID = "checkoutId";
+    private static final String EXEMPTION_TYPE_DEFAULT_VALUE = "OP";
+    private static final String EXEMPTION_PLACEMENT_DEFAULT_VALUE = "OPTIMISED";
 
     @SuppressWarnings("PMD.MemberScope")
     @Rule
@@ -105,6 +107,7 @@ public class DirectAuthoriseServiceRequestTest {
     private Shopper shopperWithShopperID;
     private GuaranteedPaymentsData guaranteedPaymentsData;
     private String checkoutId;
+    private Exemption exemption;
 
     @Before
     public void setUp() {
@@ -142,6 +145,10 @@ public class DirectAuthoriseServiceRequestTest {
         fraudSightData.setCustomStringFields(customStringFields);
         fraudSightData.setCustomNumericFields(customNumericFields);
         this.fraudSightData = fraudSightData;
+
+        exemption = new Exemption();
+        exemption.setType(EXEMPTION_TYPE_DEFAULT_VALUE);
+        exemption.setPlacement(EXEMPTION_PLACEMENT_DEFAULT_VALUE);
 
         final BranchSpecificExtension branchSpecificExtension = new BranchSpecificExtension();
         branchSpecificExtension.setPurchase(ImmutableList.of(purchase));
@@ -320,6 +327,7 @@ public class DirectAuthoriseServiceRequestTest {
             .withDynamicInteractionType(DynamicInteractionType.ECOMMERCE)
             .withAdditional3DSData(additional3DSData)
             .withFraudSightData(fraudSightData)
+            .withExemption(exemption)
             .withGuaranteedPaymentsData(guaranteedPaymentsData)
             .withCheckoutId(checkoutId)
             .withDeviceSession(DEVICE_SESSION_ID)
@@ -350,6 +358,7 @@ public class DirectAuthoriseServiceRequestTest {
             .withCheckoutId(checkoutId)
             .withDeviceSession(DEVICE_SESSION_ID)
             .withLevel23Data(branchSpecificExtension)
+            .withExemption(exemption)
             .build();
 
         final DirectAuthoriseServiceRequest result = DirectAuthoriseServiceRequest.createTokenisedDirectAuthoriseRequest(requestParameters3D);
@@ -364,6 +373,7 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(shopperFields, result.getOrder().getFraudSightData().getShopperFields());
         assertEquals(DEVICE_SESSION_ID, result.getOrder().getDeviceSession());
         assertEquals(branchSpecificExtension, result.getOrder().getBranchSpecificExtension());
+        assertEquals(exemption, result.getOrder().getExemption());
         assertCommonOrderRequestData(result);
     }
 
@@ -515,6 +525,7 @@ public class DirectAuthoriseServiceRequestTest {
         assertEquals(shopperFields, result.getOrder().getFraudSightData().getShopperFields());
         assertEquals(DEVICE_SESSION_ID, result.getOrder().getDeviceSession());
         assertEquals(branchSpecificExtension, result.getOrder().getBranchSpecificExtension());
+        assertEquals(exemption, result.getOrder().getExemption());
         assert3DSInfoOrderRequestData(result);
     }
 
@@ -536,6 +547,7 @@ public class DirectAuthoriseServiceRequestTest {
             .withCheckoutId(checkoutId)
             .withDeviceSession(DEVICE_SESSION_ID)
             .withLevel23Data(branchSpecificExtension)
+            .withExemption(exemption)
             .build();
     }
 

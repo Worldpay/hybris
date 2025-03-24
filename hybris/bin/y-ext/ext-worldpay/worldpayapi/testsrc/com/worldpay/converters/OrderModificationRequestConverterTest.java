@@ -1,5 +1,6 @@
 package com.worldpay.converters;
 
+import com.worldpay.data.ExemptionResponseInfo;
 import com.worldpay.internal.model.*;
 import com.worldpay.data.JournalReply;
 import com.worldpay.data.PaymentReply;
@@ -54,11 +55,15 @@ public class OrderModificationRequestConverterTest {
     private ShopperWebformRefundDetails shopperWebformRefundDetailsMock;
     @Mock
     private WebformRefundReply webformRefundReplyMock;
+    @Mock
+    private ExemptionResponse exemptionResponseMock;
+    @Mock
+    private ExemptionResponseInfo exemptionResponseInfoMock;
 
     @Before
     public void setUp() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0)).thenReturn(notifyMock);
-        when(notifyMock.getOrderStatusEventOrReport().get(0)).thenReturn(orderStatusEventMock);
+        when(notifyMock.getOrderStatusEventOrEncryptedDataOrReport().get(0)).thenReturn(orderStatusEventMock);
     }
 
     @Test
@@ -68,6 +73,8 @@ public class OrderModificationRequestConverterTest {
         when(orderStatusEventMock.getPayment()).thenReturn(paymentMock);
         when(orderStatusEventMock.getJournal()).thenReturn(journalMock);
         when(orderStatusEventMock.getOrderCode()).thenReturn(ORDER_CODE);
+        when(orderStatusEventMock.getExemptionResponse()).thenReturn(exemptionResponseMock);
+        when(responseTransformerHelperMock.buildExemptionResponse(exemptionResponseMock)).thenReturn(exemptionResponseInfoMock);
         when(paymentServiceMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(orderStatusEventMock.getToken()).thenReturn(tokenMock);
         when(responseTransformerHelperMock.buildTokenReply(tokenMock)).thenReturn(tokenReplyMock);
@@ -79,6 +86,7 @@ public class OrderModificationRequestConverterTest {
         assertSame(paymentReplyMock, result.getPaymentReply());
         assertSame(journalReplyMock, result.getJournalReply());
         assertSame(tokenReplyMock, result.getTokenReply());
+        verify(paymentReplyMock).setExemptionResponseInfo(exemptionResponseInfoMock);
     }
 
     @Test

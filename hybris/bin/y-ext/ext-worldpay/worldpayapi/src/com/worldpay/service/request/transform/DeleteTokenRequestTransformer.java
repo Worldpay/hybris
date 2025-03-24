@@ -42,7 +42,7 @@ public class DeleteTokenRequestTransformer implements ServiceRequestTransformer 
         final PaymentTokenDelete deleteToken = internalPaymentTokenDeleteConverter.convert(deleteTokenRequest.getDeleteTokenRequest());
 
         final Modify modify = new Modify();
-        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(deleteToken);
+        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().add(deleteToken);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
 
         return paymentService;

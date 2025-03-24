@@ -1,20 +1,21 @@
+import { APP_BASE_HREF } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
+import { StoreModule } from '@ngrx/store';
+import { ActiveCartFacade } from '@spartacus/cart/base/root';
+import { CheckoutPaymentDetailsSetEvent } from '@spartacus/checkout/base/root';
+import { CmsService, ConverterService, EventService, GlobalMessageService, GlobalMessageType, OCC_USER_ID_ANONYMOUS, PaymentDetails, UserIdService } from '@spartacus/core';
+import { OrderDetailsService } from '@spartacus/order/components';
+import { LaunchDialogService } from '@spartacus/storefront';
+import { NEVER, Observable, of, throwError } from 'rxjs';
+import { WorldpayConnector } from '../../connectors';
+import { WorldpayApmConnector } from '../../connectors/worldpay-apm/worldpay-apm.connector';
+import { ClearWorldpayPaymentDetailsEvent, SetWorldpaySaveAsDefaultCreditCardEvent, SetWorldpaySavedCreditCardEvent } from '../../events';
+import { SelectWorldpayAPMEvent, SetWorldpayAPMRedirectResponseEvent } from '../../events/apm.events';
+import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod } from '../../interfaces';
+import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
+import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 
 import { WorldpayApmService } from './worldpay-apm.service';
-import { CmsService, ConverterService, EventService, GlobalMessageService, GlobalMessageType, PaymentDetails, UserIdService } from '@spartacus/core';
-import { StoreModule } from '@ngrx/store';
-import { NEVER, Observable, of, throwError } from 'rxjs';
-import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod } from '../../interfaces';
-import { OrderDetailsService } from '@spartacus/order/components';
-import { WorldpayApmConnector } from '../../connectors/worldpay-apm/worldpay-apm.connector';
-import { SelectWorldpayAPMEvent, SetWorldpayAPMRedirectResponseEvent } from '../../events/apm.events';
-import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
-import { LaunchDialogService } from '@spartacus/storefront';
-import { WorldpayConnector } from '../../connectors';
-import { APP_BASE_HREF } from '@angular/common';
-import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
-import { ClearWorldpayPaymentDetailsEvent } from '../../events';
 import createSpy = jasmine.createSpy;
 
 const mockPaymentDetails: PaymentDetails = {
@@ -97,6 +98,10 @@ class MockWorldpayApmConnector implements Partial<WorldpayApmConnector> {
       }
     });
   }
+
+  setAPMPaymentInfo(): Observable<any> {
+    return of({});
+  }
 }
 
 class MockGlobalMessageService {
@@ -130,6 +135,17 @@ class MockWorldpayCheckoutPaymentService implements Partial<WorldpayCheckoutPaym
 
   listenSetThreeDsDDCInfoEvent(): void {
   }
+
+  setSaveCreditCardValue(): void {
+
+  }
+
+  setSaveAsDefaultCardValue(): void {
+  }
+
+  setWorldpaySaveAsDefaultCreditCardEvent(): void {
+
+  }
 }
 
 describe('WorldpayApmService', () => {
@@ -140,6 +156,8 @@ describe('WorldpayApmService', () => {
   let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
   let worldpayOrderService: WorldpayOrderService;
   let globalMessageService: GlobalMessageService;
+  let userIdService: UserIdService;
+  let activeCartFacade: ActiveCartFacade;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -204,6 +222,8 @@ describe('WorldpayApmService', () => {
     worldpayCheckoutPaymentService = TestBed.inject(WorldpayCheckoutPaymentService);
     worldpayOrderService = TestBed.inject(WorldpayOrderService);
     globalMessageService = TestBed.inject(GlobalMessageService);
+    userIdService = TestBed.inject(UserIdService);
+    activeCartFacade = TestBed.inject(ActiveCartFacade);
 
     spyOn(converterService, 'pipeable').and.callThrough();
     spyOn(eventService, 'dispatch').and.callThrough();
@@ -211,6 +231,174 @@ describe('WorldpayApmService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('setApmPaymentDetailsCommand$', () => {
+    it('should set APM payment details and dispatch CheckoutPaymentDetailsSetEvent', (done) => {
+      const mockApmPaymentDetails: ApmPaymentDetails = { code: PaymentMethod.GooglePay };
+      const mockCart = { apmCode: 'googlePay' };
+      spyOn(worldpayApmConnector, 'setAPMPaymentInfo').and.returnValue(of(mockCart));
+
+      service.setApmPaymentDetails(mockApmPaymentDetails).subscribe((response) => {
+        expect(response).toEqual(mockCart);
+        expect(service['selectedApm$'].value).toEqual(mockApmPaymentDetails);
+        expect(eventService.dispatch).toHaveBeenCalledWith(
+          {
+            userId,
+            cartId,
+            paymentDetailsId: mockCart.apmCode,
+            cartCode: cartId
+          },
+          CheckoutPaymentDetailsSetEvent
+        );
+        done();
+      });
+    });
+
+    it('should handle error when setting APM payment details fails', (done) => {
+      const mockApmPaymentDetails: ApmPaymentDetails = { code: PaymentMethod.GooglePay };
+      const errorResponse = new Error('Error setting APM payment details');
+      spyOn(worldpayApmConnector, 'setAPMPaymentInfo').and.returnValue(throwError(() => errorResponse));
+
+      service.setApmPaymentDetails(mockApmPaymentDetails).subscribe({
+        error: (error) => {
+          expect(error).toEqual(errorResponse);
+          done();
+        }
+      });
+    });
+  });
+
+  describe('checkoutPreconditions', () => {
+    it('should emit userId and cartId when conditions are met', (done) => {
+      spyOn(userIdService, 'takeUserId').and.returnValue(of(userId));
+      spyOn(activeCartFacade, 'takeActiveCartId').and.returnValue(of(cartId));
+      spyOn(activeCartFacade, 'isGuestCart').and.returnValue(of(false));
+
+      service.checkoutPreconditions().subscribe(([emittedUserId, emittedCartId]) => {
+        expect(emittedUserId).toEqual(userId);
+        expect(emittedCartId).toEqual(cartId);
+        done();
+      });
+    });
+
+    it('should throw an error when userId is not available', (done) => {
+      spyOn(userIdService, 'takeUserId').and.returnValue(of(null));
+      spyOn(activeCartFacade, 'takeActiveCartId').and.returnValue(of(cartId));
+      spyOn(activeCartFacade, 'isGuestCart').and.returnValue(of(false));
+
+      service.checkoutPreconditions().subscribe({
+        error: (error) => {
+          expect(error.message).toEqual('Checkout conditions not met');
+          done();
+        }
+      });
+    });
+
+    it('should throw an error when cartId is not available', (done) => {
+      spyOn(userIdService, 'takeUserId').and.returnValue(of(userId));
+      spyOn(activeCartFacade, 'takeActiveCartId').and.returnValue(of(null));
+      spyOn(activeCartFacade, 'isGuestCart').and.returnValue(of(false));
+
+      service.checkoutPreconditions().subscribe({
+        error: (error) => {
+          expect(error.message).toEqual('Checkout conditions not met');
+          done();
+        }
+      });
+    });
+
+    it('should throw an error when userId is anonymous and cart is not a guest cart', (done) => {
+      spyOn(userIdService, 'takeUserId').and.returnValue(of(OCC_USER_ID_ANONYMOUS));
+      spyOn(activeCartFacade, 'takeActiveCartId').and.returnValue(of(cartId));
+      spyOn(activeCartFacade, 'isGuestCart').and.returnValue(of(false));
+
+      service.checkoutPreconditions().subscribe({
+        error: (error) => {
+          expect(error.message).toEqual('Checkout conditions not met');
+          done();
+        }
+      });
+    });
+
+    it('should emit userId and cartId when userId is anonymous and cart is a guest cart', (done) => {
+      spyOn(userIdService, 'takeUserId').and.returnValue(of(OCC_USER_ID_ANONYMOUS));
+      spyOn(activeCartFacade, 'takeActiveCartId').and.returnValue(of(cartId));
+      spyOn(activeCartFacade, 'isGuestCart').and.returnValue(of(true));
+
+      service.checkoutPreconditions().subscribe(([emittedUserId, emittedCartId]) => {
+        expect(emittedUserId).toEqual(OCC_USER_ID_ANONYMOUS);
+        expect(emittedCartId).toEqual(cartId);
+        done();
+      });
+    });
+  });
+
+  describe('getLoading', () => {
+    it('should emit true when loading state is true', (done) => {
+      spyOn(service, 'getWorldpayAvailableApmsLoading').and.returnValue(of(true));
+
+      service.getLoading().subscribe((loading) => {
+        expect(loading).toBeTrue();
+        done();
+      });
+    });
+
+    it('should emit false when loading state is false', (done) => {
+      spyOn(service, 'getWorldpayAvailableApmsLoading').and.returnValue(of(false));
+
+      service.getLoading().subscribe((loading) => {
+        expect(loading).toBeFalse();
+        done();
+      });
+    });
+  });
+
+  describe('getAPMRedirectUrl', () => {
+    it('should retrieve and set the APM redirect URL', (done) => {
+      const mockApm = { code: PaymentMethod.Card };
+      const mockResponse: APMRedirectResponse = {
+        postUrl: 'https://test.com',
+        mappingLabels: {},
+        parameters: {
+          entry: [{
+            key: 'url',
+            value: 'https://test.com'
+          }]
+        }
+      };
+      spyOn(service, 'getWorldpayAPMRedirectUrl').and.returnValue(of(mockResponse));
+      spyOn(service, 'setWorldpayAPMRedirectUrlEvent').and.callThrough();
+
+      service.getAPMRedirectUrl(mockApm, false);
+
+      service.getWorldpayAPMRedirectUrl(mockApm, false).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+        expect(service.setWorldpayAPMRedirectUrlEvent).toHaveBeenCalledWith(mockResponse);
+        done();
+      });
+    });
+
+    it('should handle error when retrieving APM redirect URL fails', (done) => {
+      const mockApm = { code: PaymentMethod.Card };
+      const errorResponse = new Error('Error retrieving APM redirect URL');
+      spyOn(service, 'getWorldpayAPMRedirectUrl').and.returnValue(throwError(() => errorResponse));
+      spyOn(service['worldpayOrderService'], 'clearLoading').and.callThrough();
+      spyOn(console, 'error');
+      spyOn(service, 'showErrorMessage').and.callThrough();
+
+      service.getAPMRedirectUrl(mockApm, false);
+
+      service.getWorldpayAPMRedirectUrl(mockApm, false).subscribe({
+        error: (error) => {
+          expect(error).toEqual(errorResponse);
+          expect(service['worldpayOrderService'].clearLoading).toHaveBeenCalled();
+          expect(console.error).toHaveBeenCalledWith('WorldpayApmService getAPMRedirectUrl error', error);
+          expect(service.showErrorMessage).toHaveBeenCalledWith(errorResponse);
+          done();
+        }
+      });
+    });
   });
 
   it('should emit the latest selected APM payment details whenever it changes', () => {
@@ -386,14 +574,71 @@ describe('WorldpayApmService', () => {
   });
 
   it('should show error message when place Worldpay order failed', () => {
-    spyOn(service, 'getWorldpayAPMRedirectUrl').and.returnValue(throwError({
+    spyOn(console, 'error');
+    const error = {
       details: [{
         message: 'error'
       }]
-    }));
+    };
+    spyOn(service, 'getWorldpayAPMRedirectUrl').and.returnValue(throwError(() => error));
     spyOn(worldpayOrderService, 'clearLoading').and.callThrough();
     service.getAPMRedirectUrl(apm, false);
     expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'error' }, GlobalMessageType.MSG_TYPE_ERROR);
     expect(worldpayOrderService.clearLoading).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith('WorldpayApmService getAPMRedirectUrl error', error);
+  });
+
+  describe('setWorldpaySavedCreditCardEvent', () => {
+    it('should update save credit card value when event is received', (done) => {
+      const mockEvent: SetWorldpaySavedCreditCardEvent = { saved: true };
+      spyOn(worldpayCheckoutPaymentService, 'setSaveCreditCardValue').and.callThrough();
+      spyOn(eventService, 'get').and.returnValue(of(mockEvent));
+
+      service.setWorldpaySavedCreditCardEvent().subscribe(() => {
+        expect(worldpayCheckoutPaymentService.setSaveCreditCardValue).toHaveBeenCalledWith(mockEvent.saved);
+        done();
+      });
+    });
+
+    it('should handle error when setting save credit card value fails', (done) => {
+      const mockEvent: SetWorldpaySavedCreditCardEvent = { saved: true };
+      const errorResponse = new Error('Error setting save credit card value');
+      spyOn(worldpayCheckoutPaymentService, 'setSaveCreditCardValue').and.throwError(errorResponse);
+      spyOn(eventService, 'get').and.returnValue(of(mockEvent));
+
+      service.setWorldpaySavedCreditCardEvent().subscribe({
+        error: (error) => {
+          expect(error).toEqual(errorResponse);
+          done();
+        }
+      });
+    });
+  });
+
+  describe('setWorldpaySaveAsDefaultCreditCardEvent', () => {
+    it('should update save as default card value when event is received', (done) => {
+      const mockEvent: SetWorldpaySaveAsDefaultCreditCardEvent = { saved: true };
+      spyOn(worldpayCheckoutPaymentService, 'setSaveAsDefaultCardValue').and.callThrough();
+      spyOn(eventService, 'get').and.returnValue(of(mockEvent));
+
+      service.setWorldpaySaveAsDefaultCreditCardEvent().subscribe(() => {
+        expect(worldpayCheckoutPaymentService.setSaveAsDefaultCardValue).toHaveBeenCalledWith(mockEvent.saved);
+        done();
+      });
+    });
+
+    it('should handle error when setting save as default card value fails', (done) => {
+      const mockEvent: SetWorldpaySaveAsDefaultCreditCardEvent = { saved: true };
+      const errorResponse = new Error('Error setting save as default card value');
+      spyOn(worldpayCheckoutPaymentService, 'setSaveAsDefaultCardValue').and.throwError(errorResponse);
+      spyOn(eventService, 'get').and.returnValue(of(mockEvent));
+
+      service.setWorldpaySaveAsDefaultCreditCardEvent().subscribe({
+        error: (error) => {
+          expect(error).toEqual(errorResponse);
+          done();
+        }
+      });
+    });
   });
 });

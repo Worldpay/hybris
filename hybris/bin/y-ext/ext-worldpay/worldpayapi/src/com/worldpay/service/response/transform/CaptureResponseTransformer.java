@@ -17,7 +17,9 @@ public class CaptureResponseTransformer extends AbstractServiceResponseTransform
 
     protected final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter;
 
-    public CaptureResponseTransformer(final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter) {
+    public CaptureResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper,
+                                      final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter) {
+        super(serviceResponseTransformerHelper);
         this.internalAmountReverseConverter = internalAmountReverseConverter;
     }
 
@@ -37,18 +39,18 @@ public class CaptureResponseTransformer extends AbstractServiceResponseTransform
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
-        if (getServiceResponseTransformerHelper().checkForError(captureResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(captureResponse, intReply)) {
             return captureResponse;
         }
 
-        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
 
-        final CaptureReceived intCaptureReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+        final CaptureReceived intCaptureReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(CaptureReceived.class::isInstance)
             .map(CaptureReceived.class::cast)

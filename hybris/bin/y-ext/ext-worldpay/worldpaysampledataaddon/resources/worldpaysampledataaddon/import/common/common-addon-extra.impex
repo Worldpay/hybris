@@ -184,16 +184,16 @@ INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(cod
                                    ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
 # Australia
 INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'australia'][unique = true]; currency(isocode)[unique = true, default = 'AUD']; value ; minimum[unique = true]
-                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
-                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
-                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
-                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
+                                   ; premium-gross                    ;                                                 ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                                 ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                                 ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                                 ;                                                  ; 59,99 ; 0,00
 # New Zealand
 INSERT_UPDATE ZoneDeliveryModeValue; deliveryMode(code)[unique = true]; zone(code)[default = 'newzealand'][unique = true]; currency(isocode)[unique = true, default = 'NZD']; value ; minimum[unique = true]
-                                   ; premium-gross                    ;                                              ;                                                  ; 14,49 ; 0,00
-                                   ; premium-net                      ;                                              ;                                                  ; 99,99 ; 0,00
-                                   ; standard-gross                   ;                                              ;                                                  ; 7,49  ; 0,00
-                                   ; standard-net                     ;                                              ;                                                  ; 59,99 ; 0,00
+                                   ; premium-gross                    ;                                                  ;                                                  ; 14,49 ; 0,00
+                                   ; premium-net                      ;                                                  ;                                                  ; 99,99 ; 0,00
+                                   ; standard-gross                   ;                                                  ;                                                  ; 7,49  ; 0,00
+                                   ; standard-net                     ;                                                  ;                                                  ; 59,99 ; 0,00
 # Activate free shipping
 "#% if: de.hybris.platform.jalo.extension.ExtensionManager.getInstance().isExtensionInstalled(""worldpayb2baddon"")"
 INSERT_UPDATE ZoneDeliveryMode; code[unique = true]        ; active[default = true]; name[lang = 'en']; description[lang = 'en']             ; net
@@ -277,8 +277,6 @@ INSERT_UPDATE WorldpayCurrencyRange; currency(isocode)[unique = true]; min[uniqu
                                    ; EUR                             ; 1                 ; 10000
 
 INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = en]   ; description[lang = en]; bank[default = false]; currencies(isocode); countries(isocode)            ; currencyRanges(currency(isocode), min, max)  ; automaticRefunds[default = false]; bankTransferRefunds[default = false]
-                                      ; SOFORT-SSL            ; Sofort            ; Sofort                ;                      ; EUR                ; AT,BE,FR,DE                   ; EUR:1:2000                                   ; true                             ;
-                                      ; SOFORT_CH-SSL         ; Sofort            ; Sofort Switzerland    ;                      ; CHF                ; CH                            ; CHF:1:2000                                   ; true                             ;
                                       ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay       ;                      ; GBP,EUR,USD        ; CN                            ;                                              ; true                             ;
                                       ; ALIPAY-SSL            ; Alipay            ; Alipay                ;                      ; GBP,EUR,USD,SGD    ; CN                            ; GBP:1:5000,EUR:1:6000,USD:1:8000,SGD:2:10000 ; true                             ;
                                       ; PAYPAL-EXPRESS        ; PayPal            ; PayPal                ;                      ;                    ;                               ;                                              ; true                             ;
@@ -293,7 +291,7 @@ INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = en] 
                                       ; KLARNA_SLICEIT-SSL    ; Klarna Slice It   ; Klarna Slice It       ;                      ; EUR,GBP            ; SE,NO,FI,DE,AT,GB,DK,US       ;                                              ; true                             ;
                                       ; KLARNA_PAYNOW-SSL     ; Klarna Pay Now    ; Klarna Pay Now        ;                      ; EUR,GBP            ; SE,DE,NL,AT, GB               ;                                              ; true                             ;
                                       ; SEPA_DIRECT_DEBIT-SSL ; Sepa Direct Debit ; Sepa Direct Debit     ;                      ; EUR                ; AT,BE,FR,DE,IE,IT,NL,ES       ; EUR:1:10000                                  ;                                  ; true
-                                      ; ACH_DIRECT_DEBIT-SSL  ; ACH Direct Debit  ; ACH Direct Debit      ;                      ; USD                ; US                            ; USD:1:8000                                      ;                                  ; true
+                                      ; ACH_DIRECT_DEBIT-SSL  ; ACH Direct Debit  ; ACH Direct Debit      ;                      ; USD                ; US                            ; USD:1:8000                                   ;                                  ; true
 
 #INSERT_UPDATE WorldpayBankConfiguration; code[unique = true]; name[lang = en]; description[lang = en]; active[default = false]; apm(code)
    #                                    ; ABN_AMRO           ; ABN AMRO       ; ABN AMRO              ;                    ;

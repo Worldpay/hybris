@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { filter, takeUntil } from 'rxjs/operators';
-import { Order, OrderFacade } from '@spartacus/order/root';
-import { Observable, of, Subject, Subscription } from 'rxjs';
-import { WorldpayApplepayService } from '../../../../core/services/worldpay-applepay/worldpay-applepay.service';
+import { ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutingService } from '@spartacus/core';
+import { Order, OrderFacade } from '@spartacus/order/root';
+import { WorldpayApplepayService } from '@worldpay-services/worldpay-applepay/worldpay-applepay.service';
+import { Observable, of, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../../../core/interfaces';
 
 @Component({
@@ -11,14 +12,14 @@ import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderRespo
   templateUrl: './worldpay-applepay.component.html',
   styleUrls: ['worldpay-applepay.component.scss'],
 })
-export class WorldpayApplepayComponent implements OnInit, OnDestroy {
+export class WorldpayApplepayComponent implements OnInit {
   @Input() apm: ApmData;
+  isApplePayAvailable$: Observable<boolean> = of(false);
   private paymentRequest$: Subscription;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private applePaySession: any;
   private enableApplePayButton$: Subscription;
-  private drop: Subject<void> = new Subject<void>();
-  isApplePayAvailable$: Observable<boolean> = of(false);
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
   constructor(
     protected orderFacade: OrderFacade,
@@ -32,16 +33,11 @@ export class WorldpayApplepayComponent implements OnInit, OnDestroy {
     this.initializeApplePay();
   }
 
-  ngOnDestroy(): void {
-    this.drop.next();
-    this.drop.complete();
-  }
-
   placeApplePayOrder(): void {
     this.paymentRequest$ = this.worldpayApplepayService.getPaymentRequestFromState()
       .pipe(
         filter((paymentRequest: ApplePayPaymentRequest) => !!paymentRequest && Object.keys(paymentRequest).length > 0),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (paymentRequest: ApplePayPaymentRequest): void => {
@@ -52,7 +48,7 @@ export class WorldpayApplepayComponent implements OnInit, OnDestroy {
     this.worldpayApplepayService.getMerchantSessionFromState()
       .pipe(
         filter((session: PlaceOrderResponse) => !!session && Object.keys(session).length > 0),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (session: PlaceOrderResponse): void => {
@@ -63,12 +59,14 @@ export class WorldpayApplepayComponent implements OnInit, OnDestroy {
     this.worldpayApplepayService.getPaymentAuthorizationFromState()
       .pipe(
         filter((authorization: ApplePayAuthorization) => !!authorization && Object.keys(authorization).length > 0),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (authorization: ApplePayAuthorization): void => {
-          const ApplePaySession = this.worldpayApplepayService.getApplePaySessionFromWindow();
-          const statusCode =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const ApplePaySession: any = this.worldpayApplepayService.getApplePaySessionFromWindow();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const statusCode: any =
             authorization.transactionStatus === 'AUTHORISED'
               ? ApplePaySession.STATUS_SUCCESS
               : ApplePaySession.STATUS_FAILURE;
@@ -83,7 +81,7 @@ export class WorldpayApplepayComponent implements OnInit, OnDestroy {
     this.orderFacade.getOrderDetails()
       .pipe(
         filter((order: Order): boolean => order && Object.keys(order)?.length !== 0),
-        takeUntil(this.drop)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (): void => {
@@ -100,8 +98,8 @@ export class WorldpayApplepayComponent implements OnInit, OnDestroy {
     if (this.worldpayApplepayService.applePayButtonAvailable()) {
       this.enableApplePayButton$ = this.worldpayApplepayService.enableApplePayButton()
         .pipe(
-          filter((paymentRequest: ApplePayPaymentRequest) => !!paymentRequest && Object.keys(paymentRequest).length > 0),
-          takeUntil(this.drop)
+          filter((paymentRequest: ApplePayPaymentRequest): boolean => !!paymentRequest && Object.keys(paymentRequest).length > 0),
+          takeUntilDestroyed(this.destroyRef)
         )
         .subscribe({
           next: (): void => {

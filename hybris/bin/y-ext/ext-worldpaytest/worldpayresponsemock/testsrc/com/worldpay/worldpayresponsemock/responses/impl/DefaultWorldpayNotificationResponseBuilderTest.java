@@ -77,12 +77,13 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String CARD_DETAILS = "CardDetails";
     private static final String PAYPAL_TOKEN_TYPE = "Paypal";
     private static final String NO_TOKEN = "NoToken";
-    private static final String REVIEW_MESSAGE = "review";
-    private static final String REASON_VALUE_1 = "Unusual behaviour for card";
-    private static final String REASON_VALUE_2 = "Unusual transaction for merchant";
     private static final String GP_MESSAGE = "gpMessage";
     private static final double SCORE = 22.0;
     private static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
+    private static final String EXEMPTION_RESPONSE_REASON = "ACCEPTED";
+    private static final String EXEMPTION_RESPONSE_RESULT = "AUTHORIZED";
+    private static final String EXEMPTION_TYPE = "OP";
+    private static final String EXEMPTION_PLACEMENT = "PLACED";
 
     @Mock
     private ResponseForm responseFormMock;
@@ -131,7 +132,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -158,7 +159,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -186,7 +187,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -211,7 +212,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(APM_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -230,7 +231,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(AAV_ADDRESS_VALUE, payment.getAAVAddressResultCode().getDescription().get(0));
@@ -273,9 +274,9 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
-        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError()) {
+        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
             if (tokenElement instanceof TokenDetails) {
                 final TokenDetails tokenDetails = (TokenDetails) tokenElement;
                 assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
@@ -290,7 +291,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
                 final Derived derived = cardDetails.getDerived();
@@ -349,9 +350,9 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
-        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrError()) {
+        for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
             if (tokenElement instanceof TokenDetails) {
                 final TokenDetails tokenDetails = (TokenDetails) tokenElement;
                 assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
@@ -366,7 +367,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof PaymentInstrument) {
                 final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
-                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetails().get(0);
+                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
                 assertNotNull(paypal);
 
             } else if (tokenElement instanceof TokenReason) {
@@ -389,7 +390,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
         assertNull(token.getAuthenticatedShopperID());
     }
@@ -404,7 +405,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final PaymentService paymentService = paymentServiceCaptor.getValue();
 
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
 
         assertNull(orderStatusEvent.getToken());
     }
@@ -420,7 +421,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
     private void verifyCommonFieldsForAPMAndCreditCards(final PaymentService paymentService) {
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
         final Journal journal = orderStatusEvent.getJournal();
         final Balance balance = payment.getBalance().get(0);
@@ -465,7 +466,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
         final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrReport().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -478,4 +479,44 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         assertEquals(FINAL_SCORE, payment.getRiskScore().getFinalScore());
         assertEquals(GP_MESSAGE, payment.getRiskScore().getMessage());
     }
+
+    @Test
+    public void buildResponse_ShouldPopulateExemptionResponseFields_WhenResponseFormContainsExemptionData() throws WorldpayException {
+        when(responseFormMock.getExemptionResponseReason()).thenReturn(EXEMPTION_RESPONSE_REASON);
+        when(responseFormMock.getExemptionResponseResult()).thenReturn(EXEMPTION_RESPONSE_RESULT);
+        when(responseFormMock.getExemptionType()).thenReturn(EXEMPTION_TYPE);
+        when(responseFormMock.getExemptionPlacement()).thenReturn(EXEMPTION_PLACEMENT);
+
+        testObj.buildResponse(responseFormMock);
+        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
+
+        final PaymentService paymentService = paymentServiceCaptor.getValue();
+
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final ExemptionResponse exemptionResponse = orderStatusEvent.getExemptionResponse();
+
+        assertEquals(EXEMPTION_RESPONSE_REASON, exemptionResponse.getReason());
+        assertEquals(EXEMPTION_RESPONSE_RESULT, exemptionResponse.getResult());
+        assertEquals(EXEMPTION_TYPE, exemptionResponse.getExemption().getType());
+        assertEquals(EXEMPTION_PLACEMENT, exemptionResponse.getExemption().getPlacement());
+    }
+
+    @Test
+    public void buildResponse_ShouldPopulateNotExemptionResponseFields_WhenResponseFormContainsNoExemptionData() throws WorldpayException {
+        testObj.buildResponse(responseFormMock);
+        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
+
+        final PaymentService paymentService = paymentServiceCaptor.getValue();
+
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final ExemptionResponse exemptionResponse = orderStatusEvent.getExemptionResponse();
+
+        assertNull(exemptionResponse.getReason());
+        assertNull(exemptionResponse.getResult());
+        assertNull(exemptionResponse.getExemption().getPlacement());
+        assertNull(exemptionResponse.getExemption().getType());
+    }
+
 }

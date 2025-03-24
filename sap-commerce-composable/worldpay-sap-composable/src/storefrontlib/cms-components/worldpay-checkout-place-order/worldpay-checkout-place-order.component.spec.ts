@@ -1,20 +1,32 @@
 import { NgZone, Pipe, PipeTransform, Renderer2, ViewContainerRef } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
-import { Address, GlobalMessageEntities, GlobalMessageService, I18nTestingModule, PaymentDetails, QueryState, RoutingService, WindowRef } from '@spartacus/core';
-import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Observable, of, throwError } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
-import { Order } from '@spartacus/order/root/model/order.model';
-import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
-import { WorldpayCheckoutPaymentAdapter } from '../../../core/connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
-import { OccWorldpayCheckoutPaymentAdapter } from '../../../core/occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
-import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
-import { WorldpayApmService } from '../../../core/services/worldpay-apm/worldpay-apm.service';
-import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
+import {
+  Address,
+  GlobalMessageEntities,
+  GlobalMessageService,
+  GlobalMessageType,
+  HttpErrorModel,
+  I18nTestingModule,
+  PaymentDetails,
+  QueryState,
+  RoutingService,
+  WindowRef
+} from '@spartacus/core';
+import { Order } from '@spartacus/order/root';
+import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
+import { OccWorldpayApmAdapter } from '@worldpay-occ/adapters/worldpay-apm/occ-worldpay-apm.adapter';
+import { OccWorldpayCheckoutPaymentAdapter } from '@worldpay-occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
+import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
+import { WorldpayCheckoutPaymentService } from '@worldpay-services/worldpay-checkout/worldpay-checkout-payment.service';
+import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
+import { Observable, of, throwError } from 'rxjs';
+import { WorldpayApmConnector, WorldpayCheckoutPaymentAdapter } from '../../../core/connectors';
+import { WorldpayACHFacade } from '../../../core/facade';
 import {
   ACHPaymentForm,
   ApmPaymentDetails,
@@ -25,16 +37,22 @@ import {
   ThreeDsInfo,
   WorldpayApmPaymentInfo
 } from '../../../core/interfaces';
-import { WorldpayApmConnector } from '../../../core/connectors';
-import { OccWorldpayApmAdapter } from '../../../core/occ/adapters/worldpay-apm/occ-worldpay-apm.adapter';
 import { WorldpayOrderService } from '../../../core/services';
-import { WorldpayACHFacade } from '../../../core/facade/worldpay-ach.facade';
+import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
 import createSpy = jasmine.createSpy;
 
 const mockBillingAddress: Address = {
   formattedAddress: 'address',
   id: '0001',
 };
+const mockPaypal: ApmPaymentDetails = {
+  billingAddress: mockBillingAddress,
+  defaultPayment: false,
+  saved: false,
+  name: 'PayPal',
+  code: 'PAYPAL-EXPRESS'
+};
+
 const mockCreditCard: PaymentDetails = {
   accountHolderName: 'user',
   billingAddress: mockBillingAddress,
@@ -49,22 +67,19 @@ const mockCreditCard: PaymentDetails = {
   expiryYear: '24',
   id: '0001',
   subscriptionId: '000000000',
+  worldpayAPMPaymentInfo: mockPaypal
 };
 
-const mockPaypal: ApmPaymentDetails = {
-  billingAddress: mockBillingAddress,
-  defaultPayment: false,
-  saved: false,
-  name: 'PayPal',
-  code: 'PAYPAL-EXPRESS'
-};
 const mockIdeal: WorldpayApmPaymentInfo = {
   billingAddress: mockBillingAddress,
   defaultPayment: false,
   saved: false,
   apmCode: PaymentMethod.iDeal,
   apmName: 'ING',
-  name: 'iDeal'
+  name: 'iDeal',
+  achPaymentForm: {
+    accountType: 'checking',
+  }
 };
 
 class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
@@ -122,6 +137,14 @@ class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
 
   placeACHOrder(): Observable<Order> {
     return of(null);
+  }
+
+  challengeAccepted(): void {
+
+  }
+
+  challengeFailed(): void {
+
   }
 }
 
@@ -246,7 +269,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   let placeOrderSpy: jasmine.Spy;
   let zone: NgZone;
   let winRef: WindowRef;
-  let mockRenderer2: MockRenderer2;
+  let mockRenderer2: Renderer2;
   let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
   let worldpayApmService: WorldpayApmService;
   let worldpayFraudsightService: WorldpayFraudsightService;
@@ -635,6 +658,309 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
       checkNumber: '11111',
       companyName: 'Test Company',
       customIdentifier: '12345'
+    });
+  });
+
+  describe('submitForm', () => {
+    it('should start loading and handle DDC and challenge if form is valid', () => {
+      spyOn(orderFacade, 'startLoading');
+      // @ts-ignore
+      spyOn(component, 'ddcIframeHandler').and.callThrough();
+      // @ts-ignore
+      spyOn(component, 'challengeIframeHandler').and.callThrough();
+      spyOn(globalMessageService, 'add').and.callThrough();
+      placeOrderSpy.and.returnValue(of([mockCreditCard, {
+        loading: false,
+        error: false,
+        data: mockCreditCard
+      }, null]));
+      spyOn(component, 'executeDDC3dsJwtCommand').and.callThrough();
+
+      component.checkoutSubmitForm.setValue({ termsAndConditions: true });
+      component.submitForm();
+
+      expect(orderFacade.startLoading).toHaveBeenCalledWith(component['vcr']);
+      expect(component['ddcIframeHandler']).toHaveBeenCalled();
+      expect(component['challengeIframeHandler']).toHaveBeenCalled();
+      expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.placingOrder' }, GlobalMessageType.MSG_TYPE_INFO);
+      expect(component.placeWorldpayOrder).toHaveBeenCalled();
+      expect(component.executeDDC3dsJwtCommand).toHaveBeenCalled();
+    });
+
+    it('should mark form controls as touched if form is invalid', () => {
+      spyOn(component.checkoutSubmitForm, 'markAllAsTouched').and.callThrough();
+
+      component.checkoutSubmitForm.setValue({ termsAndConditions: false });
+      component.submitForm();
+
+      expect(component.checkoutSubmitForm.markAllAsTouched).toHaveBeenCalled();
+    });
+
+    it('should handle error when placing Worldpay order fails', () => {
+      const mockError = new Error('Error');
+      placeOrderSpy.and.returnValue(throwError(() => mockError));
+      spyOn(orderFacade, 'clearLoading').and.callThrough();
+      spyOn(worldpayApmService, 'showErrorMessage').and.callThrough();
+
+      component.checkoutSubmitForm.setValue({ termsAndConditions: true });
+      component.submitForm();
+
+      expect(orderFacade.clearLoading).toHaveBeenCalled();
+      expect(worldpayApmService.showErrorMessage).toHaveBeenCalledWith(mockError as HttpErrorModel);
+    });
+
+    it('should place ACH order if achPaymentFormValue is provided', () => {
+      // @ts-ignore
+      spyOn(component, 'placeACHOrder').and.callThrough();
+      spyOn(component, 'executeDDC3dsJwtCommand').and.callThrough();
+
+      component.checkoutSubmitForm.setValue({ termsAndConditions: true });
+      component.placeWorldpayOrder = jasmine.createSpy().and.returnValue(of([mockIdeal, { data: mockCreditCard }, { accountType: 'checking' }]));
+      component.submitForm();
+
+      expect(component['placeACHOrder']).toHaveBeenCalledWith({ accountType: 'checking' });
+      expect(component.executeDDC3dsJwtCommand).not.toHaveBeenCalled();
+    });
+
+    it('should executeDDC3dsJwtCommand if apm cartType is provided', () => {
+      // @ts-ignore
+      spyOn(component, 'placeACHOrder').and.callThrough();
+      spyOn(component, 'executeDDC3dsJwtCommand').and.callThrough();
+
+      component.checkoutSubmitForm.setValue({ termsAndConditions: true });
+      component.placeWorldpayOrder = jasmine.createSpy().and.returnValue(of([mockCreditCard, { data: mockCreditCard }, null]));
+      component.submitForm();
+
+      expect(component.executeDDC3dsJwtCommand).toHaveBeenCalled();
+    });
+
+    it('should get APM redirect URL if APM payment details are provided', () => {
+      spyOn(worldpayApmService, 'getAPMRedirectUrl').and.callThrough();
+      spyOn(component, 'executeDDC3dsJwtCommand').and.callThrough();
+
+      component.checkoutSubmitForm.setValue({ termsAndConditions: true });
+      component.placeWorldpayOrder = jasmine.createSpy().and.returnValue(of([mockPaypal, { data: mockCreditCard }, null]));
+      component.submitForm();
+
+      expect(worldpayApmService.getAPMRedirectUrl).toHaveBeenCalledWith(mockPaypal, component['save']);
+      expect(component.executeDDC3dsJwtCommand).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('placeACHOrder', () => {
+    it('should call placeACHOrder on orderFacade with the provided ACH payment form value', () => {
+      const achPaymentFormValue = { accountType: 'checking' } as ACHPaymentForm;
+      spyOn(orderFacade, 'placeACHOrder').and.callThrough();
+
+      component['placeACHOrder'](achPaymentFormValue);
+
+      expect(orderFacade.placeACHOrder).toHaveBeenCalledWith(achPaymentFormValue);
+    });
+
+    it('should clear loading on error', () => {
+      spyOn(console, 'error');
+      const achPaymentFormValue = { accountType: 'checking' } as ACHPaymentForm;
+      const mockError = new Error('Error');
+      spyOn(orderFacade, 'placeACHOrder').and.returnValue(throwError(() => mockError));
+      spyOn(orderFacade, 'clearLoading').and.callThrough();
+
+      component['placeACHOrder'](achPaymentFormValue);
+
+      expect(orderFacade.clearLoading).toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith('Failed to place ACH order', mockError);
+    });
+  });
+
+  describe('processDdc', () => {
+    it('should initiate initial payment request and set placed order if DDC response is valid', () => {
+      const mockEvent = {
+        origin: 'https://centinelapistag.cardinalcommerce.com',
+        data: JSON.stringify({
+          SessionId: '12345',
+          Status: true
+        })
+      } as MessageEvent;
+      spyOn(orderFacade, 'initialPaymentRequest').and.returnValue(of({ order: { code: '00001' } }));
+      spyOn(orderFacade, 'setPlacedOrder').and.callThrough();
+
+      component['processDdc'](mockEvent);
+
+      expect(orderFacade.initialPaymentRequest).toHaveBeenCalledWith(
+        component.paymentDetails,
+        '12345',
+        component.cseToken,
+        component.checkoutSubmitForm.get('termsAndConditions').value,
+        component['fraudSightId'],
+        component.browserInfo
+      );
+      expect(orderFacade.setPlacedOrder).toHaveBeenCalledWith({ code: '00001' });
+    });
+
+    it('should log error and show error message if DDC response is invalid', () => {
+      const mockEvent = {
+        origin: 'https://centinelapistag.cardinalcommerce.com',
+        data: 'invalid data'
+      } as MessageEvent;
+      spyOn(console, 'error');
+      spyOn(globalMessageService, 'add').and.callThrough();
+      spyOn(orderFacade, 'clearLoading').and.callThrough();
+
+      component['processDdc'](mockEvent);
+
+      expect(console.error).toHaveBeenCalledWith('failed to process ddc response', jasmine.any(Error));
+      expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.threeDsChallengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
+      expect(orderFacade.clearLoading).toHaveBeenCalled();
+    });
+
+    it('should show application error message and clear loading if initial payment request fails', () => {
+      const mockEvent = {
+        origin: 'https://centinelapistag.cardinalcommerce.com',
+        data: JSON.stringify({
+          SessionId: '12345',
+          Status: true
+        })
+      } as MessageEvent;
+      const mockError = new Error('Error');
+      spyOn(orderFacade, 'initialPaymentRequest').and.returnValue(throwError(() => mockError));
+      spyOn(globalMessageService, 'remove').and.callThrough();
+      spyOn(globalMessageService, 'add').and.callThrough();
+      spyOn(orderFacade, 'clearLoading').and.callThrough();
+
+      component['processDdc'](mockEvent);
+
+      expect(globalMessageService.remove).toHaveBeenCalledWith(GlobalMessageType.MSG_TYPE_INFO);
+      expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.applicationError' }, GlobalMessageType.MSG_TYPE_ERROR);
+      expect(orderFacade.clearLoading).toHaveBeenCalled();
+    });
+
+    it('should do nothing if event origin does not match expected URL', () => {
+      const mockEvent = {
+        origin: 'https://invalid-origin.com',
+        data: JSON.stringify({
+          SessionId: '12345',
+          Status: true
+        })
+      } as MessageEvent;
+      spyOn(orderFacade, 'initialPaymentRequest').and.callThrough();
+
+      component['processDdc'](mockEvent);
+
+      expect(orderFacade.initialPaymentRequest).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('challengeIframeHandler', () => {
+    it('should set iframe URL and dimensions if challenge info is available', () => {
+      const mockChallengeInfo = {
+        threeDSFlexData: {
+          challengeUrl: 'https://challengeurl.aws.e2y.io',
+          jwt: 'jwt'
+        },
+        merchantData: '123-456'
+      } as ThreeDsInfo;
+      spyOn(worldpayCheckoutPaymentService, 'getThreeDsChallengeInfoFromState').and.returnValue(of(mockChallengeInfo));
+      spyOn(worldpayCheckoutPaymentService, 'setThreeDsChallengeIframeUrl').and.callThrough();
+
+      component['challengeIframeHandler']();
+
+      expect(worldpayCheckoutPaymentService.setThreeDsChallengeIframeUrl).toHaveBeenCalledWith(
+        mockChallengeInfo.threeDSFlexData.challengeUrl,
+        mockChallengeInfo.threeDSFlexData.jwt,
+        mockChallengeInfo.merchantData
+      );
+      expect(component.challengeIframeHeight).toBe(400);
+      expect(component.challengeIframeWidth).toBeGreaterThan(0);
+    });
+
+    it('should log message if 3DS flex data is not available', () => {
+      const mockChallengeInfo = {
+        threeDSFlexData: null,
+        merchantData: '123-456'
+      } as ThreeDsInfo;
+      spyOn(worldpayCheckoutPaymentService, 'getThreeDsChallengeInfoFromState').and.returnValue(of(mockChallengeInfo));
+      spyOn(console, 'log');
+
+      component['challengeIframeHandler']();
+
+      expect(console.log).toHaveBeenCalledWith('3ds flow not implemented');
+    });
+
+    it('should unregister previous message handler for device detection', () => {
+      const mockChallengeInfo = {
+        threeDSFlexData: {
+          challengeUrl: 'https://challengeurl.aws.e2y.io',
+          jwt: 'jwt'
+        },
+        merchantData: '123-456'
+      } as ThreeDsInfo;
+      component['ddcHandler'] = jasmine.createSpy();
+      spyOn(worldpayCheckoutPaymentService, 'getThreeDsChallengeInfoFromState').and.returnValue(of(mockChallengeInfo));
+      spyOn(winRef.nativeWindow, 'removeEventListener').and.callThrough();
+
+      component['challengeIframeHandler']();
+
+      expect(winRef.nativeWindow.removeEventListener).toHaveBeenCalledWith('message', component['ddcHandler'], true);
+    });
+
+    it('should not set iframe URL and dimensions if challenge info is not available', () => {
+      spyOn(worldpayCheckoutPaymentService, 'getThreeDsChallengeInfoFromState').and.returnValue(of(null));
+      spyOn(worldpayCheckoutPaymentService, 'setThreeDsChallengeIframeUrl').and.callThrough();
+
+      component['challengeIframeHandler']();
+
+      expect(worldpayCheckoutPaymentService.setThreeDsChallengeIframeUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('processChallenge', () => {
+    it('should remove event listener if challengeHandler exists', () => {
+      component['challengeHandler'] = jasmine.createSpy();
+      spyOn(component.nativeWindow, 'removeEventListener').and.callThrough();
+
+      const mockEvent = { data: { accepted: true } } as MessageEvent;
+      component['processChallenge'](mockEvent);
+
+      expect(component.nativeWindow.removeEventListener).toHaveBeenCalledWith('message', component['challengeHandler'], true);
+    });
+
+    it('should call challengeAccepted if response is accepted', () => {
+      const mockEvent = { data: { accepted: true } } as MessageEvent;
+      spyOn(orderFacade, 'challengeAccepted').and.callThrough();
+
+      component['processChallenge'](mockEvent);
+
+      expect(orderFacade.challengeAccepted).toHaveBeenCalledWith(mockEvent.data);
+    });
+
+    it('should call challengeFailed if response is not accepted', () => {
+      const mockEvent = { data: { accepted: false } } as MessageEvent;
+      spyOn(orderFacade, 'challengeFailed').and.callThrough();
+
+      component['processChallenge'](mockEvent);
+
+      expect(orderFacade.challengeFailed).toHaveBeenCalled();
+    });
+
+    it('should do nothing if response does not have accepted property', () => {
+      const mockEvent = { data: { someOtherProperty: true } } as MessageEvent;
+      spyOn(orderFacade, 'challengeAccepted').and.callThrough();
+      spyOn(orderFacade, 'challengeFailed').and.callThrough();
+
+      component['processChallenge'](mockEvent);
+
+      expect(orderFacade.challengeAccepted).not.toHaveBeenCalled();
+      expect(orderFacade.challengeFailed).not.toHaveBeenCalled();
+    });
+
+    it('should log error and call challengeFailed if an error occurs', () => {
+      const mockEvent = null as MessageEvent;
+      spyOn(console, 'error');
+      spyOn(orderFacade, 'challengeFailed').and.callThrough();
+
+      component['processChallenge'](mockEvent);
+
+      expect(console.error).toHaveBeenCalledWith('Failed to process challenge event data', jasmine.any(Error));
+      expect(orderFacade.challengeFailed).toHaveBeenCalled();
     });
   });
 

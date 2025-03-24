@@ -60,7 +60,9 @@
 
     <ng-container *ngIf="(isLoading$ | async) !== true; else loading">
       <ng-container *ngIf="showBillingFormAndContinueButton(selectedApm.code)">
-        <y-worldpay-billing-address></y-worldpay-billing-address>
+        <y-worldpay-billing-address
+          (emitSameAsDeliveryAddress)="setSameAsDeliveryAddress($event)"
+        ></y-worldpay-billing-address>
         <!-- BUTTON SECTION -->
         <div class="row cx-checkout-btns justify-content-end mb-3">
           <div class="col-md-12 col-lg-6">
@@ -75,7 +77,7 @@
             <button
               class="btn btn-block btn-primary"
               (click)="selectApmPaymentDetails()"
-              [disabled]="(submitting$|async) || (!sameAsShippingAddress && this.billingAddressForm.invalid) || processing"
+              [disabled]="(submitting$|async) || (!sameAsDeliveryAddress && this.billingAddressForm.invalid) || processing"
             >
               {{ 'common.continue' | cxTranslate }}
             </button>

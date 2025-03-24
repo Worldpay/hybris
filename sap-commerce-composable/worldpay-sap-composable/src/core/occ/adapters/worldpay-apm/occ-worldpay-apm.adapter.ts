@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Cart } from '@spartacus/cart/base/root';
-import { backOff, CmsComponent, ConverterService, isJaloError, LoggerService, normalizeHttpError, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { backOff, CmsComponent, ConverterService, isJaloError, LoggerService, OccEndpointsService, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
 import { catchError, pluck } from 'rxjs/operators';
@@ -12,11 +12,12 @@ import { APM_NORMALIZER } from '../../converters';
 @Injectable()
 export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
   /**
-   * Constructor
-   * @param http
-   * @param occEndpoints
-   * @param converter
-   * @param loggerService
+   * Constructor for OccWorldpayApmAdapter
+   *
+   * @param http - HttpClient for making HTTP requests
+   * @param occEndpoints - Service for building OCC endpoint URLs
+   * @param converter - Service for converting data
+   * @param loggerService - Service for logging errors
    */
   constructor(
     protected http: HttpClient,
@@ -28,11 +29,17 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
 
   /**
    * Redirect authorise APM payment
-   * @since 4.3.6
+   *
+   * This method sends a POST request to authorize an APM (Alternative Payment Method) redirect.
+   * It constructs the request body with the payment method code and an optional shopper bank code.
+   * The request URL is built using the user ID and cart ID.
+   *
    * @param userId - User ID
-   * @param cartId
-   * @param apm
-   * @param save
+   * @param cartId - Cart ID
+   * @param apm - APM payment details
+   * @param save - Boolean flag to save the payment method
+   * @returns Observable<APMRedirectResponse> - Observable emitting the APM redirect response
+   * @since 4.3.6
    */
   authoriseApmRedirect(
     userId: string,
@@ -49,7 +56,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       body.shopperBankCode = apm.shopperBankCode;
     }
 
-    const url = this.occEndpoints.buildUrl(
+    const url: string = this.occEndpoints.buildUrl(
       'authoriseApmRedirect',
       {
         urlParams: {
@@ -67,9 +74,15 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
 
   /**
    * Get a list of all available APM's for the given cart
-   * @since 4.3.6
+   *
+   * This method sends a GET request to retrieve all available Alternative Payment Methods (APMs) for a specific cart.
+   * It constructs the request URL using the user ID and cart ID.
+   * The response is normalized using the APM_NORMALIZER converter.
+   *
    * @param userId - User ID
-   * @param cartId
+   * @param cartId - Cart ID
+   * @returns Observable<ApmData[]> - Observable emitting the list of available APMs
+   * @since 4.3.6
    */
   getAvailableApms(
     userId: string,
@@ -86,17 +99,24 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     return this.http.get<CmsComponent[]>(
       url,
     ).pipe(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      pluck('apmComponents'),
+      pluck('apmComponents'), //  Argument of type.
       this.converter.pipeableMany(APM_NORMALIZER)
     );
   }
 
   /**
    * Try placing the order after the user has been sent back from PSP to Spartacus
-   * @since 4.3.6
+   *
+   * This method sends a POST request to place an order after the user has been redirected back from the Payment Service Provider (PSP).
+   * It constructs the request URL using the user ID and cart ID.
+   * The response is handled with error normalization and retry logic for Jalo errors.
+   *
    * @param userId - User ID
-   * @param cartId
+   * @param cartId - Cart ID
+   * @returns Observable<Order> - Observable emitting the placed order
+   * @since 4.3.6
    */
   placeRedirectOrder(
     userId: string,
@@ -112,7 +132,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       }
     );
     return this.http.post<Order>(url, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -121,10 +141,16 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
 
   /**
    * Try placing the order after the user has been sent back from PSP to Spartacus
-   * @since 4.3.6
+   *
+   * This method sends a POST request to place an order after the user has been redirected back from the Payment Service Provider (PSP).
+   * It constructs the request URL using the user ID, cart ID, and order ID.
+   * The response is handled with error normalization and retry logic for Jalo errors.
+   *
    * @param userId - User ID
-   * @param cartId
-   * @param orderId
+   * @param cartId - Cart ID
+   * @param orderId - Order ID
+   * @returns Observable<Order> - Observable emitting the placed order
+   * @since 4.3.6
    */
   placeBankTransferOrderRedirect(
     userId: string,
@@ -144,7 +170,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       }
     );
     return this.http.post<Order>(url, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -153,10 +179,17 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
 
   /**
    * Set APM Payment Information
-   * @since 4.3.6
+   *
+   * This method sends a POST request to set the Alternative Payment Method (APM) payment information for a specific cart.
+   * It constructs the request body with the billing address, APM name, and APM code.
+   * The request URL is built using the user ID and cart ID.
+   * The response is handled with error normalization and retry logic for Jalo errors.
+   *
    * @param userId - User ID
-   * @param cartId
-   * @param apmPaymentDetails
+   * @param cartId - Cart ID
+   * @param apmPaymentDetails - APM payment details including billing address, code, name, and optional shopper bank code
+   * @returns Observable<Cart> - Observable emitting the updated cart
+   * @since 4.3.6
    */
   setAPMPaymentInfo(
     userId: string,
@@ -169,7 +202,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       code,
       name,
       shopperBankCode
-    } = apmPaymentDetails;
+    }: ApmPaymentDetails = apmPaymentDetails;
 
     const body: WorldpayApmPaymentInfo = {
       billingAddress,
@@ -185,7 +218,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     });
 
     return this.http.post<Cart>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -194,10 +227,17 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
 
   /**
    * Use existing payment details
-   * @since 4.3.6
+   *
+   * This method sends a PUT request to use existing payment details for a specific cart.
+   * It constructs the request body with the provided payment details.
+   * The request URL is built using the user ID, cart ID, and payment details ID.
+   * The response is handled with error normalization and retry logic for Jalo errors.
+   *
    * @param userId - User ID
-   * @param cartId
-   * @param paymentDetails
+   * @param cartId - Cart ID
+   * @param paymentDetails - Payment details to be used
+   * @returns Observable<PaymentDetails> - Observable emitting the updated payment details
+   * @since 4.3.6
    */
   useExistingPaymentDetails(
     userId: string,
@@ -216,10 +256,10 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
           paymentDetailsId: paymentDetails.id
         }
       });
-    const body = { ...paymentDetails };
+    const body: PaymentDetails = { ...paymentDetails };
 
     return this.http.put<PaymentDetails>(url, body).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })

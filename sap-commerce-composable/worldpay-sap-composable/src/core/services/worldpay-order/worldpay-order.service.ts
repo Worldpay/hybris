@@ -1,11 +1,23 @@
-import { ComponentRef, Injectable, ViewContainerRef } from '@angular/core';
+import { ComponentRef, DestroyRef, inject, Injectable, ViewContainerRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { Command, CommandService, CommandStrategy, EventService, GlobalMessageService, GlobalMessageType, PaymentDetails, RoutingService, UserIdService } from '@spartacus/core';
+import {
+  Command,
+  CommandService,
+  CommandStrategy,
+  EventService,
+  GlobalMessageService,
+  GlobalMessageType,
+  LoggerService,
+  PaymentDetails,
+  RoutingService,
+  UserIdService
+} from '@spartacus/core';
 import { OrderConnector, OrderService } from '@spartacus/order/core';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
-import { LaunchDialogService, LAUNCH_CALLER } from '@spartacus/storefront';
-import { Observable, Subject } from 'rxjs';
-import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { LAUNCH_CALLER, LaunchDialogService } from '@spartacus/storefront';
+import { Observable } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { WorldpayApmConnector } from '../../connectors';
 import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
 import { WorldpayConnector } from '../../connectors/worldpay.connector';
@@ -24,21 +36,26 @@ import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-ch
 })
 export class WorldpayOrderService extends OrderService {
 
-  protected drop: Subject<void> = new Subject<void>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   placedOrder: void | Observable<ComponentRef<any> | undefined>;
-
+  protected destroyRef: DestroyRef = inject(DestroyRef);
+  protected logger: LoggerService = inject(LoggerService);
   /**
    * Command used to initial payment request
+   *
+   * This command handles the initial payment request by executing the necessary
+   * preconditions and then making a request to the Worldpay connector. It processes
+   * the response to handle 3D Secure, authorised transactions, and failed transactions.
+   *
+   * @param {CSEPaymentForm} paymentDetails - The payment details
+   * @param {string} dfReferenceId - The device fingerprint reference ID
+   * @param {string} challengeWindowSize - The size of the challenge window
+   * @param {string} cseToken - The client-side encryption token
+   * @param {boolean} acceptedTermsAndConditions - Whether the terms and conditions are accepted
+   * @param {string} deviceSession - The device session ID
+   * @param {BrowserInfo} browserInfo - The browser information
+   * @returns {Observable<PlaceOrderResponse>} - Observable that emits the place order response
    * @since 6.4.0
-   * @param paymentDetails PaymentDetails
-   * @param dfReferenceId string
-   * @param challengeWindowSize string
-   * @param cseToken string
-   * @param acceptedTermsAndConditions boolean
-   * @param deviceSession string
-   * @param browserInfo BrowserInfo
-   * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
    */
   protected initialPaymentRequestCommand: Command<CSEPaymentForm, PlaceOrderResponse> = this.commandService.create<CSEPaymentForm, PlaceOrderResponse>(
     ({
@@ -49,8 +66,8 @@ export class WorldpayOrderService extends OrderService {
       acceptedTermsAndConditions,
       deviceSession,
       browserInfo
-    }: CSEPaymentForm) => this.checkoutPreconditions().pipe(
-      switchMap(([userId, cartId]) => this.worldpayConnector.initialPaymentRequest(
+    }: CSEPaymentForm): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
+      switchMap(([userId, cartId]: [string, string]): Observable<PlaceOrderResponse> => this.worldpayConnector.initialPaymentRequest(
         userId,
         cartId,
         paymentDetails,
@@ -64,6 +81,7 @@ export class WorldpayOrderService extends OrderService {
         tap((response: PlaceOrderResponse): void => {
           if (response.threeDSecureNeeded === true) {
             const values: { [key: string]: string } = {};
+            // eslint-disable-next-line @typescript-eslint/typedef
             response.threeDSecureInfo.threeDSFlexData.entry.map(kv => {
               values[kv.key] = kv.value;
             });
@@ -86,8 +104,12 @@ export class WorldpayOrderService extends OrderService {
 
   /**
    * Command used to get DDC3dsJwt
+   *
+   * This command retrieves the DDC3dsJwt by making a request to the Worldpay connector.
+   * It then dispatches the DDC3dsJwtSetEvent with the retrieved DDC information.
+   *
+   * @returns {Observable<ThreeDsDDCInfo>} - Observable that emits the ThreeDsDDCInfo
    * @since 6.4.0
-   * @returns Observable<ThreeDsDDCInfo> - ThreeDsDDCInfo as Observable
    */
   protected getDDC3dsJwtCommand: Command<undefined, ThreeDsDDCInfo> = this.commandService.create<undefined, ThreeDsDDCInfo>(
     () => this.worldpayConnector.getDDC3dsJwt().pipe(
@@ -99,37 +121,48 @@ export class WorldpayOrderService extends OrderService {
   );
 
   /**
-   * Command used to challenge accepted
+   * Command used to handle challenge accepted
+   *
+   * This command processes the response from a challenge acceptance by retrieving the order
+   * from the Worldpay connector and dispatching the necessary events.
+   *
+   * @param {WorldpayChallengeResponse} response - The response from the challenge acceptance
+   * @returns {Observable<Order>} - Observable that emits the order
    * @since 6.4.0
-   * @param worldpayChallengeResponse WorldpayChallengeResponse
-   * @returns Observable<Order> - Order as Observable
    */
   protected challengeAcceptedCommand: Command<WorldpayChallengeResponse, Order> = this.commandService.create<WorldpayChallengeResponse, Order>(
-    (response: WorldpayChallengeResponse) => this.checkoutPreconditions().pipe(
-      switchMap(([userId, cartId]) => this.worldpayConnector.getOrder(response.customerID || userId, response.orderCode, response.guestCustomer).pipe(
-        tap((order: Order): void => {
-          this.eventService.dispatch({
-            userId,
-            cartId,
-            order,
-            cartCode: cartId
-          }, OrderPlacedEvent);
-          this.eventService.dispatch({}, ClearWorldpayPaymentDetailsEvent);
-        })
-      ))
+    (response: WorldpayChallengeResponse): Observable<Order> => this.checkoutPreconditions().pipe(
+      switchMap(([userId, cartId]: [string, string]): Observable<Order> =>
+        this.worldpayConnector.getOrder(response.customerID || userId, response.orderCode, response.guestCustomer).pipe(
+          tap((order: Order): void => {
+            this.eventService.dispatch({
+              userId,
+              cartId,
+              order,
+              cartCode: cartId
+            }, OrderPlacedEvent);
+            this.eventService.dispatch({}, ClearWorldpayPaymentDetailsEvent);
+          })
+        )
+      )
     ),
     { strategy: CommandStrategy.CancelPrevious }
   );
 
   /**
    * Command used to place redirect order
+   *
+   * This command handles the placement of a redirect order by executing the necessary
+   * preconditions and then making a request to the Worldpay APM connector. It processes
+   * the response to handle the successful placement of the order.
+   *
+   * @returns {Observable<void>} - Observable that emits void
    * @since 6.4.0
-   * @returns Observable<void> - void as Observable
    */
   protected placeRedirectOrderCommand: Command<void> =
     this.commandService.create<void>(
       () => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
+        switchMap(([userId, cartId]: [string, string]): Observable<Order> =>
           this.worldpayApmConnector.placeOrderRedirect(userId, cartId).pipe(
             tap((order: Order): void => {
               this.placedOrderSuccess(userId, cartId, order);
@@ -142,13 +175,19 @@ export class WorldpayOrderService extends OrderService {
 
   /**
    * Command used to place bank transfer redirect order
+   *
+   * This command handles the placement of a bank transfer redirect order by executing the necessary
+   * preconditions and then making a request to the Worldpay APM connector. It processes
+   * the response to handle the successful placement of the order.
+   *
+   * @param {string} orderId - The ID of the order to be placed
+   * @returns {Observable<void>} - Observable that emits void
    * @since 6.4.0
-   * @returns Observable<void> - void as Observable
    */
   protected placeBankTransferRedirectOrderCommand: Command<string> =
     this.commandService.create<string>(
       (orderId: string) => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
+        switchMap(([userId, cartId]: [string, string]): Observable<Order> =>
           this.worldpayApmConnector.placeBankTransferOrderRedirect(userId, cartId, orderId).pipe(
             tap((order: Order): void => {
               this.placedOrderSuccess(userId, cartId, order);
@@ -160,14 +199,20 @@ export class WorldpayOrderService extends OrderService {
     );
 
   /**
-   * Command used to set APM payment details
-   * @since 6.4.0
-   * @returns Command<ApmPaymentDetails, Cart> - Command with ApmPaymentDetails and Cart
+   * Command used to place ACH order
+   *
+   * This command handles the placement of an ACH order by executing the necessary
+   * preconditions and then making a request to the Worldpay ACH connector. It processes
+   * the response to handle the successful placement of the order.
+   *
+   * @param {ACHPaymentForm} achPaymentForm - The form data for the ACH order
+   * @returns {Observable<Order>} - Observable that emits the placed order
+   * @since 6.4.2
    */
   protected placeACHOrderCommand$: Command<ACHPaymentForm, Order> =
     this.commandService.create<ACHPaymentForm, Order>(
-      (achPaymentForm: ACHPaymentForm) => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
+      (achPaymentForm: ACHPaymentForm): Observable<Order> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<Order> =>
           this.worldpayACHConnector.placeACHOrder(
             userId,
             cartId,
@@ -183,19 +228,20 @@ export class WorldpayOrderService extends OrderService {
     );
 
   /**
-   * Constructor
-   * @param activeCartFacade ActiveCartFacade
-   * @param userIdService UserIdService
-   * @param commandService CommandService
-   * @param orderConnector OrderConnector
-   * @param eventService EventService
-   * @param globalMessageService GlobalMessageService
-   * @param launchDialogService LaunchDialogService
-   * @param routingService RoutingService
-   * @param worldpayCheckoutPaymentService WorldpayCheckoutPaymentService
-   * @param worldpayConnector WorldpayConnector
-   * @param worldpayApmConnector WorldpayApmConnector
-   * @param worldpayACHConnector WorldpayACHConnector
+   * Constructor for the WorldpayOrderService
+   *
+   * @param {ActiveCartFacade} activeCartFacade - The active cart facade
+   * @param {UserIdService} userIdService - The user ID service
+   * @param {CommandService} commandService - The command service
+   * @param {OrderConnector} orderConnector - The order connector
+   * @param {EventService} eventService - The event service
+   * @param {GlobalMessageService} globalMessageService - The global message service
+   * @param {LaunchDialogService} launchDialogService - The launch dialog service
+   * @param {RoutingService} routingService - The routing service
+   * @param {WorldpayCheckoutPaymentService} worldpayCheckoutPaymentService - The Worldpay checkout payment service
+   * @param {WorldpayConnector} worldpayConnector - The Worldpay connector
+   * @param {WorldpayApmConnector} worldpayApmConnector - The Worldpay APM connector
+   * @param {WorldpayACHConnector} worldpayACHConnector - The Worldpay ACH connector
    */
   constructor(
     protected override activeCartFacade: ActiveCartFacade,
@@ -216,14 +262,19 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Listen trigger DDC3dsJwtSetEvent
+   * Listens for the DDC3dsJwtSetEvent and handles the event when triggered.
+   *
+   * This method sets up a listener for the DDC3dsJwtSetEvent and dispatches the
+   * ClearInitialPaymentRequestEvent with null values for 3DS challenge and DDC information
+   * when the ClearWorldpayPaymentDetailsEvent is received.
+   *
    * @since 6.4.0
    */
   listenTriggerDDC3dsJwtSetEvent(): void {
     this.worldpayCheckoutPaymentService.listenSetThreeDsDDCInfoEvent();
 
     this.eventService.get(ClearWorldpayPaymentDetailsEvent)
-      .pipe(takeUntil(this.drop))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (): void => {
           this.eventService.dispatch({
@@ -237,23 +288,33 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Excecute DDC3dsJwtCommand
+   * Executes the DDC3dsJwtCommand to retrieve the DDC3dsJwt.
+   *
+   * This method executes the command to get the DDC3dsJwt by making a request to the Worldpay connector.
+   * It returns an Observable that emits the ThreeDsDDCInfo.
+   *
+   * @returns {Observable<ThreeDsDDCInfo>} - Observable that emits the ThreeDsDDCInfo
    * @since 6.4.0
-   * @returns - ThreeDsDDCInfo as Observable
    */
   executeDDC3dsJwtCommand(): Observable<ThreeDsDDCInfo> {
     return this.getDDC3dsJwtCommand.execute(undefined);
   }
 
   /**
-   * Initial payment request
-   * @param unsafePaymentDetails PaymentDetails
-   * @param dfReferenceId string
-   * @param cseToken string
-   * @param acceptedTermsAndConditions boolean
-   * @param deviceSession string
-   * @param browserInfo BrowserInfo
-   * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
+   * Initiates the initial payment request.
+   *
+   * This method handles the initial payment request by sanitizing the payment details,
+   * determining the challenge window size, and dispatching the ClearInitialPaymentRequestEvent.
+   * It then executes the initialPaymentRequestCommand with the provided parameters.
+   *
+   * @param {PaymentDetails} unsafePaymentDetails - The payment details, including sensitive information
+   * @param {string} dfReferenceId - The device fingerprint reference ID
+   * @param {string} cseToken - The client-side encryption token
+   * @param {boolean} acceptedTermsAndConditions - Whether the terms and conditions are accepted
+   * @param {string} deviceSession - The device session ID
+   * @param {BrowserInfo} browserInfo - The browser information
+   * @returns {Observable<PlaceOrderResponse>} - Observable that emits the place order response
+   * @since 6.4.0
    */
   initialPaymentRequest(
     unsafePaymentDetails: PaymentDetails,
@@ -264,7 +325,7 @@ export class WorldpayOrderService extends OrderService {
     browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse> {
 
-    const paymentDetails = { ...unsafePaymentDetails };
+    const paymentDetails: PaymentDetails = { ...unsafePaymentDetails };
     delete paymentDetails.cardNumber;
     const challengeWindowSize: string = window.innerWidth >= 620 ? '600x400' : '390x400';
 
@@ -287,26 +348,35 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Challenge accepted
+   * Handles the acceptance of a 3DS challenge.
+   *
+   * This method processes the response from a 3DS challenge acceptance by executing the challengeAcceptedCommand.
+   * It subscribes to the command's observable to handle the order placement and navigation to the order confirmation page.
+   * In case of an error, it logs the error and displays a global error message.
+   *
+   * @param {WorldpayChallengeResponse} worldpayChallengeResponse - The response from the 3DS challenge acceptance
    * @since 6.4.0
-   * @param worldpayChallengeResponse WorldpayChallengeResponse
    */
   challengeAccepted(worldpayChallengeResponse: WorldpayChallengeResponse): void {
-    this.challengeAcceptedCommand.execute(worldpayChallengeResponse).pipe(takeUntil(this.drop))
+    this.challengeAcceptedCommand.execute(worldpayChallengeResponse).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (order: Order): void => {
           this.setPlacedOrder(order);
           this.routingService.go({ cxRoute: 'orderConfirmation' });
         },
         error: (error: unknown): void => {
-          console.log('Challenge Failed:', error);
+          this.logger.error('Challenge Failed:', error);
           this.globalMessageService.add({ key: 'checkoutReview.challengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
         }
       });
   }
 
   /**
-   * Challenge failed
+   * Handles the failure of a 3DS challenge.
+   *
+   * This method adds a global error message indicating the challenge failure
+   * and dispatches the ClearWorldpayPaymentDetailsEvent to clear the payment details.
+   *
    * @since 6.4.0
    */
   challengeFailed(): void {
@@ -315,7 +385,12 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Place redirect order
+   * Places a redirect order.
+   *
+   * This method executes the placeRedirectOrderCommand and then retrieves the order details.
+   * It returns an Observable that emits true if the order details are not empty, otherwise false.
+   *
+   * @returns {Observable<boolean>} - Observable that emits a boolean indicating the success of the order placement
    * @since 6.4.0
    */
   placeRedirectOrder(): Observable<boolean> {
@@ -330,9 +405,14 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Place bank transfer redirect order
+   * Places a bank transfer redirect order.
+   *
+   * This method executes the placeBankTransferRedirectOrderCommand and then retrieves the order details.
+   * It returns an Observable that emits true if the order details are not empty, otherwise false.
+   *
+   * @param {string} orderId - The ID of the order to be placed
+   * @returns {Observable<boolean>} - Observable that emits a boolean indicating the success of the order placement
    * @since 6.4.0
-   * @param orderId string - Order ID
    */
   placeBankTransferRedirectOrder(orderId: string): Observable<boolean> {
     return this.placeBankTransferRedirectOrderCommand.execute(orderId).pipe(
@@ -347,20 +427,30 @@ export class WorldpayOrderService extends OrderService {
 
   /**
    * Executes the ACH order placement command.
+   *
+   * This method handles the placement of an ACH order by executing the placeACHOrderCommand.
+   * It returns an Observable that emits the placed order.
+   *
+   * @param {ACHPaymentForm} achPaymentForm - The form data for the ACH order
+   * @returns {Observable<Order>} - Observable that emits the placed order
    * @since 6.4.2
-   * @param achPaymentForm - The form data for the ACH order.
-   * @returns - An Observable of the Order type.
    */
   placeACHOrder(achPaymentForm: ACHPaymentForm): Observable<Order> {
     return this.placeACHOrderCommand$.execute(achPaymentForm);
   }
 
   /**
-   * Placed order success
+   * Handles the successful placement of an order.
+   *
+   * This method sets the placed order, dispatches the OrderPlacedEvent,
+   * and clears the Worldpay payment details. It also dispatches events
+   * to indicate that the saved credit card and save as default credit card
+   * options are not selected.
+   *
+   * @param {string} userId - The ID of the user
+   * @param {string} cartId - The ID of the cart
+   * @param {Order} order - The placed order
    * @since 6.4.0
-   * @param userId string - User ID
-   * @param cartId string - Cart ID
-   * @param order Order
    */
   placedOrderSuccess(userId: string, cartId: string, order: Order): void {
     this.setPlacedOrder(order);
@@ -379,9 +469,13 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Start loading spinner
+   * Start loading spinner.
+   *
+   * This method launches a loading spinner dialog using the provided ViewContainerRef.
+   * It sets the placedOrder property to the result of the launchDialogService.launch method.
+   *
+   * @param {ViewContainerRef} vcr - The ViewContainerRef to attach the loading spinner dialog to
    * @since 6.4.0
-   * @param vcr ViewContainerRef
    */
   startLoading(vcr: ViewContainerRef): void {
     this.placedOrder = this.launchDialogService.launch(
@@ -391,7 +485,12 @@ export class WorldpayOrderService extends OrderService {
   }
 
   /**
-   * Clear loading spinner
+   * Clear loading spinner.
+   *
+   * This method clears the loading spinner dialog if the placedOrder property is defined.
+   * It subscribes to the placedOrder observable and calls the clear method of the launchDialogService.
+   * If a component is provided, it destroys the component.
+   *
    * @since 6.4.0
    */
   clearLoading(): void {
@@ -408,14 +507,5 @@ export class WorldpayOrderService extends OrderService {
         }
       }
     }).unsubscribe();
-  }
-
-  /**
-   * Destroy
-   * @since 6.4.0
-   */
-  ngOnDestroy(): void {
-    this.drop.next();
-    this.drop.complete();
   }
 }

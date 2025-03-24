@@ -1,0 +1,7 @@
+y-worldpay-order-confirmation-items {
+  max-width: var(--cx-page-width-max);
+  padding-inline: 15px;
+  margin-inline: auto;
+
+  @extend %cx-order-confirmation-items !optional;
+}

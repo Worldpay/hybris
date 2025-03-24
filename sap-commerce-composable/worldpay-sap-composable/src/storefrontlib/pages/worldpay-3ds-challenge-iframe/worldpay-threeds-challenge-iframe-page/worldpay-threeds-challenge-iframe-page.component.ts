@@ -1,20 +1,20 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { WindowRef } from '@spartacus/core';
+import { ActivatedRoute } from '@angular/router';
+import { LoggerService, WindowRef } from '@spartacus/core';
 
 @Component({
   templateUrl: './worldpay-threeds-challenge-iframe-page.component.html'
 })
 export class WorldpayThreedsChallengeIframePageComponent implements OnInit, AfterViewInit {
+  action: SafeResourceUrl;
+  md: string;
+  jwt: string;
+  protected logger: LoggerService = inject(LoggerService);
   private readonly ACTION_ROUTE_PARAM: string = 'action';
   private readonly MD_ROUTE_PARAM: string = 'md';
   private readonly JWT_ROUTE_PARAM: string = 'jwt';
   private readonly FORM_SELECTOR: string = '#challengeForm';
-
-  action: SafeResourceUrl;
-  md: string;
-  jwt: string;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -33,7 +33,7 @@ export class WorldpayThreedsChallengeIframePageComponent implements OnInit, Afte
 
   ngAfterViewInit(): void {
     if (!this.winRef.isBrowser()) {
-      console.log('SSR - skipping WorldpayThreedsChallengeIframePageComponent After View Init');
+      this.logger.log('SSR - skipping WorldpayThreedsChallengeIframePageComponent After View Init');
       return;
     }
 

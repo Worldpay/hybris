@@ -3,8 +3,8 @@
  * @param src script url to load
  * @param onloadCallback callback function is called when new script is loaded
  */
-import { WindowRef } from '@spartacus/core';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { LoggerService, WindowRef } from '@spartacus/core';
 
 export interface Scripts {
   idScript: string;
@@ -22,6 +22,8 @@ export interface Scripts {
   providedIn: 'root'
 })
 export class LoadScriptService {
+
+  protected logger: LoggerService = inject(LoggerService);
 
   /**
    * Constructor
@@ -53,9 +55,10 @@ export class LoadScriptService {
     }: Scripts
   ): void {
     if (this.winRef.isBrowser()) {
-      let isFound = false;
+      let isFound: boolean = false;
+      // eslint-disable-next-line @typescript-eslint/typedef
       const scripts = this.winRef.document.getElementsByTagName('script');
-      for (let i = 0; i < scripts.length; ++i) {
+      for (let i: number = 0; i < scripts.length; ++i) {
         if (
           scripts[i].getAttribute('src') != null &&
           scripts[i].getAttribute('src') === src
@@ -66,6 +69,7 @@ export class LoadScriptService {
       }
 
       if (!isFound) {
+        // eslint-disable-next-line @typescript-eslint/typedef
         let node = this.winRef.document.createElement('script');
         node.src = src;
         node.id = idScript || Math.floor(Math.random() * 999999).toString();
@@ -86,7 +90,7 @@ export class LoadScriptService {
         this.winRef.document.getElementsByTagName('head')[0].appendChild(node);
       }
     } else {
-      console.log('LoadScript service not loaded as test is running or SSR is mode enabled.');
+      this.logger.log('LoadScript service not loaded as test is running or SSR is mode enabled.');
     }
   }
 
@@ -97,12 +101,13 @@ export class LoadScriptService {
    */
   removeScript(idScript: string): void {
     if (this.winRef.isBrowser()) {
+      // eslint-disable-next-line @typescript-eslint/typedef
       const script = this.winRef.document.querySelector(`script#${idScript}`);
       if (script) {
         script.remove();
       }
     } else {
-      console.log('LoadScript service not loaded as test is running or SSR is mode enabled.');
+      this.logger.log('LoadScript service not loaded as test is running or SSR is mode enabled.');
     }
   }
 

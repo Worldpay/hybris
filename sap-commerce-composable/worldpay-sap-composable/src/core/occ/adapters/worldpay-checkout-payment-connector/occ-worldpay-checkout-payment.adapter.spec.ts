@@ -1,29 +1,17 @@
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
-import { HttpClientModule } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { OccWorldpayCheckoutPaymentAdapter } from './occ-worldpay-checkout-payment.adapter';
 import { PAYMENT_DETAILS_SERIALIZER } from '@spartacus/checkout/base/core';
+import { Address, ConverterService, LoggerService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { generateOneAddress } from '@worldpay-tests/fake-data/address.mock';
+import { OccWorldpayCheckoutPaymentAdapter } from './occ-worldpay-checkout-payment.adapter';
 
 const userId = 'userId';
 const cartId = 'cartId';
 const securityCode = '123';
 const cseToken = 'mockCseToken';
 
-const mockBillingAddress: Address = {
-  firstName: 'John',
-  lastName: 'Smith',
-  line1: 'Buckingham Street 5',
-  line2: '1A',
-  phone: '(+11) 111 111 111',
-  postalCode: 'MA8902',
-  town: 'London',
-  country: {
-    name: 'test-country-name',
-    isocode: 'UK',
-  },
-  formattedAddress: 'test-formattedAddress',
-};
+const mockBillingAddress: Address = generateOneAddress();
 
 const paymentDetails: PaymentDetails = {
   accountHolderName: 'John Smith',
@@ -57,9 +45,11 @@ class MockOccEndpointsService {
 
 describe('OccWorldpayCheckoutPaymentAdapter', () => {
   let service: OccWorldpayCheckoutPaymentAdapter;
+  let httpClient: HttpClient;
   let httpMock: HttpTestingController;
   let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
+  let logger: LoggerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -80,6 +70,8 @@ describe('OccWorldpayCheckoutPaymentAdapter', () => {
     service = TestBed.inject(OccWorldpayCheckoutPaymentAdapter);
     httpMock = TestBed.inject(HttpTestingController);
     converter = TestBed.inject(ConverterService);
+    httpClient = TestBed.inject(HttpClient);
+    logger = TestBed.inject(LoggerService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
     spyOn(converter, 'convert').and.callThrough();
@@ -115,5 +107,87 @@ describe('OccWorldpayCheckoutPaymentAdapter', () => {
       body,
       PAYMENT_DETAILS_SERIALIZER
     );
+  });
+
+  it('should create Worldpay payment details successfully', () => {
+    let body = {};
+    service.createWorldpayPaymentDetails(userId, cartId, paymentDetails, cseToken).subscribe();
+
+    expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
+      'createWorldpayPaymentDetails',
+      {
+        urlParams: {
+          userId,
+          cartId
+        }
+      }
+    );
+
+    const mockReq = httpMock.expectOne(req => {
+      body = req.body;
+      return req.method === 'POST' &&
+             req.urlWithParams === 'createWorldpayPaymentDetails' &&
+             req.body.accountHolderName === 'John Smith' &&
+             req.body.cseToken === 'mockCseToken';
+    });
+
+    expect(mockReq.cancelled).toBeFalsy();
+    expect(mockReq.request.responseType).toEqual('json');
+    mockReq.flush(paymentDetails);
+
+    expect(converter.convert).toHaveBeenCalledWith(
+      body,
+      PAYMENT_DETAILS_SERIALIZER
+    );
+  });
+
+  it('should handle error when creating Worldpay payment details', () => {
+    service.createWorldpayPaymentDetails(userId, cartId, paymentDetails, cseToken).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+      }
+    });
+
+    const mockReq = httpMock.expectOne('createWorldpayPaymentDetails');
+    mockReq.flush('Error', {
+      status: 500,
+      statusText: 'Server Error'
+    });
+  });
+
+  it('should use existing payment details successfully', () => {
+    const mockPaymentDetails: PaymentDetails = {
+      id: '123',
+      accountHolderName: 'John Doe'
+    };
+    const mockResponse: PaymentDetails = { ...mockPaymentDetails };
+
+    service.useExistingPaymentDetails(userId, cartId, mockPaymentDetails).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
+
+    const mockReq = httpMock.expectOne('useExistingPaymentDetails');
+    expect(mockReq.request.method).toBe('PUT');
+    expect(mockReq.request.body).toEqual(mockPaymentDetails);
+    mockReq.flush(mockResponse);
+  });
+
+  it('should handle error when using existing payment details', () => {
+    const mockPaymentDetails: PaymentDetails = {
+      id: '123',
+      accountHolderName: 'John Doe'
+    };
+
+    service.useExistingPaymentDetails(userId, cartId, mockPaymentDetails).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+      }
+    });
+
+    const mockReq = httpMock.expectOne('useExistingPaymentDetails');
+    mockReq.flush('Error', {
+      status: 500,
+      statusText: 'Server Error'
+    });
   });
 });

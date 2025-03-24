@@ -109,8 +109,6 @@
         <value>EXPRESS</value>
     </enum>
 
-
-
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
@@ -542,6 +540,11 @@
         <property name="message" type="java.lang.String"/>
     </bean>
 
+    <bean class="com.worldpay.data.Exemption">
+        <property name="type" type="java.lang.String"/>
+        <property name="placement" type="java.lang.String"/>
+    </bean>
+
     <bean class="com.worldpay.data.FraudSightData">
         <property name="shopperFields" type="com.worldpay.data.ShopperFields"/>
         <property name="customNumericFields" type="com.worldpay.data.CustomNumericFields"/>
@@ -668,6 +671,7 @@
         <property name="guaranteedPaymentsData" type="com.worldpay.data.GuaranteedPaymentsData"/>
         <property name="checkoutId" type="java.lang.String"/>
         <property name="alternativeShippingAddress" type="com.worldpay.data.AlternativeShippingAddress"/>
+        <property name="exemption" type="com.worldpay.data.Exemption"/>
     </bean>
 
     <bean class="com.worldpay.data.AlternativeShippingAddress">
@@ -688,6 +692,7 @@
         <property name="paResponse" type="java.lang.String"/>
         <property name="storedCredentials" type="com.worldpay.data.payment.StoredCredentials"/>
         <property name="action" type="com.worldpay.enums.PaymentAction"/>
+        <property name="routingMID" type="java.lang.String"/>
     </bean>
 
     <bean class="com.worldpay.data.PaymentMethodAttribute">
@@ -725,6 +730,7 @@
         <property name="authorisedBy" type="java.lang.String"/>
         <property name="threeDSecureResultDescription" type="java.lang.String"/>
         <property name="schemeResponse" type="com.worldpay.data.SchemeResponse"/>
+        <property name="exemptionResponseInfo" type="com.worldpay.data.ExemptionResponseInfo"/>
     </bean>
 
     <bean class="com.worldpay.data.Purchase">
@@ -768,6 +774,12 @@
         <property name="extendedResponse" type="java.lang.String"/>
         <property name="triggeredRules" type="java.lang.String"/>
         <property name="score" type="java.lang.String"/>
+    </bean>
+
+    <bean class="com.worldpay.data.ExemptionResponseInfo">
+        <property name="result" type="String"/>
+        <property name="reason" type="String"/>
+        <property name="exemption" type="com.worldpay.data.Exemption"/>
     </bean>
 
     <bean class="com.worldpay.data.SchemeResponse">
@@ -871,26 +883,31 @@
         <property name="address" type="com.worldpay.data.Address"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativeAccNoPayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativeAccNoPayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="accountNumber" type="java.lang.String"/>
         <property name="accountPassword" type="java.lang.String"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativeBankCodePayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativeBankCodePayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="bankCode" type="java.lang.String"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativeCardAddressPayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativeCardAddressPayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="cardAddress" type="com.worldpay.data.Address"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativePanCvvPayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativePanCvvPayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="pan" type="java.lang.String"/>
         <property name="cvv" type="java.lang.String"/>
         <property name="expiryDate" type="com.worldpay.data.Date"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativePanPinPayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativePanPinPayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="pan" type="java.lang.String"/>
         <property name="pin" type="java.lang.String"/>
     </bean>
@@ -903,11 +920,13 @@
         <property name="cancelURL" type="java.lang.String"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativePayPalPayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativePayPalPayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="firstInBillingRun" type="java.lang.String"/>
     </bean>
 
-    <bean class="com.worldpay.data.payment.AlternativeShopperBankCodePayment" extends="com.worldpay.data.payment.AlternativePayment">
+    <bean class="com.worldpay.data.payment.AlternativeShopperBankCodePayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="shopperBankCode" type="java.lang.String"/>
     </bean>
 
@@ -956,7 +975,8 @@
     </bean>
 
     <bean class="com.worldpay.data.payment.StoredCredentials">
-        <property name="merchantInitiatedReason" type="com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason"/>
+        <property name="merchantInitiatedReason"
+                  type="com.worldpay.enums.payment.storedCredentials.MerchantInitiatedReason"/>
         <property name="schemeTransactionIdentifier" type="java.lang.String"/>
         <property name="usage" type="com.worldpay.enums.payment.storedCredentials.Usage"/>
     </bean>
@@ -1005,7 +1025,8 @@
         <property name="giftCardCount" type="java.lang.String"/>
         <property name="reorderingPreviousPurchases" type="java.lang.String"/>
         <property name="transactionRiskDataPreOrderDate" type="com.worldpay.data.Date"/>
-        <property name="transactionRiskDataGiftCardAmount" type="com.worldpay.data.threeds2.TransactionRiskDataGiftCardAmount"/>
+        <property name="transactionRiskDataGiftCardAmount"
+                  type="com.worldpay.data.threeds2.TransactionRiskDataGiftCardAmount"/>
     </bean>
 
     <bean class="com.worldpay.data.threeds2.TransactionRiskDataGiftCardAmount">

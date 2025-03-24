@@ -1,7 +1,7 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
 import { OccWorldpayGuaranteedPaymentsAdapter } from './occ-worldpay-guaranteed-payments.adapter';
 
 const MockOccModuleConfig: OccConfig = {
@@ -63,5 +63,26 @@ describe('OccWorldpayGuaranteedPaymentsAdapter', () => {
 
     expect(mockReq.cancelled).toBeFalsy();
     mockReq.flush({});
+  });
+
+  it('should handle error when fetching guaranteed payments status', () => {
+    const error = new Error('Http failure response for isGuaranteedPaymentsEnabled: 500 Server Error');
+
+    service.isGuaranteedPaymentsEnabled().subscribe({
+      error: (err) => {
+        expect(err.status).toBe(500);
+        expect(err.message).toEqual(error.message);
+      }
+    });
+
+    const mockReq = httpMock.expectOne(req =>
+      req.method === 'GET' &&
+      req.urlWithParams === 'isGuaranteedPaymentsEnabled'
+    );
+
+    mockReq.flush(error, {
+      status: 500,
+      statusText: 'Server Error'
+    });
   });
 });

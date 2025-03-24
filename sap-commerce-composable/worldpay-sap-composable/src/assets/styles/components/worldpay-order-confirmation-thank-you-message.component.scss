@@ -1,0 +1,19 @@
+.cx-order-confirmation-message {
+  padding: var(--cx-padding, 2.5rem);
+  text-align: var(--cx-text-align, center);
+
+  h2 {
+    font-weight: var(--cx-font-weight-bold);
+    font-size: var(--cx-font-size, 1.5rem);
+  }
+
+  .btn-link {
+    font-weight: $font-weight-bold;
+    font-size: $small-font-size;
+    text-transform: var(--cx-text-transform, uppercase);
+  }
+}
+
+.cx-page-title {
+  color: var(--cx-color, var(--cx-color-text));
+}

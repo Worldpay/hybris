@@ -4,16 +4,39 @@ import { EventService, OCC_USER_ID_ANONYMOUS, Query, QueryService, QueryState, U
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
+import { ClearWorldpayACHPaymentFormEvent } from '../../events';
 import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
 import { ACHBankAccountType, ACHPaymentForm, ACHPaymentFormRaw, ApmData } from '../../interfaces';
-import { ClearWorldpayACHPaymentFormEvent } from '../../events';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorldpayACHService implements WorldpayACHFacade {
 
+  /**
+   * Query used to get available APMs
+   * @since 6.4.0
+   * @params ACHBankAccountType[] - ACHBankAccountType[]
+   * @returns Query<ApmData[]> - Query with ApmData[]
+   */
+  protected getAvailableApmQuery$: Query<ACHBankAccountType[]> =
+    this.queryService.create<ApmData[]>(
+      (): Observable<ACHBankAccountType[]> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<ACHBankAccountType[]> =>
+          this.worldpayACHConnector.getACHBankAccountTypes(userId, cartId)
+        )
+      )
+    );
   private achPaymentFormValue$: BehaviorSubject<ACHPaymentForm> = new BehaviorSubject<ACHPaymentForm>(null);
+
+  constructor(
+    protected userIdService: UserIdService,
+    protected activeCartFacade: ActiveCartFacade,
+    protected queryService: QueryService,
+    protected eventService: EventService,
+    protected worldpayACHConnector: WorldpayACHConnector
+  ) {
+  }
 
   /**
    * Checks if the conditions for checkout are met
@@ -27,7 +50,7 @@ export class WorldpayACHService implements WorldpayACHFacade {
       this.activeCartFacade.isGuestCart(),
     ]).pipe(
       take(1),
-      map(([userId, cartId, isGuestCart]): [string, string] => {
+      map(([userId, cartId, isGuestCart]: [string, string, boolean]): [string, string] => {
         if (
           !userId ||
           !cartId ||
@@ -38,30 +61,6 @@ export class WorldpayACHService implements WorldpayACHFacade {
         return [userId, cartId];
       })
     );
-  }
-
-  /**
-   * Query used to get available APMs
-   * @since 6.4.0
-   * @params ACHBankAccountType[] - ACHBankAccountType[]
-   * @returns Query<ApmData[]> - Query with ApmData[]
-   */
-  protected getAvailableApmQuery$: Query<ACHBankAccountType[]> =
-    this.queryService.create<ApmData[]>(
-      () => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]) =>
-          this.worldpayACHConnector.getACHBankAccountTypes(userId, cartId)
-        )
-      )
-    );
-
-  constructor(
-    protected userIdService: UserIdService,
-    protected activeCartFacade: ActiveCartFacade,
-    protected queryService: QueryService,
-    protected eventService: EventService,
-    protected worldpayACHConnector: WorldpayACHConnector
-  ) {
   }
 
   /**

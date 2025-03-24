@@ -533,6 +533,27 @@
         </form:label>
     </fieldset>
 
+    <fieldset id="exemptionFields">
+        <legend>Exemption Fields</legend>
+        <label>Exemption</label>
+        <form:label path="exemptionType">
+            <span>Exemption Type:</span>
+            <form:input path="exemptionType"/>
+        </form:label>
+        <form:label path="exemptionPlacement">
+            <span>Exemption Placement:</span>
+            <form:input path="exemptionPlacement"/>
+        </form:label>
+        <form:label path="exemptionResponseResult">
+            <span>Exemption Response Result:</span>
+            <form:input path="exemptionResponseResult"/>
+        </form:label>
+        <form:label path="exemptionResponseReason">
+            <span>Exemption Response Reason:</span>
+            <form:input path="exemptionResponseReason"/>
+        </form:label>
+    </fieldset>
+
     <button type="submit" class="btn btn-primary btn-lg" aria-label="Send">
         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Send
     </button>

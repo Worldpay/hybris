@@ -113,12 +113,33 @@
         <constructor-arg name="modelService" ref="modelService"/>
     </bean>
 
+    <alias name="defaultWorldpayRequestRetryExemptionStrategy" alias="worldpayRequestRetryExemptionStrategy"/>
+    <bean id="defaultWorldpayRequestRetryExemptionStrategy"
+          class="com.worldpay.service.payment.request.impl.DefaultWorldpayRequestRetryExemptionStrategy">
+        <constructor-arg name="worldpayExemptionService" ref="worldpayExemptionService"/>
+    </bean>
+
+    <alias name="defaultWorldpayRequestRetryEFTPOSStrategy" alias="worldpayRequestRetryEFTPOSStrategy"/>
+    <bean id="defaultWorldpayRequestRetryEFTPOSStrategy"
+          class="com.worldpay.service.payment.request.impl.DefaultWorldpayRequestRetryEFTPOSStrategy">
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+    </bean>
+
+    <util:list id="worldpayRequestRetryStrategies"
+               value-type="com.worldpay.service.payment.request.WorldpayRequestRetryStrategy">
+        <ref bean="worldpayRequestRetryEFTPOSStrategy"/>
+        <ref bean="worldpayRequestRetryExemptionStrategy"/>
+    </util:list>
+
     <util:list id="worldpayDirectDataRequestStrategies"
                value-type="com.worldpay.service.payment.WorldpayAdditionalDataRequestStrategy">
         <ref bean="worldpayFraudSightStrategy"/>
         <ref bean="worldpayPrimeRoutingStrategy"/>
         <ref bean="worldpayLevel23Strategy"/>
         <ref bean="worldpayGuaranteedPaymentsStrategy"/>
+        <ref bean="worldpayEFTPOSRoutingStrategy"/>
+        <ref bean="worldpayExemptionStrategy"/>
     </util:list>
 
     <util:list id="worldpayRedirectDataRequestStrategies"
@@ -137,6 +158,11 @@
     <bean id="defaultWorldpayPrimeRoutingStrategy"
           class="com.worldpay.service.payment.impl.DefaultWorldpayPrimeRoutingStrategy">
         <constructor-arg name="worldpayPrimeRoutingService" ref="worldpayPrimeRoutingService"/>
+    </bean>
+
+    <alias name="defaultWorldpayEFTPOSRoutingStrategy" alias="worldpayEFTPOSRoutingStrategy"/>
+    <bean id="defaultWorldpayEFTPOSRoutingStrategy" class="com.worldpay.service.payment.impl.DefaultWorldpayEFTPOSRoutingStrategy">
+        <constructor-arg name="worldpayMerchantConfigurationService" ref="worldpayMerchantConfigurationService"/>
     </bean>
 
     <bean id="abstractWorldpayFraudSightStrategy"

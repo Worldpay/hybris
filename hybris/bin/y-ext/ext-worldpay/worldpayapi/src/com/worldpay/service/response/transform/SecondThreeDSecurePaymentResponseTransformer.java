@@ -15,6 +15,10 @@ import java.util.List;
  */
 public class SecondThreeDSecurePaymentResponseTransformer extends AbstractServiceResponseTransformer {
 
+    public SecondThreeDSecurePaymentResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper) {
+        super(serviceResponseTransformerHelper);
+    }
+
     /**
      * (non-Javadoc)
      *
@@ -35,29 +39,29 @@ public class SecondThreeDSecurePaymentResponseTransformer extends AbstractServic
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
         final SecondThreeDSecurePaymentServiceResponse response = new SecondThreeDSecurePaymentServiceResponse();
-        if (getServiceResponseTransformerHelper().checkForError(response, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(response, intReply)) {
             return response;
         }
 
         response.setMerchantCode(paymentServiceReply.getMerchantCode());
         response.setVersion(paymentServiceReply.getVersion());
 
-        final List<Object> replyAttribute = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
+        final List<Object> replyAttribute = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = replyAttribute.stream()
-                .filter(OrderStatus.class::isInstance)
-                .map(OrderStatus.class::cast)
-                .findAny()
-                .orElseThrow(() -> new WorldpayModelTransformationException("No order status returned in Worldpay reply message"));
+            .filter(OrderStatus.class::isInstance)
+            .map(OrderStatus.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No order status returned in Worldpay reply message"));
 
-        final List<Object> orderStatusAttributes = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrAuthenticateResponse();
+        final List<Object> orderStatusAttributes = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
 
         final Payment payment = orderStatusAttributes.stream()
-                .filter(Payment.class::isInstance)
-                .map(Payment.class::cast)
-                .findAny()
-                .orElseThrow(() -> new WorldpayModelTransformationException("No payment or threedsecureresult returned in Worldpay orderstatus message"));
+            .filter(Payment.class::isInstance)
+            .map(Payment.class::cast)
+            .findAny()
+            .orElseThrow(() -> new WorldpayModelTransformationException("No payment or threedsecureresult returned in Worldpay orderstatus message"));
 
-        response.setPaymentReply(getServiceResponseTransformerHelper().buildPaymentReply(payment));
+        response.setPaymentReply(serviceResponseTransformerHelper.buildPaymentReply(payment));
 
         return response;
     }

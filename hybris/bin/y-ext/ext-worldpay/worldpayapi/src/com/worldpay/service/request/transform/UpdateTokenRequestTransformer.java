@@ -41,7 +41,7 @@ public class UpdateTokenRequestTransformer implements ServiceRequestTransformer 
         final PaymentTokenUpdate updateToken = internalPaymentTokenUpdateConverter.convert(updateTokenRequest.getUpdateTokenRequest());
 
         final Modify modify = new Modify();
-        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDelete().add(updateToken);
+        modify.getOrderModificationOrBatchModificationOrAccountBatchModificationOrFuturePayAgreementModificationOrPaymentTokenUpdateOrPaymentTokenDeleteOrDeleteNetworkPaymentToken().add(updateToken);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(modify);
 
         return paymentService;

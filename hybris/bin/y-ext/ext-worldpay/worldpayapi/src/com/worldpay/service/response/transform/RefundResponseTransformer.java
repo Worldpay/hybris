@@ -17,7 +17,9 @@ public class RefundResponseTransformer extends AbstractServiceResponseTransforme
 
     protected final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter;
 
-    public RefundResponseTransformer(final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter) {
+    public RefundResponseTransformer(final ServiceResponseTransformerHelper serviceResponseTransformerHelper,
+                                     final Converter<com.worldpay.internal.model.Amount, Amount> internalAmountReverseConverter) {
+        super(serviceResponseTransformerHelper);
         this.internalAmountReverseConverter = internalAmountReverseConverter;
     }
 
@@ -35,18 +37,18 @@ public class RefundResponseTransformer extends AbstractServiceResponseTransforme
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("Reply has no reply message or the reply type is not the expected one"));
 
-        if (getServiceResponseTransformerHelper().checkForError(refundResponse, intReply)) {
+        if (serviceResponseTransformerHelper.checkForError(refundResponse, intReply)) {
             return refundResponse;
         }
 
-        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
 
-        final RefundReceived intRefundReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrVoidSaleReceived()
+        final RefundReceived intRefundReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(RefundReceived.class::isInstance)
             .map(RefundReceived.class::cast)

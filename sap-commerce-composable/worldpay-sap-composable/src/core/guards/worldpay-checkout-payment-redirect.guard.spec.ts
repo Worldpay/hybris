@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { WorldpayOrderService } from '../services';
-import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
-import { WorldpayCheckoutPaymentRedirectGuard } from './worldpay-checkout-payment-redirect.guard';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
-import { take } from 'rxjs/operators';
+import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable, of, throwError } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { WorldpayPlacedOrderStatus } from '../interfaces';
+import { WorldpayOrderService } from '../services';
+import { WorldpayCheckoutPaymentRedirectGuard } from './worldpay-checkout-payment-redirect.guard';
 import createSpy = jasmine.createSpy;
 
 class MockGlobalMessageService implements Partial<GlobalMessageService> {
@@ -29,7 +29,7 @@ class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
   };
 
   clearLoading() {
-    
+
   }
 }
 
@@ -184,6 +184,28 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
     expect(worldpayOrderService.placeRedirectOrder).not.toHaveBeenCalled();
   });
 
+  it('should redirect to Checkout Payment Details page and show error message if paymentStatus is REFUSED', () => {
+    pathSpy.and.returnValue('checkoutPaymentDetails');
+    spyOn(worldpayOrderService, 'placeRedirectOrder').and.callThrough();
+    const activatedRouteWithParams = {
+      queryParams: {
+        paymentStatus: 'REFUSED'
+      },
+    } as unknown as ActivatedRouteSnapshot;
+
+    guard.canActivate(activatedRouteWithParams).pipe(take(1))
+      .subscribe((val) => {
+        expect(val).toEqual(router.parseUrl(semanticPathService.get('checkoutPaymentDetails')));
+      });
+
+    expect(globalMessageService.add).toHaveBeenCalledWith(
+      { key: 'checkoutReview.redirectPaymentRejected' },
+      GlobalMessageType.MSG_TYPE_ERROR
+    );
+
+    expect(worldpayOrderService.placeRedirectOrder).not.toHaveBeenCalled();
+  });
+
   describe('should call Place Bank Transfer Redirect Order when orderId queryParam is found', () => {
     let spyRedirectOrder;
     beforeEach(() => {
@@ -222,5 +244,30 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
 
       expect(worldpayOrderService.placeBankTransferRedirectOrder).toHaveBeenCalledWith('0001');
     });
+
+    it('should redirect to order confirmation page on timeout', () => {
+      spyOn(worldpayOrderService, 'placeRedirectOrder').and.returnValue(throwError(() => 'timeout'));
+      const result$ = guard['placeRedirectOrder']();
+      result$.pipe(take(1)).subscribe((result) => {
+        expect(result).toEqual(router.parseUrl(semanticPathService.get('orderConfirmation')));
+      });
+    });
+  });
+
+  it('should clear loading and redirect to checkout payment details page when default case is hit', () => {
+    spyOn(worldpayOrderService, 'clearLoading');
+    pathSpy.and.returnValue('checkoutPaymentDetails');
+    const activatedRouteWithParams = {
+      queryParams: {
+        unknownParam: 'unknown'
+      },
+    } as unknown as ActivatedRouteSnapshot;
+
+    guard.canActivate(activatedRouteWithParams).pipe(take(1))
+      .subscribe((val) => {
+        expect(val).toEqual(router.parseUrl(semanticPathService.get('checkoutPaymentDetails')));
+      });
+
+    expect(worldpayOrderService.clearLoading).toHaveBeenCalled();
   });
 });

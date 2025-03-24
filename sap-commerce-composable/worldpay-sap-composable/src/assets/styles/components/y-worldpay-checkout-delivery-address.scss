@@ -1,0 +1,15 @@
+y-worldpay-checkout-delivery-address {
+  @extend %cx-delivery-address !optional;
+
+  y-worldpay-address-form {
+    @include media-breakpoint-down(md) {
+      background-color: var(--cx-color-transparent);
+    }
+
+    form {
+      margin-bottom: 0;
+      padding: 13px 0;
+      background-color: var(--cx-color-transparent);
+    }
+  }
+}

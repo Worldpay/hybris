@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { GlobalMessageService, GlobalMessageType } from '@spartacus/core';
-import { WorldpayCheckoutPaymentRedirectFailureGuard } from './worldpay-checkout-payment-redirect-failure.guard';
-import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { TypeOfReason, WorldpayCheckoutPaymentRedirectFailureGuard } from './worldpay-checkout-payment-redirect-failure.guard';
 import createSpy = jasmine.createSpy;
 
 const drop = new Subject();
@@ -48,4 +48,8 @@ describe('WorldpayCheckoutPaymentRedirectFailureGuard', () => {
     expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.redirectPaymentFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
   });
 
+  it('should return null for unknown reason', () => {
+    const result = service['getReasonMessageKey']('unknown' as TypeOfReason);
+    expect(result).toBeNull();
+  });
 });

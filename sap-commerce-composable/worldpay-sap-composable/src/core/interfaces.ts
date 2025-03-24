@@ -27,6 +27,8 @@ export interface GooglePayMerchantConfiguration {
   gatewayMerchantId?: string;
   merchantId?: string;
   merchantName?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clientSettings?: any;
 }
 
 export interface GooglePayPaymentRequest {
@@ -159,8 +161,14 @@ declare module '@spartacus/cart/base/root' {
   }
 
   enum CartOutlets {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     WORLDPAY_CART_ITEM_LIST = 'y-worldpay-cart-item-list',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     WORLDPAY_ITEM = 'y-worldpay-cart-item',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     WORLDPAY_LIST_ITEM = 'y-worldpay-cart-item-list-row',
   }
 }
