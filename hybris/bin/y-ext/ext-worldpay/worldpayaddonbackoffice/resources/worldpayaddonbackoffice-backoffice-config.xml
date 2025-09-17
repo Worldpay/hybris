@@ -382,7 +382,7 @@
                         <editorArea:attribute qualifier="enableLevel3"/>
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.paypalssl.section">
-                        <editorArea:attribute qualifier="paypalsslIntent"/>
+                        <editorArea:attribute qualifier="paypalSSLIntent"/>
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.ee.section">
                         <editorArea:attribute qualifier="enableEE"/>
