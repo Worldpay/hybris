@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Mar 24 09:37:28 GMT 2025
-version.api=2211
-vendor=hybris
-group.id=de.hybris.platform
-name=worldpayhac
+#Thu Oct 09 13:13:20 GMT 2025
+builddate=20251009 1313
 description=worldpayhac
-builddate=20250324 0937
-releasedate=20241129 0309
-version=2211.32
+group.id=de.hybris.platform
 module.name=platform-module
+name=worldpayhac
+releasedate=20250806 1317
+vendor=hybris
+version=2211.43
+version.api=2211

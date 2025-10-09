@@ -40,9 +40,4 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Removed SOFORT as APM
-- Updated SAP Commerce version to 2211.32
-- Updated SAP Composable Storefront version to 2211.32
-- Added Exemption Engine Feature
-- Added EFTPOS Feature
-
+- Updated SAP Commerce version to 2211.43
