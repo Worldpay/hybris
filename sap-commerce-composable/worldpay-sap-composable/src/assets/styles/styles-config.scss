@@ -1,8 +1,9 @@
-$styleVersion: 2211 !default;
+$useLatestStyles: true;
 
-@import "@spartacus/styles/scss/versioning";
-@import "@spartacus/styles/scss/features";
-@import "@spartacus/styles/scss/mixins";
-@import "@spartacus/checkout";
+@import "./mixins";
+@import "@spartacus/asm";
 @import "@spartacus/cart";
+@import "@spartacus/checkout";
 @import "@spartacus/order";
+@import "@spartacus/product";
+@import "@spartacus/user";

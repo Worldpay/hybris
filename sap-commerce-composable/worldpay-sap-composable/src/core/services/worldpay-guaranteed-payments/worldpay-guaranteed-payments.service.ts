@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { EventService, Query, QueryService, QueryState, WindowRef } from '@spartacus/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { WorldpayGuaranteedPaymentsConnector } from '../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
+import { WorldpayGuaranteedPaymentsConnector } from 'worldpay-sap-composable-connectors';
+import { WorldpayGuaranteedPaymentsFacade } from 'worldpay-sap-composable-facade';
+import { LoadScriptService } from 'worldpay-sap-composable-utils';
 import { SetGuaranteedPaymentsEnabledEvent, SetGuaranteedPaymentsSessionIdEvent } from '../../events/worldpay.events';
-import { WorldpayGuaranteedPaymentsFacade } from '../../facade/worldpay-guaranteed-payments.facade';
-import { LoadScriptService } from '../../utils/load-script.service';
 
 @Injectable({
   providedIn: 'root'
@@ -126,7 +126,7 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
    */
   getSessionIdEvent(): Observable<string> {
     return this.eventService.get(SetGuaranteedPaymentsSessionIdEvent).pipe(
-      map((event: SetGuaranteedPaymentsSessionIdEvent): string => event.sessionId || '')
+      map((event: SetGuaranteedPaymentsSessionIdEvent): string => event.sessionId)
     );
   }
 

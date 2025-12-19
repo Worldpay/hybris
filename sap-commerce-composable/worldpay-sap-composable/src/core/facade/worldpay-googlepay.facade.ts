@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { facadeFactory } from '@spartacus/core';
-import { WORLDPAY_GOOGLE_PAY_FEATURE } from './worldpay-feature-name';
-import { GooglePayMerchantConfiguration, GooglepayPaymentRequest, GooglePayPaymentRequest } from '../interfaces';
 import { Observable } from 'rxjs';
-import { Cart } from '@spartacus/cart/base/root';
+import { GooglePayMerchantConfiguration, GooglePayPaymentRequest } from '../interfaces';
+import { WORLDPAY_GOOGLE_PAY_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayGooglepayFacade =>
     facadeFactory({
       facade: WorldpayGooglepayFacade,
       feature: WORLDPAY_GOOGLE_PAY_FEATURE,
@@ -16,8 +15,6 @@ import { Cart } from '@spartacus/cart/base/root';
         'getMerchantConfigurationFromState',
         'requestMerchantConfiguration',
         'authoriseOrder',
-        'createInitialPaymentRequest',
-        'createFullPaymentRequest'
       ],
     }),
 })
@@ -47,18 +44,4 @@ export abstract class WorldpayGooglepayFacade {
    * @param savePaymentMethod
    */
   abstract authoriseOrder(paymentRequest: GooglePayPaymentRequest, savePaymentMethod: boolean): void;
-
-  /**
-   * Create Initial Payment Request
-   * @param merchantConfiguration
-   */
-  abstract createInitialPaymentRequest(merchantConfiguration: GooglePayMerchantConfiguration): GooglepayPaymentRequest;
-
-  /**
-   * Create Full Payment Request
-   * @since 6.4.0
-   * @param merchantConfiguration
-   * @param cart
-   */
-  abstract createFullPaymentRequest(merchantConfiguration: GooglePayMerchantConfiguration, cart: Cart): GooglepayPaymentRequest;
 }

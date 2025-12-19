@@ -1,18 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { WorldpayFraudsightFacade } from '../../facade/worldpay-fraudsight.facade';
 import { EventService, Query, QueryService, QueryState } from '@spartacus/core';
-import { WorldpayFraudsightConnector } from '../../connectors/worldpay-fraudsight/worldpay-fraudsight.connector';
-import { SetFraudSightEnabledEvent, SetFraudSightIdEvent } from '../../events/worldpay.events';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { WorldpayFraudsightConnector } from 'worldpay-sap-composable-connectors';
+import { WorldpayFraudsightFacade } from 'worldpay-sap-composable-facade';
+import { SetFraudSightEnabledEvent, SetFraudSightIdEvent } from '../../events/worldpay.events';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
-
-  // Fraud Sight
-  private fraudSightId$: BehaviorSubject<string> = new BehaviorSubject('');
 
   /**
    * Command used to get FraudSight status
@@ -21,8 +18,10 @@ export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
    */
   protected getIsFraudSightEnabledQuery$: Query<boolean> =
     this.queryService.create<boolean>(
-      () => this.worldpayFraudsightConnector.isFraudSightEnabled(),
+      (): Observable<boolean> => this.worldpayFraudsightConnector.isFraudSightEnabled(),
     );
+  // Fraud Sight
+  private fraudSightId$: BehaviorSubject<string> = new BehaviorSubject('');
 
   /**
    * Constructor
@@ -70,7 +69,7 @@ export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
    */
   isFraudSightEnabledFromState(): Observable<boolean> {
     return this.isFraudSightEnabled().pipe(
-      map((state: QueryState<boolean>) => state.data)
+      map((state: QueryState<boolean>): boolean => state.data)
     );
   }
 

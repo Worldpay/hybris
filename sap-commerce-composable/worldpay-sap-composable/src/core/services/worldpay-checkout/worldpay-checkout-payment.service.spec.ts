@@ -1,38 +1,32 @@
-import createSpy = jasmine.createSpy;
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 import { inject, TestBed } from '@angular/core/testing';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade } from '@spartacus/checkout/base/root';
-import { Address, EventService, PaymentDetails, UserIdService } from '@spartacus/core';
-import { Observable, of } from 'rxjs';
-import { WorldpayCheckoutPaymentAdapter } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
-import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
+import { Address, EventService, LoggerService, PaymentDetails, UserIdService } from '@spartacus/core';
+import { Observable, of, throwError } from 'rxjs';
+import { WorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
+import { ThreeDsChallengeIframeUrlSetEvent, ThreeDsDDCIframeUrlSetEvent } from 'worldpay-sap-composable-events';
+import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
 import { WorldpayAdapter } from '../../connectors/worldpay.adapter';
-import { WorldpayConnector } from '../../connectors/worldpay.connector';
-import { ThreeDsChallengeIframeUrlSetEvent, ThreeDsDDCIframeUrlSetEvent } from '../../events/checkout-payment.events';
-import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
 import { PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
 import { WorldpayCheckoutPaymentService } from './worldpay-checkout-payment.service';
+import createSpy = jasmine.createSpy;
 
 describe('WorldpayCheckoutPaymentService', () => {
   let service: WorldpayCheckoutPaymentService;
-  let userIdService: UserIdService;
-  let activeCartService: ActiveCartFacade;
   let sanitizer: DomSanitizer;
-  let router: Router;
-  let platformLocation: PlatformLocation;
   let checkoutQueryFacade: CheckoutQueryFacade;
   let checkoutPaymentConnector: WorldpayCheckoutPaymentConnector;
   let worldpayConnector: WorldpayConnector;
   let worldpayACHFacade: WorldpayACHFacade;
   let eventService: EventService;
-  let eventServiceSpy: jasmine.Spy;
-  const userId: string = 'testUserId';
-  const cartId: string = 'testCartId';
+  const userId = 'testUserId';
+  const cartId = 'testCartId';
+  let logger: LoggerService;
 
   class ActiveCartServiceStub {
     cartId = cartId;
@@ -52,6 +46,12 @@ describe('WorldpayCheckoutPaymentService', () => {
 
   class MockPlatformLocation implements Partial<PlatformLocation> {
     getBaseHrefFromDOM = createSpy('getBaseHrefFromDOM').and.returnValue('/spartacus/');
+
+    onPopState = createSpy('onPopState').and.returnValue(() => {
+    });
+
+    onHashChange = createSpy('onHashChange').and.returnValue(() => {
+    });
   }
 
   class MockWorldpayAdapter implements Partial<WorldpayAdapter> {
@@ -97,11 +97,15 @@ describe('WorldpayCheckoutPaymentService', () => {
     TestBed.configureTestingModule({
       imports: [
         StoreModule.forRoot({}),
-        RouterTestingModule,
+        RouterLink,
       ],
       providers: [
         WorldpayCheckoutPaymentService,
         EventService,
+        {
+          provide: ActivatedRoute,
+          useClass: MockActivatedRoute
+        },
         {
           provide: PlatformLocation,
           useClass: MockPlatformLocation
@@ -131,32 +135,29 @@ describe('WorldpayCheckoutPaymentService', () => {
         {
           provide: WorldpayAdapter,
           useClass: MockWorldpayAdapter
-        }
+        },
+        LoggerService,
       ]
     });
 
     service = TestBed.inject(WorldpayCheckoutPaymentService);
     checkoutQueryFacade = TestBed.inject(CheckoutQueryFacade);
-    activeCartService = TestBed.inject(ActiveCartFacade);
-    userIdService = TestBed.inject(UserIdService);
     sanitizer = TestBed.inject(DomSanitizer);
-    router = TestBed.inject(Router);
     checkoutPaymentConnector = TestBed.inject(WorldpayCheckoutPaymentConnector);
     worldpayConnector = TestBed.inject(WorldpayConnector);
     eventService = TestBed.inject(EventService);
     worldpayACHFacade = TestBed.inject(WorldpayACHFacade);
-
+    logger = TestBed.inject(LoggerService);
     window['Worldpay'] = {
       encrypt: () => 'dummyCseToken',
       setPublicKey: () => {
       }
     };
     spyOn(service, 'getPublicKeyFromState').and.returnValue(of('pk'));
-    spyOn(service, 'generatePublicKey').and.callThrough();
     spyOn(service, 'generateCseToken').and.returnValue('dummyCseToken');
     spyOn(service, 'setCseToken').and.callThrough();
     spyOn(checkoutPaymentConnector, 'createWorldpayPaymentDetails').and.callThrough();
-    eventServiceSpy = spyOn(eventService, 'dispatch').and.stub();
+    spyOn(eventService, 'dispatch').and.callThrough();
   });
 
   it('should inject WorldpayCheckoutPaymentService', inject(
@@ -167,6 +168,7 @@ describe('WorldpayCheckoutPaymentService', () => {
   ));
 
   it('should be able to create payment details', () => {
+    spyOn(service, 'generatePublicKey').and.callThrough();
     service.createPaymentDetails(paymentDetails).subscribe(response => response).unsubscribe();
 
     expect(service.generatePublicKey).toHaveBeenCalled();
@@ -186,7 +188,7 @@ describe('WorldpayCheckoutPaymentService', () => {
 
   it('should be able to use existing payment details', () => {
     spyOn(checkoutPaymentConnector, 'useExistingPaymentDetails').and.callThrough();
-    service.useExistingPaymentDetails(paymentDetails);
+    service.useExistingPaymentDetails(paymentDetails).subscribe().unsubscribe();
     expect(checkoutPaymentConnector.useExistingPaymentDetails).toHaveBeenCalledWith(userId, cartId, paymentDetails);
     checkoutPaymentConnector.useExistingPaymentDetails(userId, cartId, paymentDetails).subscribe(response => response).unsubscribe();
     expect(eventService.dispatch).toHaveBeenCalledWith(
@@ -209,6 +211,7 @@ describe('WorldpayCheckoutPaymentService', () => {
   });
 
   it('should get the 3ds DDC iframe url', () => {
+    spyOn(sanitizer, 'bypassSecurityTrustResourceUrl').and.callThrough();
     const ddcUrl = '/ddc-iframe/action';
     const cardNumber = '4444333322221111';
     const jwt = 'some jwt data';
@@ -219,6 +222,7 @@ describe('WorldpayCheckoutPaymentService', () => {
     });
 
     service.setThreeDsDDCIframeUrl(ddcUrl, cardNumber, jwt);
+    expect(sanitizer.bypassSecurityTrustResourceUrl).toHaveBeenCalledWith(url);
     expect(eventService.dispatch).toHaveBeenCalledWith(
       { threeDsDDCIframeUrl: '/spartacus/worldpay-3ds-device-detection?action=%2Fddc-iframe%2Faction&bin=4444333322221111&jwt=some%20jwt%20data' },
       ThreeDsDDCIframeUrlSetEvent
@@ -227,6 +231,7 @@ describe('WorldpayCheckoutPaymentService', () => {
 
   it('should get the 3ds challenge iframe url', () => {
     spyOn(service, 'setThreeDsChallengeIframeUrl').and.callThrough();
+    spyOn(sanitizer, 'bypassSecurityTrustResourceUrl').and.callThrough();
     const challengeUrl = '/challenge-iframe/action';
     const merchantData = '111020020219';
     const jwt = 'some jwt data';
@@ -237,6 +242,7 @@ describe('WorldpayCheckoutPaymentService', () => {
     });
 
     service.setThreeDsChallengeIframeUrl(challengeUrl, jwt, merchantData);
+    expect(sanitizer.bypassSecurityTrustResourceUrl).toHaveBeenCalledWith(url);
     expect(eventService.dispatch).toHaveBeenCalledWith(
       { worldpayChallengeIframeUrl: '/spartacus/worldpay-3ds-challenge?action=%2Fchallenge-iframe%2Faction&md=111020020219&jwt=some%20jwt%20data' },
       ThreeDsChallengeIframeUrlSetEvent
@@ -308,5 +314,16 @@ describe('WorldpayCheckoutPaymentService', () => {
     });
   });
 
+  it('should log an error when generatePublicKey fails', () => {
+    const mockError = new Error('Public key generation failed');
+    spyOn(logger, 'error');
+    spyOn(service, 'generatePublicKey').and.returnValue(throwError(() => mockError));
+
+    service.generatePublicKey().subscribe({
+      error: (error) => logger.error('Failed obtaining public key', { error }),
+    });
+
+    expect(logger.error).toHaveBeenCalledWith('Failed obtaining public key', { error: mockError });
+  });
 });
 

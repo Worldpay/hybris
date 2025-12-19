@@ -6,6 +6,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { WorldpayAdapter } from '../connectors/worldpay.adapter';
 import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
+import { getHeadersForUserId } from './adapters/occ-worldpay.utils';
 
 @Injectable()
 export class OccWorldpayAdapter implements WorldpayAdapter {
@@ -36,8 +37,7 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
     address: Address
   ): Observable<Address> {
 
-    // eslint-disable-next-line @typescript-eslint/typedef
-    const body = {
+    const body: Address = {
       ...address,
       visibleInAddressBook: false,
     };
@@ -68,8 +68,16 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
     deviceSession: string,
     browserInfo: BrowserInfo
   ): Observable<PlaceOrderResponse> {
-    // eslint-disable-next-line @typescript-eslint/typedef
-    const body = {
+    interface Body extends PaymentDetails {
+      challengeWindowSize: string;
+      dfReferenceId: string;
+      cseToken: string;
+      acceptedTermsAndConditions: boolean;
+      deviceSession: string;
+      browserInfo: BrowserInfo;
+    }
+
+    const body: Body = {
       ...paymentDetails,
       challengeWindowSize,
       dfReferenceId,
@@ -115,6 +123,32 @@ export class OccWorldpayAdapter implements WorldpayAdapter {
     );
     return this.http.get(url).pipe(
       catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
+    );
+  }
+
+  /**
+   * Updates the delivery address for the specified user and cart.
+   *
+   * @param {string} userId - The ID of the user.
+   * @param {string} cartId - The ID of the cart.
+   * @param {string} addressId - The ID of the address to set as the delivery address.
+   * @returns {Observable<Address>} An observable that emits the updated delivery address.
+   * @since 2211.43.0
+   */
+  setDeliveryAddressAsBillingAddress(userId: string, cartId: string, addressId: string): Observable<Address> {
+    return this.http.put<Address>(
+      this.occEndpoints.buildUrl('setDeliveryAddress', {
+        urlParams: {
+          userId,
+          cartId
+        },
+        queryParams: {
+          addressId
+        }
+      }),
+      {
+        headers: getHeadersForUserId(userId),
+      }
     );
   }
 }

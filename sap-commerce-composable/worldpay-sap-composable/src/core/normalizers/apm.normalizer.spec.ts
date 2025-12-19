@@ -19,7 +19,6 @@ const MockOccModuleConfig = {
 describe('ApmNormalizerService', () => {
   let service: ApmNormalizer;
   let source: OccApmData;
-  let occConfig: OccConfig;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -31,7 +30,6 @@ describe('ApmNormalizerService', () => {
       ]
     });
     service = TestBed.inject(ApmNormalizer);
-    occConfig = TestBed.inject(OccConfig);
     source = {
       apmConfiguration: {
         code: PaymentMethod.iDeal,
@@ -63,7 +61,7 @@ describe('ApmNormalizerService', () => {
     expect(target.code).toEqual(PaymentMethod.iDeal);
     expect(target.name).toEqual('iDeal');
 
-    const image: Image = target.media.mobile;
+    const image: Image = target.media['mobile'];
     expect(image).not.toBeNull();
     expect(image.url).toEqual('https://localhost:9002/media/blob');
     expect(image.altText).toEqual('iDeal');

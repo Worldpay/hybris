@@ -4,13 +4,14 @@ import { ActiveCartService } from '@spartacus/cart/base/core';
 import { Cart } from '@spartacus/cart/base/root';
 import { GlobalMessageService, GlobalMessageType, HttpErrorModel, LoggerService, QueryState, User, UserIdService } from '@spartacus/core';
 import { UserAccountService } from '@spartacus/user/account/core';
-import { WorldpayGuaranteedPaymentsService } from '@worldpay-services/worldpay-guaranteed-payments/worldpay-guaranteed-payments.service';
 import { combineLatest, Observable } from 'rxjs';
 import { concatMap, distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { WorldpayGuaranteedPaymentsService } from 'worldpay-sap-composable-services';
 
 @Component({
   selector: 'worldpay-guaranteed-payments',
   template: '',
+  standalone: false
 })
 export class WorldpayGuaranteedPaymentsComponent implements OnInit {
 

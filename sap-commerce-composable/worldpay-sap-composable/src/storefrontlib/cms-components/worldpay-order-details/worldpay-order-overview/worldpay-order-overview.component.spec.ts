@@ -2,11 +2,13 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DeliveryMode } from '@spartacus/cart/base/root';
 import { Address, CmsOrderDetailOverviewComponent, I18nTestingModule, PaymentDetails, TranslationService, } from '@spartacus/core';
 import { OrderDetailsService, OrderOverviewComponentService } from '@spartacus/order/components';
-import { Order, ReplenishmentOrder } from '@spartacus/order/root';
+import { Order, OrderConfig, ReplenishmentOrder } from '@spartacus/order/root';
 import { CmsComponentData } from '@spartacus/storefront';
-import { MockCxCardComponent } from '@worldpay-tests/components';
-import { EMPTY, Observable, of } from 'rxjs';
-import { WorldpayOrderOverviewComponent } from './worldpay-order-overview.component';
+import { Observable, of } from 'rxjs';
+import { WorldpayOrderOverviewComponent } from 'worldpay-sap-composable-components';
+import { MockCxCardComponent, MockTranslationService, MockUrlPipe } from 'worldpay-sap-composable-tests';
+
+const mockOrderConfig: OrderConfig = { showOrderQuoteLink: true };
 
 const mockDeliveryAddress: Address = {
   firstName: 'John',
@@ -102,12 +104,6 @@ const mockOrder: Order = {
 const mockUnformattedAddress = 'test1, , test3, test4';
 const mockFormattedAddress = 'test1, test2, test3, test4';
 
-class MockTranslationService {
-  translate(): Observable<string> {
-    return EMPTY;
-  }
-}
-
 class MockOrderDetailsService {
   isOrderDetailsLoading(): Observable<boolean> {
     return of(false);
@@ -137,16 +133,12 @@ describe('WorldpayOrderOverviewComponent', () => {
   let fixture: ComponentFixture<WorldpayOrderOverviewComponent>;
   let translationService: TranslationService;
   let orderDetailsService: OrderDetailsService;
-  let componentService: OrderOverviewComponentService;
 
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
         imports: [I18nTestingModule],
-        declarations: [
-          WorldpayOrderOverviewComponent,
-          MockCxCardComponent
-        ],
+        declarations: [WorldpayOrderOverviewComponent, MockCxCardComponent, MockUrlPipe],
         providers: [
           {
             provide: TranslationService,
@@ -164,6 +156,10 @@ describe('WorldpayOrderOverviewComponent', () => {
             provide: CmsComponentData,
             useValue: MockCmsComponentData
           },
+          {
+            provide: OrderConfig,
+            useValue: mockOrderConfig
+          },
         ],
       }).compileComponents();
     })
@@ -174,7 +170,6 @@ describe('WorldpayOrderOverviewComponent', () => {
     component = fixture.componentInstance;
     translationService = TestBed.inject(TranslationService);
     orderDetailsService = TestBed.inject(OrderDetailsService);
-    componentService = TestBed.inject(OrderOverviewComponentService);
   });
 
   it('should create', () => {
@@ -325,8 +320,6 @@ describe('WorldpayOrderOverviewComponent', () => {
           expect(data.text).toEqual([date]);
         })
         .unsubscribe();
-
-      expect(component.getOrderCurrentDateCardContent).toHaveBeenCalled();
     });
 
     it('should call getOrderStatusCardContent(status: string)', () => {
@@ -753,13 +746,14 @@ describe('WorldpayOrderOverviewComponent', () => {
       };
       spyOn(translationService, 'translate').and.returnValue(of('Delivery Method'));
 
-      component.getDeliveryModeCard(mockDeliveryMode).subscribe((card) => {
-        expect(card.title).toBe('Delivery Method');
-        expect(card.textBold).toBe(mockDeliveryMode.name);
-        expect(card.text).toEqual([mockDeliveryMode.description, mockDeliveryMode.deliveryCost.formattedValue]);
-        doneFn();
+      component.getDeliveryModeCard(mockDeliveryMode).subscribe({
+        next: (card) => {
+          expect(card.title).toBe('Delivery Method');
+          expect(card.textBold).toBe(mockDeliveryMode.name);
+          expect(card.text).toEqual([mockDeliveryMode.description, mockDeliveryMode.deliveryCost.formattedValue]);
+          doneFn();
+        }
       });
     });
   });
-
 });

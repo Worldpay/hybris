@@ -1,7 +1,7 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
+import { OccConfig, OccEndpointsService } from '@spartacus/core';
 import { OccWorldpayGuaranteedPaymentsAdapter } from './occ-worldpay-guaranteed-payments.adapter';
 
 const MockOccModuleConfig: OccConfig = {
@@ -26,12 +26,11 @@ class MockOccEndpointsService {
 describe('OccWorldpayGuaranteedPaymentsAdapter', () => {
   let service: OccWorldpayGuaranteedPaymentsAdapter;
   let httpMock: HttpTestingController;
-  let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayGuaranteedPaymentsAdapter,
         {
@@ -42,12 +41,13 @@ describe('OccWorldpayGuaranteedPaymentsAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
     service = TestBed.inject(OccWorldpayGuaranteedPaymentsAdapter);
     httpMock = TestBed.inject(HttpTestingController);
-    converter = TestBed.inject(ConverterService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
   });

@@ -4,6 +4,7 @@ import { AuthService, I18nTestingModule, RoutingService, } from '@spartacus/core
 import { FormErrorsModule, PasswordVisibilityToggleModule, } from '@spartacus/storefront';
 import { UserRegisterFacade } from '@spartacus/user/profile/root';
 import { of } from 'rxjs';
+import { MockRoutingService } from 'worldpay-sap-composable-tests';
 import { WorldpayOrderGuestRegisterFormComponent } from './worldpay-order-guest-register-form.component';
 import createSpy = jasmine.createSpy;
 
@@ -13,10 +14,6 @@ class MockAuthService implements Partial<AuthService> {
 
 class MockUserRegisterFacade implements Partial<UserRegisterFacade> {
   registerGuest = createSpy();
-}
-
-class MockRoutingService implements Partial<RoutingService> {
-  go = jasmine.createSpy('go');
 }
 
 describe('WorldpayOrderGuestRegisterFormComponent', () => {

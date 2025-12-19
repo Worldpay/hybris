@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { I18nTestingModule, PaymentDetails, TranslationService } from '@spartacus/core';
 import { OrderDetailsService } from '@spartacus/order/components';
 import { Order } from '@spartacus/order/root';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { WorldpayOrderDetailsBillingComponent } from './worldpay-order-details-billing.component';
 
 const mockPaymentDetails: PaymentDetails = {
@@ -49,17 +49,10 @@ class MockOrderDetailsService {
   }
 }
 
-class MockTranslationService {
-  translate(text: string): Observable<string> {
-    return of(text);
-  }
-}
-
 describe('OrderDetailsBillingComponent', () => {
   let component: WorldpayOrderDetailsBillingComponent;
   let fixture: ComponentFixture<WorldpayOrderDetailsBillingComponent>;
   let translationService: TranslationService;
-  let orderDetailsService: OrderDetailsService;
 
   beforeEach(
     waitForAsync(() => {
@@ -82,7 +75,6 @@ describe('OrderDetailsBillingComponent', () => {
     fixture = TestBed.createComponent(WorldpayOrderDetailsBillingComponent);
     component = fixture.componentInstance;
     translationService = TestBed.inject(TranslationService);
-    orderDetailsService = TestBed.inject(OrderDetailsService);
   });
 
   it('should create', () => {

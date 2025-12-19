@@ -1,10 +1,11 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WorldpayOrderOverviewComponent } from './worldpay-order-overview/worldpay-order-overview.component';
-import { AuthGuard, CmsConfig, FeaturesConfig, FeaturesConfigModule, I18nModule, provideConfig } from '@spartacus/core';
+import { NgModule } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthGuard, CmsConfig, FeaturesConfigModule, I18nModule, provideConfig, UrlModule } from '@spartacus/core';
 import { OrderDetailActionsComponent, OrderDetailItemsComponent, OrderDetailReorderComponent, OrderDetailsModule, OrderDetailTotalsComponent } from '@spartacus/order/components';
 import { CardModule, OutletModule, SpinnerModule } from '@spartacus/storefront';
 import { WorldpayOrderDetailsBillingComponent } from './worldpay-order-details-billing/worldpay-order-details-billing.component';
+import { WorldpayOrderOverviewComponent } from './worldpay-order-overview/worldpay-order-overview.component';
 
 @NgModule({
   declarations: [
@@ -18,10 +19,12 @@ import { WorldpayOrderDetailsBillingComponent } from './worldpay-order-details-b
     I18nModule,
     OrderDetailsModule,
     FeaturesConfigModule,
-    SpinnerModule
+    SpinnerModule,
+    RouterLink,
+    UrlModule
   ],
   providers: [
-    provideConfig(<CmsConfig | FeaturesConfig>{
+    provideConfig(<CmsConfig>{
       cmsComponents: {
         AccountOrderDetailsActionsComponent: {
           component: OrderDetailActionsComponent,
@@ -61,9 +64,6 @@ import { WorldpayOrderDetailsBillingComponent } from './worldpay-order-details-b
           component: OrderDetailReorderComponent,
           guards: [AuthGuard],
         },
-      },
-      features: {
-        consignmentTracking: '1.2',
       },
     }),
   ],

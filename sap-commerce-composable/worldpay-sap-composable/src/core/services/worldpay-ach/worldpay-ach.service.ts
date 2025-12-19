@@ -3,10 +3,10 @@ import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { EventService, OCC_USER_ID_ANONYMOUS, Query, QueryService, QueryState, UserIdService } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
-import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
-import { ClearWorldpayACHPaymentFormEvent } from '../../events';
-import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
-import { ACHBankAccountType, ACHPaymentForm, ACHPaymentFormRaw, ApmData } from '../../interfaces';
+import { WorldpayACHConnector } from 'worldpay-sap-composable-connectors';
+import { ClearWorldpayACHPaymentFormEvent } from 'worldpay-sap-composable-events';
+import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { AccountTypes, ACHPaymentForm, ACHPaymentFormRaw } from '../../interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -19,10 +19,10 @@ export class WorldpayACHService implements WorldpayACHFacade {
    * @params ACHBankAccountType[] - ACHBankAccountType[]
    * @returns Query<ApmData[]> - Query with ApmData[]
    */
-  protected getAvailableApmQuery$: Query<ACHBankAccountType[]> =
-    this.queryService.create<ApmData[]>(
-      (): Observable<ACHBankAccountType[]> => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]: [string, string]): Observable<ACHBankAccountType[]> =>
+  protected getAvailableApmQuery$: Query<AccountTypes> =
+    this.queryService.create<AccountTypes>(
+      (): Observable<AccountTypes> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<AccountTypes> =>
           this.worldpayACHConnector.getACHBankAccountTypes(userId, cartId)
         )
       )
@@ -68,7 +68,7 @@ export class WorldpayACHService implements WorldpayACHFacade {
    * @since 6.4.2
    * @returns - ACHBankAccountType as Observable
    */
-  getACHBankAccountTypesState(): Observable<QueryState<ACHBankAccountType[]>> {
+  getACHBankAccountTypesState(): Observable<QueryState<AccountTypes>> {
     return this.getAvailableApmQuery$.getState();
   }
 

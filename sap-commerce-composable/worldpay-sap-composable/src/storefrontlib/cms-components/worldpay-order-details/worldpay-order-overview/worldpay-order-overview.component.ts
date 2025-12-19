@@ -11,7 +11,8 @@ import { filter, map } from 'rxjs/operators';
 @Component({
   selector: 'y-worldpay-order-overview',
   templateUrl: './worldpay-order-overview.component.html',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
 
@@ -36,8 +37,12 @@ export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
       this.translation.translate('paymentForm.payment'),
       this.getPaymentDetailsLineTranslation(order),
     ]).pipe(
-      filter(() => Boolean(order)),
-      map(([textTitle, textExpires]: [string, string]): Card => ({
+      filter((): boolean => Boolean(order)),
+      map(([textTitle, textExpires]: [string, string]): {
+        title: string,
+        textBold: string | undefined,
+        text: string[]
+      } => ({
         title: textTitle,
         textBold: order?.paymentInfo?.accountHolderName,
         text: [order?.paymentInfo?.cardNumber, textExpires],

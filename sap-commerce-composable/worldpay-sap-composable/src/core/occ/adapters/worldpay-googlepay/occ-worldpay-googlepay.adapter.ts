@@ -67,8 +67,7 @@ export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
     billingAddress: any,
     saved: boolean
   ): Observable<PlaceOrderResponse> {
-    // eslint-disable-next-line @typescript-eslint/typedef
-    const body = {
+    const body: { token: any, billingAddress: any, saved: boolean } = {
       token,
       billingAddress,
       saved

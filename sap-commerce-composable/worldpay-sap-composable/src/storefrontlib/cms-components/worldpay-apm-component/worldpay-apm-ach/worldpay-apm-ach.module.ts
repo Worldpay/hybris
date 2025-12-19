@@ -1,11 +1,12 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WorldpayApmAchComponent } from './worldpay-apm-ach.component';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { I18nModule } from '@spartacus/core';
 import { FormErrorsModule, SpinnerModule } from '@spartacus/storefront';
-import { NgSelectModule } from '@ng-select/ng-select';
+import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
+import { WorldpayApmSubmitButtonsModule } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.module';
+import { WorldpayApmAchComponent } from './worldpay-apm-ach.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
     I18nModule,
     WorldpayBillingAddressModule,
     NgSelectModule,
-    SpinnerModule
+    SpinnerModule,
+    WorldpayApmSubmitButtonsModule
   ]
 })
 export class WorldpayApmAchModule {

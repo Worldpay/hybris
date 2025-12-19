@@ -1,6 +1,12 @@
-<div class="cx-order-summary" *ngIf="order$ | async as order">
+<div
+  *ngIf="order$ | async as order"
+  class="cx-order-summary"
+>
   <ng-container *ngIf="(isOrderLoading$ | async) !== true; else showSpinner">
-    <div *ngIf="!(simple$ | async)" class="container">
+    <div
+      *ngIf="!(simple$ | async)"
+      class="container"
+    >
       <ng-container *ngIf="order.replenishmentOrderCode; else otherOrder">
         <div class="cx-summary-card">
           <cx-card [content]="getReplenishmentCodeCardContent(order?.replenishmentOrderCode)| async"></cx-card>
@@ -15,14 +21,11 @@
 
           <cx-card [content]="getReplenishmentNextDateCardContent(order?.trigger?.activationTime | cxDate) | async"></cx-card>
 
-          <!-- TODO:(CXINT-2309) for next major release remove feature level -->
-          <ng-container *cxFeatureLevel="'6.4'">
-            <ng-template
-                    [cxOutlet]="cartOutlets.ORDER_OVERVIEW"
-                    [cxOutletContext]="{ item: order, readonly: true }"
-            >
-            </ng-template>
-          </ng-container>
+          <ng-template
+            [cxOutletContext]="{ item: order, readonly: true }"
+            [cxOutlet]="cartOutlets.ORDER_OVERVIEW"
+          >
+          </ng-template>
         </div>
       </ng-container>
 
@@ -34,14 +37,18 @@
 
           <cx-card [content]="getOrderStatusCardContent(order.statusDisplay) | async"></cx-card>
 
-          <!-- TODO:(CXINT-2309) for next major release remove feature level -->
-          <ng-container *cxFeatureLevel="'6.4'">
-            <ng-template
-                    [cxOutlet]="cartOutlets.ORDER_OVERVIEW"
-                    [cxOutletContext]="{ item: order, readonly: true }"
-            >
-            </ng-template>
-          </ng-container>
+          <ng-container
+            *ngTemplateOutlet="
+              showQuoteCode;
+              context: { sapQuoteCode: order.sapQuoteCode }
+            "
+          ></ng-container>
+
+          <ng-template
+            [cxOutletContext]="{ item: order, readonly: true }"
+            [cxOutlet]="cartOutlets.ORDER_OVERVIEW"
+          >
+          </ng-template>
         </div>
       </ng-template>
 
@@ -67,6 +74,12 @@
         </ng-container>
       </div>
 
+      <ng-template
+        [cxOutletContext]="{ item: order, readonly: true }"
+        [cxOutlet]="orderOutlets.SERVICE_DETAILS"
+      >
+      </ng-template>
+
       <ng-container *ngIf="order.paymentInfo">
         <div class="cx-summary-card">
           <cx-card [content]="getPaymentInfoCardContent(order) | async"></cx-card>
@@ -76,22 +89,29 @@
       </ng-container>
     </div>
 
-    <div *ngIf="simple$ | async" class="container">
+    <div
+      *ngIf="simple$ | async"
+      class="container"
+    >
       <div class="cx-order-details-cards">
-        <cx-card [content]="getOrderCodeCardContent(order?.code) | async"></cx-card>
+        <cx-card [content]="getOrderCodeCardContent(order?.code) | async" [attr.data-test-id]="'orderNumber'"></cx-card>
 
         <cx-card [content]="getOrderCurrentDateCardContent(order?.created | cxDate) | async"></cx-card>
 
         <cx-card [content]="getOrderStatusCardContent(order.statusDisplay) | async"></cx-card>
 
-        <!-- TODO:(CXINT-2309) for next major release remove feature level -->
-        <ng-container *cxFeatureLevel="'6.4'">
-          <ng-template
-                  [cxOutlet]="cartOutlets.ORDER_OVERVIEW"
-                  [cxOutletContext]="{ item: order, readonly: true }"
-          >
-          </ng-template>
-        </ng-container>
+        <ng-container
+          *ngTemplateOutlet="
+            showQuoteCode;
+            context: { sapQuoteCode: order.sapQuoteCode }
+          "
+        ></ng-container>
+
+        <ng-template
+          [cxOutletContext]="{ item: order, readonly: true }"
+          [cxOutlet]="cartOutlets.ORDER_OVERVIEW"
+        >
+        </ng-template>
       </div>
       <div class="cx-order-details-cards">
         <cx-card [content]="getDeliveryAddressCard(order.deliveryAddress) | async"></cx-card>
@@ -99,9 +119,34 @@
         <!-- DELIVERY MODE SECTION -->
         <cx-card [content]="getDeliveryModeCard(order.deliveryMode) | async"></cx-card>
       </div>
+
       <y-worldpay-order-detail-billing></y-worldpay-order-detail-billing>
     </div>
   </ng-container>
+
+  <ng-template
+    #showQuoteCode
+    let-quoteCode="sapQuoteCode"
+  >
+    <div
+      *ngIf="orderConfig.showOrderQuoteLink && quoteCode"
+      class="card-body cx-card-body"
+      id="quote-container"
+    >
+      <div class="cx-card-title">
+        {{ 'orderDetails.quoteCode' | cxTranslate: { id: quoteCode } }}
+      </div>
+      <a
+        [routerLink]="
+        { cxRoute: 'quoteDetails', params: { quoteId: quoteCode } } | cxUrl
+      "
+        class="cx-card-actions"
+      >
+        {{ 'orderDetails.quoteDetail' | cxTranslate }}
+      </a>
+    </div>
+  </ng-template>
+
   <ng-template #showSpinner>
     <div class="cx-order-details__spinner">
       <cx-spinner></cx-spinner>

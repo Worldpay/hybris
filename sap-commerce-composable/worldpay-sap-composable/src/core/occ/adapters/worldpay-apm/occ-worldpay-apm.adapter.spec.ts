@@ -1,13 +1,25 @@
-import { HttpClientModule, HttpHeaders } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpHeaders, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { Params } from '@angular/router';
+import { Address, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { mockUserId } from 'worldpay-sap-composable-tests';
 import { ApmPaymentDetails, PaymentMethod } from '../../../interfaces';
 import { OccWorldpayApmAdapter } from './occ-worldpay-apm.adapter';
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
 const orderId = '000001';
+const mockParamsError: Params = {
+  pending: 'true',
+  status: 'ERROR',
+  orderKey: 'E2Y^MERCHANT2ECOM^00000018-1761730288154',
+};
+const mockParams: Params = {
+  pending: 'true',
+  paymentStatus: 'AUTHORISED',
+  orderKey: 'E2Y^MERCHANT2ECOM^00000018-1761730288154',
+};
 const address: Address = {
   line1: 'The House',
   line2: 'The Road',
@@ -52,12 +64,11 @@ const errorResponse = {
 describe('OccWorldpayApmAdapter', () => {
   let service: OccWorldpayApmAdapter;
   let httpMock: HttpTestingController;
-  let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayApmAdapter,
         {
@@ -68,12 +79,13 @@ describe('OccWorldpayApmAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
     service = TestBed.inject(OccWorldpayApmAdapter);
     httpMock = TestBed.inject(HttpTestingController);
-    converter = TestBed.inject(ConverterService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
   });
@@ -208,7 +220,7 @@ describe('OccWorldpayApmAdapter', () => {
 
   describe('placeRedirectOrder', () => {
     it('should place redirect order successfully', () => {
-      service.placeRedirectOrder(userId, cartId).subscribe((order) => {
+      service.placeRedirectOrder(userId, cartId, mockParams).subscribe((order) => {
         expect(order).toBeTruthy();
       });
 
@@ -223,7 +235,7 @@ describe('OccWorldpayApmAdapter', () => {
 
     it('should handle error when placeRedirectOrder fails', () => {
 
-      service.placeRedirectOrder(userId, cartId).subscribe({
+      service.placeRedirectOrder(userId, cartId, mockParamsError).subscribe({
         error: (error) => {
           expect(error.status).toBe(500);
         }

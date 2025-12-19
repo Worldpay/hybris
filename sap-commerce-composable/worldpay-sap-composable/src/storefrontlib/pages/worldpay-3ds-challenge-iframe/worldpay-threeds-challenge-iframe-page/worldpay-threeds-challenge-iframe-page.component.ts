@@ -4,17 +4,18 @@ import { ActivatedRoute } from '@angular/router';
 import { LoggerService, WindowRef } from '@spartacus/core';
 
 @Component({
-  templateUrl: './worldpay-threeds-challenge-iframe-page.component.html'
+  templateUrl: './worldpay-threeds-challenge-iframe-page.component.html',
+  standalone: false
 })
 export class WorldpayThreedsChallengeIframePageComponent implements OnInit, AfterViewInit {
   action: SafeResourceUrl;
   md: string;
   jwt: string;
-  protected logger: LoggerService = inject(LoggerService);
   private readonly ACTION_ROUTE_PARAM: string = 'action';
   private readonly MD_ROUTE_PARAM: string = 'md';
   private readonly JWT_ROUTE_PARAM: string = 'jwt';
   private readonly FORM_SELECTOR: string = '#challengeForm';
+  private logger: LoggerService = inject(LoggerService);
 
   constructor(
     private sanitizer: DomSanitizer,

@@ -1,20 +1,19 @@
 import { ElementRef } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ActiveCartService } from '@spartacus/cart/base/core';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
-import { Address, EventService, GlobalMessageService, GlobalMessageType, I18nTestingModule, RoutingService, WindowRef } from '@spartacus/core';
+import { Address, EventService, GlobalMessageService, GlobalMessageType, I18nTestingModule, LoggerService, RoutingService, WindowRef } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { FormErrorsModule } from '@spartacus/storefront';
-import { MockWorldpayBillingAddressComponent } from '@worldpay-tests/components';
-import { MockActiveCartService } from '@worldpay-tests/services/active-cart.service.mock';
 import { EMPTY, Observable, of, throwError } from 'rxjs';
-import { GooglePayMerchantConfiguration, GooglePayPaymentRequest } from '../../../../core/interfaces';
-import { WorldpayCheckoutPaymentService, WorldpayGooglepayService, WorldpayOrderService } from '../../../../core/services';
+import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
+import { MockActiveCartService, MockGlobalMessageService, MockRoutingService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
+import { GooglePayMerchantConfiguration, GooglePayPaymentRequest } from 'worldpay-sap-core';
+import { WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService, WorldpayGooglepayService, WorldpayOrderService } from '../../../../core/services';
 import { LoadScriptService } from '../../../../core/utils';
+import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.component';
-import createSpy = jasmine.createSpy;
 
 const merchantConfig: GooglePayMerchantConfiguration = {
   allowedAuthMethods: [],
@@ -52,14 +51,14 @@ class MockWorldpayGooglepayService implements Partial<WorldpayGooglepayService> 
     return of(merchantConfig);
   }
 
-  createInitialPaymentRequest(merchantConfiguration): GooglePayPaymentRequest {
+  createInitialPaymentRequest(): GooglePayPaymentRequest {
     return {
       apiVersion: 2,
       apiVersionMinor: 0
     };
   }
 
-  createFullPaymentRequest(merchantConfiguration): GooglePayPaymentRequest {
+  createFullPaymentRequest(): GooglePayPaymentRequest {
     return {
       apiVersion: 2,
       apiVersionMinor: 0
@@ -69,14 +68,6 @@ class MockWorldpayGooglepayService implements Partial<WorldpayGooglepayService> 
   authoriseOrder(): Observable<unknown> {
     return EMPTY;
   }
-}
-
-class MockRoutingService implements Partial<RoutingService> {
-  go = createSpy().and.returnValue(of(true).toPromise());
-}
-
-class MockGlobalMessageService implements Partial<GlobalMessageService> {
-  add = createSpy().and.callThrough();
 }
 
 class MockCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentService> {
@@ -99,11 +90,10 @@ describe('WorldpayApmGooglepayComponent', () => {
   let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
   let worldpayOrderService: WorldpayOrderService;
   let globalMessageService: GlobalMessageService;
-  let activeCartService: ActiveCartService;
-  let billingAddressFromService: CheckoutBillingAddressFormService;
-  let mockWindowRef: WindowRef;
+  let billingAddressFromService: WorldpayBillingAddressFormService;
   let mockDocument: Document;
   let headElement: HTMLElement;
+  let logger: LoggerService;
 
   beforeEach(async () => {
     mockDocument = document.implementation.createHTMLDocument();
@@ -111,58 +101,63 @@ describe('WorldpayApmGooglepayComponent', () => {
     mockDocument.documentElement.appendChild(headElement);
 
     await TestBed.configureTestingModule({
-        declarations: [
-          WorldpayApmGooglepayComponent,
-          MockWorldpayBillingAddressComponent
-        ],
-        imports: [
-          I18nTestingModule,
-          FormErrorsModule,
-          ReactiveFormsModule,
-          NgSelectModule,
-        ],
-        providers: [
-          EventService,
-          CheckoutBillingAddressFormService,
-          WindowRef,
-          {
-            provide: RoutingService,
-            useClass: MockRoutingService
-          },
-          {
-            provide: GlobalMessageService,
-            useClass: MockGlobalMessageService
-          },
-          {
-            provide: WorldpayGooglepayService,
-            useClass: MockWorldpayGooglepayService
-          },
-          {
-            provide: WorldpayOrderService,
-            useClass: MockWorldpayOrderService,
-          },
-          {
-            provide: ActiveCartService,
-            useClass: MockActiveCartService
-          },
-          {
-            provide: WorldpayCheckoutPaymentService,
-            useClass: MockCheckoutPaymentService
-          }
-        ],
-      })
+      declarations: [
+        WorldpayApmGooglepayComponent,
+        WorldpayApmSubmitButtonsComponent,
+        MockWorldpayBillingAddressComponent
+      ],
+      imports: [
+        I18nTestingModule,
+        FormErrorsModule,
+        ReactiveFormsModule,
+        NgSelectModule,
+      ],
+      providers: [
+        EventService,
+        WindowRef,
+        WorldpayBillingAddressFormService,
+        {
+          provide: WorldpayConnector,
+          useClass: MockWorldpayConnector,
+        },
+        {
+          provide: RoutingService,
+          useClass: MockRoutingService
+        },
+        {
+          provide: GlobalMessageService,
+          useClass: MockGlobalMessageService
+        },
+        {
+          provide: WorldpayGooglepayService,
+          useClass: MockWorldpayGooglepayService
+        },
+        {
+          provide: WorldpayOrderService,
+          useClass: MockWorldpayOrderService,
+        },
+        {
+          provide: ActiveCartService,
+          useClass: MockActiveCartService
+        },
+        {
+          provide: WorldpayCheckoutPaymentService,
+          useClass: MockCheckoutPaymentService
+        },
+        LoggerService
+      ],
+    })
       .compileComponents();
 
     fixture = TestBed.createComponent(WorldpayApmGooglepayComponent);
     globalMessageService = TestBed.inject(GlobalMessageService);
     worldpayOrderService = TestBed.inject(WorldpayOrderService);
-    activeCartService = TestBed.inject(ActiveCartService);
     routingService = TestBed.inject(RoutingService);
     worldpayCheckoutPaymentService = TestBed.inject(WorldpayCheckoutPaymentService);
     worldpayGooglePayService = TestBed.inject(WorldpayGooglepayService);
-    billingAddressFromService = TestBed.inject(CheckoutBillingAddressFormService);
+    billingAddressFromService = TestBed.inject(WorldpayBillingAddressFormService);
     scriptService = TestBed.inject(LoadScriptService);
-    mockWindowRef = TestBed.inject(WindowRef);
+    logger = TestBed.inject(LoggerService);
     component = fixture.componentInstance;
   });
 
@@ -190,13 +185,13 @@ describe('WorldpayApmGooglepayComponent', () => {
 
     it('should handle error when retrieving order details fails', () => {
       const error = new Error('Error');
-      spyOn(console, 'error');
+      spyOn(logger, 'error');
       spyOn(worldpayOrderService, 'getOrderDetails').and.returnValue(throwError(() => error));
 
       component.ngOnInit();
 
       expect(routingService.go).not.toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('Error while navigating to order confirmation page', error);
+      expect(logger.error).toHaveBeenCalledWith('Error while navigating to order confirmation page', error);
     });
   });
 
@@ -226,20 +221,23 @@ describe('WorldpayApmGooglepayComponent', () => {
     beforeEach(() => {
       component['paymentsClient'] = {
         isReadyToPay: async () => ({ result: true }),
-        loadPaymentData: async () => googlePayAuth,
+        loadPaymentData: async () => Promise.resolve(googlePayAuth),
       };
     });
 
-    it('should authorise payment if billing address is same as delivery address', () => {
+    it('should authorise payment when billing address is same as delivery address', fakeAsync(() => {
       spyOn(billingAddressFromService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
       spyOn(worldpayGooglePayService, 'getMerchantConfigurationFromState').and.returnValue(of(merchantConfig));
+      spyOn(worldpayGooglePayService, 'createFullPaymentRequest').and.returnValue(googlePayAuth);
+      spyOn(component['paymentsClient'], 'loadPaymentData').and.resolveTo(googlePayAuth);
       spyOn(worldpayOrderService, 'startLoading');
-      spyOn(component['paymentsClient'], 'loadPaymentData').and.returnValue(Promise.resolve({}));
 
       component['authorisePayment']();
+      tick();
+      flush();
 
       expect(worldpayOrderService.startLoading).toHaveBeenCalled();
-    });
+    }));
 
     it('should not authorise payment if billing address form is invalid', () => {
       spyOn(billingAddressFromService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
@@ -251,38 +249,42 @@ describe('WorldpayApmGooglepayComponent', () => {
       expect(worldpayCheckoutPaymentService.setPaymentAddress).not.toHaveBeenCalled();
     });
 
-    it('should set payment address if billing address is not same as delivery address and form is valid', () => {
+    it('should set payment address if billing address is not same as delivery address and form is valid', fakeAsync(() => {
       spyOn(billingAddressFromService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
       spyOn(billingAddressFromService, 'isBillingAddressFormValid').and.returnValue(true);
       spyOn(billingAddressFromService, 'getBillingAddress').and.returnValue({});
       spyOn(worldpayCheckoutPaymentService, 'setPaymentAddress').and.returnValue(of({}));
       spyOn(worldpayGooglePayService, 'getMerchantConfigurationFromState').and.returnValue(of(merchantConfig));
       spyOn(worldpayOrderService, 'startLoading');
-      spyOn(component['paymentsClient'], 'loadPaymentData').and.returnValue(Promise.resolve({}));
+      spyOn(component['paymentsClient'], 'loadPaymentData').and.resolveTo({});
 
       component['authorisePayment']();
+      tick();
+      flush();
 
       expect(worldpayCheckoutPaymentService.setPaymentAddress).toHaveBeenCalled();
       expect(worldpayOrderService.startLoading).toHaveBeenCalled();
-    });
+    }));
 
     it('should handle error during payment authorisation', fakeAsync(() => {
       const error = 'Error';
-      spyOn(console, 'error');
+      spyOn(logger, 'error');
       spyOn(billingAddressFromService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
       spyOn(worldpayGooglePayService, 'getMerchantConfigurationFromState').and.returnValue(of(merchantConfig));
       spyOn(worldpayOrderService, 'startLoading');
-      spyOn(component['paymentsClient'], 'loadPaymentData').and.returnValue(Promise.reject(error));
+      spyOn(component['paymentsClient'], 'loadPaymentData').and.rejectWith(error);
       spyOn(worldpayOrderService, 'clearLoading');
       component['authorisePayment']();
       tick();
+      flush();
 
       expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'paymentForm.googlepay.authorisationFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
       expect(worldpayOrderService.clearLoading).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('failed processing googlepay', { error });
+      expect(logger.error).toHaveBeenCalledWith('failed processing googlepay', { error });
     }));
 
     it('should clear loading state on error when retrieving merchant configuration', () => {
+      spyOn(logger, 'error');
       spyOn(billingAddressFromService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
       spyOn(worldpayGooglePayService, 'getMerchantConfigurationFromState').and.returnValue(throwError(() => new Error('Error')));
       spyOn(worldpayOrderService, 'clearLoading');
@@ -315,8 +317,7 @@ describe('WorldpayApmGooglepayComponent', () => {
           }
         }
       } as unknown as Window;
-
-      // @ts-ignore
+      
       component['initBtn']();
 
       expect(component['initPaymentsClient']).toHaveBeenCalledWith(merchantConfig);
@@ -348,12 +349,12 @@ describe('WorldpayApmGooglepayComponent', () => {
 
     it('should handle error when retrieving merchant configuration fails', () => {
       const error = new Error('Error');
-      spyOn(console, 'error');
+      spyOn(logger, 'error');
       spyOn(worldpayGooglePayService, 'getMerchantConfigurationFromState').and.returnValue(throwError(() => error));
 
       component['initBtn']();
 
-      expect(console.error).toHaveBeenCalledWith('Error while initializing Google Pay button', error);
+      expect(logger.error).toHaveBeenCalledWith('Error while initializing Google Pay button', error);
     });
   });
 
@@ -401,31 +402,19 @@ describe('WorldpayApmGooglepayComponent', () => {
         }
       };
 
-      spyOn(component['logger'], 'error');
+      spyOn(logger, 'error');
       spyOn(component['cd'], 'detectChanges');
 
       component['initPaymentsClient'](mockMerchantConfig);
       tick();
 
-      expect(component['logger'].error).toHaveBeenCalledWith('failed to initialize googlepay', error);
-      expect(component['globalMessageService'].add).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith('failed to initialize googlepay', error);
+      expect(globalMessageService.add).toHaveBeenCalledWith(
         { raw: error.statusMessage },
         GlobalMessageType.MSG_TYPE_ERROR
       );
       expect(component['cd'].detectChanges).toHaveBeenCalled();
     }));
-  });
-
-  it('should load Google Pay script if PaymentsClient is not available', () => {
-    spyOn(scriptService, 'loadScript').and.callFake((config) => config.onloadCallback());
-    // @ts-ignore
-    spyOn(component, 'initPaymentsClient');
-
-    component['paymentsClient'] = undefined;
-    fixture.detectChanges();
-    component['initBtn']();
-    // @ts-ignore
-    expect(component['initPaymentsClient']).toHaveBeenCalled();
   });
 
   it('should initialize PaymentsClient and create Google Pay button', () => {
@@ -453,6 +442,23 @@ describe('WorldpayApmGooglepayComponent', () => {
     component['initBtn']();
 
     // @ts-ignore
-    expect(component['initPaymentsClient']).toHaveBeenCalledWith(mockMerchantConfig);
+    expect(component.initPaymentsClient).toHaveBeenCalledWith(mockMerchantConfig);
   });
+
+  it('should handle Google Pay authorisation failure', fakeAsync(() => {
+    component['paymentsClient'] = {
+      loadPaymentData: () => new Promise((resolve, reject) => reject('Expected Error Log'))
+    };
+    spyOn(worldpayGooglePayService, 'getMerchantConfigurationFromState').and.returnValue(of(merchantConfig));
+    spyOn(billingAddressFromService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
+    spyOn(worldpayOrderService, 'clearLoading');
+    spyOn(logger, 'error');
+
+    component['authorisePayment']();
+
+    tick();
+    expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'paymentForm.googlepay.authorisationFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
+    expect(worldpayOrderService.clearLoading).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith('failed processing googlepay', { error: 'Expected Error Log' });
+  }));
 });

@@ -12,6 +12,9 @@ export * from './worldpay-apm-component/worldpay-apm.module';
 // apm component ach
 export * from './worldpay-apm-component/worldpay-apm-ach/worldpay-apm-ach.component';
 export * from './worldpay-apm-component/worldpay-apm-ach/worldpay-apm-ach.module';
+// apm submit buttons
+export * from './worldpay-apm-component/worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.module';
+export * from './worldpay-apm-component/worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 // apm component googlepay
 export * from './worldpay-apm-component/worldpay-apm-googlepay/worldpay-apm-googlepay.component';
 export * from './worldpay-apm-component/worldpay-apm-googlepay/worldpay-apm-googlepay.module';

@@ -1,6 +1,6 @@
 #Ant properties
-#Thu Oct 09 13:13:20 GMT 2025
-builddate=20251009 1313
+#Fri Dec 19 09:37:35 GMT 2025
+builddate=20251219 0937
 description=worldpayoms
 group.id=de.hybris.platform
 module.name=platform-module

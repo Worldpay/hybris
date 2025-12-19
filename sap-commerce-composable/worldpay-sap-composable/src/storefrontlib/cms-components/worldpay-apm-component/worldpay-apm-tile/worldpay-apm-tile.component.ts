@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, HostListener, Input } from '@angular/core';
 import { Observable } from 'rxjs';
-import { WorldpayApmService } from '../../../../core/services/worldpay-apm/worldpay-apm.service';
-import { ApmData } from '../../../../core/interfaces';
+import { WorldpayApmService } from 'worldpay-sap-composable-services';
+import { ApmData } from 'worldpay-sap-core';
 
 @Component({
   selector: 'y-worldpay-apm-tile',
   templateUrl: './worldpay-apm-tile.component.html',
   styleUrls: ['./worldpay-apm-tile.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class WorldpayApmTileComponent {
   @Input() apm: ApmData;

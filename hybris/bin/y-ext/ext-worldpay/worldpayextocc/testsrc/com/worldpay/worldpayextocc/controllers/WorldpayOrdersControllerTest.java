@@ -1,5 +1,6 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facade.OCCWorldpayOrderFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
@@ -22,8 +23,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
 
-import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -31,10 +34,11 @@ import static org.mockito.Mockito.*;
 public class WorldpayOrdersControllerTest {
 
     private static final String ENCRYPTED_ORDER_ID = "encryptedOrderId";
-    private static final String PAYMENT_STATUS = "paymentStatus";
     private static final String ANONYMOUS_UID = "anonymous";
     private static final String ORDER_CODE = "orderCode";
     private static final String USER_ID = "userID";
+    private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
+    private static final String PENDING_PARAM_NAME = "pending";
 
     @InjectMocks
     private WorldpayOrdersController testObj;
@@ -58,42 +62,88 @@ public class WorldpayOrdersControllerTest {
     private OrderWsDTO orderWsDTOMock;
     @Mock
     private RedirectAuthoriseResult redirectAuthoriseResultMock;
+    @Mock
+    private Set<AuthorisedStatus> apmErrorResponseStatusesMock;
+    @Mock
+    private Map<String, String> requestMapMock;
 
     private final MockHttpServletRequest httpServletRequestMock = new MockHttpServletRequest();
 
     @Test(expected = WorldpayException.class)
-    public void placeRedirectOrder_shouldThrowException_whenContainsPaymentStatusAndRedirectResponseIsNotValid() throws InvalidCartException, WorldpayException {
-        httpServletRequestMock.setParameter(PAYMENT_STATUS, ERROR.name());
+    public void placeRedirectOrder_shouldThrowException_whenContainsPaymentStatusAndRedirectResponseIsNotValid() throws WorldpayException, InvalidCartException {
         doReturn(redirectAuthoriseResultMock).when(occWorldpayOrderFacadeMock).getRedirectAuthoriseResult(anyMap());
         when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMap())).thenReturn(false);
+        when(requestMapMock.get(PENDING_PARAM_NAME)).thenReturn(Boolean.TRUE.toString());
 
-        testObj.placeRedirectOrder(httpServletRequestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
+        testObj.placeRedirectOrder(requestMapMock, FieldSetLevelHelper.DEFAULT_LEVEL);
     }
 
     @Test
-    public void placeRedirectOrder_ShouldReturnOrderWsDTO_whenRequestNotContainsPaymentStatus() throws InvalidCartException, WorldpayException {
+    public void placeRedirectOrder_ShouldReturnOrderWsDTO_whenRequestIsPendingNotContainsPaymentStatus() throws WorldpayException, InvalidCartException {
+        when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMap())).thenReturn(true);
         doReturn(redirectAuthoriseResultMock).when(occWorldpayOrderFacadeMock).getRedirectAuthoriseResult(anyMap());
-        when(occWorldpayOrderFacadeMock.getRedirectAuthoriseResult(anyMap())).thenReturn(redirectAuthoriseResultMock);
-        when(occWorldpayOrderFacadeMock.handleHopResponseWithoutPaymentStatus(redirectAuthoriseResultMock)).thenReturn(orderDataMock);
+        when(worldpayCheckoutFacadeDecoratorMock.placeOrder()).thenReturn(orderDataMock);
         lenient().when(dataMapperMock.map(orderDataMock, OrderWsDTO.class)).thenReturn(orderWsDTOMock);
+        when(requestMapMock.get(PENDING_PARAM_NAME)).thenReturn(Boolean.TRUE.toString());
 
-        testObj.placeRedirectOrder(httpServletRequestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
+        testObj.placeRedirectOrder(requestMapMock, FieldSetLevelHelper.DEFAULT_LEVEL);
 
         verify(dataMapperMock).map(orderDataMock, OrderWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL);
 
     }
 
     @Test
-    public void placeRedirectOrder_ShouldReturnOrderWsDTO_whenRequestContainsPaymentStatusAndRedirectResponseIsValid() throws InvalidCartException, WorldpayException {
-        httpServletRequestMock.setParameter(PAYMENT_STATUS, AUTHORISED.name());
-        when(occWorldpayOrderFacadeMock.getRedirectAuthoriseResult(anyMap())).thenReturn(redirectAuthoriseResultMock);
+    public void placeRedirectOrder_ShouldReturnOrderWsDTO_whenRequestIsNotPendingAndNotContainsPaymentStatus() throws WorldpayException, InvalidCartException {
+        doReturn(redirectAuthoriseResultMock).when(occWorldpayOrderFacadeMock).getRedirectAuthoriseResult(anyMap());
+        when(occWorldpayOrderFacadeMock.handleHopResponseWithoutPaymentStatus(redirectAuthoriseResultMock)).thenReturn(orderDataMock);
+
+        lenient().when(dataMapperMock.map(orderDataMock, OrderWsDTO.class)).thenReturn(orderWsDTOMock);
+        final Map<String, String> requestMap = Map.of(PENDING_PARAM_NAME, Boolean.FALSE.toString());
+
+        testObj.placeRedirectOrder(requestMap, FieldSetLevelHelper.DEFAULT_LEVEL);
+
+        verify(dataMapperMock).map(orderDataMock, OrderWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL);
+
+    }
+
+    @Test
+    public void placeRedirectOrder_ShouldReturnOrderWsDTO_whenRequestIsNotPendingAndContainsPaymentStatus() throws WorldpayException, InvalidCartException {
+        doReturn(redirectAuthoriseResultMock).when(occWorldpayOrderFacadeMock).getRedirectAuthoriseResult(anyMap());
         when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMap())).thenReturn(true);
         when(occWorldpayOrderFacadeMock.handleHopResponseWithPaymentStatus(redirectAuthoriseResultMock)).thenReturn(orderDataMock);
         lenient().when(dataMapperMock.map(orderDataMock, OrderWsDTO.class)).thenReturn(orderWsDTOMock);
+        final Map<String, String> requestMap = new HashMap<>();
+        requestMap.put(PENDING_PARAM_NAME, Boolean.FALSE.toString());
+        requestMap.put(PAYMENT_STATUS_PARAMETER_NAME, AuthorisedStatus.OPEN.name());
 
-        testObj.placeRedirectOrder(httpServletRequestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
+        testObj.placeRedirectOrder(requestMap, FieldSetLevelHelper.DEFAULT_LEVEL);
 
         verify(dataMapperMock).map(orderDataMock, OrderWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL);
+
+    }
+
+    @Test
+    public void placeRedirectOrder_ShouldReturnOrderWsDTO_whenRequestIsPendingContainsPaymentStatusAndRedirectResponseIsValid() throws WorldpayException, InvalidCartException {
+        when(occWorldpayOrderFacadeMock.getRedirectAuthoriseResult(anyMap())).thenReturn(redirectAuthoriseResultMock);
+        when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMap())).thenReturn(true);
+        when(worldpayCheckoutFacadeDecoratorMock.placeOrder()).thenReturn(orderDataMock);
+        lenient().when(dataMapperMock.map(orderDataMock, OrderWsDTO.class)).thenReturn(orderWsDTOMock);
+        when(requestMapMock.get(PENDING_PARAM_NAME)).thenReturn(Boolean.TRUE.toString());
+
+        testObj.placeRedirectOrder(requestMapMock, FieldSetLevelHelper.DEFAULT_LEVEL);
+
+        verify(dataMapperMock).map(orderDataMock, OrderWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL);
+    }
+
+    @Test(expected = WorldpayException.class)
+    public void placeRedirectOrder_ShouldThrowException_whenRequestIsPendingAndContainsPaymentStatusErrorStatus() throws WorldpayException, InvalidCartException {
+        when(occWorldpayOrderFacadeMock.getRedirectAuthoriseResult(anyMap())).thenReturn(redirectAuthoriseResultMock);
+        when(worldpayAfterRedirectValidationFacadeMock.validateRedirectResponse(anyMap())).thenReturn(true);
+        when(apmErrorResponseStatusesMock.contains(AuthorisedStatus.ERROR)).thenReturn(true);
+        when(redirectAuthoriseResultMock.getPaymentStatus()).thenReturn(AuthorisedStatus.ERROR);
+        when(requestMapMock.get(PENDING_PARAM_NAME)).thenReturn(Boolean.TRUE.toString());
+
+        testObj.placeRedirectOrder(requestMapMock, FieldSetLevelHelper.DEFAULT_LEVEL);
     }
 
     @Test
@@ -110,7 +160,7 @@ public class WorldpayOrdersControllerTest {
     }
 
     @Test(expected = WorldpayException.class)
-    public void placeBankTransferRedirectOrder_shouldThrowException_whenIsNotValidEncryptedOrderCode() throws InvalidCartException, WorldpayException {
+    public void placeBankTransferRedirectOrder_shouldThrowException_whenIsNotValidEncryptedOrderCode() throws WorldpayException {
         when(occWorldpayOrderFacadeMock.isValidEncryptedOrderCode(ENCRYPTED_ORDER_ID)).thenReturn(false);
 
         testObj.placeBankTransferRedirectOrder(httpServletRequestMock, ENCRYPTED_ORDER_ID, FieldSetLevelHelper.DEFAULT_LEVEL);

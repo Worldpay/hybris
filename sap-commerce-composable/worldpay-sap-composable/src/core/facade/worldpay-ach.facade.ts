@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { facadeFactory, QueryState } from '@spartacus/core';
 import { Observable } from 'rxjs';
+import { AccountTypes, ACHPaymentForm, ACHPaymentFormRaw } from '../interfaces';
 import { WORLDPAY_ACH_FEATURE } from './worldpay-feature-name';
-import { ACHBankAccountType, ACHPaymentForm, ACHPaymentFormRaw } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayACHFacade =>
     facadeFactory({
       facade: WorldpayACHFacade,
       feature: WORLDPAY_ACH_FEATURE,
@@ -25,7 +25,7 @@ export abstract class WorldpayACHFacade {
    * @since 6.4.2
    * @returns - ACHBankAccountType as Observable
    */
-  abstract getACHBankAccountTypesState(): Observable<QueryState<ACHBankAccountType[]>>;
+  abstract getACHBankAccountTypesState(): Observable<QueryState<AccountTypes>>;
 
   /**
    * Get ACH Form Values

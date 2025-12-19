@@ -1,5 +1,5 @@
-import { Media } from '@spartacus/storefront';
 import { CmsComponent } from '@spartacus/core';
+import { Media } from '@spartacus/storefront';
 
 export interface WorldpayApmConfiguration {
   code: string;

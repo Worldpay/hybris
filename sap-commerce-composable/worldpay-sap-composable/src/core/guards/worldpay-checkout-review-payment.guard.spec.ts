@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { GlobalMessageService, GlobalMessageType, PaymentDetails, QueryState, SemanticPathService } from '@spartacus/core';
+import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { MockWorldpayCheckoutPaymentService } from 'worldpay-sap-composable-tests';
 import { WorldpayCheckoutPaymentService } from '../services';
 import { WorldpayCheckoutReviewPaymentGuard } from './worldpay-checkout-review-payment.guard';
 import createSpy = jasmine.createSpy;
@@ -10,16 +12,6 @@ import createSpy = jasmine.createSpy;
 class MockSemanticPathService implements Partial<SemanticPathService> {
   get() {
     return '';
-  };
-}
-
-class MockWorldpayCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentService> {
-  getCseTokenFromState() {
-    return of('');
-  }
-
-  getPaymentDetailsState() {
-    return of({} as QueryState<PaymentDetails>);
   }
 }
 
@@ -46,7 +38,8 @@ describe('WorldpayCheckoutReviewPaymentGuard', () => {
         },
         {
           provide: WorldpayCheckoutPaymentService,
-          useClass: MockWorldpayCheckoutPaymentService
+          useFactory: (sanitizer: DomSanitizer) => new MockWorldpayCheckoutPaymentService(sanitizer),
+          deps: [DomSanitizer]
         },
         {
           provide: GlobalMessageService,

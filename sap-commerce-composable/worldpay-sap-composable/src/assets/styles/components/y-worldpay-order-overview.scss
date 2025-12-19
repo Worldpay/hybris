@@ -1,5 +1,17 @@
+@import "../../../assets/styles/mixins";
+@import "@spartacus/order/styles/components/order-overview/index";
+
 y-worldpay-order-overview {
   @extend %cx-order-overview !optional;
+
+  .cx-order-summary {
+    .container {
+      width: 100%;
+      min-width: unset;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+  }
 
   y-worldpay-order-detail-billing {
     margin-bottom: 0;

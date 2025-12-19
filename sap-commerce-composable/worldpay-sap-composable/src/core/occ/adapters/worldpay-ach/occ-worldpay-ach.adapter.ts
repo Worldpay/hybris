@@ -4,8 +4,8 @@ import { backOff, ConverterService, HttpErrorModel, isJaloError, LoggerService, 
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorldpayACHAdapter } from '../../../connectors/worldpay-ach/worldpay-ach.adapter';
-import { ACHBankAccountType, ACHPaymentForm } from '../../../interfaces';
+import { WorldpayACHAdapter } from 'worldpay-sap-composable-connectors';
+import { AccountTypes, ACHPaymentForm } from '../../../interfaces';
 
 @Injectable()
 export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
@@ -34,7 +34,7 @@ export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
   getACHBankAccountTypes(
     userId: string,
     cartId: string,
-  ): Observable<ACHBankAccountType[]> {
+  ): Observable<AccountTypes> {
 
     const url: string = this.occEndpoints.buildUrl(
       'getACHBankAccountTypes',
@@ -45,7 +45,7 @@ export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
         }
       }
     );
-    return this.http.get<ACHBankAccountType[]>(
+    return this.http.get<AccountTypes>(
       url,
       {}
     );

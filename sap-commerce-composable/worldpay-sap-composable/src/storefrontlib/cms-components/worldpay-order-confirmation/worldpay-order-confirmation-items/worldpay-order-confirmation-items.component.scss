@@ -1,0 +1,10 @@
+@import "../../../../assets/styles/mixins";
+@import "@spartacus/checkout/base/styles/components/order-confirmation/_order-confirmation-items.scss";
+
+y-worldpay-order-confirmation-items {
+  max-width: var(--cx-page-width-max);
+  padding-inline: 15px 15px;
+  margin-inline: auto auto;
+
+  @extend %cx-order-confirmation-items !optional;
+}

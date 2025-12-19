@@ -5,7 +5,7 @@ import { WORLDPAY_FRAUD_SIGHT_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayFraudsightFacade =>
     facadeFactory({
       facade: WorldpayFraudsightFacade,
       feature: WORLDPAY_FRAUD_SIGHT_FEATURE,

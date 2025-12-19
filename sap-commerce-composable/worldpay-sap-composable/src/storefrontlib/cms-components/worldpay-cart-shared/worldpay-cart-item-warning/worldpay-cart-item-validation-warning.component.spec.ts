@@ -1,12 +1,13 @@
 import { Component, DebugElement, Input, Pipe, PipeTransform, } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CartValidationStateService } from '@spartacus/cart/base/core';
 import { CartModification, CartValidationStatusCode } from '@spartacus/cart/base/root';
 import { ICON_TYPE } from '@spartacus/storefront';
 import { ReplaySubject } from 'rxjs';
+import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
 import { WorldpayCartItemValidationWarningComponent } from './worldpay-cart-item-validation-warning.component';
-import { CartValidationStateService } from '@spartacus/cart/base/core';
 
 const mockCode = 'productCode1';
 const mockData = [
@@ -30,14 +31,14 @@ const mockData = [
 
 const dataReplaySubject = new ReplaySubject<CartModification[]>(0);
 
-class MockCartValidationStateService
-  implements Partial<CartValidationStateService> {
+class MockCartValidationStateService implements Partial<CartValidationStateService> {
   cartValidationResult$ = dataReplaySubject;
 }
 
 @Component({
   selector: 'cx-icon',
   template: '',
+  standalone: false
 })
 class MockCxIconComponent {
   @Input() type: ICON_TYPE;
@@ -45,6 +46,7 @@ class MockCxIconComponent {
 
 @Pipe({
   name: 'cxTranslate',
+  standalone: false
 })
 class MockTranslatePipe implements PipeTransform {
   transform(): any {
@@ -53,6 +55,7 @@ class MockTranslatePipe implements PipeTransform {
 
 @Pipe({
   name: 'cxUrl',
+  standalone: false
 })
 class MockUrlPipe implements PipeTransform {
   transform() {
@@ -67,7 +70,7 @@ describe('CartItemValidationWarningComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [RouterLink],
       declarations: [
         WorldpayCartItemValidationWarningComponent,
         MockCxIconComponent,
@@ -75,6 +78,10 @@ describe('CartItemValidationWarningComponent', () => {
         MockUrlPipe,
       ],
       providers: [
+        {
+          provide: ActivatedRoute,
+          useClass: MockActivatedRoute
+        },
         {
           provide: CartValidationStateService,
           useClass: MockCartValidationStateService,

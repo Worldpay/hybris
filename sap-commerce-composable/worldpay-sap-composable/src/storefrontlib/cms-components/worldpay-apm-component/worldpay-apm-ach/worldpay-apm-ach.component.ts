@@ -1,32 +1,22 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
-import { Address, QueryState } from '@spartacus/core';
-import { WorldpayACHFacade } from '@worldpay-facade/worldpay-ach.facade';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { UntypedFormGroup, Validators } from '@angular/forms';
+import { QueryState } from '@spartacus/core';
+import { Observable } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
-import { ACHBankAccountType, ACHPaymentForm, ApmData, ApmPaymentDetails, PaymentMethod } from '../../../../core/interfaces';
+import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { AccountTypes, ACHBankAccountType, ACHPaymentForm, ApmPaymentDetails, FORM_VALIDATION_LIMITS, PaymentMethod } from 'worldpay-sap-core';
 import { makeFormErrorsVisible } from '../../../../core/utils';
+import { WorldpayApmBaseComponent } from '../worldpay-apm-base/worldpay-apm-base.component';
 
 @Component({
   selector: 'y-worldpay-apm-ach',
   templateUrl: './worldpay-apm-ach.component.html',
-  styleUrls: ['./worldpay-apm-ach.component.scss']
+  styleUrls: ['./worldpay-apm-ach.component.scss'],
+  standalone: false
 })
-export class WorldpayApmAchComponent implements OnInit, OnDestroy {
-  @Input() apm: ApmData;
-  @Output() setPaymentDetails: EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }> = new EventEmitter<{
-    paymentDetails: ApmPaymentDetails;
-    billingAddress: Address
-  }>();
-  @Output() back: EventEmitter<void> = new EventEmitter<void>();
-
+export class WorldpayApmAchComponent extends WorldpayApmBaseComponent {
   achBankAccountTypesState$: Observable<QueryState<ACHBankAccountType[]>>;
-
-  public submitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  public sameAsShippingAddress: boolean = true;
-  public billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
   /**
    * Form group for ACH payment details.
    * @since 6.4.2
@@ -37,48 +27,28 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
    * @property {FormControl} companyName - Form control for company name with a max length validator.
    * @property {FormControl} customIdentifier - Form control for custom identifier with a max length validator.
    */
-  achForm: UntypedFormGroup = this.fb.group({
-    accountType: this.fb.group({ code: null }, [Validators.required]),
-    accountNumber: this.fb.control(null, [Validators.required, Validators.maxLength(17)]),
-    routingNumber: this.fb.control(null, [Validators.required, Validators.minLength(8), Validators.maxLength(9)]),
-    checkNumber: this.fb.control(null, [Validators.maxLength(15)]),
-    companyName: this.fb.control(null, [Validators.maxLength(40)]),
-    customIdentifier: this.fb.control(null, [Validators.maxLength(15)]),
+  public achForm: UntypedFormGroup = this.fb.group({
+    accountType: this.fb.group({ code: null }, { validators: Validators.required }),
+    accountNumber: this.fb.control(null, [Validators.required, Validators.maxLength(FORM_VALIDATION_LIMITS.ACCOUNT_NUMBER_MAX)]),
+    routingNumber: this.fb.control(null, [
+      Validators.required,
+      Validators.minLength(FORM_VALIDATION_LIMITS.ROUTING_NUMBER_MIN),
+      Validators.maxLength(FORM_VALIDATION_LIMITS.ROUTING_NUMBER_MAX)
+    ]),
+    checkNumber: this.fb.control(null, [Validators.maxLength(FORM_VALIDATION_LIMITS.CHECK_NUMBER_MAX)]),
+    companyName: this.fb.control(null, [Validators.maxLength(FORM_VALIDATION_LIMITS.COMPANY_NAME_MAX)]),
+    customIdentifier: this.fb.control(null, [Validators.maxLength(FORM_VALIDATION_LIMITS.CUSTOM_IDENTIFIER_MAX)]),
   });
-  protected destroyRef: DestroyRef = inject(DestroyRef);
-  /**
-   * Injects the CheckoutBillingAddressFormService into the component.
-   * This service is used to manage the billing address form in the checkout process.
-   * @protected
-   * @since 2211.27.0
-   */
-  protected billingAddressFormService: CheckoutBillingAddressFormService = inject(
-    CheckoutBillingAddressFormService
-  );
-  private drop: Subject<void> = new Subject<void>();
-
-  /**
-   * Constructor for WorldpayApmAchComponent.
-   *
-   * @param {UntypedFormBuilder} fb - Form builder for creating reactive forms.
-   * @param {WorldpayACHFacade} worldpayACHFacade - Facade for interacting with Worldpay ACH services.
-   */
-  constructor(
-    protected fb: UntypedFormBuilder,
-    protected worldpayACHFacade: WorldpayACHFacade,
-  ) {
-  }
+  protected worldpayACHFacade: WorldpayACHFacade = inject(WorldpayACHFacade);
 
   /**
    * Initialize component
    * @since 6.4.2
    */
-  ngOnInit(): void {
-    this.billingAddressForm = this.billingAddressFormService.getBillingAddressForm();
-    this.sameAsShippingAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
-
+  override ngOnInit(): void {
+    super.ngOnInit();
     this.achBankAccountTypesState$ = this.worldpayACHFacade.getACHBankAccountTypesState().pipe(
-      filter((state: QueryState<ACHBankAccountType[]>) => !!state.data),
+      filter((state: QueryState<AccountTypes>): boolean => !!state.data),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       map((response: QueryState<any>): QueryState<ACHBankAccountType[]> => {
         const data: { code: string; name: string }[] = Object.keys(response.data).map((key: string): { code: string; name: string } => ({
@@ -94,7 +64,7 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
     );
 
     this.worldpayACHFacade.getACHPaymentFormValue().pipe(
-      filter((value: ACHPaymentForm) => !!value),
+      filter((value: ACHPaymentForm): boolean => !!value),
       tap((value: ACHPaymentForm): void => {
         this.achForm.setValue({
           ...value,
@@ -124,58 +94,18 @@ export class WorldpayApmAchComponent implements OnInit, OnDestroy {
    * @since 6.4.2
    */
   next(): void {
-    const {
-      valid,
-      value
-    }: UntypedFormGroup = this.achForm;
-
-    this.sameAsShippingAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
-
-    if (!this.sameAsShippingAddress && !this.billingAddressFormService.isBillingAddressFormValid()) {
-      makeFormErrorsVisible(this.billingAddressFormService.getBillingAddressForm());
-      return;
-    }
-
-    if (valid) {
+    if (this.achForm.valid) {
       const paymentDetails: ApmPaymentDetails = {
         code: PaymentMethod.ACH,
         achPaymentForm: {
           ...this.achForm.value,
-          accountType: this.achForm.get('accountType').value.code
+          accountType: this.achForm.get('accountType')?.value?.code
         }
       };
-      this.worldpayACHFacade.setACHPaymentFormValue(value);
-
-      this.submitting$.next(true);
-
-      let billingAddress: Address = null;
-      if (!this.sameAsShippingAddress) {
-        billingAddress = this.billingAddressFormService.getBillingAddress();
-      }
-
-      this.setPaymentDetails.emit({
-        paymentDetails,
-        billingAddress
-      });
+      this.worldpayACHFacade.setACHPaymentFormValue(this.achForm.value);
+      this.createPaymentDetails(paymentDetails);
     } else {
       makeFormErrorsVisible(this.achForm);
     }
   }
-
-  /**
-   * Return to previous step
-   * @since 6.4.0
-   */
-  return(): void {
-    this.back.emit();
-  }
-
-  /**
-   * On Destroy component
-   * @since 6.4.2
-   */
-  ngOnDestroy(): void {
-    this.submitting$.next(false);
-  }
-
 }

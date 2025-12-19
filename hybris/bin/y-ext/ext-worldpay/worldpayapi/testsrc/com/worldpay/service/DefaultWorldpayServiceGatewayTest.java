@@ -2,13 +2,19 @@ package com.worldpay.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.Order;
+import com.worldpay.data.PaymentDetails;
+import com.worldpay.data.PaymentMethodMask;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.token.CardTokenRequest;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.model.PayloadModel;
 import com.worldpay.service.http.ServiceReply;
 import com.worldpay.service.http.WorldpayConnector;
-import com.worldpay.data.MerchantInfo;
-import com.worldpay.service.request.SecondThreeDSecurePaymentRequest;
+import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.service.request.*;
 import com.worldpay.service.request.transform.ServiceRequestTransformer;
 import com.worldpay.service.request.validation.WorldpayXMLValidator;
 import com.worldpay.service.response.ServiceResponse;
@@ -19,6 +25,7 @@ import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.internal.dao.GenericDao;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +33,7 @@ import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,9 +86,17 @@ public class DefaultWorldpayServiceGatewayTest {
     private AbstractOrderModel orderMock;
     @Mock
     private PayloadModel requestPayloadMock, responsePayloadMock;
+    @Mock
+    private Payment paymentMock;
+    @Mock
+    private PaymentDetails paymentDetailsMock;
+    @Mock
+    private Order orderWPMock;
+    @Mock
+    private PaymentMethodMask paymentMethodMaskMock;
 
-    private Map<String, ServiceRequestTransformer> requestTransformerStrategyMap = new HashMap<>();
-    private Map<String, ServiceResponseTransformer> responseTransformerStrategyMap = new HashMap<>();
+    private final Map<String, ServiceRequestTransformer> requestTransformerStrategyMap = new HashMap<>();
+    private final Map<String, ServiceResponseTransformer> responseTransformerStrategyMap = new HashMap<>();
 
     @Before
     public void setUp() throws Exception {
@@ -95,7 +111,7 @@ public class DefaultWorldpayServiceGatewayTest {
         when(paymentResponseServiceReplyMock.getPaymentService()).thenReturn(paymentResponseServiceMock);
         when(serviceRequestMock.getMerchantInfo()).thenReturn(merchantInfoMock);
         when(serviceRequestMock.getCookie()).thenReturn(COOKIE);
-        when(worldpayConnectorMock.send(paymentRequestMock, merchantInfoMock, COOKIE)).thenReturn(paymentResponseServiceReplyMock);
+        when(worldpayConnectorMock.send(paymentRequestMock, merchantInfoMock, COOKIE, "")).thenReturn(paymentResponseServiceReplyMock);
         when(serviceRequestMock.getOrderCode()).thenReturn(ORDER_CODE);
         when(abstractOrderGenericDaoMock.find(ImmutableMap.of(AbstractOrderModel.WORLDPAYORDERCODE, ORDER_CODE))).thenReturn(ImmutableList.of(orderMock));
         doReturn(requestPayloadMock).when(testObj).createPayloadModel(PAYMENT_REQUEST_PAYLOAD);
@@ -109,7 +125,7 @@ public class DefaultWorldpayServiceGatewayTest {
         final InOrder inOrder = Mockito.inOrder(worldpayConnectorMock, worldpayXMLValidatorMock);
         inOrder.verify(worldpayConnectorMock).logXMLOut(paymentRequestMock);
         inOrder.verify(worldpayXMLValidatorMock).validate(paymentRequestMock);
-        inOrder.verify(worldpayConnectorMock).send(paymentRequestMock, merchantInfoMock, COOKIE);
+        inOrder.verify(worldpayConnectorMock).send(paymentRequestMock, merchantInfoMock, COOKIE, "");
         inOrder.verify(worldpayConnectorMock).logXMLOut(paymentResponseServiceMock);
         assertThat(result).isEqualTo(paymentResponseMock);
     }
@@ -146,5 +162,83 @@ public class DefaultWorldpayServiceGatewayTest {
         verify(orderMock, never()).setRequestsPayload(any());
         verify(orderMock, never()).setResponsesPayload(any());
         verify(modelServiceMock, never()).save(orderMock);
+    }
+
+    @Test
+    public void getPaymentMethodFromRequest_DirectAuthoriseServiceRequest_ReturnsPaymentType() {
+
+        final DirectAuthoriseServiceRequest request = mock(DirectAuthoriseServiceRequest.class);
+        when(orderWPMock.getPaymentDetails()).thenReturn(paymentDetailsMock);
+        when(paymentDetailsMock.getPayment()).thenReturn(paymentMock);
+        when(paymentMock.getPaymentType()).thenReturn(PaymentType.CARD_SSL.getMethodCode());
+        when(request.getOrder()).thenReturn(orderWPMock);
+
+        final String result = testObj.getPaymentMethodFromRequest(request);
+
+        assertThat(result).isEqualTo(PaymentType.CARD_SSL.getMethodCode());
+    }
+
+    @Test
+    public void getPaymentMethodFromRequest_CreateTokenServiceRequest_ReturnsPaymentType() {
+
+        final CardTokenRequest cardTokenRequest = mock(CardTokenRequest.class);
+        final CreateTokenServiceRequest request = mock(CreateTokenServiceRequest.class);
+        when(request.getCardTokenRequest()).thenReturn(cardTokenRequest);
+        when(cardTokenRequest.getPayment()).thenReturn(paymentMock);
+        when(paymentMock.getPaymentType()).thenReturn(PaymentType.TOKENSSL.getMethodCode());
+
+        final String result = testObj.getPaymentMethodFromRequest(request);
+
+        assertThat(result).isEqualTo(PaymentType.TOKENSSL.getMethodCode());
+    }
+
+    @Test
+    public void getPaymentMethodFromRequest_RedirectAuthoriseServiceRequest_WithPaymentMethodMask_ReturnsFirstInclude() {
+        final RedirectAuthoriseServiceRequest request = mock(RedirectAuthoriseServiceRequest.class);
+        when(paymentMethodMaskMock.getIncludes()).thenReturn(Arrays.asList(PaymentType.PAYPAL_EXPRESS.getMethodCode(), PaymentType.TOKENSSL.getMethodCode()));
+        when(orderWPMock.getPaymentMethodMask()).thenReturn(paymentMethodMaskMock);
+        when(request.getOrder()).thenReturn(orderWPMock);
+
+        final String result = testObj.getPaymentMethodFromRequest(request);
+
+        assertThat(result).isEqualTo(PaymentType.PAYPAL_EXPRESS.getMethodCode());
+    }
+
+    @Test
+    public void getPaymentMethodFromRequest_RedirectAuthoriseServiceRequest_WithoutPaymentMethodMask_ReturnsPaymentType() {
+
+        final RedirectAuthoriseServiceRequest request = mock(RedirectAuthoriseServiceRequest.class);
+        when(request.getOrder()).thenReturn(orderWPMock);
+        when(orderWPMock.getPaymentMethodMask()).thenReturn(null);
+        when(orderWPMock.getPaymentDetails()).thenReturn(paymentDetailsMock);
+        when(paymentDetailsMock.getPayment()).thenReturn(paymentMock);
+        when(paymentMock.getPaymentType()).thenReturn(PaymentType.ALIPAY.getMethodCode());
+
+        final String result = testObj.getPaymentMethodFromRequest(request);
+
+        assertThat(result).isEqualTo(PaymentType.ALIPAY.getMethodCode());
+    }
+
+    @Test
+    public void getPaymentMethodFromRequest_RedirectAuthoriseServiceRequestWithNullMask_ReturnsPaymentType() {
+        final RedirectAuthoriseServiceRequest request = mock(RedirectAuthoriseServiceRequest.class);
+        when(request.getOrder()).thenReturn(orderWPMock);
+        when(orderWPMock.getPaymentMethodMask()).thenReturn(null);
+        when(orderWPMock.getPaymentDetails()).thenReturn(paymentDetailsMock);
+        when(paymentDetailsMock.getPayment()).thenReturn(paymentMock);
+        when(paymentMock.getPaymentType()).thenReturn(PaymentType.ALIPAY.getMethodCode());
+
+        final String result = testObj.getPaymentMethodFromRequest(request);
+
+        assertThat(result).isEqualTo(PaymentType.ALIPAY.getMethodCode());
+    }
+
+    @Test
+    public void getPaymentMethodFromRequest_OtherRequestType_ReturnsEmpty() {
+        ServiceRequest request = mock(ServiceRequest.class);
+
+        String result = testObj.getPaymentMethodFromRequest(request);
+
+        assertThat(result).isEqualTo(StringUtils.EMPTY);
     }
 }

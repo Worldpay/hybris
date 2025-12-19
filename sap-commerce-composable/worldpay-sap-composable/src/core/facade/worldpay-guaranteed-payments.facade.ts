@@ -5,7 +5,7 @@ import { WORLDPAY_GUARANTEED_PAYMENTS_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayGuaranteedPaymentsFacade =>
     facadeFactory({
       facade: WorldpayGuaranteedPaymentsFacade,
       feature: WORLDPAY_GUARANTEED_PAYMENTS_FEATURE,

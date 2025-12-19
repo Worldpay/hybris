@@ -70,4 +70,14 @@ export abstract class WorldpayAdapter {
    * @returns {Observable<Order>} - Order as Observable
    */
   abstract getOrder(userId: string, code: string, guestCustomer: boolean): Observable<Order>;
+
+  /**
+   * Updates the delivery address for the specified user and cart.
+   *
+   * @param {string} userId - The ID of the user.
+   * @param {string} cartId - The ID of the cart.
+   * @param {string} addressId - The ID of the address to update.
+   * @returns {Observable<Address>} An observable that emits the updated delivery address.
+   */
+  abstract setDeliveryAddressAsBillingAddress(userId: string, cartId: string, addressId: string): Observable<Address>
 }

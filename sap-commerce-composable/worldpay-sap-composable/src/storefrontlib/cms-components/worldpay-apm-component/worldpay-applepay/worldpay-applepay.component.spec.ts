@@ -1,42 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
-import { Component, DebugElement, Input } from '@angular/core';
-import { I18nTestingModule, MockTranslatePipe, RoutingService } from '@spartacus/core';
-import { WorldpayApplepayComponent } from './worldpay-applepay.component';
-import { WorldpayApplepayService } from '../../../../core/services/worldpay-applepay/worldpay-applepay.service';
-import { OrderFacade } from '@spartacus/order/root';
 import { By } from '@angular/platform-browser';
+import { I18nTestingModule, MockTranslatePipe, RoutingService } from '@spartacus/core';
+import { OrderFacade } from '@spartacus/order/root';
+import { Observable, of } from 'rxjs';
+import { WorldpayApplepayService } from 'worldpay-sap-composable-services';
+import { MockCxSpinnerComponent, MockRoutingService, MockWorldpayBillingAddressComponent } from 'worldpay-sap-composable-tests';
 import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../../../core/interfaces';
-
-@Component({
-  selector: 'y-worldpay-billing-address',
-  template: ''
-})
-class MockWorldpayBillingAddressComponent {
-  @Input() billingAddressForm;
-}
-
-@Component({
-  selector: 'cx-spinner',
-  template: ''
-})
-class MockCxSpinnerComponent {
-
-}
+import { WorldpayApplepayComponent } from './worldpay-applepay.component';
 
 class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {
   applePayButtonAvailable() {
     return true;
   }
 
-  createSession(paymentRequest: ApplePayPaymentRequest) {
+  createSession() {
     return {
-      begin: () => {
-        return of({
-          order: { code: '00001' },
-          transactionStatus: 'AUTHORISED'
-        });
-      }
+      begin: () => of({
+        order: { code: '00001' },
+        transactionStatus: 'AUTHORISED'
+      })
     };
   }
 
@@ -45,7 +27,7 @@ class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {
       countryCode: 'US',
       currencyCode: 'USD',
     });
-  };
+  }
 
   getPaymentRequestFromState(): Observable<ApplePayPaymentRequest> {
     return of({
@@ -73,10 +55,6 @@ class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {
   }
 }
 
-class MockRoutingService implements Partial<RoutingService> {
-  go = () => Promise.resolve(true);
-}
-
 class MockOrderFacade implements Partial<OrderFacade> {
   getOrderDetails() {
     return of({
@@ -88,11 +66,8 @@ class MockOrderFacade implements Partial<OrderFacade> {
 describe('WorldpayApplepayComponent', () => {
   let component: WorldpayApplepayComponent;
   let fixture: ComponentFixture<WorldpayApplepayComponent>;
-  let element: DebugElement;
   let orderFacade: OrderFacade;
-  let routingService: RoutingService;
   let worldpayApplePayService: WorldpayApplepayService;
-  let spy;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -129,11 +104,9 @@ describe('WorldpayApplepayComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WorldpayApplepayComponent);
     component = fixture.componentInstance;
-    element = fixture.debugElement;
 
     orderFacade = TestBed.inject(OrderFacade);
     worldpayApplePayService = TestBed.inject(WorldpayApplepayService);
-    routingService = TestBed.inject(RoutingService);
     fixture.detectChanges();
   });
 

@@ -1,11 +1,12 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { OccConfig, OccEndpointsService } from '@spartacus/core';
+import { mockUserId } from 'worldpay-sap-composable-tests';
 import { ACHPaymentForm } from '../../../interfaces';
 import { OccWorldpayACHAdapter } from './occ-worldpay-ach.adapter';
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
 const achPaymentForm: ACHPaymentForm = {
   accountType: 'Checking',
@@ -41,7 +42,7 @@ describe('OccWorldpayACHAdapter', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayACHAdapter,
         {
@@ -52,6 +53,8 @@ describe('OccWorldpayACHAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 

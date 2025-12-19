@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +29,11 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
     private static final String SPAIN_ISOCODE = "ES";
     private static final String USER_EMAIL = "user@worldpay.com";
     private static final String SPAIN_NAME = "SPAIN";
-    private static final String VLC_ISOCODE = "VLC";
+    private static final String VLC_ISOCODE = "ES-46";
+    private static final String VLC_ISOCODE_SHORT = "46";
+    private static final String ZGZ_ISOCODE_SHORT = "50";
     private static final String VLC_NAME = "Valencia";
+    private static final String ZGZ_NAME = "Zaragoza";
 
     @InjectMocks
     private WorldpayAddressWsDTOAddressDataPopulator testObj;
@@ -39,7 +44,7 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
     private CheckoutCustomerStrategy checkoutCustomerStrategyMock;
 
     @Mock
-    private RegionData regionDataMock;
+    private RegionData regionDataMock, regionDataTwoMock;
     @Mock
     private CountryData countryDataMock;
     @Mock
@@ -57,27 +62,52 @@ public class WorldpayAddressWsDTOAddressDataPopulatorTest {
         countryWsDTOStub.setIsocode(SPAIN_ISOCODE);
         countryWsDTOStub.setName(SPAIN_NAME);
 
-        final RegionWsDTO regionWsDTOStub = new RegionWsDTO();
-        regionWsDTOStub.setIsocode(VLC_ISOCODE);
-        regionWsDTOStub.setName(VLC_NAME);
-
         addressWsDTOStub.setCountry(countryWsDTOStub);
-        addressWsDTOStub.setRegion(regionWsDTOStub);
 
         when(i18nFacadeMock.getCountryForIsocode(SPAIN_ISOCODE)).thenReturn(countryDataMock);
-        when(i18nFacadeMock.getRegion(SPAIN_ISOCODE, VLC_ISOCODE)).thenReturn(regionDataMock);
+
+        when(regionDataMock.getIsocode()).thenReturn(VLC_ISOCODE);
+        when(regionDataMock.getIsocodeShort()).thenReturn(VLC_ISOCODE_SHORT);
+        when(regionDataTwoMock.getIsocodeShort()).thenReturn(ZGZ_ISOCODE_SHORT);
         when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(customerModelMock);
         when(customerModelMock.getContactEmail()).thenReturn(USER_EMAIL);
     }
 
     @Test
-    public void populate_WhenWsDTOFieldsAreSet_ShouldSetCountryRegionEmailShippingAddressAndBillingAddress() {
+    public void populate_WhenWsDTOFieldsAreSet_ShouldSetCountryRegionByIsocodeEmailShippingAddressAndBillingAddress() {
         final AddressData result = new AddressData();
+
+        final RegionWsDTO regionWsDTOStub = new RegionWsDTO();
+        regionWsDTOStub.setIsocode(VLC_ISOCODE);
+        regionWsDTOStub.setName(VLC_NAME);
+        addressWsDTOStub.setRegion(regionWsDTOStub);
+
+        when(i18nFacadeMock.getRegionsForCountryIso(SPAIN_ISOCODE)).thenReturn(List.of(regionDataMock,regionDataTwoMock));
 
         testObj.populate(addressWsDTOStub, result);
 
         assertThat(result.getCountry()).isEqualTo(countryDataMock);
         assertThat(result.getRegion()).isEqualTo(regionDataMock);
+        assertThat(result.getEmail()).isEqualTo(USER_EMAIL);
+        assertThat(result.isShippingAddress()).isTrue();
+        assertThat(result.isBillingAddress()).isTrue();
+    }
+
+    @Test
+    public void populate_WhenWsDTOFieldsAreSet_ShouldSetCountryRegionByIsoCodeShortEmailShippingAddressAndBillingAddress() {
+        final AddressData result = new AddressData();
+
+        final RegionWsDTO regionWsDTOStub = new RegionWsDTO();
+        regionWsDTOStub.setIsocodeShort(ZGZ_ISOCODE_SHORT);
+        regionWsDTOStub.setName(ZGZ_NAME);
+        addressWsDTOStub.setRegion(regionWsDTOStub);
+
+        when(i18nFacadeMock.getRegionsForCountryIso(SPAIN_ISOCODE)).thenReturn(List.of(regionDataMock,regionDataTwoMock));
+
+        testObj.populate(addressWsDTOStub, result);
+
+        assertThat(result.getCountry()).isEqualTo(countryDataMock);
+        assertThat(result.getRegion()).isEqualTo(regionDataTwoMock);
         assertThat(result.getEmail()).isEqualTo(USER_EMAIL);
         assertThat(result.isShippingAddress()).isTrue();
         assertThat(result.isBillingAddress()).isTrue();

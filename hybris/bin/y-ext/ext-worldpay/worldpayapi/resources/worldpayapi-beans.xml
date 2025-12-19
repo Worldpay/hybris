@@ -1103,4 +1103,31 @@
         <property name="tokenRequest" type="com.worldpay.data.token.TokenRequest"/>
         <property name="merchantToken" type="boolean"/>
     </bean>
+
+    <bean class="com.worldpay.data.partnertracker.PluginData">
+        <import type="com.fasterxml.jackson.annotation.JsonProperty"/>
+        <property name="ecommercePlatformEdition" type="java.lang.String">
+            <annotations>@JsonProperty("ecommerce_platform_edition")</annotations>
+        </property>
+        <property name="integrationVersion" type="java.lang.String">
+            <annotations>@JsonProperty("integration_version")</annotations>
+        </property>
+        <property name="historicIntegrationVersion" type="java.lang.String">
+            <annotations>@JsonProperty("historic_integration_version")</annotations>
+        </property>
+        <property name="additionalDetails" type="com.worldpay.data.partnertracker.AdditionalDetails">
+            <annotations>@JsonProperty("additional_details")</annotations>
+        </property>
+    </bean>
+
+    <bean class="com.worldpay.data.partnertracker.AdditionalDetails">
+        <import type="com.fasterxml.jackson.annotation.JsonProperty"/>
+        <property name="paymentMethod" type="java.lang.String">
+            <annotations>@JsonProperty("payment_method")</annotations>
+        </property>
+        <property name="currency" type="java.lang.String">
+            <annotations>@JsonProperty("currency")</annotations>
+        </property>
+    </bean>
+
 </beans>

@@ -1,43 +1,26 @@
 import { TestBed } from '@angular/core/testing';
-
-import { WorldpayGooglepayService } from './worldpay-googlepay.service';
-import { Address, CommandService, EventService, GlobalMessageService, UserIdService } from '@spartacus/core';
-import { Observable, of } from 'rxjs';
-import { GooglePayMerchantConfiguration, GooglePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
+import { CommandService, EventService, GlobalMessageService, LoggerService, UserIdService } from '@spartacus/core';
+import { Observable, of } from 'rxjs';
+import { mockUserId } from 'worldpay-sap-composable-tests';
 import { WorldpayGooglePayConnector } from '../../connectors/worldpay-googlepay/worldpay-googlepay.connector';
 import { GooglePayMerchantConfigurationSetEvent } from '../../events/googlepay.events';
+import { GooglePayMerchantConfiguration, GooglePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
+import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
+
+import { WorldpayGooglepayService } from './worldpay-googlepay.service';
 import createSpy = jasmine.createSpy;
 
 describe('WorldpayGooglepayService', () => {
   let service: WorldpayGooglepayService;
-  let activeCartService: ActiveCartFacade;
-  let userIdService: UserIdServiceStub;
   let worldpayGooglepayConnector: WorldpayGooglePayConnector;
-  let worldpayOrderService: WorldpayOrderService;
-  let globalMessageService: GlobalMessageService;
   let eventService: EventService;
 
-  const userId = 'testUserId';
+  const userId = mockUserId;
   const cartId = 'testCartId';
   const mockGooglePayMerchantConfiguration: GooglePayMerchantConfiguration = {
     merchantId: 'testMerchantId',
     cardType: 'VISA'
-  };
-  const mockBillingAddress: Address = {
-    firstName: 'John',
-    lastName: 'Smith',
-    line1: 'Buckingham Street 5',
-    line2: '1A',
-    phone: '(+11) 111 111 111',
-    postalCode: 'MA8902',
-    town: 'London',
-    country: {
-      name: 'test-country-name',
-      isocode: 'UK',
-    },
-    formattedAddress: 'test-formattedAddress',
   };
 
   class ActiveCartServiceStub {
@@ -104,17 +87,13 @@ describe('WorldpayGooglepayService', () => {
         {
           provide: UserIdService,
           useClass: UserIdServiceStub
-        }
+        },
+        LoggerService,
       ]
     });
     service = TestBed.inject(WorldpayGooglepayService);
-    activeCartService = TestBed.inject(ActiveCartFacade);
-    userIdService = TestBed.inject(UserIdService);
     worldpayGooglepayConnector = TestBed.inject(WorldpayGooglePayConnector);
-    worldpayOrderService = TestBed.inject(WorldpayOrderService);
-    globalMessageService = TestBed.inject(GlobalMessageService);
     eventService = TestBed.inject(EventService);
-
     spyOn(eventService, 'dispatch').and.callThrough();
   });
 
@@ -150,7 +129,7 @@ describe('WorldpayGooglepayService', () => {
     service.authoriseOrder(paymentRequest, true);
 
     expect(worldpayGooglepayConnector.authoriseGooglePayPayment).toHaveBeenCalledWith(
-      'testUserId', 'testCartId', { 'json': 'this is a test' }, { name: 'first last' }, true
+      mockUserId, 'testCartId', { 'json': 'this is a test' }, { name: 'first last' }, true
     );
   });
 });

@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
+import { GlobalMessageService, GlobalMessageType, QueryState, SemanticPathService } from '@spartacus/core';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
-import { GlobalMessageService, GlobalMessageType, QueryState, SemanticPathService } from '@spartacus/core';
-import { WorldpayCheckoutPaymentService } from '../services';
 import { PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
+import { WorldpayCheckoutPaymentService } from '../services';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WorldpayCheckoutReviewPaymentGuard  {
+export class WorldpayCheckoutReviewPaymentGuard {
 
   constructor(
     protected router: Router,
@@ -21,9 +21,9 @@ export class WorldpayCheckoutReviewPaymentGuard  {
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.worldpayCheckoutPaymentService.getPaymentDetailsState().pipe(
-      filter((state: QueryState<WorldpayApmPaymentInfo>) => !state.loading && !state.error),
-      map((state: QueryState<WorldpayApmPaymentInfo>) => state.data),
-      switchMap((data: WorldpayApmPaymentInfo) => this.worldpayCheckoutPaymentService.getCseTokenFromState().pipe(
+      filter((state: QueryState<WorldpayApmPaymentInfo>): boolean => !state.loading && !state.error),
+      map((state: QueryState<WorldpayApmPaymentInfo>): WorldpayApmPaymentInfo => state.data),
+      switchMap((data: WorldpayApmPaymentInfo): Observable<boolean | UrlTree> => this.worldpayCheckoutPaymentService.getCseTokenFromState().pipe(
         map((cseToken: string): boolean | UrlTree => {
           if (
             (

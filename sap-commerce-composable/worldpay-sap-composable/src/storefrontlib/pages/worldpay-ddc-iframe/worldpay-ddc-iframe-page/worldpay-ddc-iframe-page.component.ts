@@ -4,7 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { LoggerService, WindowRef } from '@spartacus/core';
 
 @Component({
-  templateUrl: './worldpay-ddc-iframe-page.component.html'
+  templateUrl: './worldpay-ddc-iframe-page.component.html',
+  standalone: false
 })
 export class WorldpayDdcIframePageComponent implements OnInit, AfterViewInit {
   action: SafeResourceUrl;

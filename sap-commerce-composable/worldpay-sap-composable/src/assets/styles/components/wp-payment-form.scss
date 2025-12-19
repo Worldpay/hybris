@@ -1,3 +1,7 @@
+@import "../../../assets/styles/mixins";
+@import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
+@import "@spartacus/checkout/base/styles/components/steps/payment/payment-form";
+
 wp-payment-form {
   @mixin checkout-media-style() {
     @include media-breakpoint-down(md) {

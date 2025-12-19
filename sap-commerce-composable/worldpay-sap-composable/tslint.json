@@ -1,0 +1,23 @@
+{
+  "extends": "../../tslint.json",
+  "rules": {
+    "no-string-literal": false,
+    "directive-selector": [
+      true,
+      "attribute",
+      "y",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      ["y", "cx"],
+      "kebab-case"
+    ]
+  },
+  "linterOptions": {
+    "exclude": [
+      "**/*.spec.ts"
+    ]
+  }
+}

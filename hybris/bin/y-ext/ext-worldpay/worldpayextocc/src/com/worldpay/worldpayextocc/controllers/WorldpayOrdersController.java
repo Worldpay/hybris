@@ -8,6 +8,7 @@ import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO;
 import com.worldpay.enums.AchDirectDebitAccountType;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facade.OCCWorldpayOrderFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
@@ -31,8 +32,8 @@ import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrategy;
-import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.order.InvalidCartException;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
@@ -55,9 +56,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
@@ -110,7 +109,9 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @Resource
     protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
     @Resource
-    protected EnumerationService enumerationService;
+    protected Set<AuthorisedStatus> apmErrorResponseStatuses;
+    @Resource
+    protected Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
 
     /**
      * Authorizes cart and places the order. Response contains the new order data.
@@ -215,21 +216,35 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ApiBaseSiteIdUserIdAndCartIdParam
     @ResponseBody
     public OrderWsDTO placeRedirectOrder(
-            final HttpServletRequest request,
-            @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException {
+            @RequestBody final Map<String, String> requestParams,
+            @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException, InvalidCartException {
 
-        final Map<String, String> requestParameterMap = getRequestParameterMap(request);
+        final String pending = requestParams.get("pending");
+
         final RedirectAuthoriseResult redirectAuthoriseResult = occWorldpayOrderFacade
-                .getRedirectAuthoriseResult(requestParameterMap);
+                .getRedirectAuthoriseResult(requestParams);
 
-        if (!requestParameterMap.containsKey(PAYMENT_STATUS_PARAMETER_NAME)) {
-            final OrderData orderData = occWorldpayOrderFacade.handleHopResponseWithoutPaymentStatus(redirectAuthoriseResult);
-            return dataMapper.map(orderData, OrderWsDTO.class, fields);
-        }
+        if (Boolean.FALSE.toString().equals(pending) || Objects.equals(pending, null)) {
+            if (!requestParams.containsKey(PAYMENT_STATUS_PARAMETER_NAME)) {
+                final OrderData orderData = occWorldpayOrderFacade.handleHopResponseWithoutPaymentStatus(redirectAuthoriseResult);
+                return dataMapper.map(orderData, OrderWsDTO.class, fields);
+            } else if (worldpayAfterRedirectValidationFacade.validateRedirectResponse(requestParams)) {
+                final OrderData orderData = occWorldpayOrderFacade.handleHopResponseWithPaymentStatus(redirectAuthoriseResult);
+                return dataMapper.map(orderData, OrderWsDTO.class, fields);
+            }
 
-        if (worldpayAfterRedirectValidationFacade.validateRedirectResponse(requestParameterMap)) {
-            final OrderData orderData = occWorldpayOrderFacade.handleHopResponseWithPaymentStatus(redirectAuthoriseResult);
-            return dataMapper.map(orderData, OrderWsDTO.class, fields);
+        } else {
+            if (worldpayAfterRedirectValidationFacade.validateRedirectResponse(requestParams)) {
+                redirectAuthoriseResult.setPending(true);
+                final AuthorisedStatus paymentStatus = redirectAuthoriseResult.getPaymentStatus();
+                if (!apmErrorResponseStatuses.contains(paymentStatus)) {
+                    worldpayHostedOrderFacade.completeRedirectAuthorise(redirectAuthoriseResult);
+                    final OrderData orderData = worldpayCheckoutFacadeDecorator.placeOrder();
+                    return dataMapper.map(orderData, OrderWsDTO.class, fields);
+                } else {
+                    LOG.error("Failed to create payment authorisation for successful pending order. Received status {}", paymentStatus);
+                }
+            }
         }
 
         LOG.error(FAILED_TO_PLACE_ORDER);
@@ -302,7 +317,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
      * @return the order details
      */
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST", "ROLE_ANONYMOUS"})
-    @RequestMapping(value = "/orders/{orderCode}/user/{userId}", method = RequestMethod.GET)
+    @GetMapping(value = "/orders/{orderCode}/user/{userId}")
     @ResponseBody
     @Operation(operationId = "getUserOrders", summary = "Get an order.", description = "Returns specific order details based on a specific order code. The response contains detailed order information.")
     @ApiBaseSiteIdParam
@@ -394,6 +409,10 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         } catch (final CommerceCartModificationException e) {
             throw new InvalidCartException(e);
         }
+    }
+
+    protected RedirectAuthoriseResult extractAuthoriseResultFromRequest(final Map<String, String> request) {
+        return redirectAuthoriseResultConverter.convert(request);
     }
 
 }

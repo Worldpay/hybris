@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
 import { Cart } from '@spartacus/cart/base/root';
 import { PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
@@ -75,9 +76,10 @@ export class WorldpayApmConnector {
    */
   placeOrderRedirect(
     userId: string,
-    cartId: string
+    cartId: string,
+    params: Params
   ): Observable<Order> {
-    return this.adapter.placeRedirectOrder(userId, cartId);
+    return this.adapter.placeRedirectOrder(userId, cartId, params);
   }
 
   /**

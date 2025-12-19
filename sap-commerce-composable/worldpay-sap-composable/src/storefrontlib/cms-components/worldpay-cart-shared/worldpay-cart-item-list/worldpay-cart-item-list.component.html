@@ -11,11 +11,29 @@
       class="cx-item-list-desc"
       role="columnheader"
     >
-      {{ 'cartItems.description' | cxTranslate }}
+      {{ 'cartItems.item' | cxTranslate }}
     </th>
-    <th
-      class="cx-item-list-qty"
+
+    <ng-template
       role="columnheader"
+      [cxOutlet]="CartOutlets.CPQ_QUOTE_HEADING"
+      [cxOutletContext]="items"
+    ></ng-template>
+
+    <th
+      *cxFeature="'a11yQTY2Quantity'"
+      role="columnheader"
+      scope="col"
+      class="cx-item-list-qty"
+    >
+      {{ 'cartItems.quantityFull' | cxTranslate }}
+    </th>
+
+    <th
+      *cxFeature="'!a11yQTY2Quantity'"
+      role="columnheader"
+      scope="col"
+      class="cx-item-list-qty"
     >
       {{ 'cartItems.quantity' | cxTranslate }}
     </th>
@@ -43,9 +61,10 @@
   <ng-container *ngFor="let item of items; let i = index">
     <ng-container
       *ngIf="getControl(item) | async as control"
-      [class.is-changed]="true"
+      [class.is-changed]="control.get('quantity').disabled"
     >
       <tr
+        [attr.aria-rowindex]="i + 1"
         [item]="item"
         [options]="options"
         [promotionLocation]="promotionLocation"

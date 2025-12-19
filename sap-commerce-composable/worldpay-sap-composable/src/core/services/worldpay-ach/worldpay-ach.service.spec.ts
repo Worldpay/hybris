@@ -2,13 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { EventService, QueryService, UserIdService } from '@spartacus/core';
 import { of, throwError } from 'rxjs';
+import { WorldpayACHConnector } from 'worldpay-sap-composable-connectors';
+import { mockUserId } from 'worldpay-sap-composable-tests';
+import { ACHPaymentFormRaw } from '../../interfaces';
 import { WorldpayACHService } from './worldpay-ach.service';
-import { ACHBankAccountType, ACHPaymentFormRaw } from '../../interfaces';
-import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
 import createSpy = jasmine.createSpy;
 
 const cartId = 'cartId';
-const userId = 'userId';
+const userId = mockUserId;
 
 class MockUserIdService implements Partial<UserIdService> {
   takeUserId = createSpy().and.returnValue(of(userId));
@@ -24,13 +25,8 @@ class MockActiveCartFacade {
   }
 }
 
-class MockQueryService implements Partial<QueryService> {
-  create = createSpy().and.callThrough();
-}
-
 describe('WorldpayAchService', () => {
   let service: WorldpayACHService;
-  let userIdService: UserIdService;
   let activeCartFacade: ActiveCartFacade;
   const worldpayACHConnector = jasmine.createSpyObj('WorldpayACHConnector', ['getACHBankAccountTypes']);
 
@@ -55,7 +51,6 @@ describe('WorldpayAchService', () => {
       ]
     });
     service = TestBed.inject(WorldpayACHService);
-    userIdService = TestBed.inject(UserIdService);
     activeCartFacade = TestBed.inject(ActiveCartFacade);
 
   });
@@ -101,16 +96,12 @@ describe('WorldpayAchService', () => {
   });
 
   it('should return ACH bank account types state', () => {
-    const achBankAccountTypes: ACHBankAccountType[] = [
-      {
-        code: 'type1',
-        name: 'Type 1'
-      },
-      {
-        code: 'type2',
-        name: 'Type 2'
-      },
-    ];
+    const achBankAccountTypes = {
+      checking: 'Checking',
+      corporate: 'Corporate',
+      corporateSavings: 'Corporate Savings',
+      savings: 'Savings',
+    };
     worldpayACHConnector.getACHBankAccountTypes.and.returnValue(of(achBankAccountTypes));
 
     service.getACHBankAccountTypesState().subscribe(state => {
@@ -124,7 +115,7 @@ describe('WorldpayAchService', () => {
 
   it('should handle error when getting ACH bank account types state', () => {
     const error = new Error('Failed to fetch');
-    worldpayACHConnector.getACHBankAccountTypes.and.returnValue(throwError(error));
+    worldpayACHConnector.getACHBankAccountTypes.and.returnValue(throwError(() => error));
     service.getACHBankAccountTypesState().subscribe({
       next: (err) => expect(err).toEqual({
         loading: false,

@@ -1,5 +1,6 @@
 import { APP_BASE_HREF, KeyValue, PlatformLocation } from '@angular/common';
-import { inject, Inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
 import { CheckoutDeliveryAddressCreatedEvent, CheckoutDeliveryAddressSetEvent, CheckoutPaymentDetailsSetEvent } from '@spartacus/checkout/base/root';
 import {
@@ -22,9 +23,11 @@ import {
   UserIdService,
   WindowRef
 } from '@spartacus/core';
+import { OrderPlacedEvent } from '@spartacus/order/root';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayApmConnector } from '../../connectors/worldpay-apm/worldpay-apm.connector';
+import { WorldpayApmConnector } from 'worldpay-sap-composable-connectors';
+import { WorldpayApmFacade } from 'worldpay-sap-composable-facade';
 import {
   ClearWorldpayPaymentDetailsEvent,
   SelectWorldpayAPMEvent,
@@ -32,7 +35,6 @@ import {
   SetWorldpaySaveAsDefaultCreditCardEvent,
   SetWorldpaySavedCreditCardEvent
 } from '../../events/worldpay.events';
-import { WorldpayApmFacade } from '../../facade/worldpay-apm-facade';
 import { ApmData, ApmPaymentDetails, APMRedirectResponse, OccCmsComponentWithMedia, PaymentMethod } from '../../interfaces';
 import { COMPONENT_APM_NORMALIZER } from '../../occ/converters';
 import { getBaseHref, trimLastSlashFromUrl } from '../../utils';
@@ -44,8 +46,9 @@ import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 })
 export class WorldpayApmService implements WorldpayApmFacade {
   baseHref: string;
-  protected selectedApm$: BehaviorSubject<ApmPaymentDetails> = new BehaviorSubject<ApmPaymentDetails>(null);
+  public selectedApm$: BehaviorSubject<ApmPaymentDetails> = new BehaviorSubject<ApmPaymentDetails>(null);
   protected apmRedirectUrl$: BehaviorSubject<APMRedirectResponse> = new BehaviorSubject<APMRedirectResponse>(null);
+  protected destroyRef: DestroyRef = inject(DestroyRef);
   protected logger: LoggerService = inject(LoggerService);
   /**
    * Command used to get available APMs
@@ -63,7 +66,6 @@ export class WorldpayApmService implements WorldpayApmFacade {
         reloadOn: this.reloadSelectedApmEvents()
       }
     );
-
   /**
    * Command used to set APM payment details.
    * Executes the command to set the APM payment details and dispatches the CheckoutPaymentDetailsSetEvent.
@@ -171,6 +173,28 @@ export class WorldpayApmService implements WorldpayApmFacade {
 
     this.setWorldpaySavedCreditCardEvent().subscribe();
     this.setWorldpaySaveAsDefaultCreditCardEvent().subscribe();
+    this.resetSelectedAPMEvent();
+  }
+
+  /**
+   * Resets the selected APM (Alternative Payment Method) when an order is placed.
+   *
+   * This method listens for the `OrderPlacedEvent` and, upon receiving the event,
+   * resets the selected APM by setting the `selectedApm$` BehaviorSubject to `null`.
+   *
+   * The `takeUntilDestroyed` operator ensures that the subscription is automatically
+   * unsubscribed when the `DestroyRef` is destroyed, preventing memory leaks.
+   *
+   * @since 2211.43.0
+   */
+  resetSelectedAPMEvent(): void {
+    this.eventService.get(OrderPlacedEvent).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (): void => {
+        this.selectedApm$.next(null);
+      }
+    });
   }
 
   /**
@@ -219,7 +243,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
   getApmComponentById(componentUid: string, code: PaymentMethod): Observable<ApmData> {
     return this.cmsService.getComponentData<OccCmsComponentWithMedia>(componentUid)
       .pipe(this.convertService.pipeable(COMPONENT_APM_NORMALIZER),
-        map((apmData: ApmData) => ({
+        map((apmData: ApmData): ApmData => ({
           ...apmData,
           code
         }))
@@ -253,7 +277,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   getSelectedAPMEvent(): Observable<ApmData> {
     return this.eventService.get(SelectWorldpayAPMEvent).pipe(
-      map((event: SelectWorldpayAPMEvent) => event.apm)
+      map((event: SelectWorldpayAPMEvent): ApmData => event.apm)
     );
   }
 
@@ -299,7 +323,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   getWorldpayAPMRedirectUrlFromState(): Observable<APMRedirectResponse> {
     return this.eventService.get(SetWorldpayAPMRedirectResponseEvent).pipe(
-      map((event: SetWorldpayAPMRedirectResponseEvent) => event.apmRedirectUrl)
+      map((event: SetWorldpayAPMRedirectResponseEvent): APMRedirectResponse => event.apmRedirectUrl)
     );
   }
 
@@ -319,7 +343,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   getWorldpayAvailableApmsLoading(): Observable<boolean> {
     return this.requestAvailableApmsState().pipe(
-      map((queryState: QueryState<ApmData[]>) => queryState.loading),
+      map((queryState: QueryState<ApmData[]>): boolean => queryState.loading),
     );
   }
 
@@ -330,7 +354,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   getWorldpayAvailableApms(): Observable<ApmData[]> {
     return this.requestAvailableApmsState().pipe(
-      map((queryState: QueryState<ApmData[]>) => queryState.data),
+      map((queryState: QueryState<ApmData[]>): ApmData[] => queryState.data),
     );
   }
 
@@ -391,7 +415,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   setWorldpaySavedCreditCardEvent(): Observable<void> {
     return this.eventService.get(SetWorldpaySavedCreditCardEvent).pipe(
-      map((event: SetWorldpaySavedCreditCardEvent) => this.worldpayCheckoutPaymentService.setSaveCreditCardValue(event?.saved))
+      map((event: SetWorldpaySavedCreditCardEvent): void => this.worldpayCheckoutPaymentService.setSaveCreditCardValue(event.saved))
     );
   }
 
@@ -402,7 +426,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   setWorldpaySaveAsDefaultCreditCardEvent(): Observable<void> {
     return this.eventService.get(SetWorldpaySaveAsDefaultCreditCardEvent).pipe(
-      map((event: SetWorldpaySaveAsDefaultCreditCardEvent) => this.worldpayCheckoutPaymentService.setSaveAsDefaultCardValue(event?.saved))
+      map((event: SetWorldpaySaveAsDefaultCreditCardEvent): void => this.worldpayCheckoutPaymentService.setSaveAsDefaultCardValue(event.saved))
     );
   }
 

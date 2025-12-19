@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, Input } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { GlobalMessageService, GlobalMessageType, I18nTestingModule, TranslationService, } from '@spartacus/core';
-import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { GlobalMessageService, GlobalMessageType, I18nTestingModule, TranslationService, } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
+import { of } from 'rxjs';
 import { MockFeatureLevelDirective } from '../../worldpay-cart-shared/worldpay-cart-item/worldpay-cart-item.component.spec';
 import { WorldpayOrderConfirmationThankYouMessageComponent } from './worldpay-order-confirmation-thank-you-message.component';
 import createSpy = jasmine.createSpy;
@@ -19,14 +19,16 @@ const mockOrder = {
 
 @Component({
   selector: 'cx-add-to-home-screen-banner',
-  template: ''
+  template: '',
+  standalone: false
 })
 class MockAddtoHomeScreenBannerComponent {
 }
 
 @Component({
   selector: 'y-worldpay-order-guest-register-form',
-  template: ''
+  template: '',
+  standalone: false
 })
 class MockGuestRegisterFormComponent {
   @Input() guid: string;

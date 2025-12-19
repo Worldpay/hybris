@@ -561,7 +561,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     @Override
     public ExemptionResponseInfo buildExemptionResponse(final ExemptionResponse intExemptionResponse) {
-        return Optional.of(intExemptionResponse).map(exemptionResponseReverseConverter::convert).orElse(null);
+        return Optional.ofNullable(intExemptionResponse).map(exemptionResponseReverseConverter::convert).orElse(null);
     }
 
 }

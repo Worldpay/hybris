@@ -105,6 +105,7 @@ export enum PaymentMethod {
   GooglePay = 'GooglePay',
   iDeal = 'IDEAL-SSL',
   PayPal = 'PayPal',
+  PayPalSSL = 'PAYPAL-SSL',
   ACH = 'ACH_DIRECT_DEBIT-SSL',
 }
 
@@ -195,6 +196,13 @@ export interface ACHPaymentFormRaw extends ACHPaymentFormCommon {
 
 export interface ACHPaymentForm extends ACHPaymentFormCommon {
   accountType?: string;
+}
+
+export interface AccountTypes {
+  checking?: string;
+  corporate?: string;
+  corporateSavings?: string;
+  savings?: string;
 }
 
 export interface ACHBankAccountType {
@@ -318,6 +326,7 @@ export enum WorldpayPlacedOrderStatus {
   ERROR = 'ERROR',
   FAILURE = 'FAILURE',
   EXPIRED = 'EXPIRED',
+  REFUSED = 'REFUSED'
 }
 
 export interface WorldpayChallengeResponse {
@@ -346,4 +355,30 @@ export interface CSEPaymentForm {
   acceptedTermsAndConditions?: boolean;
   deviceSession?: string;
   browserInfo?: BrowserInfo;
+}
+
+export interface PaymentFormData {
+  paymentDetails: ApmPaymentDetails;
+  billingAddress?: Address;
+}
+
+// eslint-disable-next-line @typescript-eslint/typedef
+export const FORM_VALIDATION_LIMITS = {
+  ACCOUNT_NUMBER_MAX: 17,
+  ROUTING_NUMBER_MIN: 8,
+  ROUTING_NUMBER_MAX: 9,
+  CHECK_NUMBER_MAX: 15,
+  COMPANY_NAME_MAX: 40,
+  CUSTOM_IDENTIFIER_MAX: 15
+};
+
+export interface BillingAddressFormValidation {
+  isValid: boolean;
+  billingAddress?: Address;
+}
+
+export interface IdealFormValue {
+  bank: {
+    code: string | null;
+  };
 }

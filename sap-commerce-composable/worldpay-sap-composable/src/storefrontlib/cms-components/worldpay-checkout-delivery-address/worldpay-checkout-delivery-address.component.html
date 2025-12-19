@@ -1,3 +1,7 @@
+<h2 class="cx-checkout-title d-none d-lg-block d-xl-block">
+  {{ 'checkoutAddress.shippingAddress' | cxTranslate }}
+</h2>
+
 <section
   *ngIf="
     featureConfigService?.isEnabled('a11yCheckoutStepsLandmarks');
@@ -7,25 +11,21 @@
 >
   <ng-template [ngTemplateOutlet]="content"></ng-template>
 </section>
-
 <ng-template #content>
-  <h2 class="cx-checkout-title d-none d-lg-block d-xl-block">
-    {{ 'checkoutAddress.shippingAddress' | cxTranslate }}
-  </h2>
-
   <ng-container *ngIf="cards$ | async as cards">
     <ng-container *ngIf="(isUpdating$ | async) !== true; else loading">
       <div
         *cxFeature="'!a11yRemoveStatusLoadedRole'"
-        role="status"
         [attr.aria-label]="'common.loaded' | cxTranslate"
+        role="status"
       ></div>
+
       <ng-container
         *ngIf="
-          cards?.length && !addressFormOpened;
-          then showExistingAddresses;
-          else newAddressForm
-        "
+        cards?.length && !addressFormOpened;
+        then showExistingAddresses;
+        else newAddressForm
+      "
       >
       </ng-container>
 
@@ -36,8 +36,8 @@
 
         <div class="cx-checkout-btns cx-checkout-btns-top">
           <button
-            class="btn btn-block btn-secondary"
             (click)="showNewAddressForm()"
+            class="btn btn-block btn-secondary"
           >
             {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
           </button>
@@ -45,19 +45,19 @@
 
         <div class="cx-checkout-body row">
           <div
-            class="cx-delivery-address-card col-md-12 col-lg-6"
             *ngFor="let card of cards; let i = index"
+            class="cx-delivery-address-card col-md-12 col-lg-6"
           >
             <div
-              class="cx-delivery-address-card-inner"
               (click)="selectAddress(card.address)"
+              class="cx-delivery-address-card-inner"
             >
               <cx-card
-                [border]="true"
-                [index]="i"
-                [fitToContainer]="true"
-                [content]="card.card"
                 (sendCard)="selectAddress(card.address)"
+                [border]="true"
+                [content]="card.card"
+                [fitToContainer]="true"
+                [index]="i"
               ></cx-card>
             </div>
           </div>
@@ -65,8 +65,8 @@
 
         <div class="cx-checkout-btns cx-checkout-btns-bottom">
           <button
-            class="btn btn-block btn-secondary"
             (click)="showNewAddressForm()"
+            class="btn btn-block btn-secondary"
           >
             {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
           </button>
@@ -75,17 +75,17 @@
         <div class="cx-checkout-btns row">
           <div class="col-md-12 col-lg-6">
             <button
-              class="cx-btn btn btn-block btn-secondary"
               (click)="back()"
+              class="cx-btn btn btn-block btn-secondary"
             >
               {{ backBtnText | cxTranslate }}
             </button>
           </div>
           <div class="col-md-12 col-lg-6">
             <button
-              class="cx-btn btn btn-block btn-primary"
-              [disabled]="!(selectedAddress$ | async)?.id"
               (click)="next()"
+              [disabled]="!(selectedAddress$ | async)?.id"
+              class="cx-btn btn btn-block btn-primary"
             >
               {{ 'common.continue' | cxTranslate }}
             </button>
@@ -95,26 +95,25 @@
 
       <ng-template #newAddressForm>
         <y-worldpay-address-form
-          *ngIf="cards.length; else initialAddressForm"
-          [showTitleCode]="true"
           (backToAddress)="hideNewAddressForm(false)"
           (submitAddress)="addAddress($event)"
+          *ngIf="cards.length; else initialAddressForm"
+          [showTitleCode]="true"
         ></y-worldpay-address-form>
         <ng-template #initialAddressForm>
           <y-worldpay-address-form
-            [showTitleCode]="true"
-            [setAsDefaultField]="!isGuestCheckout"
-            [addressData]="selectedAddress"
-            cancelBtnLabel="{{ backBtnText | cxTranslate }}"
             (backToAddress)="hideNewAddressForm(true)"
             (submitAddress)="addAddress($event)"
+            [addressData]="selectedAddress"
+            [setAsDefaultField]="!isGuestCheckout"
+            [showTitleCode]="true"
+            cancelBtnLabel="{{ backBtnText | cxTranslate }}"
           ></y-worldpay-address-form>
         </ng-template>
       </ng-template>
     </ng-container>
   </ng-container>
 </ng-template>
-
 <ng-template #loading>
   <div class="cx-spinner">
     <cx-spinner></cx-spinner>

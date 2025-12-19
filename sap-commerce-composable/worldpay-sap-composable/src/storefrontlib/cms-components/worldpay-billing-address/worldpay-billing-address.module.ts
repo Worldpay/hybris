@@ -1,12 +1,12 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WorldpayBillingAddressComponent } from './worldpay-billing-address.component';
-import { CardModule, FormErrorsModule, NgSelectA11yModule } from '@spartacus/storefront';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { I18nModule } from '@spartacus/core';
 import { CheckoutDeliveryAddressAdapter, CheckoutDeliveryAddressConnector } from '@spartacus/checkout/base/core';
 import { OccCheckoutDeliveryAddressAdapter } from '@spartacus/checkout/base/occ';
+import { FeaturesConfigModule, I18nModule } from '@spartacus/core';
+import { CardModule, FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, IconModule, NgSelectA11yModule, SpinnerModule } from '@spartacus/storefront';
+import { WorldpayBillingAddressComponent } from './worldpay-billing-address.component';
 
 @NgModule({
   declarations: [WorldpayBillingAddressComponent],
@@ -14,13 +14,18 @@ import { OccCheckoutDeliveryAddressAdapter } from '@spartacus/checkout/base/occ'
     WorldpayBillingAddressComponent
   ],
   imports: [
+    NgSelectA11yModule,
     CommonModule,
-    CardModule,
     ReactiveFormsModule,
     NgSelectModule,
-    FormErrorsModule,
+    CardModule,
     I18nModule,
-    NgSelectA11yModule,
+    IconModule,
+    SpinnerModule,
+    FormErrorsModule,
+    FeaturesConfigModule,
+    FormRequiredAsterisksComponent,
+    FormRequiredLegendComponent,
   ],
   providers: [
     CheckoutDeliveryAddressConnector,

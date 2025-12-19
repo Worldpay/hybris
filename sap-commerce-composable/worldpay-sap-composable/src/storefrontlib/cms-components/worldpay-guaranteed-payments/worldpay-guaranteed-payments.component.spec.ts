@@ -7,8 +7,8 @@ import { Cart } from '@spartacus/cart/base/root';
 import { GlobalMessageService, GlobalMessageType, LoggerService, QueryState, UserIdService } from '@spartacus/core';
 import { UserAccountService } from '@spartacus/user/account/core';
 import { User } from '@spartacus/user/account/root';
-import { WorldpayGuaranteedPaymentsService } from '@worldpay-services/worldpay-guaranteed-payments/worldpay-guaranteed-payments.service';
 import { Observable, of, throwError } from 'rxjs';
+import { WorldpayGuaranteedPaymentsService } from 'worldpay-sap-composable-services';
 import { WorldpayGuaranteedPaymentsComponent } from './worldpay-guaranteed-payments.component';
 
 const registeredUser: User = {
@@ -28,7 +28,7 @@ class MockActiveCartService {
 class MockUserIdService {
   getUserId() {
     return of(null);
-  };
+  }
 }
 
 class MockUserAccountService {
@@ -76,57 +76,57 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
       component.sessionId = sessionId;
     }
 
-    setGuaranteedPaymentsEnabledEvent(enabled: boolean): void {
+    setGuaranteedPaymentsEnabledEvent(): void {
     }
   }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-        declarations: [
-          WorldpayGuaranteedPaymentsComponent,
-        ],
-        imports: [
-          StoreModule.forRoot({}),
-          EffectsModule.forRoot([])
-        ],
-        providers: [
-          Store,
-          GlobalMessageService,
-          {
-            provide: WorldpayGuaranteedPaymentsService,
-            useClass: MockWorldpayGuaranteedPaymentsService
-          },
-          {
-            provide: UserAccountService,
-            useClass: MockUserAccountService
-          },
-          {
-            provide: ActiveCartService,
-            useClass: MockActiveCartService,
-          },
-          {
-            provide: UserIdService,
-            useClass: MockUserIdService,
-          },
-          provideMockStore({
-            initialState: {
-              cart: {
-                carts: {
-                  entities: {
-                    current: {
-                      test: {
-                        value: {
-                          cart
-                        }
+      declarations: [
+        WorldpayGuaranteedPaymentsComponent,
+      ],
+      imports: [
+        StoreModule.forRoot({}),
+        EffectsModule.forRoot([])
+      ],
+      providers: [
+        Store,
+        GlobalMessageService,
+        {
+          provide: WorldpayGuaranteedPaymentsService,
+          useClass: MockWorldpayGuaranteedPaymentsService
+        },
+        {
+          provide: UserAccountService,
+          useClass: MockUserAccountService
+        },
+        {
+          provide: ActiveCartService,
+          useClass: MockActiveCartService,
+        },
+        {
+          provide: UserIdService,
+          useClass: MockUserIdService,
+        },
+        provideMockStore({
+          initialState: {
+            cart: {
+              carts: {
+                entities: {
+                  current: {
+                    test: {
+                      value: {
+                        cart
                       }
                     }
                   }
                 }
               }
             }
-          })
-        ]
-      })
+          }
+        })
+      ]
+    })
       .compileComponents();
   });
 
@@ -250,10 +250,10 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
     it('should handle error when getting session id', () => {
       spyOn(worldpayGuaranteedPaymentsService, 'getSessionId').and.returnValue(throwError(() => errorMessage));
       spyOn(globalMessageService, 'add');
-      spyOn(console, 'error');
+      spyOn(loggerService, 'error');
       fixture.detectChanges();
       expect(globalMessageService.add).toHaveBeenCalledWith({ key: errorMessage.details[0].message }, GlobalMessageType.MSG_TYPE_ERROR);
-      expect(console.error).toHaveBeenCalledWith('Failed to get Guaranteed Payments session Id, check component configuration', errorMessage);
+      expect(loggerService.error).toHaveBeenCalledWith('Failed to get Guaranteed Payments session Id, check component configuration', errorMessage);
     });
 
     it('should update session id for anonymous user', () => {
@@ -316,54 +316,11 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
       spyOn(loggerService, 'error');
       fixture.detectChanges();
       component.updateSessionId().subscribe({
-        error: (error) => {
+        error: () => {
           expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'error message' }, GlobalMessageType.MSG_TYPE_ERROR);
           expect(loggerService.error).toHaveBeenCalledWith('Failed to update Guaranteed Payments session Id, check component configuration', errorMessage);
         }
       });
-    });
-    
-    it('should generate script when session id changes', () => {
-      spyOn(worldpayGuaranteedPaymentsService, 'generateScript');
-      spyOn(worldpayGuaranteedPaymentsService, 'getSessionId').and.returnValue(of('new-session-id'));
-      fixture.detectChanges();
-      expect(worldpayGuaranteedPaymentsService.generateScript).toHaveBeenCalledWith('new-session-id');
-    });
-
-    it('should handle error when getting session id', () => {
-      spyOn(worldpayGuaranteedPaymentsService, 'getSessionId').and.returnValue(throwError(() => errorMessage));
-      spyOn(globalMessageService, 'add');
-      spyOn(loggerService, 'error');
-      fixture.detectChanges();
-      expect(globalMessageService.add).toHaveBeenCalledWith({ key: errorMessage.details[0].message }, GlobalMessageType.MSG_TYPE_ERROR);
-      expect(loggerService.error).toHaveBeenCalledWith('Failed to get Guaranteed Payments session Id, check component configuration', errorMessage);
-    });
-
-    it('should update session id for anonymous user', () => {
-      spyOn(worldpayGuaranteedPaymentsService, 'isGuaranteedPaymentsEnabledState').and.returnValue(of({
-        error: false,
-        loading: false,
-        data: true
-      }));
-      spyUserId.and.returnValue(of('anonymous'));
-      fixture.detectChanges();
-      let sessionId;
-      component.updateSessionId().subscribe(id => sessionId = id);
-      expect(sessionId).toBe('anonymous_cart-100');
-    });
-
-    it('should update session id for registered user', () => {
-      spyOn(worldpayGuaranteedPaymentsService, 'isGuaranteedPaymentsEnabledState').and.returnValue(of({
-        error: false,
-        loading: false,
-        data: true
-      }));
-      spyAccount.and.returnValue(of(registeredUser));
-      spyUserId.and.returnValue(of('current'));
-      fixture.detectChanges();
-      let sessionId;
-      component.updateSessionId().subscribe(id => sessionId = id);
-      expect(sessionId).toBe('user-id_cart-100');
     });
   });
 });

@@ -5,7 +5,6 @@ import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@s
 import { Order } from '@spartacus/order/root';
 import { Observable, of } from 'rxjs';
 import { catchError, map, timeout } from 'rxjs/operators';
-import { WorldpayPlacedOrderStatus } from '../interfaces';
 import { WorldpayOrderService } from '../services';
 
 @Injectable({
@@ -40,21 +39,17 @@ export class WorldpayCheckoutPaymentRedirectGuard {
     case params == null || typeof params !== 'object' || Object.keys(params).length === 0:
       return this.lookUpOrder();
 
-    case params.hasOwnProperty('pending'): {
-      return this.redirectToOrderConfirmation(!(params.paymentStatus in WorldpayPlacedOrderStatus));
-    }
-
-    case params.hasOwnProperty('paymentStatus'): {
-      return this.redirectToOrderConfirmation(params.paymentStatus === 'AUTHORISED');
-    }
-
     case params.hasOwnProperty('orderId'): {
+      // @ts-ignore: TS4111
       return this.placeBankTransferRedirectOrder(params.orderId);
     }
 
     default:
-      this.worldpayOrderService.clearLoading();
-      return of(this.router.parseUrl(this.semanticPathService.get('checkoutPaymentDetails')));
+      return this.placeRedirectOrder({
+        ...params,
+        // @ts-ignore: TS4111
+        pending: route.queryParams.pending ?? false
+      });
     }
   }
 
@@ -64,12 +59,10 @@ export class WorldpayCheckoutPaymentRedirectGuard {
    * @protected
    * @since 4.3.6
    */
-  protected placeRedirectOrder(): Observable<boolean | UrlTree> {
-    return this.worldpayOrderService.placeRedirectOrder()
-      .pipe(
-        timeout(4000),
-        catchError(() => of(this.router.parseUrl(this.semanticPathService.get('orderConfirmation')))),
-      );
+  protected placeRedirectOrder(params: Params): Observable<boolean | UrlTree> {
+    return this.worldpayOrderService.placeRedirectOrder(params).pipe(
+      catchError((): Observable<UrlTree> => this.redirectToPaymentRejected()),
+    );
   }
 
   /**
@@ -83,7 +76,7 @@ export class WorldpayCheckoutPaymentRedirectGuard {
     return this.worldpayOrderService.placeBankTransferRedirectOrder(orderId)
       .pipe(
         timeout(4000),
-        catchError(() => of(this.router.parseUrl(this.semanticPathService.get('checkoutPaymentDetails')))),
+        catchError((): Observable<UrlTree> => of(this.router.parseUrl(this.semanticPathService.get('checkoutPaymentDetails')))),
       );
   }
 
@@ -105,20 +98,12 @@ export class WorldpayCheckoutPaymentRedirectGuard {
     );
   }
 
-  /**
-   * Redirects to order confirmation page based on the validation result.
-   * @param {boolean} validator - A boolean indicating whether the validation passed.
-   * @returns {Observable<boolean | UrlTree>} An observable that emits a boolean or UrlTree indicating the result of the redirection.
-   * @protected
-   * @since 6.4.0
-   */
-  protected redirectToOrderConfirmation(validator: boolean): Observable<boolean | UrlTree> {
-    if (validator) {
-      return this.placeRedirectOrder();
-    }
-
+  protected redirectToPaymentRejected(): Observable<UrlTree> {
     this.worldpayOrderService.clearLoading();
-    this.globalMessageService.add({ key: 'checkoutReview.redirectPaymentRejected' }, GlobalMessageType.MSG_TYPE_ERROR);
+    this.globalMessageService.add(
+      { key: 'checkoutReview.redirectPaymentRejected' },
+      GlobalMessageType.MSG_TYPE_ERROR
+    );
     return of(this.router.parseUrl(this.semanticPathService.get('checkoutPaymentDetails')));
   }
 }

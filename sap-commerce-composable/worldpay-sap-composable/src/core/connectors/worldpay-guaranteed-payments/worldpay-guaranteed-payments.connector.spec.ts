@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { WorldpayGuaranteedPaymentsAdapter } from './worldpay-guaranteed-payments.adapter';
 import { take } from 'rxjs/operators';
+import { WorldpayGuaranteedPaymentsAdapter } from './worldpay-guaranteed-payments.adapter';
 import { WorldpayGuaranteedPaymentsConnector } from './worldpay-guaranteed-payments.connector';
 import createSpy = jasmine.createSpy;
 

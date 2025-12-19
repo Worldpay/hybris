@@ -1,12 +1,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context.xsd">
+           http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <context:component-scan base-package="com.worldpay.worldpayextocc.controllers, com.worldpay.worldpayextocc.populators"/>
+<context:component-scan base-package="com.worldpay.worldpayextocc.controllers, com.worldpay.worldpayextocc.populators"/>
 
     <alias name="defaultPaymentDetailsDTOValidator" alias="paymentDetailsDTOValidator"/>
     <bean id="defaultPaymentDetailsDTOValidator"
@@ -71,6 +71,12 @@
     <bean depends-on="messageConvertersV2" parent="listMergeDirective">
         <property name="add" ref="defaultWorldpayOCCStringMessageConverter"/>
     </bean>
+
+    <util:set id="apmErrorResponseStatuses" value-type="com.worldpay.enums.order.AuthorisedStatus">
+        <value>ERROR</value>
+        <value>FAILURE</value>
+        <value>EXPIRED</value>
+    </util:set>
 
     <import resource="v2-web-spring-worldpayextocc.xml"/>
 </beans>

@@ -7,6 +7,8 @@ import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 
+import java.util.Optional;
+
 public class ExemptionResponseReversePopulator implements Populator<ExemptionResponse, ExemptionResponseInfo> {
 
     private final Converter<com.worldpay.internal.model.Exemption, Exemption> internalExemptionReverseConverter;
@@ -17,7 +19,9 @@ public class ExemptionResponseReversePopulator implements Populator<ExemptionRes
 
     @Override
     public void populate(final ExemptionResponse source, final ExemptionResponseInfo target) throws ConversionException {
-        target.setExemption(internalExemptionReverseConverter.convert(source.getExemption()));
+        Optional.ofNullable(source.getExemption())
+                .map(internalExemptionReverseConverter::convert)
+                .ifPresent(target::setExemption);
         target.setResult(source.getResult());
         target.setReason(source.getReason());
     }

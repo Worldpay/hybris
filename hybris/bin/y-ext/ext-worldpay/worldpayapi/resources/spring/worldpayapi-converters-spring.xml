@@ -316,4 +316,23 @@
             </list>
         </property>
     </bean>
+
+    <bean class="de.hybris.platform.servicelayer.internal.converter.impl.ModelConverterMapping">
+        <property name="typeCode" value="IntegrationVersion"/>
+        <property name="modelClass"
+                  value="com.worldpay.model.IntegrationVersionModel"/>
+        <property name="converter">
+            <bean class="de.hybris.platform.servicelayer.internal.converter.impl.ItemModelConverter">
+                <constructor-arg ref="modelService"/>
+                <constructor-arg ref="i18nService"/>
+                <constructor-arg ref="commonI18NService"/>
+                <constructor-arg value="IntegrationVersion"/>
+                <constructor-arg
+                        value="com.worldpay.model.IntegrationVersionModel"/>
+                <constructor-arg ref="leanSerializationStrategy"/>
+                <constructor-arg ref="sourceTransformer"/>
+                <constructor-arg ref="selfHealingService"/>
+            </bean>
+        </property>
+    </bean>
 </beans>

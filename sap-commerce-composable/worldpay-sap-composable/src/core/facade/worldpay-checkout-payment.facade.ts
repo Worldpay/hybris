@@ -7,7 +7,7 @@ import { WORLDPAY_CHECKOUT_PAYMENT_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayCheckoutPaymentFacade =>
     facadeFactory({
       facade: WorldpayCheckoutPaymentFacade,
       feature: WORLDPAY_CHECKOUT_PAYMENT_FEATURE,

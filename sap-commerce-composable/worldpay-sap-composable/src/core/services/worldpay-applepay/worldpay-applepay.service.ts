@@ -19,9 +19,9 @@ import {
 import { OrderFacade } from '@spartacus/order/root';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayApplepayConnector } from '../../connectors/worldpay-applepay/worldpay-applepay.connector';
+import { WorldpayApplepayConnector } from 'worldpay-sap-composable-connectors';
+import { WorldpayApplepayFacade } from 'worldpay-sap-composable-facade';
 import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events/applepay.events';
-import { WorldpayApplepayFacade } from '../../facade/worldpay-applepay.facade';
 import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
 import { createApplePaySession } from './worldpay-applepay-session';
 
@@ -56,7 +56,6 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
         )
       )
     );
-
   /**
    * Command to validate the Apple Pay Merchant.
    * @protected
@@ -80,7 +79,6 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
         strategy: CommandStrategy.CancelPrevious
       }
     );
-
   /**
    * Command to authorize the Apple Pay payment.
    * @protected
@@ -177,7 +175,6 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
    * @since 4.3.6
    */
   applePayButtonAvailable(): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const applePaySession: any = this.nativeWindow.ApplePaySession;
     return !!(applePaySession && applePaySession.canMakePayments());
   }
@@ -201,7 +198,6 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
    * @since 4.3.6
    */
   createSession(paymentRequest: ApplePayPaymentRequest): any {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const session: any = new this.AppleSession(5, paymentRequest);
     session.onvalidatemerchant = this.onValidateMerchant.bind(this);
     session.onpaymentauthorized = this.onPaymentAuthorized.bind(this);
@@ -227,7 +223,7 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
    */
   getPaymentRequestFromState(): Observable<ApplePayPaymentRequest> {
     return this.requestApplePayPaymentRequest().pipe(
-      map((queryState: QueryState<ApplePayPaymentRequest>) => queryState.data)
+      map((queryState: QueryState<ApplePayPaymentRequest>): ApplePayPaymentRequest => queryState.data)
     );
   }
 
@@ -250,9 +246,7 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
   }
 
   /**
-   * Get current user id and cart id.
-   * @returns {Observable<[string, string]>} An observable that emits a tuple containing the user id and cart id.
-   * @throws {Error} If the checkout conditions are not met.
+   * Get current user id and cart id
    * @since 6.4.0
    */
   checkoutPreconditions(): Observable<[string, string]> {
@@ -276,10 +270,9 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
   }
 
   /**
-   * Validate the merchant for ApplePay.
-   * @param {Object} event - The event object containing the validation URL.
-   * @param {string} event.validationURL - The validation URL for the merchant.
+   * Validate the merchant for ApplePay
    * @since 4.3.6
+   * @param event
    */
   protected onValidateMerchant(event: { validationURL: string }): void {
     this.validateApplePayMerchantCommand.execute({ validationURL: event.validationURL })

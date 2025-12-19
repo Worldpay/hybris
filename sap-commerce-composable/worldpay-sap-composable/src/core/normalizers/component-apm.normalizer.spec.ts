@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Image, OccConfig } from '@spartacus/core';
-import { ComponentApmNormalizer } from '@worldpay-normalizers/component-apm.normalizer';
-import { ApmData, OccApmData, OccCmsComponentWithMedia, PaymentMethod } from '../interfaces';
+import { ApmData, OccCmsComponentWithMedia, PaymentMethod } from '../interfaces';
+import { ComponentApmNormalizer } from './component-apm.normalizer';
 
 const MockOccModuleConfig = {
   backend: {
@@ -16,8 +16,6 @@ const MockOccModuleConfig = {
 
 describe('ComponentApmNormalizer', () => {
   let service: ComponentApmNormalizer;
-  let source: OccApmData;
-  let occConfig: OccConfig;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -30,19 +28,6 @@ describe('ComponentApmNormalizer', () => {
     });
 
     service = TestBed.inject(ComponentApmNormalizer);
-    occConfig = TestBed.inject(OccConfig);
-    source = {
-      apmConfiguration: {
-        code: PaymentMethod.iDeal,
-        name: 'iDeal',
-        bankConfigurations: [
-          {
-            bankName: 'RABO BANK',
-            bankCode: 'RABOBANK'
-          }
-        ],
-      },
-    };
   });
 
   it('should be created', () => {
@@ -110,27 +95,6 @@ describe('ComponentApmNormalizer', () => {
         code: PaymentMethod.Card,
         name: 'Component Name'
       });
-    });
-
-    it('should return the same URL if it is an absolute URL', () => {
-      const absoluteUrl = 'http://example.com/image.jpg';
-      expect(service['normalizeImageUrl'](absoluteUrl)).toEqual(absoluteUrl);
-    });
-
-    it('should return the same URL if it is a data URL', () => {
-      const dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA';
-      expect(service['normalizeImageUrl'](dataUrl)).toEqual(dataUrl);
-    });
-
-    it('should return the same URL if it starts with //', () => {
-      const protocolRelativeUrl = '//example.com/image.jpg';
-      expect(service['normalizeImageUrl'](protocolRelativeUrl)).toEqual(protocolRelativeUrl);
-    });
-
-    it('should prepend the base URL if the URL is relative', () => {
-      const relativeUrl = '/media/image.jpg';
-      const expectedUrl = 'https://localhost:9002/media/image.jpg';
-      expect(service['normalizeImageUrl'](relativeUrl)).toEqual(expectedUrl);
     });
   });
 

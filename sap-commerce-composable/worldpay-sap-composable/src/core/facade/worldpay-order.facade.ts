@@ -1,12 +1,12 @@
 import { Injectable, ViewContainerRef } from '@angular/core';
 import { facadeFactory, HttpErrorModel, PaymentDetails } from '@spartacus/core';
-import { OrderFacade, ORDER_CORE_FEATURE } from '@spartacus/order/root';
+import { ORDER_CORE_FEATURE, OrderFacade } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
 import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayOrderFacade =>
     facadeFactory({
       facade: WorldpayOrderFacade,
       feature: ORDER_CORE_FEATURE,

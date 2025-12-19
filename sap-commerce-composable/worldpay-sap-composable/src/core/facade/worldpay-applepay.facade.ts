@@ -2,12 +2,12 @@
 import { Injectable } from '@angular/core';
 import { facadeFactory } from '@spartacus/core';
 import { Observable } from 'rxjs';
-import { WORLDPAY_APPLE_PAY_FEATURE } from './worldpay-feature-name';
 import { ApplePayPaymentRequest } from '../interfaces';
+import { WORLDPAY_APPLE_PAY_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayApplepayFacade =>
     facadeFactory({
       facade: WorldpayApplepayFacade,
       feature: WORLDPAY_APPLE_PAY_FEATURE,

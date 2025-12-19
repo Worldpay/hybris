@@ -1,14 +1,13 @@
-import { NgZone } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { QueryState, WindowRef } from '@spartacus/core';
+import { LoggerService, QueryState, WindowRef } from '@spartacus/core';
 import { Observable, of } from 'rxjs';
-import { WorldpayFraudsightService } from '../../../core/services/worldpay-fraudsight/worldpay-fraudsight.service';
-import { WorldpayFraudsightRiskComponent } from './worldpay-fraudsight-risk.component';
+import { WorldpayFraudsightRiskComponent } from 'worldpay-sap-composable-components';
+import { WorldpayFraudsightService } from 'worldpay-sap-composable-services';
 
 class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightService> {
   isFraudSightEnabledFromState(): Observable<boolean> {
     return of(true);
-  };
+  }
 
   setFraudSightEnabled = () => {
   };
@@ -23,32 +22,33 @@ class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightService
 
   setFraudSightId(): void {
 
-  };
+  }
 }
 
 describe('WorldpayFraudsightRiskComponent', () => {
   let component: WorldpayFraudsightRiskComponent;
   let fixture: ComponentFixture<WorldpayFraudsightRiskComponent>;
-  let ngZone: NgZone;
   let windowRef: WindowRef;
   let service: WorldpayFraudsightService;
   let spyWinRef: jasmine.Spy;
   let enabledSpy: jasmine.Spy;
+  let logger: LoggerService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-        declarations: [
-          WorldpayFraudsightRiskComponent,
-        ],
-        imports: [],
-        providers: [
-          WindowRef,
-          {
-            provide: WorldpayFraudsightService,
-            useClass: MockWorldpayFraudsightService,
-          }
-        ]
-      })
+      declarations: [
+        WorldpayFraudsightRiskComponent,
+      ],
+      imports: [],
+      providers: [
+        WindowRef,
+        {
+          provide: WorldpayFraudsightService,
+          useClass: MockWorldpayFraudsightService,
+        },
+        LoggerService
+      ]
+    })
       .compileComponents();
   });
 
@@ -56,8 +56,8 @@ describe('WorldpayFraudsightRiskComponent', () => {
     fixture = TestBed.createComponent(WorldpayFraudsightRiskComponent);
     component = fixture.componentInstance;
     service = TestBed.inject(WorldpayFraudsightService);
-    ngZone = TestBed.inject(NgZone);
     windowRef = TestBed.inject(WindowRef);
+    logger = TestBed.inject(LoggerService);
     spyWinRef = spyOn(windowRef, 'isBrowser');
     enabledSpy = spyOn(service, 'isFraudSightEnabledFromState');
     enabledSpy.and.callThrough();
@@ -75,13 +75,13 @@ describe('WorldpayFraudsightRiskComponent', () => {
   });
 
   it('should not be browser', () => {
-    spyOn(console, 'log');
     spyWinRef.and.returnValue(false);
     enabledSpy.and.returnValue(of(false));
+    spyOn(logger, 'log');
     fixture.detectChanges();
     expect(component).toBeTruthy();
     expect(service.setFraudSightId).not.toHaveBeenCalled();
-    expect(console.log).toHaveBeenCalledWith('SSR - skipping FraudSight initialization');
+    expect(logger.log).toHaveBeenCalledWith('SSR - skipping FraudSight initialization');
   });
 
   describe('should be browser', () => {

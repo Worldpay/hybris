@@ -5,9 +5,8 @@ import { RouterModule } from '@angular/router';
 import { I18nModule, provideConfig, UrlModule } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
 import { FormErrorsModule, IconModule, SpinnerModule } from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentAdapter } from '@worldpay-connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
-import { WorldpayCheckoutPaymentConnector } from '@worldpay-connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
-import { OccWorldpayCheckoutPaymentAdapter } from '@worldpay-occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
+import { WorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentConnector } from 'worldpay-sap-composable-connectors';
+import { OccWorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-occ';
 import { WorldpayOrderService } from '../../../core/services';
 import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
 

@@ -6,7 +6,8 @@ import { CartItemListComponent } from '@spartacus/cart/base/components';
   selector: 'y-worldpay-cart-item-list',
   templateUrl: './worldpay-cart-item-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayCartItemListComponent extends CartItemListComponent {
   /**

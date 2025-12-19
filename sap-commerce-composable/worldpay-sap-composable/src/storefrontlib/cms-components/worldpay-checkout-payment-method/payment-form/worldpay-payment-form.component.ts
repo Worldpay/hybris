@@ -5,15 +5,17 @@ import { CheckoutPaymentFormComponent } from '@spartacus/checkout/base/component
 import { CheckoutDeliveryAddressFacade, CheckoutPaymentFacade } from '@spartacus/checkout/base/root';
 import { GlobalMessageService, LoggerService, TranslationService, UserAddressService, UserPaymentService } from '@spartacus/core';
 import { LaunchDialogService } from '@spartacus/storefront';
-import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
-import { Observable } from 'rxjs';
-import { distinctUntilChanged, withLatestFrom } from 'rxjs/operators';
+import { combineLatest, Observable, startWith, Subject } from 'rxjs';
+import { distinctUntilChanged, map, withLatestFrom } from 'rxjs/operators';
+import { WorldpayFraudsightService } from 'worldpay-sap-composable-services';
+import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
 
 @Component({
   selector: 'wp-payment-form',
   templateUrl: './worldpay-payment-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent implements OnInit {
   override paymentForm: UntypedFormGroup = this.fb.group({
@@ -30,7 +32,13 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
     cvn: ['', Validators.required]
   });
   isFraudSightEnabled$: Observable<boolean> = this.worldpayFraudsightService.isFraudSightEnabledFromState();
-  protected logger: LoggerService = inject(LoggerService);
+  sameAsDeliveryAddress$: Observable<boolean>;
+  billingAddressFormValid$: Observable<boolean>;
+  continueButtonDisabled$: Observable<boolean>;
+  protected override billingAddressService: WorldpayBillingAddressFormService = inject(WorldpayBillingAddressFormService);
+  sameAsDeliveryAddress: boolean = this.billingAddressService.isBillingAddressSameAsDeliveryAddress();
+  private drop: Subject<void> = new Subject<void>();
+  private logger: LoggerService = inject(LoggerService);
   private destroyRef: DestroyRef = inject(DestroyRef);
 
   constructor(
@@ -82,6 +90,40 @@ export class WorldpayPaymentFormComponent extends CheckoutPaymentFormComponent i
         }
       }
     });
+
+    this.bindBillingAddressChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.drop.next();
+    this.drop.complete();
+  }
+
+  protected bindBillingAddressChanges(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const billingAddressForm$: Observable<any> = this.billingAddressService.getBillingAddressForm().valueChanges.pipe(
+      startWith(this.billingAddressService.getBillingAddressForm().value),
+      takeUntilDestroyed(this.destroyRef)
+    );
+
+    this.sameAsDeliveryAddress$ = billingAddressForm$.pipe(
+      map((): boolean => this.billingAddressService.isBillingAddressSameAsDeliveryAddress())
+    );
+
+    this.billingAddressFormValid$ = billingAddressForm$.pipe(
+      map((): boolean => this.billingAddressService.isBillingAddressFormValid())
+    );
+
+    this.continueButtonDisabled$ = combineLatest([
+      this.billingAddressService.getSameAsDeliveryAddress(),
+      this.sameAsDeliveryAddress$,
+      this.billingAddressFormValid$
+    ]).pipe(
+      map(([isBillingAddressSameAsDeliveryAddress, sameAsDeliveryAddress, billingAddressFormValid]: [boolean, boolean, boolean]): boolean =>
+        !(isBillingAddressSameAsDeliveryAddress || sameAsDeliveryAddress || billingAddressFormValid)
+      ),
+      distinctUntilChanged()
+    );
   }
 
   protected toggleDateOfBirthControl(): void {

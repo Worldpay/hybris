@@ -1,17 +1,21 @@
 import { APP_BASE_HREF, CommonModule, PlatformLocation } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { I18nConfig, provideConfig, provideFeatureTogglesFactory } from '@spartacus/core';
-import { WorldpayCheckoutDeliveryAddressModule } from '@worldpay-components/worldpay-checkout-delivery-address/worldpay-checkout-delivery-address.module';
-import { WorldpayCheckoutPaymentMethodModule } from '@worldpay-components/worldpay-checkout-payment-method/worldpay-checkout-payment-method.module';
-import { WorldpayCheckoutPlaceOrderModule } from '@worldpay-components/worldpay-checkout-place-order/worldpay-checkout-place-order.module';
-import { Worldpay3dsChallengeIframeModule } from '@worldpay-pages/worldpay-3ds-challenge-iframe/worldpay-3ds-challenge-iframe.module';
-import { WorldpayDdcIframeRoutingModule } from '@worldpay-pages/worldpay-ddc-iframe/worldpay-ddc-iframe-routing.module';
-import { WorldpayDdcIframeModule } from '@worldpay-pages/worldpay-ddc-iframe/worldpay-ddc-iframe.module';
+import { WorldpayEventsModule } from 'worldpay-sap-composable-events';
+import { OccWorldpayModule } from 'worldpay-sap-composable-occ';
+import { Worldpay3dsChallengeIframeModule, WorldpayDdcIframeModule, WorldpayDdcIframeRoutingModule } from 'worldpay-sap-composable-pages';
+import { worldpayFacadeProviders } from 'worldpay-sap-composable-services';
 import { worldpayTranslations } from '../assets/worldpay-translations';
-import { OccWorldpayModule } from '../core/occ/occ-worldpay.module';
-import { worldpayFacadeProviders } from '../core/services/facade-providers';
 import { getBaseHref } from '../core/utils/get-base-href';
-import { WorldpayCartSharedModule, WorldpayCheckoutReviewPaymentModule, WorldpayOrderConfirmationModule, WorldpayOrderDetailsModule } from '../storefrontlib/cms-components';
+import {
+  WorldpayCartSharedModule,
+  WorldpayCheckoutDeliveryAddressModule,
+  WorldpayCheckoutPaymentMethodModule,
+  WorldpayCheckoutPlaceOrderModule,
+  WorldpayCheckoutReviewPaymentModule,
+  WorldpayOrderConfirmationModule,
+  WorldpayOrderDetailsModule
+} from '../storefrontlib/cms-components';
 
 @NgModule({
   declarations: [],
@@ -28,6 +32,7 @@ import { WorldpayCartSharedModule, WorldpayCheckoutReviewPaymentModule, Worldpay
     WorldpayCartSharedModule,
     WorldpayOrderConfirmationModule,
     WorldpayOrderDetailsModule,
+    WorldpayEventsModule,
   ],
   providers: [
     provideConfig({
@@ -41,15 +46,14 @@ import { WorldpayCartSharedModule, WorldpayCheckoutReviewPaymentModule, Worldpay
       deps: [PlatformLocation]
     },
     ...worldpayFacadeProviders,
-
-    provideFeatureTogglesFactory(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    provideFeatureTogglesFactory((): any =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const appFeatureToggles: any = {
+      ({
         a11yCheckoutDeliveryFocus: true,
         useExtractedBillingAddressComponent: true,
-      };
-      return appFeatureToggles;
-    })
+      })
+    )
   ],
 })
 

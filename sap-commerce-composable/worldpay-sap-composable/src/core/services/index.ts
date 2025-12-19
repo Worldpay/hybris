@@ -3,6 +3,7 @@ export * from './worldpay-ach/worldpay-ach.service';
 export * from './worldpay-apm/worldpay-apm.service';
 export * from './worldpay-applepay/worldpay-applepay.service';
 export * from './worldpay-applepay/worldpay-applepay-session';
+export * from './worldpay-billing-address-form/worldpay-billing-address-form.service';
 export * from './worldpay-checkout/worldpay-checkout-payment.service';
 export * from './worldpay-fraudsight/worldpay-fraudsight.service';
 export * from './worldpay-googlepay/worldpay-googlepay.service';

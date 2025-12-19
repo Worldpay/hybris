@@ -1,15 +1,24 @@
 package com.worldpay.service.http.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.Iterables;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.partnertracker.AdditionalDetails;
+import com.worldpay.data.partnertracker.PluginData;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.internal.model.PaymentService;
+import com.worldpay.service.WorldpayIntegrationVersionService;
 import com.worldpay.service.http.ServiceReply;
 import com.worldpay.service.http.WorldpayConnector;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.util.WorldpayConstants;
+import de.hybris.platform.core.model.c2l.CurrencyModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import de.hybris.platform.servicelayer.session.SessionService;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,30 +51,49 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
     protected static final String WORLDPAY_CONFIG_CONTEXT = "worldpay.config.context";
     protected static final String WORLDPAY_CONFIG_DOMAIN = "worldpay.config.domain";
     protected static final String WORLDPAY_CONFIG_ENVIRONMENT = "worldpay.config.environment";
+    protected static final String ECOMMERCE_PLATFORM_HEADER = "ecommerce_platform";
+    protected static final String ECOMMERCE_PLATFORM_VERSION_HEADER = "ecommerce_platform_version";
+    protected static final String ECOMMERCE_PLUGIN_DATA_HEADER = "ecommerce_plugin_data";
+    protected static final String ECOMMERCE_PLATFORM_HEADER_VALUE = "SAP Commerce Cloud";
+    protected static final String PAYMENT_METHOD_PARAM = "paymentMethod";
+    protected static final String ECOMMERCE_PLATFORM_HEADER_VERSION_VALUE = "build.version.api";
+    protected static final String ECOMMERCE_PLATFORM_HEADER_EDITION_VALUE = "build.version";
+    protected static final String CURRENCY = "currency";
 
     protected final PaymentServiceMarshaller paymentServiceMarshaller;
     protected final ConfigurationService configurationService;
     protected final RestTemplate restTemplate;
+    protected final SessionService sessionService;
+    protected final WorldpayIntegrationVersionService worldpayIntegrationVersionService;
+
+    private final ObjectWriter objectWriter;
+
 
     public DefaultWorldpayConnector(final PaymentServiceMarshaller paymentServiceMarshaller,
                                     final ConfigurationService configurationService,
-                                    final RestTemplate restTemplate) {
+                                    final RestTemplate restTemplate,
+                                    final SessionService sessionService,
+                                    final WorldpayIntegrationVersionService worldpayIntegrationVersionService) {
         this.paymentServiceMarshaller = paymentServiceMarshaller;
         this.configurationService = configurationService;
         this.restTemplate = restTemplate;
+        this.sessionService = sessionService;
+        this.worldpayIntegrationVersionService = worldpayIntegrationVersionService;
+        this.objectWriter = new ObjectMapper().writer();
     }
 
     @Override
-    public ServiceReply send(final PaymentService outboundPaymentService, final MerchantInfo merchantInfo, final String cookie) throws WorldpayException {
+    public ServiceReply send(final PaymentService outboundPaymentService, final MerchantInfo merchantInfo, final String cookie, final String paymentMethod) throws WorldpayException {
         final AtomicReference<ResponseEntity<String>> responseXML = new AtomicReference<>();
-        final Single<ResponseEntity<String>> response = sendOutboundXML(outboundPaymentService, merchantInfo, cookie);
+        final Single<ResponseEntity<String>> response = sendOutboundXML(outboundPaymentService, merchantInfo, cookie, paymentMethod);
         responseXML.set(response.toBlocking().value());
         return processResponseXML(responseXML.get());
     }
 
     protected Single<ResponseEntity<String>> sendOutboundXML(final PaymentService paymentService,
                                                              final MerchantInfo merchantInfo,
-                                                             final String cookie) throws WorldpayException {
+                                                             final String cookie,
+                                                             final String paymentMethod) throws WorldpayException {
         final String environment = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_ENVIRONMENT);
         final String domain = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_DOMAIN + "." + environment);
         final String context = configurationService.getConfiguration().getString(WORLDPAY_CONFIG_CONTEXT + "." + environment);
@@ -73,7 +101,7 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
 
 
         final URI uri = URI.create(endpoint);
-        final HttpHeaders headers = configureHttpHeaders(merchantInfo, cookie, uri.getHost());
+        final HttpHeaders headers = configureHttpHeaders(merchantInfo, cookie, uri.getHost(), paymentMethod);
         final HttpEntity<String> request = configureRequest(paymentService, headers);
 
         final AtomicInteger maxAttemptNumber = new AtomicInteger(0);
@@ -92,13 +120,41 @@ public class DefaultWorldpayConnector implements WorldpayConnector {
             .toSingle();
     }
 
-    private HttpHeaders configureHttpHeaders(final MerchantInfo merchantInfo, final String cookie, final String host) {
+    private HttpHeaders configureHttpHeaders(final MerchantInfo merchantInfo, final String cookie, final String host, final String paymentMethod) {
         final byte[] plainCreds = (merchantInfo.getMerchantCode() + ":" + merchantInfo.getMerchantPassword()).getBytes(StandardCharsets.UTF_8);
 
         final HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Basic " + new String(Base64.getEncoder().encode(plainCreds), StandardCharsets.UTF_8));
         headers.add(HttpHeaders.HOST, host);
         headers.add(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_XML.withCharset(StandardCharsets.UTF_8).toString());
+        headers.add(ECOMMERCE_PLATFORM_HEADER, ECOMMERCE_PLATFORM_HEADER_VALUE);
+        headers.add(ECOMMERCE_PLATFORM_VERSION_HEADER, configurationService.getConfiguration().getString(ECOMMERCE_PLATFORM_HEADER_VERSION_VALUE));
+
+        final PluginData data = new PluginData();
+        data.setIntegrationVersion(worldpayIntegrationVersionService.getCurrentIntegrationVersionValue());
+        data.setHistoricIntegrationVersion(worldpayIntegrationVersionService.getPreviousThreeIntegrationVersions());
+        data.setEcommercePlatformEdition(configurationService.getConfiguration().getString(ECOMMERCE_PLATFORM_HEADER_EDITION_VALUE, ""));
+
+        final AdditionalDetails additionalDetails = new AdditionalDetails();
+        additionalDetails.setPaymentMethod(StringUtils.isNotBlank(paymentMethod) ?
+                paymentMethod :
+                Optional.ofNullable(sessionService.getAttribute(PAYMENT_METHOD_PARAM))
+                .orElse("")
+                .toString());
+        additionalDetails.setCurrency(Optional.ofNullable(sessionService.getAttribute(CURRENCY))
+                .filter(CurrencyModel.class::isInstance)
+                .map(CurrencyModel.class::cast)
+                .map(CurrencyModel::getIsocode)
+                .orElse(""));
+        data.setAdditionalDetails(additionalDetails);
+
+        try {
+            final String serializedData = objectWriter.writeValueAsString(data);
+            headers.add(ECOMMERCE_PLUGIN_DATA_HEADER, serializedData);
+        } catch (final JsonProcessingException e) {
+            LOG.error("Error serializing plugin data for headers", e);
+        }
+
         Optional.ofNullable(cookie).ifPresent(cookieValue -> headers.add(HttpHeaders.COOKIE, cookieValue));
         return headers;
     }

@@ -1,33 +1,48 @@
 import { ComponentRef, ViewContainerRef } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { Store, StoreModule } from '@ngrx/store';
+import { fakeAsync, TestBed } from '@angular/core/testing';
+import { DomSanitizer } from '@angular/platform-browser';
+import { Params } from '@angular/router';
+import { StoreModule } from '@ngrx/store';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { CommandService, EventService, GlobalMessageService, GlobalMessageType, PaymentDetails, QueryState, RoutingService, UserIdService, WindowRef } from '@spartacus/core';
+import {
+  CommandService,
+  EventService,
+  GlobalMessageService,
+  GlobalMessageType,
+  LoggerService,
+  PaymentDetails,
+  QueryState,
+  RoutingService,
+  UserIdService,
+  WindowRef
+} from '@spartacus/core';
 import { OrderAdapter, OrderConnector } from '@spartacus/order/core';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
 import { LAUNCH_CALLER, LaunchDialogService } from '@spartacus/storefront';
-import { MockActiveCartFacade } from '@worldpay-tests/services/active-cart.service.mock';
-import { MockGlobalMessageService } from '@worldpay-tests/services/global-message.service.mock';
-import { MockLaunchDialogService } from '@worldpay-tests/services/launch-dialog.service.mock';
-import { MockUserIdService } from '@worldpay-tests/services/user-id.service.mock';
 import { BehaviorSubject, Observable, ObservedValueOf, of, throwError } from 'rxjs';
-import { WorldpayApmAdapter, WorldpayApmConnector } from '../../connectors';
-import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
-import { WorldpayConnector } from '../../connectors/worldpay.connector';
-import { DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from '../../events/checkout-payment.events';
-import { ClearWorldpayACHPaymentFormEvent, ClearWorldpayPaymentDetailsEvent } from '../../events/worldpay.events';
+import { WorldpayACHConnector, WorldpayApmConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
+import { ClearWorldpayPaymentDetailsEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from 'worldpay-sap-composable-events';
+import { WorldpayApmService, WorldpayCheckoutPaymentService } from 'worldpay-sap-composable-services';
+import {
+  MockActiveCartFacade,
+  MockGlobalMessageService,
+  MockLaunchDialogService,
+  mockOrder,
+  MockRoutingService,
+  mockUserId,
+  MockUserIdService,
+  MockWorldpayCheckoutPaymentService,
+  MockWorldpayConnector
+} from 'worldpay-sap-composable-tests';
+import { WorldpayApmAdapter } from '../../connectors';
+import { ClearWorldpayACHPaymentFormEvent } from '../../events/worldpay.events';
 import { ACHPaymentForm, ApmData, APMRedirectResponse, BrowserInfo, PaymentMethod, PlaceOrderResponse } from '../../interfaces';
-import { WorldpayApmService } from '../worldpay-apm/worldpay-apm.service';
-import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayOrderService } from './worldpay-order.service';
 import createSpy = jasmine.createSpy;
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
-const order: Order = {
-  code: '0001',
-  guid: '0001',
-};
+const order: Order = mockOrder;
 const apm = {
   code: PaymentMethod.Card,
   name: 'credit'
@@ -40,6 +55,16 @@ const apms = [
   { code: PaymentMethod.GooglePay },
 ];
 
+const mockParamsError: Params = {
+  pending: 'true',
+  status: 'ERROR',
+  orderKey: 'E2Y^MERCHANT2ECOM^00000018-1761730288154',
+};
+const mockParams: Params = {
+  pending: 'true',
+  paymentStatus: 'AUTHORISED',
+  orderKey: 'E2Y^MERCHANT2ECOM^00000018-1761730288154',
+};
 const mockPaymentDetails: PaymentDetails = {
   accountHolderName: 'user',
   billingAddress: {
@@ -70,20 +95,7 @@ const browserInfo: BrowserInfo = {
   javascriptEnabled: true
 };
 
-class MockWorldpayCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentService> {
-  getPaymentDetailsState(): Observable<any> {
-    return of({
-      loading: false,
-      error: false,
-      data: mockPaymentDetails
-    });
-  }
-
-  listenSetThreeDsDDCInfoEvent(): void {
-  }
-}
-
-class MockWorldpayApmAdapter implements Partial<MockWorldpayApmAdapter> {
+class MockWorldpayApmAdapter implements Partial<WorldpayApmAdapter> {
   authoriseApmRedirect(): Observable<APMRedirectResponse> {
     return of({
       postUrl: 'https://test.com',
@@ -95,10 +107,6 @@ class MockWorldpayApmAdapter implements Partial<MockWorldpayApmAdapter> {
   }
 }
 
-class MockRoutingService implements Partial<RoutingService> {
-  go = createSpy().and.returnValue(of(true).toPromise());
-}
-
 const achPaymentForm: ACHPaymentForm = {
   accountType: 'checking',
   routingNumber: '123456789',
@@ -108,20 +116,15 @@ const achPaymentForm: ACHPaymentForm = {
 
 describe('WorldpayOrderService', () => {
   let service: WorldpayOrderService;
-  let activeCartFacade: ActiveCartFacade;
-  let userIdService: UserIdService;
-  let commandService: CommandService;
   let eventService: EventService;
-  let store: Store;
   let globalMessageService: GlobalMessageService;
-  let winRef: WindowRef;
   let worldpayApmService: WorldpayApmService;
-  let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
-  let worldpayConnector: jasmine.SpyObj<WorldpayConnector>;
+  let worldpayConnector: WorldpayConnector;
   let worldpayACHConnector: WorldpayACHConnector;
   let worldpayApmConnector: jasmine.SpyObj<WorldpayApmConnector>;
   let launchDialogService: LaunchDialogService;
   let routingService: RoutingService;
+  let logger: LoggerService;
 
   class MockWorldpayApmService implements Partial<WorldpayApmService> {
     getSelectedAPMFromState(): Observable<ApmData> {
@@ -148,7 +151,7 @@ describe('WorldpayOrderService', () => {
       return of(false);
     }
 
-    getWorldpayAPMRedirectUrl(apm, save): Observable<APMRedirectResponse> {
+    getWorldpayAPMRedirectUrl(): Observable<APMRedirectResponse> {
       return of({
         mappingLabels: {},
         parameters: {
@@ -158,8 +161,7 @@ describe('WorldpayOrderService', () => {
       });
     }
 
-    setWorldpayAPMRedirectUrlEvent(apmRedirect): void {
-
+    setWorldpayAPMRedirectUrlEvent(): void {
     }
 
     getAPMRedirectUrl(): Observable<APMRedirectResponse> {
@@ -193,12 +195,6 @@ describe('WorldpayOrderService', () => {
   }
 
   beforeEach(() => {
-    const MockWorldpayConnector = jasmine.createSpyObj('WorldpayConnector', [
-      'initialPaymentRequest',
-      'getOrder',
-      'getDDC3dsJwt',
-    ]);
-
     const MockWorldpayApmConnector = jasmine.createSpyObj('WorldpayApmConnector', [
       'placeOrderRedirect',
       'placeBankTransferOrderRedirect'
@@ -233,7 +229,7 @@ describe('WorldpayOrderService', () => {
         OrderAdapter,
         {
           provide: WorldpayConnector,
-          useValue: MockWorldpayConnector
+          useClass: MockWorldpayConnector
         },
         {
           provide: WorldpayApmService,
@@ -241,7 +237,8 @@ describe('WorldpayOrderService', () => {
         },
         {
           provide: WorldpayCheckoutPaymentService,
-          useClass: MockWorldpayCheckoutPaymentService
+          useFactory: (sanitizer: DomSanitizer) => new MockWorldpayCheckoutPaymentService(sanitizer),
+          deps: [DomSanitizer]
         },
         {
           provide: WorldpayApmAdapter,
@@ -258,35 +255,21 @@ describe('WorldpayOrderService', () => {
         {
           provide: WorldpayApmConnector,
           useValue: MockWorldpayApmConnector
-        }
+        },
+        LoggerService
       ]
     });
     service = TestBed.inject(WorldpayOrderService);
-    activeCartFacade = TestBed.inject(ActiveCartFacade);
-    userIdService = TestBed.inject(UserIdService);
-    commandService = TestBed.inject(CommandService);
     eventService = TestBed.inject(EventService);
-    store = TestBed.inject(Store);
     globalMessageService = TestBed.inject(GlobalMessageService);
     launchDialogService = TestBed.inject(LaunchDialogService);
-    winRef = TestBed.inject(WindowRef);
     worldpayApmService = TestBed.inject(WorldpayApmService);
-    worldpayCheckoutPaymentService = TestBed.inject(WorldpayCheckoutPaymentService);
-    worldpayConnector = TestBed.inject(WorldpayConnector) as jasmine.SpyObj<WorldpayConnector>;
+    worldpayConnector = TestBed.inject(WorldpayConnector);
     worldpayACHConnector = TestBed.inject(WorldpayACHConnector);
     worldpayApmConnector = TestBed.inject(WorldpayApmConnector) as jasmine.SpyObj<WorldpayApmConnector>;
     routingService = TestBed.inject(RoutingService);
+    logger = TestBed.inject(LoggerService);
 
-    worldpayConnector.initialPaymentRequest.and.returnValue(of({
-      threeDSecureNeeded: false,
-      threeDSecureInfo: 'info',
-      transactionStatus: 'AUTHORISED',
-      order: {
-        code: '0001'
-      }
-    } as PlaceOrderResponse));
-    worldpayConnector.getOrder.and.callFake(() => of(order));
-    worldpayConnector.getDDC3dsJwt.and.returnValue(of({}));
     spyOn(eventService, 'dispatch').and.callThrough();
     spyOn(service, 'setPlacedOrder').and.callThrough();
   });
@@ -296,11 +279,11 @@ describe('WorldpayOrderService', () => {
   });
 
   it('should call executeDDC3dsJwtCommand', () => {
-    worldpayConnector.getDDC3dsJwt.and.returnValue(of({
+    spyOn(worldpayConnector, 'getDDC3dsJwt').and.returnValue(of({
       ddcUrl: 'https://test.com',
       jwt: 'jwt'
     }));
-    service.executeDDC3dsJwtCommand();
+    service.executeDDC3dsJwtCommand().subscribe().unsubscribe();
     expect(worldpayConnector.getDDC3dsJwt).toHaveBeenCalledWith();
     expect(eventService.dispatch).toHaveBeenCalledWith({
       ddcInfo: {
@@ -341,7 +324,7 @@ describe('WorldpayOrderService', () => {
       acceptedTermsAndConditions,
       null,
       browserInfo
-    );
+    ).subscribe().unsubscribe();
 
     const paymentDetailsWithoutCardNumber = { ...mockPaymentDetails };
     delete paymentDetailsWithoutCardNumber.cardNumber;
@@ -358,12 +341,12 @@ describe('WorldpayOrderService', () => {
     );
   });
 
-  it('should call Challenge Accepted for registered user', () => {
+  it('should call Challenge Accepted for registered user', fakeAsync(() => {
     service.challengeAccepted({
       accepted: true,
       orderCode: '100'
     });
-    expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
+
     expect(eventService.dispatch).toHaveBeenCalledWith({
       userId,
       cartId,
@@ -376,7 +359,7 @@ describe('WorldpayOrderService', () => {
     expect(routingService.go).toHaveBeenCalledWith({
       cxRoute: 'orderConfirmation',
     });
-  });
+  }));
 
   it('should call Challenge Accepted for anonymous user', () => {
     service.challengeAccepted({
@@ -387,7 +370,6 @@ describe('WorldpayOrderService', () => {
     });
 
     expect(worldpayConnector.getOrder).toHaveBeenCalledWith('test@email.com', '100', true);
-    expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
     expect(eventService.dispatch).toHaveBeenCalledWith({
       userId,
       cartId,
@@ -404,7 +386,6 @@ describe('WorldpayOrderService', () => {
   it('should show error messages', () => {
     service.challengeFailed();
     expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.challengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
-    expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
   });
 
   it('should showErrorMessage', () => {
@@ -421,15 +402,7 @@ describe('WorldpayOrderService', () => {
     let checkoutPreconditions = [];
     // @ts-ignore
     service.checkoutPreconditions().subscribe(response => checkoutPreconditions = response);
-    expect(checkoutPreconditions).toEqual(['userId', 'cartId']);
-  });
-
-  it('should place ACH order successfully', (done) => {
-    spyOn(worldpayACHConnector, 'placeACHOrder').and.returnValue(of(order));
-    service.placeACHOrder(achPaymentForm).subscribe((response) => {
-      expect(response).toEqual(order);
-      done();
-    });
+    expect(checkoutPreconditions).toEqual([userId, 'cartId']);
   });
 
   it('should handle error when placing ACH order', (done) => {
@@ -459,7 +432,7 @@ describe('WorldpayOrderService', () => {
         order: {}
       } as PlaceOrderResponse;
 
-      worldpayConnector.initialPaymentRequest.and.returnValue(of(response));
+      worldpayConnector.initialPaymentRequest = createSpy('WorldpayAdapter.initialPaymentRequest').and.returnValue(of(response));
       spyOn(service, 'clearLoading');
 
       service['initialPaymentRequestCommand'].execute({
@@ -484,7 +457,7 @@ describe('WorldpayOrderService', () => {
         order
       } as PlaceOrderResponse;
 
-      worldpayConnector.initialPaymentRequest.and.returnValue(of(response));
+      worldpayConnector.initialPaymentRequest = createSpy('WorldpayAdapter.initialPaymentRequest').and.returnValue(of(response));
       spyOn(service, 'placedOrderSuccess');
 
       service['initialPaymentRequestCommand'].execute({
@@ -509,7 +482,7 @@ describe('WorldpayOrderService', () => {
         order: {}
       } as PlaceOrderResponse;
 
-      worldpayConnector.initialPaymentRequest.and.returnValue(of(response));
+      worldpayConnector.initialPaymentRequest = createSpy('WorldpayAdapter.initialPaymentRequest').and.returnValue(of(response));
       spyOn(service, 'clearLoading');
 
       service['initialPaymentRequestCommand'].execute({
@@ -533,7 +506,7 @@ describe('WorldpayOrderService', () => {
         ddcUrl: 'https://test.com',
         jwt: 'jwt'
       };
-      worldpayConnector.getDDC3dsJwt.and.returnValue(of(ddcInfo));
+      spyOn(worldpayConnector, 'getDDC3dsJwt').and.returnValue(of(ddcInfo));
 
       service['getDDC3dsJwtCommand'].execute(undefined).subscribe();
 
@@ -542,7 +515,7 @@ describe('WorldpayOrderService', () => {
 
     it('should handle error when getDDC3dsJwt fails', () => {
       const error = new Error('Failed to get DDC3dsJwt');
-      worldpayConnector.getDDC3dsJwt.and.returnValue(throwError(() => error));
+      spyOn(worldpayConnector, 'getDDC3dsJwt').and.returnValue(throwError(() => error));
 
       service['getDDC3dsJwtCommand'].execute(undefined).subscribe({
         error: (err) => {
@@ -562,7 +535,7 @@ describe('WorldpayOrderService', () => {
         guestCustomer: false
       };
 
-      worldpayConnector.getOrder.and.returnValue(of(order));
+      worldpayConnector.getOrder = createSpy('WorldpayConnector.getOrder ').and.returnValue(of(order));
 
       service['challengeAcceptedCommand'].execute(response).subscribe();
 
@@ -572,7 +545,6 @@ describe('WorldpayOrderService', () => {
         order,
         cartCode: cartId
       }, OrderPlacedEvent);
-      expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
     });
 
     it('should dispatch OrderPlacedEvent and ClearWorldpayPaymentDetailsEvent when challenge is accepted for guest user', () => {
@@ -582,7 +554,7 @@ describe('WorldpayOrderService', () => {
         guestCustomer: true
       };
 
-      worldpayConnector.getOrder.and.returnValue(of(order));
+      worldpayConnector.getOrder = createSpy('WorldpayConnector.getOrder ').and.returnValue(of(order));
 
       service['challengeAcceptedCommand'].execute(response).subscribe();
 
@@ -592,7 +564,6 @@ describe('WorldpayOrderService', () => {
         order,
         cartCode: cartId
       }, OrderPlacedEvent);
-      expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
     });
 
     it('should handle error when getOrder fails', () => {
@@ -603,7 +574,7 @@ describe('WorldpayOrderService', () => {
       };
 
       const error = new Error('Failed to get order');
-      worldpayConnector.getOrder.and.returnValue(throwError(() => error));
+      worldpayConnector.getOrder = createSpy('WorldpayAdapter.getOrder').and.returnValue(throwError(() => error));
 
       service['challengeAcceptedCommand'].execute(response).subscribe({
         error: (err) => {
@@ -611,7 +582,7 @@ describe('WorldpayOrderService', () => {
         }
       });
 
-      expect(eventService.dispatch).not.toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
+      expect(eventService.dispatch).not.toHaveBeenCalledWith({}, OrderPlacedEvent);
     });
   });
 
@@ -619,9 +590,9 @@ describe('WorldpayOrderService', () => {
     it('should place redirect order successfully', () => {
       worldpayApmConnector.placeOrderRedirect.and.returnValue(of(order));
 
-      service['placeRedirectOrderCommand'].execute().subscribe();
+      service['placeRedirectOrderCommand'].execute(mockParams).subscribe();
 
-      expect(worldpayApmConnector.placeOrderRedirect).toHaveBeenCalledWith(userId, cartId);
+      expect(worldpayApmConnector.placeOrderRedirect).toHaveBeenCalledWith(userId, cartId, mockParams);
       expect(service.setPlacedOrder).toHaveBeenCalledWith(order);
       expect(eventService.dispatch).toHaveBeenCalledWith({
         userId,
@@ -629,21 +600,20 @@ describe('WorldpayOrderService', () => {
         cartCode: cartId,
         order,
       }, OrderPlacedEvent);
-      expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
     });
 
     it('should handle error when placing redirect order fails', () => {
       const error = new Error('Failed to place redirect order');
       worldpayApmConnector.placeOrderRedirect.and.returnValue(throwError(() => error));
 
-      service['placeRedirectOrderCommand'].execute().subscribe({
+      service['placeRedirectOrderCommand'].execute(mockParamsError).subscribe({
         error: (err) => {
           expect(err).toEqual(error);
         }
       });
 
       expect(service.setPlacedOrder).not.toHaveBeenCalled();
-      expect(eventService.dispatch).not.toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
+      expect(eventService.dispatch).not.toHaveBeenCalledWith({}, OrderPlacedEvent);
     });
   });
 
@@ -662,7 +632,6 @@ describe('WorldpayOrderService', () => {
         cartCode: cartId,
         order,
       }, OrderPlacedEvent);
-      expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
     });
 
     it('should handle error when placing bank transfer redirect order fails', () => {
@@ -693,7 +662,6 @@ describe('WorldpayOrderService', () => {
 
       expect(worldpayApmConnector.placeBankTransferOrderRedirect).not.toHaveBeenCalled();
       expect(service.setPlacedOrder).not.toHaveBeenCalled();
-      expect(eventService.dispatch).not.toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
     });
   });
 
@@ -765,7 +733,7 @@ describe('WorldpayOrderService', () => {
       };
       const order: Order = { code: 'orderCode' };
 
-      worldpayConnector.getOrder.and.returnValue(of(order));
+      worldpayConnector.getOrder = createSpy('WorldpayConnector.getOrder ').and.returnValue(of(order));
 
       service.challengeAccepted(worldpayChallengeResponse);
 
@@ -776,7 +744,6 @@ describe('WorldpayOrderService', () => {
         order,
         cartCode: cartId
       }, OrderPlacedEvent);
-      expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
       expect(service.setPlacedOrder).toHaveBeenCalledWith(order);
       expect(routingService.go).toHaveBeenCalledWith({ cxRoute: 'orderConfirmation' });
       done();
@@ -790,7 +757,7 @@ describe('WorldpayOrderService', () => {
       };
       const order: Order = { code: 'orderCode' };
 
-      worldpayConnector.getOrder.and.returnValue(of(order));
+      worldpayConnector.getOrder = createSpy('WorldpayConnector.getOrder ').and.returnValue(of(order));
 
       service.challengeAccepted(worldpayChallengeResponse);
 
@@ -801,7 +768,6 @@ describe('WorldpayOrderService', () => {
         order,
         cartCode: cartId
       }, OrderPlacedEvent);
-      expect(eventService.dispatch).toHaveBeenCalledWith({}, ClearWorldpayPaymentDetailsEvent);
       expect(service.setPlacedOrder).toHaveBeenCalledWith(order);
       expect(routingService.go).toHaveBeenCalledWith({ cxRoute: 'orderConfirmation' });
       done();
@@ -814,8 +780,8 @@ describe('WorldpayOrderService', () => {
         guestCustomer: false
       };
       const error = new Error('Failed to get order');
-      spyOn(console, 'error');
-      worldpayConnector.getOrder.and.returnValue(throwError(() => error));
+      spyOn(logger, 'error');
+      worldpayConnector.getOrder = createSpy('WorldpayConnector.getOrder ').and.returnValue(throwError(() => error));
 
       service.challengeAccepted(worldpayChallengeResponse);
 
@@ -823,7 +789,7 @@ describe('WorldpayOrderService', () => {
       expect(service.setPlacedOrder).not.toHaveBeenCalled();
       expect(routingService.go).not.toHaveBeenCalled();
       expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.challengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
-      expect(console.error).toHaveBeenCalledWith('Challenge Failed:', error);
+      expect(logger.error).toHaveBeenCalledWith('Challenge Failed:', error);
       done();
     });
   });
@@ -834,7 +800,7 @@ describe('WorldpayOrderService', () => {
       worldpayApmConnector.placeOrderRedirect.and.returnValue(of(order));
       spyOn(service, 'getOrderDetails').and.returnValue(of(orderDetails));
 
-      service.placeRedirectOrder().subscribe((result) => {
+      service.placeRedirectOrder(mockParams).subscribe((result) => {
         expect(result).toBeTrue();
         done();
       });
@@ -844,17 +810,17 @@ describe('WorldpayOrderService', () => {
       worldpayApmConnector.placeOrderRedirect.and.returnValue(of(order));
       spyOn(service, 'getOrderDetails').and.returnValue(of({}));
 
-      service.placeRedirectOrder().subscribe((result) => {
+      service.placeRedirectOrder(mockParams).subscribe((result) => {
         expect(result).toBeFalse();
         done();
       });
     });
 
-    it('should return false when order details are null', (done) => {
+    it('should return false when order details are null when redirect', (done) => {
       worldpayApmConnector.placeOrderRedirect.and.returnValue(of(order));
       spyOn(service, 'getOrderDetails').and.returnValue(of(null));
 
-      service.placeRedirectOrder().subscribe((result) => {
+      service.placeRedirectOrder(mockParams).subscribe((result) => {
         expect(result).toBeFalse();
         done();
       });
@@ -865,7 +831,7 @@ describe('WorldpayOrderService', () => {
       spyOn(service['placeRedirectOrderCommand'], 'execute').and.returnValue(throwError(() => error));
       spyOn(service, 'getOrderDetails').and.returnValue(of({}));
 
-      service.placeRedirectOrder().subscribe({
+      service.placeRedirectOrder(mockParams).subscribe({
         error: (err) => {
           expect(err).toEqual(error);
           done();
@@ -887,7 +853,7 @@ describe('WorldpayOrderService', () => {
       });
     });
 
-    it('should return false when order details are empty', (done) => {
+    it('should return false when place bank transfer order details are empty', (done) => {
       const orderId = 'orderId';
       spyOn(service, 'getOrderDetails').and.returnValue(of({}));
       spyOn(service['placeBankTransferRedirectOrderCommand'], 'execute').and.returnValue(of(void 0));
@@ -898,7 +864,7 @@ describe('WorldpayOrderService', () => {
       });
     });
 
-    it('should return false when order details are null', (done) => {
+    it('should return false when order details are null for bank transfer redirect', (done) => {
       const orderId = 'orderId';
       spyOn(service, 'getOrderDetails').and.returnValue(of(null));
       spyOn(service['placeBankTransferRedirectOrderCommand'], 'execute').and.returnValue(of(void 0));
@@ -927,7 +893,7 @@ describe('WorldpayOrderService', () => {
   describe('startLoading', () => {
     it('should start loading spinner', () => {
       const vcr = {} as ViewContainerRef;
-      spyOn(launchDialogService, 'launch').and.returnValue(of({} as ComponentRef<any>));
+      launchDialogService.launch = createSpy('LaunchDialogService.launch').and.returnValue(of({} as ComponentRef<any>));
 
       service.startLoading(vcr);
 
@@ -936,7 +902,7 @@ describe('WorldpayOrderService', () => {
     });
 
     it('should handle null ViewContainerRef', () => {
-      spyOn(launchDialogService, 'launch').and.returnValue(of({} as ComponentRef<any>));
+      launchDialogService.launch = createSpy('LaunchDialogService.launch').and.returnValue(of({} as ComponentRef<any>));
 
       service.startLoading(null as unknown as ViewContainerRef);
 
@@ -950,7 +916,7 @@ describe('WorldpayOrderService', () => {
       const componentRef = { destroy: jasmine.createSpy('destroy') } as unknown as ComponentRef<any>;
       service.placedOrder = of(componentRef);
 
-      spyOn(launchDialogService, 'clear').and.callThrough();
+      launchDialogService.clear = createSpy('LaunchDialogService.clear').and.callThrough();
 
       service.clearLoading();
 
@@ -961,7 +927,7 @@ describe('WorldpayOrderService', () => {
     it('should not clear loading spinner when placedOrder is not defined', () => {
       service.placedOrder = undefined;
 
-      spyOn(launchDialogService, 'clear').and.callThrough();
+      launchDialogService.clear = createSpy('LaunchDialogService.clear').and.callThrough();
 
       service.clearLoading();
 

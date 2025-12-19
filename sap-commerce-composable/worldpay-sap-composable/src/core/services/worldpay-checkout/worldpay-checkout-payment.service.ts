@@ -24,8 +24,7 @@ import {
 } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
-import { WorldpayCheckoutPaymentConnector } from '../../connectors/worldpay-payment-connector/worldpay-checkout-payment.connector';
-import { WorldpayConnector } from '../../connectors/worldpay.connector';
+import { WorldpayCheckoutPaymentConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
 import {
   ClearInitialPaymentRequestEvent,
   CreateWorldpayPaymentDetailsEvent,
@@ -37,10 +36,9 @@ import {
   ThreeDsChallengeIframeUrlSetEvent,
   ThreeDsDDCIframeUrlSetEvent,
   ThreeDsSetEvent
-} from '../../events/checkout-payment.events';
+} from 'worldpay-sap-composable-events';
+import { WorldpayACHFacade, WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
 import { ClearGooglepayEvent } from '../../events/googlepay.events';
-import { WorldpayACHFacade } from '../../facade/worldpay-ach.facade';
-import { WorldpayCheckoutPaymentFacade } from '../../facade/worldpay-checkout-payment.facade';
 import { ACHPaymentForm, PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
 import { getBaseHref, trimLastSlashFromUrl } from '../../utils/get-base-href';
 
@@ -67,10 +65,10 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    * @since 6.4.0
    */
   protected getPublicKeyQuery$: Query<string> =
-    this.queryService.create(() =>
+    this.queryService.create((): Observable<string> =>
       this.worldpayConnector.getPublicKey().pipe(
         tap({
-          next: (response: string) => {
+          next: (response: string): void => {
             this.eventService.dispatch({
               publicKey: response
             }, SetWorldpayPublicKeyEvent);
@@ -85,7 +83,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
     );
 
   protected getThreeDsDDCJwtQuery$: Query<ThreeDsDDCInfo> =
-    this.queryService.create(() =>
+    this.queryService.create((): Observable<ThreeDsDDCInfo> =>
       this.worldpayConnector.getDDC3dsJwt().pipe(
         tap((response: ThreeDsDDCInfo): void => {
           this.eventService.dispatch({ dDC3dsJwt: response }, GetDDC3dsJwtEvent);
@@ -105,28 +103,29 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       ({
         paymentDetails,
         cseToken
-      }: { paymentDetails: PaymentDetails; cseToken: string }): Observable<PaymentDetails> =>
+      }: {
+        paymentDetails: PaymentDetails;
+        cseToken: string;
+      }): Observable<PaymentDetails> =>
         this.checkoutPreconditions().pipe(
           switchMap(([userId, cartId]: [string, string]): Observable<PaymentDetails> =>
-            this.checkoutPaymentConnector.createWorldpayPaymentDetails(userId, cartId, paymentDetails, cseToken)
-              .pipe(
-                tap((response: PaymentDetails): void => {
-                  this.eventService.dispatch({
-                    paymentDetails: response,
-                    cseToken
-                  }, CreateWorldpayPaymentDetailsEvent);
+            this.checkoutPaymentConnector.createWorldpayPaymentDetails(userId, cartId, paymentDetails, cseToken).pipe(
+              tap((response: PaymentDetails): void => {
+                this.eventService.dispatch({
+                  paymentDetails: response,
+                  cseToken
+                }, CreateWorldpayPaymentDetailsEvent);
 
-                  this.eventService.dispatch(
-                    {
-                      userId,
-                      cartId,
-                      paymentDetails: response
-                    },
-                    CheckoutPaymentDetailsCreatedEvent
-                  );
-                }
-                )
-              )
+                this.eventService.dispatch(
+                  {
+                    userId,
+                    cartId,
+                    paymentDetails: response
+                  },
+                  CheckoutPaymentDetailsCreatedEvent
+                );
+              })
+            )
           )
         ),
       { strategy: CommandStrategy.CancelPrevious }
@@ -149,9 +148,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
                       userId,
                       cartId,
                       paymentDetails: response
-                    },
-                    CheckoutPaymentDetailsCreatedEvent
-                    );
+                    }, CheckoutPaymentDetailsCreatedEvent);
                   } else {
                     this.eventService.dispatch({ userId }, LoadUserPaymentMethodsEvent);
                     this.eventService.dispatch(
@@ -163,8 +160,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
                       CheckoutPaymentDetailsSetEvent
                     );
                   }
-                }
-                )
+                })
               )
           )
         ),
@@ -180,12 +176,8 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       (address: Address): Observable<Address> =>
         this.checkoutPreconditions().pipe(
           switchMap(([userId, cartId]: [string, string]): Observable<Address> => this.worldpayConnector.setPaymentAddress(userId, cartId, address).pipe(
-            tap((response: Address) => {
-              this.eventService.dispatch({
-                address: response
-              },
-              SetPaymentAddressEvent
-              );
+            tap((response: Address): void => {
+              this.eventService.dispatch({ address: response }, SetPaymentAddressEvent);
             }))
           )
         ),
@@ -238,7 +230,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
   listenCreateWorldpayPaymentDetailsEvent(): void {
     this.subscriptions.add(
       this.eventService.get(CreateWorldpayPaymentDetailsEvent).subscribe({
-        next: (event: CreateWorldpayPaymentDetailsEvent) => this.cseToken$.next(event.cseToken)
+        next: (event: CreateWorldpayPaymentDetailsEvent): void => this.cseToken$.next(event.cseToken)
       })
     );
   }
@@ -314,8 +306,8 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
   generatePublicKey(): Observable<string> {
     return this.getPublicKey().pipe(
       filter((state: QueryState<string>): boolean => state?.loading === false),
-      map((state: QueryState<string>) => state?.data),
-      tap((key: string) => {
+      map((state: QueryState<string>): string => state?.data),
+      tap((key: string): void => {
         this.eventService.dispatch({ publicKey: key }, SetWorldpayPublicKeyEvent);
       })
     );
@@ -387,9 +379,9 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
   override createPaymentDetails(paymentDetails: PaymentDetails): Observable<PaymentDetails> {
 
     this.generatePublicKey().subscribe({
-      next: (key: string) => this.setPublicKey(key),
+      next: (key: string): void => this.setPublicKey(key),
       error: (error: unknown): void => {
-        this.logger.log('Failed obtaining public key', { error });
+        this.logger.error('Failed obtaining public key', { error });
       }
     });
 
@@ -421,8 +413,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       if (error?.length) {
         error.map((value: string): void => {
           this.globalMessageService.add({ key: `checkoutReview.encrypt.${value}` }, GlobalMessageType.MSG_TYPE_ERROR);
-        }
-        );
+        });
       }
     });
   }
@@ -522,7 +513,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    * Listen Set Three DsDDC Info Event
    * @since 6.4.0
    */
-  listenSetThreeDsDDCInfoEvent() {
+  listenSetThreeDsDDCInfoEvent(): void {
     this.subscriptions.add(
       this.eventService.get(DDC3dsJwtSetEvent).subscribe({
         next: (ddcInfo: DDC3dsJwtSetEvent): void => {
@@ -617,7 +608,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
    * Get Payment Details State
    * @since 6.4.0
    */
-  override getPaymentDetailsState(): Observable<QueryState<WorldpayApmPaymentInfo>> {
+  override getPaymentDetailsState(): Observable<QueryState<WorldpayApmPaymentInfo | undefined>> {
     return combineLatest([
       this.getSaveCreditCardValueFromState(),
       this.getSaveAsDefaultCardValueFromState(),

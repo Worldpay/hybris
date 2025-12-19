@@ -1,56 +1,75 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
-import { Address, I18nTestingModule, MockTranslatePipe } from '@spartacus/core';
+import { Address, I18nTestingModule, LoggerService, MockTranslatePipe } from '@spartacus/core';
 import { FormErrorsModule } from '@spartacus/storefront';
-import { MockWorldpayBillingAddressComponent } from '@worldpay-tests/components';
-import { ApmData, PaymentMethod } from '../../../../core/interfaces';
+import { BehaviorSubject, of } from 'rxjs';
+import { WorldpayApmSubmitButtonsComponent } from 'worldpay-sap-composable-components';
+import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
+import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
+import { MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
+import { PaymentMethod } from 'worldpay-sap-core';
 import { WorldpayApmIdealComponent } from './worldpay-apm-ideal.component';
 
 describe('WorldpayApmIdealComponent', () => {
   let component: WorldpayApmIdealComponent;
   let fixture: ComponentFixture<WorldpayApmIdealComponent>;
-  let checkoutBillingAddressFormService: CheckoutBillingAddressFormService;
+  let billingAddressFormService: WorldpayBillingAddressFormService;
 
   const billingAddress: Address = {
     firstName: 'John',
-    lastName: 'Doe'
+    lastName: 'Doe',
+    line1: 'Line 1',
+    line2: 'Line 2',
+    town: 'Town',
+    country: { isocode: 'US' },
+    postalCode: '12345',
+    region: {
+      isocodeShort: 'UK'
+    },
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-        declarations: [
-          WorldpayApmIdealComponent,
-          MockTranslatePipe,
-          MockWorldpayBillingAddressComponent
-        ],
-        providers: [
-          UntypedFormBuilder,
-          CheckoutBillingAddressFormService,
-        ],
-        imports: [
-          I18nTestingModule,
-          FormErrorsModule,
-          ReactiveFormsModule,
-          NgSelectModule,
-        ]
-      })
+      declarations: [
+        WorldpayApmIdealComponent,
+        MockTranslatePipe,
+        MockWorldpayBillingAddressComponent,
+        WorldpayApmSubmitButtonsComponent,
+      ],
+      providers: [
+        UntypedFormBuilder,
+        WorldpayBillingAddressFormService,
+        {
+          provide: WorldpayConnector,
+          useClass: MockWorldpayConnector
+        },
+        LoggerService,
+      ],
+      imports: [
+        I18nTestingModule,
+        FormErrorsModule,
+        ReactiveFormsModule,
+        NgSelectModule,
+      ]
+    })
       .compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorldpayApmIdealComponent);
-    checkoutBillingAddressFormService = TestBed.inject(CheckoutBillingAddressFormService);
+    billingAddressFormService = TestBed.inject(WorldpayBillingAddressFormService);
     component = fixture.componentInstance;
-    component.sameAsShippingAddress = true;
-    component.billingAddressForm = new UntypedFormGroup({
-      firstName: new UntypedFormControl('', [Validators.required]),
-      lastName: new UntypedFormControl('', [Validators.required])
-    });
-    component.billingAddressForm.setValue(billingAddress);
+    component.ngOnInit();
     fixture.detectChanges();
   });
+
+  const regenerateComponent: (sameAsDeliveryAddress: boolean) => WorldpayApmIdealComponent = (sameAsDeliveryAddress: boolean): WorldpayApmIdealComponent => {
+    let sameAsDeliveryAddress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(sameAsDeliveryAddress);
+    spyOn(billingAddressFormService, 'getSameAsDeliveryAddress').and.returnValue(sameAsDeliveryAddress$.asObservable());
+    fixture = TestBed.createComponent(WorldpayApmIdealComponent);
+    return fixture.componentInstance;
+  };
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -100,8 +119,7 @@ describe('WorldpayApmIdealComponent', () => {
     });
 
     it('should validate the form before submitting', () => {
-      spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
-      let event = null;
+      component = regenerateComponent(true);
       component.idealForm.get('bank').setValue({
         code: 'ING'
       });
@@ -115,23 +133,29 @@ describe('WorldpayApmIdealComponent', () => {
           shopperBankCode: 'ING',
           code: PaymentMethod.iDeal,
         },
-        billingAddress: null
+        billingAddress: undefined
       });
     });
 
     it('should prevent button click when billing address is invalid', () => {
+      let sameAsDeliveryAddress$ = new BehaviorSubject<boolean>(false);
+      spyOn(billingAddressFormService, 'getSameAsDeliveryAddress').and.returnValue(sameAsDeliveryAddress$.asObservable());
+      fixture = TestBed.createComponent(WorldpayApmIdealComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges(); // triggers ngOnInit
       component.idealForm.get('bank').get('code').setValue('RABOBANK');
-      component.sameAsShippingAddress = false;
-
+      component.ngOnInit();
+      component['billingAddressForm'].reset();
+      component['billingAddressForm'].markAllAsTouched();
       fixture.detectChanges();
-
       expect(document.querySelector('button[data-test-id="ideal-continue-btn"]')['disabled']).toEqual(true);
     });
 
     it('should validate the billing address if unchecked billing checkbox', () => {
       component.idealForm.get('bank').setValue({ code: 'RABOBANK' });
-      component.sameAsShippingAddress = false;
-      component.billingAddressForm.setValue({
+      component = regenerateComponent(false);
+      component.ngOnInit();
+      component['billingAddressForm'].setValue({
         firstName: 'john',
         lastName: 'doe',
         line1: 'line1',
@@ -151,28 +175,20 @@ describe('WorldpayApmIdealComponent', () => {
   });
 
   it('should initialize billing address form on init', () => {
-    spyOn(checkoutBillingAddressFormService, 'getBillingAddressForm').and.returnValue(new UntypedFormGroup({}));
+    spyOn(billingAddressFormService, 'getBillingAddressForm').and.returnValue(new UntypedFormGroup({}));
     component.ngOnInit();
-    expect(component.billingAddressForm).toBe(checkoutBillingAddressFormService.getBillingAddressForm());
-  });
-
-  it('should add required validator to bank code if bank configurations are present', () => {
-    component.apm = {
-      bankConfigurations: [{
-        code: 'ING',
-        name: 'ING'
-      }]
-    } as ApmData;
-    component.ngOnInit();
-    expect(component.idealForm.get('bank').get('code').hasValidator(Validators.required)).toBeTrue();
+    expect(component['billingAddressForm']).toBe(billingAddressFormService.getBillingAddressForm());
   });
 
   it('should emit payment details and billing address when form is valid and sameAsShippingAddress is false', () => {
-    spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
-    spyOn(checkoutBillingAddressFormService, 'isBillingAddressFormValid').and.returnValue(true);
-    spyOn(checkoutBillingAddressFormService, 'getBillingAddress').and.returnValue(billingAddress);
+    spyOn(billingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(false);
+    spyOn(billingAddressFormService, 'isBillingAddressFormValid').and.returnValue(true);
+    spyOn(billingAddressFormService, 'getBillingAddress').and.returnValue(billingAddress);
     spyOn(component.setPaymentDetails, 'emit');
 
+    billingAddressFormService.setBillingAddress(billingAddress);
+
+    billingAddressFormService.setBillingAddress(billingAddress);
     component.idealForm.setValue({ bank: { code: 'ING' } });
     component.next();
 
@@ -181,13 +197,15 @@ describe('WorldpayApmIdealComponent', () => {
         code: PaymentMethod.iDeal,
         shopperBankCode: 'ING'
       },
-      billingAddress: billingAddress
+      billingAddress
     });
   });
 
   it('should emit payment details without billing address when form is valid and sameAsShippingAddress is true', () => {
-    spyOn(checkoutBillingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
+    // @ts-ignore
+    spyOn(billingAddressFormService, 'isBillingAddressSameAsDeliveryAddress').and.returnValue(true);
     spyOn(component.setPaymentDetails, 'emit');
+    billingAddressFormService.setSameAsDeliveryAddress(true);
 
     component.idealForm.setValue({ bank: { code: 'ING' } });
     component.next();
@@ -197,15 +215,103 @@ describe('WorldpayApmIdealComponent', () => {
         code: PaymentMethod.iDeal,
         shopperBankCode: 'ING'
       },
-      billingAddress: null
+      billingAddress: undefined
     });
   });
 
-  it('should not emit payment details when form is invalid', () => {
-    spyOn(component.setPaymentDetails, 'emit');
-    component.idealForm.setValue({ bank: { code: null } });
-    component.next();
-    expect(component.setPaymentDetails.emit).not.toHaveBeenCalled();
+  describe('disableContinueButton$', () => {
+    it('should return true if sameAsDeliveryAddress is false and billingAddressForm is invalid', (done) => {
+      component = regenerateComponent(false);
+      component.isSubmitting$.next(false);
+      component['component.billingAddressForm'] = jasmine.createSpyObj('UntypedFormGroup', ['invalid'], { invalid: true });
+      fixture.detectChanges();
+      component.disableContinueButton$().subscribe((result) => {
+        expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return true if isSubmitting is true', () => {
+      spyOn(billingAddressFormService, 'getSameAsDeliveryAddress').and.returnValue(of(true));
+      component.isSubmitting$.next(true);
+      component['component.billingAddressForm'] = jasmine.createSpyObj('UntypedFormGroup', ['invalid'], { invalid: false });
+
+      component.disableContinueButton$().subscribe((result) => {
+        expect(result).toBeTrue();
+      });
+    });
+
+    it('should return false if sameAsDeliveryAddress is true and isSubmitting is false', () => {
+      spyOn(billingAddressFormService, 'getSameAsDeliveryAddress').and.returnValue(of(true));
+      component.isSubmitting$.next(false);
+      component['component.billingAddressForm'] = jasmine.createSpyObj('UntypedFormGroup', ['invalid'], { invalid: false });
+
+      component.disableContinueButton$().subscribe((result) => {
+        expect(result).toBeFalse();
+      });
+    });
   });
 
+  describe('ngOnInit', () => {
+    it('should add required validator to bank code if bank configurations are present', () => {
+      component.apm = {
+        bankConfigurations: [{
+          code: 'ING',
+          name: 'ING'
+        }]
+      };
+      component.ngOnInit();
+      expect(component.idealForm.get('bank').get('code').hasValidator(Validators.required)).toBeTrue();
+    });
+
+    it('should not add required validator to bank code if bank configurations are absent', () => {
+      component.apm = { bankConfigurations: [] };
+      component.ngOnInit();
+      expect(component.idealForm.get('bank').get('code').hasValidator(Validators.required)).toBeFalse();
+    });
+
+    it('should not throw error if apm is undefined', () => {
+      component.apm = undefined;
+      expect(() => component.ngOnInit()).not.toThrow();
+    });
+  });
+
+  describe('next', () => {
+    it('should return early if billing address is invalid', () => {
+      spyOn(component.setPaymentDetails, 'emit');
+      // @ts-ignore
+      spyOn(component, 'validateAndGetBillingAddress').and.returnValue({
+        isValid: false,
+        billingAddress: undefined
+      });
+      // @ts-ignore
+      spyOn(component, 'createPaymentDetails').and.callThrough();
+
+      component.next();
+
+      expect(component['createPaymentDetails']).toHaveBeenCalled();
+      expect(component['createPaymentDetails']).toHaveBeenCalled();
+      expect(component.setPaymentDetails.emit).not.toHaveBeenCalled();
+    });
+
+    it('should create payment details when form is valid and billing address is valid', () => {
+      // @ts-ignore
+      spyOn(component, 'validateAndGetBillingAddress').and.returnValue({
+        isValid: true,
+        billingAddress
+      });
+      // @ts-ignore
+      spyOn(component, 'createPaymentDetails');
+      component.idealForm.setValue({ bank: { code: 'ING' } });
+
+      component.next();
+
+      expect(component['createPaymentDetails']).toHaveBeenCalledWith(
+        {
+          code: PaymentMethod.iDeal,
+          shopperBankCode: 'ING'
+        },
+      );
+    });
+  });
 });

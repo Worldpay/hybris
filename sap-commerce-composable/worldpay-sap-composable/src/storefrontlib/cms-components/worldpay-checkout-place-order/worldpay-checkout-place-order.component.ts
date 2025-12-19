@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnDestroy, OnInit, Renderer2, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
@@ -7,12 +8,10 @@ import { CheckoutPlaceOrderComponent, CheckoutStepService } from '@spartacus/che
 import { GlobalMessageService, GlobalMessageType, HttpErrorModel, LoggerService, PaymentDetails, QueryState, RoutingService, WindowRef } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { LaunchDialogService } from '@spartacus/storefront';
-import { WorldpayACHFacade } from '@worldpay-facade/worldpay-ach.facade';
-import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
-import { WorldpayCheckoutPaymentService } from '@worldpay-services/worldpay-checkout/worldpay-checkout-payment.service';
-import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
+import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { WorldpayApmService, WorldpayCheckoutPaymentService, WorldpayFraudsightService } from 'worldpay-sap-composable-services';
 import {
   ACHPaymentForm,
   ApmPaymentDetails,
@@ -23,7 +22,7 @@ import {
   ThreeDsInfo,
   WorldpayApmPaymentInfo,
   WorldpayChallengeResponse
-} from '../../../core/interfaces';
+} from 'worldpay-sap-core';
 import { ApmNormalizer } from '../../../core/normalizers';
 import { WorldpayOrderService } from '../../../core/services';
 
@@ -31,7 +30,8 @@ import { WorldpayOrderService } from '../../../core/services';
   selector: 'y-worldpay-checkout-place-order',
   templateUrl: './worldpay-checkout-place-order.component.html',
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderComponent implements OnInit, OnDestroy {
 
@@ -135,6 +135,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
           if (!apm || apm?.cardType) {
             if (apm.cardType) {
               this.browserInfo = {
+                // eslint-disable-next-line deprecation/deprecation
                 javaEnabled: navigator.javaEnabled(),
                 javascriptEnabled: true,
                 language: navigator.language,
@@ -193,10 +194,10 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
    * On Init
    * @since 4.3.6
    */
-  ngOnInit(): void {
+  override ngOnInit(): void {
     this.worldpayCheckoutPaymentService.getPaymentDetailsState()
       .pipe(
-        filter((paymentDetails: QueryState<PaymentDetails>) => paymentDetails && Object.keys(paymentDetails).length > 0),
+        filter((paymentDetails: QueryState<PaymentDetails>): boolean => paymentDetails && Object.keys(paymentDetails).length > 0),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -236,6 +237,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
     this.challengeIframeUrl$ = this.worldpayCheckoutPaymentService.getThreeDsChallengeIframeUrlFromState();
 
     combineLatest([
+      // @ts-ignore: TS4111
       this.checkoutSubmitForm.controls.termsAndConditions.valueChanges,
       this.worldpayCheckoutPaymentService.getPaymentDetailsState(),
       this.worldpayCheckoutPaymentService.getCseTokenFromState()
@@ -253,7 +255,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
 
     this.worldpayApmService.getWorldpayAPMRedirectUrlFromState()
       .pipe(
-        filter((response: APMRedirectResponse) => !!response),
+        filter((response: APMRedirectResponse): boolean => !!response),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -261,8 +263,8 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
           this.redirectData$.next(redirectData);
           if (redirectData.postUrl) {
             new URLSearchParams(redirectData.postUrl.split('?')[1]).forEach((value: string, key: string): void => {
-              // eslint-disable-next-line @typescript-eslint/typedef
-              const found = redirectData.parameters?.entry?.filter((entry): boolean => entry.key === key);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const found: KeyValue<string, string>[] = redirectData.parameters?.entry?.filter((entry: KeyValue<string, string>): boolean => entry.key === key);
               if (!found) {
                 this.queryParams.push({
                   key,
@@ -288,7 +290,7 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (res: string) => this.fraudSightId = res
+        next: (res: string): string => this.fraudSightId = res
       });
   }
 
@@ -316,9 +318,9 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       .pipe(
         take(1),
         takeUntilDestroyed(this.destroyRef)
-      ).subscribe({
-        error: (error: unknown): void => {
-          this.logger.error('Failed to place ACH order', error);
+      )
+      .subscribe({
+        error: (): void => {
           this.orderFacade.clearLoading();
         },
       });

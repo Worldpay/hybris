@@ -1,10 +1,11 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { OccConfig, OccEndpointsService } from '@spartacus/core';
-import { OccWorldpayApplepayAdapter } from './occ-worldpay-applepay.adapter';
+import { OccWorldpayApplepayAdapter } from 'worldpay-sap-composable-occ';
+import { mockUserId } from 'worldpay-sap-composable-tests';
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
 
 const MockOccModuleConfig: OccConfig = {
@@ -33,7 +34,7 @@ describe('OccWorldpayApplepayAdapter', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayApplepayAdapter,
         {
@@ -44,6 +45,8 @@ describe('OccWorldpayApplepayAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
@@ -81,7 +84,7 @@ describe('OccWorldpayApplepayAdapter', () => {
     });
 
     it('should handle error when requestApplePayPaymentRequest fails', () => {
-      const error = new ErrorEvent('Network error');
+      const error = new ProgressEvent('error');
       service.requestApplePayPaymentRequest(userId, cartId).subscribe({
         error: (err) => {
           expect(err).toBeTruthy();
@@ -125,7 +128,7 @@ describe('OccWorldpayApplepayAdapter', () => {
 
     it('should handle error when validateApplePayMerchant fails', () => {
       const validationURL = 'https://valid.url.apple.com';
-      const error = new ErrorEvent('Network error');
+      const error = new ProgressEvent('error');
       service.validateApplePayMerchant(userId, cartId, validationURL).subscribe({
         error: (err) => {
           expect(err).toBeTruthy();
@@ -170,7 +173,7 @@ describe('OccWorldpayApplepayAdapter', () => {
 
     it('should handle error when authorizeApplePayPayment fails', () => {
       const request = { request: 'bar' };
-      const error = new ErrorEvent('Network error');
+      const error = new ProgressEvent('error');
       service.authorizeApplePayPayment(userId, cartId, request).subscribe({
         error: (err) => {
           expect(err).toBeTruthy();

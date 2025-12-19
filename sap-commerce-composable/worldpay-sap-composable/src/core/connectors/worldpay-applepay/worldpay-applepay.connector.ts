@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
 import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../interfaces';
+import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
 
 @Injectable({
   providedIn: 'root'

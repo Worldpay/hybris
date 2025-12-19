@@ -37,4 +37,9 @@
 
     <bean id="worldpayAPMConfigurationDao" class="com.worldpay.core.dao.WorldpayAPMConfigurationDao"/>
 
+    <alias alias="worldpayIntegrationVersionDao" name="defaultWorldpayIntegrationVersionDao"/>
+    <bean id="defaultWorldpayIntegrationVersionDao" class="com.worldpay.core.dao.impl.DefaultWorldpayIntegrationVersionDao"
+          parent="abstractItemDao">
+    </bean>
+
 </beans>

@@ -1,24 +1,17 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
-import { Order } from '@spartacus/order/root';
+import { mockUserId } from 'worldpay-sap-composable-tests';
 import { BrowserInfo } from '../interfaces';
 import { OccWorldpayAdapter } from './occ-worldpay.adapter';
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
-const securityCode = '123';
 const cseToken = 'mockCseToken';
 const paymentDetails: PaymentDetails = {
   id: 'aaa123',
   cardNumber: '1234123412341234'
-};
-
-const orderData: Order = {
-  site: 'electronics-spa',
-  calculated: true,
-  code: '00001004'
 };
 
 const address: Address = {
@@ -39,9 +32,6 @@ const MockOccModuleConfig: OccConfig = {
     baseSite: ['']
   }
 };
-
-const jwt =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
 const browserInfo: BrowserInfo = {
   javaEnabled: false,
@@ -68,7 +58,7 @@ describe('OccWorldpayAdapter', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayAdapter,
         {
@@ -79,6 +69,8 @@ describe('OccWorldpayAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
@@ -97,7 +89,7 @@ describe('OccWorldpayAdapter', () => {
   });
 
   describe('getPublicKey', () => {
-    it('should GET the API', () => {
+    it('should GET public key API', () => {
       service.getPublicKey().subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
@@ -136,7 +128,7 @@ describe('OccWorldpayAdapter', () => {
   });
 
   describe('get3dsJwt', () => {
-    it('should GET the API', () => {
+    it('should GET 3ds Jwt API', () => {
       service.getDDC3dsJwt().subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
@@ -161,16 +153,16 @@ describe('OccWorldpayAdapter', () => {
       const acceptedTermsAndConditions = true;
 
       service.initialPaymentRequest(
-          userId,
-          cartId,
-          paymentDetails,
-          dfReferenceId,
-          challengeWindowSize,
-          cseToken,
-          acceptedTermsAndConditions,
-          null,
-          browserInfo
-        )
+        userId,
+        cartId,
+        paymentDetails,
+        dfReferenceId,
+        challengeWindowSize,
+        cseToken,
+        acceptedTermsAndConditions,
+        null,
+        browserInfo
+      )
         .subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
@@ -215,16 +207,16 @@ describe('OccWorldpayAdapter', () => {
         dateOfBirth: '1970-01-01'
       };
       service.initialPaymentRequest(
-          userId,
-          cartId,
-          fsPaymentDetails,
-          dfReferenceId,
-          challengeWindowSize,
-          cseToken,
-          acceptedTermsAndConditions,
-          deviceSession,
-          browserInfo
-        )
+        userId,
+        cartId,
+        fsPaymentDetails,
+        dfReferenceId,
+        challengeWindowSize,
+        cseToken,
+        acceptedTermsAndConditions,
+        deviceSession,
+        browserInfo
+      )
         .subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
@@ -264,10 +256,10 @@ describe('OccWorldpayAdapter', () => {
   describe('getOrder', () => {
     it('should getOrder for anonymous user', () => {
       service.getOrder(
-          'test@email.com',
-          '100',
-          true,
-        )
+        'test@email.com',
+        '100',
+        true,
+      )
         .subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
@@ -294,10 +286,10 @@ describe('OccWorldpayAdapter', () => {
 
     it('should getOrder for registered user', () => {
       service.getOrder(
-          userId,
-          '100',
-          undefined
-        )
+        userId,
+        '100',
+        undefined
+      )
         .subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(

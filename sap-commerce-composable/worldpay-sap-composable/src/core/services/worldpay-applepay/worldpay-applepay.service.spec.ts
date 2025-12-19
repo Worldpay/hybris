@@ -1,25 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { StoreModule } from '@ngrx/store';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
-import { CommandService, EventService, GlobalMessageService, OCC_USER_ID_ANONYMOUS, QueryService, UserIdService, WindowRef } from '@spartacus/core';
+import { CommandService, EventService, GlobalMessageService, LoggerService, OCC_USER_ID_ANONYMOUS, QueryService, UserIdService, WindowRef } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
 import { of, throwError } from 'rxjs';
-import { WorldpayApplepayAdapter } from '../../connectors/worldpay-applepay/worldpay-applepay.adapter';
-import { WorldpayApplepayConnector } from '../../connectors/worldpay-applepay/worldpay-applepay.connector';
+import { WorldpayApplepayAdapter, WorldpayApplepayConnector } from 'worldpay-sap-composable-connectors';
+import { mockUserId, MockUserIdService } from 'worldpay-sap-composable-tests';
 import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events/applepay.events';
 import { ApplePayPaymentRequest } from '../../interfaces';
 
 import { WorldpayApplepayService } from './worldpay-applepay.service';
-
-const mockAuthorization = {
-  status: 'SUCCESS',
-  orderData: { code: '100' }
-};
-const mockApplePaySession = {
-  STATUS_SUCCESS: 'SUCCESS',
-  STATUS_FAILURE: 'FAILURE',
-  completePayment: jasmine.createSpy()
-};
 
 class MockWorldpayApplepayAdapter implements Partial<WorldpayApplepayAdapter> {
 
@@ -55,8 +45,9 @@ describe('WorldpayApplepayService', () => {
   let worldpayApplepayConnector: WorldpayApplepayConnector;
   let eventService: EventService;
   let windowRef: WindowRef;
+  let logger: LoggerService;
 
-  const userId = 'testUserId';
+  const userId = mockUserId;
   const cartId = 'testCartId';
 
   class ActiveCartServiceStub {
@@ -69,12 +60,6 @@ describe('WorldpayApplepayService', () => {
     isGuestCart() {
       return of(false);
     }
-  }
-
-  class UserIdServiceStub implements Partial<UserIdService> {
-    takeUserId() {
-      return of(userId);
-    };
   }
 
   beforeEach(() => {
@@ -96,7 +81,7 @@ describe('WorldpayApplepayService', () => {
         },
         {
           provide: UserIdService,
-          useClass: UserIdServiceStub
+          useClass: MockUserIdService
         },
         {
           provide: WorldpayApplepayConnector,
@@ -105,7 +90,8 @@ describe('WorldpayApplepayService', () => {
         {
           provide: WorldpayApplepayAdapter,
           useClass: MockWorldpayApplepayAdapter
-        }
+        },
+        LoggerService
       ]
     });
     service = TestBed.inject(WorldpayApplepayService);
@@ -114,6 +100,7 @@ describe('WorldpayApplepayService', () => {
     worldpayApplepayConnector = TestBed.inject(WorldpayApplepayConnector);
     userIdService = TestBed.inject(UserIdService);
     eventService = TestBed.inject(EventService);
+    logger = TestBed.inject(LoggerService);
     windowRef = TestBed.inject(WindowRef);
 
     service.nativeWindow.ApplePaySession = {
@@ -170,13 +157,13 @@ describe('WorldpayApplepayService', () => {
     it('should dispatch ApplePayMerchantSessionEvent event', () => {
       let merchantSession;
       // @ts-ignore
-      service['onValidateMerchant']({ validationURL: 'test.com' });
+      service.onValidateMerchant({ validationURL: 'test.com' });
       expect(eventService.dispatch).toHaveBeenCalledWith({
-          merchantSession: {
-            merchantIdentifier: 'testMerchantIdentifier'
-          }
-        },
-        ApplePayMerchantSessionEvent
+        merchantSession: {
+          merchantIdentifier: 'testMerchantIdentifier'
+        }
+      },
+      ApplePayMerchantSessionEvent
       );
       service.merchantSession$.subscribe(response => merchantSession = response);
       expect(merchantSession).toEqual({ merchantIdentifier: 'testMerchantIdentifier' });
@@ -196,13 +183,13 @@ describe('WorldpayApplepayService', () => {
       expect(worldpayApplepayConnector.authorizeApplePayPayment).toHaveBeenCalledWith(userId, cartId, event.payment);
       expect(orderFacade.setPlacedOrder).toHaveBeenCalledWith({ code: '0001' });
       expect(eventService.dispatch).toHaveBeenCalledWith({
-          authorizePaymentEvent: {
-            order: {
-              code: '0001'
-            }
+        authorizePaymentEvent: {
+          order: {
+            code: '0001'
           }
-        },
-        ApplePayAuthorizePaymentEvent
+        }
+      },
+      ApplePayAuthorizePaymentEvent
       );
       service.paymentAuthorization$.subscribe(response => paymentAuthorization = response);
       expect(paymentAuthorization).toEqual({
@@ -369,7 +356,6 @@ describe('WorldpayApplepayService', () => {
     });
 
     it('should throw error when cartId is not set', (doneFn) => {
-      spyOn(userIdService, 'takeUserId').and.returnValue(of('testUserId'));
       spyOn(activeCartService, 'takeActiveCartId').and.returnValue(of(null));
       spyOn(activeCartService, 'isGuestCart').and.returnValue(of(false));
 
@@ -451,7 +437,7 @@ describe('WorldpayApplepayService', () => {
     });
 
     it('should handle error when payment authorization fails', () => {
-      spyOn(console, 'error');
+      spyOn(logger, 'error');
       const mockError = new Error('Authorization failed');
       spyOn(service['authorizeApplepayPaymentCommand'], 'execute').and.returnValue(throwError(() => mockError));
       // @ts-ignore
@@ -460,7 +446,7 @@ describe('WorldpayApplepayService', () => {
       service['onPaymentAuthorized']({ payment: {} });
 
       expect(service['onPaymentError']).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('Applepay payment Error', mockError);
+      expect(logger.error).toHaveBeenCalledWith('Applepay payment Error', mockError);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, Params, Router } from '@angular/router';
 import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable, of, throwError } from 'rxjs';
@@ -9,24 +9,29 @@ import { WorldpayOrderService } from '../services';
 import { WorldpayCheckoutPaymentRedirectGuard } from './worldpay-checkout-payment-redirect.guard';
 import createSpy = jasmine.createSpy;
 
+const mockParams: Params = {
+  pending: true,
+  status: 'ERROR',
+  orderKey: 'E2Y^MERCHANT2ECOM^00000018-1761730288154',
+};
 class MockGlobalMessageService implements Partial<GlobalMessageService> {
   add = createSpy().and.callThrough();
-};
+}
 
 class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
   lookUpOrder = createSpy().and.callThrough();
 
   getOrderDetails(): Observable<Order> {
     return of({} as Order);
-  };
+  }
 
   placeBankTransferRedirectOrder(): Observable<boolean | never> {
     return of(true);
-  };
+  }
 
   placeRedirectOrder(): Observable<boolean> {
     return of(true);
-  };
+  }
 
   clearLoading() {
 
@@ -36,7 +41,7 @@ class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
 class MockSemanticPathService implements Partial<SemanticPathService> {
   get() {
     return '';
-  };
+  }
 }
 
 describe('WorldpayCheckoutPaymentRedirectGuard', () => {
@@ -139,12 +144,13 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
   });
 
   it('should not placed order when pending status and paymentStatus is in WorldpayPlaceOrderStatus enum and redirect to payment method page', () => {
-    spyOn(worldpayOrderService, 'placeRedirectOrder').and.callThrough();
+    pathSpy.and.returnValue('checkoutPaymentDetails');
+    spyOn(worldpayOrderService, 'placeRedirectOrder').and.returnValue(throwError(() => 'error'));
     orderDetailsSpy.and.returnValue(of({ code: '001' } as Order));
     const activatedRouteWithParams = {
       queryParams: {
         pending: 'true',
-        paymentStatus: WorldpayPlacedOrderStatus.ERROR
+        status: WorldpayPlacedOrderStatus.ERROR
       },
     } as unknown as ActivatedRouteSnapshot;
 
@@ -158,16 +164,18 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
       GlobalMessageType.MSG_TYPE_ERROR
     );
 
-    expect(worldpayOrderService.placeRedirectOrder).not.toHaveBeenCalled();
+    expect(worldpayOrderService.placeRedirectOrder)
+      .toHaveBeenCalledWith({ pending: 'true', status: WorldpayPlacedOrderStatus.ERROR });
   });
 
   it('should REFUSE placed order and redirect to Checkout Payment Details page and show error message', () => {
     pathSpy.and.returnValue('checkoutPaymentDetails');
-    spyOn(worldpayOrderService, 'placeRedirectOrder').and.callThrough();
+    spyOn(worldpayOrderService, 'placeRedirectOrder')
+      .and.returnValue(throwError(() => 'REFUSED'));
     orderDetailsSpy.and.returnValue(of({ code: '001' } as Order));
     const activatedRouteWithParams = {
       queryParams: {
-        paymentStatus: 'REFUSED'
+        status: 'REFUSED'
       },
     } as unknown as ActivatedRouteSnapshot;
 
@@ -181,15 +189,16 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
       GlobalMessageType.MSG_TYPE_ERROR
     );
 
-    expect(worldpayOrderService.placeRedirectOrder).not.toHaveBeenCalled();
+    expect(worldpayOrderService.placeRedirectOrder)
+      .toHaveBeenCalledWith({ status: 'REFUSED', pending: false }); 
   });
 
   it('should redirect to Checkout Payment Details page and show error message if paymentStatus is REFUSED', () => {
     pathSpy.and.returnValue('checkoutPaymentDetails');
-    spyOn(worldpayOrderService, 'placeRedirectOrder').and.callThrough();
+    spyOn(worldpayOrderService, 'placeRedirectOrder').and.returnValue(throwError(() => 'REFUSED'));
     const activatedRouteWithParams = {
       queryParams: {
-        paymentStatus: 'REFUSED'
+        status: 'REFUSED'
       },
     } as unknown as ActivatedRouteSnapshot;
 
@@ -203,7 +212,8 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
       GlobalMessageType.MSG_TYPE_ERROR
     );
 
-    expect(worldpayOrderService.placeRedirectOrder).not.toHaveBeenCalled();
+    expect(worldpayOrderService.placeRedirectOrder)
+      .toHaveBeenCalledWith({ status: 'REFUSED', pending: false });  
   });
 
   describe('should call Place Bank Transfer Redirect Order when orderId queryParam is found', () => {
@@ -211,6 +221,7 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
     beforeEach(() => {
       spyRedirectOrder = spyOn(worldpayOrderService, 'placeBankTransferRedirectOrder');
     });
+
     it('should place bank transfer redirect order', () => {
       spyRedirectOrder.and.returnValue(of(true));
       orderDetailsSpy.and.returnValue(of({ code: '001' } as Order));
@@ -229,7 +240,7 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
     });
 
     it('should show error message and redirect to Checkoput Payment Details page', () => {
-      spyRedirectOrder.and.returnValue(throwError('error'));
+      spyRedirectOrder.and.returnValue(throwError(() =>'error'));
       orderDetailsSpy.and.returnValue(of({ code: '001' } as Order));
       const activatedRouteWithParams = {
         queryParams: {
@@ -247,15 +258,16 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
 
     it('should redirect to order confirmation page on timeout', () => {
       spyOn(worldpayOrderService, 'placeRedirectOrder').and.returnValue(throwError(() => 'timeout'));
-      const result$ = guard['placeRedirectOrder']();
+      const result$ = guard['placeRedirectOrder'](mockParams);
       result$.pipe(take(1)).subscribe((result) => {
         expect(result).toEqual(router.parseUrl(semanticPathService.get('orderConfirmation')));
       });
     });
   });
 
-  it('should clear loading and redirect to checkout payment details page when default case is hit', () => {
+  it('should clear loading and redirect to checkout payment details page when error case is hit', () => {
     spyOn(worldpayOrderService, 'clearLoading');
+    spyOn(worldpayOrderService, 'placeRedirectOrder').and.returnValue(throwError(() => 'error'));
     pathSpy.and.returnValue('checkoutPaymentDetails');
     const activatedRouteWithParams = {
       queryParams: {
@@ -268,6 +280,7 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
         expect(val).toEqual(router.parseUrl(semanticPathService.get('checkoutPaymentDetails')));
       });
 
-    expect(worldpayOrderService.clearLoading).toHaveBeenCalled();
+    expect(worldpayOrderService.placeRedirectOrder)
+      .toHaveBeenCalledWith({ unknownParam: 'unknown', pending: false });
   });
 });

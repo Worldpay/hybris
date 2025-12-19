@@ -1,21 +1,30 @@
 import { CommonModule, PathLocationStrategy } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { CardModule, FormErrorsModule, GenericLinkModule, IconModule, NgSelectA11yModule, SpinnerModule } from '@spartacus/storefront';
-import { NgSelectModule } from '@ng-select/ng-select';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FeaturesConfigModule, I18nModule, provideConfig, UrlModule } from '@spartacus/core';
 import { RouterModule } from '@angular/router';
-import { WorldpayCheckoutPaymentMethodComponent } from './worldpay-checkout-payment-method.component';
-import { WorldpayPaymentFormComponent } from './payment-form/worldpay-payment-form.component';
-import { WorldpayBillingAddressModule } from '../worldpay-billing-address/worldpay-billing-address.module';
-import { WorldpayApmModule } from '../worldpay-apm-component/worldpay-apm.module';
-import { WorldpayCheckoutPaymentRedirectFailureGuard } from '../../../core/guards/worldpay-checkout-payment-redirect-failure.guard';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { CartNotEmptyGuard, CheckoutAuthGuard, CheckoutPaymentFormModule } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressService, CheckoutPaymentService } from '@spartacus/checkout/base/core';
 import { CheckoutDeliveryAddressFacade, CheckoutPaymentFacade } from '@spartacus/checkout/base/root';
-import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
+import { FeaturesConfigModule, I18nModule, provideConfig, UrlModule } from '@spartacus/core';
+import {
+  CardModule,
+  FormErrorsModule,
+  FormRequiredAsterisksComponent,
+  FormRequiredLegendComponent,
+  GenericLinkModule,
+  IconModule,
+  NgSelectA11yModule,
+  SpinnerModule
+} from '@spartacus/storefront';
 import { WorldpayCheckoutPaymentAdapter } from '../../../core/connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
+import { WorldpayCheckoutPaymentRedirectFailureGuard } from '../../../core/guards/worldpay-checkout-payment-redirect-failure.guard';
 import { OccWorldpayCheckoutPaymentAdapter } from '../../../core/occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
+import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
+import { WorldpayApmModule } from '../worldpay-apm-component/worldpay-apm.module';
+import { WorldpayBillingAddressModule } from '../worldpay-billing-address/worldpay-billing-address.module';
+import { WorldpayPaymentFormComponent } from './payment-form/worldpay-payment-form.component';
+import { WorldpayCheckoutPaymentMethodComponent } from './worldpay-checkout-payment-method.component';
 
 @NgModule({
   imports: [
@@ -35,6 +44,8 @@ import { OccWorldpayCheckoutPaymentAdapter } from '../../../core/occ/adapters/wo
     WorldpayBillingAddressModule,
     NgSelectA11yModule,
     FeaturesConfigModule,
+    FormRequiredLegendComponent,
+    FormRequiredAsterisksComponent,
   ],
   declarations: [
     WorldpayCheckoutPaymentMethodComponent,

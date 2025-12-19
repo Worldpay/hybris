@@ -22,7 +22,7 @@
                 </c:otherwise>
             </c:choose>
         </div>
-		<p><spring:theme code="text.account.order.orderNumberLabel"/><strong> ${fn:escapeXml(orderData.code)}</strong></p>
+		<p><spring:theme code="text.account.order.orderNumberLabel"/><strong data-test-id="orderNumber"> ${fn:escapeXml(orderData.code)}</strong></p>
 		<p><spring:theme code="checkout.orderConfirmation.copySentToShort"/><strong> ${fn:escapeXml(email)}</strong></p>
     </div>
 

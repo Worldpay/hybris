@@ -9,6 +9,7 @@ import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.applepay.ValidateMerchantRequestDTO;
 import com.worldpay.payment.applepay.ValidateMerchantRequestData;
+import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractCheckoutController;
 import de.hybris.platform.order.InvalidCartException;
@@ -49,7 +50,7 @@ public class ApplePayController extends AbstractCheckoutController {
     @ResponseBody
     public DirectResponseData authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest) throws WorldpayException, InvalidCartException {
         worldpayApplePayPaymentCheckoutFacade.saveBillingAddresses(authorisationRequest.getBillingContact());
-
+        getSessionService().setAttribute("paymentMethod", PaymentType.APPLEPAYSSL.getMethodCode());
         return worldpayDirectOrderFacade.authoriseApplePayDirect(authorisationRequest.getToken().getPaymentData());
     }
 
