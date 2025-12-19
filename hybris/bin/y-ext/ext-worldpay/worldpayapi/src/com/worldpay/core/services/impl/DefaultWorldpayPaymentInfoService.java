@@ -242,6 +242,9 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
             matchingTokenisedCard.setCcOwner(cardDetails.getCardHolderName());
             matchingTokenisedCard.setValidToMonth(cardDetails.getExpiryDate().getMonth());
             matchingTokenisedCard.setValidToYear(cardDetails.getExpiryDate().getYear());
+
+            cloneAndSetBillingAddressFromCart(cartModel, matchingTokenisedCard);
+
             if (!matchingTokenisedCard.isSaved()) {
                 matchingTokenisedCard.setSaved(saveCard);
             }
@@ -560,6 +563,7 @@ public class DefaultWorldpayPaymentInfoService implements WorldpayPaymentInfoSer
                 CARD;
         creditCardPaymentInfoModel.setPaymentType(methodCode);
         creditCardPaymentInfoModel.setType(cardType);
+        wrapper.sessionService.setAttribute(PAYMENT_METHOD_PARAM, methodCode);
     }
 
     private void updateCreditCardType(final CreditCardPaymentInfoModel creditCardPaymentInfoModel, final PaymentReply paymentReply) {

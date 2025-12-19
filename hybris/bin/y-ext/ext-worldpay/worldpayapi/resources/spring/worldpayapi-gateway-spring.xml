@@ -202,5 +202,7 @@
         <constructor-arg name="configurationService" ref="configurationService"/>
         <constructor-arg name="paymentServiceMarshaller" ref="paymentServiceMarshaller"/>
         <constructor-arg name="restTemplate" ref="worldpayRestTemplate"/>
+        <constructor-arg name="sessionService" ref="sessionService"/>
+        <constructor-arg name="worldpayIntegrationVersionService" ref="worldpayIntegrationVersionService"/>
     </bean>
 </beans>

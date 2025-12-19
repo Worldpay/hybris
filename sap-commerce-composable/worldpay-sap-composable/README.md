@@ -1,6 +1,6 @@
-# Worldpay Connector for the SAP Spartacus Storefront
+# Worldpay Connector for the SAP Composable Storefront
 
-The Worldpay Connector for SAP Spartacus Storefront is an Angular Library that provides the components to integrate WorldPay payment solutions with the SAP Commerce Cloud Spartacus
+The Worldpay Connector for SAP Composable Storefront is an Angular Library that provides the components to integrate WorldPay payment solutions with the SAP Commerce Cloud Spartacus
 storefront.
 
 ## About Worldpay from FIS
@@ -21,17 +21,20 @@ Release information: [https://sap.github.io/spartacus-docs/release-information/]
 
 ## Requirements
 
-- If you are working with Spartacus 2211, see the 2211 Angular development environment requirements on
+Before updating Composable storefront to version 2211.43, you first need to make sure your Angular libraries are up to date. Composable storefront 2211.36 requires Angular 19.
+
+- If you are working with Composable storefront 2211, see the 2211 Angular development environment requirements on
   the [SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/cfcf687ce2544bba9799aa6c8314ecd0/bf31098d779f4bdebb7a2d0591917363.html?locale=en-US&version=2211).
-- **[Angular CLI:](https://angular.io/)** Version 17.0.0 is the minimum required. The most recent 17.x version is strongly recommended.
-- **[npm:](https://www.npmjs.com/)** Version 10.2.4 or newer.
-- **[Node.js](https://nodejs.org/)**: Version 20.9.0 is the minimum required. The most recent 20.x version is strongly recommended.
+- **[Angular CLI:](https://angular.io/)** Version 19.0.0 is the minimum required. The most recent 19.x version is strongly recommended.
+- **[npm:](https://www.npmjs.com/)** Version 10.9.2 or newer.
+- **[Node.js](https://nodejs.org/)**: Version 22.14.0 is the minimum required. The most recent 22.x version is strongly recommended.
+
 
 **Note:** Some Spartacus features require API endpoints that are only available in newer versions of SAP Commerce Cloud. For more information, see Feature Compatibility.
 
 ## Compatibility
 
-The Connector is compatible with the Spartacus Release 2211.32.1
+The Connector is compatible with the Composable storefront Release 2211.43.0
 
 ## Installation & Usage
 
@@ -39,9 +42,9 @@ The Connector is compatible with the Spartacus Release 2211.32.1
 
 Run the command `./install.sh` to do a clean install and run the example-storefront
 
-### Installing Spartacus
+### Installing Composable storefront
 
-- Install `@worldpay2020/sap-composable` to your Spartacus project - final name pending
+- Install `@worldpay2020/sap-composable` to your Composable project - final name pending
 
     - #### Using npm
     ```bash
@@ -58,12 +61,12 @@ Run the command `./install.sh` to do a clean install and run the example-storefr
     ```
     - #### Using yarn   (specific version)
     ```bash
-    yarn install @worldpay2020/sap-composable@2211.32.1
+    yarn install @worldpay2020/sap-composable@2211.43.0
     ```
 
 ## Configuring SAP Composable Storefront
 
-1. Include Worldpay Module the following in your Spartacus storefront's `app.module.ts` file.
+1. Include Worldpay Module the following in your Composable storefront's `app.module.ts` file.
 
 ````typescript
 import { WorldpayModule } from '@worldpay2020/sap-composable';
@@ -82,9 +85,9 @@ import { WorldpayModule } from '@worldpay2020/sap-composable';
 
 @NgModule({
   imports: [
-  ...
-    CommonModule,
+    ...
     OccWorldpayModule,
+    WorldpayFraudsightRiskModule,
     WorldpayCheckoutPaymentMethodModule,
     WorldpayCheckoutDeliveryAddressModule,
     WorldpayDdcIframeModule,
@@ -211,9 +214,35 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-### Release 2211.2X
+### Release 2211.43
 
-* Compatible with SAP Commerce Cloud 2211.2X
+* Compatible with SAP Commerce Cloud 2211.43
+* Removed deprecated APM's:
+  * GiroPay
+  * Postepay
+  * Sofort
+* Supported APM’s:
+
+| Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
+|-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
+| ACH Direct Debit      | US                            | USD             | Yes                | Account type, Account Number, Routing Number, Check Number, Company Name, Custom Identifier |
+| AliPay                | CN                            | USD, EUR        |                    |                                                                                             |
+| ApplePay              | All                           | All             | Yes                |                                                                                             |
+| Bancontact MisterCash | BE                            | EUR             |                    |                                                                                             |
+| China Union Pay       | CN                            | GBP,EUR,USD,SGD |                    |                                                                                             |
+| GooglePay             | All                           | All             | Yes                |                                                                                             |
+| iDeal                 | NL                            | EUR             | Yes                | Bank Code                                                                                   |
+| Klarna                | AT,FI,DE,NL,NO,SE,GB          | EUR,GBP         |                    |                                                                                             |
+| Klarna Pay Later      | SE,NO,FI,DE,NL,AT,CH,GB,DK,US | EUR,GBP         |                    |                                                                                             |
+| Klarna Pay Now        | SE,DE,NL,AT                   | EUR,GBP         |                    |                                                                                             |
+| Klarna Slice It       | SE,NO,FI,DE,AT,GB,DK,US       | EUR,GBP         |                    |                                                                                             |
+| PayPal SSL            | All                           | All             |                    |                                                                                             |
+| POLi                  | NZ                            | NZ              |                    |                                                                                             |
+| Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
+
+### Release 2211.28.0
+
+* Compatible with SAP Commerce Cloud 2211.27.0
 * Supported APM’s:
 
 | Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |

@@ -2,46 +2,47 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { CartItemContextSource } from '@spartacus/cart/base/components';
-import { CartItemContext, CartOutlets } from '@spartacus/cart/base/root';
+import { CartCouponModule } from '@spartacus/cart/base/components';
+import { AddToCartModule } from '@spartacus/cart/base/components/add-to-cart';
+import { CartOutlets } from '@spartacus/cart/base/root';
 import { FeaturesConfigModule, I18nModule, UrlModule } from '@spartacus/core';
 import { AtMessageModule, IconModule, ItemCounterModule, MediaModule, OutletModule, PromotionsModule, provideOutlet } from '@spartacus/storefront';
-import { WorldpayCartItemListRowComponent } from './worldpay-cart-item-list-row/worldpay-cart-item-list-row.component';
-import { WorldpayCartItemListComponent } from './worldpay-cart-item-list/worldpay-cart-item-list.component';
-import { WorldpayCartItemValidationWarningModule } from './worldpay-cart-item-warning/worldpay-cart-item-validation-warning.module';
 import { WorldpayCartItemComponent } from './worldpay-cart-item/worldpay-cart-item.component';
+import { WorldpayCartItemListComponent } from './worldpay-cart-item-list/worldpay-cart-item-list.component';
+import { WorldpayCartItemListRowComponent } from './worldpay-cart-item-list-row/worldpay-cart-item-list-row.component';
+import { WorldpayCartItemValidationWarningModule } from './worldpay-cart-item-warning/worldpay-cart-item-validation-warning.module';
 
-// eslint-disable-next-line @typescript-eslint/typedef
-const components = [
-  WorldpayCartItemComponent,
-  WorldpayCartItemListRowComponent,
-  WorldpayCartItemListComponent,
-];
+const components: (
+  typeof WorldpayCartItemListRowComponent |
+  typeof WorldpayCartItemListComponent |
+  typeof WorldpayCartItemComponent
+  ) [] = [
+    WorldpayCartItemListRowComponent,
+    WorldpayCartItemListComponent,
+    WorldpayCartItemComponent
+  ];
 
 @NgModule({
   declarations: components,
   exports: components,
   imports: [
+    AtMessageModule,
+    CartCouponModule,
+    WorldpayCartItemValidationWarningModule,
     CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    UrlModule,
-    PromotionsModule,
     I18nModule,
     IconModule,
-    MediaModule,
     ItemCounterModule,
-    FeaturesConfigModule,
+    MediaModule,
     OutletModule,
-    WorldpayCartItemValidationWarningModule,
-    AtMessageModule,
+    PromotionsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    UrlModule,
+    AddToCartModule,
+    FeaturesConfigModule,
   ],
   providers: [
-    CartItemContextSource,
-    {
-      provide: CartItemContext,
-      useExisting: CartItemContextSource
-    },
     provideOutlet({
       id: CartOutlets.WORLDPAY_CART_ITEM_LIST,
       component: WorldpayCartItemListComponent,

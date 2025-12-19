@@ -1,20 +1,26 @@
 <div
-  *ngIf="order$ | async as order"
   class="cx-order-items container"
+  *ngIf="order$ | async as order"
 >
-  <h4 class="cx-order-items-header">
+  <h3 class="cx-order-items-header">
     {{ 'checkoutOrderConfirmation.orderItems' | cxTranslate }}
-  </h4>
-  
-  <cx-promotions [promotions]="order.appliedOrderPromotions"></cx-promotions>
-  
+  </h3>
+
+  <cx-promotions
+    [promotions]="order.appliedOrderPromotions || []"
+  ></cx-promotions>
+
   <ng-template
-    [cxOutletContext]="{
-		  items: order.entries,
-		  readonly: true,
-		  promotionLocation: promotionLocation,
-		}"
+    [cxAbstractOrderContext]="{
+      id: order.code,
+      type: abstractOrderType.ORDER,
+    }"
     [cxOutlet]="cartOutlets.WORLDPAY_CART_ITEM_LIST"
+    [cxOutletContext]="{
+      items: order.entries,
+      readonly: true,
+      promotionLocation: promotionLocation,
+    }"
   >
   </ng-template>
 </div>

@@ -2,15 +2,16 @@ import { ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit } from 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutingService } from '@spartacus/core';
 import { Order, OrderFacade } from '@spartacus/order/root';
-import { WorldpayApplepayService } from '@worldpay-services/worldpay-applepay/worldpay-applepay.service';
 import { Observable, of, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { WorldpayApplepayService } from 'worldpay-sap-composable-services';
 import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../../../core/interfaces';
 
 @Component({
   selector: 'worldpay-applepay',
   templateUrl: './worldpay-applepay.component.html',
   styleUrls: ['worldpay-applepay.component.scss'],
+  standalone: false
 })
 export class WorldpayApplepayComponent implements OnInit {
   @Input() apm: ApmData;
@@ -36,7 +37,7 @@ export class WorldpayApplepayComponent implements OnInit {
   placeApplePayOrder(): void {
     this.paymentRequest$ = this.worldpayApplepayService.getPaymentRequestFromState()
       .pipe(
-        filter((paymentRequest: ApplePayPaymentRequest) => !!paymentRequest && Object.keys(paymentRequest).length > 0),
+        filter((paymentRequest: ApplePayPaymentRequest): boolean => !!paymentRequest && Object.keys(paymentRequest).length > 0),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -47,7 +48,7 @@ export class WorldpayApplepayComponent implements OnInit {
 
     this.worldpayApplepayService.getMerchantSessionFromState()
       .pipe(
-        filter((session: PlaceOrderResponse) => !!session && Object.keys(session).length > 0),
+        filter((session: PlaceOrderResponse): boolean => !!session && Object.keys(session).length > 0),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -58,7 +59,7 @@ export class WorldpayApplepayComponent implements OnInit {
 
     this.worldpayApplepayService.getPaymentAuthorizationFromState()
       .pipe(
-        filter((authorization: ApplePayAuthorization) => !!authorization && Object.keys(authorization).length > 0),
+        filter((authorization: ApplePayAuthorization): boolean => !!authorization && Object.keys(authorization).length > 0),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({

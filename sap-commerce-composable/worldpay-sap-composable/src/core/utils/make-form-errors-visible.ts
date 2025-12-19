@@ -5,8 +5,7 @@ import { AbstractControl, UntypedFormGroup } from '@angular/forms';
  * @since 6.4.0
  * @param form - UntypedFormGroup
  */
-// eslint-disable-next-line @typescript-eslint/typedef
-export const makeFormErrorsVisible = (form: UntypedFormGroup): void => {
+export const makeFormErrorsVisible: (form: UntypedFormGroup) => void = (form: UntypedFormGroup): void => {
   try {
     if (!form || !form.controls) {
       return;
@@ -14,7 +13,7 @@ export const makeFormErrorsVisible = (form: UntypedFormGroup): void => {
     for (const ctrlName in form.controls) {
       // eslint-disable-next-line no-prototype-builtins
       if (form.controls.hasOwnProperty(ctrlName)) {
-        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const ctrl: AbstractControl<any, any> = form.controls[ctrlName];
         if (ctrl instanceof UntypedFormGroup) {
           makeFormErrorsVisible(ctrl);
@@ -25,7 +24,8 @@ export const makeFormErrorsVisible = (form: UntypedFormGroup): void => {
         }
       }
     }
-  } catch (e) {
-    console.error('Error while making form errors visible', e);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Error making form errors visible:', error);
   }
 };

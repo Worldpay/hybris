@@ -2,9 +2,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
-import { WorldpayApplepayAdapter } from '@worldpay-connectors/worldpay-applepay/worldpay-applepay.adapter';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { WorldpayApplepayAdapter } from 'worldpay-sap-composable-connectors';
 import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../../interfaces';
 
 @Injectable()
@@ -68,7 +68,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
     cartId: string,
     validationURL: string
   ): Observable<ValidateMerchant> {
-    const body: { validationURL: string; } = {
+    const body: { validationURL: string } = {
       validationURL
     };
     const url: string = this.occEndpoints.buildUrl(
@@ -103,7 +103,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
     cartId: string,
     request: any
   ): Observable<ApplePayAuthorization> {
-    const body: { request: string; } = {
+    const body: any = {
       ...request
     };
     const url: string = this.occEndpoints.buildUrl(

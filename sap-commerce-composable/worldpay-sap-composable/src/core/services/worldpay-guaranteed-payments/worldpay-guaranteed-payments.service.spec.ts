@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { EventService, QueryService, QueryState, WindowRef } from '@spartacus/core';
-import { SetGuaranteedPaymentsSessionIdEvent } from '@worldpay-events/guaranteed-payments.events';
+import { EventService, LoggerService, QueryService, QueryState, WindowRef } from '@spartacus/core';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { WorldpayGuaranteedPaymentsConnector } from '../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
-import { LoadScriptService } from '../../utils/load-script.service';
+import { WorldpayGuaranteedPaymentsConnector } from 'worldpay-sap-composable-connectors';
+import { SetGuaranteedPaymentsSessionIdEvent } from 'worldpay-sap-composable-events';
 
-import { WorldpayGuaranteedPaymentsService } from './worldpay-guaranteed-payments.service';
+import { WorldpayGuaranteedPaymentsService } from 'worldpay-sap-composable-services';
+import { LoadScriptService } from 'worldpay-sap-composable-utils';
 import createSpy = jasmine.createSpy;
 
 class MockWorldpayGuaranteedPaymentsConnector implements Partial<WorldpayGuaranteedPaymentsConnector> {
@@ -15,17 +15,13 @@ class MockWorldpayGuaranteedPaymentsConnector implements Partial<WorldpayGuarant
   setGuaranteedPaymentsEnabledEvent = createSpy().and.returnValue(of(true));
 }
 
-class MockQueryService implements Partial<QueryService> {
-  create = createSpy().and.callThrough();
-}
-
 describe('WorldpayGuaranteedPaymentsService', () => {
   let service: WorldpayGuaranteedPaymentsService;
   let connector: WorldpayGuaranteedPaymentsConnector;
   let loadScriptService: LoadScriptService;
   let winRef: WindowRef;
-  let queryService: QueryService;
   let eventService: EventService;
+  let loggerService: LoggerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -35,7 +31,7 @@ describe('WorldpayGuaranteedPaymentsService', () => {
         QueryService,
         WorldpayGuaranteedPaymentsService,
         EventService,
-        LoadScriptService,
+        LoggerService,
         {
           provide: WorldpayGuaranteedPaymentsConnector,
           useClass: MockWorldpayGuaranteedPaymentsConnector
@@ -46,8 +42,12 @@ describe('WorldpayGuaranteedPaymentsService', () => {
     connector = TestBed.inject(WorldpayGuaranteedPaymentsConnector);
     loadScriptService = TestBed.inject(LoadScriptService);
     winRef = TestBed.inject(WindowRef);
-    queryService = TestBed.inject(QueryService);
     eventService = TestBed.inject(EventService);
+    loggerService = TestBed.inject(LoggerService);
+  });
+
+  beforeEach(() => {
+    winRef.document.querySelectorAll('script').forEach((el) => el.remove());
   });
 
   it('should be created', () => {
@@ -164,8 +164,7 @@ describe('WorldpayGuaranteedPaymentsService', () => {
         expect(sessionId).toEqual('testSessionId');
         doneFn();
       });
-    })
-    ;
+    });
 
     it('should return empty string if session id is null', () => {
       const event = { sessionId: null };
@@ -201,37 +200,57 @@ describe('WorldpayGuaranteedPaymentsService', () => {
   });
 
   it('should set session id and generate script when session id is provided', () => {
+    spyOn(winRef, 'isBrowser').and.returnValue(true);
     spyOn(service, 'setSessionId').and.callThrough();
     spyOn(loadScriptService, 'loadScript').and.callThrough();
-    service.generateScript('testSessionId');
-    expect(service.setSessionId).toHaveBeenCalledWith('testSessionId');
+
+    const mockNode = winRef.document.createElement('script');
+    spyOn(winRef.document, 'createElement').and.returnValue(mockNode);
+    spyOn(winRef.document.head, 'appendChild').and.callThrough();
+
+    const sessionId = 'newSessionId';
+    service.generateScript(sessionId);
+
+    expect(service.setSessionId).toHaveBeenCalledWith(sessionId);
     expect(loadScriptService.loadScript).toHaveBeenCalledWith({
       idScript: 'sig-api',
       src: 'https://cdn-scripts.signifyd.com/api/script-tag.js',
       defer: true,
-      attributes: { 'data-order-session-id': 'testSessionId' },
+      attributes: { 'data-order-session-id': sessionId },
     });
   });
 
+  it('should log a message when not running in a browser environment', () => {
+    spyOn(winRef, 'isBrowser').and.returnValue(false);
+    spyOn(loggerService, 'log');
+
+    loadScriptService.loadScript({
+      idScript: 'non-browser-script',
+      src: 'https://example.com/script.js',
+    });
+
+    expect(loggerService.log).toHaveBeenCalledWith('LoadScript service not loaded as test is running or SSR is mode enabled.');
+  });
+
   it('should update existing script if node is found', () => {
-    const mockNode = document.createElement('script');
+    const mockNode = winRef.document.createElement('script');
     mockNode.id = 'sig-api';
     mockNode.type = 'text/javascript';
     mockNode.defer = true;
     mockNode.setAttribute('data-order-session-id', 'testSessionId');
 
-    document.body.appendChild(mockNode);
+    winRef.document.body.appendChild(mockNode);
     service.window['SIGNIFYD_GLOBAL'] = {
       init: () => {
       }
     };
     spyOn(service, 'removeScript').and.callThrough();
     spyOn(loadScriptService, 'updateScript').and.callThrough();
-    spyOn(service.window.SIGNIFYD_GLOBAL, 'init').and.callThrough();
+    spyOn(service.window.SIGNIFYD_GLOBAL, 'init');
     service.generateScript('testSessionId');
     expect(service.removeScript).toHaveBeenCalled();
     expect(service.window.SIGNIFYD_GLOBAL.init).toHaveBeenCalled();
-    document.body.removeChild(mockNode);
+    winRef.document.body.removeChild(mockNode);
   });
 
   it('should not generate script if session id is not provided', () => {
@@ -241,9 +260,16 @@ describe('WorldpayGuaranteedPaymentsService', () => {
   });
 
   it('should call remove script', () => {
+    const sessionId = 'test';
+    loadScriptService.loadScript({
+      idScript: service.idScript,
+      src: 'https://cdn-scripts.signifyd.com/api/script-tag.js',
+      defer: true,
+      attributes: {'data-order-session-id': sessionId},
+    });
     spyOn(loadScriptService, 'removeScript').and.callThrough();
-    loadScriptService.removeScript('test');
-    expect(loadScriptService.removeScript).toHaveBeenCalledWith('test');
+    loadScriptService.removeScript(sessionId);
+    expect(loadScriptService.removeScript).toHaveBeenCalledWith(sessionId);
   });
 
   it('should call removeScript with the correct script tag id', () => {

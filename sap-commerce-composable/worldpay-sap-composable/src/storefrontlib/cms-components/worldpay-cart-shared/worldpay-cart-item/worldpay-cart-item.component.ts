@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnChanges } from '@angular/core';
 import { CartItemComponent, CartItemContextSource } from '@spartacus/cart/base/components';
 import { CartItemContext } from '@spartacus/cart/base/root';
 
@@ -12,7 +12,8 @@ import { CartItemContext } from '@spartacus/cart/base/root';
       useExisting: CartItemContextSource
     },
   ],
+  standalone: false
 })
-export class WorldpayCartItemComponent extends CartItemComponent {
+export class WorldpayCartItemComponent extends CartItemComponent implements OnChanges {
 
 }

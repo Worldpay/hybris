@@ -9,6 +9,7 @@ import { map } from 'rxjs/operators';
   selector: 'cx-cart-item-validation-warning',
   templateUrl: './worldpay-cart-item-validation-warning.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class WorldpayCartItemValidationWarningComponent {
   @Input()
@@ -20,6 +21,8 @@ export class WorldpayCartItemValidationWarningComponent {
   cartModification$: Observable<CartModification> =
     this.cartValidationStateService.cartValidationResult$.pipe(
       map((modificationList: CartModification[]): CartModification =>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         modificationList.find(
           (modification: CartModification): boolean => modification?.entry?.product?.code === this.code
         )

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
+import { Cart } from '@spartacus/cart/base/root';
 import { facadeFactory, QueryState } from '@spartacus/core';
 import { Observable } from 'rxjs';
-import { WORLDPAY_APM_FEATURE } from './worldpay-feature-name';
 import { ApmData, ApmPaymentDetails, APMRedirectResponse, PaymentMethod } from '../interfaces';
-import { Cart } from '@spartacus/cart/base/root';
+import { WORLDPAY_APM_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
   providedIn: 'root',
-  useFactory: () =>
+  useFactory: (): WorldpayApmFacade =>
     facadeFactory({
       facade: WorldpayApmFacade,
       feature: WORLDPAY_APM_FEATURE,

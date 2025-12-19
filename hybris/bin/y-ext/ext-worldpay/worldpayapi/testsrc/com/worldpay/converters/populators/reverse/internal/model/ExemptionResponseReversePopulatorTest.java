@@ -11,8 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -46,5 +47,17 @@ public class ExemptionResponseReversePopulatorTest {
         assertEquals(REASON, exemptionResponseInfo.getReason());
         assertEquals(RESULT, exemptionResponseInfo.getResult());
         assertEquals(exemptionMock, exemptionResponseInfo.getExemption());
+    }
+
+    @Test
+    public void populate_shouldNotPopulateExemption_whenSourceExemptionIsNull() {
+        final ExemptionResponseInfo exemptionResponseInfoStub = new ExemptionResponseInfo();
+
+        testObj.populate(exemptionResponseMock, exemptionResponseInfoStub);
+
+        assertThat(exemptionResponseInfoStub.getExemption()).isNull();
+        assertThat(exemptionResponseInfoStub.getReason()).isNull();
+        assertThat(exemptionResponseInfoStub.getResult()).isNull();
+        verify(internalExemptionReverseConverterMock, never()).convert(intExemptionMock);
     }
 }

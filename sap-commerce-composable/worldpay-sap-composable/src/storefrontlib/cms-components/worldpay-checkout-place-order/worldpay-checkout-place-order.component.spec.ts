@@ -1,45 +1,44 @@
-import { NgZone, Pipe, PipeTransform, Renderer2, ViewContainerRef } from '@angular/core';
+import { Renderer2, ViewContainerRef } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import {
   Address,
-  GlobalMessageEntities,
+  CurrencyService,
   GlobalMessageService,
   GlobalMessageType,
   HttpErrorModel,
   I18nTestingModule,
+  LanguageService,
+  LoggerService,
   PaymentDetails,
   QueryState,
   RoutingService,
   WindowRef
 } from '@spartacus/core';
-import { Order } from '@spartacus/order/root';
 import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
-import { OccWorldpayApmAdapter } from '@worldpay-occ/adapters/worldpay-apm/occ-worldpay-apm.adapter';
-import { OccWorldpayCheckoutPaymentAdapter } from '@worldpay-occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
-import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
-import { WorldpayCheckoutPaymentService } from '@worldpay-services/worldpay-checkout/worldpay-checkout-payment.service';
-import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
-import { Observable, of, throwError } from 'rxjs';
-import { WorldpayApmConnector, WorldpayCheckoutPaymentAdapter } from '../../../core/connectors';
-import { WorldpayACHFacade } from '../../../core/facade';
+import { of, throwError } from 'rxjs';
+import { WorldpayCheckoutPlaceOrderComponent } from 'worldpay-sap-composable-components';
+import { WorldpayApmConnector, WorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-connectors';
+import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { OccWorldpayApmAdapter, OccWorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-occ';
+import { WorldpayApmService, WorldpayCheckoutPaymentService, WorldpayFraudsightService, WorldpayOrderService } from 'worldpay-sap-composable-services';
 import {
-  ACHPaymentForm,
-  ApmPaymentDetails,
-  APMRedirectResponse,
-  PaymentMethod,
-  PlaceOrderResponse,
-  ThreeDsDDCInfo,
-  ThreeDsInfo,
-  WorldpayApmPaymentInfo
-} from '../../../core/interfaces';
-import { WorldpayOrderService } from '../../../core/services';
-import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
-import createSpy = jasmine.createSpy;
+  MockActivatedRoute,
+  MockCheckoutStepService,
+  MockGlobalMessageService,
+  MockLaunchDialogService,
+  MockRoutingService,
+  MockUrlPipe,
+  MockWorldpayACHFacade,
+  MockWorldpayApmService,
+  MockWorldpayCheckoutPaymentService,
+  MockWorldpayFraudsightService,
+  MockWorldpayOrderService
+} from 'worldpay-sap-composable-tests';
+import { ACHPaymentForm, ApmPaymentDetails, PaymentMethod, ThreeDsInfo, WorldpayApmPaymentInfo } from 'worldpay-sap-core';
 
 const mockBillingAddress: Address = {
   formattedAddress: 'address',
@@ -67,7 +66,6 @@ const mockCreditCard: PaymentDetails = {
   expiryYear: '24',
   id: '0001',
   subscriptionId: '000000000',
-  worldpayAPMPaymentInfo: mockPaypal
 };
 
 const mockIdeal: WorldpayApmPaymentInfo = {
@@ -81,93 +79,6 @@ const mockIdeal: WorldpayApmPaymentInfo = {
     accountType: 'checking',
   }
 };
-
-class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
-  placeOrder = createSpy().and.returnValue(of({}));
-
-  clearOrder = createSpy();
-
-  getOrderDetails(): Observable<Order | undefined> {
-    return of({
-      code: 'order-0001',
-      entries: []
-    });
-  }
-
-  getLoading(): Observable<boolean> {
-    return of(false);
-  }
-
-  startLoading(): void {
-
-  }
-
-  getAPMRedirectUrl(): Observable<APMRedirectResponse> {
-    return of({
-      postUrl: 'https://postURL.com',
-      parameters: {
-        entry: []
-      },
-      mappingLabels: {}
-    });
-  }
-
-  clearLoading(): void {
-  }
-
-  executeDDC3dsJwtCommand(): Observable<ThreeDsDDCInfo> {
-    return of({
-      ddcUrl: 'https://centinelapistag.cardinalcommerce.com',
-      jwt: 'jwt'
-    });
-  }
-
-  initialPaymentRequest(): Observable<PlaceOrderResponse> {
-    return of({
-      threeDSecureNeeded: false,
-      transactionStatus: 'SUCCESS',
-      order: {
-        code: '00001'
-      }
-    });
-  }
-
-  setPlacedOrder(): void {
-  }
-
-  placeACHOrder(): Observable<Order> {
-    return of(null);
-  }
-
-  challengeAccepted(): void {
-
-  }
-
-  challengeFailed(): void {
-
-  }
-}
-
-class MockRoutingService implements Partial<RoutingService> {
-  go = createSpy().and.returnValue(of(true).toPromise());
-}
-
-class MockLaunchDialogService implements Partial<LaunchDialogService> {
-  launch = createSpy();
-  clear = createSpy();
-}
-
-class MockCheckoutStepService implements Partial <CheckoutStepService> {
-
-}
-
-@Pipe({
-  name: 'cxUrl',
-})
-class MockUrlPipe implements PipeTransform {
-  transform(): any {
-  }
-}
 
 const mockActivatedRoute = {
   snapshot: {
@@ -190,162 +101,46 @@ const MockWindowRef = {
 class MockRenderer2 {
 }
 
-class MockWorldpayApmService implements Partial<WorldpayApmService> {
-  getWorldpayAPMRedirectUrlFromState(): Observable<APMRedirectResponse> {
-    return of({
-      postUrl: 'https://postURL.com',
-      parameters: {
-        entry: []
-      },
-      mappingLabels: {}
-    });
-  }
-
-  getLoading(): Observable<boolean> {
-    return of(false);
-  }
-
-  getAPMRedirectUrl() {
-
-  }
-
-  selectAPM(): void {
-
-  }
-
-  checkoutPreconditions(): Observable<[string, string]> {
-    return of(['userId', 'cartId']);
-  }
-
-  getSelectedAPMFromState(): Observable<ApmPaymentDetails> {
-    return of({
-      code: PaymentMethod.Card,
-      name: 'Visa',
-    });
-  }
-
-  showErrorMessage(): void {
-
-  }
-}
-
-class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightService> {
-  getFraudSightIdFromState(): Observable<string> {
-    return of('fraudSightId');
-  }
-}
-
-class MockGlobalMessageService implements Partial<GlobalMessageService> {
-  get(): Observable<GlobalMessageEntities> {
-    return of({});
-  }
-
-  add(): void {
-  }
-
-  remove(): void {
-  }
-}
-
-class MockWorldpayACHFacade implements Partial<WorldpayACHFacade> {
-  getACHPaymentFormValue(): Observable<ACHPaymentForm> {
-    return of({
-      accountType: 'checking',
-      routingNumber: '123456789',
-      accountNumber: '123456789',
-      accountHolderName: 'user',
-    });
-  }
-}
-
 describe('WorldpayCheckoutPlaceOrderComponent', () => {
   let component: WorldpayCheckoutPlaceOrderComponent;
   let fixture: ComponentFixture<WorldpayCheckoutPlaceOrderComponent>;
   let controls: UntypedFormGroup['controls'];
   let orderFacade: WorldpayOrderService;
   let routingService: RoutingService;
-  let launchDialogService: LaunchDialogService;
-  let sanitizer: DomSanitizer;
   let placeOrderSpy: jasmine.Spy;
-  let zone: NgZone;
   let winRef: WindowRef;
-  let mockRenderer2: Renderer2;
+  let mockRenderer2: MockRenderer2;
   let worldpayCheckoutPaymentService: WorldpayCheckoutPaymentService;
   let worldpayApmService: WorldpayApmService;
-  let worldpayFraudsightService: WorldpayFraudsightService;
   let worldpayACHFacade: WorldpayACHFacade;
   let globalMessageService: GlobalMessageService;
-
-  class MockWorldpayCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentService> {
-    getPaymentDetailsState(): Observable<any> {
-      return of({
-        loading: false,
-        error: false,
-        data: mockCreditCard
-      });
-    }
-
-    getCseTokenFromState(): Observable<string> {
-      return of('token');
-    }
-
-    getThreeDsDDCIframeUrlFromState(): Observable<SafeResourceUrl> {
-      return of(sanitizer.bypassSecurityTrustResourceUrl('iframeUrl'));
-    }
-
-    getThreeDsChallengeIframeUrlFromState(): Observable<SafeResourceUrl> {
-      return of(sanitizer.bypassSecurityTrustResourceUrl('https://centinelapistag.cardinalcommerce.com'));
-    }
-
-    getDDCInfoFromState(): Observable<ThreeDsDDCInfo> {
-      return of({
-        ddcUrl: 'https://centinelapistag.cardinalcommerce.com',
-        jwt: 'jwt'
-      });
-    }
-
-    getThreeDsChallengeInfoFromState(): Observable<ThreeDsInfo> {
-      return of({
-        threeDSFlexData: {
-          autoSubmitThreeDSecureFlexUrl: 'https://autosubmiturl.aws.e2y.io',
-          jwt: 'jwt',
-          challengeUrl: 'https://challengeurl.aws.e2y.io',
-          entry: []
-        },
-        merchantData: '123-456'
-      });
-    }
-
-    setThreeDsChallengeIframeUrl(): void {
-
-    }
-
-    setThreeDsDDCIframeUrl(): void {
-
-    }
-  }
+  let logger: LoggerService;
 
   beforeEach(
     waitForAsync(() => {
+      const mockCurrencyService = {
+        getActive: () => of('USD'),
+      };
+      const mockLanguageService = {
+        getActive: () => of('en'),
+      };
+
       TestBed.configureTestingModule({
         imports: [
           ReactiveFormsModule,
-          RouterTestingModule,
+          RouterLink,
           I18nTestingModule,
           FormErrorsModule,
         ],
         declarations: [MockUrlPipe, WorldpayCheckoutPlaceOrderComponent],
         providers: [
           {
+            provide: ActivatedRoute,
+            useClass: MockActivatedRoute
+          },
+          {
             provide: WorldpayOrderService,
             useClass: MockWorldpayOrderService
-          },
-          ViewContainerRef,
-          {
-            provider: DomSanitizer,
-            useValue: {
-              bypassSecurityTrustResourceUrl: () => 'safeUrl'
-            }
           },
           {
             provide: RoutingService,
@@ -356,16 +151,31 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
             useClass: MockLaunchDialogService
           },
           {
+            provide: GlobalMessageService,
+            useClass: MockGlobalMessageService
+          },
+          {
+            provide: CurrencyService,
+            useValue: mockCurrencyService
+          },
+          {
+            provide: LanguageService,
+            useValue: mockLanguageService
+          },
+          ViewContainerRef,
+          {
+            provider: DomSanitizer,
+            useValue: {
+              bypassSecurityTrustResourceUrl: () => 'safeUrl'
+            }
+          },
+          {
             provide: WorldpayApmConnector,
             useClass: OccWorldpayApmAdapter
           },
           {
             provide: WorldpayCheckoutPaymentAdapter,
             useClass: OccWorldpayCheckoutPaymentAdapter
-          },
-          {
-            provide: GlobalMessageService,
-            useClass: MockGlobalMessageService
           },
           {
             provide: CheckoutStepService,
@@ -384,8 +194,10 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
             useValue: mockRenderer2,
           },
           {
+            //useClass: MockWorldpayCheckoutPaymentService
             provide: WorldpayCheckoutPaymentService,
-            useClass: MockWorldpayCheckoutPaymentService
+            useFactory: (sanitizer: DomSanitizer) => new MockWorldpayCheckoutPaymentService(sanitizer),
+            deps: [DomSanitizer]
           },
           {
             provide: WorldpayApmService,
@@ -399,6 +211,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
             provide: WorldpayFraudsightService,
             useClass: MockWorldpayFraudsightService
           },
+          LoggerService
         ],
       }).compileComponents();
     })
@@ -408,21 +221,24 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
     fixture = TestBed.createComponent(WorldpayCheckoutPlaceOrderComponent);
     component = fixture.componentInstance;
     controls = component.checkoutSubmitForm.controls;
-
     orderFacade = TestBed.inject(WorldpayOrderService);
     routingService = TestBed.inject(RoutingService);
-    launchDialogService = TestBed.inject(LaunchDialogService);
-    sanitizer = TestBed.inject(DomSanitizer);
-    zone = TestBed.inject(NgZone);
+    mockRenderer2 = TestBed.inject(Renderer2);
     winRef = TestBed.inject(WindowRef);
     globalMessageService = TestBed.inject(GlobalMessageService);
     worldpayCheckoutPaymentService = TestBed.inject(WorldpayCheckoutPaymentService);
     worldpayApmService = TestBed.inject(WorldpayApmService);
     worldpayACHFacade = TestBed.inject(WorldpayACHFacade);
+    logger = TestBed.inject(LoggerService);
     placeOrderSpy = spyOn(component, 'placeWorldpayOrder');
     placeOrderSpy.and.callThrough();
     spyOn(orderFacade, 'executeDDC3dsJwtCommand').and.callThrough();
   });
+
+  function submitForm(isTermsCondition: boolean): void {
+    controls['termsAndConditions'].setValue(isTermsCondition);
+    component.submitForm();
+  }
 
   it('should be created', () => {
     expect(component).toBeTruthy();
@@ -438,7 +254,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   describe('should place order when checkbox checked', () => {
     beforeEach(() => {
       spyOn(orderFacade, 'startLoading').and.callThrough();
-      controls.termsAndConditions.setValue(true);
+      controls['termsAndConditions'].setValue(true);
     });
 
     it('should place order with credit card', () => {
@@ -546,20 +362,12 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   });
 
   it('should emit the latest values of the selected APM and payment details state when both observables emit', function() {
-    const selectedApm1: ApmPaymentDetails = { code: PaymentMethod.GooglePay };
     const selectedApm2: ApmPaymentDetails = { code: PaymentMethod.PayPal };
     const paymentDetailsState1: QueryState<PaymentDetails> = {
       loading: false,
       error: false,
       data: {
         id: '00001'
-      }
-    };
-    const paymentDetailsState2: QueryState<PaymentDetails> = {
-      loading: false,
-      error: false,
-      data: {
-        id: '00002'
       }
     };
     spyOn(worldpayApmService, 'getSelectedAPMFromState').and.returnValues(of(selectedApm2));
@@ -588,7 +396,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   });
 
   it('should return an observable that emits an error if the checkout preconditions are not met', () => {
-    spyOn(worldpayApmService, 'checkoutPreconditions').and.returnValue(throwError(new Error('Checkout conditions not met')));
+    spyOn(worldpayApmService, 'checkoutPreconditions').and.returnValue(throwError(() =>new Error('Checkout conditions not met')));
     worldpayApmService.checkoutPreconditions().subscribe({
       error: (error) => {
         expect(error.message).toEqual('Checkout conditions not met');
@@ -608,7 +416,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   describe('Place order UI', () => {
     beforeEach(() => {
       component.ngOnInit();
-      controls.termsAndConditions.setValue(true);
+      controls['termsAndConditions'].setValue(true);
     });
 
     it('should have the place order button ENABLED when terms and condition is checked', () => {
@@ -632,7 +440,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
 
   it('should call place ACH Order when ACHForm is valid', () => {
     component.ngOnInit();
-    controls.termsAndConditions.setValue(true);
+    controls['termsAndConditions'].setValue(true);
     fixture.detectChanges();
     spyOn(worldpayApmService, 'getSelectedAPMFromState').and.returnValue(of({
       code: PaymentMethod.ACH,
@@ -668,7 +476,6 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
       spyOn(component, 'ddcIframeHandler').and.callThrough();
       // @ts-ignore
       spyOn(component, 'challengeIframeHandler').and.callThrough();
-      spyOn(globalMessageService, 'add').and.callThrough();
       placeOrderSpy.and.returnValue(of([mockCreditCard, {
         loading: false,
         error: false,
@@ -758,7 +565,6 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
     });
 
     it('should clear loading on error', () => {
-      spyOn(console, 'error');
       const achPaymentFormValue = { accountType: 'checking' } as ACHPaymentForm;
       const mockError = new Error('Error');
       spyOn(orderFacade, 'placeACHOrder').and.returnValue(throwError(() => mockError));
@@ -767,7 +573,6 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
       component['placeACHOrder'](achPaymentFormValue);
 
       expect(orderFacade.clearLoading).toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith('Failed to place ACH order', mockError);
     });
   });
 
@@ -801,13 +606,12 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
         origin: 'https://centinelapistag.cardinalcommerce.com',
         data: 'invalid data'
       } as MessageEvent;
-      spyOn(console, 'error');
-      spyOn(globalMessageService, 'add').and.callThrough();
+      spyOn(logger, 'error');
       spyOn(orderFacade, 'clearLoading').and.callThrough();
 
       component['processDdc'](mockEvent);
 
-      expect(console.error).toHaveBeenCalledWith('failed to process ddc response', jasmine.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('failed to process ddc response', jasmine.any(Error));
       expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.threeDsChallengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
       expect(orderFacade.clearLoading).toHaveBeenCalled();
     });
@@ -822,8 +626,6 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
       } as MessageEvent;
       const mockError = new Error('Error');
       spyOn(orderFacade, 'initialPaymentRequest').and.returnValue(throwError(() => mockError));
-      spyOn(globalMessageService, 'remove').and.callThrough();
-      spyOn(globalMessageService, 'add').and.callThrough();
       spyOn(orderFacade, 'clearLoading').and.callThrough();
 
       component['processDdc'](mockEvent);
@@ -878,11 +680,11 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
         merchantData: '123-456'
       } as ThreeDsInfo;
       spyOn(worldpayCheckoutPaymentService, 'getThreeDsChallengeInfoFromState').and.returnValue(of(mockChallengeInfo));
-      spyOn(console, 'log');
+      spyOn(logger, 'log');
 
       component['challengeIframeHandler']();
 
-      expect(console.log).toHaveBeenCalledWith('3ds flow not implemented');
+      expect(logger.log).toHaveBeenCalledWith('3ds flow not implemented');
     });
 
     it('should unregister previous message handler for device detection', () => {
@@ -954,18 +756,13 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
 
     it('should log error and call challengeFailed if an error occurs', () => {
       const mockEvent = null as MessageEvent;
-      spyOn(console, 'error');
+      spyOn(logger, 'error');
       spyOn(orderFacade, 'challengeFailed').and.callThrough();
 
       component['processChallenge'](mockEvent);
 
-      expect(console.error).toHaveBeenCalledWith('Failed to process challenge event data', jasmine.any(Error));
+      expect(logger.error).toHaveBeenCalledWith('Failed to process challenge event data', jasmine.any(Error));
       expect(orderFacade.challengeFailed).toHaveBeenCalled();
     });
   });
-
-  function submitForm(isTermsCondition: boolean): void {
-    controls.termsAndConditions.setValue(isTermsCondition);
-    component.submitForm();
-  }
 });

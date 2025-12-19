@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Converter, Image, OccConfig } from '@spartacus/core';
 import { filter, take, tap } from 'rxjs/operators';
-import { WorldpayACHFacade } from '../facade/worldpay-ach.facade';
+import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
 import { ACHPaymentForm, ApmData, ApmPaymentDetails, OccApmData, OccApmDataConfiguration, PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
 
 @Injectable({
@@ -38,15 +38,15 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
     const config: OccApmDataConfiguration = source.apmConfiguration;
     if (target === undefined) {
       target = {
-        code: config.code,
-        name: config.name
+        code: config?.code,
+        name: config?.name
       };
     }
 
-    target.code = config.code;
-    target.name = config.name;
+    target.code = config?.code;
+    target.name = config?.name;
 
-    if (source.media) {
+    if (source?.media) {
       target.media =
         {
           mobile: {
@@ -56,7 +56,7 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
         };
     }
 
-    target.bankConfigurations = config.bankConfigurations?.map(({
+    target.bankConfigurations = config?.bankConfigurations?.map(({
       bankCode,
       bankName
     }: { bankCode?: string, bankName?: string }): { code: string; name: string } => ({
@@ -100,7 +100,7 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
 
     if (source.apmCode === PaymentMethod.ACH) {
       this.worldpayACHFacade.getACHPaymentFormValue().pipe(
-        filter((value: ACHPaymentForm) => !!value),
+        filter((value: ACHPaymentForm): boolean => !!value),
         tap((value: ACHPaymentForm): void => {
           target.achPaymentForm = value;
         }),

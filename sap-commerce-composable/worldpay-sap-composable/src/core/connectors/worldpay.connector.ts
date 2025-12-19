@@ -96,4 +96,16 @@ export class WorldpayConnector {
   public getOrder(userId: string, orderCode: string, guestCustomer: boolean): Observable<Order> {
     return this.adapter.getOrder(userId, orderCode, guestCustomer);
   }
+
+  /**
+   * Updates the delivery address for the specified user and cart.
+   *
+   * @param {string} userId - The ID of the user.
+   * @param {string} cartId - The ID of the cart.
+   * @param {string} addressId - The ID of the address to update.
+   * @returns {Observable<Address>} An observable that emits the updated delivery address.
+   */
+  public setDeliveryAddressAsBillingAddress(userId: string, cartId: string, addressId: string): Observable<Address> {
+    return this.adapter.setDeliveryAddressAsBillingAddress(userId, cartId, addressId);
+  }
 }

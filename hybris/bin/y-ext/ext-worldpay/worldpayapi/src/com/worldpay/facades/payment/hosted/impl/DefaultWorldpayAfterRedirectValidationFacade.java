@@ -1,6 +1,7 @@
 package com.worldpay.facades.payment.hosted.impl;
 
 import com.worldpay.exception.WorldpayConfigurationException;
+import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayAfterRedirectValidationService;
@@ -9,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class DefaultWorldpayAfterRedirectValidationFacade implements com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade {
 
@@ -18,13 +20,16 @@ public class DefaultWorldpayAfterRedirectValidationFacade implements com.worldpa
     protected final SessionService sessionService;
     protected final WorldpayMerchantInfoService worldpayMerchantInfoService;
     protected final WorldpayAfterRedirectValidationService worldpayAfterRedirectValidationService;
+    protected final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
 
     public DefaultWorldpayAfterRedirectValidationFacade(final SessionService sessionService,
                                                         final WorldpayMerchantInfoService worldpayMerchantInfoService,
-                                                        final WorldpayAfterRedirectValidationService worldpayAfterRedirectValidationService) {
+                                                        final WorldpayAfterRedirectValidationService worldpayAfterRedirectValidationService,
+                                                        final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade) {
         this.sessionService = sessionService;
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
         this.worldpayAfterRedirectValidationService = worldpayAfterRedirectValidationService;
+        this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
     }
 
     /**
@@ -32,7 +37,10 @@ public class DefaultWorldpayAfterRedirectValidationFacade implements com.worldpa
      */
     @Override
     public boolean validateRedirectResponse(final Map<String, String> worldpayResponse) {
-        final String merchantCode = sessionService.getAttribute(WORLDPAY_MERCHANT_CODE);
+        final String merchantCode = Objects.nonNull(sessionService.getAttribute(WORLDPAY_MERCHANT_CODE))
+                 ? sessionService.getAttribute(WORLDPAY_MERCHANT_CODE)
+                : worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getCode();
+
         try {
             final MerchantInfo merchantInfo = worldpayMerchantInfoService.getMerchantInfoByCode(merchantCode);
             return worldpayAfterRedirectValidationService.validateRedirectResponse(merchantInfo, worldpayResponse);

@@ -6,7 +6,6 @@ import { OrderPlacedEvent } from '@spartacus/order/root';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, take, tap } from 'rxjs/operators';
 import { WorldpayGooglePayConnector } from '../../connectors/worldpay-googlepay/worldpay-googlepay.connector';
-import { ClearWorldpayPaymentStateEvent } from '../../events';
 import { GooglePayMerchantConfigurationSetEvent } from '../../events/googlepay.events';
 import { GooglePayMerchantConfiguration, GooglepayPaymentRequest, GooglePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
 import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
@@ -40,14 +39,12 @@ export class WorldpayGooglepayService {
       ({
         paymentRequest,
         savePaymentMethod
-      }: { paymentRequest: GooglePayPaymentRequest; savePaymentMethod: boolean }): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
+      }: { paymentRequest: GooglePayPaymentRequest; savePaymentMethod: boolean; }): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
         switchMap(([userId, cartId]: [string, string]): Observable<PlaceOrderResponse> => {
           const billingAddress: Address = paymentRequest.paymentMethodData.info.billingAddress;
-          // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-          const token: any = JSON.parse(paymentRequest.paymentMethodData.tokenizationData.token);
+          const token: string = JSON.parse(paymentRequest.paymentMethodData.tokenizationData.token);
           return this.worldpayGooglePayConnector.authoriseGooglePayPayment(userId, cartId, token, billingAddress, savePaymentMethod).pipe(
             tap((response: PlaceOrderResponse): void => {
-              this.eventService.dispatch({}, ClearWorldpayPaymentStateEvent);
               this.eventService.dispatch(
                 {
                   userId,
@@ -87,8 +84,6 @@ export class WorldpayGooglepayService {
     protected globalMessageService: GlobalMessageService,
     protected worldpayGooglePayConnector: WorldpayGooglePayConnector
   ) {
-    this.onGooglePayMerchantConfigurationSetEvent();
-    this.onClearWorldpayStateEvent();
   }
 
   /**
@@ -142,7 +137,7 @@ export class WorldpayGooglepayService {
         this.worldpayOrderService.setPlacedOrder(response.order);
       },
       error: (error: unknown): void => {
-        this.logger.log(error);
+        this.logger.error(error);
       }
     });
   }
@@ -242,30 +237,6 @@ export class WorldpayGooglepayService {
         return [userId, cartId];
       })
     );
-  }
-
-  /**
-   * Listen to GooglePayMerchantConfigurationSetEvent
-   * @since 6.4.0
-   */
-  protected onGooglePayMerchantConfigurationSetEvent(): void {
-    this.eventService.get(GooglePayMerchantConfigurationSetEvent).subscribe({
-      next: (event: GooglePayMerchantConfigurationSetEvent): void => {
-        this.setGooglepayMerchantConfiguration(event.googlePayMerchantConfiguration);
-      }
-    });
-  }
-
-  /**
-   * Listen to ClearWorldpayStateEvent
-   * @since 6.4.0
-   */
-  protected onClearWorldpayStateEvent(): void {
-    this.eventService.get(ClearWorldpayPaymentStateEvent).subscribe({
-      next: (): void => {
-        this.setGooglepayMerchantConfiguration(null);
-      }
-    });
   }
 
   /**

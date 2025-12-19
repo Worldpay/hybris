@@ -1,11 +1,12 @@
 import { AfterViewInit, Component, DestroyRef, inject, Input, NgZone, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EventService, LoggerService, QueryState, WindowRef } from '@spartacus/core';
-import { WorldpayFraudsightService } from '@worldpay-services/worldpay-fraudsight/worldpay-fraudsight.service';
+import { WorldpayFraudsightService } from 'worldpay-sap-composable-services';
 
 @Component({
   selector: 'worldpay-fraudsight-risk',
-  template: ''
+  template: '',
+  standalone: false
 })
 export class WorldpayFraudsightRiskComponent implements OnInit, AfterViewInit {
   @Input() threatMetrix: string = 'wprofile';
@@ -33,33 +34,31 @@ export class WorldpayFraudsightRiskComponent implements OnInit, AfterViewInit {
     this.worldpayFraudsightService.isFraudSightEnabled().pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (response: QueryState<boolean>) => {
+      next: (response: QueryState<boolean>): void => {
         this.worldpayFraudsightService.setFraudSightEnabled(response);
       },
-      error: (error: unknown) => {
+      error: (error: unknown): void => {
         this.logger.error('Failed to initialize FraudSight, check component configuration', error);
       }
     });
   }
 
   ngAfterViewInit(): void {
-    this.worldpayFraudsightService.isFraudSightEnabledFromState()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef)
-      ).subscribe({
-        next: (isEnabled: boolean): void => {
-          if (isEnabled) {
-            this.doProfile();
-          }
+    this.worldpayFraudsightService.isFraudSightEnabledFromState().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (isEnabled: boolean): void => {
+        if (isEnabled) {
+          this.doProfile();
         }
       }
-      );
+    });
   }
 
   protected doProfile(): void {
-    this.ngZone.run(() => {
+    this.ngZone.run((): void => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tm: any = (this.windowRef.nativeWindow as Record<string, any>)[this.threatMetrix as string];
+      const tm: any = (this.windowRef.nativeWindow as any)[this.threatMetrix];
       // eslint-disable-next-line no-prototype-builtins
       if (tm && tm.hasOwnProperty('profile') && typeof tm.profile === 'function') {
         const uniqueId: string = this.random(this.randomIdLength);

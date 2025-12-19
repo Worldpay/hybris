@@ -25,7 +25,6 @@ export const wordlpayOccConfig: OccConfig = {
         isFraudSightEnabled: 'worldpayapi/fraudsight/enabled',
         placeRedirectOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-redirect-order',
         placeBankTransferRedirectOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-banktransfer-redirect-order',
-
         /* Guaranteed Payments */
         isGuaranteedPaymentsEnabled: '/worldpayapi/guaranteedpayments/enabled',
         getCheckoutDetails: 'users/${userId}/carts/${cartId}?fields=deliveryAddress(FULL),deliveryMode(FULL),paymentInfo(FULL),worldpayAPMPaymentInfo',
@@ -34,6 +33,8 @@ export const wordlpayOccConfig: OccConfig = {
         // ACH
         getACHBankAccountTypes: '/users/${userId}/carts/${cartId}/payment-method/achdirectdebit/types',
         placeACHOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-ach-direct-order',
+        // Checkout payments
+        // setApmPaymentDetails: 'users/${userId}/carts/${cartId}/checkoutcomapmpaymentdetails',
       },
     },
   },
@@ -67,5 +68,6 @@ declare module '@spartacus/core' {
     cart?: string | OccEndpoint;
     getACHBankAccountTypes?: string | OccEndpoint;
     placeACHOrder?: string | OccEndpoint;
+    // setApmPaymentDetails?: string | OccEndpoint;
   }
 }

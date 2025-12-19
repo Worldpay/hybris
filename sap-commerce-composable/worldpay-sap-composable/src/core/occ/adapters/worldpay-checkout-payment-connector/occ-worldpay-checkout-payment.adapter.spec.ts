@@ -1,14 +1,13 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { PAYMENT_DETAILS_SERIALIZER } from '@spartacus/checkout/base/core';
-import { Address, ConverterService, LoggerService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
-import { generateOneAddress } from '@worldpay-tests/fake-data/address.mock';
-import { OccWorldpayCheckoutPaymentAdapter } from './occ-worldpay-checkout-payment.adapter';
+import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { OccWorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-occ';
+import { generateOneAddress, mockUserId } from 'worldpay-sap-composable-tests';
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
-const securityCode = '123';
 const cseToken = 'mockCseToken';
 
 const mockBillingAddress: Address = generateOneAddress();
@@ -45,15 +44,13 @@ class MockOccEndpointsService {
 
 describe('OccWorldpayCheckoutPaymentAdapter', () => {
   let service: OccWorldpayCheckoutPaymentAdapter;
-  let httpClient: HttpClient;
   let httpMock: HttpTestingController;
   let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
-  let logger: LoggerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayCheckoutPaymentAdapter,
         {
@@ -64,14 +61,14 @@ describe('OccWorldpayCheckoutPaymentAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
     service = TestBed.inject(OccWorldpayCheckoutPaymentAdapter);
     httpMock = TestBed.inject(HttpTestingController);
     converter = TestBed.inject(ConverterService);
-    httpClient = TestBed.inject(HttpClient);
-    logger = TestBed.inject(LoggerService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
     spyOn(converter, 'convert').and.callThrough();

@@ -5,3 +5,4 @@ export const WORLDPAY_CHECKOUT_PAYMENT_FEATURE: string = 'worldpayCheckoutPaymen
 export const WORLDPAY_APPLE_PAY_FEATURE: string = 'worldpayApplepay';
 export const WORLDPAY_GOOGLE_PAY_FEATURE: string = 'worldpayGooglepay';
 export const WORLDPAY_ACH_FEATURE: string = 'worldpayACH';
+export const WORLDPAY_BILLING_ADDRESS_FORM_FEATURE: string = 'worldpayBillingAddressForm';

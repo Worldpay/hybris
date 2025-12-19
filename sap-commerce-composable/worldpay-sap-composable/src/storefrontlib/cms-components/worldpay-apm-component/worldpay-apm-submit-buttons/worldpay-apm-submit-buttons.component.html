@@ -1,0 +1,21 @@
+<div class="row cx-checkout-btns justify-content-end mb-3">
+  <div class="col-md-12 col-lg-6">
+    <button
+      class="btn btn-block btn-secondary btn-back"
+      (click)="onBack()"
+    >
+      {{ 'common.back' | cxTranslate }}
+    </button>
+  </div>
+  <!-- TODO: update condition to check if billing address is valid -->
+  <div class="col-md-12 col-lg-6">
+    <button
+      class="btn btn-block btn-primary"
+      (click)="onContinue()"
+      [disabled]="disableContinue"
+      [attr.data-test-id]="dataTestId"
+    >
+      {{ 'common.continue' | cxTranslate }}
+    </button>
+  </div>
+</div>

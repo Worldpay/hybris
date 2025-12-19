@@ -4,8 +4,10 @@ import { CheckoutDeliveryAddressComponent } from '@spartacus/checkout/base/compo
 @Component({
   selector: 'y-worldpay-checkout-delivery-address',
   templateUrl: './worldpay-checkout-delivery-address.component.html',
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./worldpay-checkout-delivery-address.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayCheckoutDeliveryAddressComponent extends CheckoutDeliveryAddressComponent {
-
+// Extended to include Japan address validation
 }

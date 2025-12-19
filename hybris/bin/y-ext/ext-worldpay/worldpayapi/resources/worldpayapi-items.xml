@@ -1058,6 +1058,25 @@
                       autocreate="true" generate="true" extends="ContentPage">
             </itemtype>
         </typegroup>
+
+        <typegroup name="version">
+            <itemtype code="IntegrationVersion" jaloclass="com.worldpay.jalo.IntegrationVersion"
+                      autocreate="true" generate="true" extends="GenericItem">
+                <deployment table="IntegrationVersion" typecode="19036"/>
+                <attributes>
+                    <attribute qualifier="versionNumber" type="java.lang.String">
+                        <persistence type="property"/>
+                        <modifiers initial="true" optional="false" unique="true"/>
+                        <description>The version of plugin released</description>
+                    </attribute>
+                    <attribute qualifier="date" type="java.util.Date">
+                        <modifiers initial="true" optional="false" unique="false"/>
+                        <persistence type="property"/>
+                        <description>The date</description>
+                    </attribute>
+                </attributes>
+            </itemtype>
+        </typegroup>
     </itemtypes>
 
 </items>

@@ -1,3 +1,4 @@
+import { Params } from '@angular/router';
 import { Cart } from '@spartacus/cart/base/root';
 import { PaymentDetails } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
@@ -36,9 +37,11 @@ export abstract class WorldpayApmAdapter {
    * @since 4.3.6
    * @param {string} userId - User ID
    * @param {string} cartId - Cart ID
+   * @param {Params} params - Request parameters
+   *
    * @returns {Observable<Order>} - Order as Observable
    */
-  abstract placeRedirectOrder(userId: string, cartId: string): Observable<Order>;
+  abstract placeRedirectOrder(userId: string, cartId: string, params: Params): Observable<Order>;
 
   /**
    * Try placing the order after the user has been sent back from PSP to Spartacus

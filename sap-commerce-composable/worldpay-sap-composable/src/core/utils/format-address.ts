@@ -9,8 +9,7 @@ import { Card } from '@spartacus/storefront';
  * @param appendText - Text to append
  * @returns string[] - Array of strings
  */
-
-export const formatTextAddressContent: (address: Address, prependText: string, appendText: string) => string[] = (
+export const formatTextAddressContent: (address: Address, prependText?: string, appendText?: string) => string[] = (
   address: Address,
   prependText: string = null,
   appendText: string = null

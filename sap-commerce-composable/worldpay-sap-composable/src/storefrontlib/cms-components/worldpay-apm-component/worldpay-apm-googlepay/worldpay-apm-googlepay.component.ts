@@ -15,42 +15,39 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartService } from '@spartacus/cart/base/core';
 import { Cart } from '@spartacus/cart/base/root';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
 import { EventService, GlobalMessageService, GlobalMessageType, LoggerService, RoutingService, WindowRef } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
-import { WorldpayCheckoutPaymentService } from '@worldpay-services/worldpay-checkout/worldpay-checkout-payment.service';
-import { WorldpayGooglepayService } from '@worldpay-services/worldpay-googlepay/worldpay-googlepay.service';
-import { WorldpayOrderService } from '@worldpay-services/worldpay-order/worldpay-order.service';
-import { LoadScriptService } from '@worldpay-utils/load-script.service';
-import { makeFormErrorsVisible } from '@worldpay-utils/make-form-errors-visible';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { filter, first, switchMap, take } from 'rxjs/operators';
-import { ApmData, GooglePayMerchantConfiguration, GooglepayPaymentRequest, OCCResponse } from '../../../../core/interfaces';
+import { BehaviorSubject, EMPTY, finalize, forkJoin, from, Observable } from 'rxjs';
+import { catchError, filter, first, map, switchMap, take, tap } from 'rxjs/operators';
+import { WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService, WorldpayGooglepayService, WorldpayOrderService } from 'worldpay-sap-composable-services';
+import { LoadScriptService, makeFormErrorsVisible } from 'worldpay-sap-composable-utils';
+import { ApmData, GooglePayMerchantConfiguration, GooglePayPaymentRequest, GooglepayPaymentRequest, OCCResponse } from 'worldpay-sap-core';
 
 @Component({
   selector: 'y-worldpay-apm-googlepay',
   templateUrl: './worldpay-apm-googlepay.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
   @Input() apm: ApmData;
   @ViewChild('gpayBtn', { static: false }) gpayBtn: ElementRef = null;
-
   public nativeWindow: Window = this.winRef.nativeWindow;
+  protected destroyRef: DestroyRef = inject(DestroyRef);
   protected error$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
   /**
-   * Injects the CheckoutBillingAddressFormService into the component.
+   * Injects the WorldpayBillingAddressFormService into the component.
    * This service is used to manage the billing address form in the checkout process.
    * @protected
-   * @since 2211.27.0
+   * @since 2211.43.0
    */
-  protected billingAddressFormService: CheckoutBillingAddressFormService = inject(
-    CheckoutBillingAddressFormService
+  protected billingAddressFormService: WorldpayBillingAddressFormService = inject(
+    WorldpayBillingAddressFormService
   );
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private paymentsClient: any;
-  private destroyRef: DestroyRef = inject(DestroyRef);
   private logger: LoggerService = inject(LoggerService);
+  private isProcessingPayment: boolean = false;
 
   /**
    * Constructor
@@ -142,8 +139,8 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
               {
                 idScript: 'google-pay',
                 src: 'https://pay.google.com/gp/p/js/pay.js',
-                onloadCallback: () => {
-                  this.ngZone.run(() => {
+                onloadCallback: (): void => {
+                  this.ngZone.run((): void => {
                     this.initPaymentsClient(merchantConfiguration);
                   });
                 }
@@ -172,12 +169,11 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
     this.paymentsClient.isReadyToPay(isReadyToPayRequest)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .then(({ result }: any): void => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (result) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const button: any = this.paymentsClient.createButton({
-            onClick: () => {
-              this.ngZone.run(() => {
+            onClick: (): void => {
+              this.ngZone.run((): void => {
                 this.authorisePayment();
               });
             }
@@ -204,7 +200,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
    */
   private authorisePayment(): void {
     const configReq: Observable<GooglePayMerchantConfiguration> = this.worldpayGooglePayService.getMerchantConfigurationFromState()
-      .pipe(first((googlePayMerchantConfiguration: GooglePayMerchantConfiguration) => !!googlePayMerchantConfiguration));
+      .pipe(first((googlePayMerchantConfiguration: GooglePayMerchantConfiguration): boolean => !!googlePayMerchantConfiguration));
     let req: Observable<GooglePayMerchantConfiguration>;
 
     if (this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress()) {
@@ -214,35 +210,52 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
         makeFormErrorsVisible(this.billingAddressFormService.getBillingAddressForm());
         return;
       }
-      req = this.worldpayCheckoutPaymentService.setPaymentAddress(this.billingAddressFormService.getBillingAddress())
+      req = this.worldpayCheckoutPaymentService.setPaymentAddress(this.billingAddressFormService.getBillingAddressForm().value)
         .pipe(switchMap((): Observable<GooglePayMerchantConfiguration> => configReq));
     }
-    combineLatest([
-      this.activeCartService.getActive(),
-      req
-    ]).pipe(
-      filter(([cart, merchantConfig]: [Cart, GooglePayMerchantConfiguration]): boolean => !!cart && !!merchantConfig),
-      take(1),
+
+    forkJoin({
+      cart: this.activeCartService.getActive().pipe(take(1)),
+      merchantConfig: req.pipe(take(1))
+    }).pipe(
+      map(({
+        cart,
+        merchantConfig
+      }: { cart: Cart, merchantConfig: GooglePayMerchantConfiguration }): GooglePayPaymentRequest => {
+        if (!cart || !merchantConfig) {
+          throw new Error('Checkout conditions not met');
+        }
+        return this.worldpayGooglePayService.createFullPaymentRequest(merchantConfig, cart);
+      }),
+      switchMap((paymentDataRequest: GooglePayPaymentRequest): Observable<GooglePayPaymentRequest> => {
+        if (!paymentDataRequest || this.isProcessingPayment) {
+          return EMPTY;
+        }
+        this.isProcessingPayment = true;
+        return from(this.paymentsClient.loadPaymentData(paymentDataRequest)).pipe(
+          tap((paymentRequest: GooglePayPaymentRequest): void => {
+            this.worldpayOrderService.startLoading(this.vcr);
+            this.worldpayGooglePayService.authoriseOrder(paymentRequest, false);
+          }),
+          catchError((error: unknown): Observable<never> => {
+            this.logger.error('failed processing googlepay', { error });
+            this.globalMessageService.add(
+              { key: 'paymentForm.googlepay.authorisationFailed' },
+              GlobalMessageType.MSG_TYPE_ERROR
+            );
+            return EMPTY;
+          }),
+          finalize((): void => {
+            this.worldpayOrderService.clearLoading();
+            this.isProcessingPayment = false;
+          })
+        );
+      }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: ([cart, merchantConfiguration]: [Cart, GooglePayMerchantConfiguration]): void => {
-        this.worldpayOrderService.startLoading(this.vcr);
-
-        const paymentDataRequest: GooglepayPaymentRequest = this.worldpayGooglePayService.createFullPaymentRequest(merchantConfiguration, cart);
-
-        this.paymentsClient.loadPaymentData(paymentDataRequest)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .then((paymentRequest: any): void => {
-            this.worldpayGooglePayService.authoriseOrder(paymentRequest, false);
-          })
-          .catch((error: unknown): void => {
-            this.logger.error('failed processing googlepay', { error });
-            this.globalMessageService.add({ key: 'paymentForm.googlepay.authorisationFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
-            this.worldpayOrderService.clearLoading();
-          });
-      },
-      error: (): void => {
+      error: (error: unknown): void => {
         this.worldpayOrderService.clearLoading();
+        this.logger.error('authorisePayment with errors', { error });
       }
     });
   }

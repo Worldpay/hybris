@@ -106,7 +106,7 @@ public interface WorldpayDirectOrderFacade {
      */
     DirectResponseData authoriseGooglePayDirect(final GooglePayAdditionalAuthInfo googlePayAdditionalAuthInfo) throws WorldpayException, InvalidCartException;
 
-    /**
+     /**
      * Update the payment method.
      *
      * @param paymentMethodUpdateRequest - update request

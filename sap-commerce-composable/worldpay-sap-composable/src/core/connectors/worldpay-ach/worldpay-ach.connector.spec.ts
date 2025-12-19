@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { ACHPaymentForm } from '../../interfaces';
 import { WorldpayACHAdapter } from './worldpay-ach.adapter';
 import { WorldpayACHConnector } from './worldpay-ach.connector';
-import { ACHPaymentForm } from '../../interfaces';
-import { of, throwError } from 'rxjs';
 import createSpy = jasmine.createSpy;
 
 class MockWorldpayACHAdapter implements WorldpayACHAdapter {
   getACHBankAccountTypes = createSpy('WorldpayAdapter.getACHBankAccountTypes').and.callFake(() => of(null));
 
-  placeACHOrder = createSpy('WorldpayAdapter.placeACHOrder').and.callFake((userId: string, cartId: string) => of(null));
+  placeACHOrder = createSpy('WorldpayAdapter.placeACHOrder').and.callFake(() => of(null));
 }
 
 describe('WorldpayApmConnector', () => {
@@ -33,31 +33,15 @@ describe('WorldpayApmConnector', () => {
   });
 
   describe('getACHBankAccountTypes', () => {
-    it('should call placeACHOrder with correct parameters', () => {
-      const achPaymentForm: ACHPaymentForm = {
-        accountType: 'Checking',
-        accountNumber: '1234567890',
-        routingNumber: '987654321',
-        companyName: 'John Doe',
-        customIdentifier: 'Individual',
-      };
-
-      service.placeACHOrder('userId', 'cartId', achPaymentForm).subscribe();
-
-      expect(adapter.placeACHOrder).toHaveBeenCalledWith('userId', 'cartId', achPaymentForm);
-    });
-
     it('should handle error when getACHBankAccountTypes fails', () => {
       const errorResponse = new Error('Failed to fetch ACH Bank Account Types');
-      adapter.getACHBankAccountTypes = createSpy('WorldpayAdapter.getACHBankAccountTypes').and.returnValue(throwError(errorResponse));
+      adapter.getACHBankAccountTypes = createSpy('WorldpayAdapter.getACHBankAccountTypes').and.returnValue(throwError(() => errorResponse));
 
-      service.getACHBankAccountTypes('userId', 'cartId').subscribe(
-        () => {
-        },
-        (error) => {
+      service.getACHBankAccountTypes('userId', 'cartId').subscribe({
+        error: (error: unknown): void => {
           expect(error).toEqual(errorResponse);
         }
-      );
+      });
     });
   });
 
@@ -85,15 +69,13 @@ describe('WorldpayApmConnector', () => {
         companyName: 'John Doe',
         customIdentifier: 'Individual',
       };
-      adapter.placeACHOrder = createSpy('WorldpayAdapter.placeACHOrder').and.returnValue(throwError(errorResponse));
+      adapter.placeACHOrder = createSpy('WorldpayAdapter.placeACHOrder').and.returnValue(throwError(() => errorResponse));
 
-      service.placeACHOrder('userId', 'cartId', achPaymentForm).subscribe(
-        () => {
-        },
-        (error) => {
+      service.placeACHOrder('userId', 'cartId', achPaymentForm).subscribe({
+        error: (error) => {
           expect(error).toEqual(errorResponse);
         }
-      );
+      });
     });
   });
 });

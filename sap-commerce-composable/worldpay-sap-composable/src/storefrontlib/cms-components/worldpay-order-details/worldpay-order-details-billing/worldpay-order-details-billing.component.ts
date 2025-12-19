@@ -3,14 +3,16 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { PaymentDetails } from '@spartacus/core';
 import { OrderDetailBillingComponent } from '@spartacus/order/components';
 import { Card } from '@spartacus/storefront';
-import { generateBillingAddressCard } from '@worldpay-utils/format-address';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { generateBillingAddressCard } from 'worldpay-sap-composable-utils';
 
 @Component({
   selector: 'y-worldpay-order-detail-billing',
   templateUrl: './worldpay-order-details-billing.component.html',
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./worldpay-order-details-billing.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayOrderDetailsBillingComponent extends OrderDetailBillingComponent {
 

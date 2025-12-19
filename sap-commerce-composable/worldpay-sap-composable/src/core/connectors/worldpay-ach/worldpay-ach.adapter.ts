@@ -1,6 +1,6 @@
 import { Order } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
-import { ACHBankAccountType, ACHPaymentForm } from '../../interfaces';
+import { AccountTypes, ACHPaymentForm } from '../../interfaces';
 
 export abstract class WorldpayACHAdapter {
 
@@ -9,12 +9,12 @@ export abstract class WorldpayACHAdapter {
    * @since 6.4.2
    * @param {string} userId - User ID
    * @param {string} cartId - Cart ID
-   * @returns {Observable<ACHBankAccountType>} - ACHBankAccountType as Observable
+   * @returns {Observable<AccountTypes>} - AccountTypes as Observable
    */
   abstract getACHBankAccountTypes(
     userId: string,
     cartId: string,
-  ): Observable<ACHBankAccountType[]>;
+  ): Observable<AccountTypes>;
 
   /**
    * Place order using ACH payment

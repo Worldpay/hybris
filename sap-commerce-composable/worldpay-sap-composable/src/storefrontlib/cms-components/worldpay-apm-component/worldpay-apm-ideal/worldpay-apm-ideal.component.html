@@ -4,7 +4,7 @@
 >
   <div class="row">
     <ng-container *ngIf="apm?.bankConfigurations?.length > 0">
-      <div class="col-md-12 col-xl-10">
+      <div class="col-md-12 col-xl-10 mb-3">
         <div
           class="form-group"
           formGroupName="bank"
@@ -31,31 +31,14 @@
       </div>
     </ng-container>
 
-    <div class="mt-3">
+    <div class="col-12">
       <y-worldpay-billing-address></y-worldpay-billing-address>
     </div>
   </div>
-
   <!-- BUTTON SECTION -->
-  <div class="row cx-checkout-btns justify-content-end mb-3">
-    <div class="col-md-12 col-lg-6">
-      <button
-        class="btn btn-block btn-secondary btn-back"
-        (click)="return()"
-        type="button"
-      >
-        {{ 'common.back' | cxTranslate }}
-      </button>
-    </div>
-    <div class="col-md-12 col-lg-6">
-      <button
-        class="btn btn-block btn-primary"
-        type="submit"
-        [disabled]="(submitting$ | async) || (idealForm.invalid) || (!sameAsShippingAddress && billingAddressForm.invalid)"
-        data-test-id="ideal-continue-btn"
-      >
-        {{ 'common.continue' | cxTranslate }}
-      </button>
-    </div>
-  </div>
+  <y-worldpay-apm-submit-buttons
+    (back)="return()"
+    [disableContinue]="(disableContinueButton$() | async) || idealForm.invalid"
+    [dataTestId]="'ideal-continue-btn'"
+  />
 </form>

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ConverterService, OccEndpointsService } from '@spartacus/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { WorldpayFraudsightAdapter } from '../../../connectors/worldpay-fraudsight/worldpay-fraudsight.adapter';
+import { WorldpayFraudsightAdapter } from 'worldpay-sap-composable-connectors';
 
 @Injectable()
 export class OccWorldpayFraudsightAdapter implements WorldpayFraudsightAdapter {

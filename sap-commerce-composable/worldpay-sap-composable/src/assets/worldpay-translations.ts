@@ -1,5 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/typedef
-export const worldpayTranslations = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const worldpayTranslations: any = {
   en: {
     address: {
       addressForm: {

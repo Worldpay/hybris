@@ -3,10 +3,13 @@ package com.worldpay.controllers.pages.checkout;
 import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.data.GooglePayAddressData;
 import com.worldpay.data.GooglePayAuthorisationRequest;
+import com.worldpay.data.PaymentMethodMask;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.payment.DirectResponseData;
+import com.worldpay.service.model.payment.PaymentType;
+import com.worldpay.util.WorldpayConstants;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractCheckoutController;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
@@ -50,6 +53,7 @@ public class GooglePayController extends AbstractCheckoutController {
         saveBillingAddresses(authorisationRequest.getBillingAddress());
         final GooglePayAdditionalAuthInfo token = authorisationRequest.getToken();
         token.setSaveCard(authorisationRequest.getSaved());
+        getSessionService().setAttribute("paymentMethod", PaymentType.PAYWITHGOOGLESSL.getMethodCode());
         return worldpayDirectOrderFacade.authoriseGooglePayDirect(token);
     }
 

@@ -1,19 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { WorldpayCartItemComponent } from './worldpay-cart-item.component';
 import { Component, DebugElement, Directive, Injector, Input, Pipe, PipeTransform, SimpleChange, TemplateRef, ViewContainerRef } from '@angular/core';
-import { AtMessageModule, OutletDirective, OutletModule } from '@spartacus/storefront';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ControlContainer, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
-import { FeaturesConfigModule, GlobalMessageEntities, GlobalMessageService, I18nTestingModule } from '@spartacus/core';
 import { By } from '@angular/platform-browser';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CartItemContextSource } from '@spartacus/cart/base/components';
 import { CartItemContext, PromotionLocation } from '@spartacus/cart/base/root';
+import { FeaturesConfigModule, GlobalMessageEntities, GlobalMessageService, I18nTestingModule } from '@spartacus/core';
+import { AtMessageModule, OutletDirective, OutletModule } from '@spartacus/storefront';
 import { Observable, of } from 'rxjs';
+import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
+import { WorldpayCartItemComponent } from './worldpay-cart-item.component';
 import createSpy = jasmine.createSpy;
 
 @Directive({
   selector: '[cxFeatureLevel]',
+  standalone: false
 })
 export class MockFeatureLevelDirective {
   constructor(
@@ -29,6 +30,7 @@ export class MockFeatureLevelDirective {
 
 @Pipe({
   name: 'cxUrl',
+  standalone: false
 })
 class MockUrlPipe implements PipeTransform {
   transform() {
@@ -46,6 +48,7 @@ class MockModalDirective implements Partial<ModalDirective> {
 
 @Directive({
   selector: '[cxOutlet]',
+  standalone: false
 })
 class MockOutletDirective implements Partial<OutletDirective> {
   @Input() cxOutlet: string;
@@ -54,6 +57,7 @@ class MockOutletDirective implements Partial<OutletDirective> {
 @Component({
   template: '',
   selector: 'cx-media',
+  standalone: false
 })
 class MockMediaComponent {
   @Input() container;
@@ -63,6 +67,7 @@ class MockMediaComponent {
 @Component({
   template: '',
   selector: 'cx-item-counter',
+  standalone: false
 })
 class MockItemCounterComponent {
   @Input() control;
@@ -74,6 +79,7 @@ class MockItemCounterComponent {
 @Component({
   template: '',
   selector: 'cx-cart-item-validation-warning',
+  standalone: false
 })
 class MockCartItemValidationWarningComponent {
   @Input() code;
@@ -82,6 +88,7 @@ class MockCartItemValidationWarningComponent {
 @Component({
   template: '',
   selector: 'cx-promotions',
+  standalone: false
 })
 class MockPromotionsComponent {
   @Input() promotions;
@@ -130,34 +137,38 @@ describe('WorldpayCartItemComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-        imports: [
-          RouterTestingModule,
-          ReactiveFormsModule,
-          I18nTestingModule,
-          FeaturesConfigModule,
-          OutletModule,
-          AtMessageModule,
-        ],
-        declarations: [
-          WorldpayCartItemComponent,
-          MockMediaComponent,
-          MockItemCounterComponent,
-          MockPromotionsComponent,
-          MockUrlPipe,
-          MockFeatureLevelDirective,
-          MockOutletDirective,
-          MockCartItemValidationWarningComponent
-        ],
-        providers: [
-          {
-            provide: ControlContainer,
-          },
-          {
-            provide: GlobalMessageService,
-            useClass: MockGlobalMessageService
-          }
-        ],
-      })
+      imports: [
+        RouterLink,
+        ReactiveFormsModule,
+        I18nTestingModule,
+        FeaturesConfigModule,
+        OutletModule,
+        AtMessageModule,
+      ],
+      declarations: [
+        WorldpayCartItemComponent,
+        MockMediaComponent,
+        MockItemCounterComponent,
+        MockPromotionsComponent,
+        MockUrlPipe,
+        MockFeatureLevelDirective,
+        MockOutletDirective,
+        MockCartItemValidationWarningComponent
+      ],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useClass: MockActivatedRoute
+        },
+        {
+          provide: ControlContainer,
+        },
+        {
+          provide: GlobalMessageService,
+          useClass: MockGlobalMessageService
+        }
+      ],
+    })
       .compileComponents();
   });
 

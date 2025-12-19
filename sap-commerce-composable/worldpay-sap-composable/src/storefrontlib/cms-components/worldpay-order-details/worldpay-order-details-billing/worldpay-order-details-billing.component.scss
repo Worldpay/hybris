@@ -1,0 +1,6 @@
+@import "../../../../assets/styles/mixins";
+@import "@spartacus/order/styles/components/order-details/_order-detail-billing.scss";
+
+y-worldpay-order-detail-billing {
+  @extend %cx-order-detail-billing !optional;
+}

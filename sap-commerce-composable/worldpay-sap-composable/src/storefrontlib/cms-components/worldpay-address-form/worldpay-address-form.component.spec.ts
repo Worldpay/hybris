@@ -1,28 +1,16 @@
+import { ChangeDetectionStrategy, DebugElement, Directive, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { WorldpayAddressFormComponent } from './worldpay-address-form.component';
-import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, Region, Title, UserAddressService } from '@spartacus/core';
-import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
-import { FormErrorsModule, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
-import { UserProfileFacade } from '@spartacus/user/profile/root';
-import { By } from '@angular/platform-browser';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
-import { ChangeDetectionStrategy, DebugElement } from '@angular/core';
-import { AddressFormComponent } from '@spartacus/user/profile/components';
+import { By } from '@angular/platform-browser';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { take } from 'rxjs/operators';
-import createSpy = jasmine.createSpy;
+import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, Region, Title, UserAddressService } from '@spartacus/core';
+import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
+import { AddressFormComponent } from '@spartacus/user/profile/components';
+import { UserProfileFacade } from '@spartacus/user/profile/root';
+import { BehaviorSubject, EMPTY, of, take } from 'rxjs';
+import { MockGlobalMessageService, MockLaunchDialogService, mockTitles, MockUserAddressService, MockUserService } from 'worldpay-sap-composable-tests';
+import { WorldpayAddressFormComponent } from './worldpay-address-form.component';
 
-const mockTitles: Title[] = [
-  {
-    code: 'mr',
-    name: 'Mr.',
-  },
-  {
-    code: 'mrs',
-    name: 'Mrs.',
-  },
-];
 const expectedTitles: Title[] = [
   {
     code: '',
@@ -67,46 +55,14 @@ const mockAddress: Address = {
   defaultAddress: false,
 };
 
-class MockUserService {
-  getTitles(): Observable<Title[]> {
-    return EMPTY;
-  }
-
-  loadTitles(): void {
-  }
-}
-
-class MockUserAddressService {
-  getDeliveryCountries(): Observable<Country[]> {
-    return EMPTY;
-  }
-
-  loadDeliveryCountries(): void {
-  }
-
-  getRegions(): Observable<Region[]> {
-    return EMPTY;
-  }
-
-  getAddresses(): Observable<Address[]> {
-    return of([]);
-  }
-
-  verifyAddress(): Observable<AddressValidation> {
-    return of({});
-  }
-}
-
 const dialogClose$ = new BehaviorSubject<any>('');
 
-class MockLaunchDialogService implements Partial<LaunchDialogService> {
-  openDialogAndSubscribe() {
-    return EMPTY;
-  }
-
-  get dialogClose() {
-    return dialogClose$.asObservable();
-  }
+@Directive({
+  selector: '[cxNgSelectA11y]',
+  standalone: false,
+})
+class MockNgSelectA11yDirective {
+  @Input() cxNgSelectA11y: { ariaLabel?: string; ariaControls?: string };
 }
 
 describe('WorldpayAddressFormComponent', () => {
@@ -116,45 +72,46 @@ describe('WorldpayAddressFormComponent', () => {
 
   let userAddressService: UserAddressService;
   let userService: UserProfileFacade;
-  let mockGlobalMessageService: any;
+  let mockGlobalMessageService: GlobalMessageService;
   let launchDialogService: LaunchDialogService;
 
   const defaultAddressCheckbox = (): DebugElement =>
     fixture.debugElement.query(By.css('[formcontrolname=defaultAddress]'));
 
   beforeEach(async () => {
-    mockGlobalMessageService = {
-      add: createSpy(),
-    };
-
     await TestBed.configureTestingModule({
-        imports: [
-          ReactiveFormsModule,
-          NgSelectModule,
-          I18nTestingModule,
-          FormErrorsModule,
-          NgSelectA11yModule
-        ],
-        declarations: [WorldpayAddressFormComponent],
-        providers: [
-          {
-            provide: LaunchDialogService,
-            useClass: MockLaunchDialogService
-          },
-          {
-            provide: UserProfileFacade,
-            useClass: MockUserService
-          },
-          {
-            provide: UserAddressService,
-            useClass: MockUserAddressService
-          },
-          {
-            provide: GlobalMessageService,
-            useValue: mockGlobalMessageService
-          },
-        ],
-      })
+      imports: [
+        ReactiveFormsModule,
+        NgSelectModule,
+        I18nTestingModule,
+        FormErrorsModule,
+        NgSelectA11yModule,
+        FormRequiredAsterisksComponent,
+        FormRequiredLegendComponent
+      ],
+      declarations: [
+        WorldpayAddressFormComponent,
+        MockNgSelectA11yDirective,
+      ],
+      providers: [
+        {
+          provide: LaunchDialogService,
+          useClass: MockLaunchDialogService
+        },
+        {
+          provide: UserProfileFacade,
+          useClass: MockUserService
+        },
+        {
+          provide: UserAddressService,
+          useClass: MockUserAddressService
+        },
+        {
+          provide: GlobalMessageService,
+          useClass: MockGlobalMessageService
+        },
+      ],
+    })
       .overrideComponent(AddressFormComponent, {
         set: { changeDetection: ChangeDetectionStrategy.Default },
       })
@@ -163,6 +120,7 @@ describe('WorldpayAddressFormComponent', () => {
     userService = TestBed.inject(UserProfileFacade);
     userAddressService = TestBed.inject(UserAddressService);
     launchDialogService = TestBed.inject(LaunchDialogService);
+    mockGlobalMessageService = TestBed.inject(GlobalMessageService);
   });
 
   beforeEach(() => {
@@ -310,6 +268,7 @@ describe('WorldpayAddressFormComponent', () => {
   });
 
   it('should call verifyAddress() when address has some changes', () => {
+    spyOn(userAddressService, 'getRegions').and.returnValue(EMPTY);
     spyOn(userAddressService, 'verifyAddress').and.returnValue(
       of({
         decision: 'ACCEPT',
@@ -318,6 +277,7 @@ describe('WorldpayAddressFormComponent', () => {
     component.ngOnInit();
     component.addressForm.setValue(mockAddress);
     component.addressForm.markAsDirty();
+    fixture.detectChanges();
     component.verifyAddress();
 
     expect(userAddressService.verifyAddress).toHaveBeenCalled();
@@ -355,7 +315,7 @@ describe('WorldpayAddressFormComponent', () => {
     component.ngOnInit();
     component.regions$.subscribe();
     expect(
-      component.addressForm['controls'].country['controls'].isocode.value
+      component.addressForm['controls']['country']['controls']['isocode'].value
     ).toEqual(mockCountryIsocode);
     expect(userAddressService.getRegions).toHaveBeenCalledWith(
       mockCountryIsocode
@@ -370,7 +330,7 @@ describe('WorldpayAddressFormComponent', () => {
     component.regions$.subscribe();
     component.verifyAddress();
     expect(
-      component.addressForm['controls'].region['controls'].isocode.value
+      component.addressForm.controls['region']['controls']['isocode']['value']
     ).toEqual(mockCountryIsocode);
     expect(component.verifyAddress).toHaveBeenCalled();
   });
@@ -395,8 +355,8 @@ describe('WorldpayAddressFormComponent', () => {
       controls['lastName'].setValue('test lastName');
       controls['line1'].setValue('test line1');
       controls['town'].setValue('test town');
-      controls.region['controls'].isocode.setValue('test region isocode');
-      controls.country['controls'].isocode.setValue('test country isocode');
+      controls['region']['controls']['isocode'].setValue('test region isocode');
+      controls['country']['controls']['isocode'].setValue('test country isocode');
       controls['postalCode'].setValue('test postalCode');
       fixture.detectChanges();
 
@@ -411,7 +371,7 @@ describe('WorldpayAddressFormComponent', () => {
       fixture.detectChanges();
       expect(
         fixture.nativeElement.querySelector('.btn-secondary').innerText
-      ).toEqual('Back to cart');
+      ).toEqual('Back To Cart');
     });
 
     it('should show the "Choose Address", if there is no "cancelBtnLabel" input provided', () => {
@@ -419,7 +379,7 @@ describe('WorldpayAddressFormComponent', () => {
       fixture.detectChanges();
       expect(
         fixture.nativeElement.querySelector('.btn-secondary').innerText
-      ).toEqual('addressForm.chooseAddress');
+      ).toEqual('AddressForm.ChooseAddress');
     });
   });
 
@@ -525,7 +485,6 @@ describe('WorldpayAddressFormComponent', () => {
       fixture.detectChanges();
       expect(component.addressForm.get('line2').valid).toBeTrue();
       expect(fixture.debugElement.query(By.css('.address2 cx-form-errors')).nativeElement.innerText).toBe('');
-
     });
   });
 });

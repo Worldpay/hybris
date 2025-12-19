@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { WorldpayACHAdapter } from './worldpay-ach.adapter';
-import { ACHBankAccountType, ACHPaymentForm } from '../../interfaces';
 import { Order } from '@spartacus/order/root';
+import { Observable } from 'rxjs';
+import { AccountTypes, ACHPaymentForm } from '../../interfaces';
+import { WorldpayACHAdapter } from './worldpay-ach.adapter';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ export class WorldpayACHConnector {
   getACHBankAccountTypes(
     userId: string,
     cartId: string,
-  ): Observable<ACHBankAccountType[]> {
+  ): Observable<AccountTypes> {
     return this.adapter.getACHBankAccountTypes(
       userId,
       cartId,

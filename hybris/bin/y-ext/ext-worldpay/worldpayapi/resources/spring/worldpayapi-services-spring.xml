@@ -391,4 +391,12 @@
         <constructor-arg name="worldpayGuaranteedPaymentsStrategy" ref="worldpayGuaranteedPaymentsStrategy"/>
     </bean>
 
+    <alias name="defaultWorldpayIntegrationVersionService" alias="worldpayIntegrationVersionService"/>
+    <bean id="defaultWorldpayIntegrationVersionService"
+          class="com.worldpay.service.impl.DefaultWorldpayIntegrationVersionService">
+        <constructor-arg name="worldpayIntegrationVersionDao" ref="worldpayIntegrationVersionDao"/>
+        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+    </bean>
+
 </beans>

@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 
-import { WorldpayFraudsightService } from './worldpay-fraudsight.service';
 import { QueryService } from '@spartacus/core';
 import { of } from 'rxjs';
 import { WorldpayFraudsightConnector } from '../../connectors/worldpay-fraudsight/worldpay-fraudsight.connector';
+import { WorldpayFraudsightService } from './worldpay-fraudsight.service';
 import createSpy = jasmine.createSpy;
 
 class MockWorldpayFraudsightConnector implements Partial<WorldpayFraudsightConnector> {
@@ -34,7 +34,7 @@ describe('WorldpayFraudsightService', () => {
   });
 
   it('should fetch isFraudSightEnabled query', () => {
-    service.isFraudSightEnabled();
+    service.isFraudSightEnabled().subscribe();
 
     expect(worldpayFraudsightConnector.isFraudSightEnabled).toHaveBeenCalled();
 

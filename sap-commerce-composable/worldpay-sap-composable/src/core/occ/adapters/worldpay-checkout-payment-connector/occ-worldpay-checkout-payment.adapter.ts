@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { PAYMENT_DETAILS_SERIALIZER } from '@spartacus/checkout/base/core';
 import { OccCheckoutPaymentAdapter } from '@spartacus/checkout/base/occ';
-import { backOff, HttpErrorModel, isJaloError, normalizeHttpError, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
+import { backOff, HttpErrorModel, isJaloError, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorldpayCheckoutPaymentAdapter } from '../../../connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
+import { WorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-connectors';
 
 @Injectable()
 export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter implements WorldpayCheckoutPaymentAdapter {
@@ -23,8 +23,11 @@ export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter
     paymentDetails: PaymentDetails,
     cseToken: string
   ): Observable<PaymentDetails> {
-    // eslint-disable-next-line @typescript-eslint/typedef
-    let body = {
+    interface Body extends PaymentDetails {
+      cseToken: string;
+    }
+
+    let body: Body = {
       ...paymentDetails,
       cseToken
     };
@@ -41,7 +44,7 @@ export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter
       }
     );
     return this.http.post<PaymentDetails>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(() => normalizeHttpError(error, this.logger))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.logger))),
       backOff({
         shouldRetry: isJaloError,
       }),

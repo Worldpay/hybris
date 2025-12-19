@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ConverterService, HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorldpayGuaranteedPaymentsAdapter } from '../../../connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.adapter';
+import { WorldpayGuaranteedPaymentsAdapter } from 'worldpay-sap-composable-connectors';
 
 @Injectable()
 export class OccWorldpayGuaranteedPaymentsAdapter implements WorldpayGuaranteedPaymentsAdapter {

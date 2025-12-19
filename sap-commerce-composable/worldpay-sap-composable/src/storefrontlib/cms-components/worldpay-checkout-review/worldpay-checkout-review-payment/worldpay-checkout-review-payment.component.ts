@@ -4,16 +4,17 @@ import { CheckoutStepType } from '@spartacus/checkout/base/root';
 import { PaymentDetails, QueryState, TranslationService } from '@spartacus/core';
 import { paymentMethodCard } from '@spartacus/order/root';
 import { Card, ICON_TYPE } from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentFacade } from '@worldpay-facade/worldpay-checkout-payment.facade';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { WorldpayApmPaymentInfo } from '../../../../core/interfaces';
+import { WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
+import { WorldpayApmPaymentInfo } from 'worldpay-sap-core';
 import { generateBillingAddressCard } from '../../../../core/utils';
 
 @Component({
   selector: 'y-worldpay-checkout-review-payment',
   templateUrl: './worldpay-checkout-review-payment.component.html',
   encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayCheckoutReviewPaymentComponent {
 
@@ -28,8 +29,8 @@ export class WorldpayCheckoutReviewPaymentComponent {
    */
   paymentDetails$: Observable<PaymentDetails | undefined> =
     this.checkoutPaymentFacade.getPaymentDetailsState().pipe(
-      filter((state: QueryState<PaymentDetails>) => !state.loading && !state.error),
-      map((state: QueryState<PaymentDetails>) => state.data)
+      filter((state: QueryState<PaymentDetails>): boolean => !state.loading && !state.error),
+      map((state: QueryState<PaymentDetails>): PaymentDetails => state.data)
     );
 
   /**

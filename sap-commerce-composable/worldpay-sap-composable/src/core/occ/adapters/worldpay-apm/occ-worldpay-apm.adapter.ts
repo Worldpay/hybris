@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
 import { Cart } from '@spartacus/cart/base/root';
-import { backOff, CmsComponent, ConverterService, isJaloError, LoggerService, OccEndpointsService, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
+import { backOff, CmsComponent, ConverterService, HttpErrorModel, isJaloError, LoggerService, OccEndpointsService, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
-import { catchError, pluck } from 'rxjs/operators';
-import { WorldpayApmAdapter } from '../../../connectors/worldpay-apm/worldpay-apm.adapter';
+import { catchError, map } from 'rxjs/operators';
+import { WorldpayApmAdapter } from 'worldpay-sap-composable-connectors';
 import { ApmData, ApmPaymentDetails, APMRedirectRequestBody, APMRedirectResponse, WorldpayApmPaymentInfo } from '../../../interfaces';
 import { APM_NORMALIZER } from '../../converters';
 
@@ -99,9 +100,8 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     return this.http.get<CmsComponent[]>(
       url,
     ).pipe(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      pluck('apmComponents'), //  Argument of type.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map((res: any): any => res?.apmComponents),
       this.converter.pipeableMany(APM_NORMALIZER)
     );
   }
@@ -115,12 +115,14 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
    *
    * @param userId - User ID
    * @param cartId - Cart ID
+   * @param params - Params
    * @returns Observable<Order> - Observable emitting the placed order
    * @since 4.3.6
    */
   placeRedirectOrder(
     userId: string,
-    cartId: string
+    cartId: string,
+    params: Params
   ): Observable<Order> {
     const url: string = this.occEndpoints.buildUrl(
       'placeRedirectOrder',
@@ -128,11 +130,11 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
         urlParams: {
           userId,
           cartId,
-        }
+        },
       }
     );
-    return this.http.post<Order>(url, {}).pipe(
-      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
+    return this.http.post<Order>(url, params).pipe(
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -170,7 +172,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
       }
     );
     return this.http.post<Order>(url, {}).pipe(
-      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -218,7 +220,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     });
 
     return this.http.post<Cart>(url, body, {}).pipe(
-      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })
@@ -259,7 +261,7 @@ export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
     const body: PaymentDetails = { ...paymentDetails };
 
     return this.http.put<PaymentDetails>(url, body).pipe(
-      catchError((error: unknown) => throwError(() => tryNormalizeHttpError(error, this.loggerService))),
+      catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
       backOff({
         shouldRetry: isJaloError,
       })

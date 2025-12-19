@@ -9,6 +9,7 @@ import { filter, withLatestFrom } from 'rxjs/operators';
 @Component({
   selector: 'y-worldpay-order-confirmation-thank-you-message-component',
   templateUrl: './worldpay-order-confirmation-thank-you-message.component.html',
+  standalone: false
 })
 export class WorldpayOrderConfirmationThankYouMessageComponent extends OrderConfirmationThankYouMessageComponent {
 
@@ -42,7 +43,8 @@ export class WorldpayOrderConfirmationThankYouMessageComponent extends OrderConf
    */
   protected override getThankYouAssistiveMessage(): Observable<[Order | undefined, string, string, string]> {
     const params: Params = this.route.snapshot.queryParams;
-    // eslint-disable-next-line no-prototype-builtins
+    // @ts-ignore: TS4111
+    // eslint-disable-next-line no-prototype-builtins, dot-notation
     if (params.hasOwnProperty('pending') && params.pending.toString() === 'true') {
       this.orderConfirmationMessage = 'checkoutOrderConfirmation.pending.thankYouForOrder';
       this.invoiceSentMessage = 'checkoutOrderConfirmation.pending.invoiceHasBeenSentByEmail';
@@ -53,7 +55,7 @@ export class WorldpayOrderConfirmationThankYouMessageComponent extends OrderConf
     const invoiceHasBeenSentByEmailMessage$: Observable<string> = this.translationService.translate(this.invoiceSentMessage);
 
     return this.order$.pipe(
-      filter((order: Order) => !!order),
+      filter((order: Order): boolean => !!order),
       withLatestFrom(
         confirmationOfOrderMessage$,
         thankYouMessage$,

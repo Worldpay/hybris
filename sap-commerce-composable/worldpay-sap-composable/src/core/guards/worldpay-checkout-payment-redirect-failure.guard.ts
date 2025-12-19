@@ -32,7 +32,8 @@ export class WorldpayCheckoutPaymentRedirectFailureGuard {
 
     // eslint-disable-next-line no-prototype-builtins
     if (params && typeof params === 'object' && params.hasOwnProperty('reason')) {
-      const key: string = this.getReasonMessageKey(params.reason);
+      // eslint-disable-next-line dot-notation
+      const key: string = this.getReasonMessageKey(params['reason']);
       if (key) {
         this.globalMessageService.add(
           {

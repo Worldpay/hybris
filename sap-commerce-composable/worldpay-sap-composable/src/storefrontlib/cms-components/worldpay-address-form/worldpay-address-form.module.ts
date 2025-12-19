@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WorldpayAddressFormComponent } from './worldpay-address-form.component';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { I18nModule } from '@spartacus/core';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { FormErrorsModule, NgSelectA11yModule } from '@spartacus/storefront';
+import { I18nModule } from '@spartacus/core';
+import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, NgSelectA11yModule } from '@spartacus/storefront';
+import { WorldpayAddressFormComponent } from './worldpay-address-form.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +19,9 @@ import { FormErrorsModule, NgSelectA11yModule } from '@spartacus/storefront';
     I18nModule,
     NgSelectModule,
     NgSelectA11yModule,
-    FormErrorsModule
+    FormErrorsModule,
+    FormRequiredLegendComponent,
+    FormRequiredAsterisksComponent
   ],
 })
 export class WorldpayAddressFormModule {

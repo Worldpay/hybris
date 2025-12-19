@@ -1,15 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+// eslint-disable-next-line deprecation/deprecation
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
 import { I18nTestingModule, PaymentDetails, TranslationService } from '@spartacus/core';
 import { IconTestingModule } from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentFacade } from '@worldpay-facade/worldpay-checkout-payment.facade';
-import { MockCxCardComponent } from '@worldpay-tests/components';
-import { MockUrlPipe } from '@worldpay-tests/pipes';
 import { of } from 'rxjs';
-import { WorldpayApmPaymentInfo } from '../../../../core/interfaces';
-import { WorldpayCheckoutReviewPaymentComponent } from './worldpay-checkout-review-payment.component';
+import { WorldpayCheckoutReviewPaymentComponent } from 'worldpay-sap-composable-components';
+import { WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
+import { MockActivatedRoute, MockCxCardComponent, MockUrlPipe } from 'worldpay-sap-composable-tests';
+import { WorldpayApmPaymentInfo } from 'worldpay-sap-core';
 import createSpy = jasmine.createSpy;
 
 const mockPaymentDetails: PaymentDetails = {
@@ -83,13 +83,21 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [I18nTestingModule, RouterTestingModule, IconTestingModule],
+      imports: [
+        I18nTestingModule,
+        IconTestingModule,
+        RouterLink
+      ],
       declarations: [
         WorldpayCheckoutReviewPaymentComponent,
         MockUrlPipe,
         MockCxCardComponent,
       ],
       providers: [
+        {
+          provide: ActivatedRoute,
+          useClass: MockActivatedRoute
+        },
         {
           provide: WorldpayCheckoutPaymentFacade,
           useClass: MockCheckoutPaymentService,
@@ -169,7 +177,9 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
         mockPaymentDetailsWithLine2.billingAddress?.firstName + ' ' + mockPaymentDetailsWithLine2.billingAddress?.lastName,
         mockPaymentDetailsWithLine2.billingAddress?.line1,
         mockPaymentDetailsWithLine2.billingAddress?.line2,
-        mockPaymentDetailsWithLine2.billingAddress?.town + ', ' + mockPaymentDetailsWithLine2.billingAddress?.region?.isocode + ', ' + mockPaymentDetailsWithLine2.billingAddress?.country?.isocode,
+        mockPaymentDetailsWithLine2.billingAddress?.town +
+        ', ' + mockPaymentDetailsWithLine2.billingAddress?.region?.isocode +
+        ', ' + mockPaymentDetailsWithLine2.billingAddress?.country?.isocode,
         mockPaymentDetailsWithLine2.billingAddress?.postalCode,
       ]);
     });

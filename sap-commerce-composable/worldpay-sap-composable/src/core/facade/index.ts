@@ -1,6 +1,7 @@
 export * from './worldpay-ach.facade';
 export * from './worldpay-apm-facade';
 export * from './worldpay-applepay.facade';
+export * from './worldpay-billing-address-form.facade';
 export * from './worldpay-checkout-payment.facade';
 export * from './worldpay-feature-name';
 export * from './worldpay-fraudsight.facade';

@@ -7,7 +7,8 @@ import { AddressFormComponent } from '@spartacus/user/profile/components';
   selector: 'y-worldpay-address-form',
   templateUrl: './worldpay-address-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayAddressFormComponent extends AddressFormComponent implements OnInit, OnDestroy {
   jpLabel: string = '';
@@ -26,7 +27,7 @@ export class WorldpayAddressFormComponent extends AddressFormComponent implement
     this.addressForm.get('country').valueChanges.pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       next: (value: any): void => {
         if (value?.isocode?.toLowerCase() === 'jp') {
           this.line2Field.setValidators(Validators.required);

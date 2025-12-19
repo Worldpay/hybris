@@ -1,71 +1,42 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UntypedFormGroup } from '@angular/forms';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
-import { Address, LoggerService } from '@spartacus/core';
-import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
-import { WorldpayApplepayService } from '@worldpay-services/worldpay-applepay/worldpay-applepay.service';
-import { WorldpayGooglepayService } from '@worldpay-services/worldpay-googlepay/worldpay-googlepay.service';
-import { makeFormErrorsVisible } from '@worldpay-utils/make-form-errors-visible';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { PaymentDetails } from '@spartacus/core';
+import { Observable, shareReplay } from 'rxjs';
 import { distinctUntilChanged, first, map, switchMap, take } from 'rxjs/operators';
-import { ApmData, ApmPaymentDetails, GooglePayMerchantConfiguration, PaymentMethod } from '../../../core/interfaces';
-import { WorldpayOrderService } from '../../../core/services';
+import { WorldpayApmService, WorldpayApplepayService, WorldpayGooglepayService } from 'worldpay-sap-composable-services';
+import { ApmData, GooglePayMerchantConfiguration, PaymentMethod } from 'worldpay-sap-core';
+import { WorldpayApmBaseComponent } from './worldpay-apm-base/worldpay-apm-base.component';
 
 @Component({
   selector: 'y-worldpay-apm-component',
   templateUrl: './worldpay-apm.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
-export class WorldpayApmComponent implements AfterViewInit {
-
+export class WorldpayApmComponent extends WorldpayApmBaseComponent implements OnInit, OnDestroy {
   @Input() apms: Observable<ApmData[]>;
   @Input() processing: boolean = false;
-  @Output() setPaymentDetails: EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }> = new EventEmitter<{
-    paymentDetails: ApmPaymentDetails;
-    billingAddress: Address;
-  }>();
-  @Output() back: EventEmitter<void> = new EventEmitter<void>();
+  readonly paymentMethod: typeof PaymentMethod = PaymentMethod;
+  protected worldpayApmService: WorldpayApmService = inject(WorldpayApmService);
   isLoading$: Observable<boolean> = this.worldpayApmService.getLoading();
-  card$: Observable<ApmData> = this.worldpayApmService.getApmComponentById('creditCardComponent', PaymentMethod.Card);
-  googlePay$: Observable<ApmData>;
-  applePay$: Observable<ApmData>;
-
-  selectedApm$: Observable<ApmData> = this.worldpayApmService.getSelectedAPMFromState();
-  paymentMethod: typeof PaymentMethod = PaymentMethod;
-  sameAsDeliveryAddress: boolean = true;
-  billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
-  submitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  protected paymentDetails: ApmData;
-  /**
-   * Injects the CheckoutBillingAddressFormService into the component.
-   * This service is used to manage the billing address form in the checkout process.
-   * @protected
-   * @since 2211.27.0
-   */
-  protected billingAddressFormService: CheckoutBillingAddressFormService = inject(
-    CheckoutBillingAddressFormService
+  card$: Observable<ApmData> = this.worldpayApmService.getApmComponentById('creditCardComponent', PaymentMethod.Card).pipe(
+    shareReplay({
+      bufferSize: 1,
+      refCount: true
+    }),
   );
-  protected logger: LoggerService = inject(LoggerService);
-  private destroyRef: DestroyRef = inject(DestroyRef);
-
-  /**
-   * Constructor
-   * @param {WorldpayApmService} worldpayApmService - Service for handling APM (Alternative Payment Methods)
-   * @param {WorldpayOrderService} worldpayOrderService - Service for handling Worldpay orders
-   * @param {WorldpayGooglepayService} worldpayGooglePayService - Service for handling Google Pay
-   * @param {WorldpayApplepayService} worldpayApplePayService - Service for handling Apple Pay
-   * @param {ChangeDetectorRef} cd - Change detector reference for triggering change detection
-   * @since 4.3.6
-   */
-  constructor(
-    protected worldpayApmService: WorldpayApmService,
-    protected worldpayOrderService: WorldpayOrderService,
-    protected worldpayGooglePayService: WorldpayGooglepayService,
-    protected worldpayApplePayService: WorldpayApplepayService,
-    protected cd: ChangeDetectorRef,
-  ) {
-  }
+  selectedApm$: Observable<ApmData> = this.worldpayApmService.getSelectedAPMFromState().pipe(
+    distinctUntilChanged(),
+    shareReplay({
+      bufferSize: 1,
+      refCount: true
+    }),
+  );
+  protected worldpayGooglePayService: WorldpayGooglepayService = inject(WorldpayGooglepayService);
+  protected worldpayApplePayService: WorldpayApplepayService = inject(WorldpayApplepayService);
+  protected googlePay$: Observable<ApmData> = this.initializeGooglePay();
+  protected applePay$: Observable<ApmData | null> = this.initializeApplePay();
+  protected paymentDetails: ApmData;
 
   /**
    * Initialize component
@@ -73,31 +44,27 @@ export class WorldpayApmComponent implements AfterViewInit {
    * Initializes Google Pay and Apple Pay payment methods.
    * @since 4.3.6
    */
-  ngAfterViewInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
+    this.bindSelectedApm();
+  }
+
+  /**
+   * Subscribes to the selected APM (Alternative Payment Method) observable and updates the payment method.
+   * If an error occurs during subscription, it logs the error.
+   *
+   * @since 2211.43.0
+   */
+  bindSelectedApm(): void {
     this.selectedApm$.pipe(
       distinctUntilChanged(),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (apm: ApmData): void => {
-        this.selectDefaultCardPaymentMethod(apm);
-        this.cd.detectChanges();
-        this.sameAsDeliveryAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
-      },
-      error: (error: unknown) => {
+      next: (apm: ApmData): void => this.selectDefaultCardPaymentMethod(apm),
+      error: (error: unknown): void => {
         this.logger.error('Failed to initialize FraudSight, check component configuration', error);
       },
     });
-    this.billingAddressForm = this.billingAddressFormService.getBillingAddressForm();
-    this.initializeGooglePay();
-    this.initializeApplePay();
-  }
-
-  /**
-   * Sets the sameAsDeliveryAddress property.
-   * @param value - boolean indicating whether the billing address is the same as the delivery address.
-   */
-  setSameAsDeliveryAddress(value: boolean): void {
-    this.sameAsDeliveryAddress = value;
   }
 
   /**
@@ -128,34 +95,33 @@ export class WorldpayApmComponent implements AfterViewInit {
    * @since 4.3.6
    */
   selectApmPaymentDetails(): void {
-    let billingAddress: Address;
-    if (!this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress()) {
-      if (this.billingAddressFormService.isBillingAddressFormValid()) {
-        billingAddress = this.billingAddressFormService.getBillingAddress();
-      } else {
-        makeFormErrorsVisible(this.billingAddressFormService.getBillingAddressForm());
-        return;
-      }
+    if (!this.paymentDetails) {
+      this.logger.error('No payment details selected');
+      return;
     }
 
-    this.submitting$.next(true);
-    this.setPaymentDetails.emit({
-      paymentDetails: {
-        code: this.paymentDetails.code,
-        name: this.paymentDetails.name,
-      },
-      billingAddress
-    });
+    const paymentDetails: PaymentDetails = {
+      code: this.paymentDetails.code,
+      name: this.paymentDetails.name,
+    };
+    this.createPaymentDetails(paymentDetails);
   }
 
   /**
-   * Return to previous step by emitting the back event.
-   * @since 6.4.0
+   * Unsubscribe from all subscriptions
+   * @since 4.3.6
    */
-  return(): void {
-    this.back.emit();
+  ngOnDestroy(): void {
+    this.isSubmitting$.next(false);
   }
 
+  /**
+   * Selects the default card payment method if no APM (Alternative Payment Method) is provided.
+   * If an APM is provided, it sets the payment details to the provided APM.
+   *
+   * @param apm - The selected APM data. If null or undefined, the default card payment method is selected.
+   * @since 4.3.6
+   */
   protected selectDefaultCardPaymentMethod(apm: ApmData): void {
     if (!apm) {
       this.worldpayApmService.selectAPM({ code: PaymentMethod.Card } as ApmData);
@@ -170,8 +136,8 @@ export class WorldpayApmComponent implements AfterViewInit {
    * Waits for the merchant configuration to be available before returning the Google Pay component data.
    * @since 4.3.6
    */
-  protected initializeGooglePay(): void {
-    this.googlePay$ = this.worldpayApmService.getApmComponentById('googlePayComponent', PaymentMethod.GooglePay)
+  protected initializeGooglePay(): Observable<ApmData> {
+    return this.worldpayApmService.getApmComponentById('googlePayComponent', PaymentMethod.GooglePay)
       .pipe(
         take(1),
         switchMap((apmData: ApmData): Observable<ApmData> => {
@@ -190,14 +156,16 @@ export class WorldpayApmComponent implements AfterViewInit {
    * Sets the applePay$ observable with the retrieved Apple Pay component data.
    * @since 4.3.6
    */
-  protected initializeApplePay(): void {
-    if (this.worldpayApplePayService.applePayButtonAvailable()) {
-      this.applePay$ = this.worldpayApmService
-        .getApmComponentById('applePayComponent', PaymentMethod.ApplePay)
-        .pipe(
-          take(1),
-          map((apmData: ApmData): ApmData => apmData),
-        );
+  protected initializeApplePay(): Observable<ApmData | null> {
+    if (!this.worldpayApplePayService?.applePayButtonAvailable()) {
+      return null;
     }
+
+    return this.worldpayApmService
+      .getApmComponentById('applePayComponent', PaymentMethod.ApplePay)
+      .pipe(
+        take(1),
+        map((apmData: ApmData): ApmData => apmData),
+      );
   }
 }

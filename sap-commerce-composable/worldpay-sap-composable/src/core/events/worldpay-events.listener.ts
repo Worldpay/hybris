@@ -1,8 +1,10 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EventService } from '@spartacus/core';
-import { merge, Subscription } from 'rxjs';
-import { ClearWorldpayPaymentDetailsEvent, ClearWorldpayPaymentStateEvent, SetWorldpaySaveAsDefaultCreditCardEvent, SetWorldpaySavedCreditCardEvent } from './worldpay.events';
+import { OrderPlacedEvent } from '@spartacus/order/root';
+import { WorldpayClearBillingAddressFormEvent } from './billing-address-form.events';
 import { ClearGooglepayEvent } from './googlepay.events';
+import { ClearWorldpayPaymentDetailsEvent, ClearWorldpayPaymentStateEvent, SetWorldpaySaveAsDefaultCreditCardEvent, SetWorldpaySavedCreditCardEvent } from './worldpay.events';
 
 /**
  * Checkout payment event listener.
@@ -10,8 +12,8 @@ import { ClearGooglepayEvent } from './googlepay.events';
 @Injectable({
   providedIn: 'root',
 })
-export class WorldpayEventsListener implements OnDestroy {
-  protected subscriptions: Subscription = new Subscription();
+export class WorldpayEventsListener {
+  protected destroyRef: DestroyRef = inject(DestroyRef);
 
   /**
    * Constructor for WorldpayEventsListener.
@@ -22,7 +24,9 @@ export class WorldpayEventsListener implements OnDestroy {
     protected eventService: EventService,
   ) {
     this.onOrderPlacedEvent();
+    this.onClearWorldpayPaymentStateEvent();
   }
+
 
   /**
    * Handles the order placed event by subscribing to the ClearWorldpayPaymentStateEvent.
@@ -32,19 +36,26 @@ export class WorldpayEventsListener implements OnDestroy {
    * @since 6.4.0
    */
   protected onOrderPlacedEvent(): void {
-    this.subscriptions.add(
-      merge(this.eventService.get(ClearWorldpayPaymentStateEvent)).subscribe({
-        next: (): void => {
-          this.eventService.dispatch(ClearGooglepayEvent);
-          this.eventService.dispatch({ saved: false }, SetWorldpaySavedCreditCardEvent);
-          this.eventService.dispatch({ saved: false }, SetWorldpaySaveAsDefaultCreditCardEvent);
-          this.eventService.dispatch(ClearWorldpayPaymentDetailsEvent);
-        }
-      }),
-    );
+    this.eventService.get(OrderPlacedEvent).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (): void => {
+        this.eventService.dispatch({}, ClearWorldpayPaymentStateEvent);
+      }
+    });
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  protected onClearWorldpayPaymentStateEvent(): void {
+    this.eventService.get(ClearWorldpayPaymentStateEvent).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (): void => {
+        this.eventService.dispatch({}, ClearGooglepayEvent);
+        this.eventService.dispatch({ saved: false }, SetWorldpaySavedCreditCardEvent);
+        this.eventService.dispatch({ saved: false }, SetWorldpaySaveAsDefaultCreditCardEvent);
+        this.eventService.dispatch({},  ClearWorldpayPaymentDetailsEvent);
+        this.eventService.dispatch({}, WorldpayClearBillingAddressFormEvent);
+      }
+    });
   }
 }

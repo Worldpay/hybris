@@ -1,5 +1,6 @@
 import { ComponentRef, DestroyRef, inject, Injectable, ViewContainerRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Params } from '@angular/router';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import {
   Command,
@@ -18,17 +19,11 @@ import { Order, OrderPlacedEvent } from '@spartacus/order/root';
 import { LAUNCH_CALLER, LaunchDialogService } from '@spartacus/storefront';
 import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
+import { WorldpayACHConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
+import { ClearInitialPaymentRequestEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from 'worldpay-sap-composable-events';
 import { WorldpayApmConnector } from '../../connectors';
-import { WorldpayACHConnector } from '../../connectors/worldpay-ach/worldpay-ach.connector';
-import { WorldpayConnector } from '../../connectors/worldpay.connector';
-import { ClearInitialPaymentRequestEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from '../../events/checkout-payment.events';
-import {
-  ClearWorldpayACHPaymentFormEvent,
-  ClearWorldpayPaymentDetailsEvent,
-  SetWorldpaySaveAsDefaultCreditCardEvent,
-  SetWorldpaySavedCreditCardEvent
-} from '../../events/worldpay.events';
-import { ACHPaymentForm, BrowserInfo, CSEPaymentForm, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
+import { ClearWorldpayACHPaymentFormEvent, ClearWorldpayPaymentDetailsEvent } from '../../events/worldpay.events';
+import { ACHPaymentForm, BrowserInfo, CSEPaymentForm, KeyValuePair, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 
 @Injectable({
@@ -81,8 +76,7 @@ export class WorldpayOrderService extends OrderService {
         tap((response: PlaceOrderResponse): void => {
           if (response.threeDSecureNeeded === true) {
             const values: { [key: string]: string } = {};
-            // eslint-disable-next-line @typescript-eslint/typedef
-            response.threeDSecureInfo.threeDSFlexData.entry.map(kv => {
+            response.threeDSecureInfo.threeDSFlexData.entry.map((kv: KeyValuePair): void => {
               values[kv.key] = kv.value;
             });
 
@@ -112,8 +106,8 @@ export class WorldpayOrderService extends OrderService {
    * @since 6.4.0
    */
   protected getDDC3dsJwtCommand: Command<undefined, ThreeDsDDCInfo> = this.commandService.create<undefined, ThreeDsDDCInfo>(
-    () => this.worldpayConnector.getDDC3dsJwt().pipe(
-      tap((ddcInfo: ThreeDsDDCInfo) => this.eventService.dispatch({
+    (): Observable<ThreeDsDDCInfo> => this.worldpayConnector.getDDC3dsJwt().pipe(
+      tap((ddcInfo: ThreeDsDDCInfo): void => this.eventService.dispatch({
         ddcInfo
       }, DDC3dsJwtSetEvent))
     ),
@@ -141,10 +135,8 @@ export class WorldpayOrderService extends OrderService {
               order,
               cartCode: cartId
             }, OrderPlacedEvent);
-            this.eventService.dispatch({}, ClearWorldpayPaymentDetailsEvent);
           })
-        )
-      )
+        ))
     ),
     { strategy: CommandStrategy.CancelPrevious }
   );
@@ -159,18 +151,18 @@ export class WorldpayOrderService extends OrderService {
    * @returns {Observable<void>} - Observable that emits void
    * @since 6.4.0
    */
-  protected placeRedirectOrderCommand: Command<void> =
-    this.commandService.create<void>(
-      () => this.checkoutPreconditions().pipe(
+  protected placeRedirectOrderCommand: Command<Params, Order> =
+    this.commandService.create<Params, Order>(
+      (params: Params): Observable<Order> => this.checkoutPreconditions().pipe(
         switchMap(([userId, cartId]: [string, string]): Observable<Order> =>
-          this.worldpayApmConnector.placeOrderRedirect(userId, cartId).pipe(
+          this.worldpayApmConnector.placeOrderRedirect(userId, cartId, params).pipe(
             tap((order: Order): void => {
               this.placedOrderSuccess(userId, cartId, order);
             })
           )
         )
       ),
-      { strategy: CommandStrategy.CancelPrevious, }
+      { strategy: CommandStrategy.CancelPrevious }
     );
 
   /**
@@ -186,7 +178,7 @@ export class WorldpayOrderService extends OrderService {
    */
   protected placeBankTransferRedirectOrderCommand: Command<string> =
     this.commandService.create<string>(
-      (orderId: string) => this.checkoutPreconditions().pipe(
+      (orderId: string): Observable<Order> => this.checkoutPreconditions().pipe(
         switchMap(([userId, cartId]: [string, string]): Observable<Order> =>
           this.worldpayApmConnector.placeBankTransferOrderRedirect(userId, cartId, orderId).pipe(
             tap((order: Order): void => {
@@ -393,12 +385,11 @@ export class WorldpayOrderService extends OrderService {
    * @returns {Observable<boolean>} - Observable that emits a boolean indicating the success of the order placement
    * @since 6.4.0
    */
-  placeRedirectOrder(): Observable<boolean> {
-    return this.placeRedirectOrderCommand.execute().pipe(
-      switchMap(() =>
+  placeRedirectOrder(params: Params): Observable<boolean> {
+    return this.placeRedirectOrderCommand.execute(params).pipe(
+      switchMap((): Observable<boolean> =>
         this.getOrderDetails().pipe(
-          map((orderDetails: Order): boolean => !!orderDetails && Object.keys(orderDetails).length !== 0
-          )
+          map((orderDetails: Order): boolean => !!orderDetails && Object.keys(orderDetails).length !== 0)
         )
       )
     );
@@ -416,7 +407,7 @@ export class WorldpayOrderService extends OrderService {
    */
   placeBankTransferRedirectOrder(orderId: string): Observable<boolean> {
     return this.placeBankTransferRedirectOrderCommand.execute(orderId).pipe(
-      switchMap(() =>
+      switchMap((): Observable<boolean> =>
         this.getOrderDetails().pipe(
           map((orderDetails: Order): boolean => !!orderDetails && Object.keys(orderDetails).length !== 0
           )
@@ -463,9 +454,6 @@ export class WorldpayOrderService extends OrderService {
       },
       OrderPlacedEvent
     );
-    this.eventService.dispatch({}, ClearWorldpayPaymentDetailsEvent);
-    this.eventService.dispatch({ saved: false }, SetWorldpaySavedCreditCardEvent);
-    this.eventService.dispatch({ saved: false }, SetWorldpaySaveAsDefaultCreditCardEvent);
   }
 
   /**

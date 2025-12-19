@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { WorldpayFraudsightAdapter } from './worldpay-fraudsight.adapter';
 import { take } from 'rxjs/operators';
+import { WorldpayFraudsightAdapter } from './worldpay-fraudsight.adapter';
 import { WorldpayFraudsightConnector } from './worldpay-fraudsight.connector';
 import createSpy = jasmine.createSpy;
 

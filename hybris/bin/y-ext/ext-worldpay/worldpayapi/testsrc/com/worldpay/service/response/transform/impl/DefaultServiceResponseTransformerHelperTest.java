@@ -169,6 +169,8 @@ public class DefaultServiceResponseTransformerHelperTest {
     private com.worldpay.data.Date dateMock, reportingDateMock;
     @Mock
     private ExemptionResponse exemptionResponseMock;
+    @Mock
+    private ExemptionResponseInfo exemptionResponseInfoMock;
 
     @Before
     public void setUp() {
@@ -1150,14 +1152,19 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     @Test
     public void buildExemptionResponse_ShouldReturnExemptionResponseInfoFullyPopulated_WhenAllDataRelatedToExemptionResponseIsPresentInExemptionResponse() {
-        testObj.buildExemptionResponse(exemptionResponseMock);
+        when(exemptionResponseReverseConverterMock.convert(exemptionResponseMock)).thenReturn(exemptionResponseInfoMock);
+
+        final ExemptionResponseInfo result = testObj.buildExemptionResponse(exemptionResponseMock);
+        assertThat(result).isEqualTo(exemptionResponseInfoMock);
 
         verify(exemptionResponseReverseConverterMock).convert(exemptionResponseMock);
     }
 
     @Test
     public void buildExemptionResponse_ShouldReturnNull_WhenExemptionResponseIsNull() {
-        testObj.buildExemptionResponse(null);
+        final ExemptionResponseInfo result = testObj.buildExemptionResponse(null);
+
+        assertThat(result).isNull();
 
         verify(exemptionResponseReverseConverterMock, never()).convert(exemptionResponseMock);
     }

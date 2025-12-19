@@ -1,28 +1,16 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/components';
-import { Address } from '@spartacus/core';
-import { makeFormErrorsVisible } from '@worldpay-utils/make-form-errors-visible';
-import { BehaviorSubject } from 'rxjs';
-import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../../../core/interfaces';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { UntypedFormGroup, Validators } from '@angular/forms';
+import { makeFormErrorsVisible } from 'worldpay-sap-composable-utils';
+import { ApmPaymentDetails, IdealFormValue, PaymentMethod } from 'worldpay-sap-core';
+import { WorldpayApmBaseComponent } from '../worldpay-apm-base/worldpay-apm-base.component';
 
 @Component({
   selector: 'y-worldpay-apm-ideal',
   templateUrl: './worldpay-apm-ideal.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
-export class WorldpayApmIdealComponent implements OnDestroy {
-  @Input() apm: ApmData;
-  @Output() setPaymentDetails: EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }> = new EventEmitter<{
-    paymentDetails: ApmPaymentDetails;
-    billingAddress: Address
-  }>();
-  @Output() back: EventEmitter<void> = new EventEmitter<void>();
-
-  public billingAddressForm: UntypedFormGroup = new UntypedFormGroup({});
-  public submitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  public sameAsShippingAddress: boolean = true;
-
+export class WorldpayApmIdealComponent extends WorldpayApmBaseComponent {
   /**
    * Form group for iDEAL payment details.
    * @since 6.4.2
@@ -34,81 +22,38 @@ export class WorldpayApmIdealComponent implements OnDestroy {
   });
 
   /**
-   * Injects the CheckoutBillingAddressFormService into the component.
-   * This service is used to manage the billing address form in the checkout process.
-   * @protected
-   * @since 2211.27.0
+   * Initializes the component and adds a required validator to the bank code form control
+   * if bank configurations are available for the selected APM.
+   * This ensures that the bank code is mandatory when applicable.
+   * @since 2211.43.0
    */
-  protected billingAddressFormService: CheckoutBillingAddressFormService = inject(
-    CheckoutBillingAddressFormService
-  );
-
-  /**
-   * Constructor for WorldpayApmIdealComponent.
-   *
-   * @param {UntypedFormBuilder} fb - Form builder for creating reactive forms.
-   * @param {ChangeDetectorRef} cd - Service to detect and respond to changes in the component.
-   */
-  constructor(
-    protected fb: UntypedFormBuilder,
-    protected cd: ChangeDetectorRef
-  ) {
-  }
-
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
     if (this.apm?.bankConfigurations?.length > 0) {
       this.idealForm.get('bank').get('code').addValidators(Validators.required);
-      this.cd.detectChanges();
     }
-
-    this.billingAddressForm = this.billingAddressFormService.getBillingAddressForm();
   }
 
+  /**
+   * Handles the next step in the iDEAL payment process.
+   * Validates the billing address and the iDEAL form before proceeding.
+   * If the billing address is invalid, the method exits early.
+   * If the iDEAL form is valid, constructs the payment details and emits them.
+   * If the form is invalid, makes the form errors visible.
+   * @since 2211.43.0
+   */
   next(): void {
-    const {
-      valid,
-      value
-    }: UntypedFormGroup = this.idealForm;
-
-    this.sameAsShippingAddress = this.billingAddressFormService.isBillingAddressSameAsDeliveryAddress();
-
-    if (!this.sameAsShippingAddress && !this.billingAddressFormService.isBillingAddressFormValid()) {
-      makeFormErrorsVisible(this.billingAddressForm);
-      return;
-    }
-
-    if (valid) {
+    if (this.idealForm.valid) {
+      const value: IdealFormValue = this.idealForm.value;
       const paymentDetails: ApmPaymentDetails = { code: PaymentMethod.iDeal };
 
       if (value.bank?.code) {
         Object.assign(paymentDetails, { shopperBankCode: value.bank.code });
       }
 
-      this.submitting$.next(true);
-
-      let billingAddress: Address = null;
-      if (!this.sameAsShippingAddress) {
-        billingAddress = this.billingAddressFormService.getBillingAddress();
-      }
-
-      this.setPaymentDetails.emit({
-        paymentDetails,
-        billingAddress
-      });
+      this.createPaymentDetails(paymentDetails);
     } else {
       makeFormErrorsVisible(this.idealForm);
     }
-  }
-
-  /**
-   * Return to previous step
-   * @since 6.4.0
-   */
-  return(): void {
-    this.back.emit();
-  }
-
-  ngOnDestroy(): void {
-    this.submitting$.next(false);
   }
 }

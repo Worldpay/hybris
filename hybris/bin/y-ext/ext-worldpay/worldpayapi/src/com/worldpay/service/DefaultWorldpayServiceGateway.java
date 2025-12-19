@@ -2,6 +2,11 @@ package com.worldpay.service;
 
 import com.google.common.collect.ImmutableMap;
 import com.worldpay.config.Environment;
+import com.worldpay.data.Order;
+import com.worldpay.data.PaymentDetails;
+import com.worldpay.data.PaymentMethodMask;
+import com.worldpay.data.payment.Payment;
+import com.worldpay.data.token.CardTokenRequest;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.exception.WorldpayValidationException;
 import com.worldpay.internal.model.PaymentService;
@@ -25,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.worldpay.config.Environment.PROD;
 import static com.worldpay.util.WorldpayConstants.JAXB_CONTEXT;
@@ -170,16 +176,11 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
     protected ServiceResponse service(final ServiceRequest request) throws WorldpayException {
         final ServiceRequestTransformer requestTransformer = requestTransformerStrategyMap.get(request.getClass().getName());
         final PaymentService paymentService = requestTransformer.transform(request);
-        String paymentRequest;
+        final String paymentRequest = createPaymentRequest(paymentService);
 
-        try {
-            paymentRequest = logPaymentServiceXML(paymentService);
-            worldpayXMLValidator.validate(paymentService);
-        } catch (final WorldpayValidationException e) {
-            throw new WorldpayValidationException("Error validating XML: " + e.getMessage(), e);
-        }
+        final String paymentMethod = getPaymentMethodFromRequest(request);
 
-        final ServiceReply reply = worldpayConnector.send(paymentService, request.getMerchantInfo(), request.getCookie());
+        final ServiceReply reply = worldpayConnector.send(paymentService, request.getMerchantInfo(), request.getCookie(), paymentMethod);
 
         final ServiceResponseTransformer responseTransformer = responseTransformerStrategyMap.get(request.getClass().getName());
         final String paymentResponse = logPaymentServiceXML(reply.getPaymentService());
@@ -204,7 +205,7 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
     private void saveRequestAndResponseInOrder(final String orderCode, final String request, final String response) {
         if (StringUtils.isNotBlank(orderCode)) {
             final List<AbstractOrderModel> results = abstractOrderGenericDao.find(ImmutableMap.of(
-                AbstractOrderModel.WORLDPAYORDERCODE, orderCode
+                    AbstractOrderModel.WORLDPAYORDERCODE, orderCode
             ));
             if (!results.isEmpty()) {
                 final AbstractOrderModel abstractOrder = results.get(0);
@@ -230,6 +231,48 @@ public class DefaultWorldpayServiceGateway implements WorldpayServiceGateway {
             abstractOrder.setResponsesPayload(requestList);
 
         });
+    }
+
+    protected String getPaymentMethodFromRequest(final ServiceRequest request) {
+        if (request instanceof DirectAuthoriseServiceRequest directRequest) {
+            return Optional.ofNullable(directRequest.getOrder())
+                    .map(Order::getPaymentDetails)
+                    .map(PaymentDetails::getPayment)
+                    .map(Payment::getPaymentType)
+                    .orElse(StringUtils.EMPTY);
+        } else if (request instanceof CreateTokenServiceRequest tokenRequest) {
+            return Optional.ofNullable(tokenRequest.getCardTokenRequest())
+                    .map(CardTokenRequest::getPayment)
+                    .map(Payment::getPaymentType)
+                    .orElse(StringUtils.EMPTY);
+        } else if (request instanceof RedirectAuthoriseServiceRequest redirectRequest) {
+            if (redirectRequest.getOrder().getPaymentMethodMask() != null) {
+                return Optional.ofNullable(redirectRequest.getOrder())
+                        .map(Order::getPaymentMethodMask)
+                        .map(PaymentMethodMask::getIncludes)
+                        .filter(includes -> !includes.isEmpty())
+                        .map(includes -> includes.get(0))
+                        .orElse(StringUtils.EMPTY);
+            } else {
+                return Optional.ofNullable(redirectRequest.getOrder())
+                        .map(Order::getPaymentDetails)
+                        .map(PaymentDetails::getPayment)
+                        .map(Payment::getPaymentType)
+                        .orElse(StringUtils.EMPTY);
+            }
+        } else {
+            return StringUtils.EMPTY;
+        }
+    }
+
+    protected String createPaymentRequest(final PaymentService paymentService) throws WorldpayValidationException {
+        try {
+            final String paymentRequest = logPaymentServiceXML(paymentService);
+            worldpayXMLValidator.validate(paymentService);
+            return paymentRequest;
+        } catch (final WorldpayValidationException e) {
+            throw new WorldpayValidationException("Error validating XML: " + e.getMessage(), e);
+        }
     }
 
     protected PayloadModel createPayloadModel(final String payload) {

@@ -1,16 +1,12 @@
-import { HttpClientModule } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Address, ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
+import { Address, OccConfig, OccEndpointsService } from '@spartacus/core';
+import { mockUserId } from 'worldpay-sap-composable-tests';
 import { OccWorldpayGooglepayAdapter } from './occ-worldpay-googlepay.adapter';
 
-const userId = 'userId';
+const userId = mockUserId;
 const cartId = 'cartId';
-const address: Address = {
-  line1: 'The House',
-  line2: 'The Road',
-  postalCode: 'AA1 2BB'
-};
 const mockBillingAddress: Address = {
   firstName: 'John',
   lastName: 'Smith',
@@ -47,12 +43,11 @@ class MockOccEndpointsService {
 describe('OccWorldpayGooglepayAdapter', () => {
   let service: OccWorldpayGooglepayAdapter;
   let httpMock: HttpTestingController;
-  let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayGooglepayAdapter,
         {
@@ -63,12 +58,13 @@ describe('OccWorldpayGooglepayAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
     service = TestBed.inject(OccWorldpayGooglepayAdapter);
     httpMock = TestBed.inject(HttpTestingController);
-    converter = TestBed.inject(ConverterService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
   });

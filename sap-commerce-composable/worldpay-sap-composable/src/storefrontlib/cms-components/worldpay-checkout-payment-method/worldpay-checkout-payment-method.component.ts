@@ -2,21 +2,22 @@ import { Component, DestroyRef, HostBinding, inject, OnDestroy, OnInit, ViewEnca
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ActiveCartFacade } from '@spartacus/cart/base/root';
+import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
 import { CheckoutPaymentMethodComponent, CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
 import { Address, getLastValueSync, GlobalMessageService, GlobalMessageType, PaymentDetails, TranslationService, UserPaymentService } from '@spartacus/core';
 import { Card } from '@spartacus/storefront';
-import { WorldpayApmService } from '@worldpay-services/worldpay-apm/worldpay-apm.service';
-import { WorldpayCheckoutPaymentService } from '@worldpay-services/worldpay-checkout/worldpay-checkout-payment.service';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
-import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../../core/interfaces';
+import { ApmNormalizer } from 'worldpay-sap-composable-normalizers';
+import { WorldpayApmService, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService } from 'worldpay-sap-composable-services';
+import { ApmData, ApmPaymentDetails, PaymentFormData, PaymentMethod, WorldpayApmPaymentInfo } from 'worldpay-sap-core';
 
 @Component({
-  selector: 'y-worldpay-payment',
+  selector: 'y-worldpay-payment-method',
   templateUrl: './worldpay-checkout-payment-method.component.html',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMethodComponent implements OnInit, OnDestroy {
   @HostBinding('class.d-none') hidden: boolean = false;
@@ -26,9 +27,11 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
   cvnForm: UntypedFormGroup = this.fb.group({
     cvn: [null, [Validators.required, Validators.minLength(3)]]
   });
-  selectedPayment$: BehaviorSubject<PaymentDetails> = new BehaviorSubject<PaymentDetails>(null);
+  selectedPayment$: BehaviorSubject<PaymentDetails> = this.worldpayApmService.selectedApm$;
   isCardPayment: boolean;
   public processing$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  protected apmNormalizer: ApmNormalizer = inject(ApmNormalizer);
+  protected worldpayBillingAddressFormService: WorldpayBillingAddressFormService = inject(WorldpayBillingAddressFormService);
   private destroyRef: DestroyRef = inject(DestroyRef);
 
   /**
@@ -128,14 +131,16 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
           }
           this.checkoutPaymentFacade.setSaveCreditCardValue(details.save);
           this.checkoutPaymentFacade.setSaveAsDefaultCardValue(details.defaultPayment);
-          // we don't call onSuccess here, because it can cause a spinner flickering
-          this.hideNewPaymentForm();
-          this.next();
         },
         error: (): void => {
           this.globalMessageService.add({ key: 'paymentForm.invalid.applicationError' }, GlobalMessageType.MSG_TYPE_ERROR);
           this.onError();
         },
+        complete: (): void => {
+          // we don't call onSuccess here, because it can cause a spinner flickering
+          this.hideNewPaymentForm();
+          this.next();
+        }
       });
   }
 
@@ -152,7 +157,10 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
       this.checkoutPaymentFacade.setSaveCreditCardValue(paymentDetails.saved);
     }
     this.checkoutPaymentFacade.setSaveAsDefaultCardValue(paymentDetails.defaultPayment);
-    this.selectedPayment$.next(paymentDetails);
+
+    this.worldpayBillingAddressFormService.updateSameAsDeliveryAddressFormData(paymentDetails.billingAddress, this.deliveryAddress);
+
+    this.worldpayApmService.selectAPM(paymentDetails);
   }
 
   /**
@@ -162,9 +170,8 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
    * @override
    * @since 6.4.0
    */
-  override selectPaymentMethod(paymentDetails: PaymentDetails): void {
-
-    const details: PaymentDetails = {
+  override selectPaymentMethod(paymentDetails: WorldpayApmPaymentInfo): void {
+    const details: WorldpayApmPaymentInfo = {
       ...paymentDetails,
       cvn: this.cvnForm.value.cvn
     };
@@ -173,7 +180,11 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
       details.save = true;
     }
 
-    if (paymentDetails?.id === getLastValueSync(this.selectedMethod$)?.id) {
+    const lastValueSync: WorldpayApmPaymentInfo = getLastValueSync(this.selectedMethod$);
+    if (
+      paymentDetails?.id === lastValueSync?.id ||
+      !paymentDetails?.id && paymentDetails?.code === lastValueSync?.code
+    ) {
       this.setSelectedPayment(details);
       return;
     }
@@ -208,12 +219,16 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
    * @param {ApmPaymentDetails} $event.paymentDetails - The APM payment details to be set.
    * @param {Address} $event.billingAddress - The billing address associated with the payment details.
    */
-  setApmPaymentDetails($event: { paymentDetails: ApmPaymentDetails; billingAddress: Address }): void {
+  setApmPaymentDetails($event: PaymentFormData): void {
     this.shouldRedirect = true;
+
+    interface ApmPaymentDetailsWithAddress extends ApmPaymentDetails {
+      billingAddress: Address;
+    }
 
     const billingAddress: Address = $event.billingAddress ?? this.deliveryAddress;
 
-    const apmPaymentDetails: ApmPaymentDetails = {
+    const apmPaymentDetails: ApmPaymentDetailsWithAddress = {
       ...$event.paymentDetails,
       billingAddress
     };
@@ -221,7 +236,7 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
     this.busy$.next(true);
     this.checkoutPaymentFacade.setPaymentAddress(billingAddress)
       .pipe(
-        switchMap(() => this.worldpayApmService.setApmPaymentDetails(apmPaymentDetails)),
+        switchMap((): Observable<Cart> => this.worldpayApmService.setApmPaymentDetails(apmPaymentDetails)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
@@ -229,34 +244,32 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
           this.onSuccess();
           this.next();
         },
-        error: () => this.onError(),
+        error: (): void => this.onError(),
       });
   }
 
   override selectDefaultPaymentMethod(
-    paymentMethods: { payment: PaymentDetails; expiryTranslation: string }[],
-    selectedMethod: PaymentDetails | undefined
+    paymentMethods: { payment: ApmPaymentDetails; expiryTranslation: string }[],
+    selectedMethod: ApmPaymentDetails | undefined
   ): void {
-    if (
-      !this.doneAutoSelect &&
-      paymentMethods?.length &&
-      (!selectedMethod || Object.keys(selectedMethod).length === 0)
-    ) {
-      const defaultPaymentMethod: { payment: PaymentDetails; expiryTranslation: string } = paymentMethods.find(
-        (paymentMethod: { payment: PaymentDetails; expiryTranslation: string }): boolean => paymentMethod.payment.defaultPayment
-      );
-      if (defaultPaymentMethod) {
-        selectedMethod = defaultPaymentMethod.payment;
+    if (!this.doneAutoSelect) {
+      if (paymentMethods?.length && (!selectedMethod || Object.keys(selectedMethod).length === 0)) {
+        const defaultPaymentMethod: { payment: ApmPaymentDetails; expiryTranslation: string } = paymentMethods.find(
+          (paymentMethod: { payment: ApmPaymentDetails; expiryTranslation: string }): boolean => paymentMethod.payment.defaultPayment
+        );
+        if (defaultPaymentMethod) {
+          selectedMethod = defaultPaymentMethod.payment;
+          this.savePaymentMethod(selectedMethod);
+        }
+      }
+      if (selectedMethod && Object.keys(selectedMethod)?.length > 0) {
+        if (!selectedMethod.cardType) {
+          selectedMethod = this.apmNormalizer.normalizeApmData(selectedMethod);
+        }
         this.selectPaymentMethod(selectedMethod);
-        this.savePaymentMethod(selectedMethod);
       }
       this.doneAutoSelect = true;
     }
-    this.selectPaymentMethod(selectedMethod);
-  }
-
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
   }
 
   /**
@@ -312,7 +325,8 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
           selectedApm.code !== PaymentMethod.Card &&
           selectedApm.code !== PaymentMethod.ApplePay &&
           selectedApm.code !== PaymentMethod.GooglePay &&
-          selectedApm.code !== PaymentMethod.PayPal
+          selectedApm.code !== PaymentMethod.PayPal &&
+          selectedApm.code !== PaymentMethod.PayPalSSL
         ),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),

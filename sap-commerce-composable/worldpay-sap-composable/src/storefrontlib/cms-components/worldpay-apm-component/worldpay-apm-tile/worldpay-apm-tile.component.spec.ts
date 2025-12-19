@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { WorldpayApmTileComponent } from './worldpay-apm-tile.component';
-import { WorldpayApmService } from '../../../../core/services/worldpay-apm/worldpay-apm.service';
+import { MediaModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
 import { ApmData, PaymentMethod } from '../../../../core/interfaces';
-import { MediaModule } from '@spartacus/storefront';
+import { WorldpayApmService } from '../../../../core/services/worldpay-apm/worldpay-apm.service';
+import { WorldpayApmTileComponent } from './worldpay-apm-tile.component';
 
 const selectedApm: ApmData = {
   code: PaymentMethod.Card,

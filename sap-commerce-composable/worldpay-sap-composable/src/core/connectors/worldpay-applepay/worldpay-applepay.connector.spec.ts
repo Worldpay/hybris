@@ -1,10 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ApmData, PaymentMethod } from '../../interfaces';
 import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
 import { WorldpayApplepayConnector } from './worldpay-applepay.connector';
-import { ApmData, PaymentMethod } from '../../interfaces';
-import { PaymentDetails } from '@spartacus/core';
 import createSpy = jasmine.createSpy;
 
 const drop = new Subject();
@@ -23,20 +22,10 @@ const apms: ApmData[] = [
   },
 ];
 
-const mockPayment: PaymentDetails = {
-  accountHolderName: 'John Smith',
-  cardNumber: '************6206',
-  expiryMonth: '12',
-  expiryYear: '2026',
-  cardType: {
-    name: 'Visa',
-  },
-};
-
 class MockWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
   requestApplePayPaymentRequest = createSpy('WorldpayAdapter.authoriseApmRedirect').and.callFake(() => of(null));
 
-  validateApplePayMerchant = createSpy('WorldpayAdapter.getAvailableApms').and.callFake((userId: string, cartId: string) => of(apms));
+  validateApplePayMerchant = createSpy('WorldpayAdapter.getAvailableApms').and.callFake(() => of(apms));
 
   authorizeApplePayPayment = createSpy('WorldpayAdapter.setAPMPaymentInfo').and.callFake((userId, cartId, ApmPaymentInfo) => of(ApmPaymentInfo));
 }

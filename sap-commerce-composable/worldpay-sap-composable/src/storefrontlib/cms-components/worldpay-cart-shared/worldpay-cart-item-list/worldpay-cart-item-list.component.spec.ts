@@ -1,24 +1,19 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveCartFacade, CartItemComponentOptions, ConsignmentEntry, MultiCartFacade, OrderEntry, PromotionLocation, SelectiveCartFacade, } from '@spartacus/cart/base/root';
 import { FeaturesConfigModule, I18nTestingModule, UserIdService, } from '@spartacus/core';
-import { OutletContextData, PromotionsModule } from '@spartacus/storefront';
-import { Observable, of } from 'rxjs';
-import { WorldpayCartItemListComponent } from './worldpay-cart-item-list.component';
+import { OutletContextData, OutletModule, PromotionsModule } from '@spartacus/storefront';
+import { of } from 'rxjs';
+import { WorldpayCartItemListComponent } from 'worldpay-sap-composable-components';
+import { MockActivatedRoute, mockUserId, MockUserIdService } from 'worldpay-sap-composable-tests';
 
 class MockActiveCartService {
   updateEntry() {
   }
 
   removeEntry() {
-  }
-}
-
-class MockUserIdService implements Partial<UserIdService> {
-  getUserId(): Observable<string> {
-    return of(mockUserId);
   }
 }
 
@@ -76,11 +71,11 @@ const mockConsignmentItems: ConsignmentEntry[] = [
 ];
 
 const mockCartId = 'test-cart';
-const mockUserId = 'test-user';
 
 @Component({
   template: '',
   selector: '[y-worldpay-cart-item-list-row], y-worldpay-cart-item-list-row',
+  standalone: false
 })
 class MockCartItemComponent {
   @Input() item: any;
@@ -120,16 +115,21 @@ describe('WorldpayCartItemListComponent', () => {
     return TestBed.configureTestingModule({
       imports: [
         ReactiveFormsModule,
-        RouterTestingModule,
+        RouterLink,
         PromotionsModule,
         I18nTestingModule,
         FeaturesConfigModule,
+        OutletModule,
       ],
       declarations: [
         WorldpayCartItemListComponent,
         MockCartItemComponent
       ],
       providers: [
+        {
+          provide: ActivatedRoute,
+          useClass: MockActivatedRoute
+        },
         {
           provide: ActiveCartFacade,
           useClass: MockActiveCartService
@@ -358,6 +358,7 @@ describe('WorldpayCartItemListComponent', () => {
           mockItems[0].entryNumber
         );
       });
+
       it('should update entry of multiCartService when cart input exist', () => {
         component
           .getControl(mockItems[0])
@@ -393,7 +394,7 @@ describe('WorldpayCartItemListComponent', () => {
       expect(component.form.controls[removedObjectEntryName]).toBeUndefined();
     });
 
-    it('should call cartService with an updated entry', () => {
+    it('should call cartService with an updated entry when is save for later', () => {
       component.options.isSaveForLater = true;
       const item = mockItems[0];
       component

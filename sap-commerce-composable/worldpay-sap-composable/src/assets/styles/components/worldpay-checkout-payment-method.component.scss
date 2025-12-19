@@ -1,3 +1,7 @@
-y-worldpay-payment {
+@import "../../../assets/styles/mixins";
+@import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
+@import "@spartacus/checkout/base/styles/components/steps";
+
+y-worldpay-payment-method {
   @extend %cx-payment-method !optional;
 }

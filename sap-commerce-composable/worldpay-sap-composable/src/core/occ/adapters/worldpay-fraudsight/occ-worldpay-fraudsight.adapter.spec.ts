@@ -1,7 +1,7 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ConverterService, OccConfig, OccEndpointsService } from '@spartacus/core';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { OccConfig, OccEndpointsService } from '@spartacus/core';
 import { OccWorldpayFraudsightAdapter } from './occ-worldpay-fraudsight.adapter';
 
 const MockOccModuleConfig: OccConfig = {
@@ -26,12 +26,11 @@ class MockOccEndpointsService {
 describe('OccWorldpayFraudsightAdapter', () => {
   let service: OccWorldpayFraudsightAdapter;
   let httpMock: HttpTestingController;
-  let converter: ConverterService;
   let occEndpointsService: OccEndpointsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, HttpClientTestingModule],
+      imports: [],
       providers: [
         OccWorldpayFraudsightAdapter,
         {
@@ -42,12 +41,13 @@ describe('OccWorldpayFraudsightAdapter', () => {
           provide: OccEndpointsService,
           useClass: MockOccEndpointsService
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ]
     });
 
     service = TestBed.inject(OccWorldpayFraudsightAdapter);
     httpMock = TestBed.inject(HttpTestingController);
-    converter = TestBed.inject(ConverterService);
     occEndpointsService = TestBed.inject(OccEndpointsService);
     spyOn(occEndpointsService, 'buildUrl').and.callThrough();
   });

@@ -23,7 +23,7 @@ export interface Scripts {
 })
 export class LoadScriptService {
 
-  protected logger: LoggerService = inject(LoggerService);
+  private logger: LoggerService = inject(LoggerService);
 
   /**
    * Constructor
@@ -56,8 +56,7 @@ export class LoadScriptService {
   ): void {
     if (this.winRef.isBrowser()) {
       let isFound: boolean = false;
-      // eslint-disable-next-line @typescript-eslint/typedef
-      const scripts = this.winRef.document.getElementsByTagName('script');
+      const scripts: HTMLCollectionOf<HTMLScriptElement> = this.winRef.document.getElementsByTagName('script');
       for (let i: number = 0; i < scripts.length; ++i) {
         if (
           scripts[i].getAttribute('src') != null &&
@@ -69,8 +68,7 @@ export class LoadScriptService {
       }
 
       if (!isFound) {
-        // eslint-disable-next-line @typescript-eslint/typedef
-        let node = this.winRef.document.createElement('script');
+        let node: HTMLScriptElement = this.winRef.document.createElement('script');
         node.src = src;
         node.id = idScript || Math.floor(Math.random() * 999999).toString();
         node.type = 'text/javascript';
@@ -101,8 +99,8 @@ export class LoadScriptService {
    */
   removeScript(idScript: string): void {
     if (this.winRef.isBrowser()) {
-      // eslint-disable-next-line @typescript-eslint/typedef
-      const script = this.winRef.document.querySelector(`script#${idScript}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const script: any = this.winRef.document.querySelector(`script#${idScript}`);
       if (script) {
         script.remove();
       }

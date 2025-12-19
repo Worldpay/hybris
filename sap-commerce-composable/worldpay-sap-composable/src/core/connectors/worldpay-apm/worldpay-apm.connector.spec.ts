@@ -1,19 +1,21 @@
-import { HttpHeaders } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { generateOneAddress } from '@worldpay-tests/fake-data/address.mock';
-import { generateOneApmPaymentDetail } from '@worldpay-tests/fake-data/apm-payment.mock';
-import { generateOneCart } from '@worldpay-tests/fake-data/cart.mock';
-import { generateOrder } from '@worldpay-tests/fake-data/order.mock';
+import { Params } from '@angular/router';
+import { PaymentDetails } from '@spartacus/core';
 import { of, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
+import { generateOrder } from 'worldpay-sap-composable-tests';
+import { generateOneCart } from '../../../tests/fake-data/cart.mock';
 import { ApmData, ApmPaymentDetails, PaymentMethod } from '../../interfaces';
 import { WorldpayApmAdapter } from './worldpay-apm.adapter';
 import { WorldpayApmConnector } from './worldpay-apm.connector';
 import createSpy = jasmine.createSpy;
 
-const userId = 'mockUserId';
-const cartId = 'mockCartId';
-const address = generateOneAddress();
+const mockParams: Params = {
+  pending: 'true',
+  paymentStatus: 'AUTHORISED',
+  orderKey: 'E2Y^MERCHANT2ECOM^00000018-1761730288154',
+};
+
 const drop = new Subject();
 const apms: ApmData[] = [
   {
@@ -32,33 +34,31 @@ const apms: ApmData[] = [
 const order = generateOrder();
 const cart = generateOneCart();
 
-const mockApmPaymentDetails: ApmPaymentDetails = generateOneApmPaymentDetail();
-
-const errorResponse = {
-  error: {
-    errors: [{
-      type: 'test',
-      message: 'Test error message'
-    }]
+const mockPayment: PaymentDetails = {
+  accountHolderName: 'John Smith',
+  cardNumber: '************6206',
+  expiryMonth: '12',
+  expiryYear: '2026',
+  cardType: {
+    name: 'Visa',
   },
-  headers: new HttpHeaders().set('xxx', 'xxx'),
-  status: 500,
-  statusText: 'Request Error',
 };
 
 class MockWorldpayApmAdapter implements WorldpayApmAdapter {
   authoriseApmRedirect = createSpy('WorldpayAdapter.authoriseApmRedirect').and.callFake(() => of(null));
 
-  getAvailableApms = createSpy('WorldpayAdapter.getAvailableApms').and.callFake((userId: string, cartId: string) => of(apms));
+  getAvailableApms = createSpy('WorldpayAdapter.getAvailableApms').and.callFake(() => of(apms));
 
-  setAPMPaymentInfo = createSpy('WorldpayAdapter.setAPMPaymentInfo').and.callFake((userId, cartId, ApmPaymentInfo) => of(cart));
+  setAPMPaymentInfo = createSpy('WorldpayAdapter.setAPMPaymentInfo').and.callFake((userId, cartId, ApmPaymentInfo) => of(ApmPaymentInfo));
 
-  placeBankTransferOrderRedirect = createSpy('WorldpayAdapter.placeBankTransferOrderRedirect').and.callFake((userId: string, cartId: string) => of(order));
+  placeBankTransferOrderRedirect = createSpy('WorldpayAdapter.placeBankTransferOrderRedirect').and.callFake(() => of(null));
 
-  placeRedirectOrder = createSpy('WorldpayAdapter.placeRedirectOrder').and.callFake((userId: string, cartId: string) => of(order));
+  placeRedirectOrder = createSpy('WorldpayAdapter.placeRedirectOrder').and.callFake(() => of(null));
 
   useExistingPaymentDetails = createSpy('WorldpayAdapter.setPaymentAddress').and.callFake((userId, cartId, paymentDetails) =>
-    of(`useExistingPaymentDetails-${userId}-${cartId}-${paymentDetails.cardNumber}-${paymentDetails.cvn}`)
+    of(
+      `useExistingPaymentDetails-${userId}-${cartId}-${paymentDetails.cardNumber}-${paymentDetails.cvn}`
+    )
   );
 }
 
@@ -107,9 +107,9 @@ describe('WorldpayApmConnector', () => {
     let result;
 
     service.useExistingPaymentDetails('userId', 'cartId', {
-        cardNumber: '1234123412341234',
-        cvn: '123'
-      })
+      cardNumber: '1234123412341234',
+      cvn: '123'
+    })
       .pipe(take(1))
       .subscribe(res => {
         (result = res);
@@ -125,7 +125,8 @@ describe('WorldpayApmConnector', () => {
   it('should call the placeRedirectOrder adapter', (doneFn) => {
     let result;
 
-    service.placeOrderRedirect('userId', 'cartId')
+    adapter.placeRedirectOrder = createSpy('WorldpayAdapter.placeRedirectOrder').and.callFake(() => of(order));
+    service.placeOrderRedirect('userId', 'cartId', mockParams)
       .pipe(take(1))
       .subscribe(res => {
         result = res;
@@ -138,6 +139,7 @@ describe('WorldpayApmConnector', () => {
 
   it('should call the placeBankTransferOrderRedirect adapter', (doneFn) => {
     let result;
+    adapter.placeBankTransferOrderRedirect = createSpy('WorldpayAdapter.placeBankTransferOrderRedirect').and.callFake(() => of(order));
 
     service.placeBankTransferOrderRedirect('userId', 'cartId', order.code)
       .pipe(take(1))
@@ -147,13 +149,13 @@ describe('WorldpayApmConnector', () => {
       })
       .unsubscribe();
 
-    expect(result).toBe(order);
+    expect(result).toEqual(order);
   });
 
   it('should call the setAPMPaymentInfo adapter', (doneFn) => {
     let result;
-
-    service.setAPMPaymentInfo('userId', 'cartId', mockApmPaymentDetails)
+    adapter.setAPMPaymentInfo = createSpy('WorldpayAdapter.setAPMPaymentInfo').and.callFake(() => of(cart));
+    service.setAPMPaymentInfo('userId', 'cartId', mockPayment)
       .pipe(take(1))
       .subscribe(res => {
         result = res;
