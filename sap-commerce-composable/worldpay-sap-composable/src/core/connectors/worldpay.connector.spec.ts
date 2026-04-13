@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { DaysOfWeek, ScheduleReplenishmentForm } from '@spartacus/order/root';
 import { of } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { BrowserInfo } from '../interfaces';
@@ -17,7 +18,12 @@ const browserInfo: BrowserInfo = {
   javascriptEnabled: true
 };
 
-class MockWorldpayAdapter implements WorldpayAdapter {
+const scheduleReplenishmentForm: ScheduleReplenishmentForm = {
+  daysOfWeek: [DaysOfWeek.MONDAY],
+  replenishmentStartDate: '2025-01-01',
+};
+
+class MockWorldpayAdapter implements Partial<WorldpayAdapter> {
   useExistingPaymentDetails = createSpy('useExistingPaymentDetails');
   getPublicKey = createSpy('getPublicKey').and.callFake(() => of('publickey'));
   setPaymentAddress = createSpy('setPaymentAddress').and.callFake((userId, cartId, address) =>
@@ -38,6 +44,17 @@ class MockWorldpayAdapter implements WorldpayAdapter {
       postalCode: 'ZZ99ZZ'
     })
   );
+
+  placeOrder = createSpy('OrderAdapter.placeOrder').and.callFake(
+    (userId: string, cartId: string, termsChecked: boolean) =>
+      of(`placedOrder-${userId}-${cartId}-${termsChecked}`)
+  );
+  placePaymentAuthorizedOrder = createSpy(
+    'OrderAdapter.placePaymentAuthorizedOrder'
+  ).and.callFake((userId: string, cartId: string, termsChecked: boolean) =>
+    of(`placePaymentAuthorizedOrder-${userId}-${cartId}-${termsChecked}`)
+  );
+
 }
 
 describe('WorldpayConnector', () => {
@@ -123,7 +140,8 @@ describe('WorldpayConnector', () => {
         timeZone: '-60',
         userAgent: 'UA',
         javascriptEnabled: true
-      }
+      },
+      scheduleReplenishmentForm,
     ).subscribe(() => {
       expect(adapter.initialPaymentRequest).toHaveBeenCalledWith(
         'userId',
@@ -134,7 +152,8 @@ describe('WorldpayConnector', () => {
         'cse-token',
         true,
         'device-session',
-        jasmine.any(Object)
+        jasmine.any(Object),
+        scheduleReplenishmentForm
       );
       done();
     });
@@ -176,28 +195,52 @@ describe('WorldpayConnector', () => {
         'cse-token',
         true,
         deviceSession,
-        browserInfo
-      )
-        .subscribe(() => {
-          expect(adapter.initialPaymentRequest).toHaveBeenCalledWith(
-            'userId',
-            'cartId',
-            {
-              cardNumber: '1234123412341234',
-              cvn: '123',
-              dateOfBirth: '2020-01-01',
-            },
-            'ref',
-            '500x500',
-            'cse-token',
-            true,
-            deviceSession,
-            browserInfo
-          );
+        browserInfo,
+        scheduleReplenishmentForm
+      ).subscribe(() => {
+        expect(adapter.initialPaymentRequest).toHaveBeenCalledWith(
+          'userId',
+          'cartId',
+          {
+            cardNumber: '1234123412341234',
+            cvn: '123',
+            dateOfBirth: '2020-01-01',
+          },
+          'ref',
+          '500x500',
+          'cse-token',
+          true,
+          deviceSession,
+          browserInfo,
+          scheduleReplenishmentForm
+        );
 
-          done();
-        });
+        done();
+      });
     });
+  });
+
+  it('placeOrder should call adapter', () => {
+    let result;
+    service.placeOrder('user1', 'cart1', true)
+      .pipe(take(1))
+      .subscribe((res) => (result = res));
+    expect(result).toBe('placedOrder-user1-cart1-true');
+    expect(adapter.placeOrder).toHaveBeenCalledWith('user1', 'cart1', true);
+  });
+
+  it('placePaymentAuthorizedOrder should call adapter', () => {
+    let result;
+    service
+      .placePaymentAuthorizedOrder('user1', 'cart1', true)
+      .pipe(take(1))
+      .subscribe((res) => (result = res));
+    expect(result).toBe('placePaymentAuthorizedOrder-user1-cart1-true');
+    expect(adapter.placePaymentAuthorizedOrder).toHaveBeenCalledWith(
+      'user1',
+      'cart1',
+      true
+    );
   });
 });
 

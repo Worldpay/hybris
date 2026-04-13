@@ -19,9 +19,6 @@ import {
 } from '@spartacus/core';
 import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, LaunchDialogService, NgSelectA11yModule, } from '@spartacus/storefront';
 import { BehaviorSubject, EMPTY, of } from 'rxjs';
-import { WorldpayPaymentFormComponent } from 'worldpay-sap-composable-components';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayBillingAddressFormService, WorldpayFraudsightService } from 'worldpay-sap-composable-services';
 import {
   MockCxCardComponent,
   MockCxIconComponent,
@@ -33,6 +30,8 @@ import {
   MockWorldpayConnector,
   MockWorldpayFraudsightService
 } from 'worldpay-sap-composable-tests';
+import { WorldpayBillingAddressFormService, WorldpayConnector, WorldpayFraudsightService } from '../../../../core';
+import { WorldpayPaymentFormComponent } from './worldpay-payment-form.component';
 import createSpy = jasmine.createSpy;
 
 const mockBillingCountries: Country[] = [
@@ -87,8 +86,7 @@ class MockCheckoutPaymentService implements Partial<CheckoutPaymentFacade> {
   );
 }
 
-class MockCheckoutDeliveryService
-implements Partial<CheckoutDeliveryAddressFacade> {
+class MockCheckoutDeliveryService implements Partial<CheckoutDeliveryAddressFacade> {
   getDeliveryAddressState = createSpy().and.returnValue(
     of({
       loading: false,
@@ -185,11 +183,9 @@ describe('WorldpayPaymentFormComponent', () => {
         },
         LoggerService
       ],
-    })
-      .overrideComponent(WorldpayPaymentFormComponent, {
-        set: { changeDetection: ChangeDetectionStrategy.Default },
-      })
-      .compileComponents();
+    }).overrideComponent(WorldpayPaymentFormComponent, {
+      set: { changeDetection: ChangeDetectionStrategy.Default },
+    }).compileComponents();
   }));
 
   beforeEach(() => {

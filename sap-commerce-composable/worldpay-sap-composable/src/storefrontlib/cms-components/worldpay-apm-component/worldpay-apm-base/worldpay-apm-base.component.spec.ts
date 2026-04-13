@@ -3,9 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Address, LoggerService, PaymentDetails } from '@spartacus/core';
 import { of } from 'rxjs';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
 import { MockWorldpayConnector } from 'worldpay-sap-composable-tests';
+import { WorldpayBillingAddressFormService, WorldpayConnector } from '../../../../core';
 
 import { WorldpayApmBaseComponent } from './worldpay-apm-base.component';
 import SpyObj = jasmine.SpyObj;
@@ -34,8 +33,7 @@ describe('WorldpayApmBaseComponent', () => {
         },
         LoggerService
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TestApmComponent);
     component = fixture.componentInstance;

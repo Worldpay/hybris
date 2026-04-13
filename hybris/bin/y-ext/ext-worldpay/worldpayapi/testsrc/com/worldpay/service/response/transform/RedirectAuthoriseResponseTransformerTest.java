@@ -1,27 +1,32 @@
 package com.worldpay.service.response.transform;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.Error;
-import com.worldpay.internal.model.*;
-import com.worldpay.data.token.TokenReply;
-import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
-import com.worldpay.service.response.ServiceResponse;
-import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.worldpay.data.token.TokenReply;
+import com.worldpay.exception.WorldpayModelTransformationException;
+import com.worldpay.internal.model.BankAccount;
+import com.worldpay.internal.model.Error;
+import com.worldpay.internal.model.OrderStatus;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.Reference;
+import com.worldpay.internal.model.Reply;
+import com.worldpay.internal.model.Submit;
+import com.worldpay.internal.model.Token;
+import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
+import com.worldpay.service.response.ServiceResponse;
+import de.hybris.bootstrap.annotations.UnitTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -34,10 +39,6 @@ public class RedirectAuthoriseResponseTransformerTest {
     private static final String ERROR_CODE = "errorCode";
     private static final String ERROR_DETAIL = "errorDetail";
     private static final String ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE = "Reply has no reply message or the reply type is not the expected one";
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
 
     @InjectMocks
     private RedirectAuthoriseResponseTransformer testObj;
@@ -55,11 +56,11 @@ public class RedirectAuthoriseResponseTransformerTest {
         final Reply paymentReply = new Reply();
         responseType.add(paymentReply);
 
-        final List<Object> statusElements = paymentReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
+        final List<Object> statusElements = paymentReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus intOrderStatus = new OrderStatus();
         intOrderStatus.setOrderCode(ORDER_CODE);
 
-        final List<Object> referenceElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
+        final List<Object> referenceElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
 
         final Reference reference = new Reference();
         reference.setId(REFERENCE_ID);
@@ -84,24 +85,25 @@ public class RedirectAuthoriseResponseTransformerTest {
 
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenResponseTypeIsNull() throws WorldpayModelTransformationException {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         final PaymentService paymentServiceReply = new PaymentService();
         final List<Object> responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         responseType.add(null);
 
-        testObj.transform(paymentServiceReply);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceReply))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
+
     }
 
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenResponseTypeIsNotReply() throws WorldpayModelTransformationException {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         final PaymentService paymentServiceReply = new PaymentService();
         final List<Object> responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         responseType.add(new Submit());
 
-        testObj.transform(paymentServiceReply);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceReply))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
     }
 
     @Test
@@ -109,7 +111,7 @@ public class RedirectAuthoriseResponseTransformerTest {
         final PaymentService paymentServiceReply = new PaymentService();
         final List<Object> responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         final Reply reply = new Reply();
-        final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
+        final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Error intError = new Error();
         intError.setCode(ERROR_CODE);
         intError.setvalue(ERROR_DETAIL);
@@ -125,33 +127,32 @@ public class RedirectAuthoriseResponseTransformerTest {
 
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenOrderStatusIsNull() throws WorldpayModelTransformationException {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("No order status returned in Worldpay reply message");
         final PaymentService paymentServiceReply = new PaymentService();
         final List<Object> responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         final Reply reply = new Reply();
-        final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
+        final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         replyElements.add(null);
         responseType.add(reply);
 
-        testObj.transform(paymentServiceReply);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceReply))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage("No order status returned in Worldpay reply message");
     }
 
     @Test
     public void shouldThrowWorldpayModelTransformationExceptionWhenOrderStatusTypeIsNotReference() throws WorldpayModelTransformationException {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("Order status type returned in Worldpay reply message is not one of the expected types for redirect authorise");
         final PaymentService paymentServiceReply = new PaymentService();
         final List<Object> responseType = paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         final Reply reply = new Reply();
-        final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
+        final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final OrderStatus orderStatus = new OrderStatus();
-        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
+        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
         orderStatusElements.add(new BankAccount());
         replyElements.add(orderStatus);
         responseType.add(reply);
 
-        testObj.transform(paymentServiceReply);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceReply))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage("Order status type returned in Worldpay reply message is not one of the expected types for redirect authorise");
     }
-
 }

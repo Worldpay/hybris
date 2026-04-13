@@ -1,5 +1,21 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyList;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.enums.AchDirectDebitAccountType;
@@ -17,7 +33,6 @@ import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadc
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractCheckoutController;
-import de.hybris.platform.cms2.data.PagePreviewCriteriaData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
@@ -25,7 +40,6 @@ import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CardTypeData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
-import de.hybris.platform.commerceservices.constants.GeneratedCommerceServicesConstants;
 import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.core.model.enumeration.EnumerationValueModel;
@@ -42,46 +56,31 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.Resource;
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.PAYMENT_METHOD_STEP_NAME;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController.CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB;
-import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
-import static java.util.Collections.emptyList;
-import static org.junit.Assert.*;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
-    private static final String HAS_NO_PAYMENT_INFO = "hasNoPaymentInfo";
-    private static final String NOINDEX_NOFOLLOW = "noindex,nofollow";
-    private static final String META_ROBOTS = "metaRobots";
-    private static final String CMS_PAGE_KEY = "cmsPage";
-    private static final String RESOLVED_PAGE_TITLE = "resolvedPageTitle";
-    private static final String CHECKOUT_GROUP = "checkoutGroup";
-    private static final String EXPIRY_YEAR = "expiryYear";
-    private static final String EXPIRY_MONTH = "expiryMonth";
-    private static final String CARD_HOLDER_NAME = "cardHolderName";
-    private static final String REFERENCE_ID = "referenceId";
-    private static final String WINDOW_SIZE = "windowSize";
-    private static final String CHALLENGE_PREFERENCE = "challengePreference";
-    private static final String CORPORATE = "CORPORATE";
     private static final String SAVINGS = "SAVINGS";
+    private static final String CORPORATE = "CORPORATE";
+    private static final String CMS_PAGE_KEY = "cmsPage";
+    private static final String EXPIRY_YEAR = "expiryYear";
+    private static final String META_ROBOTS = "metaRobots";
+    private static final String WINDOW_SIZE = "windowSize";
+    private static final String EXPIRY_MONTH = "expiryMonth";
+    private static final String REFERENCE_ID = "referenceId";
+    private static final String BREADCRUMBS_KEY = "breadcrumbs";
+    private static final String CHECKOUT_GROUP = "checkoutGroup";
+    private static final String CARD_HOLDER_NAME = "cardHolderName";
+    private static final String NOINDEX_NOFOLLOW = "noindex,nofollow";
+    private static final String HAS_NO_PAYMENT_INFO = "hasNoPaymentInfo";
+    private static final String CHALLENGE_PREFERENCE = "challengePreference";
+    private static final String PAYMENT_METHOD_STEP_NAME = "payment-method";
+    private static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
+    private static final String WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL = "worldpayPaymentAndBillingCheckoutStep";
 
     private final List<CountryData> billingCountries = emptyList();
     private final List<CardTypeData> supportedCardTypes = emptyList();
     private final List<Breadcrumb> breadcrumbs = Collections.emptyList();
-    private final List<CountryData> deliveryCountries = Collections.emptyList();
     private final Model model = new ExtendedModelMap();
 
     @InjectMocks

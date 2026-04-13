@@ -15,4 +15,12 @@ public interface WorldpayAPMComponentService {
      * @return a list with all available WorldpayAPMComponentModel.
      */
     List<WorldpayAPMComponentModel> getAllAvailableWorldpayAPMComponents();
+
+    /**
+     * Get {@link WorldpayAPMComponentModel}.
+     *
+     * @param apmCode apm code.
+     * @return {@link WorldpayAPMComponentModel}.
+     */
+    WorldpayAPMComponentModel getWorldpayAPMComponentByCode(final String apmCode);
 }

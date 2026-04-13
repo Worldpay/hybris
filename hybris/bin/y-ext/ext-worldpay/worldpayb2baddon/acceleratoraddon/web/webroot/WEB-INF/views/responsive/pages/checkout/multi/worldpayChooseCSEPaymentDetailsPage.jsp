@@ -40,9 +40,17 @@
                                                action="${addPaymentAddressUrl}" class="create_update_payment_form">
 
                                         <wp-multi-checkout:paymentButtons cse="true"/>
+                                        <sec:authorize access="!hasAnyRole('ROLE_ANONYMOUS')">
+                                            <div class="save_payment_details hidden">
+                                                <form:checkbox id="SaveDetails" path="saveInAccount" tabindex="19"/>
+                                                <label for="SaveDetails"><spring:theme
+                                                        code="checkout.multi.paymentMethod.addPaymentDetails.savePaymentDetailsInAccount"/></label>
+                                            </div>
+                                        </sec:authorize>
 
                                         <form:input type="hidden" id="dateOfBirthRequired" path="dobRequired" value="false"/>
                                         <wp-multi-checkout:bankSelect/>
+                                        <wp-multi-checkout:ach/>
                                         <wp-multi-checkout:billingAddress/>
                                         <div class="form-additionals">
                                         </div>
@@ -52,7 +60,8 @@
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button class="btn btn-primary btn-block submit_worldpayCSEForm checkout-next" tabindex="20">
+                            <button class="btn btn-primary btn-block submit_worldpayCSEForm checkout-next" tabindex="20"
+                                    id="worldpay-pay-button">
                                 <spring:theme code="checkout.multi.paymentMethod.continue" />
                             </button>
                         </div>

@@ -19,9 +19,9 @@ import {
 import { OrderFacade } from '@spartacus/order/root';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayApplepayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayApplepayFacade } from 'worldpay-sap-composable-facade';
-import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events/applepay.events';
+import { WorldpayApplepayConnector } from '../../connectors';
+import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events';
+import { WorldpayApplepayFacade } from '../../facade';
 import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
 import { createApplePaySession } from './worldpay-applepay-session';
 

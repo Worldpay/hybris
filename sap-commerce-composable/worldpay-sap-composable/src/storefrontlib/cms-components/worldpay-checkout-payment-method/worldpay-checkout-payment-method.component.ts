@@ -7,27 +7,37 @@ import { CheckoutPaymentMethodComponent, CheckoutStepService } from '@spartacus/
 import { CheckoutDeliveryAddressFacade, CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
 import { Address, getLastValueSync, GlobalMessageService, GlobalMessageType, PaymentDetails, TranslationService, UserPaymentService } from '@spartacus/core';
 import { Card } from '@spartacus/storefront';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
-import { ApmNormalizer } from 'worldpay-sap-composable-normalizers';
-import { WorldpayApmService, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService } from 'worldpay-sap-composable-services';
-import { ApmData, ApmPaymentDetails, PaymentFormData, PaymentMethod, WorldpayApmPaymentInfo } from 'worldpay-sap-core';
+import { BehaviorSubject, combineLatest, Observable, startWith } from 'rxjs';
+import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
+import {
+  ApmData,
+  ApmNormalizer,
+  ApmPaymentDetails,
+  createCreditCardCard,
+  PaymentFormData,
+  PaymentMethod,
+  WorldpayApmPaymentInfo,
+  WorldpayApmService,
+  WorldpayBillingAddressFormService,
+  WorldpayCard,
+  WorldpayCheckoutPaymentService,
+  worldpayGetCardIcon
+} from '../../../core';
 
 @Component({
   selector: 'y-worldpay-payment-method',
   templateUrl: './worldpay-checkout-payment-method.component.html',
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  standalone: false,
 })
 export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMethodComponent implements OnInit, OnDestroy {
   @HostBinding('class.d-none') hidden: boolean = false;
   apms$: Observable<ApmData[]> = this.worldpayApmService.getWorldpayAvailableApms();
   shouldRedirect: boolean;
-
   cvnForm: UntypedFormGroup = this.fb.group({
     cvn: [null, [Validators.required, Validators.minLength(3)]]
   });
-  selectedPayment$: BehaviorSubject<PaymentDetails> = this.worldpayApmService.selectedApm$;
+  selectedPayment$: BehaviorSubject<ApmPaymentDetails> = this.worldpayApmService.selectedApm$;
   isCardPayment: boolean;
   public processing$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   protected apmNormalizer: ApmNormalizer = inject(ApmNormalizer);
@@ -117,7 +127,10 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
     this.busy$.next(true);
     this.shouldRedirect = true;
 
-    const details: PaymentDetails = { ...paymentDetails };
+    const details: PaymentDetails = {
+      ...paymentDetails,
+      saved: paymentDetails.save
+    };
     details.billingAddress = billingAddress || this.deliveryAddress;
 
     this.checkoutPaymentFacade.createPaymentDetails(details)
@@ -131,16 +144,13 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
           }
           this.checkoutPaymentFacade.setSaveCreditCardValue(details.save);
           this.checkoutPaymentFacade.setSaveAsDefaultCardValue(details.defaultPayment);
+          this.hideNewPaymentForm();
+          this.next();
         },
         error: (): void => {
           this.globalMessageService.add({ key: 'paymentForm.invalid.applicationError' }, GlobalMessageType.MSG_TYPE_ERROR);
           this.onError();
         },
-        complete: (): void => {
-          // we don't call onSuccess here, because it can cause a spinner flickering
-          this.hideNewPaymentForm();
-          this.next();
-        }
       });
   }
 
@@ -158,7 +168,9 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
     }
     this.checkoutPaymentFacade.setSaveAsDefaultCardValue(paymentDetails.defaultPayment);
 
-    this.worldpayBillingAddressFormService.updateSameAsDeliveryAddressFormData(paymentDetails.billingAddress, this.deliveryAddress);
+    if (paymentDetails.billingAddress) {
+      this.worldpayBillingAddressFormService.updateSameAsDeliveryAddressFormData(paymentDetails.billingAddress, this.deliveryAddress);
+    }
 
     this.worldpayApmService.selectAPM(paymentDetails);
   }
@@ -171,8 +183,9 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
    * @since 6.4.0
    */
   override selectPaymentMethod(paymentDetails: WorldpayApmPaymentInfo): void {
+    const normalizedPaymentDetails: ApmPaymentDetails = this.apmNormalizer.normalizeApmData(paymentDetails);
     const details: WorldpayApmPaymentInfo = {
-      ...paymentDetails,
+      ...normalizedPaymentDetails,
       cvn: this.cvnForm.value.cvn
     };
 
@@ -272,6 +285,44 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
     }
   }
 
+  disableContinueButton(): Observable<boolean> {
+    return combineLatest([
+      this.worldpayApmService.getWorldpayAvailableApms(),
+      this.selectedMethod$,
+      this.selectedPayment$,
+      this.isUpdating$,
+      this.cvnForm.valueChanges.pipe(
+        startWith(this.cvnForm.value),
+      )
+    ]).pipe(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+      map(([availableApms, selectedMethod, selectedPayment, isUpdating, _cvnFormValue]: [ApmData[], ApmPaymentDetails, ApmPaymentDetails, boolean, any]): boolean => {
+        const selectedMethodCode: string = selectedMethod?.code?.toLowerCase();
+        const selectedPaymentCode: string = selectedPayment?.code?.toLowerCase();
+        const creditCardCode: string = PaymentMethod.Card.toLowerCase();
+        const isSelectedMethodAvailable: boolean = !selectedMethodCode || selectedMethodCode === creditCardCode ||
+                                                   availableApms?.some((apm: ApmData): boolean => apm?.code?.toLowerCase() === selectedMethodCode);
+
+        if (isUpdating) {
+          return true;
+        }
+
+        if (!isSelectedMethodAvailable) {
+          return true;
+        }
+
+        if (
+          (selectedMethodCode === creditCardCode || selectedPaymentCode === creditCardCode) &&
+          selectedMethod?.isAPM !== true
+        ) {
+          return !this.cvnForm.valid;
+        }
+
+        return !(selectedMethodCode || selectedPaymentCode);
+      })
+    );
+  }
+
   /**
    * Create card
    * @since 4.3.6
@@ -280,27 +331,28 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
    * @param selected
    */
   protected override createCard(
-    paymentDetails: PaymentDetails,
+    paymentDetails: WorldpayApmPaymentInfo,
     cardLabels: {
       textDefaultPaymentMethod: string;
       textExpires: string;
       textUseThisPayment: string;
       textSelected: string;
     },
-    selected: PaymentDetails
+    selected: WorldpayApmPaymentInfo
   ): Card {
+    const paymentMethodCard: WorldpayCard = createCreditCardCard(paymentDetails, cardLabels.textExpires);
+
     return {
       role: 'region',
       title: paymentDetails.defaultPayment ? cardLabels.textDefaultPaymentMethod : '',
-      textBold: paymentDetails.accountHolderName,
-      text: [paymentDetails.cardNumber, cardLabels.textExpires],
-      img: this.getCardIcon(paymentDetails?.cardType?.code),
       actions: [{
         name: cardLabels.textUseThisPayment,
         event: 'send'
       }],
+      img: this.getCardIcon(paymentDetails?.cardType?.code ?? ''),
       header: selected?.id === paymentDetails.id ? cardLabels.textSelected : undefined,
       label: paymentDetails.defaultPayment ? 'paymentCard.defaultPaymentLabel' : 'paymentCard.additionalPaymentLabel',
+      ...paymentMethodCard,
     };
   }
 
@@ -320,7 +372,7 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
     ])
       .pipe(
         filter(([apms, selectedApm]: [ApmData[], ApmPaymentDetails]): boolean =>
-          !!apms && apms.length > 0 &&
+          !!apms &&
           !!selectedApm &&
           selectedApm.code !== PaymentMethod.Card &&
           selectedApm.code !== PaymentMethod.ApplePay &&
@@ -345,5 +397,9 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
           this.globalMessageService.add({ raw: error as string }, GlobalMessageType.MSG_TYPE_ERROR);
         }
       });
+  }
+
+  protected override getCardIcon(code: string): string {
+    return worldpayGetCardIcon(code);
   }
 }

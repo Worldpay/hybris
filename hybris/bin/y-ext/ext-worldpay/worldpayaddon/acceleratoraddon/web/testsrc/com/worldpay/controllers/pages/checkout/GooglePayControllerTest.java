@@ -6,6 +6,7 @@ import com.worldpay.data.GooglePayAuthorisationRequest;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
+import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.i18n.I18NFacade;
 import de.hybris.platform.commercefacades.user.UserFacade;
@@ -15,13 +16,11 @@ import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.order.InvalidCartException;
+import de.hybris.platform.servicelayer.session.SessionService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
@@ -31,6 +30,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class GooglePayControllerTest {
 
+    @Spy
     @InjectMocks
     private GooglePayController testObj;
 
@@ -44,6 +44,8 @@ public class GooglePayControllerTest {
     private UserFacade userFacadeMock;
     @Mock
     private I18NFacade i18NFacadeMock;
+    @Mock
+    private SessionService sessionServiceMock;
 
     @Mock
     private CustomerModel customer;
@@ -75,6 +77,8 @@ public class GooglePayControllerTest {
 
         authorisationRequest.setBillingAddress(billingAddress);
 
+        when(testObj.callSuperGetSessionService()).thenReturn(sessionServiceMock);
+
         testObj.authoriseOrder(authorisationRequest);
 
         verify(i18NFacadeMock).getCountryForIsocode("ES");
@@ -82,6 +86,7 @@ public class GooglePayControllerTest {
         verify(userFacadeMock).addAddress(any(AddressData.class));
         verify(worldpayDirectOrderFacadeMock).authoriseGooglePayDirect(authorisationRequest.getToken());
         verify(worldpayPaymentCheckoutFacadeMock).setBillingDetails(any(AddressData.class));
+        verify(sessionServiceMock).setAttribute("paymentMethod", PaymentType.PAYWITHGOOGLESSL.getMethodCode());
         assertTrue(token.getSaveCard());
     }
 

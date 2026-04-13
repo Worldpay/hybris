@@ -1,14 +1,40 @@
 package com.worldpay.transaction.impl;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
+import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.PROCESSOR_DECLINE;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CANCEL;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
-import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
-import com.worldpay.model.WorldpayAavResponseModel;
-import com.worldpay.model.WorldpayBankConfigurationModel;
-import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.data.Amount;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.RiskScore;
+import com.worldpay.model.WorldpayAavResponseModel;
+import com.worldpay.model.WorldpayBankConfigurationModel;
+import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.payment.WorldpayExemptionStrategy;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
@@ -37,19 +63,6 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.math.BigDecimal;
-import java.util.*;
-
-import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
-import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.PROCESSOR_DECLINE;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayPaymentTransactionServiceTest {
@@ -63,8 +76,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String TRANSACTION_ENTRY_CODE = "transactionEntryCode";
     private static final String BANK_CODE = "ING";
-
-    private final Currency currency = Currency.getInstance(Locale.UK);
 
     @Spy
     @InjectMocks
@@ -88,7 +99,7 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private WorldpayExemptionStrategy worldpayExemptionStrategyMock;
 
     @Mock
-    private PaymentTransactionEntryModel authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndAcceptedAndPendingEntryMock, authorisedAndRejectedAndPendingEntryMock, pendingCaptureEntryMock, pendingCancelEntryMock;
+    private PaymentTransactionEntryModel authorisedAndAcceptedAndNotPendingEntryMock, authorisedAndAcceptedAndPendingEntryMock, authorisedAndRejectedAndPendingEntryMock, pendingCaptureEntryMock;
     @Mock
     private PaymentTransactionEntryModel capturedEntryMock;
     @Mock
@@ -105,8 +116,6 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
     private PaymentInfoModel paymentInfoModelMock;
     @Mock
     private PaymentTransactionModel notApmOpenPaymentTransactionModelMock, apmOpenPaymentTransactionModelMock, paymentTransactionModelMock;
-    @Mock
-    private RedirectAuthoriseResult redirectAuthoriseResultMock;
     @Mock
     private PaymentReply paymentReplyMock;
     @Mock
@@ -174,8 +183,8 @@ public class DefaultWorldpayPaymentTransactionServiceTest {
         when(worldpayPaymentTransactionUtilsMock.getCurrencyFromAmount(amountMock)).thenReturn(currencyModelMock);
         when(worldpayPaymentTransactionUtilsMock.getAuthoriseAmountToleranceFromConfig()).thenReturn(0.01);
         when(worldpayPaymentTransactionUtilsMock.getPaymentTransactionDependency()).thenReturn(Map.of(
-            CAPTURE, AUTHORIZATION,
-            SETTLED, CAPTURE
+                CAPTURE, AUTHORIZATION,
+                SETTLED, CAPTURE
         ));
     }
 

@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { UntypedFormGroup, Validators } from '@angular/forms';
-import { makeFormErrorsVisible } from 'worldpay-sap-composable-utils';
-import { ApmPaymentDetails, IdealFormValue, PaymentMethod } from 'worldpay-sap-core';
+import { ApmPaymentDetails, IdealFormValue, makeFormErrorsVisible, PaymentMethod } from '../../../../core';
 import { WorldpayApmBaseComponent } from '../worldpay-apm-base/worldpay-apm-base.component';
 
 @Component({
@@ -14,8 +13,8 @@ export class WorldpayApmIdealComponent extends WorldpayApmBaseComponent {
   /**
    * Form group for iDEAL payment details.
    * @since 6.4.2
-   * @property {FormGroup} bank - Nested form group for bank details.
-   * @property {FormControl} code - Form control for bank code.
+   * @property {UntypedFormGroup} bank - Nested form group for bank details.
+   * @property {UntypedFormGroup} code - Form control for bank code.
    */
   idealForm: UntypedFormGroup = this.fb.group({
     bank: this.fb.group({ code: [null] }),

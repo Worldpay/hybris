@@ -1,11 +1,10 @@
+import { CdkAccordionModule } from '@angular/cdk/accordion';
 import { Component, DebugElement, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Address, I18nTestingModule, LoggerService, MockTranslatePipe } from '@spartacus/core';
 import { LaunchDialogService } from '@spartacus/storefront';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayApmService, WorldpayApplepayService, WorldpayGooglepayService } from 'worldpay-sap-composable-services';
 import {
   MockCxSpinnerComponent,
   MockLaunchDialogService,
@@ -13,8 +12,19 @@ import {
   MockWorldpayBillingAddressComponent,
   MockWorldpayConnector
 } from 'worldpay-sap-composable-tests';
-import { ApmData, ApmPaymentDetails, GooglePayMerchantConfiguration, PaymentMethod } from 'worldpay-sap-core';
-import { WorldpayBillingAddressFormService, WorldpayOrderService } from '../../../core/services';
+import {
+  ApmData,
+  ApmPaymentDetails,
+  GooglePayMerchantConfiguration,
+  PaymentMethod,
+  WorldpayApmService,
+  WorldpayApplepayService,
+  WorldpayBillingAddressFormService,
+  WorldpayConnector,
+  WorldpayGooglepayService,
+  WorldpayOrderService
+} from '../../../core';
+import { MockWorldpayApmSepaComponent } from '../../../tests/components/worldpay-apm-sepa.component.mock';
 import { WorldpayApmSubmitButtonsComponent } from './worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmComponent } from './worldpay-apm.component';
 
@@ -58,7 +68,7 @@ describe('WorldpayApmComponent', () => {
   let component: WorldpayApmComponent;
   let fixture: ComponentFixture<WorldpayApmComponent>;
   let element: DebugElement;
-  let worldpayApmService;
+  let worldpayApmService: WorldpayApmService;
   let logger: LoggerService;
   const apm = {
     code: PaymentMethod.Card,
@@ -66,11 +76,14 @@ describe('WorldpayApmComponent', () => {
   };
   const apmSubject = new BehaviorSubject<ApmData>(apm);
   const apms = [
-    { code: PaymentMethod.iDeal },
-    { code: PaymentMethod.PayPal },
+    { code: PaymentMethod.Card },
+    { code: PaymentMethod.ACH },
     { code: PaymentMethod.ApplePay },
     { code: PaymentMethod.GooglePay },
-    { code: PaymentMethod.ACH },
+    { code: PaymentMethod.iDeal },
+    { code: PaymentMethod.SepaDirectDebit },
+    { code: PaymentMethod.PayPal },
+    { code: PaymentMethod.KlarnaSSL },
   ];
 
   const merchantConfig: GooglePayMerchantConfiguration = {
@@ -91,7 +104,7 @@ describe('WorldpayApmComponent', () => {
       return apmSubject;
     }
 
-    getWorldpayAvailableApmsFromState(): Observable<ApmData[]> {
+    getWorldpayAvailableApms(): Observable<ApmData[]> {
       return of(apms);
     }
 
@@ -127,7 +140,10 @@ describe('WorldpayApmComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [I18nTestingModule],
+      imports: [
+        I18nTestingModule,
+        CdkAccordionModule
+      ],
       declarations: [
         WorldpayApmComponent,
         MockTranslatePipe,
@@ -139,6 +155,7 @@ describe('WorldpayApmComponent', () => {
         MockWorldpayApplePayComponent,
         MockWorldpayAPMACHComponent,
         WorldpayApmSubmitButtonsComponent,
+        MockWorldpayApmSepaComponent,
       ],
       providers: [
         {
@@ -177,6 +194,7 @@ describe('WorldpayApmComponent', () => {
     element = fixture.debugElement;
     logger = TestBed.inject(LoggerService);
     worldpayApmService = TestBed.inject(WorldpayApmService);
+    component.apms = worldpayApmService.getWorldpayAvailableApms();
     apmSubject.next({
       code: PaymentMethod.Card
     });
@@ -270,33 +288,101 @@ describe('WorldpayApmComponent', () => {
   });
 
   it('should trigger back functionality when an APM is selected', (done) => {
+    const selectedApm = PaymentMethod.PayPal;
     // @ts-ignore
     spyOn(component, 'return').and.callThrough();
     apmSubject.next({
-      code: 'KlARNA-SL'
+      code: selectedApm
     });
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      const backButton = fixture.debugElement.query(By.css('.btn-back'));
-      expect(backButton).toBeTruthy();
-      backButton.nativeElement.click();
+      const headerButton = fixture.debugElement.query(By.css('#accordion-header-' + selectedApm));
+      headerButton.nativeElement.click();
+      const apmSubmitButtons = fixture.debugElement.query(By.css('.btn-back'));
+      expect(apmSubmitButtons).toBeTruthy();
+      apmSubmitButtons.nativeElement.click();
       expect(component['return']).toHaveBeenCalled();
       done();
     }).catch(done.fail);
   });
 
   it('should hide back button when card payment method is selected', (done) => {
+    const selectedApm = PaymentMethod.Card;
     // @ts-ignore
     spyOn(component, 'return').and.callThrough();
     apmSubject.next({
-      code: PaymentMethod.Card
+      code: selectedApm
     });
     fixture.detectChanges();
     fixture.whenStable().then(() => {
-      const backButton = fixture.debugElement.query(By.css('.btn-back'));
-      expect(backButton).toBeFalsy();
+      const apmSubmitButtons = fixture.debugElement.query(By.css('.btn-back'));
+      expect(apmSubmitButtons).toBeFalsy();
       done();
     }).catch(done.fail);
+  });
+
+  describe('show apm collapsible content', () => {
+    const availableApms = [
+      {
+        code: PaymentMethod.Card,
+        apmSubmitButtons: false
+      },
+      {
+        code: PaymentMethod.ACH,
+        apmSubmitButtons: false
+      },
+      {
+        code: PaymentMethod.ApplePay,
+        apmSubmitButtons: false
+      },
+      {
+        code: PaymentMethod.GooglePay,
+        apmSubmitButtons: false
+      },
+      {
+        code: PaymentMethod.iDeal,
+        apmSubmitButtons: false
+      },
+      {
+        code: PaymentMethod.SepaDirectDebit,
+        apmSubmitButtons: false
+      },
+      {
+        code: PaymentMethod.PayPal,
+        apmSubmitButtons: true
+      },
+      {
+        code: PaymentMethod.KlarnaSSL,
+        apmSubmitButtons: true
+      },
+    ];
+
+    for (const apm of availableApms) {
+      it(`should ${apm.code === PaymentMethod.Card ? 'not ' : ''}show the collapsible content when ${apm.code} is selected`, (done) => {
+        // @ts-ignore
+        spyOn(component, 'return').and.callThrough();
+        apmSubject.next({
+          code: apm.code
+        });
+        const headerButton = fixture.debugElement.query(By.css('#accordion-header-' + apm.code));
+        headerButton.nativeElement.click();
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+          const apmContent = fixture.debugElement.query(By.css('#accordion-body-' + apm.code));
+          const showApmSubmitButtons = apmContent.query(By.css(`[data-test-id="apm-submit-buttons-${apm.code}"]`));
+          const apmSubmitButtons = apmContent.query(By.css('.btn-back'));
+          if (apm.apmSubmitButtons) {
+            expect(showApmSubmitButtons).toBeTruthy();
+            apmSubmitButtons.nativeElement.click();
+            expect(component['return']).toHaveBeenCalled();
+          } else {
+            expect(showApmSubmitButtons).toBeFalsy();
+          }
+
+          done();
+        }).catch(done.fail);
+      });
+    }
   });
 
   describe('selectApmPaymentDetails', () => {

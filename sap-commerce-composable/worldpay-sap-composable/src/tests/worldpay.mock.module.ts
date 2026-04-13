@@ -11,6 +11,9 @@ import {
   MockFormRequiredAsterisksComponent,
   MockFormRequiredLegendComponent, MockWorldpayAPMACHComponent, MockWorldpayApmSubmitButtonsComponent, MockWorldpayBillingAddressComponent
 } from './components';
+import { MockWorldpayApmBaseComponent } from './components/worldpay-apm-base-component.mock';
+import { MockWorldpayApmComponent } from './components/worldpay-apm-component.mock';
+import { MockWorldpayApmSepaComponent, MockWorldpayB2BApmSepaComponent } from './components/worldpay-apm-sepa.component.mock';
 import { MockAtMessageDirective, MockCxFeatureDirective, MockCxFeatureLevelDirective, MockCxOutletContextDirective, MockCxOutletDirective } from './directives';
 import { MockUrlPipe } from './pipes';
 
@@ -29,6 +32,10 @@ import { MockUrlPipe } from './pipes';
     MockWorldpayAPMACHComponent,
     MockWorldpayApmSubmitButtonsComponent,
     MockWorldpayBillingAddressComponent,
+    MockWorldpayApmBaseComponent,
+    MockWorldpayApmComponent,
+    MockWorldpayApmSepaComponent,
+    MockWorldpayB2BApmSepaComponent,
     // Directives
     MockAtMessageDirective,
     MockCxOutletDirective,
@@ -39,7 +46,8 @@ import { MockUrlPipe } from './pipes';
     MockUrlPipe
   ],
   exports: [
-    MockCxOutletContextDirective
+    MockCxOutletContextDirective,
+    MockWorldpayB2BApmSepaComponent
   ],
   imports: [
     CommonModule

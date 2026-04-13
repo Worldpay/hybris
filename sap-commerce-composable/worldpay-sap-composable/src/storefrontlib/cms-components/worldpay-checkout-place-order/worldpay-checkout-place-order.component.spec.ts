@@ -20,11 +20,6 @@ import {
 } from '@spartacus/core';
 import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
 import { of, throwError } from 'rxjs';
-import { WorldpayCheckoutPlaceOrderComponent } from 'worldpay-sap-composable-components';
-import { WorldpayApmConnector, WorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-connectors';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
-import { OccWorldpayApmAdapter, OccWorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-occ';
-import { WorldpayApmService, WorldpayCheckoutPaymentService, WorldpayFraudsightService, WorldpayOrderService } from 'worldpay-sap-composable-services';
 import {
   MockActivatedRoute,
   MockCheckoutStepService,
@@ -38,7 +33,23 @@ import {
   MockWorldpayFraudsightService,
   MockWorldpayOrderService
 } from 'worldpay-sap-composable-tests';
-import { ACHPaymentForm, ApmPaymentDetails, PaymentMethod, ThreeDsInfo, WorldpayApmPaymentInfo } from 'worldpay-sap-core';
+import {
+  ACHPaymentForm,
+  ApmPaymentDetails,
+  OccWorldpayApmAdapter,
+  OccWorldpayCheckoutPaymentAdapter,
+  PaymentMethod,
+  ThreeDsInfo,
+  WorldpayACHFacade,
+  WorldpayApmConnector,
+  WorldpayApmPaymentInfo,
+  WorldpayApmService,
+  WorldpayCheckoutPaymentAdapter,
+  WorldpayCheckoutPaymentService,
+  WorldpayFraudsightService,
+  WorldpayOrderService
+} from '../../../core';
+import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
 
 const mockBillingAddress: Address = {
   formattedAddress: 'address',
@@ -282,8 +293,39 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
 
     });
 
+    it('should place order with saved APM', () => {
+      spyOn<any>(component, 'processPayment');
+      const apm = {
+        code: PaymentMethod.SepaDirectDebit,
+        name: 'Sepa Direct Debit',
+        isAPM: true,
+        subscriptionId: '000000000'
+      };
+
+      placeOrderSpy.and.returnValue(of([
+        apm,
+        {
+          loading: false,
+          error: false,
+          data: apm
+        }
+      ]));
+      submitForm(true);
+      expect(orderFacade.startLoading).toHaveBeenCalledWith(component['vcr']);
+      expect(component.placeWorldpayOrder).toHaveBeenCalled();
+      component.placeWorldpayOrder().subscribe((data) => {
+        expect(data[0].code).toEqual(PaymentMethod.SepaDirectDebit);
+        expect(data[1].data).toEqual(apm);
+      });
+
+      expect(orderFacade.executeDDC3dsJwtCommand).not.toHaveBeenCalled();
+      expect(component['processPayment']).toHaveBeenCalledWith(apm.subscriptionId);
+
+    });
+
     it('should place order with iDeal', () => {
       spyOn(worldpayApmService, 'getAPMRedirectUrl').and.callThrough();
+      spyOn(worldpayApmService, 'getSaveApm').and.returnValue(false);
       spyOn(worldpayCheckoutPaymentService, 'getPaymentDetailsState').and.returnValue(of({
         loading: false,
         error: false,
@@ -396,7 +438,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   });
 
   it('should return an observable that emits an error if the checkout preconditions are not met', () => {
-    spyOn(worldpayApmService, 'checkoutPreconditions').and.returnValue(throwError(() =>new Error('Checkout conditions not met')));
+    spyOn(worldpayApmService, 'checkoutPreconditions').and.returnValue(throwError(() => new Error('Checkout conditions not met')));
     worldpayApmService.checkoutPreconditions().subscribe({
       error: (error) => {
         expect(error.message).toEqual('Checkout conditions not met');
@@ -549,7 +591,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
       component.placeWorldpayOrder = jasmine.createSpy().and.returnValue(of([mockPaypal, { data: mockCreditCard }, null]));
       component.submitForm();
 
-      expect(worldpayApmService.getAPMRedirectUrl).toHaveBeenCalledWith(mockPaypal, component['save']);
+      expect(worldpayApmService.getAPMRedirectUrl).toHaveBeenCalledWith(mockPaypal, worldpayApmService.getSaveApm());
       expect(component.executeDDC3dsJwtCommand).not.toHaveBeenCalled();
     });
   });
@@ -582,7 +624,7 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
         origin: 'https://centinelapistag.cardinalcommerce.com',
         data: JSON.stringify({
           SessionId: '12345',
-          Status: true
+          Status: true,
         })
       } as MessageEvent;
       spyOn(orderFacade, 'initialPaymentRequest').and.returnValue(of({ order: { code: '00001' } }));
@@ -596,7 +638,8 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
         component.cseToken,
         component.checkoutSubmitForm.get('termsAndConditions').value,
         component['fraudSightId'],
-        component.browserInfo
+        component.browserInfo,
+        component.scheduleReplenishmentFormData,
       );
       expect(orderFacade.setPlacedOrder).toHaveBeenCalledWith({ code: '00001' });
     });

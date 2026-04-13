@@ -1,7 +1,36 @@
 package com.worldpay.service;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+import static com.worldpay.service.model.payment.PaymentType.VISA;
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.google.common.collect.ImmutableList;
-import com.worldpay.data.*;
+import com.worldpay.data.Address;
+import com.worldpay.data.AlternativeShippingAddress;
+import com.worldpay.data.Amount;
+import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.BranchSpecificExtension;
+import com.worldpay.data.CustomNumericFields;
+import com.worldpay.data.CustomStringFields;
+import com.worldpay.data.FraudSightData;
+import com.worldpay.data.GuaranteedPaymentsData;
+import com.worldpay.data.LineItem;
+import com.worldpay.data.LineItemReference;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.Order;
+import com.worldpay.data.OrderLines;
+import com.worldpay.data.PaymentMethodAttribute;
+import com.worldpay.data.Purchase;
+import com.worldpay.data.Session;
+import com.worldpay.data.Shopper;
+import com.worldpay.data.ShopperFields;
+import com.worldpay.data.UserAccount;
 import com.worldpay.data.payment.Cse;
 import com.worldpay.data.payment.Payment;
 import com.worldpay.data.payment.StoredCredentials;
@@ -17,21 +46,11 @@ import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static com.worldpay.service.model.payment.PaymentType.VISA;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @UnitTest
-public class RedirectAuthoriseServiceRequestTest {
+class RedirectAuthoriseServiceRequestTest {
 
     private static final String ORDER_CONTENT = "orderContent";
     private static final String EMAIL_ADDRESS = "jshopper@myprovider.com";
@@ -79,75 +98,62 @@ public class RedirectAuthoriseServiceRequestTest {
     private Shopper shopper;
     private Amount amount;
     private MerchantInfo merchantInfo;
-    private ShopperFields shopperFields = new ShopperFields();
-    private CustomNumericFields customNumericFields = new CustomNumericFields();
-    private CustomStringFields customStringFields = new CustomStringFields();
+    private final ShopperFields shopperFields = new ShopperFields();
+    private final CustomNumericFields customNumericFields = new CustomNumericFields();
+    private final CustomStringFields customStringFields = new CustomStringFields();
     private Purchase purchase;
     private RiskData riskData;
-    private LineItem lineItemOne;
-    private LineItem lineItemTwo;
     private OrderLines orderLines;
     private FraudSightData fraudSightData;
     private BranchSpecificExtension branchSpecificExtension;
     private GuaranteedPaymentsData guaranteedPaymentsData;
     private AlternativeShippingAddress alternativeShippingAddress;
 
-    @Before
-    public void setUp() throws Exception {
-        lineItemOne = createLineItem("id", "value", LineItemType.PHYSICAL, "name", "200", "PCS", "taxRate", "20", "0", 20D, "0.5");
-        lineItemTwo = createLineItem("id2", "value2", LineItemType.PHYSICAL, "name2", "2000", "PCS2", "taxRate2", "200", "00", 0D, "0.5");
-        final OrderLines orderLines = new OrderLines();
+    @BeforeEach
+    void setUp() throws Exception {
+        final LineItem lineItemOne = createLineItem("id", "value", "name", "200", "PCS", "taxRate", "20", "0", 20D);
+        final LineItem lineItemTwo = createLineItem("id2", "value2", "name2", "2000", "PCS2", "taxRate2", "200", "00", 0D);
+        orderLines = new OrderLines();
         orderLines.setOrderTaxAmount(TAX_AMOUNT);
         orderLines.setTermsURL(TERMS_URL);
         orderLines.setLineItems(List.of(lineItemOne, lineItemTwo));
-        this.orderLines = orderLines;
         riskData = createRiskData();
         purchase = createPurchaseItem();
 
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASS);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
 
-        final TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest = new TokenRequest();
         tokenRequest.setTokenReason(TOKEN_REASON);
         tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenRequest.setMerchantToken(false);
-        this.tokenRequest = tokenRequest;
 
-        final Amount amount = new Amount();
+        amount = new Amount();
         amount.setExponent(EXPONENT);
         amount.setCurrencyCode("EUR");
         amount.setValue("100");
-        this.amount = amount;
 
-        final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
+        basicOrderInfo = new BasicOrderInfo();
         basicOrderInfo.setOrderCode(ORDER_CODE);
         basicOrderInfo.setDescription(ORDER_DESC);
         basicOrderInfo.setAmount(amount);
-        this.basicOrderInfo = basicOrderInfo;
 
-        riskData = new RiskData();
-
-        final FraudSightData fraudSightData = new FraudSightData();
+        fraudSightData = new FraudSightData();
         fraudSightData.setShopperFields(shopperFields);
         fraudSightData.setCustomStringFields(customStringFields);
         fraudSightData.setCustomNumericFields(customNumericFields);
-        this.fraudSightData = fraudSightData;
 
-        final BranchSpecificExtension branchSpecificExtension = new BranchSpecificExtension();
+        branchSpecificExtension = new BranchSpecificExtension();
         branchSpecificExtension.setPurchase(ImmutableList.of(purchase));
-        this.branchSpecificExtension = branchSpecificExtension;
 
-        final Session session = new Session();
+        session = new Session();
         session.setId(SESSION_ID);
         session.setShopperIPAddress(SHOPPER_IP_ADDRESS);
-        this.session = session;
 
-        final Shopper shopper = new Shopper();
+        shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
         shopper.setSession(this.session);
-        this.shopper = shopper;
 
         final Address address = new Address();
         address.setFirstName(NAME);
@@ -168,7 +174,7 @@ public class RedirectAuthoriseServiceRequestTest {
         cse.setEncryptedData(ENCRYPTED_DATA);
         payment = cse;
 
-        final GuaranteedPaymentsData guaranteedPaymentsData = new GuaranteedPaymentsData();
+        guaranteedPaymentsData = new GuaranteedPaymentsData();
         guaranteedPaymentsData.setUserAccount(new UserAccount());
         guaranteedPaymentsData.setFulfillmentMethodType(DELIVERY);
         guaranteedPaymentsData.setTotalShippingCost(AMOUNT);
@@ -178,11 +184,12 @@ public class RedirectAuthoriseServiceRequestTest {
         guaranteedPaymentsData.setDiscountCodes(Collections.emptyList());
         guaranteedPaymentsData.setMemberships(Collections.emptyList());
 
-        this.guaranteedPaymentsData = guaranteedPaymentsData;
+        alternativeShippingAddress = new AlternativeShippingAddress();
+        alternativeShippingAddress.setAddress(this.shippingAddress);
     }
 
     @Test
-    public void createRedirectAuthoriseRequest_ShouldCreateRedirectAuthoriseServiceRequestCorrectly_WhenAllRequestParametersAreProvided() {
+    void createRedirectAuthoriseRequest_ShouldCreateRedirectAuthoriseServiceRequestCorrectly_WhenAllRequestParametersAreProvided() {
         final RedirectAuthoriseServiceRequest result = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(createRequestParameters());
 
         verifyOrder(result);
@@ -221,47 +228,47 @@ public class RedirectAuthoriseServiceRequestTest {
 
     private AuthoriseRequestParameters createRequestParameters() {
         return AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withPayment(payment)
-            .withShopper(shopper)
-            .withStoredCredentials(STORED_CREDENTIALS)
-            .withInstallationId(INSTALLATION_ID)
-            .withIncludedPTs(INCLUDED_PAYMENT_TYPES)
-            .withExcludedPTs(EXCLUDED_PAYMENT_TYPES)
-            .withOrderContent(ORDER_CONTENT)
-            .withTokenRequest(tokenRequest)
-            .withShippingAddress(shippingAddress)
-            .withBillingAddress(billingAddress)
-            .withStatementNarrative(STATEMENT_NARRATIVE)
-            .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
-            .withPaymentMethodAttributes(PAYMENT_METHOD_ATTRIBUTE)
-            .withOrderLines(orderLines)
-            .withRiskData(riskData)
-            .withFraudSightData(fraudSightData)
-            .withLevel23Data(branchSpecificExtension)
-            .withMandateType(MANDATE_TYPE)
-            .withGuaranteedPaymentsData(guaranteedPaymentsData)
-            .withCheckoutId(CHECKOUT_ID)
-            .withAlternativeShippingAddress(alternativeShippingAddress)
-            .build();
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(shopper)
+                .withStoredCredentials(STORED_CREDENTIALS)
+                .withInstallationId(INSTALLATION_ID)
+                .withIncludedPTs(INCLUDED_PAYMENT_TYPES)
+                .withExcludedPTs(EXCLUDED_PAYMENT_TYPES)
+                .withOrderContent(ORDER_CONTENT)
+                .withTokenRequest(tokenRequest)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
+                .withPaymentMethodAttributes(PAYMENT_METHOD_ATTRIBUTE)
+                .withOrderLines(orderLines)
+                .withRiskData(riskData)
+                .withFraudSightData(fraudSightData)
+                .withLevel23Data(branchSpecificExtension)
+                .withMandateType(MANDATE_TYPE)
+                .withGuaranteedPaymentsData(guaranteedPaymentsData)
+                .withCheckoutId(CHECKOUT_ID)
+                .withAlternativeShippingAddress(alternativeShippingAddress)
+                .build();
     }
 
-    private LineItem createLineItem(final String id, final String value, final LineItemType physical, final String name, final String qunatity, final String quantityUnit, final String taxRate, final String totalAmount, final String totalDiscountAmount, final double totalTaxAmountValue, final String unitPrice) {
+    private LineItem createLineItem(final String id, final String value, final String name, final String quantity, final String quantityUnit, final String taxRate, final String totalAmount, final String totalDiscountAmount, final double totalTaxAmountValue) {
         final LineItem lineItem = new LineItem();
         final LineItemReference lineItemReference = new LineItemReference();
         lineItemReference.setId(id);
         lineItemReference.setValue(value);
         lineItem.setLineItemReference(lineItemReference);
-        lineItem.setLineItemType(physical);
+        lineItem.setLineItemType(LineItemType.PHYSICAL);
         lineItem.setName(name);
-        lineItem.setQuantity(qunatity);
+        lineItem.setQuantity(quantity);
         lineItem.setQuantityUnit(quantityUnit);
         lineItem.setTaxRate(taxRate);
         lineItem.setTotalAmount(totalAmount);
         lineItem.setTotalDiscountAmount(totalDiscountAmount);
         lineItem.setTotalTaxAmountValue(totalTaxAmountValue);
-        lineItem.setUnitPrice(unitPrice);
+        lineItem.setUnitPrice("0.5");
 
         return lineItem;
     }

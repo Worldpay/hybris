@@ -50,7 +50,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
     @Test
     public void buildTokenResponse() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(Collections.singletonList(submitMock));
-        when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge()).thenReturn(Collections.singletonList(paymentTokenCreateMock));
+        when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken()).thenReturn(Collections.singletonList(paymentTokenCreateMock));
         when(paymentTokenCreateMock.getAuthenticatedShopperID()).thenReturn(authenticatedShopperIDMock);
         when(authenticatedShopperIDMock.getvalue()).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(paymentTokenCreateMock.getCreateToken().getTokenEventReference()).thenReturn(TOKEN_EVENT_REFERENCE);
@@ -60,7 +60,7 @@ public class DefaultWorldpayTokenCreateResponseBuilderTest {
         final PaymentService result = testObj.buildTokenResponse(paymentServiceMock);
 
         final Reply reply = (Reply) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final Token token = (Token) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().get(0);
+        final Token token = (Token) reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().get(0);
 
         final TokenDetails tokenDetails = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().stream().filter(TokenDetails.class::isInstance).map(TokenDetails.class::cast).findAny().orElseThrow(() -> new IllegalStateException("TokenDetails not present"));
         final PaymentInstrument paymentInstrument = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().stream().filter(PaymentInstrument.class::isInstance).map(PaymentInstrument.class::cast).findAny().orElseThrow(() -> new IllegalStateException("PaymentDetails not present"));

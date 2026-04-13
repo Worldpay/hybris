@@ -1,6 +1,7 @@
 package com.worldpay.facades;
 
 import com.worldpay.data.cms.WorldpayAPMComponentData;
+import com.worldpay.model.WorldpayAPMComponentModel;
 
 import java.util.List;
 
@@ -15,4 +16,12 @@ public interface WorldpayAPMComponentFacade {
      * @return a list with all available WorldpayAPMComponentData.
      */
     List<WorldpayAPMComponentData> getAllAvailableWorldpayAPMComponents();
+
+    /**
+     * Get {@link WorldpayAPMComponentData}.
+     *
+     * @param apmCode apm code.
+     * @return {@link WorldpayAPMComponentData}.
+     */
+    WorldpayAPMComponentData getWorldpayAPMComponentByCode(final String apmCode);
 }

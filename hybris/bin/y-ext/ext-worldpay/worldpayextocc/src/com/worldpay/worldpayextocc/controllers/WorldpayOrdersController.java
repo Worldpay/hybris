@@ -1,18 +1,18 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import com.worldpay.worldpayocccommons.controllers.AbstractWorldpayController;
 import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
-import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.dto.BrowserInfoWsDTO;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO;
-import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facade.OCCWorldpayOrderFacade;
-import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
-import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
+import com.worldpay.worldpayocccommons.exceptions.NoCheckoutCartException;
+import com.worldpay.worldpayocccommons.exceptions.ThreeDSecureException;
+import com.worldpay.worldpayocccommons.facade.OCCWorldpayOrderFacade;
+import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
@@ -20,27 +20,17 @@ import com.worldpay.hostedorderpage.data.RedirectAuthoriseResult;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
-import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.worldpayextocc.exceptions.NoCheckoutCartException;
-import com.worldpay.worldpayextocc.exceptions.ThreeDSecureException;
-import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commercefacades.order.data.CartData;
-import de.hybris.platform.commercefacades.order.data.CartModificationData;
-import de.hybris.platform.commercefacades.order.data.CartModificationDataList;
 import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.commercefacades.user.UserFacade;
-import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commercewebservicescommons.dto.order.OrderWsDTO;
 import de.hybris.platform.commercewebservicescommons.strategies.CartLoaderStrategy;
 import de.hybris.platform.order.InvalidCartException;
-import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartIdParam;
 import de.hybris.platform.webservicescommons.swagger.ApiFieldsParam;
-import de.hybris.platform.webservicescommons.validators.CompositeValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
@@ -49,14 +39,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
@@ -74,7 +64,7 @@ import static java.text.MessageFormat.format;
  * <li>'anonymous' for anonymous user</li>
  * </ul>
  */
-@Controller
+@RestController
 @RequestMapping(value = "/{baseSiteId}")
 public class WorldpayOrdersController extends AbstractWorldpayController {
 
@@ -84,18 +74,12 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     private static final String ANONYMOUS_UID = "anonymous";
 
     // Named like this in order to use the bean definition from commercewebservices
-    @Resource(name = "commerceWebServicesCartFacade2")
-    private CartFacade cartFacadeCommercewebservices;
+
     @Resource(name = "cartLoaderStrategy")
     private CartLoaderStrategy cartLoaderStrategy;
-    @Resource(name = "worldpayPlaceOrderCartValidator")
-    private CompositeValidator worldpayPlaceOrderCartValidator;
-    @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+    
     @Resource
     private WorldpayCartService worldpayCartService;
-    @Resource
-    private WorldpayAdditionalInfoFacade worldpayAdditionalInfoFacade;
     @Resource
     protected WorldpayHostedOrderFacade worldpayHostedOrderFacade;
     @Resource
@@ -107,11 +91,9 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @Resource(name = "achDirectDebitPaymentDetailsDTOValidator")
     protected Validator achDirectDebitPaymentDetailsDTOValidator;
     @Resource
-    protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
-    @Resource
     protected Set<AuthorisedStatus> apmErrorResponseStatuses;
     @Resource
-    protected Converter<Map<String, String>, RedirectAuthoriseResult> redirectAuthoriseResultConverter;
+    protected WorldpayCheckoutFacadeDecorator worldpayCheckoutFacadeDecorator;
 
     /**
      * Authorizes cart and places the order. Response contains the new order data.
@@ -134,7 +116,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
             {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/worldpayorders")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     @ApiBaseSiteIdAndUserIdParam
     public PlaceOrderResponseWsDTO placeOrder(final HttpServletRequest request,
                                               @RequestParam final String cartId,
@@ -157,7 +138,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
             {"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/initial-payment-request")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     @ApiBaseSiteIdAndUserIdParam
     public PlaceOrderResponseWsDTO initializePaymentRequest(final HttpServletRequest request,
                                                             @RequestParam final String cartId,
@@ -180,7 +160,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/users/{userId}/worldpayorders/3dresponse")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     @ApiBaseSiteIdAndUserIdParam
     public OrderWsDTO doHandleThreeDSecureResponse(final HttpServletRequest request,
                                                    @RequestParam final String cartId,
@@ -214,7 +193,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "placeRedirectOrder", summary = "Place an order for redirect APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    @ResponseBody
+    
     public OrderWsDTO placeRedirectOrder(
             @RequestBody final Map<String, String> requestParams,
             @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException, InvalidCartException {
@@ -255,7 +234,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @PostMapping(value = "/users/{userId}/carts/{cartId}/worldpayorders/place-banktransfer-redirect-order")
     @Operation(operationId = "PlaceBankTransferRedirectOrder", summary = "Place an order for redirect Bank APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    @ResponseBody
+    
     public OrderWsDTO placeBankTransferRedirectOrder(
             final HttpServletRequest request,
             @RequestParam(value = "orderId") final String orderId,
@@ -284,7 +263,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "placeACHDirectOrder", summary = "Place an order for redirect APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    @ResponseBody
+    
     public OrderWsDTO placeACHDirectOrder(
             final HttpServletRequest request,
             @RequestBody final AchDirectDebitPaymentWsDTO achDirectDebitPayment,
@@ -318,7 +297,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
      */
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST", "ROLE_ANONYMOUS"})
     @GetMapping(value = "/orders/{orderCode}/user/{userId}")
-    @ResponseBody
+    
     @Operation(operationId = "getUserOrders", summary = "Get an order.", description = "Returns specific order details based on a specific order code. The response contains detailed order information.")
     @ApiBaseSiteIdParam
     public OrderWsDTO getUserOrders(
@@ -336,83 +315,5 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
         throw new AccessDeniedException("Access is denied");
     }
 
-    private CSEAdditionalAuthInfo createCseAdditionalAuthInfo(final String challengeWindowSize, final String dfReferenceId, final Boolean savedCard) {
-        final CSEAdditionalAuthInfo cseAdditionalAuthInfo = new CSEAdditionalAuthInfo();
-        final Additional3DS2Info additional3DS2 = new Additional3DS2Info();
-        additional3DS2.setChallengeWindowSize(challengeWindowSize);
-        additional3DS2.setDfReferenceId(dfReferenceId);
-        cseAdditionalAuthInfo.setAdditional3DS2(additional3DS2);
-        cseAdditionalAuthInfo.setSaveCard(savedCard);
-        return cseAdditionalAuthInfo;
-    }
-
-    private ACHDirectDebitAdditionalAuthInfo createACHDirectDebitAdditionalAuthInfo(final AchDirectDebitPaymentWsDTO achDirectDebit) {
-        final ACHDirectDebitAdditionalAuthInfo achDirectDebitAdditionalAuthInfo = new ACHDirectDebitAdditionalAuthInfo();
-        achDirectDebitAdditionalAuthInfo.setAccountNumber(achDirectDebit.getAccountNumber());
-        Optional.ofNullable(achDirectDebit.getAccountType())
-                .map(String::toUpperCase)
-                .map(AchDirectDebitAccountType::valueOf)
-                .ifPresent(achDirectDebitAdditionalAuthInfo::setAccountType);
-        achDirectDebitAdditionalAuthInfo.setCompanyName(achDirectDebit.getCompanyName());
-        achDirectDebitAdditionalAuthInfo.setRoutingNumber(achDirectDebit.getRoutingNumber());
-        achDirectDebitAdditionalAuthInfo.setCheckNumber(achDirectDebit.getCheckNumber());
-        achDirectDebitAdditionalAuthInfo.setCustomIdentifier(achDirectDebit.getCustomIdentifier());
-        achDirectDebitAdditionalAuthInfo.setUsingShippingAsBilling(!worldpayPaymentCheckoutFacade.hasBillingDetails());
-        achDirectDebitAdditionalAuthInfo.setSaveCard(Boolean.FALSE);
-        achDirectDebitAdditionalAuthInfo.setPaymentMethod(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
-        return achDirectDebitAdditionalAuthInfo;
-    }
-
-
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final String cvc, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final String cartId, final boolean savedCard) {
-        final WorldpayAdditionalInfoData worldpayAdditionalInfo = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
-        worldpayAdditionalInfo.setSecurityCode(cvc);
-        worldpayAdditionalInfo.setTransactionIdentifier(cartId);
-        worldpayAdditionalInfo.setSavedCardPayment(savedCard);
-
-        if (cseAdditionalAuthInfo.getAdditional3DS2() != null) {
-            worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
-        }
-
-        return worldpayAdditionalInfo;
-    }
-
-    protected void validateCartForPlaceOrder(final String worldPayOrderCode) throws NoCheckoutCartException, InvalidCartException {
-        validateCartForPlaceOrder();
-
-        final CartData cartData = checkoutFacade.getCheckoutCart();
-        if (!worldPayOrderCode.equals(cartData.getWorldpayOrderCode())) {
-            throw new InvalidCartException("Cannot place order. Incorrect worldpay order code");
-        }
-    }
-
-    protected void validateCartForPlaceOrder() throws NoCheckoutCartException, InvalidCartException {
-        if (!checkoutFacade.hasCheckoutCart()) {
-            throw new NoCheckoutCartException("Cannot place order. There was no checkout cart created yet!");
-        }
-
-        final CartData cartData = checkoutFacade.getCheckoutCart();
-
-        final Errors errors = new BeanPropertyBindingResult(cartData, "sessionCart");
-        worldpayPlaceOrderCartValidator.validate(cartData, errors);
-        if (errors.hasErrors()) {
-            throw new WebserviceValidationException(errors);
-        }
-
-        try {
-            final List<CartModificationData> modificationList = cartFacadeCommercewebservices.validateCartData();
-            if (modificationList != null && !modificationList.isEmpty()) {
-                final CartModificationDataList cartModificationDataList = new CartModificationDataList();
-                cartModificationDataList.setCartModificationList(modificationList);
-                throw new WebserviceValidationException(cartModificationDataList);
-            }
-        } catch (final CommerceCartModificationException e) {
-            throw new InvalidCartException(e);
-        }
-    }
-
-    protected RedirectAuthoriseResult extractAuthoriseResultFromRequest(final Map<String, String> request) {
-        return redirectAuthoriseResultConverter.convert(request);
-    }
 
 }

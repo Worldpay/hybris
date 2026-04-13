@@ -1,0 +1,85 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <context:component-scan base-package="com.worldpay.worldpayextb2bocc.controllers"/>
+
+    <alias name="defaultPaymentDetailsDTOValidator" alias="paymentDetailsDTOValidator"/>
+    <bean id="defaultPaymentDetailsDTOValidator"
+          class="com.worldpay.worldpayocccommons.validator.PaymentDetailsDTOValidator">
+        <property name="paymentAddressValidator" ref="paymentAddressValidator"/>
+    </bean>
+
+    <alias name="defaultACHDirectDebitPaymentDetailsDTOValidator" alias="achDirectDebitPaymentDetailsDTOValidator"/>
+    <bean id="defaultACHDirectDebitPaymentDetailsDTOValidator"
+          class="com.worldpay.worldpayocccommons.validator.ACHDirectDebitPaymentDetailsDTOValidator"/>
+
+    <alias name="defaultPaymentAddressValidator" alias="paymentAddressValidator"/>
+    <bean id="defaultPaymentAddressValidator"
+          class="de.hybris.platform.webservicescommons.validators.CompositeValidator">
+        <property name="validators">
+            <list>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
+                    <property name="fieldPath" value="billingAddress.firstName"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
+                    <property name="fieldPath" value="billingAddress.lastName"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
+                    <property name="fieldPath" value="billingAddress.line1"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
+                    <property name="fieldPath" value="billingAddress.town"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyOrTooLongValidator">
+                    <property name="fieldPath" value="billingAddress.postalCode"/>
+                    <property name="maxLength" value="10"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyOrTooLongValidator">
+                    <property name="fieldPath" value="billingAddress.country.isocode"/>
+                    <property name="maxLength" value="2"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <alias name="defaultWorldpayPlaceOrderCartValidator" alias="worldpayPlaceOrderCartValidator"/>
+    <bean id="defaultWorldpayPlaceOrderCartValidator"
+          class="de.hybris.platform.webservicescommons.validators.CompositeValidator">
+        <property name="validators">
+            <list>
+                <bean class="com.worldpay.worldpayocccommons.validator.BooleanValidator">
+                    <property name="errorMessageID" value="cart.notCalculated"/>
+                    <property name="fieldPath" value="calculated"/>
+                    <property name="booleanValue" value="true"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
+                    <property name="fieldPath" value="paymentInfo"/>
+                </bean>
+                <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
+                    <property name="fieldPath" value="deliveryMode"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="defaultWorldpayOCCStringMessageConverter"
+          class="org.springframework.http.converter.StringHttpMessageConverter"/>
+
+    <bean depends-on="messageConvertersV2" parent="listMergeDirective">
+        <property name="add" ref="defaultWorldpayOCCStringMessageConverter"/>
+    </bean>
+
+    <util:set id="apmErrorResponseStatuses" value-type="com.worldpay.enums.order.AuthorisedStatus">
+        <value>ERROR</value>
+        <value>FAILURE</value>
+        <value>EXPIRED</value>
+    </util:set>
+
+    <import resource="v2-web-spring-worldpayextb2bocc.xml"/>
+</beans>

@@ -12,15 +12,20 @@ export * from './worldpay-apm-component/worldpay-apm.module';
 // apm component ach
 export * from './worldpay-apm-component/worldpay-apm-ach/worldpay-apm-ach.component';
 export * from './worldpay-apm-component/worldpay-apm-ach/worldpay-apm-ach.module';
-// apm submit buttons
-export * from './worldpay-apm-component/worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.module';
-export * from './worldpay-apm-component/worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
+// apm base component
+export * from './worldpay-apm-component/worldpay-apm-base/worldpay-apm-base.component';
 // apm component googlepay
 export * from './worldpay-apm-component/worldpay-apm-googlepay/worldpay-apm-googlepay.component';
 export * from './worldpay-apm-component/worldpay-apm-googlepay/worldpay-apm-googlepay.module';
 // apm component ideal
 export * from './worldpay-apm-component/worldpay-apm-ideal/worldpay-apm-ideal.component';
 export * from './worldpay-apm-component/worldpay-apm-ideal/worldpay-apm-ideal.module';
+// apm component sepa
+export * from './worldpay-apm-component/worldpay-apm-sepa/worldpay-apm-sepa.component';
+export * from './worldpay-apm-component/worldpay-apm-sepa/worldpay-apm-sepa.module';
+// apm submit buttons
+export * from './worldpay-apm-component/worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.module';
+export * from './worldpay-apm-component/worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 // apm component tile
 export * from './worldpay-apm-component/worldpay-apm-tile/worldpay-apm-tile.component';
 // apm component applepay
@@ -45,6 +50,15 @@ export * from './worldpay-cart-shared/worldpay-cart-item-warning/worldpay-cart-i
  */
 export * from './worldpay-checkout-delivery-address/worldpay-checkout-delivery-address.component';
 export * from './worldpay-checkout-delivery-address/worldpay-checkout-delivery-address.module';
+/**
+ * Checkout Payment Method
+ */
+export * from './worldpay-checkout-payment-method/worldpay-checkout-payment-method.component';
+export * from './worldpay-checkout-payment-method/worldpay-checkout-payment-method.module';
+export * from './worldpay-payment-methods/worldpay-payment-methods.component';
+export * from './worldpay-payment-methods/worldpay-payment-methods.module';
+// payment form
+export * from './worldpay-checkout-payment-method/payment-form/worldpay-payment-form.component';
 /**
  * Checkout place order
  */
@@ -83,10 +97,3 @@ export * from './worldpay-order-details/worldpay-order-details.module';
 export * from './worldpay-order-details/worldpay-order-details-billing/worldpay-order-details-billing.component';
 // order overview
 export * from './worldpay-order-details/worldpay-order-overview/worldpay-order-overview.component';
-/**
- * Payment
- */
-export * from './worldpay-checkout-payment-method/worldpay-checkout-payment-method.component';
-export * from './worldpay-checkout-payment-method/worldpay-checkout-payment-method.module';
-// payment form
-export * from './worldpay-checkout-payment-method/payment-form/worldpay-payment-form.component';

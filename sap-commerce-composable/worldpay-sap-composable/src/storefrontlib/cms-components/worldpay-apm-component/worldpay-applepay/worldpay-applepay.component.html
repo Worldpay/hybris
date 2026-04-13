@@ -5,13 +5,24 @@
 
   <h4>{{ 'paymentForm.applePay.title' | cxTranslate }}</h4>
   <p>{{ 'paymentForm.applePay.introduction' | cxTranslate }}</p>
-  <div class="form-group">
-    <button
-      (click)="placeApplePayOrder()"
-      class="applepay-buy-button"
-      lang="en"
-    >
-    </button>
-  </div>
+  <div class="cx-checkout-btns row d-flex align-items-center">
+    <div class="col-sm-12 col-md-6">
+      <button
+        class="btn btn-block btn-secondary btn-back"
+        (click)="onBack()"
+      >
+        {{ 'common.back' | cxTranslate }}
+      </button>
+    </div>
+    <div class="col-sm-12 col-md-6">
+      <div class="form-group">
+        <button
+          (click)="placeApplePayOrder()"
+          class="applepay-buy-button"
+          lang="en"
+        >
+        </button>
+      </div>
+    </div>
 </div>
 

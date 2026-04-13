@@ -1,5 +1,17 @@
 package com.worldpay.core.services.impl;
 
+import java.util.concurrent.Callable;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.evanlennick.retry4j.config.RetryConfig;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.ErrorDetail;
@@ -7,7 +19,6 @@ import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
@@ -15,23 +26,18 @@ import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
-import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import de.hybris.platform.servicelayer.model.ModelService;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.concurrent.Callable;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -48,14 +54,12 @@ public class DefaultOrderInquiryServiceTest {
     private static final String ERROR_CODE = "5";
     private static final String ERROR_MESSAGE_DETAIL = "Some Error Detail";
 
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Spy
     @InjectMocks
     private DefaultOrderInquiryService testObj;
+
+    @Mock
+    private WorldpayPaymentInfoService worldpayPaymentInfoServiceMock;
 
     @Mock
     private PaymentTransactionModel paymentTransactionModelMock;
@@ -70,25 +74,16 @@ public class DefaultOrderInquiryServiceTest {
     @Mock
     private WorldpayServiceGateway worldpayServiceGatewayMock;
     @Mock
-    private WorldpayAPMPaymentInfoModel paymentTransactionAPMPaymentInfoModelMock;
-    @Mock
-    private WorldpayAPMPaymentInfoModel worldpayAPMPaymentInfoModelMock;
-    @Mock
     private AbstractOrderModel orderModelMock;
-    @Mock
-    private WorldpayAPMConfigurationModel worldpayAPMConfigurationModelMock;
-    @Mock
-    private ModelService modelServiceMock;
-    @Mock
-    private WorldpayPaymentInfoService worldpayPaymentInfoServiceMock;
     @Mock
     private MerchantInfo merchantInfoMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
-    @Captor
-    private ArgumentCaptor<RetryConfig> retryConfigArgumentCaptor;
     @Mock
     private KlarnaOrderInquiryServiceRequest klarnaOrderInquiryServiceRequestMock;
+
+    @Captor
+    private ArgumentCaptor<RetryConfig> retryConfigArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -172,9 +167,9 @@ public class DefaultOrderInquiryServiceTest {
     @Test
     public void shouldRetryInquiryPaymentDetailsWhenThereIsAnError() throws Exception {
         when(worldpayServiceGatewayMock.orderInquiry(orderInquiryServiceRequestMock))
-            .thenReturn(orderInquiryServiceResponseMock)
-            .thenReturn(orderInquiryServiceResponseMock1)
-            .thenReturn(orderInquiryServiceResponseMock2);
+                .thenReturn(orderInquiryServiceResponseMock)
+                .thenReturn(orderInquiryServiceResponseMock1)
+                .thenReturn(orderInquiryServiceResponseMock2);
 
         when(orderInquiryServiceResponseMock2.getPaymentReply()).thenReturn(paymentReplyMock);
 
@@ -204,16 +199,16 @@ public class DefaultOrderInquiryServiceTest {
 
         verify(testObj).executeInquiryCallable(any(Callable.class), retryConfigArgumentCaptor.capture());
         final RetryConfig value = retryConfigArgumentCaptor.getValue();
-        assertEquals(value.getMaxNumberOfTries().longValue(), MAX_NUMBER_RETRIES);
-        assertEquals(value.getDelayBetweenRetries().getSeconds(), DELAY_BETWEEN_RETRIES);
+        assertEquals(MAX_NUMBER_RETRIES, value.getMaxNumberOfTries().longValue());
+        assertEquals(DELAY_BETWEEN_RETRIES, value.getDelayBetweenRetries().getSeconds());
     }
 
     @Test(expected = WorldpayException.class)
     public void shouldRetryInquiryPaymentDetailsWhenThereIsAnErrorAndFailWhenRetriesNumberAreExhausted() throws Exception {
         when(worldpayServiceGatewayMock.orderInquiry(orderInquiryServiceRequestMock))
-            .thenReturn(orderInquiryServiceResponseMock)
-            .thenReturn(orderInquiryServiceResponseMock1)
-            .thenReturn(orderInquiryServiceResponseMock2);
+                .thenReturn(orderInquiryServiceResponseMock)
+                .thenReturn(orderInquiryServiceResponseMock1)
+                .thenReturn(orderInquiryServiceResponseMock2);
 
         final ErrorDetail errorDetail = new ErrorDetail();
         errorDetail.setCode(ERROR_CODE);
@@ -249,11 +244,11 @@ public class DefaultOrderInquiryServiceTest {
         verify(testObj).executeInquiryCallable(any(Callable.class), retryConfigArgumentCaptor.capture());
 
         final RetryConfig value = retryConfigArgumentCaptor.getValue();
-        assertEquals(value.getMaxNumberOfTries().longValue(), MAX_NUMBER_RETRIES);
-        assertEquals(value.getDelayBetweenRetries().getSeconds(), DELAY_BETWEEN_RETRIES);
+        assertEquals(MAX_NUMBER_RETRIES, value.getMaxNumberOfTries().longValue());
+        assertEquals(DELAY_BETWEEN_RETRIES, value.getDelayBetweenRetries().getSeconds());
     }
 
-    @Test(expected = WorldpayException.class)
+    @Test
     public void shouldRetryKlarnaInquiryPaymentDetailsWhenThereIsAnErrorAndFailWhenRetriesNumberAreExhausted() throws Exception {
         doReturn(klarnaOrderInquiryServiceRequestMock).when(testObj).createKlarnaOrderInquiryServiceRequest(merchantInfoMock, WORLDPAY_ORDER_CODE);
 
@@ -264,11 +259,12 @@ public class DefaultOrderInquiryServiceTest {
         when(orderInquiryServiceResponseMock.getErrorDetail()).thenReturn(errorDetail);
 
         when(worldpayServiceGatewayMock.orderInquiry(klarnaOrderInquiryServiceRequestMock))
-            .thenReturn(orderInquiryServiceResponseMock)
-            .thenReturn(orderInquiryServiceResponseMock)
-            .thenReturn(orderInquiryServiceResponseMock);
+                .thenReturn(orderInquiryServiceResponseMock)
+                .thenReturn(orderInquiryServiceResponseMock)
+                .thenReturn(orderInquiryServiceResponseMock);
 
-        testObj.inquiryKlarnaOrder(merchantInfoMock, WORLDPAY_ORDER_CODE);
+        assertThatThrownBy(() -> testObj.inquiryKlarnaOrder(merchantInfoMock, WORLDPAY_ORDER_CODE))
+                .isInstanceOf(WorldpayException.class)
+                .hasMessageContaining("Unable to retrieve order status");
     }
-
 }

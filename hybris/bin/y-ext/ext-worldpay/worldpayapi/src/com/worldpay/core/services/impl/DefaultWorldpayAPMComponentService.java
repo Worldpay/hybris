@@ -6,6 +6,8 @@ import com.worldpay.model.WorldpayAPMComponentModel;
 import com.worldpay.service.apm.APMAvailabilityService;
 import de.hybris.platform.catalog.CatalogVersionService;
 import de.hybris.platform.order.CartService;
+import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
+import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,5 +41,17 @@ public class DefaultWorldpayAPMComponentService implements WorldpayAPMComponentS
             .filter(worldpayAPMComponentModel -> worldpayAPMComponentModel.getApmConfiguration() != null)
             .filter(worldpayAPMComponentModel -> apmAvailabilityService.isAvailable(worldpayAPMComponentModel.getApmConfiguration(), cartService.getSessionCart()))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WorldpayAPMComponentModel getWorldpayAPMComponentByCode(final String apmCode) {
+        try {
+            return worldpayAPMComponentDao.findApmComponentByCode(catalogVersionService.getSessionCatalogVersions(), apmCode);
+        } catch (final ModelNotFoundException | AmbiguousIdentifierException e) {
+            return null;
+        }
     }
 }

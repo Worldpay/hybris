@@ -4,9 +4,9 @@ import { CheckoutBillingAddressFormService } from '@spartacus/checkout/base/comp
 import { Address, Command, CommandService, CommandStrategy, EventService, LoggerService, OCC_USER_ID_ANONYMOUS, QueryService, Region, UserIdService } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayBillingAddressSameAsDeliveryAddressSetEvent, WorldpayBillingAddressUpdatedEvent } from 'worldpay-sap-composable-events';
-import { WorldpayBillingAddressFormFacade } from 'worldpay-sap-composable-facade';
+import { WorldpayConnector } from '../../connectors';
+import { WorldpayBillingAddressSameAsDeliveryAddressSetEvent, WorldpayBillingAddressUpdatedEvent } from '../../events';
+import { WorldpayBillingAddressFormFacade } from '../../facade';
 
 @Injectable({
   providedIn: 'root'
@@ -120,53 +120,93 @@ export class WorldpayBillingAddressFormService extends CheckoutBillingAddressFor
    * This method checks if the provided billing address and delivery address are identical.
    * It first verifies that both addresses are defined. If the `id` properties of the addresses
    * match, it returns `true`. Otherwise, it compares all properties of the addresses, including
-   * nested `region` objects, to ensure they are equal.
+   * nested `region` and `country` objects, to ensure they are equal.
    *
-   * @param billingAddress - The billing address to compare.
-   * @param deliveryAddress - The delivery address to compare.
-   * @returns A boolean indicating whether the two addresses are the same.
+   * @param {Address} billingAddress - The billing address to compare.
+   * @param {Address} deliveryAddress - The delivery address to compare.
+   * @returns {boolean} - A boolean indicating whether the two addresses are the same.
    * @since 2211.43.0
    */
   public compareAddresses(billingAddress: Address, deliveryAddress: Address): boolean {
     if (!billingAddress || !deliveryAddress) return false;
 
-    if (billingAddress.id === deliveryAddress.id) return true;
+    if (billingAddress?.id === deliveryAddress?.id) {
+      return true;
+    }
 
-    // Remove non-comparable fields
-    delete billingAddress.defaultAddress;
-    delete billingAddress.email;
-    delete billingAddress.formattedAddress;
-    delete billingAddress.shippingAddress;
-    delete billingAddress.visibleInAddressBook;
-    delete billingAddress.id;
+    // Create copies to avoid mutating original objects
+    const fieldsToExclude: Set<string> = new Set([
+      'billingAddress',
+      'defaultAddress',
+      'email',
+      'formattedAddress',
+      'id',
+      'shippingAddress',
+      'title',
+      'titleCode',
+      'visibleInAddressBook'
+    ]);
 
-    return Object.keys(billingAddress).every((key: string): boolean => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cleanBillingAddress: Record<string, any> = Object.keys(billingAddress)
+      .filter((key: string): boolean => !fieldsToExclude.has(key))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .reduce((acc: Record<string, any>, key: string): Record<string, any> => {
+        acc[key] = billingAddress[key as keyof typeof billingAddress];
+        return acc;
+      }, {});
+
+    return Object.keys(cleanBillingAddress).every((key: string): boolean => {
       if (!(key in deliveryAddress)) return false;
 
-      if (key === 'region' && typeof billingAddress[key] === 'object') {
+      // Compare region objects
+      if (key === 'region') {
+        const billingRegion: Region = cleanBillingAddress[key];
+        const deliveryRegion: Region = deliveryAddress[key];
+
+        if (billingRegion == null && deliveryRegion == null) {
+          return true;
+        }
+
+        if (billingRegion == null || deliveryRegion == null ||
+            typeof billingRegion !== 'object' ||
+            typeof deliveryRegion !== 'object') {
+          return false;
+        }
+
         const {
-          isocode,
-          isocodeShort
-        }: Region = billingAddress[key];
+          isocode = '',
+          isocodeShort = ''
+        }: Region = cleanBillingAddress[key];
         const {
           isocode: iso2,
           isocodeShort: isoShort2
         }: Region = deliveryAddress[key];
-        return isocode === iso2 || isocode === isoShort2 || isocodeShort === iso2 || isocodeShort === isoShort2;
+
+        return (
+          isocode === iso2 ||
+          isocode === isoShort2 ||
+          isocodeShort === iso2 ||
+          isocodeShort === isoShort2
+        );
       }
 
-      if (key === 'country' && typeof billingAddress[key] === 'object') {
+      // Compare country objects
+      if (key === 'country' && typeof cleanBillingAddress[key] === 'object') {
         const {
           isocode,
           name
-        }: Region = billingAddress[key];
+        }: Region = cleanBillingAddress[key];
         const {
           isocode: iso2,
           name: name2
         }: Region = deliveryAddress[key];
+
         return isocode === iso2 && name === name2;
       }
-      return billingAddress?.[key as keyof typeof billingAddress] === deliveryAddress?.[key as keyof typeof deliveryAddress];
+
+      // Compare primitive values
+      return cleanBillingAddress[key as keyof typeof billingAddress] === deliveryAddress[key as keyof typeof deliveryAddress];
     });
   }
 
@@ -198,6 +238,7 @@ export class WorldpayBillingAddressFormService extends CheckoutBillingAddressFor
     this._sameAsDeliveryAddress.next(value);
 
     if (value) {
+      this.setDeliveryAddressAsBillingAddress(deliveryAddress);
       this.eventService.dispatch(
         {
           billingAddress: deliveryAddress,

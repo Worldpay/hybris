@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
+import { DaysOfWeek, ScheduleReplenishmentForm } from '@spartacus/order/root';
 import { mockUserId } from 'worldpay-sap-composable-tests';
 import { BrowserInfo } from '../interfaces';
 import { OccWorldpayAdapter } from './occ-worldpay.adapter';
@@ -12,6 +13,10 @@ const cseToken = 'mockCseToken';
 const paymentDetails: PaymentDetails = {
   id: 'aaa123',
   cardNumber: '1234123412341234'
+};
+const scheduleReplenishmentForm: ScheduleReplenishmentForm = {
+  daysOfWeek: [DaysOfWeek.MONDAY],
+  replenishmentStartDate: '2025-01-01',
 };
 
 const address: Address = {
@@ -161,9 +166,9 @@ describe('OccWorldpayAdapter', () => {
         cseToken,
         acceptedTermsAndConditions,
         null,
-        browserInfo
-      )
-        .subscribe();
+        browserInfo,
+        scheduleReplenishmentForm
+      ).subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
         'initialPaymentRequest',
@@ -215,9 +220,9 @@ describe('OccWorldpayAdapter', () => {
         cseToken,
         acceptedTermsAndConditions,
         deviceSession,
-        browserInfo
-      )
-        .subscribe();
+        browserInfo,
+        scheduleReplenishmentForm
+      ).subscribe();
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
         'initialPaymentRequest',

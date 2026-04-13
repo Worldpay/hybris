@@ -12,6 +12,8 @@ import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.springframework.beans.factory.annotation.Required;
 
+import java.util.Optional;
+
 /**
  * Populator from AbstractOrderModel to AbstractOrderData
  */
@@ -31,6 +33,9 @@ public class WorldpayAbstractOrderPopulator implements Populator<AbstractOrderMo
             // In the OrderConfirmationPage (b2c), orderData.PaymentInfo is "required" to be a CCPaymentInfoData, and cannot be null.
             final CCPaymentInfoData ccPaymentInfoData = new CCPaymentInfoData();
             ccPaymentInfoData.setBillingAddress(addressConverter.convert(paymentInfo.getBillingAddress()));
+            Optional.ofNullable(paymentInfo.getPk())
+                    .map(Object::toString)
+                    .ifPresent(ccPaymentInfoData::setId);
             target.setPaymentInfo(ccPaymentInfoData);
         }
     }

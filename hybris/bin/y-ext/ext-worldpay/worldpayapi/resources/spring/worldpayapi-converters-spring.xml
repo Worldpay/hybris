@@ -222,7 +222,7 @@
     <alias name="defaultWorldpayAPMPaymentInfoPopulator" alias="apmPaymentInfoPopulator"/>
     <bean id="defaultWorldpayAPMPaymentInfoPopulator"
           class="com.worldpay.converters.populators.DefaultWorldpayAPMPaymentInfoPopulator">
-
+        <constructor-arg name="addressConverter" ref="addressConverter"/>
     </bean>
 
     <alias name="defaultWorldpayCCpaymentInfoPopulator" alias="worldpayCCpaymentInfoPopulator"/>

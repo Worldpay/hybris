@@ -2,6 +2,39 @@
 @import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
 @import "@spartacus/checkout/base/styles/components/steps";
 
-y-worldpay-payment-method {
+:root {
+  --worldpay-cx-icon-width: 50px;
+  --worldpay-cx-icon-height: 50px;
+}
+
+y-worldpay-payment-method, y-worldpay-b2b-payment-method {
   @extend %cx-payment-method !optional;
+
+  .cx-card-container {
+    cx-icon, .cx-icon {
+      display: inline-block;
+      width: 100%;
+      max-width: var(--worldpay-cx-icon-width);
+      height: var(--worldpay-cx-icon-height);
+
+      svg {
+        height: 100%;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.cx-payment-inner {
+  cx-icon, .cx-icon {
+    display: inline-block;
+    width: 100%;
+    max-width: var(--worldpay-cx-icon-width);
+    height: var(--worldpay-cx-icon-height);
+
+    svg {
+      height: 100%;
+      width: 100%;
+    }
+  }
 }

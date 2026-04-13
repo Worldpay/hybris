@@ -222,6 +222,7 @@ def pl = platform {
         extName 'worldpayapi'
         extName 'worldpaynotifications'
         extName 'worldpaysampledataaddon'
+        extName 'worldpayextocccommons'
         extName 'worldpayextocc'
         extName 'worldpayextocctests'
         extName 'worldpayhac'

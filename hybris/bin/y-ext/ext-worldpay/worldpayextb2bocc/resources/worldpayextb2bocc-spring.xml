@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <alias name="defaultOCCWorldpayOrderFacade" alias="b2bOCCWorldpayOrderFacade"/>
+    <bean id="defaultOCCWorldpayOrderFacade" class="com.worldpay.worldpayocccommons.facade.impl.DefaultOCCWorldpayOrderFacade"
+          parent="defaultOrderFacade">
+        <constructor-arg name="orderConverter" ref="orderConverter"/>
+        <constructor-arg name="redirectAuthoriseResultConverter" ref="redirectAuthoriseResultConverter"/>
+        <constructor-arg name="worldpayCheckoutFacadeDecorator" ref="worldpayB2BAcceleratorCheckoutFacadeDecorator"/>
+        <constructor-arg name="worldpayHOPNoReturnParamsStrategy" ref="worldpayHOPNoReturnParamsStrategy"/>
+        <constructor-arg name="worldpayHostedOrderFacade" ref="worldpayHostedOrderFacade"/>
+        <constructor-arg name="worldpayOrderCodeVerificationService" ref="worldpayOrderCodeVerificationService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayDirectOrderFacade" ref="defaultB2BWorldpayDirectOrderFacade"/>
+    </bean>
+
+    <alias name="defaultOCCB2BWorldpayDirectOrderFacade" alias="occB2BWorldpayDirectOrderFacade"/>
+    <bean id="defaultOCCB2BWorldpayDirectOrderFacade" parent="defaultB2BWorldpayDirectOrderFacade" class="com.worldpay.worldpayextb2bocc.facades.impl.DefaultWorldpayOCCB2BDirectOrderFacade">
+        <constructor-arg name="b2BOrderService" ref="b2bOrderService" />
+        <constructor-arg name="acceleratorCheckoutFacade" ref="worldpayB2BAcceleratorCheckoutFacadeDecorator" />
+        <constructor-arg name="worldpayDirectOrderService" ref="occWorldpayDirectOrderService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="worldpayPaymentInfoService" ref="worldpayPaymentInfoService"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="worldpayCartService" ref="worldpayCartService"/>
+        <constructor-arg name="apmPaymentInfoPopulator" ref="apmPaymentInfoPopulator"/>
+    </bean>
+			
+</beans>

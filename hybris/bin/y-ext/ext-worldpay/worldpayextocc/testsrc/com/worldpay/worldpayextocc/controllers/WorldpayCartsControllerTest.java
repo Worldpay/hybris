@@ -19,7 +19,7 @@ import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
 import com.worldpay.populator.options.PaymentDetailsWsDTOOption;
 import com.worldpay.service.model.payment.PaymentType;
-import com.worldpay.worldpayextocc.exceptions.NoCheckoutCartException;
+import com.worldpay.worldpayocccommons.exceptions.NoCheckoutCartException;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
@@ -34,7 +34,7 @@ import de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO;
 import de.hybris.platform.converters.ConfigurablePopulator;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.order.InvalidCartException;
-import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
+import de.hybris.platform.servicelayer.i18n.I18NService;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
 import de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper;
 import org.junit.Before;
@@ -42,11 +42,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
 import java.util.Map;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
@@ -61,9 +63,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayCartsControllerTest {
 
-    private static final String SESSION_ID = "sessionID";
     private static final String PAYMENT_METHOD_NOT_SUPPORTED = "paymentMethodNotSupported";
-    private static final String PAYMENT_DETAILS = "paymentDetails";
     private static final String CART_ID = "cartId";
     private static final String THREED_SECURE_FLOW = "3D-Secure-Flow";
     private static final String THREED_SECURE_FLEX_FLOW = "3D-Secure-Flex-Flow";
@@ -100,6 +100,10 @@ public class WorldpayCartsControllerTest {
     private APMAvailabilityFacade apmAvailabilityFacadeMock;
     @Mock
     private WorldpayBankConfigurationFacade worldpayBankConfigurationFacadeMock;
+    @Mock
+    protected MessageSource messageSourceMock;
+    @Mock
+    protected I18NService i18nServiceMock;
 
     @Mock
     private AddressData addressDataMock;
@@ -125,6 +129,8 @@ public class WorldpayCartsControllerTest {
     private OrderWsDTO orderWsDTOMock;
     @Mock
     private PaymentData paymentDataMock;
+    @Mock
+    private CSEAdditionalAuthInfo cseAdditionalAuthInfoMock;
 
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
@@ -137,11 +143,12 @@ public class WorldpayCartsControllerTest {
     public void setUp() throws WorldpayException, InvalidCartException {
         lenient().when(dataMapperMock.map(addressWsDTOMock, AddressData.class, DEFAULT_LEVEL)).thenReturn(addressDataMock);
         when(apmAvailabilityFacadeMock.isAvailable(or(eq(PaymentType.IDEAL.getMethodCode()), eq(PaymentType.VISA.getMethodCode())))).thenReturn(Boolean.TRUE);
-        doReturn(SESSION_ID).when(testObj).getSessionId(requestMock);
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(Boolean.TRUE);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(cartDataMock.getPaymentInfo()).thenReturn(ccPaymentInfoDataMock);
+        doReturn(cseAdditionalAuthInfoMock).when(testObj).callSuperCreateCSESubscriptionAdditionalAuthInfo(paymentDetailsWsDTOMock);
+
         lenient().when(dataMapperMock.map(ccPaymentInfoDataMock, PaymentDetailsWsDTO.class, FieldSetLevelHelper.DEFAULT_LEVEL)).thenReturn(paymentDetailsWsDTOMock);
         when(worldpayDirectOrderFacadeMock.executeFirstPaymentAuthorisation3DSecure(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(directResponseDataMock);
         when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
@@ -157,6 +164,7 @@ public class WorldpayCartsControllerTest {
 
             return null;
         }).when(httpRequestPaymentDetailsWsDTOPopulatorMock).populate(eq(requestMock), any(PaymentDetailsWsDTO.class), any());
+        when(i18nServiceMock.getCurrentLocale()).thenReturn(Locale.ENGLISH);
     }
 
     @Test(expected = NoCheckoutCartException.class)
@@ -166,12 +174,6 @@ public class WorldpayCartsControllerTest {
         testObj.addPaymentDetails(requestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
     }
 
-    @Test(expected = WebserviceValidationException.class)
-    public void addPaymentDetails_WhenPaymentDetailsAreNotValid_ShouldThrowWebserviceValidationException() throws WorldpayException, NoCheckoutCartException {
-        doThrow(WebserviceValidationException.class).when(testObj).validate(any(PaymentDetailsWsDTO.class), eq(PAYMENT_DETAILS), eq(paymentDetailsDTOValidatorMock));
-
-        testObj.addPaymentDetails(requestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
-    }
 
     @Test(expected = WorldpayException.class)
     public void addPaymentDetails_WhenTokenizeThrowsWorldpayException_ShouldThrowWorldpayException() throws WorldpayException, NoCheckoutCartException {
@@ -202,13 +204,6 @@ public class WorldpayCartsControllerTest {
         testObj.addPaymentDetails(requestMock, paymentDetailsWsDTOMock, FieldSetLevelHelper.DEFAULT_LEVEL);
     }
 
-    @Test(expected = WebserviceValidationException.class)
-    public void addPaymentDetailsWithRequestBody_WhenPaymentDetailsAreNotValid_ShouldThrowWebserviceValidationException() throws WorldpayException, NoCheckoutCartException {
-        doThrow(WebserviceValidationException.class).when(testObj).validate(paymentDetailsWsDTOMock, PAYMENT_DETAILS, paymentDetailsDTOValidatorMock);
-
-        testObj.addPaymentDetails(requestMock, paymentDetailsWsDTOMock, FieldSetLevelHelper.DEFAULT_LEVEL);
-    }
-
     @Test(expected = WorldpayException.class)
     public void addPaymentDetailsWithRequestBody_WhenTokenizeThrowsWorldpayException_ShouldThrowWorldpayException() throws WorldpayException, NoCheckoutCartException {
         doThrow(WorldpayException.class).when(worldpayDirectOrderFacadeMock).tokenize(any(CSEAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock));
@@ -233,13 +228,6 @@ public class WorldpayCartsControllerTest {
     @Test(expected = NoCheckoutCartException.class)
     public void addPaymentDetailsAndPlaceOrder_WhenHasNotCheckoutCart_ShouldThrowNoCheckoutCartException() throws InvalidCartException, NoCheckoutCartException, WorldpayException {
         when(checkoutFacadeMock.hasCheckoutCart()).thenReturn(Boolean.FALSE);
-
-        testObj.addPaymentDetailsAndPlaceOrder(requestMock, responseMock, paymentDetailsWsDTOMock, CART_ID);
-    }
-
-    @Test(expected = WebserviceValidationException.class)
-    public void addPaymentDetailsAndPlaceOrder__WhenPaymentDetailsAreNotValid_ShouldThrowWebserviceValidationException() throws InvalidCartException, NoCheckoutCartException, WorldpayException {
-        doThrow(WebserviceValidationException.class).when(testObj).validate(paymentDetailsWsDTOMock, PAYMENT_DETAILS, paymentDetailsDTOValidatorMock);
 
         testObj.addPaymentDetailsAndPlaceOrder(requestMock, responseMock, paymentDetailsWsDTOMock, CART_ID);
     }
@@ -407,7 +395,6 @@ public class WorldpayCartsControllerTest {
         final PaymentRequestData paymentRequestData = new PaymentRequestData();
         paymentRequestData.setPaymentMethod(PaymentType.IDEAL.getMethodCode());
 
-        doReturn(SESSION_ID).when(testObj).getSessionId(requestMock);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(worldpayBankConfigurationFacadeMock.isBankTransferApm(PaymentType.IDEAL.getMethodCode())).thenReturn(Boolean.TRUE);
 
@@ -422,7 +409,6 @@ public class WorldpayCartsControllerTest {
         final PaymentRequestData paymentRequestData = new PaymentRequestData();
         paymentRequestData.setPaymentMethod(PaymentType.VISA.getMethodCode());
 
-        doReturn(SESSION_ID).when(testObj).getSessionId(requestMock);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(requestMock)).thenReturn(worldpayAdditionalInfoDataMock);
         when(worldpayBankConfigurationFacadeMock.isBankTransferApm(PaymentType.VISA.getMethodCode())).thenReturn(Boolean.FALSE);
         when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(AdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);

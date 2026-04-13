@@ -1,5 +1,13 @@
 package com.worldpay.merchant.configuration.services.impl;
 
+import java.util.Set;
+
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
@@ -11,17 +19,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Set;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayMerchantConfigurationServiceTest {
-
-    private static final String BASE_SITE_ID = "base-site-id";
 
     @InjectMocks
     private DefaultWorldpayMerchantConfigurationService testObj;
@@ -31,7 +31,7 @@ public class DefaultWorldpayMerchantConfigurationServiceTest {
     @Mock
     private CMSSiteModel siteMock1, siteMock2, siteMock3;
     @Mock
-    private WorldpayMerchantConfigurationModel webMerchantConfigurationMock, asmMerchantConfigurationMock, replenishmentMerchantConfigurationMock;
+    private WorldpayMerchantConfigurationModel webMerchantConfigurationMock, asmMerchantConfigurationMock, replenishmentMerchantConfigurationMock, openBankingMerchantConfigurationMock;
 
     @Before
     public void setUp() {
@@ -106,5 +106,14 @@ public class DefaultWorldpayMerchantConfigurationServiceTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(webMerchantConfigurationMock));
         assertTrue(result.contains(asmMerchantConfigurationMock));
+    }
+
+    @Test
+    public void getCurrentOpenBankingConfiguration_ShouldReturnTheValueAsExpected() {
+        when(siteMock1.getOpenBankingMerchantConfiguration()).thenReturn(openBankingMerchantConfigurationMock);
+
+        final WorldpayMerchantConfigurationModel result = testObj.getCurrentOpenBankingConfiguration();
+
+        assertSame(openBankingMerchantConfigurationMock, result);
     }
 }

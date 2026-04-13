@@ -52,7 +52,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
      */
     @Override
     public boolean checkForError(final ServiceResponse response, final Reply reply) {
-        final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().get(0);
+        final Object replyType = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().get(0);
         if (replyType instanceof com.worldpay.internal.model.Error) {
             response.setError(Optional.of(replyType)
                 .map(com.worldpay.internal.model.Error.class::cast)
@@ -60,7 +60,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 .orElse(null));
             return true;
         } else if (replyType instanceof OrderStatus orderStatus) {
-            final Object statusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse().get(0);
+            final Object statusType = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse().get(0);
             if (statusType instanceof com.worldpay.internal.model.Error) {
                 response.setError(Optional.of(statusType)
                     .map(com.worldpay.internal.model.Error.class::cast)
@@ -377,7 +377,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             card.setCvc(cvc);
             card.setExpiryDate(expiryDate);
             card.setCardHolderName(cardHolderName);
-            card.setBin(derived.getBin());
+            card.setBin(derived.getBin().getvalue());
             card.setCardAddress(address);
             return card;
         }

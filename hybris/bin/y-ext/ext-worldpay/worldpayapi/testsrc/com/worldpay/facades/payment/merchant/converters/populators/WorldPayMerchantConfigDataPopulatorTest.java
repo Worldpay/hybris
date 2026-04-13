@@ -1,7 +1,19 @@
 package com.worldpay.facades.payment.merchant.converters.populators;
 
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
-import com.worldpay.enums.*;
+import com.worldpay.enums.ApplePayMerchantCapabilities;
+import com.worldpay.enums.ApplePaySupportedNetworks;
+import com.worldpay.enums.ChallengePreference;
+import com.worldpay.enums.EnvironmentType;
+import com.worldpay.enums.GooglePayCardAuthMethods;
+import com.worldpay.enums.GooglePayCardNetworks;
 import com.worldpay.model.WorldpayApplePayConfigurationModel;
 import com.worldpay.model.WorldpayGooglePayConfigurationModel;
 import com.worldpay.model.WorldpayMerchantConfigurationModel;
@@ -13,11 +25,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Set;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +38,6 @@ public class WorldPayMerchantConfigDataPopulatorTest {
     private static final String INSTALLATION_ID = "installationId";
     private static final String STATEMENT_NARRATIVE_TEXT = "STATEMENT NARRATIVE TEXT";
     private static final String ORDER_CONTENT = "orderContent";
-    private static final String CHALLENGE_PREFERENCE = "challengePreference";
     private static final String COUNTRY_CODE = "countryCode";
     private static final String MERCHANT_ID = "merchantId";
     private static final String MERCHANT_NAME = "Merchant name";
@@ -58,7 +64,7 @@ public class WorldPayMerchantConfigDataPopulatorTest {
     @Mock
     private WorldpayApplePayConfigurationModel applePayConfigurationMock;
 
-    private WorldpayMerchantConfigData targetData = new WorldpayMerchantConfigData();
+    private final WorldpayMerchantConfigData targetData = new WorldpayMerchantConfigData();
 
     @Before
     public void setUp() {

@@ -1,0 +1,33 @@
+<form
+  (ngSubmit)="next()"
+  [formGroup]="sepaForm"
+>
+  <div class="row">
+    <div class="col-12">
+      <div class="form-group">
+        <div class="form-check">
+          <label>
+            <input
+              id="save-sepa-info"
+              type="checkbox"
+              class="form-check-input"
+              [attr.aria-label]="'paymentForm.billingAddressSameAsShipping' | cxTranslate"
+              formControlName="save"
+            />
+            <span class="form-check-label">{{ 'paymentForm.setAsSaved' | cxTranslate }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <y-worldpay-billing-address></y-worldpay-billing-address>
+    </div>
+  </div>
+  <!-- BUTTON SECTION -->
+  <y-worldpay-apm-submit-buttons
+    (back)="return()"
+    [disableContinue]="disableContinueButton$ | async"
+    [dataTestId]="'sepa-continue-btn'"
+  />
+</form>

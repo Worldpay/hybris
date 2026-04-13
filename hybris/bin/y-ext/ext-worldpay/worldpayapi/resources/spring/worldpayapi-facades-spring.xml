@@ -144,6 +144,7 @@
         <constructor-arg name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
         <constructor-arg name="creditCardPaymentInfoConverter" ref="creditCardPaymentInfoConverter"/>
         <constructor-arg name="customerAccountService" ref="worldpayCustomerAccountService"/>
+        <constructor-arg name="apmAvailabilityFacade" ref="apmAvailabilityFacade"/>
     </bean>
 
 </beans>

@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorldpayApplepayAdapter } from 'worldpay-sap-composable-connectors';
+import { WorldpayApplepayAdapter } from '../../../connectors';
 import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../../interfaces';
 
 @Injectable()

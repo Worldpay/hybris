@@ -1,5 +1,12 @@
 package com.worldpay.service;
 
+import javax.annotation.Resource;
+import java.time.Instant;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.request.AuthorisationCodeServiceRequest;
@@ -9,18 +16,13 @@ import de.hybris.platform.servicelayer.ServicelayerBaseTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.annotation.Resource;
-import java.util.Date;
-
-import static org.junit.Assert.*;
-
 @IntegrationTest
 public class AuthorisationCodeServiceRequestIntegrationTest extends ServicelayerBaseTest {
 
     private static final String AUTHORISATION_CODE = "AC-1234567890";
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
-    private static final String orderCode = String.valueOf(new Date().getTime());
+    private static final String ORDER_CODE = String.valueOf(Instant.now().toEpochMilli());
 
     private MerchantInfo merchantInfo;
 
@@ -40,14 +42,14 @@ public class AuthorisationCodeServiceRequestIntegrationTest extends Servicelayer
      */
     @Test
     public void testAuthorisationCode() throws WorldpayException {
-        WPSGTestHelper.directAuthorise(gateway, merchantInfo, orderCode);
+        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
 
-        final AuthorisationCodeServiceRequest request = AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, orderCode, AUTHORISATION_CODE);
+        final AuthorisationCodeServiceRequest request = AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
         final AuthorisationCodeServiceResponse authorisationCode = gateway.authorisationCode(request);
 
         assertNotNull("Authorisation code response is null!", authorisationCode);
         assertFalse("Errors returned from authorisation code request", authorisationCode.isError());
-        assertEquals("Order code returned is incorrect", orderCode, authorisationCode.getOrderCode());
+        assertEquals("Order code returned is incorrect", ORDER_CODE, authorisationCode.getOrderCode());
         assertEquals("Authorisation code returned is incorrect", AUTHORISATION_CODE, authorisationCode.getAuthorisationCode());
     }
 }

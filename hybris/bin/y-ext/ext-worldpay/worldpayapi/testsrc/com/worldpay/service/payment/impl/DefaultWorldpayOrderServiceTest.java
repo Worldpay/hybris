@@ -8,7 +8,6 @@ import com.worldpay.data.payment.AchDirectDebitPayment;
 import com.worldpay.data.payment.AlternativePayment;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.ACHDIRECTDEBITSSL;
 import com.worldpay.internal.model.Header;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.model.payment.PaymentType;

@@ -1,5 +1,11 @@
 package com.worldpay.service;
 
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForMerchantToken;
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.worldpay.data.Address;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.payment.Cse;
@@ -8,18 +14,11 @@ import com.worldpay.data.token.TokenRequest;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.request.CreateTokenServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForMerchantToken;
-import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @UnitTest
-public class CreateTokenServiceRequestTest {
+class CreateTokenServiceRequestTest {
 
     private static final String TOKEN_EVENT_REFERENCE = "tokenEventReference";
     private static final String TOKEN_REASON = "tokenReason";
@@ -40,22 +39,16 @@ public class CreateTokenServiceRequestTest {
     private MerchantInfo merchantInfo;
     private TokenRequest tokenRequest;
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
 
-        final TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest = new TokenRequest();
         tokenRequest.setTokenReason(TOKEN_REASON);
         tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenRequest.setMerchantToken(false);
-        this.tokenRequest = tokenRequest;
 
         final Address billingAddress = new Address();
         billingAddress.setFirstName(NAME);
@@ -76,18 +69,16 @@ public class CreateTokenServiceRequestTest {
 
     @Test
     public void createTokenRequestForShopperWillRaiseIllegalArgumentExceptionWhenMerchantIsNull() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
-        final MerchantInfo merchant = null;
-        createTokenRequestForShopperToken(merchant, AUTHENTICATED_SHOPPER_ID, payment, tokenRequest);
+        assertThatThrownBy(() -> createTokenRequestForShopperToken(null, AUTHENTICATED_SHOPPER_ID, payment, tokenRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
     }
 
     @Test
     public void createTokenRequestForShopperWillRaiseIllegalArgumentExceptionWhenPaymentIsNull() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
-        final Payment payment = null;
-        createTokenRequestForShopperToken(merchantInfo, AUTHENTICATED_SHOPPER_ID, payment, tokenRequest);
+        assertThatThrownBy(() -> createTokenRequestForShopperToken(merchantInfo, AUTHENTICATED_SHOPPER_ID, null, tokenRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
     }
 
     @Test
@@ -101,18 +92,17 @@ public class CreateTokenServiceRequestTest {
 
     @Test
     public void createTokenRequestForMerchantWillRaiseIllegalArgumentExceptionWhenMerchantIsNull() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
-        final MerchantInfo merchant = null;
-        createTokenRequestForMerchantToken(merchant, payment, tokenRequest);
+        assertThatThrownBy(() -> createTokenRequestForMerchantToken(null, payment, tokenRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
     }
 
     @Test
     public void createTokenRequestForMerchantWillRaiseIllegalArgumentExceptionWhenPaymentIsNull() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
-        final Payment payment = null;
         createTokenRequestForMerchantToken(merchantInfo, payment, tokenRequest);
+        assertThatThrownBy(() -> createTokenRequestForMerchantToken(merchantInfo, null, tokenRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Required parameter to create CreateTokenServiceRequest cannot be null");
     }
 
     @Test

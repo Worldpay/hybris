@@ -25,18 +25,18 @@ import {
 } from '@spartacus/core';
 import { OrderPlacedEvent } from '@spartacus/order/root';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayApmConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayApmFacade } from 'worldpay-sap-composable-facade';
+import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { WorldpayApmConnector } from '../../connectors';
 import {
   ClearWorldpayPaymentDetailsEvent,
   SelectWorldpayAPMEvent,
   SetWorldpayAPMRedirectResponseEvent,
   SetWorldpaySaveAsDefaultCreditCardEvent,
   SetWorldpaySavedCreditCardEvent
-} from '../../events/worldpay.events';
+} from '../../events';
+import { WorldpayApmFacade } from '../../facade';
 import { ApmData, ApmPaymentDetails, APMRedirectResponse, OccCmsComponentWithMedia, PaymentMethod } from '../../interfaces';
-import { COMPONENT_APM_NORMALIZER } from '../../occ/converters';
+import { COMPONENT_APM_NORMALIZER } from '../../occ';
 import { getBaseHref, trimLastSlashFromUrl } from '../../utils';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
@@ -50,6 +50,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
   protected apmRedirectUrl$: BehaviorSubject<APMRedirectResponse> = new BehaviorSubject<APMRedirectResponse>(null);
   protected destroyRef: DestroyRef = inject(DestroyRef);
   protected logger: LoggerService = inject(LoggerService);
+  protected save: boolean = false;
   /**
    * Command used to get available APMs
    * @since 6.4.0
@@ -225,6 +226,22 @@ export class WorldpayApmService implements WorldpayApmFacade {
   }
 
   /**
+   * Retrieves the current state of the 'save' property.
+   * @returns {boolean} The current value of the 'save' property.
+   */
+  getSaveApm(): boolean {
+    return this.save;
+  }
+
+  /**
+   * Updates the value of the 'save' property.
+   * @param {boolean} value - The new value to set for the 'save' property.
+   */
+  setSaveApm(value: boolean): void {
+    this.save = value;
+  }
+
+  /**
    * Returns an observable that emits the loading state of the available APMs.
    * @returns {Observable<boolean>} An observable emitting a boolean indicating the loading state.
    * @since 6.4.0
@@ -242,7 +259,9 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   getApmComponentById(componentUid: string, code: PaymentMethod): Observable<ApmData> {
     return this.cmsService.getComponentData<OccCmsComponentWithMedia>(componentUid)
-      .pipe(this.convertService.pipeable(COMPONENT_APM_NORMALIZER),
+      .pipe(
+        filter((component: OccCmsComponentWithMedia): boolean => !!component),
+        this.convertService.pipeable(COMPONENT_APM_NORMALIZER),
         map((apmData: ApmData): ApmData => ({
           ...apmData,
           code

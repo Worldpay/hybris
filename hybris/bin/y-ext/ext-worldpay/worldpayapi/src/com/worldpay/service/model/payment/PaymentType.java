@@ -125,7 +125,8 @@ public enum PaymentType implements Serializable {
     ENVOY_TRANSFER_THB("ENVOY_TRANSFER_THB-BANK", ENVOYTRANSFERTHBBANK.class),
     ENVOY_TRANSFER_USD("ENVOY_TRANSFER_USD-BANK", ENVOYTRANSFERUSDBANK.class),
     ENVOY_TRANSFER_ZAR("ENVOY_TRANSFER_ZAR-BANK", ENVOYTRANSFERZARBANK.class),
-    EFTPOS_AU("EFTPOS_AU", Object.class),;
+    EFTPOS_AU("EFTPOS_AU", Object.class),
+    OPENBANKINGSSL("OPENBANKING-SSL", OPENBANKINGSSL.class);
 
     private static final Map<String, PaymentType> lookup = new HashMap<>();
 

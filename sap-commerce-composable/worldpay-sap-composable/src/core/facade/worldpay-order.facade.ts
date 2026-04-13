@@ -70,8 +70,9 @@ export abstract class WorldpayOrderFacade extends OrderFacade {
   /**
    * Abstract method used to fail challenge
    *  @since 6.4.0
+   *  @param key
    */
-  abstract challengeFailed(): void;
+  abstract challengeFailed(key: string): void;
 
   /**
    * Abstract method used to get APM redirect url

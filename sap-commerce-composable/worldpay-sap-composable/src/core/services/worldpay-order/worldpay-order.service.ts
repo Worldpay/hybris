@@ -12,17 +12,22 @@ import {
   LoggerService,
   PaymentDetails,
   RoutingService,
+  Translatable,
   UserIdService
 } from '@spartacus/core';
 import { OrderConnector, OrderService } from '@spartacus/order/core';
-import { Order, OrderPlacedEvent } from '@spartacus/order/root';
+import { Order, OrderPlacedEvent, ScheduleReplenishmentForm } from '@spartacus/order/root';
 import { LAUNCH_CALLER, LaunchDialogService } from '@spartacus/storefront';
 import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { WorldpayACHConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { ClearInitialPaymentRequestEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from 'worldpay-sap-composable-events';
-import { WorldpayApmConnector } from '../../connectors';
-import { ClearWorldpayACHPaymentFormEvent, ClearWorldpayPaymentDetailsEvent } from '../../events/worldpay.events';
+import { WorldpayACHConnector, WorldpayApmConnector, WorldpayConnector } from '../../connectors';
+import {
+  ClearInitialPaymentRequestEvent,
+  ClearWorldpayACHPaymentFormEvent,
+  ClearWorldpayPaymentDetailsEvent,
+  DDC3dsJwtSetEvent,
+  InitialPaymentRequestSetEvent
+} from '../../events';
 import { ACHPaymentForm, BrowserInfo, CSEPaymentForm, KeyValuePair, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 
@@ -60,7 +65,8 @@ export class WorldpayOrderService extends OrderService {
       cseToken,
       acceptedTermsAndConditions,
       deviceSession,
-      browserInfo
+      browserInfo,
+      scheduleReplenishmentFormData
     }: CSEPaymentForm): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
       switchMap(([userId, cartId]: [string, string]): Observable<PlaceOrderResponse> => this.worldpayConnector.initialPaymentRequest(
         userId,
@@ -71,7 +77,8 @@ export class WorldpayOrderService extends OrderService {
         cseToken,
         acceptedTermsAndConditions,
         deviceSession,
-        browserInfo
+        browserInfo,
+        scheduleReplenishmentFormData
       ).pipe(
         tap((response: PlaceOrderResponse): void => {
           if (response.threeDSecureNeeded === true) {
@@ -89,7 +96,8 @@ export class WorldpayOrderService extends OrderService {
             this.placedOrderSuccess(userId, cartId, response.order);
           } else {
             this.clearLoading();
-            this.globalMessageService.add({ key: 'checkoutReview.initialPaymentRequestFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
+            const errorMessage: string | Translatable = response.returnMessage ? { raw: response.returnMessage } : { key: 'checkoutReview.initialPaymentRequestFailed' };
+            this.globalMessageService.add(errorMessage, GlobalMessageType.MSG_TYPE_ERROR);
           }
         })
       ))
@@ -305,6 +313,7 @@ export class WorldpayOrderService extends OrderService {
    * @param {boolean} acceptedTermsAndConditions - Whether the terms and conditions are accepted
    * @param {string} deviceSession - The device session ID
    * @param {BrowserInfo} browserInfo - The browser information
+   * @param {ScheduleReplenishmentForm} [scheduleReplenishmentFormData] - The schedule replenishment form data (optional).
    * @returns {Observable<PlaceOrderResponse>} - Observable that emits the place order response
    * @since 6.4.0
    */
@@ -314,7 +323,8 @@ export class WorldpayOrderService extends OrderService {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
-    browserInfo: BrowserInfo
+    browserInfo: BrowserInfo,
+    scheduleReplenishmentFormData?: ScheduleReplenishmentForm
   ): Observable<PlaceOrderResponse> {
 
     const paymentDetails: PaymentDetails = { ...unsafePaymentDetails };
@@ -335,7 +345,8 @@ export class WorldpayOrderService extends OrderService {
       challengeWindowSize,
       acceptedTermsAndConditions,
       deviceSession,
-      browserInfo
+      browserInfo,
+      scheduleReplenishmentFormData
     });
   }
 
@@ -371,8 +382,8 @@ export class WorldpayOrderService extends OrderService {
    *
    * @since 6.4.0
    */
-  challengeFailed(): void {
-    this.globalMessageService.add({ key: 'checkoutReview.challengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
+  challengeFailed(key: string): void {
+    this.globalMessageService.add({ key }, GlobalMessageType.MSG_TYPE_ERROR);
     this.eventService.dispatch({}, ClearWorldpayPaymentDetailsEvent);
   }
 

@@ -2,11 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { EventService, LoggerService, QueryService, QueryState, WindowRef } from '@spartacus/core';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { WorldpayGuaranteedPaymentsConnector } from 'worldpay-sap-composable-connectors';
-import { SetGuaranteedPaymentsSessionIdEvent } from 'worldpay-sap-composable-events';
-
-import { WorldpayGuaranteedPaymentsService } from 'worldpay-sap-composable-services';
-import { LoadScriptService } from 'worldpay-sap-composable-utils';
+import { WorldpayGuaranteedPaymentsConnector } from '../../connectors';
+import { SetGuaranteedPaymentsSessionIdEvent } from '../../events';
+import { LoadScriptService } from '../../utils';
+import { WorldpayGuaranteedPaymentsService } from './worldpay-guaranteed-payments.service';
 import createSpy = jasmine.createSpy;
 
 class MockWorldpayGuaranteedPaymentsConnector implements Partial<WorldpayGuaranteedPaymentsConnector> {
@@ -265,7 +264,7 @@ describe('WorldpayGuaranteedPaymentsService', () => {
       idScript: service.idScript,
       src: 'https://cdn-scripts.signifyd.com/api/script-tag.js',
       defer: true,
-      attributes: {'data-order-session-id': sessionId},
+      attributes: { 'data-order-session-id': sessionId },
     });
     spyOn(loadScriptService, 'removeScript').and.callThrough();
     loadScriptService.removeScript(sessionId);

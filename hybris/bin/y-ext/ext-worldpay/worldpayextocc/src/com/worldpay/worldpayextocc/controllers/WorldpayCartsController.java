@@ -19,10 +19,10 @@ import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.populator.options.PaymentDetailsWsDTOOption;
-import com.worldpay.worldpayextocc.exceptions.NoCheckoutCartException;
+import com.worldpay.worldpayocccommons.controllers.AbstractWorldpayController;
+import com.worldpay.worldpayocccommons.exceptions.NoCheckoutCartException;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
@@ -56,8 +56,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
@@ -86,16 +84,10 @@ import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.
 @CacheControl(directive = CacheControlDirective.NO_CACHE)
 public class WorldpayCartsController extends AbstractWorldpayController {
 
-    private static final Logger LOG = Logger.getLogger(WorldpayCartsController.class);
-
-    private static final String DATE_OF_BIRTH_FORMAT = "yyyy-MM-dd";
-
     @Resource(name = "occWorldpayDirectOrderFacade")
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource(name = "userFacade")
     protected UserFacade userFacade;
-    @Resource(name = "paymentDetailsDTOValidator")
-    protected Validator paymentDetailsDTOValidator;
     @Resource(name = "dataMapper")
     private DataMapper dataMapper;
     @Resource
@@ -223,15 +215,15 @@ public class WorldpayCartsController extends AbstractWorldpayController {
                                                                   @RequestBody final PaymentDetailsWsDTO paymentDetails,
                                                                   @PathVariable final String cartId) throws WorldpayException, InvalidCartException, NoCheckoutCartException {
 
-        validatePayment(paymentDetails);
+        callSuperValidatePayment(paymentDetails);
 
-        final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
+        final CSEAdditionalAuthInfo cseAdditionalAuthInfo = callSuperCreateCSESubscriptionAdditionalAuthInfo(paymentDetails);
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(
                 request, cseAdditionalAuthInfo, cartId, paymentDetails.getBrowserInfo());
         worldpayAdditionalInfoData.setDeviceSession(paymentDetails.getDeviceSession());
         Optional.ofNullable(paymentDetails.getDateOfBirth())
                 .map(this::convertStringToDate)
-                .ifPresent(date -> worldpayAdditionalInfoData.setDateOfBirth(date));
+                .ifPresent(worldpayAdditionalInfoData::setDateOfBirth);
 
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
 
@@ -358,58 +350,12 @@ public class WorldpayCartsController extends AbstractWorldpayController {
         return dataMapper.map(worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, worldpayAdditionalInfoData), PaymentDataWsDTO.class, fields);
     }
 
-    protected PaymentDetailsWsDTO addPaymentDetailsInternal(final HttpServletRequest request,
-                                                            final PaymentDetailsWsDTO paymentDetails,
-                                                            final String fields) throws NoCheckoutCartException, WorldpayException {
-        validatePayment(paymentDetails);
-
-        final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCseAdditionalAuthInfo(paymentDetails);
-        final WorldpayAdditionalInfoData worldpayAdditionalInfoData = createWorldpayAdditionalInfo(request);
-        try {
-            saveBillingAddress(paymentDetails.getBillingAddress(), fields);
-
-            worldpayDirectOrderFacade.tokenize(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
-        } catch (final WorldpayException e) {
-            throw new WorldpayException("There was an error tokenizing the payment details");
-        }
-
-        final CartData cartData = checkoutFacade.getCheckoutCart();
-        final CCPaymentInfoData paymentInfoData = cartData.getPaymentInfo();
-
-        final PaymentDetailsWsDTO paymentDetailsWsDTO = dataMapper.map(paymentInfoData, PaymentDetailsWsDTO.class, fields);
-        paymentDetailsWsDTO.setDefaultPayment(paymentDetails.getDefaultPayment());
-
-        return paymentDetailsWsDTO;
+    protected void callSuperValidatePayment(final PaymentDetailsWsDTO paymentDetails) throws NoCheckoutCartException {
+        super.validatePayment(paymentDetails);
     }
 
-
-    protected void validatePayment(final PaymentDetailsWsDTO paymentDetails) throws NoCheckoutCartException {
-        if (!checkoutFacade.hasCheckoutCart()) {
-            throw new NoCheckoutCartException("Cannot add PaymentInfo. There was no checkout cart created yet!");
-        }
-        validate(paymentDetails, "paymentDetails", paymentDetailsDTOValidator);
+    protected CSEAdditionalAuthInfo callSuperCreateCSESubscriptionAdditionalAuthInfo(final PaymentDetailsWsDTO paymentDetails) {
+        return createCSESubscriptionAdditionalAuthInfo(paymentDetails.getChallengeWindowSize(), paymentDetails.getDfReferenceId());
     }
 
-    protected void saveBillingAddress(final AddressWsDTO address, final String fields) {
-        address.setVisibleInAddressBook(Boolean.FALSE);
-        final AddressData addressData = dataMapper.map(address, AddressData.class, fields);
-        worldpayAdressWsDTOAddressDataPopulator.populate(address, addressData);
-        userFacade.addAddress(addressData);
-        worldpayPaymentCheckoutFacade.setBillingDetails(addressData);
-    }
-
-    /**
-     * Convert yyyy-MM-dd string to a Java Date
-     *
-     * @param dateString
-     * @return
-     */
-    protected Date convertStringToDate(final String dateString) {
-        try {
-            return new SimpleDateFormat(DATE_OF_BIRTH_FORMAT).parse(dateString);
-        } catch (ParseException e) {
-            LOG.error("failed parsing date of birth", e);
-        }
-        return null;
-    }
 }

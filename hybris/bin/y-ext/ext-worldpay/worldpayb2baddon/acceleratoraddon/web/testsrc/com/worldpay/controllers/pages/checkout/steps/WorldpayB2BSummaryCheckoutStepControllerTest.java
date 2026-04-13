@@ -3,6 +3,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData;
 import com.worldpay.facades.order.impl.WorldpayB2BAcceleratorCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDDCFacade;
@@ -202,6 +203,8 @@ public class WorldpayB2BSummaryCheckoutStepControllerTest {
     private AbstractOrderData abstractOrderDataMock;
     @Mock
     private B2BDaysOfWeekData b2BDaysOfWeekDataMock;
+    @Mock
+    private WorldpayAPMPaymentInfoData waypayAPMPaymentInfoDataMock;
 
     private Model modelStub = new ExtendedModelMap();
 
@@ -254,10 +257,12 @@ public class WorldpayB2BSummaryCheckoutStepControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void enterStep__IfPaymentInfoIsNotNullAndFSIsNotEnabled_ShouldReturnCheckoutSummaryPage() throws CMSItemNotFoundException {
+    public void enterStep_IfPaymentInfoIsNotNullAndFSIsNotEnabled_ShouldReturnCheckoutSummaryPage() throws CMSItemNotFoundException {
         when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
         when(cartDataMock.getDeliveryMode()).thenReturn(deliveryModeDataMock);
         when(paymentInfoMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
 
         final String result = testObj.enterStep(modelStub, redirectAttributesMock, responseMock);
 
@@ -294,6 +299,49 @@ public class WorldpayB2BSummaryCheckoutStepControllerTest {
         assertThat(modelStub.asMap()).containsEntry(SUBSCRIPTION_ID, SUBSCRIPTION_ID);
         assertThat(modelStub.asMap()).containsEntry(BIN, paymentInfoMock);
         assertEquals(CHECKOUT_SUMMARY_PAGE, result);
+    }
+
+    @Test
+    public void enterStep_Ifapm() throws CMSItemNotFoundException {
+        when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(cartDataMock.getDeliveryMode()).thenReturn(deliveryModeDataMock);
+        when(paymentInfoMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
+
+        testObj.enterStep(modelStub, redirectAttributesMock, responseMock);
+
+        assertThat(modelStub.asMap()).containsEntry(REQUEST_SECURITY_CODE, true);
+
+    }
+
+    @Test
+    public void enterStep_IfapmFalse() throws CMSItemNotFoundException {
+        when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(cartDataMock.getDeliveryMode()).thenReturn(deliveryModeDataMock);
+        when(paymentInfoMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(waypayAPMPaymentInfoDataMock);
+
+        testObj.enterStep(modelStub, redirectAttributesMock, responseMock);
+
+        assertThat(modelStub.asMap()).containsEntry(REQUEST_SECURITY_CODE, false);
+
+    }
+
+    @Test
+    public void enterStep_IfapmFalsetwo() throws CMSItemNotFoundException {
+        when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(cartDataMock.getDeliveryMode()).thenReturn(deliveryModeDataMock);
+        when(paymentInfoMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(waypayAPMPaymentInfoDataMock);
+        when(sessionServiceMock.getAttribute(SAVED_CARD_SELECTED_ATTRIBUTE)).thenReturn(Boolean.FALSE);
+
+        testObj.enterStep(modelStub, redirectAttributesMock, responseMock);
+
+        assertThat(modelStub.asMap()).containsEntry(REQUEST_SECURITY_CODE, false);
+
     }
 
     @Test
@@ -335,6 +383,7 @@ public class WorldpayB2BSummaryCheckoutStepControllerTest {
     public void placeOrder_WhenSecurityCodeIsBlankAndSubscriptionIdIsNull_ShouldStayOnSummaryPage() throws CMSItemNotFoundException, InvalidCartException {
         when(cartDataMock.getPaymentInfo().getSubscriptionId()).thenReturn(null);
         when(formMock.getSecurityCode()).thenReturn(StringUtils.EMPTY);
+        when(formMock.isRequestSecurityCode()).thenReturn(true);
 
         final String result = testObj.placeOrder(formMock, modelStub, httpServletRequestMock, redirectAttributesMock, responseMock);
 

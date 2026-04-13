@@ -276,36 +276,37 @@ INSERT_UPDATE WorldpayCurrencyRange; currency(isocode)[unique = true]; min[uniqu
                                    ; USD                             ; 1                 ; 8000
                                    ; EUR                             ; 1                 ; 10000
 
-INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = en]   ; description[lang = en]; bank[default = false]; currencies(isocode); countries(isocode)            ; currencyRanges(currency(isocode), min, max)  ; automaticRefunds[default = false]; bankTransferRefunds[default = false]
-                                      ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay       ;                      ; GBP,EUR,USD        ; CN                            ;                                              ; true                             ;
-                                      ; ALIPAY-SSL            ; Alipay            ; Alipay                ;                      ; GBP,EUR,USD,SGD    ; CN                            ; GBP:1:5000,EUR:1:6000,USD:1:8000,SGD:2:10000 ; true                             ;
-                                      ; PAYPAL-EXPRESS        ; PayPal            ; PayPal                ;                      ;                    ;                               ;                                              ; true                             ;
-                                      ; PAYPAL-SSL            ; PayPal            ; PayPal                ;                      ;                    ;                               ;                                              ; true                             ;
-                                      ; PAYWITHGOOGLE-SSL     ; Google Pay        ; Google Pay            ;                      ;                    ;                               ;                                              ; true                             ;
-                                      ; APPLEPAY-SSL          ; Apple Pay         ; Apple Pay             ;                      ;                    ;                               ;                                              ; true                             ;
-                                      ; MISTERCASH-SSL        ; Bancontact        ; Bancontact            ;                      ; EUR                ; BE                            ; EUR:1:5000                                   ;                                  ;
-                                      ; POLINZ-SSL            ; POLi              ; POLi-NZ               ;                      ; NZD                ; NZ                            ;                                              ; true                             ;
-                                      ; IDEAL-SSL             ; iDeal             ; iDeal                 ;                      ; EUR                ; NL                            ;                                              ; true                             ;
-                                      ; KLARNA_V2-SSL         ; Klarna            ; Klarna                ;                      ; EUR,GBP            ; AT,FI,DE,NL,NO,SE,GB          ;                                              ; true                             ;
-                                      ; KLARNA_PAYLATER-SSL   ; Klarna Pay Later  ; Klarna Pay Later      ;                      ; EUR,GBP            ; SE,NO,FI,DE,NL,AT,CH,GB,DK,US ;                                              ; true                             ;
-                                      ; KLARNA_SLICEIT-SSL    ; Klarna Slice It   ; Klarna Slice It       ;                      ; EUR,GBP            ; SE,NO,FI,DE,AT,GB,DK,US       ;                                              ; true                             ;
-                                      ; KLARNA_PAYNOW-SSL     ; Klarna Pay Now    ; Klarna Pay Now        ;                      ; EUR,GBP            ; SE,DE,NL,AT, GB               ;                                              ; true                             ;
-                                      ; SEPA_DIRECT_DEBIT-SSL ; Sepa Direct Debit ; Sepa Direct Debit     ;                      ; EUR                ; AT,BE,FR,DE,IE,IT,NL,ES       ; EUR:1:10000                                  ;                                  ; true
-                                      ; ACH_DIRECT_DEBIT-SSL  ; ACH Direct Debit  ; ACH Direct Debit      ;                      ; USD                ; US                            ; USD:1:8000                                   ;                                  ; true
+INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = en]   ; description[lang = en]; bank[default = false]; currencies(isocode); countries(isocode)                     ; currencyRanges(currency(isocode), min, max)  ; automaticRefunds[default = false]; bankTransferRefunds[default = false]
+                                      ; CHINAUNIONPAY-SSL     ; China Union Pay   ; China Union Pay       ;                      ; GBP,EUR,USD        ; CN                                     ;                                              ; true                             ;
+                                      ; ALIPAY-SSL            ; Alipay            ; Alipay                ;                      ; GBP,EUR,USD,SGD    ; CN                                     ; GBP:1:5000,EUR:1:6000,USD:1:8000,SGD:2:10000 ; true                             ;
+                                      ; PAYPAL-EXPRESS        ; PayPal            ; PayPal                ;                      ;                    ;                                        ;                                              ; true                             ;
+                                      ; PAYPAL-SSL            ; PayPal            ; PayPal                ;                      ;                    ;                                        ;                                              ; true                             ;
+                                      ; PAYWITHGOOGLE-SSL     ; Google Pay        ; Google Pay            ;                      ;                    ;                                        ;                                              ; true                             ;
+                                      ; APPLEPAY-SSL          ; Apple Pay         ; Apple Pay             ;                      ;                    ;                                        ;                                              ; true                             ;
+                                      ; MISTERCASH-SSL        ; Bancontact        ; Bancontact            ;                      ; EUR                ; BE                                     ; EUR:1:5000                                   ;                                  ;
+                                      ; POLINZ-SSL            ; POLi              ; POLi-NZ               ;                      ; NZD                ; NZ                                     ;                                              ; true                             ;
+                                      ; IDEAL-SSL             ; iDeal             ; iDeal                 ;                      ; EUR                ; NL                                     ;                                              ; true                             ;
+                                      ; KLARNA_V2-SSL         ; Klarna            ; Klarna                ;                      ; EUR,GBP            ; AT,FI,DE,NL,NO,SE,GB                   ;                                              ; true                             ;
+                                      ; KLARNA_PAYLATER-SSL   ; Klarna Pay Later  ; Klarna Pay Later      ;                      ; EUR,GBP            ; SE,NO,FI,DE,NL,AT,CH,GB,DK,US          ;                                              ; true                             ;
+                                      ; KLARNA_SLICEIT-SSL    ; Klarna Slice It   ; Klarna Slice It       ;                      ; EUR,GBP            ; SE,NO,FI,DE,AT,GB,DK,US                ;                                              ; true                             ;
+                                      ; KLARNA_PAYNOW-SSL     ; Klarna Pay Now    ; Klarna Pay Now        ;                      ; EUR,GBP            ; SE,DE,NL,AT, GB                        ;                                              ; true                             ;
+                                      ; SEPA_DIRECT_DEBIT-SSL ; Sepa Direct Debit ; Sepa Direct Debit     ;                      ; EUR                ; AT,BE,FR,DE,IE,IT,NL,ES                ; EUR:1:10000                                  ;                                  ; true
+                                      ; ACH_DIRECT_DEBIT-SSL  ; ACH Direct Debit  ; ACH Direct Debit      ;                      ; USD                ; US                                     ; USD:1:8000                                   ;                                  ; true
+                                      ; OPENBANKING-SSL       ; Open Banking      ; Open Banking          ;                      ; GBP,EUR            ; AT,BE,FR,DE,IE,IT,NL,ES,SE,NO,FI,GB,DK ; GBP:1:5000,EUR:1:6000                        ; true                             ; true
 
 #INSERT_UPDATE WorldpayBankConfiguration; code[unique = true]; name[lang = en]; description[lang = en]; active[default = false]; apm(code)
-   #                                    ; ABN_AMRO           ; ABN AMRO       ; ABN AMRO              ;                    ;
-   #                                    ; ASN                ; ASN            ; ASN                   ;                    ;
-   #                                    ; ING                ; ING            ; ING                   ;                    ;
-   #                                    ; RABOBANK           ; Rabobank       ; Rabobank              ;                    ;
-   #                                    ; SNS                ; SNS            ; SNS Bank              ;                    ;
-   #                                    ; SNS_REGIO          ; SNS Regio      ; SNS Regio Bank        ;                    ;
-   #                                    ; TRIODOS            ; Triodos        ; Triodos Bank          ;                    ;
-   #                                    ; VAN_LANSCHOT       ; Van Lanschot   ; Van Lanschot Bank     ;                    ;
-   #                                    ; KNAB               ; Knab           ; Knab bank             ;                    ;
-   #                                    ; BUNQ               ; Bunq           ; Bunq bank             ;                    ;
-   #                                    ; HANDELSBANKEN      ; Handelsbanken  ; Handelsbanken bank    ;                    ;
-   #                                    ; MONEYOU            ; Moneyou        ; Moneyou bank          ;                    ;
+#                                    ; ABN_AMRO           ; ABN AMRO       ; ABN AMRO              ;                    ;
+#                                    ; ASN                ; ASN            ; ASN                   ;                    ;
+#                                    ; ING                ; ING            ; ING                   ;                    ;
+#                                    ; RABOBANK           ; Rabobank       ; Rabobank              ;                    ;
+#                                    ; SNS                ; SNS            ; SNS Bank              ;                    ;
+#                                    ; SNS_REGIO          ; SNS Regio      ; SNS Regio Bank        ;                    ;
+#                                    ; TRIODOS            ; Triodos        ; Triodos Bank          ;                    ;
+#                                    ; VAN_LANSCHOT       ; Van Lanschot   ; Van Lanschot Bank     ;                    ;
+#                                    ; KNAB               ; Knab           ; Knab bank             ;                    ;
+#                                    ; BUNQ               ; Bunq           ; Bunq bank             ;                    ;
+#                                    ; HANDELSBANKEN      ; Handelsbanken  ; Handelsbanken bank    ;                    ;
+#                                    ; MONEYOU            ; Moneyou        ; Moneyou bank          ;                    ;
 
 UPDATE CreditCardType; code[unique = true]; name[lang = en]
                      ; jcb                ; "JCB"

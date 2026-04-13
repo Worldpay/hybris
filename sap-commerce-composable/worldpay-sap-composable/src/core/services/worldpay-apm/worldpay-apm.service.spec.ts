@@ -9,13 +9,18 @@ import { OrderDetailsService } from '@spartacus/order/components';
 import { OrderPlacedEvent } from '@spartacus/order/root';
 import { LaunchDialogService } from '@spartacus/storefront';
 import { NEVER, Observable, of, throwError } from 'rxjs';
-import { WorldpayApmConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayCheckoutPaymentService, WorldpayOrderService } from 'worldpay-sap-composable-services';
 import { mockUserId, MockWorldpayCheckoutPaymentService } from 'worldpay-sap-composable-tests';
-import { WorldpayConnector } from '../../connectors';
-import { ClearWorldpayPaymentDetailsEvent, SetWorldpaySaveAsDefaultCreditCardEvent, SetWorldpaySavedCreditCardEvent } from '../../events';
-import { SelectWorldpayAPMEvent, SetWorldpayAPMRedirectResponseEvent } from '../../events/apm.events';
+import { WorldpayApmConnector, WorldpayConnector } from '../../connectors';
+import {
+  ClearWorldpayPaymentDetailsEvent,
+  SelectWorldpayAPMEvent,
+  SetWorldpayAPMRedirectResponseEvent,
+  SetWorldpaySaveAsDefaultCreditCardEvent,
+  SetWorldpaySavedCreditCardEvent
+} from '../../events';
 import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod } from '../../interfaces';
+import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
+import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 
 import { WorldpayApmService } from './worldpay-apm.service';
 import createSpy = jasmine.createSpy;
@@ -623,6 +628,30 @@ describe('WorldpayApmService', () => {
       service.resetSelectedAPMEvent();
 
       expect(service['selectedApm$'].next).not.toHaveBeenCalled();
+    });
+  });
+
+  describe(('getSaveApm'), () => {
+    it('returns true when save is true', () => {
+      service['save'] = true;
+      expect(service.getSaveApm()).toBeTrue();
+    });
+
+    it('returns false when save is false', () => {
+      service['save'] = false;
+      expect(service.getSaveApm()).toBeFalse();
+    });
+  });
+
+  describe(('setSaveApm'), () => {
+    it('sets saveApm to true when setSaveApm is called with true', () => {
+      service.setSaveApm(true);
+      expect(service.getSaveApm()).toBeTrue();
+    });
+
+    it('sets saveApm to false when setSaveApm is called with false', () => {
+      service.setSaveApm(false);
+      expect(service.getSaveApm()).toBeFalse();
     });
   });
 });

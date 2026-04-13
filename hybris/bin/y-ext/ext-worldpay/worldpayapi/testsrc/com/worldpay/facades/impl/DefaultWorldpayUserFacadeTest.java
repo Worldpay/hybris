@@ -1,6 +1,8 @@
 package com.worldpay.facades.impl;
 
 import com.worldpay.customer.WorldpayCustomerAccountService;
+import com.worldpay.facades.APMAvailabilityFacade;
+import com.worldpay.model.WorldpayAPMConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.user.UserFacade;
@@ -52,6 +54,8 @@ public class DefaultWorldpayUserFacadeTest {
     private Converter<CreditCardPaymentInfoModel, CCPaymentInfoData> creditCardPaymentInfoConverterMock;
     @Mock
     private WorldpayCustomerAccountService customerAccountServiceMock;
+    @Mock
+    private APMAvailabilityFacade apmAvailabilityFacadeMock;
 
     @Mock
     private TitleData titleDataMock;
@@ -67,16 +71,18 @@ public class DefaultWorldpayUserFacadeTest {
     private CCPaymentInfoData ccPaymentInfoDataMock, savedApmPaymentInfoDataMock, unsavedAPMPaymentInfoDataMock;
     @Mock
     private CreditCardPaymentInfoModel ccPaymentInfoModelMock;
+    @Mock
+    private WorldpayAPMConfigurationModel apmConfigurationModelMock;
 
-    final private PK paymentInfoPk = PK.fromLong(PAYMENT_INFO_PK_LONG_VALUE);
-    final private PK savedApmPaymentInfoPk = PK.fromLong(SAVED_APM_PAYMENT_INFO_PK_LONG_VALUE);
-    final private PK unsavedApmPaymentInfoPk = PK.fromLong(UNSAVED_APM_PAYMENT_INFO_PK_LONG_VALUE);
-    final private PK ccPaymentInfoPk = PK.fromLong(CC_PAYMENT_INFO_PK_LONG_VALUE);
+    private final PK paymentInfoPk = PK.fromLong(PAYMENT_INFO_PK_LONG_VALUE);
+    private final PK savedApmPaymentInfoPk = PK.fromLong(SAVED_APM_PAYMENT_INFO_PK_LONG_VALUE);
+    private final PK unsavedApmPaymentInfoPk = PK.fromLong(UNSAVED_APM_PAYMENT_INFO_PK_LONG_VALUE);
+    private final PK ccPaymentInfoPk = PK.fromLong(CC_PAYMENT_INFO_PK_LONG_VALUE);
 
     @Before
     public void setUp() {
         testObj = new DefaultWorldpayUserFacade(checkoutCustomerStrategyMock, userFacadeMock, apmPaymentInfoConverterMock,
-            creditCardPaymentInfoConverterMock, customerAccountServiceMock);
+            creditCardPaymentInfoConverterMock, customerAccountServiceMock, apmAvailabilityFacadeMock);
 
         when(checkoutCustomerStrategyMock.getCurrentUserForCheckout()).thenReturn(customerModelMock);
         when(paymentInfoModelMock.getPk()).thenReturn(paymentInfoPk);
@@ -215,6 +221,15 @@ public class DefaultWorldpayUserFacadeTest {
         assertThat(result).containsExactlyInAnyOrder(ccPaymentInfoDataMock, savedApmPaymentInfoDataMock);
     }
 
+    @Test
+    public void getCCPaymentInfos_WhenAPMIsNotAvailable_ShouldReturnAllCreditCard() {
+        when(creditCardPaymentInfoConverterMock.convert(ccPaymentInfoModelMock)).thenReturn(ccPaymentInfoDataMock);
+
+        final List<CCPaymentInfoData> result = testObj.getCCPaymentInfos(Boolean.TRUE);
+
+        assertThat(result).containsExactlyInAnyOrder(ccPaymentInfoDataMock);
+    }
+
 
     @Test
     public void getCCPaymentInfos_WhenSavedIsFalse_ShouldReturnAllCreditCardAndAPMPaymentInfoData() {
@@ -278,6 +293,7 @@ public class DefaultWorldpayUserFacadeTest {
 
         assertThat(result).isNull();
     }
+
 
     @Test
     public void updateCCPaymentInfo() {
@@ -427,5 +443,60 @@ public class DefaultWorldpayUserFacadeTest {
         testObj.setCurrentUser(USER_ID);
 
         verify(userFacadeMock).setCurrentUser(USER_ID);
+    }
+
+    @Test
+    public void getAvailableCCPaymentInfos_WhenSavedIsTrue_ShouldReturnAllCreditCardAndAPMSavedPaymentInfoData() {
+        when(apmPaymentInfoConverterMock.convert(savedApmPaymentInfoModelMock)).thenReturn(savedApmPaymentInfoDataMock);
+        when(creditCardPaymentInfoConverterMock.convert(ccPaymentInfoModelMock)).thenReturn(ccPaymentInfoDataMock);
+        when(savedApmPaymentInfoModelMock.getApmConfiguration()).thenReturn(apmConfigurationModelMock);
+        when(apmAvailabilityFacadeMock.isAvailable(apmConfigurationModelMock)).thenReturn(true);
+
+        final List<CCPaymentInfoData> result = testObj.getAvailableCCPaymentInfos(Boolean.TRUE);
+
+        assertThat(result).containsExactlyInAnyOrder(ccPaymentInfoDataMock, savedApmPaymentInfoDataMock);
+    }
+
+    @Test
+    public void getAvailableCCPaymentInfos_WhenAPMIsNotAvailable_ShouldReturnAllCreditCard() {
+        when(creditCardPaymentInfoConverterMock.convert(ccPaymentInfoModelMock)).thenReturn(ccPaymentInfoDataMock);
+        when(savedApmPaymentInfoModelMock.getApmConfiguration()).thenReturn(apmConfigurationModelMock);
+        when(apmAvailabilityFacadeMock.isAvailable(apmConfigurationModelMock)).thenReturn(false);
+
+        final List<CCPaymentInfoData> result = testObj.getAvailableCCPaymentInfos(Boolean.TRUE);
+
+        assertThat(result).containsExactlyInAnyOrder(ccPaymentInfoDataMock);
+    }
+
+
+    @Test
+    public void getAvailableCCPaymentInfos_WhenSavedIsFalse_ShouldReturnAllCreditCardAndAPMPaymentInfoData() {
+        when(apmPaymentInfoConverterMock.convert(savedApmPaymentInfoModelMock)).thenReturn(savedApmPaymentInfoDataMock);
+        when(apmPaymentInfoConverterMock.convert(unsavedApmPaymentInfoModelMock)).thenReturn(unsavedAPMPaymentInfoDataMock);
+        when(savedApmPaymentInfoModelMock.getApmConfiguration()).thenReturn(apmConfigurationModelMock);
+        when(unsavedApmPaymentInfoModelMock.getApmConfiguration()).thenReturn(apmConfigurationModelMock);
+        when(creditCardPaymentInfoConverterMock.convert(ccPaymentInfoModelMock)).thenReturn(ccPaymentInfoDataMock);
+        when(apmAvailabilityFacadeMock.isAvailable(apmConfigurationModelMock)).thenReturn(true);
+
+        final List<CCPaymentInfoData> result = testObj.getAvailableCCPaymentInfos(Boolean.FALSE);
+
+        assertThat(result).containsExactlyInAnyOrder(ccPaymentInfoDataMock, savedApmPaymentInfoDataMock, unsavedAPMPaymentInfoDataMock);
+    }
+
+    @Test
+    public void getAvailableCCPaymentInfos_WhenPaymentMethodIsDefault_ShouldSetItAsDefaultAndReturnItAtFirstPosition() {
+        when(customerModelMock.getPaymentInfos()).thenReturn(List.of(savedApmPaymentInfoModelMock, unsavedApmPaymentInfoModelMock));
+        when(apmPaymentInfoConverterMock.convert(savedApmPaymentInfoModelMock)).thenReturn(savedApmPaymentInfoDataMock);
+        when(apmPaymentInfoConverterMock.convert(unsavedApmPaymentInfoModelMock)).thenReturn(unsavedAPMPaymentInfoDataMock);
+        when(customerModelMock.getDefaultPaymentInfo()).thenReturn(unsavedApmPaymentInfoModelMock);
+        when(savedApmPaymentInfoModelMock.getApmConfiguration()).thenReturn(apmConfigurationModelMock);
+        when(unsavedApmPaymentInfoModelMock.getApmConfiguration()).thenReturn(apmConfigurationModelMock);
+        when(apmAvailabilityFacadeMock.isAvailable(apmConfigurationModelMock)).thenReturn(true);
+
+        final List<CCPaymentInfoData> result = testObj.getAvailableCCPaymentInfos(Boolean.FALSE);
+
+        verify(unsavedAPMPaymentInfoDataMock).setDefaultPaymentInfo(true);
+
+        assertThat(result).containsExactly(unsavedAPMPaymentInfoDataMock, savedApmPaymentInfoDataMock);
     }
 }

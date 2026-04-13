@@ -1275,7 +1275,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(ISSUER_COUNTRY_CODE);
         derived.setObfuscatedPAN(CARD_NUMBER);
-        derived.setBin(BIN);
+        final Bin bin = new Bin();
+        bin.setvalue(BIN);
+        derived.setBin(bin);
         return derived;
     }
 

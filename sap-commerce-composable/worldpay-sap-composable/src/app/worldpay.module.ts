@@ -1,21 +1,23 @@
 import { APP_BASE_HREF, CommonModule, PlatformLocation } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { I18nConfig, provideConfig, provideFeatureTogglesFactory } from '@spartacus/core';
-import { WorldpayEventsModule } from 'worldpay-sap-composable-events';
-import { OccWorldpayModule } from 'worldpay-sap-composable-occ';
-import { Worldpay3dsChallengeIframeModule, WorldpayDdcIframeModule, WorldpayDdcIframeRoutingModule } from 'worldpay-sap-composable-pages';
-import { worldpayFacadeProviders } from 'worldpay-sap-composable-services';
-import { worldpayTranslations } from '../assets/worldpay-translations';
-import { getBaseHref } from '../core/utils/get-base-href';
+import { IconConfig, IconResourceType } from '@spartacus/storefront';
+import { getBaseHref, getWorldpayIconSymbols, OccWorldpayModule, WORLDPAY_ICONS, worldpayFacadeProviders } from '../core';
+import { WorldpayEventsModule } from '../core/events';
+import { worldpayTranslations } from '../i18n';
 import {
+  Worldpay3dsChallengeIframeModule,
   WorldpayCartSharedModule,
   WorldpayCheckoutDeliveryAddressModule,
   WorldpayCheckoutPaymentMethodModule,
   WorldpayCheckoutPlaceOrderModule,
   WorldpayCheckoutReviewPaymentModule,
+  WorldpayDdcIframeModule,
+  WorldpayDdcIframeRoutingModule,
   WorldpayOrderConfirmationModule,
-  WorldpayOrderDetailsModule
-} from '../storefrontlib/cms-components';
+  WorldpayOrderDetailsModule,
+  WorldpayPaymentMethodsModule
+} from '../storefrontlib';
 
 @NgModule({
   declarations: [],
@@ -33,6 +35,7 @@ import {
     WorldpayOrderConfirmationModule,
     WorldpayOrderDetailsModule,
     WorldpayEventsModule,
+    WorldpayPaymentMethodsModule
   ],
   providers: [
     provideConfig({
@@ -53,7 +56,19 @@ import {
         a11yCheckoutDeliveryFocus: true,
         useExtractedBillingAddressComponent: true,
       })
-    )
+    ),
+    provideConfig({
+      icon: {
+        symbols: getWorldpayIconSymbols(),
+        resources: [
+          {
+            type: IconResourceType.SVG,
+            url: 'assets/worldpay/worldpay-icons.svg',
+            types: Object.values(WORLDPAY_ICONS),
+          },
+        ]
+      }
+    } as IconConfig),
   ],
 })
 

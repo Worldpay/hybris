@@ -57,11 +57,11 @@ public class OrderInquiryRequestTransformer implements ServiceRequestTransformer
         if (request instanceof OrderInquiryServiceRequest) {
             final OrderInquiry orderInquiry = new OrderInquiry();
             orderInquiry.setOrderCode(request.getOrderCode());
-            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiry().add(orderInquiry);
+            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiryOrBalanceCheckInquiryOrCardBinInquiryOrWalletDecryptionInquiry().add(orderInquiry);
         } else if (request instanceof KlarnaOrderInquiryServiceRequest) {
             final KlarnaConfirmationInquiry klarnaConfirmationInquiry = new KlarnaConfirmationInquiry();
             klarnaConfirmationInquiry.setOrderCode(request.getOrderCode());
-            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiry().add(klarnaConfirmationInquiry);
+            inquiry.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiryOrBalanceCheckInquiryOrCardBinInquiryOrWalletDecryptionInquiry().add(klarnaConfirmationInquiry);
         }
     }
 }
