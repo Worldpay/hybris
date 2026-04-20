@@ -95,7 +95,7 @@
                 <entry key="DEFAULT"
                        value="BASIC,totalItems,totalPrice,totalPriceWithTax,entries(DEFAULT)"/>
                 <entry key="FULL"
-                       value="potentialProductPromotions(FULL),potentialOrderPromotions(FULL),totalUnitCount,store,appliedOrderPromotions(FULL),pickupItemsQuantity,net,calculated,appliedVouchers(FULL),productDiscounts(FULL),totalDiscounts(FULL),subTotal(FULL),orderDiscounts(FULL),entries(FULL),appliedProductPromotions(FULL),totalPrice(FULL),site,deliveryMode(FULL),code,deliveryOrderGroups(FULL),guid,paymentInfo(FULL),pickupOrderGroups(FULL),totalItems,totalPriceWithTax(FULL),deliveryItemsQuantity,totalTax(FULL),user(FULL),deliveryAddress(FULL),deliveryCost(FULL),name,description,savedBy,saveTime,expirationTime,apmCode,apmName"/>
+                       value="potentialProductPromotions(FULL),potentialOrderPromotions(FULL),totalUnitCount,store,appliedOrderPromotions(FULL),pickupItemsQuantity,net,calculated,appliedVouchers(FULL),productDiscounts(FULL),totalDiscounts(FULL),subTotal(FULL),orderDiscounts(FULL),entries(FULL),appliedProductPromotions(FULL),totalPrice(FULL),site,deliveryMode(FULL),code,deliveryOrderGroups(FULL),guid,paymentInfo(FULL),pickupOrderGroups(FULL),totalItems,totalPriceWithTax(FULL),deliveryItemsQuantity,totalTax(FULL),user(FULL),deliveryAddress(FULL),deliveryCost(FULL),name,description,savedBy,saveTime,expirationTime,apmCode,apmName,worldpayAPMPaymentInfo(FULL)"/>
             </map>
         </property>
     </bean>

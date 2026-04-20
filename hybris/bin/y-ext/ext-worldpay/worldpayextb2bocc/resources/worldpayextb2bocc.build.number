@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Apr 13 10:20:20 GMT 2026
-builddate=20260413 1020
+#Mon Apr 20 13:58:23 GMT 2026
+builddate=20260420 1358
 description=worldpayextb2bocc
 group.id=de.hybris.platform
 module.name=platform-module
 name=worldpayextb2bocc
-releasedate=20260203 2333
+releasedate=20260302 1830
 vendor=hybris
-version=2211.49
+version=2211.50
 version.api=2211
