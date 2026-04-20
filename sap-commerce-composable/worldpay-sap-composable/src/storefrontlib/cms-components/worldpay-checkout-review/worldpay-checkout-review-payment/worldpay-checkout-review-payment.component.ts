@@ -6,9 +6,7 @@ import { paymentMethodCard } from '@spartacus/order/root';
 import { Card, ICON_TYPE } from '@spartacus/storefront';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
-import { WorldpayApmPaymentInfo } from 'worldpay-sap-core';
-import { generateBillingAddressCard } from '../../../../core/utils';
+import { generateBillingAddressCard, WorldpayApmPaymentInfo, WorldpayCheckoutPaymentFacade } from '../../../../core';
 
 @Component({
   selector: 'y-worldpay-checkout-review-payment',

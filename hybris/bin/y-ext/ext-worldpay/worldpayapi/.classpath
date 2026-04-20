@@ -9,9 +9,7 @@
 	<classpathentry exported="true" kind="src" path="/cms2" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/ant-contrib-1.0b3.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/istack-commons-runtime-4.0.0.jar" />
-	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/istack-commons-tools-4.0.0.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/jakarta.activation-api-1.2.2.jar" />
-	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/jakarta.xml.bind-api-2.3.3.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/jaxb-api-2.3.1.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/jaxb-core-2.3.0.1.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/jaxb-jxc-2.3.3.jar" />

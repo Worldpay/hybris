@@ -1,5 +1,9 @@
 package com.worldpay.notification.processors.impl;
 
+import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.ImmutableList;
 import com.worldpay.data.Amount;
 import com.worldpay.service.notification.OrderNotificationMessage;
@@ -21,10 +25,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
-import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoidedOrderNotificationProcessorStrategyTest {
@@ -41,7 +41,6 @@ public class DefaultVoidedOrderNotificationProcessorStrategyTest {
     private OrderNotificationMessage orderNotificationMessageMock;
     @Mock
     private PaymentTransactionModel paymentTransactionModelMock;
-    ;
     @Mock
     private TransactionStatus transactionStatusMock;
     @Mock
@@ -49,7 +48,7 @@ public class DefaultVoidedOrderNotificationProcessorStrategyTest {
     @Mock
     private Amount amountMock;
 
-    private TransactionOperations transactionOperationsMock = new TransactionOperations() {
+    private final TransactionOperations transactionOperationsMock = new TransactionOperations() {
         @Override
         public <T> T execute(final TransactionCallback<T> transactionCallback) throws TransactionException {
             return transactionCallback.doInTransaction(transactionStatusMock);

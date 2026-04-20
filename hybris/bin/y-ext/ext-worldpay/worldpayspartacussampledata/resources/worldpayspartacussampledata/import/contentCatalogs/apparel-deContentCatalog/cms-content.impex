@@ -1,8 +1,8 @@
 #apparel-de
 
 $contentCatalog = apparel-de-spaContentCatalog
-$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]), CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
-$media = @media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator]
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default = $contentCatalog]), CatalogVersion.version[default = Staged])[default = $contentCatalog:Staged]
+$media = @media[translator = de.hybris.platform.impex.jalo.media.MediaDataTranslator]
 $siteResource = jar:com.worldpay.constants.WorldpaysampledataaddonConstants&/worldpaysampledataaddon/import/images/apmIcons
 $picture = media(code, $contentCV)
 $lang = en
@@ -78,21 +78,19 @@ INSERT_UPDATE CMSFlexComponent; $contentCV[unique = true]; uid[unique = true]   
                               ;                          ; ReturnOrderConfirmationFlexComponent ; Return Order Confirmation Component ; ReturnOrderConfirmationComponent ; ReturnOrderConfirmationFlexComponent
 
 # Create medias
-INSERT_UPDATE Media; code[unique = true]  ; $media                                 ; mime[default = 'image/jpeg']; $contentCV[unique = true]; folder(qualifier)
-                   ; alipay-icon          ; $siteResource/alipay-icon.png          ;                             ;                          ; images
-                   ; cc-icon              ; $siteResource/cc-icon.png              ;                             ;                          ; images
-                   ; cup-icon             ; $siteResource/cup-icon.png             ;                             ;                          ; images
-                   ; paypal-icon          ; $siteResource/paypal-icon.png          ;                             ;                          ; images
-                   ; polinz-icon          ; $siteResource/polinz-icon.png          ;                             ;                          ; images
-                   ; bancontact-icon      ; $siteResource/bancontact-icon.png      ;                             ;                          ; images
-                   ; ideal-icon           ; $siteResource/ideal-icon.png           ;                             ;                          ; images
-                   ; klarna-icon          ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; google-pay-icon      ; $siteResource/google-pay-icon.png      ;                             ;                          ; images
-                   ; apple-pay-icon       ; $siteResource/apple-pay-icon.png       ;                             ;                          ; images
-                   ; klarna-paylater-icon ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; klarna-paynow-icon   ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; klarna-slice-icon    ; $siteResource/klarna-icon.png          ;                             ;                          ; images
-                   ; sepa-icon            ; $siteResource/sepa-icon.png            ;                             ;                          ; images
+INSERT_UPDATE Media; code[unique = true]  ; $media                            ; mime[default = 'image/jpeg']; $contentCV[unique = true]; folder(qualifier)
+                   ; alipay-icon          ; $siteResource/alipay-icon.png     ;                             ;                          ; images
+                   ; cc-icon              ; $siteResource/cc-icon.png         ;                             ;                          ; images
+                   ; paypal-icon          ; $siteResource/paypal-icon.png     ;                             ;                          ; images
+                   ; bancontact-icon      ; $siteResource/bancontact-icon.png ;                             ;                          ; images
+                   ; ideal-icon           ; $siteResource/ideal-icon.png      ;                             ;                          ; images
+                   ; klarna-icon          ; $siteResource/klarna-icon.png     ;                             ;                          ; images
+                   ; google-pay-icon      ; $siteResource/google-pay-icon.png ;                             ;                          ; images
+                   ; apple-pay-icon       ; $siteResource/apple-pay-icon.png  ;                             ;                          ; images
+                   ; klarna-paylater-icon ; $siteResource/klarna-icon.png     ;                             ;                          ; images
+                   ; klarna-paynow-icon   ; $siteResource/klarna-icon.png     ;                             ;                          ; images
+                   ; klarna-slice-icon    ; $siteResource/klarna-icon.png     ;                             ;                          ; images
+                   ; sepa-icon            ; $siteResource/sepa-de-icon.jpg    ;                             ;                          ; images
 
 INSERT_UPDATE WorldpayApplePayComponent; uid[unique = true]; $contentCV[unique = true]; name        ; $picture[lang = $lang]
                                        ; applePayComponent ;                          ; "Apple Pay" ; apple-pay-icon
@@ -100,12 +98,11 @@ INSERT_UPDATE WorldpayApplePayComponent; uid[unique = true]; $contentCV[unique =
 INSERT_UPDATE WorldpayGooglePayComponent; uid[unique = true] ; $contentCV[unique = true]; name         ; $picture[lang = $lang]
                                         ; googlePayComponent ;                          ; "Google Pay" ; google-pay-icon
 
-INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name          ; $picture[lang = $lang]
+INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name   ; $picture[lang = $lang]
                                  ; creditCardComponent ;                          ; "Card" ; cc-icon
 
 INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name                ; apmConfiguration(code); $picture[lang = $lang]; restrictions(uid, $contentCV)
                                   ; payPalComponent         ;                          ; "PayPal"            ; PAYPAL-EXPRESS        ; paypal-icon           ; AssistedServiceSessionReversedRestriction
-                                  ; polinzComponent         ;                          ; "POLi"              ; POLINZ-SSL            ; polinz-icon           ; AssistedServiceSessionReversedRestriction
                                   ; mistercashComponent     ;                          ; "Bancontact"        ; MISTERCASH-SSL        ; bancontact-icon       ; AssistedServiceSessionReversedRestriction
                                   ; idealComponent          ;                          ; "iDeal"             ; IDEAL-SSL             ; ideal-icon            ; AssistedServiceSessionReversedRestriction
                                   ; klarnaComponent         ;                          ; "Klarna"            ; KLARNA_V2-SSL         ; klarna-icon           ; AssistedServiceSessionReversedRestriction

@@ -8,7 +8,6 @@ import com.worldpay.worldpayextocctests.test.groovy.webservicetests.v2.spock.use
 import de.hybris.bootstrap.annotations.IntegrationTest
 import org.junit.AfterClass
 import org.junit.BeforeClass
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 
@@ -18,20 +17,15 @@ import org.junit.runners.Suite
 class AllSpockTests {
 
     @BeforeClass
-    public static void setUpClass() {
-        WorldpayTestSetupUtils.loadData();
-        WorldpayTestSetupUtils.loadExtensionDataInJunit();
-        WorldpayTestSetupUtils.startServer();
+    static void setUpClass() {
+        WorldpayTestSetupUtils.loadData()
+        WorldpayTestSetupUtils.loadExtensionDataInJunit()
+        WorldpayTestSetupUtils.startServer()
     }
 
     @AfterClass
-    public static void tearDown() {
-        WorldpayTestSetupUtils.stopServer();
-        WorldpayTestSetupUtils.cleanData();
-    }
-
-    @Test
-    public static void testing() {
-        //dummy test class
+    static void tearDown() {
+        WorldpayTestSetupUtils.stopServer()
+        WorldpayTestSetupUtils.cleanData()
     }
 }

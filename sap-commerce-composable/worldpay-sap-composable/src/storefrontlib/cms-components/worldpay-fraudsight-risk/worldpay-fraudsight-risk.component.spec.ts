@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoggerService, QueryState, WindowRef } from '@spartacus/core';
 import { Observable, of } from 'rxjs';
-import { WorldpayFraudsightRiskComponent } from 'worldpay-sap-composable-components';
-import { WorldpayFraudsightService } from 'worldpay-sap-composable-services';
+import { WorldpayFraudsightService } from '../../../core';
+import { WorldpayFraudsightRiskComponent } from './worldpay-fraudsight-risk.component';
 
 class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightService> {
   isFraudSightEnabledFromState(): Observable<boolean> {

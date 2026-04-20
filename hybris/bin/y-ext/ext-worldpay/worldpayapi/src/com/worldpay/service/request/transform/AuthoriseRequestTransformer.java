@@ -87,7 +87,7 @@ public class AuthoriseRequestTransformer implements ServiceRequestTransformer {
         }
         final Submit submit = new Submit();
         final Order order = internalOrderConverter.convert(authRequest.getOrder());
-        submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().add(order);
+        submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken().add(order);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;
     }

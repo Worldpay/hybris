@@ -32,11 +32,13 @@
 	<bean id="worldpayB2BAcceleratorCheckoutFacadeDecorator" class="com.worldpay.facades.order.impl.WorldpayB2BAcceleratorCheckoutFacadeDecorator" parent="defaultB2BAcceleratorCheckoutFacade">
 		<property name="l10NService" ref="l10nService"/>
 		<property name="b2BAcceleratorCheckoutFacade" ref="defaultB2BAcceleratorCheckoutFacade"/>
+		<property name="commerceCheckoutService" ref="commerceCheckoutService"/>
 	</bean>
 
 	<alias name="defaultB2BWorldpayDirectOrderFacade" alias="worldpayDirectOrderFacade"/>
 	<bean id="defaultB2BWorldpayDirectOrderFacade" parent="defaultWorldpayDirectOrderFacade" class="com.worldpay.facades.payment.direct.impl.DefaultWorldpayB2BDirectOrderFacade">
 		<constructor-arg name="b2BOrderService" ref="b2bOrderService" />
+		<constructor-arg name="acceleratorCheckoutFacade" ref="worldpayB2BAcceleratorCheckoutFacadeDecorator" />
 	</bean>
 
 	<!-- Converters and populators -->
@@ -106,5 +108,16 @@
 		<constructor-arg name="impersonationService" ref="impersonationService"/>
 		<constructor-arg name="worldpayDirectOrderFacade" ref="worldpayDirectOrderFacade"/>
 	</bean>
+
+	<alias name="defaultWorldpayCheckCreditCardOrderAction" alias="checkCreditCardOrderAction"/>
+	<bean id="defaultWorldpayCheckCreditCardOrderAction"
+		  class="com.worldpay.actions.WorldpayCheckCreditCardOrderAction"
+		  parent="abstractSimpleB2BApproveOrderDecisionAction">
+	</bean>
+
+	<alias name="defaultWorldpayAcceleratorBookingLineEntries" alias="setBookingLineEntries"/>
+	<bean id="defaultWorldpayAcceleratorBookingLineEntries"
+		  class="com.worldpay.actions.WorldpayAcceleratorBookingLineEntries"
+		  parent="abstractSimpleB2BApproveOrderDecisionAction" />
 
 </beans>

@@ -1,10 +1,24 @@
 package com.worldpay.cronjob;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Date;
+
+import static de.hybris.platform.cronjob.enums.CronJobResult.FAILURE;
+import static de.hybris.platform.cronjob.enums.CronJobResult.SUCCESS;
+import static de.hybris.platform.cronjob.enums.CronJobStatus.FINISHED;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.OrderInquiryService;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import com.worldpay.strategies.PaymentTransactionRejectionStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -21,36 +35,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Date;
-
-import static com.worldpay.cronjob.PaymentInfoInquiryJobPerformable.WORLDPAY_APM_DAYS_BEFORE_STOP_INQUIRING_TIMEOUT;
-import static com.worldpay.cronjob.PaymentInfoInquiryJobPerformable.WORLDPAY_APM_MINUTES_BEFORE_INQUIRING_TIMEOUT;
-import static de.hybris.platform.cronjob.enums.CronJobResult.FAILURE;
-import static de.hybris.platform.cronjob.enums.CronJobResult.SUCCESS;
-import static de.hybris.platform.cronjob.enums.CronJobStatus.FINISHED;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PaymentInfoInquiryJobPerformableTest {
 
-    private static final String REQUEST_TOKEN_APM = "requestTokenAPM";
+    private static final String SITE_UID = "siteUid";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final int WAIT_TIME = 15;
     private static final int BLANKET_TIMEOUT_DAYS = 5;
-    public static final String SITE_UID = "siteUid";
+    private static final String WORLDPAY_APM_MINUTES_BEFORE_INQUIRING_TIMEOUT = "worldpay.APM.minutes.before.inquiring.timeout";
+    private static final String WORLDPAY_APM_DAYS_BEFORE_STOP_INQUIRING_TIMEOUT = "worldpay.APM.days.before.stop.inquiring.timeout";
 
     @InjectMocks
     private PaymentInfoInquiryJobPerformable testObj;
     @Mock
     private WorldpayPaymentTransactionDao worldpayPaymentTransactionDaoMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private PaymentTransactionModel paymentTransactionModelMock;
     @Mock
     private CronJobModel cronjobModelMock;
@@ -62,7 +62,7 @@ public class PaymentInfoInquiryJobPerformableTest {
     private OrderInquiryService orderInquiryServiceMock;
     @Mock
     private OrderInquiryServiceResponse orderInquiryServiceResponseMock;
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConfigurationService configurationServiceMock;
     @Mock
     private PaymentTransactionRejectionStrategy paymentTransactionRejectionStrategyMock;
@@ -118,7 +118,7 @@ public class PaymentInfoInquiryJobPerformableTest {
 
     @Test
     public void performShouldNotPollWhenPaymentTransactionModelIsOlderThanConfiguredBlanketTimeout() throws WorldpayException {
-        final LocalDate expectedLocalDate = LocalDate.now().minus(BLANKET_TIMEOUT_DAYS + 1, ChronoUnit.DAYS);
+        final LocalDate expectedLocalDate = LocalDate.now().minusDays(BLANKET_TIMEOUT_DAYS + 1);
         final Date expectedDate = Date.from(expectedLocalDate.atStartOfDay().toInstant(ZoneOffset.UTC));
         when(paymentTransactionModelMock.getCreationtime()).thenReturn(expectedDate);
 

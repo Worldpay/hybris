@@ -44,6 +44,8 @@ public class DefaultWorldpayCartFacade implements WorldpayCartFacade {
 
             validateParameterNotNull(sessionCart.getPaymentInfo(), "PaymentInfo cannot be null once selected an existing payment method.");
             final AddressModel clonedAddressFromPaymentInfo = addressService.cloneAddress(sessionCart.getPaymentInfo().getBillingAddress());
+            // Ensure the cloned address is not marked as duplicate to avoid been removed by interceptors
+            clonedAddressFromPaymentInfo.setDuplicate(Boolean.FALSE);
             addressService.setCartPaymentAddress(sessionCart, clonedAddressFromPaymentInfo);
         }
     }

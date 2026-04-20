@@ -1,13 +1,13 @@
 package com.worldpay.service.request;
 
+import static com.worldpay.service.request.OrderInquiryServiceRequest.createOrderInquiryRequest;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+
 import com.worldpay.data.MerchantInfo;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
 
 @UnitTest
 public class KlarnaOrderInquiryServiceRequestTest {
@@ -16,10 +16,6 @@ public class KlarnaOrderInquiryServiceRequestTest {
     private static final String MERCHANT_PASSWORD = "merchantPassword";
     private MerchantInfo merchantInfo;
     private static final String ORDER_CODE = "orderCode";
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -31,8 +27,6 @@ public class KlarnaOrderInquiryServiceRequestTest {
 
     @Test
     public void testOrderInquiry() {
-
-
         final KlarnaOrderInquiryServiceRequest request = KlarnaOrderInquiryServiceRequest.createKlarnaOrderInquiryRequest(merchantInfo, ORDER_CODE);
 
         assertEquals(merchantInfo, request.getMerchantInfo());
@@ -41,15 +35,15 @@ public class KlarnaOrderInquiryServiceRequestTest {
 
     @Test
     public void createOrderInquiryRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        OrderInquiryServiceRequest.createOrderInquiryRequest(null, ORDER_CODE);
+        assertThatThrownBy(() -> createOrderInquiryRequest(null, ORDER_CODE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo and Order Code cannot be null");
     }
 
     @Test
     public void createOrderInquiryRequestShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        OrderInquiryServiceRequest.createOrderInquiryRequest(merchantInfo, null);
+        assertThatThrownBy(() -> createOrderInquiryRequest(merchantInfo, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo and Order Code cannot be null");
     }
 }

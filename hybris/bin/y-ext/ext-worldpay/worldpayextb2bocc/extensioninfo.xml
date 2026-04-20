@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ Copyright (c) 2021 SAP SE or an SAP affiliate company. All rights reserved.
+--><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+        
+    <extension abstractclassprefix="Generated" classprefix="Worldpayextb2bocc" jaloLogicFree="true" managername="Worldpayextb2boccManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayextb2bocc" usemaven="false">
+                
+        <requires-extension name="worldpayocccommons"/>
+                
+        <requires-extension name="worldpayb2baddon"/>
+                
+        <requires-extension name="b2bocc"/>
+                
+        <requires-extension name="b2bacceleratorfacades"/>
+                
+        <coremodule generated="true" manager="com.worldpay.jalo.Worldpayextb2boccManager" packageroot="com.worldpay.worldpayextb2bocc"/>
+            
+    </extension>
+    
+</extensioninfo>

@@ -4,9 +4,16 @@ import { UntypedFormGroup, Validators } from '@angular/forms';
 import { QueryState } from '@spartacus/core';
 import { Observable } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
-import { AccountTypes, ACHBankAccountType, ACHPaymentForm, ApmPaymentDetails, FORM_VALIDATION_LIMITS, PaymentMethod } from 'worldpay-sap-core';
-import { makeFormErrorsVisible } from '../../../../core/utils';
+import {
+  AccountTypes,
+  ACHBankAccountType,
+  ACHPaymentForm,
+  ApmPaymentDetails,
+  FORM_VALIDATION_LIMITS,
+  makeFormErrorsVisible,
+  PaymentMethod,
+  WorldpayACHFacade
+} from '../../../../core';
 import { WorldpayApmBaseComponent } from '../worldpay-apm-base/worldpay-apm-base.component';
 
 @Component({
@@ -20,12 +27,12 @@ export class WorldpayApmAchComponent extends WorldpayApmBaseComponent {
   /**
    * Form group for ACH payment details.
    * @since 6.4.2
-   * @property {FormGroup} accountType - Nested form group for account type with a required validator.
-   * @property {FormControl} accountNumber - Form control for account number with required and max length validators.
-   * @property {FormControl} routingNumber - Form control for routing number with required, min length, and max length validators.
-   * @property {FormControl} checkNumber - Form control for check number with a max length validator.
-   * @property {FormControl} companyName - Form control for company name with a max length validator.
-   * @property {FormControl} customIdentifier - Form control for custom identifier with a max length validator.
+   * @property {UntypedFormGroup} accountType - Nested form group for account type with a required validator.
+   * @property {UntypedFormGroup} accountNumber - Form control for account number with required and max length validators.
+   * @property {UntypedFormGroup} routingNumber - Form control for routing number with required, min length, and max length validators.
+   * @property {UntypedFormGroup} checkNumber - Form control for check number with a max length validator.
+   * @property {UntypedFormGroup} companyName - Form control for company name with a max length validator.
+   * @property {UntypedFormGroup} customIdentifier - Form control for custom identifier with a max length validator.
    */
   public achForm: UntypedFormGroup = this.fb.group({
     accountType: this.fb.group({ code: null }, { validators: Validators.required }),

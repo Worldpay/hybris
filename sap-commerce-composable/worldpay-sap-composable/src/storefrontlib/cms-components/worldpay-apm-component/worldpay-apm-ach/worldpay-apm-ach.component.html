@@ -135,8 +135,9 @@
 
       <!-- BUTTON SECTION -->
       <y-worldpay-apm-submit-buttons
-        [disableContinue]="(disableContinueButton$() | async) || achForm.invalid"
+        [disableContinue]="(disableContinueButton$ | async) || achForm.invalid"
         (back)="return()"
+        [dataTestId]="'ach-continue-btn'"
       />
     </form>
   </ng-container>

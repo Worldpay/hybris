@@ -4,6 +4,7 @@ import com.worldpay.worldpayextocctests.test.groovy.webservicetests.v2.spock.Abs
 import de.hybris.bootstrap.annotations.ManualTest
 import spock.lang.Unroll
 
+import static org.apache.http.HttpStatus.SC_OK
 import static org.apache.http.entity.ContentType.*
 
 @ManualTest
@@ -20,13 +21,15 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def orderResponse = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                    'cartId'      : cart.code,
-                    'securityCode': '123'
+                        'cartId'      : cart.code,
+                        'securityCode': '123'
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
             isNotEmpty(data.order.code)
         }).data
 
@@ -35,7 +38,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         isNotEmpty(orderResponse.order.paymentInfo)
 
         where:
-        format << [org.apache.http.entity.ContentType.APPLICATION_JSON, org.apache.http.entity.ContentType.APPLICATION_XML]
+        format << [APPLICATION_JSON, APPLICATION_XML]
     }
 
     def "Customer places order with valid cart and MISSING securityCode : #format "() {
@@ -48,12 +51,14 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def noOrder = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                    'cartId': cart.code,
+                        'cartId': cart.code,
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
         }).data
 
         then: "Order is NOT placed"
@@ -61,7 +66,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         noOrder.errors.message[0] == "Required String parameter 'securityCode' is not present"
 
         where:
-        format << [org.apache.http.entity.ContentType.APPLICATION_JSON, org.apache.http.entity.ContentType.APPLICATION_XML]
+        format << [APPLICATION_JSON, APPLICATION_XML]
     }
 
     def "Customer places order with valid cart and gets refused using cardHolderName : #name"() {
@@ -74,13 +79,15 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def placeOrderResponse = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                    'cartId'      : cart.code,
-                    'securityCode': '123'
+                        'cartId'      : cart.code,
+                        'securityCode': '123'
                 ],
-                contentType: org.apache.http.entity.ContentType.APPLICATION_JSON,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                contentType: APPLICATION_JSON,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
         }).data
 
         then: "Order is NOT placed and return reflects why"
@@ -106,10 +113,12 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
                         'cartId'      : cart.code,
                         'securityCode': '123'
                 ],
-                contentType: org.apache.http.entity.ContentType.APPLICATION_JSON,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                contentType: APPLICATION_JSON,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
         }).data
 
         then: "Order is NOT placed and error reflects why"
@@ -131,13 +140,15 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         def orderResponse = returningWith(restClient.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
-                    'cartId'      : cart.code,
-                    'securityCode': '123'
+                        'cartId'      : cart.code,
+                        'securityCode': '123'
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
         }).data
 
         then: "3D secure is required"
@@ -147,7 +158,7 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
         isNotEmpty(orderResponse.threeDSecureInfo.merchantData)
 
         where:
-        format << [org.apache.http.entity.ContentType.APPLICATION_XML, org.apache.http.entity.ContentType.APPLICATION_JSON]
+        format << [APPLICATION_XML, APPLICATION_JSON]
     }
 
     def "Customer places order that passes 3D secure authorization : #format"() {
@@ -172,16 +183,18 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
                         'merchantData': md
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
         }).data
 
         then: "Order is placed"
         isNotEmpty(order.code)
 
         where:
-        format << [org.apache.http.entity.ContentType.APPLICATION_XML, org.apache.http.entity.ContentType.APPLICATION_JSON]
+        format << [APPLICATION_XML, APPLICATION_JSON]
     }
 
     def "Customer places order that fails 3D secure authorization : #authorisationResponse"() {
@@ -205,10 +218,12 @@ class PlaceOrderTest extends AbstractWorldpaySpockTest {
                         'paRes'       : paRes,
                         'merchantData': md
                 ],
-                contentType: org.apache.http.entity.ContentType.APPLICATION_JSON,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+                contentType: APPLICATION_JSON,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == SC_OK
         }).data
 
         then: "Order is NOT placed and return reflects why"

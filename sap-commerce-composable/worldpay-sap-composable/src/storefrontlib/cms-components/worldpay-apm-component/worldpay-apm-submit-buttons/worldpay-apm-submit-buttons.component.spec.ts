@@ -14,8 +14,7 @@ describe('WorldpayApmSubmitButtonsComponent', () => {
       imports: [
         I18nTestingModule,
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WorldpayApmSubmitButtonsComponent);
     component = fixture.componentInstance;

@@ -41,14 +41,14 @@ public class RefundResponseTransformer extends AbstractServiceResponseTransforme
             return refundResponse;
         }
 
-        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final Ok intOk = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(Ok.class::isInstance)
             .map(Ok.class::cast)
             .findAny()
             .orElseThrow(() -> new WorldpayModelTransformationException("No ok status returned in Worldpay reply message"));
 
-        final RefundReceived intRefundReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()
+        final RefundReceived intRefundReceived = intOk.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryReceivedOrCryptogramReceivedOrVoidSaleReceived()
             .stream()
             .filter(RefundReceived.class::isInstance)
             .map(RefundReceived.class::cast)

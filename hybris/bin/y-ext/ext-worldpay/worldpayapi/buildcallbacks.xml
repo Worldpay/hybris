@@ -2,13 +2,6 @@
 
 <project name="worldpayapi_buildcallbacks">
 
-    <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-        <classpath>
-            <fileset dir="${ext.worldpayapi.path}/lib"
-                     includes="**/*.jar"/>
-        </classpath>
-    </taskdef>
-
     <macrodef name="worldpayapi_before_build"
               description="Generates Java classes from DTD with JAXB's xjc">
         <sequential>

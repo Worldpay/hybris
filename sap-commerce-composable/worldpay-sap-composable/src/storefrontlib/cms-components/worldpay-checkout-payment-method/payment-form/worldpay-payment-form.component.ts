@@ -7,8 +7,7 @@ import { GlobalMessageService, LoggerService, TranslationService, UserAddressSer
 import { LaunchDialogService } from '@spartacus/storefront';
 import { combineLatest, Observable, startWith, Subject } from 'rxjs';
 import { distinctUntilChanged, map, withLatestFrom } from 'rxjs/operators';
-import { WorldpayFraudsightService } from 'worldpay-sap-composable-services';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
+import { WorldpayBillingAddressFormService, WorldpayFraudsightService } from '../../../../core';
 
 @Component({
   selector: 'wp-payment-form',

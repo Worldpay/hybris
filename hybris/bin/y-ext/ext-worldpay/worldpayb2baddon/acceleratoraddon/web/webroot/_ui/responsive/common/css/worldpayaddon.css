@@ -13,17 +13,22 @@
 
 .cms-payment-button > label {
     border: 1px solid transparent;
-    width: 65px;
-    height: 50px;
     vertical-align:middle;
-    display: inline-flex;
+    text-align: center;
+    padding: 5px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .cms-payment-button label img {
     pointer-events: none;
-    max-width:60px;
-    max-height:40px;
+    max-width:100px;
     margin: auto;
+    height: 60px;
+    object-fit: contain;
 
 }
 

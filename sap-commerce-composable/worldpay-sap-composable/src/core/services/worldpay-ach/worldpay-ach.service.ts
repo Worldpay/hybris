@@ -3,9 +3,9 @@ import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { EventService, OCC_USER_ID_ANONYMOUS, Query, QueryService, QueryState, UserIdService } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
-import { WorldpayACHConnector } from 'worldpay-sap-composable-connectors';
-import { ClearWorldpayACHPaymentFormEvent } from 'worldpay-sap-composable-events';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { WorldpayACHConnector } from '../../connectors';
+import { ClearWorldpayACHPaymentFormEvent } from '../../events';
+import { WorldpayACHFacade } from '../../facade';
 import { AccountTypes, ACHPaymentForm, ACHPaymentFormRaw } from '../../interfaces';
 
 @Injectable({

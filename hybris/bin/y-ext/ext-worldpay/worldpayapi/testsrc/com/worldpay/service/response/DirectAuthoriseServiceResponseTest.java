@@ -35,7 +35,7 @@ public class DirectAuthoriseServiceResponseTest {
 
         final Optional<ThreeDSecureVersionEnum> result = testObj.get3DSecureVersion();
 
-        assertThat(result.get()).isEqualTo(ThreeDSecureVersionEnum.V2);
+        assertThat(result).contains(ThreeDSecureVersionEnum.V2);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class DirectAuthoriseServiceResponseTest {
 
         final Optional<ThreeDSecureFlowEnum> result = testObj.get3DSecureFlow();
 
-        assertThat(result.get()).isEqualTo(ThreeDSecureFlowEnum.LEGACY_FLOW);
+        assertThat(result).contains(ThreeDSecureFlowEnum.LEGACY_FLOW);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class DirectAuthoriseServiceResponseTest {
 
         final Optional<ThreeDSecureFlowEnum> result = testObj.get3DSecureFlow();
 
-        assertThat(result.get()).isEqualTo(ThreeDSecureFlowEnum.THREEDSFLEX_FLOW);
+        assertThat(result).contains(ThreeDSecureFlowEnum.THREEDSFLEX_FLOW);
     }
 
     @Test

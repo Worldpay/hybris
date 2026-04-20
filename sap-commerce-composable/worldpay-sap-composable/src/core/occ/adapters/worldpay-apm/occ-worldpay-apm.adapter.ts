@@ -6,7 +6,7 @@ import { backOff, CmsComponent, ConverterService, HttpErrorModel, isJaloError, L
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { WorldpayApmAdapter } from 'worldpay-sap-composable-connectors';
+import { WorldpayApmAdapter } from '../../../connectors';
 import { ApmData, ApmPaymentDetails, APMRedirectRequestBody, APMRedirectResponse, WorldpayApmPaymentInfo } from '../../../interfaces';
 import { APM_NORMALIZER } from '../../converters';
 

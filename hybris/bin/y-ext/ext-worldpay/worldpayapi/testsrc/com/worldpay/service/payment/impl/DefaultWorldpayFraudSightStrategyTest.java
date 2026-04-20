@@ -1,12 +1,23 @@
 package com.worldpay.service.payment.impl;
 
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.services.WorldpayCartService;
-import com.worldpay.model.WorldpayFraudSightModel;
-import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.data.Address;
 import com.worldpay.data.FraudSightData;
 import com.worldpay.data.FraudSightResponse;
 import com.worldpay.data.PaymentReply;
+import com.worldpay.model.WorldpayFraudSightModel;
+import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
@@ -27,17 +38,10 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayFraudSightStrategyTest {
 
-    private static final String ADDRESS_LINE_2 = "Address Line 2";
     private static final String SHOPPER_ID = "shopper_id";
     private static final String CUSTOMER_NAME = "Customer Name";
     private static final Date BIRTHDAY_DATE = new Date(1990, Calendar.MAY, 17);

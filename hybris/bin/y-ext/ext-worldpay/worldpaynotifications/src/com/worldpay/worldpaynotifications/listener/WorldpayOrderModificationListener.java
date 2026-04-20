@@ -17,11 +17,11 @@ import java.util.Map;
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 
 /**
- * Listener for order modifications events - the event is publish when received from Worldpay
+ * Listener for order modifications events - the event is published when received from Worldpay
  *
- * @see OrderModificationController
+ * @see com.worldpay.worldpaynotifications.controller.order.notification.OrderModificationController
  * <p>
- * The listener save the order notification message for later processing
+ * The listener saves the order notification message for later processing
  */
 public class WorldpayOrderModificationListener extends AbstractEventListener<OrderModificationEvent> {
 

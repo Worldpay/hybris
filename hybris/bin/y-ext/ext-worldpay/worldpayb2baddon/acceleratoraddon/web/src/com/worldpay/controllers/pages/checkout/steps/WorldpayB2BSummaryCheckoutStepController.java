@@ -2,6 +2,7 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
+import com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.forms.B2BCSEPaymentForm;
@@ -18,6 +19,7 @@ import de.hybris.platform.b2bacceleratorfacades.order.data.B2BReplenishmentRecur
 import de.hybris.platform.b2bacceleratorfacades.order.data.ScheduledCartData;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
+import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.order.data.OrderEntryData;
 import de.hybris.platform.commercefacades.product.ProductOption;
@@ -52,7 +54,7 @@ import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.G
  */
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/summary")
-@SuppressWarnings({"java:S110","Duplicates","java:S1854"})
+@SuppressWarnings({"java:S110", "Duplicates", "java:S1854"})
 public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDirectCheckoutStepController {
 
     private static final Logger LOG = LogManager.getLogger(WorldpayB2BSummaryCheckoutStepController.class);
@@ -109,7 +111,6 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
         model.addAttribute(DELIVERY_MODE, cartData.getDeliveryMode());
         model.addAttribute(PAYMENT_INFO, cartData.getPaymentInfo());
         addScheduleSetupToModel(model);
-        model.addAttribute(REQUEST_SECURITY_CODE, getRequestSecurityCodeValue());
 
         final B2BCSEPaymentForm b2bCSEPaymentForm = new B2BCSEPaymentForm();
         b2bCSEPaymentForm.setReplenishmentRecurrence(B2BReplenishmentRecurrenceEnum.MONTHLY);
@@ -133,8 +134,10 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
         model.addAttribute("metaRobots", "noindex,nofollow");
         setCheckoutStepLinksForModel(model, getCheckoutStep());
 
-        final String subscriptionId = cartData.getPaymentInfo() != null ? cartData.getPaymentInfo().getSubscriptionId() : null;
+        final String subscriptionId = getSubscriptionId(cartData);
         model.addAttribute(SUBSCRIPTION_ID, subscriptionId);
+        model.addAttribute(REQUEST_SECURITY_CODE, getRequestSecurityCodeValue() &&
+                cartData.getWorldpayAPMPaymentInfo() == null);
 
         Optional.ofNullable(cartData.getPaymentInfo()).ifPresent(bin -> model.addAttribute(BIN, bin));
 
@@ -183,7 +186,7 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
         }
 
         final CSEAdditionalAuthInfo cseAdditionalAuthInfo = createCSESubscriptionAdditionalAuthInfo(b2bCSEPaymentForm);
-        if (getCheckoutFacade().getCheckoutCart().getPaymentInfo() != null && !b2bCSEPaymentForm.isReplenishmentOrder()) {
+        if (!b2bCSEPaymentForm.isReplenishmentOrder()) {
             // Pay by credit card - Place Order Now - authorize payment
             final WorldpayAdditionalInfoData worldpayAdditionalInfoData = getWorldpayAdditionalInfo(request, b2bCSEPaymentForm, cseAdditionalAuthInfo);
             try {
@@ -231,7 +234,7 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
 
     protected boolean getRequestSecurityCodeValue() {
         // Only request the security code if using a saved card
-        Boolean savedCardSelected = getSessionService().getAttribute(SAVED_CARD_SELECTED_ATTRIBUTE);
+        final Boolean savedCardSelected = getSessionService().getAttribute(SAVED_CARD_SELECTED_ATTRIBUTE);
         return savedCardSelected != null && savedCardSelected;
     }
 
@@ -244,7 +247,7 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
      */
     protected boolean isOrderFormValid(final B2BCSEPaymentForm b2bCSEPaymentForm, final Model model) {
         final CartData cartData = getCheckoutFacade().getCheckoutCart();
-        final String subscriptionId = cartData.getPaymentInfo() != null ? cartData.getPaymentInfo().getSubscriptionId() : null;
+        final String subscriptionId = getSubscriptionId(cartData);
         final String securityCode = b2bCSEPaymentForm.getSecurityCode();
         final boolean requestSecurityCode = b2bCSEPaymentForm.isRequestSecurityCode();
 
@@ -252,6 +255,15 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
                 areDeliveryInfoValid(model) &&
                 hasTermsAccepted(b2bCSEPaymentForm, model) &&
                 isCartValid(model, cartData);
+    }
+
+    protected String getSubscriptionId(final CartData cartData) {
+        return Optional.ofNullable(cartData.getPaymentInfo())
+                .map(CCPaymentInfoData::getSubscriptionId)
+                .orElseGet(() -> Optional.ofNullable(cartData.getWorldpayAPMPaymentInfo())
+                        .map(WorldpayAPMPaymentInfoData::getSubscriptionId)
+                        .orElse(null)
+                );
     }
 
     private boolean isCartValid(final Model model, final CartData cartData) {
@@ -266,7 +278,7 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
 
     private boolean arePaymentInfoValid(final Model model, final String subscriptionId, final String securityCode, final boolean requestSecurityCode) {
         return isSubscriptionIdInValidCondition(subscriptionId, securityCode, requestSecurityCode, model) &&
-                hasRequestedSecurityCode(model, securityCode) &&
+                hasRequestedSecurityCode(model, securityCode, requestSecurityCode) &&
                 hasPaymentInfo(model);
     }
 
@@ -297,8 +309,10 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
         return true;
     }
 
-    private boolean hasRequestedSecurityCode(final Model model, final String securityCode) {
-        if (getRequestSecurityCodeValue() && StringUtils.isBlank(securityCode)) {
+    private boolean hasRequestedSecurityCode(final Model model, final String securityCode, final boolean requestSecurityCode) {
+        if (!requestSecurityCode) {
+            return true;
+        } else if (getRequestSecurityCodeValue() && StringUtils.isBlank(securityCode)) {
             addErrorMessage(model, "checkout.paymentMethod.noSecurityCode");
             return false;
         }
@@ -306,7 +320,9 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
     }
 
     private boolean isSubscriptionIdInValidCondition(final String subscriptionId, final String securityCode, final boolean requestSecurityCode, final Model model) {
-        if (subscriptionId != null && StringUtils.isBlank(securityCode) && requestSecurityCode) {
+        if (!requestSecurityCode) {
+            return true;
+        } else if (subscriptionId != null && StringUtils.isBlank(securityCode) && requestSecurityCode) {
             addErrorMessage(model, "checkout.paymentMethod.noSecurityCode");
             return false;
         }

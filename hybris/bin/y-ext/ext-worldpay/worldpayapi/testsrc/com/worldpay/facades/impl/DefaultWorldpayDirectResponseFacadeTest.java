@@ -1,5 +1,10 @@
 package com.worldpay.facades.impl;
 
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
@@ -19,16 +24,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Map;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayDirectResponseFacadeTest {
     private static final ChallengeWindowSizeEnum WINDOW_SIZE = ChallengeWindowSizeEnum.R_250_400;
-    private static final String AUTO_SUBMIT_3DS_LEGACY = "autoSubmit3DSecureLegacy";
     private static final String TERM_URL_PARAM_NAME = "termURL";
     private static final String PA_REQUEST_PARAM_NAME = "paRequest";
     private static final String ISSUER_URL_PARAM_NAME = "issuerURL";

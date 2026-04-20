@@ -1,19 +1,20 @@
 package com.worldpay.service;
 
-import com.worldpay.exception.WorldpayException;
+import javax.annotation.Resource;
+import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.worldpay.data.MerchantInfo;
+import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.request.CancelServiceRequest;
 import com.worldpay.service.response.CancelServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
 import de.hybris.platform.servicelayer.ServicelayerBaseTest;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.annotation.Resource;
-import java.util.Date;
-
-import static org.junit.Assert.*;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @IntegrationTest
 public class CancelServiceRequestIntegrationTest extends ServicelayerBaseTest {
@@ -27,12 +28,11 @@ public class CancelServiceRequestIntegrationTest extends ServicelayerBaseTest {
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway gateway;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
     }
 
     /**
@@ -46,8 +46,8 @@ public class CancelServiceRequestIntegrationTest extends ServicelayerBaseTest {
         final CancelServiceRequest request = CancelServiceRequest.createCancelRequest(merchantInfo, ORDER_CODE);
         final CancelServiceResponse cancel = gateway.cancel(request);
 
-        assertNotNull("Cancel response is null!", cancel);
-        assertFalse("Errors returned from cancel request", cancel.isError());
+        assertNotNull(cancel, "Cancel response is null!");
+        assertFalse(cancel.isError(), "Errors returned from cancel request");
         assertEquals("Order code returned is incorrect", ORDER_CODE, cancel.getOrderCode());
     }
 }

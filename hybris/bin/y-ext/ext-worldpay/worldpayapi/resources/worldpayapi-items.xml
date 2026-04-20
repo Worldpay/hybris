@@ -1013,6 +1013,10 @@
                         <description>Replenishment Merchant Configuration</description>
                         <persistence type="property"/>
                     </attribute>
+                    <attribute qualifier="openBankingMerchantConfiguration" type="WorldpayMerchantConfiguration">
+                        <description>Open Banking Merchant Configuration</description>
+                        <persistence type="property"/>
+                    </attribute>
                     <attribute qualifier="enableFS" type="java.lang.Boolean">
                         <modifiers optional="false"/>
                         <persistence type="property"/>

@@ -30,7 +30,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
         final OrderStatus orderStatus = createOrderStatus(submitRequest);
 
         final Reply reply = new Reply();
-        reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().add(orderStatus);
+        reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().add(orderStatus);
 
         final PaymentService paymentService = new PaymentService();
         paymentService.setMerchantCode(request.getMerchantCode());
@@ -46,9 +46,9 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
 
         final OrderStatus orderStatus = new OrderStatus();
 
-        final List<Object> requestElements = submitRequest.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
+        final List<Object> requestElements = submitRequest.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken();
         final List<Object> orderStatusElements = orderStatus.
-            getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
+            getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
         for (Object requestElement : requestElements) {
             if (requestElement instanceof Shopper shopper) {
                 authenticatedShopperId = Optional.ofNullable(shopper.getAuthenticatedShopperID())
@@ -57,7 +57,7 @@ public class DefaultWorldpayDirectAuthoriseResponseBuilder implements WorldpayDi
             }
 
             if (requestElement instanceof Order requestOrder) {
-                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrDynamicMCCOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession();
+                final List<Object> orderElements = requestOrder.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrInstalmentProviderOrServiceLocationDataOrDynamicMCCOrPartialAuthorisationOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession();
                 final Amount intAmount = orderElements.stream()
                     .filter(Amount.class::isInstance)
                     .map(Amount.class::cast)

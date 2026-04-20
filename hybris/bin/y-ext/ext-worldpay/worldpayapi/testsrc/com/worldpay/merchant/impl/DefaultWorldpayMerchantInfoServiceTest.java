@@ -1,10 +1,10 @@
 package com.worldpay.merchant.impl;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.merchant.configuration.services.WorldpayMerchantConfigurationService;
 import com.worldpay.model.WorldpayMerchantConfigurationModel;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.strategy.WorldpayMerchantStrategy;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
@@ -139,5 +139,15 @@ public class DefaultWorldpayMerchantInfoServiceTest {
         assertEquals(MERCHANT_PASSWORD, result.getMerchantPassword());
         assertNull(result.getMacSecret());
         assertFalse(result.isUsingMacValidation());
+    }
+
+    @Test
+    public void getCurrentSiteOpenBankingMerchant_shouldCreateMerchantInfoFromOpenBankingSiteMerchantConfigData() {
+        when(worldpayMerchantConfigurationServiceMock.getCurrentOpenBankingConfiguration()).thenReturn(worldpayMerchantConfigurationMock);
+        doReturn(merchantInfo).when(testObj).createMerchantInfo(worldpayMerchantConfigurationMock);
+
+        final MerchantInfo result = testObj.getCurrentSiteOpenBankingMerchant();
+
+        assertEquals(merchantInfo, result);
     }
 }

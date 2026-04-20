@@ -38,7 +38,7 @@
   <!-- BUTTON SECTION -->
   <y-worldpay-apm-submit-buttons
     (back)="return()"
-    [disableContinue]="(disableContinueButton$() | async) || idealForm.invalid"
+    [disableContinue]="(disableContinueButton$ | async) || idealForm.invalid"
     [dataTestId]="'ideal-continue-btn'"
   />
 </form>

@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { WorldpayGooglepayAdapter } from '../../../../core/connectors/worldpay-googlepay/worldpay-googlepay.adapter';
-import { WorldpayGooglePayConnector } from '../../../../core/connectors/worldpay-googlepay/worldpay-googlepay.connector';
-import { OccWorldpayGooglepayAdapter } from '../../../../core/occ/adapters/worldpay-googlepay/occ-worldpay-googlepay.adapter';
+import { I18nModule } from '@spartacus/core';
+import { OccWorldpayGooglepayAdapter, WorldpayGooglepayAdapter, WorldpayGooglePayConnector } from '../../../../core';
 import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
 import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.component';
 
@@ -14,6 +13,7 @@ import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.componen
   imports: [
     CommonModule,
     WorldpayBillingAddressModule,
+    I18nModule,
   ],
   providers: [
     WorldpayGooglePayConnector,

@@ -29,4 +29,12 @@ public class DefaultWorldpayAPMComponentFacade implements WorldpayAPMComponentFa
     public List<WorldpayAPMComponentData> getAllAvailableWorldpayAPMComponents() {
         return worldpayAPMComponentConverter.convertAll(worldpayAPMComponentService.getAllAvailableWorldpayAPMComponents());
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public WorldpayAPMComponentData getWorldpayAPMComponentByCode(final String apmCode) {
+        return worldpayAPMComponentConverter.convert(worldpayAPMComponentService.getWorldpayAPMComponentByCode(apmCode));
+    }
 }

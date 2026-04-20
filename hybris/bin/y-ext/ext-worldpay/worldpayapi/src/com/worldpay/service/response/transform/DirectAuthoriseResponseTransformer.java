@@ -45,7 +45,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
             return authResponse;
         }
 
-        final OrderStatus intOrderStatus = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
+        final OrderStatus intOrderStatus = intReply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()
             .stream()
             .filter(OrderStatus.class::isInstance)
             .map(OrderStatus.class::cast)
@@ -54,7 +54,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
 
             authResponse.setOrderCode(intOrderStatus.getOrderCode());
 
-            final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
+            final List<Object> intOrderStatusElements = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
             for (final Object orderStatusType : intOrderStatusElements) {
                 transformOrderStatus(authResponse, intOrderStatus, orderStatusType);
             }
@@ -66,13 +66,18 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
         if (orderStatusType == null) {
             throw new WorldpayModelTransformationException("No order status type returned in Worldpay reply message");
         }
-        final List<Object> intOrderStatuses = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
+        final List<Object> intOrderStatuses = intOrderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
 
         intOrderStatuses.stream()
                 .filter(ChallengeRequired.class::isInstance)
                 .map(ChallengeRequired.class::cast)
                 .findAny()
-                .map(ChallengeRequired::getThreeDSChallengeDetails)
+                .map(ChallengeRequired::getThreeDSChallengeDetailsOrThreeDSSessionIdOrThreeDSVersionOrIssuerName)
+                .flatMap(list -> list.stream()
+                        .filter(ThreeDSChallengeDetails.class::isInstance)
+                        .map(ThreeDSChallengeDetails.class::cast)
+                        .findFirst()
+                )
                 .map(this::build3DInfoForChallenge)
                 .ifPresent(authResponse::setRequest3DInfo);
 
@@ -135,7 +140,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
             req3dInfo.setMajor3DSVersion(threeDSChallengeDetails.getThreeDSVersion().getvalue());
             req3dInfo.setIssuerUrl(threeDSChallengeDetails.getAcsURL());
             req3dInfo.setIssuerPayload(threeDSChallengeDetails.getPayload());
-            req3dInfo.setTransactionId3DS(threeDSChallengeDetails.getTransactionId3DS());
+            req3dInfo.setTransactionId3DS(threeDSChallengeDetails.getTransactionId3DS().getvalue());
         }
         return req3dInfo;
 

@@ -1,5 +1,6 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import com.worldpay.worldpayocccommons.controllers.AbstractWorldpayController;
 import com.worldpay.data.ApplePayAuthorisationRequest;
 import com.worldpay.data.ApplePayPaymentRequest;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
@@ -23,13 +24,11 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
-@Controller
+@RestController
 @RequestMapping(value = "/{baseSiteId}/users/{userId}/carts/{cartId}/apple")
 @Profile("applepay")
 public class WorldpayApplePayController extends AbstractWorldpayController {
 
-    @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
     @Resource
     private WorldpayApplePayPaymentCheckoutFacade worldpayApplePayPaymentCheckoutFacade;
     @Resource(name = "worldpayApplePayRestTemplate")
@@ -37,7 +36,6 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @GetMapping(value = "/payment-request", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
     public ResponseEntity<ApplePayPaymentRequest> getPaymentRequest() {
         return ResponseEntity.ok(worldpayApplePayPaymentCheckoutFacade.getApplePayPaymentRequest(checkoutFacade.getCheckoutCart()));
@@ -45,7 +43,6 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/request-session", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
     public Object requestPaymentSession(@RequestBody final ValidateMerchantRequestData validateMerchantRequestData) {
         final ValidateMerchantRequestDTO requestDTO = worldpayApplePayPaymentCheckoutFacade.getValidateMerchantRequestDTO();
@@ -55,7 +52,6 @@ public class WorldpayApplePayController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
     public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest,
                                                   @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields,

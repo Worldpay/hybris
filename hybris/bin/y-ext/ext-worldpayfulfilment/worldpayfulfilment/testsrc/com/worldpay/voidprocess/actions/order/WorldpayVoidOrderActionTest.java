@@ -1,5 +1,20 @@
 package com.worldpay.voidprocess.actions.order;
 
+import java.util.Set;
+
+import static com.worldpay.voidprocess.actions.order.WorldpayVoidOrderAction.Transition.NOK;
+import static com.worldpay.voidprocess.actions.order.WorldpayVoidOrderAction.Transition.OK;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.voidprocess.model.WorldpayVoidProcessModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -12,16 +27,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static com.worldpay.voidprocess.actions.order.WorldpayVoidOrderAction.Transition.NOK;
-import static com.worldpay.voidprocess.actions.order.WorldpayVoidOrderAction.Transition.OK;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayVoidOrderActionTest {
 
     @InjectMocks
@@ -77,7 +84,10 @@ public class WorldpayVoidOrderActionTest {
     }
 
     @Test
-    public void testGetTransitions() throws Exception {
+    public void testGetTransitions() {
+        final Set<String> transitions = testObj.getTransitions();
 
+        assertEquals(2, transitions.size());
+        assertThat(transitions).containsExactlyInAnyOrder(OK.toString(), NOK.toString());
     }
 }

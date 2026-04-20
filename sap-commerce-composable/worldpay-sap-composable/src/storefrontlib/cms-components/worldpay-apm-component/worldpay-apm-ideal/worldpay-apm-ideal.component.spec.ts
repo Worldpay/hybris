@@ -1,14 +1,14 @@
+import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Address, I18nTestingModule, LoggerService, MockTranslatePipe } from '@spartacus/core';
 import { FormErrorsModule } from '@spartacus/storefront';
 import { BehaviorSubject, of } from 'rxjs';
-import { WorldpayApmSubmitButtonsComponent } from 'worldpay-sap-composable-components';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
 import { MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
-import { PaymentMethod } from 'worldpay-sap-core';
+import { PaymentMethod, WorldpayBillingAddressFormService, WorldpayConnector } from '../../../../core';
+import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmIdealComponent } from './worldpay-apm-ideal.component';
 
 describe('WorldpayApmIdealComponent', () => {
@@ -225,7 +225,7 @@ describe('WorldpayApmIdealComponent', () => {
       component.isSubmitting$.next(false);
       component['component.billingAddressForm'] = jasmine.createSpyObj('UntypedFormGroup', ['invalid'], { invalid: true });
       fixture.detectChanges();
-      component.disableContinueButton$().subscribe((result) => {
+      component.disableContinueButton().subscribe((result) => {
         expect(result).toBeTrue();
         done();
       });
@@ -236,7 +236,7 @@ describe('WorldpayApmIdealComponent', () => {
       component.isSubmitting$.next(true);
       component['component.billingAddressForm'] = jasmine.createSpyObj('UntypedFormGroup', ['invalid'], { invalid: false });
 
-      component.disableContinueButton$().subscribe((result) => {
+      component.disableContinueButton().subscribe((result) => {
         expect(result).toBeTrue();
       });
     });
@@ -246,7 +246,7 @@ describe('WorldpayApmIdealComponent', () => {
       component.isSubmitting$.next(false);
       component['component.billingAddressForm'] = jasmine.createSpyObj('UntypedFormGroup', ['invalid'], { invalid: false });
 
-      component.disableContinueButton$().subscribe((result) => {
+      component.disableContinueButton().subscribe((result) => {
         expect(result).toBeFalse();
       });
     });
@@ -312,6 +312,73 @@ describe('WorldpayApmIdealComponent', () => {
           shopperBankCode: 'ING'
         },
       );
+    });
+  });
+
+  describe('UI tests', () => {
+    const getSubmitButtonsComponent = (): DebugElement => fixture.debugElement.query(By.directive(WorldpayApmSubmitButtonsComponent));
+    const getBillingAddressComponent = (): MockWorldpayBillingAddressComponent => fixture.nativeElement.querySelector('y-worldpay-billing-address');
+    const getContinueButton = (): DebugElement => fixture.debugElement.query(By.css('[data-test-id="ideal-continue-btn"]'));
+
+    it('should render billing address component', () => {
+      fixture.detectChanges();
+      const billingAddressComponent = getBillingAddressComponent();
+      expect(billingAddressComponent).toBeTruthy();
+    });
+
+    it('should render worldpay apm submit buttons component', () => {
+      fixture.detectChanges();
+      const submitButtonsComponent = getSubmitButtonsComponent();
+      expect(submitButtonsComponent).toBeTruthy();
+    });
+
+    it('should disable continue button when submitting', () => {
+      component = regenerateComponent(true);
+      spyOn(component, 'next');
+      const form = new UntypedFormGroup({});
+      form.setErrors(null);
+      spyOn(billingAddressFormService, 'getBillingAddressForm').and.returnValue(form);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      component.isSubmitting$.next(true);
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeTrue();
+      expect(component.next).not.toHaveBeenCalled();
+    });
+
+    it('should disable continue button when billing address is not same as delivery address and form is invalid', () => {
+      component = regenerateComponent(false);
+      spyOn(component, 'next');
+      component.isSubmitting$.next(false);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeTrue();
+      continueButton.nativeElement.click();
+      expect(component.next).not.toHaveBeenCalled();
+    });
+
+    it('should enable continue button when billing address is same as delivery address, idealForm form is valid and is not submitting the form', () => {
+      component = regenerateComponent(true);
+      spyOn(component, 'next');
+      component['billingAddressForm'] = billingAddressFormService.getBillingAddressForm();
+      component.isSubmitting$.next(false);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      component.idealForm.patchValue({ bank: { code: 'ING' } });
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeFalse();
+      continueButton.nativeElement.click();
+      expect(component.next).toHaveBeenCalled();
     });
   });
 });

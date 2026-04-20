@@ -6,7 +6,7 @@ import { GlobalMessageService, GlobalMessageType, HttpErrorModel, LoggerService,
 import { UserAccountService } from '@spartacus/user/account/core';
 import { combineLatest, Observable } from 'rxjs';
 import { concatMap, distinctUntilChanged, filter, map } from 'rxjs/operators';
-import { WorldpayGuaranteedPaymentsService } from 'worldpay-sap-composable-services';
+import { WorldpayGuaranteedPaymentsService } from '../../../core';
 
 @Component({
   selector: 'worldpay-guaranteed-payments',

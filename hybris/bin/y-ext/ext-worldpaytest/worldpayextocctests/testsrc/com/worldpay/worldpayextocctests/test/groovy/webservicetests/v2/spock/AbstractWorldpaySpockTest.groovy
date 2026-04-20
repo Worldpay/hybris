@@ -4,6 +4,9 @@ import geb.Browser
 import groovy.json.JsonSlurper
 import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.RESTClient
+import org.apache.http.HttpStatus
+import org.apache.http.entity.ContentType
+import org.openqa.selenium.By
 import org.openqa.selenium.UnhandledAlertException
 import org.openqa.selenium.firefox.FirefoxDriver
 
@@ -11,7 +14,7 @@ import static java.time.LocalDate.now
 
 class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
 
-    protected createCustomerWithPaymentInfo(RESTClient client, accountHolderName = "Sven Johnson", format = org.apache.http.entity.ContentType.APPLICATION_JSON) {
+    protected createCustomerWithPaymentInfo(RESTClient client, accountHolderName = "Sven Johnson", format = ContentType.APPLICATION_JSON) {
         def customer = registerCustomerWithTrustedClient(client, format)
         authorizeCustomer(client, customer)
 
@@ -36,65 +39,73 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         return customer
     }
 
-    protected addProductToCart(RESTClient client, customer, cartId, productId, format = org.apache.http.entity.ContentType.APPLICATION_JSON) {
+    protected addProductToCart(RESTClient client, customer, cartId, productId, format = ContentType.APPLICATION_JSON) {
         HttpResponseDecorator response = client.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/entries',
                 body: [
                         'code': productId
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED)
+                requestContentType: ContentType.APPLICATION_FORM_URLENCODED)
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == HttpStatus.SC_OK
             data.quantityAdded == 1
             isNotEmpty(data.entry)
             data.entry.entryNumber == 0
         }
     }
 
-    protected setDeliveryAddress(RESTClient client, customer, cartId, address, format = org.apache.http.entity.ContentType.APPLICATION_JSON) {
+    protected setDeliveryAddress(RESTClient client, customer, cartId, address, format = ContentType.APPLICATION_JSON) {
         HttpResponseDecorator response = client.put(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/addresses/delivery',
                 body: [
                         'addressId': address.id,
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED)
+                requestContentType: ContentType.APPLICATION_FORM_URLENCODED)
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == HttpStatus.SC_OK
         }
     }
 
-    protected setDeliveryMode(RESTClient client, customer, cartId, deliveryMode, format = org.apache.http.entity.ContentType.APPLICATION_JSON) {
+    protected setDeliveryMode(RESTClient client, customer, cartId, deliveryMode, format = ContentType.APPLICATION_JSON) {
         HttpResponseDecorator response = client.put(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/deliverymode',
                 body: [
                         'deliveryModeId': deliveryMode,
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED)
+                requestContentType: ContentType.APPLICATION_FORM_URLENCODED)
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_OK
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == HttpStatus.SC_OK
         }
     }
 
-    protected createWorldpayPaymentInfo(RESTClient client, customer, cartId, body, format = org.apache.http.entity.ContentType.APPLICATION_JSON) {
+    protected createWorldpayPaymentInfo(RESTClient client, customer, cartId, body, format = ContentType.APPLICATION_JSON) {
         HttpResponseDecorator response = client.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/carts/' + cartId + '/worldpaypaymentdetails',
                 body: body,
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_JSON)
+                requestContentType: ContentType.APPLICATION_JSON)
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_CREATED
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == HttpStatus.SC_CREATED
         }
         return response.data
     }
 
-    protected placeWorldpayOrder(RESTClient client, customer, cartId, securityCode, format = org.apache.http.entity.ContentType.APPLICATION_JSON) {
+    protected placeWorldpayOrder(RESTClient client, customer, cartId, securityCode, format = ContentType.APPLICATION_JSON) {
         HttpResponseDecorator response = client.post(
                 path: getBasePathWithSite() + '/users/' + customer.id + '/worldpayorders',
                 body: [
@@ -102,10 +113,12 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
                         'securityCode': securityCode
                 ],
                 contentType: format,
-                requestContentType: org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED)
+                requestContentType: ContentType.APPLICATION_FORM_URLENCODED)
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_CREATED
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == HttpStatus.SC_CREATED
         }
         return response.data
     }
@@ -129,7 +142,7 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
         try {
             browser.close()
         }
-        catch (UnhandledAlertException e) {
+        catch (UnhandledAlertException ignored) {
 
         }
 
@@ -176,21 +189,21 @@ class AbstractWorldpaySpockTest extends AbstractSpockFlowTest {
 
         browser.go autoSubmitUrl
 
-        Thread.sleep(3000);
+        Thread.sleep(3000)
 
         // The threeDSecureTest.html page auto submits and forwards to the
         // worldpay 3D simulator page (the issuer url)
         browser.$("form").paResMagicValues = authorisationResponse
 
         // On the worldpay 3D simulator we select the given authorisationResponse and click the button
-        browser.getPage().$(org.openqa.selenium.By.className("lefty")).click()
+        browser.getPage().$(By.className("lefty")).click()
 
         // We are now on a mock endpoint in the worldpayresponsemock extension which collect the Pa response
-        def paRes = browser.getPage().$(org.openqa.selenium.By.className("PaRes")).value()
+        def paRes = browser.getPage().$(By.className("PaRes")).value()
         try {
             browser.close()
         }
-        catch (UnhandledAlertException e) {
+        catch (UnhandledAlertException ignored) {
 
         }
         return paRes

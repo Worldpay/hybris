@@ -20,9 +20,6 @@ import { OrderAdapter, OrderConnector } from '@spartacus/order/core';
 import { Order, OrderPlacedEvent } from '@spartacus/order/root';
 import { LAUNCH_CALLER, LaunchDialogService } from '@spartacus/storefront';
 import { BehaviorSubject, Observable, ObservedValueOf, of, throwError } from 'rxjs';
-import { WorldpayACHConnector, WorldpayApmConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { ClearWorldpayPaymentDetailsEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from 'worldpay-sap-composable-events';
-import { WorldpayApmService, WorldpayCheckoutPaymentService } from 'worldpay-sap-composable-services';
 import {
   MockActiveCartFacade,
   MockGlobalMessageService,
@@ -34,9 +31,11 @@ import {
   MockWorldpayCheckoutPaymentService,
   MockWorldpayConnector
 } from 'worldpay-sap-composable-tests';
-import { WorldpayApmAdapter } from '../../connectors';
-import { ClearWorldpayACHPaymentFormEvent } from '../../events/worldpay.events';
+import { WorldpayACHConnector, WorldpayApmAdapter, WorldpayApmConnector, WorldpayConnector } from '../../connectors';
+import { ClearWorldpayACHPaymentFormEvent, ClearWorldpayPaymentDetailsEvent, DDC3dsJwtSetEvent, InitialPaymentRequestSetEvent } from '../../events';
 import { ACHPaymentForm, ApmData, APMRedirectResponse, BrowserInfo, PaymentMethod, PlaceOrderResponse } from '../../interfaces';
+import { WorldpayApmService } from '../worldpay-apm/worldpay-apm.service';
+import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 import { WorldpayOrderService } from './worldpay-order.service';
 import createSpy = jasmine.createSpy;
 
@@ -323,7 +322,8 @@ describe('WorldpayOrderService', () => {
       cseToken,
       acceptedTermsAndConditions,
       null,
-      browserInfo
+      browserInfo,
+      undefined
     ).subscribe().unsubscribe();
 
     const paymentDetailsWithoutCardNumber = { ...mockPaymentDetails };
@@ -337,7 +337,8 @@ describe('WorldpayOrderService', () => {
       cseToken,
       acceptedTermsAndConditions,
       null,
-      browserInfo
+      browserInfo,
+      undefined
     );
   });
 
@@ -384,7 +385,7 @@ describe('WorldpayOrderService', () => {
   });
 
   it('should show error messages', () => {
-    service.challengeFailed();
+    service.challengeFailed('checkoutReview.challengeFailed');
     expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.challengeFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
   });
 
@@ -474,12 +475,12 @@ describe('WorldpayOrderService', () => {
       expect(service.placedOrderSuccess).toHaveBeenCalledWith(userId, cartId, response.order);
     });
 
-    it('should add global message and clear loading when transaction fails', () => {
+    it('should add global message and clear loading when transaction fails and show generic error message when no return message is included', () => {
       const response = {
         threeDSecureNeeded: false,
         threeDSecureInfo: {},
         transactionStatus: 'FAILED',
-        order: {}
+        order: {},
       } as PlaceOrderResponse;
 
       worldpayConnector.initialPaymentRequest = createSpy('WorldpayAdapter.initialPaymentRequest').and.returnValue(of(response));
@@ -496,6 +497,32 @@ describe('WorldpayOrderService', () => {
       }).subscribe();
 
       expect(globalMessageService.add).toHaveBeenCalledWith({ key: 'checkoutReview.initialPaymentRequestFailed' }, GlobalMessageType.MSG_TYPE_ERROR);
+      expect(service.clearLoading).toHaveBeenCalled();
+    });
+
+    it('should add global message and clear loading when transaction fails and return error message', () => {
+      const response = {
+        threeDSecureNeeded: false,
+        threeDSecureInfo: {},
+        transactionStatus: 'FAILED',
+        order: {},
+        returnMessage: 'Specific error message'
+      } as PlaceOrderResponse;
+
+      worldpayConnector.initialPaymentRequest = createSpy('WorldpayAdapter.initialPaymentRequest').and.returnValue(of(response));
+      spyOn(service, 'clearLoading');
+
+      service['initialPaymentRequestCommand'].execute({
+        paymentDetails: mockPaymentDetails,
+        dfReferenceId: 'dfReferenceId',
+        challengeWindowSize: '600x400',
+        cseToken: 'cseToken',
+        acceptedTermsAndConditions: true,
+        deviceSession: 'deviceSession',
+        browserInfo
+      }).subscribe();
+
+      expect(globalMessageService.add).toHaveBeenCalledWith({ raw: 'Specific error message' }, GlobalMessageType.MSG_TYPE_ERROR);
       expect(service.clearLoading).toHaveBeenCalled();
     });
   });

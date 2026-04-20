@@ -1,10 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PaymentDetails } from '@spartacus/core';
+import { Address, PaymentDetails } from '@spartacus/core';
 import { Observable, shareReplay } from 'rxjs';
 import { distinctUntilChanged, first, map, switchMap, take } from 'rxjs/operators';
-import { WorldpayApmService, WorldpayApplepayService, WorldpayGooglepayService } from 'worldpay-sap-composable-services';
-import { ApmData, GooglePayMerchantConfiguration, PaymentMethod } from 'worldpay-sap-core';
+import {
+  ApmData,
+  GooglePayMerchantConfiguration,
+  PaymentMethod,
+  WorldpayApmService,
+  WorldpayApplepayService,
+  WorldpayGooglepayService
+} from '../../../core';
 import { WorldpayApmBaseComponent } from './worldpay-apm-base/worldpay-apm-base.component';
 
 @Component({
@@ -16,6 +22,8 @@ import { WorldpayApmBaseComponent } from './worldpay-apm-base/worldpay-apm-base.
 export class WorldpayApmComponent extends WorldpayApmBaseComponent implements OnInit, OnDestroy {
   @Input() apms: Observable<ApmData[]>;
   @Input() processing: boolean = false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Input() cardTemplate!: TemplateRef<any>;
   readonly paymentMethod: typeof PaymentMethod = PaymentMethod;
   protected worldpayApmService: WorldpayApmService = inject(WorldpayApmService);
   isLoading$: Observable<boolean> = this.worldpayApmService.getLoading();
@@ -37,6 +45,7 @@ export class WorldpayApmComponent extends WorldpayApmBaseComponent implements On
   protected googlePay$: Observable<ApmData> = this.initializeGooglePay();
   protected applePay$: Observable<ApmData | null> = this.initializeApplePay();
   protected paymentDetails: ApmData;
+  protected billingAddress$: Observable<Address> = this.billingAddressFormService.billingAddress$.asObservable();
 
   /**
    * Initialize component
@@ -75,15 +84,16 @@ export class WorldpayApmComponent extends WorldpayApmBaseComponent implements On
    */
   showBillingFormAndContinueButton(code: string): boolean {
     switch (code) {
-    case PaymentMethod.Card:
-    case PaymentMethod.GooglePay:
-    case PaymentMethod.ApplePay:
-    case PaymentMethod.iDeal:
-    case PaymentMethod.ACH:
-      return false;
+      case PaymentMethod.Card:
+      case PaymentMethod.GooglePay:
+      case PaymentMethod.ApplePay:
+      case PaymentMethod.iDeal:
+      case PaymentMethod.ACH:
+      case PaymentMethod.SepaDirectDebit:
+        return false;
 
-    default:
-      return true;
+      default:
+        return true;
     }
   }
 
@@ -167,5 +177,17 @@ export class WorldpayApmComponent extends WorldpayApmBaseComponent implements On
         take(1),
         map((apmData: ApmData): ApmData => apmData),
       );
+  }
+
+  /**
+   * Selects the APM payment method and updates the selected APM state.
+   * This method ensures that the APM is explicitly selected when the accordion header
+   * is clicked or activated via keyboard (Enter/Space), providing proper accessibility support.
+   * 
+   * @param apm - The APM data to select
+   * @since 2211.43.0
+   */
+  selectApm(apm: ApmData): void {
+    this.worldpayApmService.selectAPM(apm);
   }
 }

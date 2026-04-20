@@ -1,34 +1,31 @@
 package com.worldpay.facades.order.impl;
 
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.services.OrderInquiryService;
+import com.worldpay.data.Amount;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.hostedorderpage.data.KlarnaRedirectAuthoriseResult;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.data.Amount;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
-import com.worldpay.service.request.KlarnaOrderInquiryServiceRequest;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -46,10 +43,6 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
     private WorldpayMerchantInfoService worldpayMerchantInfoServiceMock;
     @Mock
     private MerchantInfo merchantInfoMock;
-    @Mock
-    private KlarnaOrderInquiryServiceRequest klarnaOrderInquiryServiceRequestMock;
-    @Mock
-    private WorldpayServiceGateway worldpayServiceGatewayMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrderInquiryServiceResponse orderInquiryServiceResponseMock;
     @Mock
@@ -62,10 +55,6 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
     private OrderInquiryService orderInquiryServiceMock;
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws WorldpayException {
@@ -103,14 +92,13 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacadeTest {
 
     @Test
     public void shouldInquiryKlarnaOrderStatusShopperNotAuthorisedOrRedirectWillFail() throws WorldpayException {
-        expectedException.expect(WorldpayException.class);
-        expectedException.expectMessage("There was a problem placing the order");
-
         when(worldpayMerchantInfoServiceMock.getCurrentSiteMerchant()).thenReturn(merchantInfoMock);
         when(orderInquiryServiceResponseMock.getReference().getValue()).thenReturn(KLARNA_CONTENT_ENCODED);
         when(orderInquiryServiceResponseMock.getPaymentReply().getAuthStatus()).thenReturn(AuthorisedStatus.ERROR);
 
-        testObj.checkKlarnaOrderStatus();
+        assertThatThrownBy(() -> testObj.checkKlarnaOrderStatus())
+                .isInstanceOf(WorldpayException.class)
+                .hasMessage("There was a problem placing the order");
     }
 
 }

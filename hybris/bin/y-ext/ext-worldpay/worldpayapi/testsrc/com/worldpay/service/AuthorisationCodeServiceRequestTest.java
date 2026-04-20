@@ -1,15 +1,14 @@
 package com.worldpay.service;
 
-import com.worldpay.exception.WorldpayException;
+import static com.worldpay.service.request.AuthorisationCodeServiceRequest.createAuthorisationCodeRequest;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.AuthorisationCodeServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @UnitTest
 public class AuthorisationCodeServiceRequestTest {
@@ -21,23 +20,17 @@ public class AuthorisationCodeServiceRequestTest {
 
     private MerchantInfo merchantInfo;
 
-
-    @SuppressWarnings("PMD.MemberScope")
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
     }
 
     @Test
-    public void testAuthorisationCode() throws WorldpayException {
+    public void testAuthorisationCode() {
 
-        final AuthorisationCodeServiceRequest request = AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
+        final AuthorisationCodeServiceRequest request = createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
 
         assertEquals(AUTHORISATION_CODE, request.getAuthorisationCode());
         assertEquals(merchantInfo, request.getMerchantInfo());
@@ -46,22 +39,22 @@ public class AuthorisationCodeServiceRequestTest {
 
     @Test
     public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(null, ORDER_CODE, AUTHORISATION_CODE);
+        assertThatThrownBy(() -> createAuthorisationCodeRequest(null, ORDER_CODE, AUTHORISATION_CODE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Authorisation Code cannot be null");
     }
 
     @Test
     public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, null, AUTHORISATION_CODE);
+        assertThatThrownBy(() -> createAuthorisationCodeRequest(merchantInfo, null, AUTHORISATION_CODE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Authorisation Code cannot be null");
     }
 
     @Test
     public void authorisationCodeShouldRaiseIllegalArgumentExceptionWhenAuthorizationCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, null);
+        assertThatThrownBy(() -> createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Authorisation Code cannot be null");
     }
 }

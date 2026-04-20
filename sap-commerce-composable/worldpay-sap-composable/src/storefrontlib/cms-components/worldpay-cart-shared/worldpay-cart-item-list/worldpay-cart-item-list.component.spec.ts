@@ -6,8 +6,8 @@ import { ActiveCartFacade, CartItemComponentOptions, ConsignmentEntry, MultiCart
 import { FeaturesConfigModule, I18nTestingModule, UserIdService, } from '@spartacus/core';
 import { OutletContextData, OutletModule, PromotionsModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
-import { WorldpayCartItemListComponent } from 'worldpay-sap-composable-components';
 import { MockActivatedRoute, mockUserId, MockUserIdService } from 'worldpay-sap-composable-tests';
+import { WorldpayCartItemListComponent } from './worldpay-cart-item-list.component';
 
 class MockActiveCartService {
   updateEntry() {

@@ -2,7 +2,7 @@ package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.facade.OCCWorldpayOrderFacade;
+import com.worldpay.worldpayocccommons.facade.OCCWorldpayOrderFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.hosted.WorldpayAfterRedirectValidationFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;

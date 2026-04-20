@@ -2,10 +2,11 @@ package com.worldpay.worldpayextocctests.test.groovy.webservicetests.v2.spock.ca
 
 import com.worldpay.worldpayextocctests.test.groovy.webservicetests.v2.spock.AbstractWorldpaySpockTest
 import de.hybris.bootstrap.annotations.ManualTest
+import org.apache.http.HttpStatus
+import org.apache.http.entity.ContentType
 import spock.lang.Unroll
 
-import static java.time.LocalDate.now
-import static org.apache.http.entity.ContentType.*
+import java.time.LocalDate
 
 @ManualTest
 @Unroll
@@ -42,7 +43,7 @@ class AddPaymentInfoTest extends AbstractWorldpaySpockTest {
         def cart = createCart(restClient, customer, responseFormat)
 
         and: "Obtained encrypted credit card token"
-        def year = String.valueOf(now().plusYears(2).getYear())
+        def year = String.valueOf(LocalDate.now().plusYears(2).getYear())
         String cseToken = getCseToken("123", "Sven Johnson", "4111111111111111", "04", year)
 
         if (postBody instanceof String) {
@@ -57,8 +58,10 @@ class AddPaymentInfoTest extends AbstractWorldpaySpockTest {
                 body: postBody,
                 contentType: responseFormat,
                 requestContentType: requestFormat), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
-            status == org.apache.http.HttpStatus.SC_CREATED
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
+            status == HttpStatus.SC_CREATED
         }).data
 
         then: "details are added"
@@ -68,10 +71,10 @@ class AddPaymentInfoTest extends AbstractWorldpaySpockTest {
         paymentDetails.cardType.code == 'visa'
 
         where:
-        requestFormat                                                  | responseFormat                                      | postBody
-        org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED | org.apache.http.entity.ContentType.APPLICATION_XML  | WP_DEFAULT_PAYMENT
-        org.apache.http.entity.ContentType.APPLICATION_FORM_URLENCODED | org.apache.http.entity.ContentType.APPLICATION_JSON | WP_DEFAULT_PAYMENT
-        org.apache.http.entity.ContentType.APPLICATION_JSON            | org.apache.http.entity.ContentType.APPLICATION_JSON | WP_DEFAULT_PAYMENT_JSON
-        org.apache.http.entity.ContentType.APPLICATION_XML             | org.apache.http.entity.ContentType.APPLICATION_XML  | WP_DEFAULT_PAYMENT_XML
+        requestFormat                           | responseFormat               | postBody
+        ContentType.APPLICATION_FORM_URLENCODED | ContentType.APPLICATION_XML  | WP_DEFAULT_PAYMENT
+        ContentType.APPLICATION_FORM_URLENCODED | ContentType.APPLICATION_JSON | WP_DEFAULT_PAYMENT
+        ContentType.APPLICATION_JSON            | ContentType.APPLICATION_JSON | WP_DEFAULT_PAYMENT_JSON
+        ContentType.APPLICATION_XML             | ContentType.APPLICATION_XML  | WP_DEFAULT_PAYMENT_XML
     }
 }

@@ -1,0 +1,11 @@
+#Ant properties
+#Mon Apr 13 10:20:20 GMT 2026
+builddate=20260413 1020
+description=worldpayocccommons
+group.id=de.hybris.platform
+module.name=platform-module
+name=worldpayocccommons
+releasedate=20260203 2333
+vendor=hybris
+version=2211.49
+version.api=2211

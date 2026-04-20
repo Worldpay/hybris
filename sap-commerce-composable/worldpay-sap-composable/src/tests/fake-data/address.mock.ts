@@ -103,7 +103,7 @@ export const generateOneAddress = (): Address => {
   };
 };
 
-export const generateAddressFromFromAddress = (address: Address): Address => {
+export const generateAddressFromAddress = (address: Address): Address => {
   return {
     firstName: address.firstName,
     lastName: address.lastName,
@@ -117,7 +117,7 @@ export const generateAddressFromFromAddress = (address: Address): Address => {
   };
 };
 
-export const generateBillingFromFromAddress = (address: Address): Address => {
+export const generateBillingFromAddress = (address: Address): Address => {
   const region = address.region ? { isocodeShort: address.region.isocodeShort } : undefined;
   const country = address.country ? { isocode: address.country.isocode } : undefined;
   const fields = [

@@ -1,7 +1,33 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.internal.model.*;
+import com.worldpay.internal.model.AccountTx;
+import com.worldpay.internal.model.Address;
+import com.worldpay.internal.model.Address1;
+import com.worldpay.internal.model.Address2;
+import com.worldpay.internal.model.Address3;
+import com.worldpay.internal.model.Balance;
+import com.worldpay.internal.model.CardAddress;
+import com.worldpay.internal.model.CardDetails;
+import com.worldpay.internal.model.Date;
+import com.worldpay.internal.model.Derived;
+import com.worldpay.internal.model.Journal;
+import com.worldpay.internal.model.Notify;
+import com.worldpay.internal.model.OrderStatusEvent;
+import com.worldpay.internal.model.Payment;
+import com.worldpay.internal.model.PaymentInstrument;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.PaymentTokenExpiry;
+import com.worldpay.internal.model.Paypal;
+import com.worldpay.internal.model.Token;
+import com.worldpay.internal.model.TokenDetails;
+import com.worldpay.internal.model.TokenReason;
 import com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -9,12 +35,12 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -80,10 +106,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final String GP_MESSAGE = "gpMessage";
     private static final double SCORE = 22.0;
     private static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
-    private static final String EXEMPTION_RESPONSE_REASON = "ACCEPTED";
-    private static final String EXEMPTION_RESPONSE_RESULT = "AUTHORIZED";
-    private static final String EXEMPTION_TYPE = "OP";
-    private static final String EXEMPTION_PLACEMENT = "PLACED";
 
     @Mock
     private ResponseForm responseFormMock;
@@ -277,8 +299,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
-            if (tokenElement instanceof TokenDetails) {
-                final TokenDetails tokenDetails = (TokenDetails) tokenElement;
+            if (tokenElement instanceof final TokenDetails tokenDetails) {
                 assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
                 final PaymentTokenExpiry paymentTokenExpiry = tokenDetails.getPaymentTokenExpiry();
 
@@ -289,8 +310,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getvalue());
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
-            } else if (tokenElement instanceof PaymentInstrument) {
-                final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
+            } else if (tokenElement instanceof final PaymentInstrument paymentInstrument) {
                 final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
 
@@ -320,8 +340,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                         assertEquals(ADDRESS_3_VALUE, ((Address3) addressElement).getvalue());
                     }
                 }
-            } else if (tokenElement instanceof TokenReason) {
-                TokenReason tokenReason = (TokenReason) tokenElement;
+            } else if (tokenElement instanceof final TokenReason tokenReason) {
                 assertEquals(TOKEN_REASON_VALUE, tokenReason.getvalue());
             }
         }
@@ -353,8 +372,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
-            if (tokenElement instanceof TokenDetails) {
-                final TokenDetails tokenDetails = (TokenDetails) tokenElement;
+            if (tokenElement instanceof final TokenDetails tokenDetails) {
                 assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
                 final PaymentTokenExpiry paymentTokenExpiry = tokenDetails.getPaymentTokenExpiry();
 
@@ -365,13 +383,11 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getvalue());
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
-            } else if (tokenElement instanceof PaymentInstrument) {
-                final PaymentInstrument paymentInstrument = (PaymentInstrument) tokenElement;
+            } else if (tokenElement instanceof final PaymentInstrument paymentInstrument) {
                 final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
                 assertNotNull(paypal);
 
-            } else if (tokenElement instanceof TokenReason) {
-                final TokenReason tokenReason = (TokenReason) tokenElement;
+            } else if (tokenElement instanceof final TokenReason tokenReason) {
                 assertEquals(TOKEN_REASON_VALUE, tokenReason.getvalue());
             }
         }
@@ -458,7 +474,6 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         when(responseFormMock.getGuaranteedPaymentsScore()).thenReturn(SCORE);
         when(responseFormMock.isUseGuaranteedPayments()).thenReturn(Boolean.TRUE);
 
-
         testObj.buildResponse(responseFormMock);
 
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
@@ -479,44 +494,4 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         assertEquals(FINAL_SCORE, payment.getRiskScore().getFinalScore());
         assertEquals(GP_MESSAGE, payment.getRiskScore().getMessage());
     }
-
-    @Test
-    public void buildResponse_ShouldPopulateExemptionResponseFields_WhenResponseFormContainsExemptionData() throws WorldpayException {
-        when(responseFormMock.getExemptionResponseReason()).thenReturn(EXEMPTION_RESPONSE_REASON);
-        when(responseFormMock.getExemptionResponseResult()).thenReturn(EXEMPTION_RESPONSE_RESULT);
-        when(responseFormMock.getExemptionType()).thenReturn(EXEMPTION_TYPE);
-        when(responseFormMock.getExemptionPlacement()).thenReturn(EXEMPTION_PLACEMENT);
-
-        testObj.buildResponse(responseFormMock);
-        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
-
-        final PaymentService paymentService = paymentServiceCaptor.getValue();
-
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
-        final ExemptionResponse exemptionResponse = orderStatusEvent.getExemptionResponse();
-
-        assertEquals(EXEMPTION_RESPONSE_REASON, exemptionResponse.getReason());
-        assertEquals(EXEMPTION_RESPONSE_RESULT, exemptionResponse.getResult());
-        assertEquals(EXEMPTION_TYPE, exemptionResponse.getExemption().getType());
-        assertEquals(EXEMPTION_PLACEMENT, exemptionResponse.getExemption().getPlacement());
-    }
-
-    @Test
-    public void buildResponse_ShouldPopulateNotExemptionResponseFields_WhenResponseFormContainsNoExemptionData() throws WorldpayException {
-        testObj.buildResponse(responseFormMock);
-        verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
-
-        final PaymentService paymentService = paymentServiceCaptor.getValue();
-
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
-        final ExemptionResponse exemptionResponse = orderStatusEvent.getExemptionResponse();
-
-        assertNull(exemptionResponse.getReason());
-        assertNull(exemptionResponse.getResult());
-        assertNull(exemptionResponse.getExemption().getPlacement());
-        assertNull(exemptionResponse.getExemption().getType());
-    }
-
 }

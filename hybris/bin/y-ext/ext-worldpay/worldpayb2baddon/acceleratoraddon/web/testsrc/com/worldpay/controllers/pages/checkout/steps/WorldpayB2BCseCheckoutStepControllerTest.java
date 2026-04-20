@@ -269,6 +269,7 @@ public class WorldpayB2BCseCheckoutStepControllerTest {
 
         verify(redirectAttrsMock).addFlashAttribute(SHOPPER_BANK_CODE, paymentDetailsFormMock.getShopperBankCode());
         verify(redirectAttrsMock).addFlashAttribute(PAYMENT_METHOD_PARAM, PAYPAL_EXPRESS.getMethodCode());
+        verify(redirectAttrsMock).addFlashAttribute(SAVE_PAYMENT_INFO, paymentDetailsFormMock.getSaveInAccount());
         assertEquals(REDIRECT_TO_PAYMENT_METHOD, result);
     }
 
