@@ -44,7 +44,7 @@ public class CreateTokenRequestTransformer implements ServiceRequestTransformer 
 
         final PaymentTokenCreate paymentTokenCreate = internalPaymentTokenCreateConverter.convert(tokenRequest.getCardTokenRequest());
         final Submit submit = new Submit();
-        submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().add(paymentTokenCreate);
+        submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken().add(paymentTokenCreate);
         paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(submit);
         return paymentService;
     }

@@ -3,8 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { PAYMENT_DETAILS_SERIALIZER } from '@spartacus/checkout/base/core';
 import { Address, ConverterService, OccConfig, OccEndpointsService, PaymentDetails } from '@spartacus/core';
-import { OccWorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-occ';
 import { generateOneAddress, mockUserId } from 'worldpay-sap-composable-tests';
+import { OccWorldpayCheckoutPaymentAdapter } from './occ-worldpay-checkout-payment.adapter';
 
 const userId = mockUserId;
 const cartId = 'cartId';

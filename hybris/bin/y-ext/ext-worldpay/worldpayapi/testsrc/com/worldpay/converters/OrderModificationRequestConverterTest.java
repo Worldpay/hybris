@@ -1,11 +1,25 @@
 package com.worldpay.converters;
 
-import com.worldpay.data.ExemptionResponseInfo;
-import com.worldpay.internal.model.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.data.JournalReply;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.WebformRefundReply;
 import com.worldpay.data.token.TokenReply;
+import com.worldpay.internal.model.Journal;
+import com.worldpay.internal.model.Notify;
+import com.worldpay.internal.model.OrderStatusEvent;
+import com.worldpay.internal.model.Payment;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.ShopperWebformRefundDetails;
+import com.worldpay.internal.model.Token;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.response.transform.ServiceResponseTransformerHelper;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -15,11 +29,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.*;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -55,10 +64,6 @@ public class OrderModificationRequestConverterTest {
     private ShopperWebformRefundDetails shopperWebformRefundDetailsMock;
     @Mock
     private WebformRefundReply webformRefundReplyMock;
-    @Mock
-    private ExemptionResponse exemptionResponseMock;
-    @Mock
-    private ExemptionResponseInfo exemptionResponseInfoMock;
 
     @Before
     public void setUp() {
@@ -73,8 +78,6 @@ public class OrderModificationRequestConverterTest {
         when(orderStatusEventMock.getPayment()).thenReturn(paymentMock);
         when(orderStatusEventMock.getJournal()).thenReturn(journalMock);
         when(orderStatusEventMock.getOrderCode()).thenReturn(ORDER_CODE);
-        when(orderStatusEventMock.getExemptionResponse()).thenReturn(exemptionResponseMock);
-        when(responseTransformerHelperMock.buildExemptionResponse(exemptionResponseMock)).thenReturn(exemptionResponseInfoMock);
         when(paymentServiceMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(orderStatusEventMock.getToken()).thenReturn(tokenMock);
         when(responseTransformerHelperMock.buildTokenReply(tokenMock)).thenReturn(tokenReplyMock);
@@ -86,7 +89,6 @@ public class OrderModificationRequestConverterTest {
         assertSame(paymentReplyMock, result.getPaymentReply());
         assertSame(journalReplyMock, result.getJournalReply());
         assertSame(tokenReplyMock, result.getTokenReply());
-        verify(paymentReplyMock).setExemptionResponseInfo(exemptionResponseInfoMock);
     }
 
     @Test

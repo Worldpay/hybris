@@ -23,14 +23,12 @@ abstract class AbstractSpockFlowTest extends JUnitPlatformSpecification {
     protected static final String DE_ISO_CODE = 'DE'
     protected static final String NL_ISO_CODE = 'NL'
     protected static final String UK_ISO_CODE = 'UK'
-    protected static final String SG_ISO_CODE = 'SG'
     protected static final String AT_ISO_CODE = 'AT'
 
     protected static final String FIELD_SET_LEVEL_FULL = "FULL"
 
     protected static final String EUR_CURRENCY = 'EUR'
     protected static final String GBP_CURRENCY = 'GBP'
-    protected static final String SGD_CURRENCY = 'SGD'
 
     /**
      * This method registers customer without any kind of authorization beforehand.
@@ -43,24 +41,26 @@ abstract class AbstractSpockFlowTest extends JUnitPlatformSpecification {
         def password = CUSTOMER_PASSWORD_STRONG
 
         HttpResponseDecorator response = client.post(
-            path: basePathWithSite + '/users',
-            body: [
-                'login'    : username,
-                'password' : password,
-                'titleCode': CUSTOMER_TITLE_CODE,
-                'firstName': CUSTOMER_FIRST_NAME,
-                'lastName' : CUSTOMER_LAST_NAME
-            ],
-            contentType: format,
-            requestContentType: APPLICATION_FORM_URLENCODED)
+                path: basePathWithSite + '/users',
+                body: [
+                        'login'    : username,
+                        'password' : password,
+                        'titleCode': CUSTOMER_TITLE_CODE,
+                        'firstName': CUSTOMER_FIRST_NAME,
+                        'lastName' : CUSTOMER_LAST_NAME
+                ],
+                contentType: format,
+                requestContentType: APPLICATION_FORM_URLENCODED) as HttpResponseDecorator
 
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
             status == SC_CREATED
         }
         return [
-            'id'      : username,
-            'password': password
+                'id'      : username,
+                'password': password
         ]
     }
     /**
@@ -71,21 +71,23 @@ abstract class AbstractSpockFlowTest extends JUnitPlatformSpecification {
      */
     def registerCustomer(customer, RESTClient client, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
-            path: basePathWithSite + '/users',
-            body: [
-                'login'    : customer.login,
-                'password' : customer.password,
-                'titleCode': customer.titleCode,
-                'firstName': customer.firstName,
-                'lastName' : customer.lastName,
-                'currency' : customer.currency,
-                'language' : customer.language
-            ],
-            contentType: format,
-            requestContentType: APPLICATION_FORM_URLENCODED)
+                path: basePathWithSite + '/users',
+                body: [
+                        'login'    : customer.login,
+                        'password' : customer.password,
+                        'titleCode': customer.titleCode,
+                        'firstName': customer.firstName,
+                        'lastName' : customer.lastName,
+                        'currency' : customer.currency,
+                        'language' : customer.language
+                ],
+                contentType: format,
+                requestContentType: APPLICATION_FORM_URLENCODED) as HttpResponseDecorator
 
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
             status == SC_CREATED
         }
     }
@@ -99,23 +101,25 @@ abstract class AbstractSpockFlowTest extends JUnitPlatformSpecification {
      */
     def createAddress(RESTClient client, user, countryIsoCode = DE_ISO_CODE, format = APPLICATION_JSON, basePathWithSite = getBasePathWithSite()) {
         HttpResponseDecorator response = client.post(
-            path: basePathWithSite + '/users/' + user.id + '/addresses',
-            body: [
-                'titleCode'      : CUSTOMER_TITLE_CODE,
-                'firstName'      : CUSTOMER_FIRST_NAME,
-                'lastName'       : CUSTOMER_LAST_NAME,
-                'line1'          : CUSTOMER_ADDRESS_LINE1,
-                'line2'          : CUSTOMER_ADDRESS_LINE2,
-                'postalCode'     : CUSTOMER_ADDRESS_POSTAL_CODE,
-                'town'           : CUSTOMER_ADDRESS_TOWN,
-                'country.isocode': countryIsoCode,
-                'fields'         : FIELD_SET_LEVEL_FULL
-            ],
-            contentType: format,
-            requestContentType: APPLICATION_FORM_URLENCODED)
+                path: basePathWithSite + '/users/' + user.id + '/addresses',
+                body: [
+                        'titleCode'      : CUSTOMER_TITLE_CODE,
+                        'firstName'      : CUSTOMER_FIRST_NAME,
+                        'lastName'       : CUSTOMER_LAST_NAME,
+                        'line1'          : CUSTOMER_ADDRESS_LINE1,
+                        'line2'          : CUSTOMER_ADDRESS_LINE2,
+                        'postalCode'     : CUSTOMER_ADDRESS_POSTAL_CODE,
+                        'town'           : CUSTOMER_ADDRESS_TOWN,
+                        'country.isocode': countryIsoCode,
+                        'fields'         : FIELD_SET_LEVEL_FULL
+                ],
+                contentType: format,
+                requestContentType: APPLICATION_FORM_URLENCODED) as HttpResponseDecorator
 
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
             status == SC_CREATED
         }
 
@@ -149,11 +153,13 @@ abstract class AbstractSpockFlowTest extends JUnitPlatformSpecification {
      */
     protected createCart(RESTClient client, customer, format, basePathWithSite = getBasePathWithSite()) {
         def cart = returningWith(client.post(
-            path: basePathWithSite + '/users/' + customer.id + '/carts',
-            query: ['fields': FIELD_SET_LEVEL_FULL],
-            contentType: format,
-            requestContentType: APPLICATION_FORM_URLENCODED), {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
+                path: basePathWithSite + '/users/' + customer.id + '/carts',
+                query: ['fields': FIELD_SET_LEVEL_FULL],
+                contentType: format,
+                requestContentType: APPLICATION_FORM_URLENCODED), {
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
             status == SC_OK
         }).data
         return cart

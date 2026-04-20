@@ -1,6 +1,5 @@
 import { Observable, of } from 'rxjs';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
-import { ACHPaymentForm } from '../../core/interfaces';
+import { ACHPaymentForm, WorldpayACHFacade } from '../../core';
 
 export class MockWorldpayACHFacade implements Partial<WorldpayACHFacade> {
   getACHPaymentFormValue(): Observable<ACHPaymentForm> {

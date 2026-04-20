@@ -3,9 +3,7 @@ import { FormBuilder, UntypedFormGroup } from '@angular/forms';
 import { LoggerService, PaymentDetails } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
-import { makeFormErrorsVisible } from 'worldpay-sap-composable-utils';
-import { ApmData, ApmPaymentDetails, BillingAddressFormValidation, PaymentFormData } from 'worldpay-sap-core';
+import { ApmData, ApmPaymentDetails, BillingAddressFormValidation, makeFormErrorsVisible, PaymentFormData, WorldpayBillingAddressFormService } from '../../../../core';
 
 @Directive()
 export abstract class WorldpayApmBaseComponent implements OnInit {
@@ -14,6 +12,7 @@ export abstract class WorldpayApmBaseComponent implements OnInit {
   @Output() back: EventEmitter<void> = new EventEmitter<void>();
   readonly isSubmitting$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public sameAsDeliveryAddress$: Observable<boolean>;
+  public disableContinueButton$: Observable<boolean>;
   protected billingAddressFormService: WorldpayBillingAddressFormService = inject(WorldpayBillingAddressFormService);
   protected fb: FormBuilder = inject(FormBuilder);
   protected destroyRef: DestroyRef = inject(DestroyRef);
@@ -32,6 +31,7 @@ export abstract class WorldpayApmBaseComponent implements OnInit {
   ngOnInit(): void {
     this.billingAddressForm = this.billingAddressFormService.getBillingAddressForm();
     this.sameAsDeliveryAddress$ = this.billingAddressFormService.getSameAsDeliveryAddress();
+    this.disableContinueButton$ = this.disableContinueButton();
   }
 
   /**
@@ -48,7 +48,7 @@ export abstract class WorldpayApmBaseComponent implements OnInit {
    * and `false` otherwise.
    * @since 2211.43.0
    */
-  disableContinueButton$(): Observable<boolean> {
+  disableContinueButton(): Observable<boolean> {
     return combineLatest([
       this.sameAsDeliveryAddress$,
       this.isSubmitting$,

@@ -1,6 +1,5 @@
 import { Observable, of } from 'rxjs';
-import { WorldpayApmService } from 'worldpay-sap-composable-services';
-import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod } from '../../core/interfaces';
+import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod, WorldpayApmService } from '../../core';
 
 export class MockWorldpayApmService implements Partial<WorldpayApmService> {
   getWorldpayAPMRedirectUrlFromState(): Observable<APMRedirectResponse> {
@@ -38,5 +37,12 @@ export class MockWorldpayApmService implements Partial<WorldpayApmService> {
 
   showErrorMessage(): void {
 
+  }
+
+  getSaveApm(): boolean {
+    return true;
+  }
+
+  setSaveApm(value: boolean): void {
   }
 }

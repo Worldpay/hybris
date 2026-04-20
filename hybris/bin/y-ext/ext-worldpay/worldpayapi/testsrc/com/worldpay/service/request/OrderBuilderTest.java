@@ -1,6 +1,28 @@
 package com.worldpay.service.request;
 
-import com.worldpay.data.*;
+import java.util.List;
+
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+import static com.worldpay.service.model.payment.PaymentType.VISA;
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.worldpay.data.Address;
+import com.worldpay.data.AlternativeShippingAddress;
+import com.worldpay.data.Amount;
+import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.BranchSpecificExtension;
+import com.worldpay.data.Exemption;
+import com.worldpay.data.FraudSightData;
+import com.worldpay.data.GuaranteedPaymentsData;
+import com.worldpay.data.LineItem;
+import com.worldpay.data.Order;
+import com.worldpay.data.OrderLines;
+import com.worldpay.data.PaymentDetails;
+import com.worldpay.data.PaymentMethodAttribute;
+import com.worldpay.data.Session;
+import com.worldpay.data.Shopper;
 import com.worldpay.data.payment.Cse;
 import com.worldpay.data.payment.Payment;
 import com.worldpay.data.payment.StoredCredentials;
@@ -8,23 +30,15 @@ import com.worldpay.data.token.TokenRequest;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.List;
-
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static com.worldpay.service.model.payment.PaymentType.VISA;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class OrderBuilderTest {
+@ExtendWith(MockitoExtension.class)
+class OrderBuilderTest {
 
     private static final String ORDER_CONTENT = "orderContent";
     private static final String EMAIL_ADDRESS = "jshopper@myprovider.com";
@@ -80,24 +94,21 @@ public class OrderBuilderTest {
     @Mock
     private Exemption exemptionMock;
 
-    @Before
-    public void setUp() throws Exception {
-        final TokenRequest tokenRequest = new TokenRequest();
+    @BeforeEach
+    void setUp() throws Exception {
+        tokenRequest = new TokenRequest();
         tokenRequest.setTokenReason(TOKEN_REASON);
         tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
-        this.tokenRequest = tokenRequest;
 
-        final Amount amount = new Amount();
+        amount = new Amount();
         amount.setExponent("2");
         amount.setCurrencyCode("EUR");
         amount.setValue("100");
-        this.amount = amount;
 
-        final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
+        basicOrderInfo = new BasicOrderInfo();
         basicOrderInfo.setOrderCode(ORDER_CODE);
         basicOrderInfo.setDescription(ORDER_DESC);
         basicOrderInfo.setAmount(amount);
-        this.basicOrderInfo = basicOrderInfo;
 
         final Address address = new Address();
         address.setFirstName(FIRST_NAME);
@@ -112,15 +123,13 @@ public class OrderBuilderTest {
         this.shippingAddress = address;
         this.billingAddress = address;
 
-        final Session session = new Session();
+        session = new Session();
         session.setId(SESSION_ID);
         session.setShopperIPAddress(SHOPPER_IP_ADDRESS);
-        this.session = session;
 
-        final Shopper shopper = new Shopper();
+        shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
         shopper.setSession(session);
-        this.shopper = shopper;
 
         final Cse cse = new Cse();
         cse.setEncryptedData(ENCRYPTED_DATA);
@@ -128,21 +137,19 @@ public class OrderBuilderTest {
         cse.setPaymentType(PaymentType.CSEDATA.getMethodCode());
         payment = cse;
 
-        final PaymentDetails paymentDetails = new PaymentDetails();
+        paymentDetails = new PaymentDetails();
         paymentDetails.setPayment(payment);
         paymentDetails.setSession(this.session);
         paymentDetails.setStoredCredentials(STORED_CREDENTIALS);
-        this.paymentDetails = paymentDetails;
 
-        final OrderLines orderLines = new OrderLines();
+        orderLines = new OrderLines();
         orderLines.setLineItems(List.of(LINE_ITEM));
         orderLines.setTermsURL(TERMS_URL);
         orderLines.setOrderTaxAmount(ORDER_TAX_AMOUNT);
-        this.orderLines = orderLines;
     }
 
     @Test
-    public void build_ShouldCreateOrderWithAllParameters_WhenAllRequestParametersAreProvided() {
+    void build_ShouldCreateOrderWithAllParameters_WhenAllRequestParametersAreProvided() {
         final Order result = createOrder();
 
         verifyOrder(result);
@@ -180,28 +187,28 @@ public class OrderBuilderTest {
 
     private Order createOrder() {
         return new OrderBuilder()
-            .withOrderInfo(basicOrderInfo)
-            .withShopper(shopper)
-            .withInstallationId(INSTALLATION_ID)
-            .withOrderContent(ORDER_CONTENT)
-            .withTokenRequest(tokenRequest)
-            .withShippingAddress(shippingAddress)
-            .withBillingAddress(billingAddress)
-            .withStatementNarrative(STATEMENT_NARRATIVE)
-            .withExcludedPaymentMethods(EXCLUDED_PAYMENT_TYPES)
-            .withIncludedPaymentMethods(INCLUDED_PAYMENT_TYPES)
-            .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
-            .withPaymentDetails(paymentDetails)
-            .withEchoData(ECHO_DATA)
-            .withOrderLines(orderLines)
-            .withPaymentMethodAttribute(PAYMENT_METHOD_ATTRIBUTES)
-            .withFraudSightAttribute(fraudSightDataMock)
-            .withLevel23Data(level23DataMock)
-            .withMandateType(MANDATE_TYPE)
-            .withGuaranteedPaymentsAttribute(guaranteedPaymentsDataMock)
-            .withAlternativeShippingAddress(alternativeShippingAddressMock)
-            .withCheckoutId(CHECKOUT_ID)
-            .withExemption(exemptionMock)
-            .build();
+                .withOrderInfo(basicOrderInfo)
+                .withShopper(shopper)
+                .withInstallationId(INSTALLATION_ID)
+                .withOrderContent(ORDER_CONTENT)
+                .withTokenRequest(tokenRequest)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withExcludedPaymentMethods(EXCLUDED_PAYMENT_TYPES)
+                .withIncludedPaymentMethods(INCLUDED_PAYMENT_TYPES)
+                .withDynamicInteractionType(DYNAMIC_INTERACTION_TYPE)
+                .withPaymentDetails(paymentDetails)
+                .withEchoData(ECHO_DATA)
+                .withOrderLines(orderLines)
+                .withPaymentMethodAttribute(PAYMENT_METHOD_ATTRIBUTES)
+                .withFraudSightAttribute(fraudSightDataMock)
+                .withLevel23Data(level23DataMock)
+                .withMandateType(MANDATE_TYPE)
+                .withGuaranteedPaymentsAttribute(guaranteedPaymentsDataMock)
+                .withAlternativeShippingAddress(alternativeShippingAddressMock)
+                .withCheckoutId(CHECKOUT_ID)
+                .withExemption(exemptionMock)
+                .build();
     }
 }

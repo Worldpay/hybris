@@ -4,7 +4,7 @@ import { backOff, ConverterService, HttpErrorModel, isJaloError, LoggerService, 
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorldpayACHAdapter } from 'worldpay-sap-composable-connectors';
+import { WorldpayACHAdapter } from '../../../connectors';
 import { AccountTypes, ACHPaymentForm } from '../../../interfaces';
 
 @Injectable()

@@ -1,14 +1,30 @@
 package com.worldpay.worldpaynotifications.listener;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.CANCELLED;
+import static com.worldpay.enums.order.AuthorisedStatus.CAPTURED;
+import static com.worldpay.enums.order.AuthorisedStatus.EXPIRED;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CANCEL;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.event.OrderModificationEvent;
 import com.worldpay.core.services.OrderNotificationService;
 import com.worldpay.core.services.WorldpayCartService;
-import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.data.JournalReply;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.worldpaynotifications.model.WorldpayOrderModificationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
@@ -22,20 +38,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
-import static com.worldpay.enums.order.AuthorisedStatus.*;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayOrderModificationListenerTest {
 
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    private static final String ORDER_CODE = "orderCode";
     private static final String SERIALIZED = "serialized";
     private static final String RETURN_CODE = "A19";
 
@@ -60,10 +67,8 @@ public class WorldpayOrderModificationListenerTest {
     private WorldpayCartService worldpayCartServiceMock;
     @Mock
     private OrderModel orderModelMock;
-    @Mock
-    private CartModel cartModelMock;
 
-    private Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap = new HashMap<>();
+    private final Map<AuthorisedStatus, PaymentTransactionType> paymentTransactionTypeMap = new HashMap<>();
 
     @Before
     public void setup() {

@@ -13,6 +13,7 @@ import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.platform.acceleratorstorefrontcommons.annotations.RequireHardLogIn;
 import de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractCheckoutController;
 import de.hybris.platform.order.InvalidCartException;
+import de.hybris.platform.servicelayer.session.SessionService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -50,7 +51,7 @@ public class ApplePayController extends AbstractCheckoutController {
     @ResponseBody
     public DirectResponseData authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest) throws WorldpayException, InvalidCartException {
         worldpayApplePayPaymentCheckoutFacade.saveBillingAddresses(authorisationRequest.getBillingContact());
-        getSessionService().setAttribute("paymentMethod", PaymentType.APPLEPAYSSL.getMethodCode());
+        callSuperGetSessionService().setAttribute("paymentMethod", PaymentType.APPLEPAYSSL.getMethodCode());
         return worldpayDirectOrderFacade.authoriseApplePayDirect(authorisationRequest.getToken().getPaymentData());
     }
 
@@ -59,5 +60,9 @@ public class ApplePayController extends AbstractCheckoutController {
     @ResponseBody
     public ApplePayOrderUpdate updatePaymentMethod(@RequestBody final ApplePayPaymentMethodUpdateRequest paymentMethodUpdateRequest) {
         return worldpayDirectOrderFacade.updatePaymentMethod(paymentMethodUpdateRequest);
+    }
+
+    protected SessionService callSuperGetSessionService() {
+        return super.getSessionService();
     }
 }

@@ -1,23 +1,19 @@
 package com.worldpay.service.mac.impl;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.mac.MacValidator;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.*;
 
 @UnitTest
 public class MD5MacValidatorTest {
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
-
-    private MacValidator testObj = new MD5MacValidator();
+    private final MacValidator testObj = new MD5MacValidator();
 
     @Test
     public void testValidateResponse() throws WorldpayMacValidationException {
@@ -32,17 +28,15 @@ public class MD5MacValidatorTest {
     }
 
     @Test
-    public void testValidateResponseInvalidNulls() throws WorldpayMacValidationException {
-        thrown.expect(WorldpayMacValidationException.class);
-
-        testObj.validateResponse(null, null, null, null, null, null);
-        fail("Mac validation should fail with caught exception");
+    public void testValidateResponseInvalidNulls() {
+        assertThatThrownBy(() -> testObj.validateResponse(null, null, null, null, null, null))
+                .isInstanceOf(WorldpayMacValidationException.class)
+                .hasMessage("No mac found in the response url provided by Worldpay");
     }
 
     @Test
     public void testValidateResponseInvalidPartialNulls() throws WorldpayMacValidationException {
         boolean result = testObj.validateResponse(null, "25eefe952a6bbd09fe1c2c09bca4fa08", null, null, null, null);
-
         assertFalse("Mac validation code correct", result);
     }
 }

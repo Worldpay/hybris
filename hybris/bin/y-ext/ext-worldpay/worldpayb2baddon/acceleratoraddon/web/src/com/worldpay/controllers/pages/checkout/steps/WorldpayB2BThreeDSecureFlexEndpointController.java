@@ -57,13 +57,11 @@ public class WorldpayB2BThreeDSecureFlexEndpointController extends AbstractWorld
     private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
 
     @PostMapping(value = "/response")
-    @RequireHardLogIn
     public String doHandleThreeDSecureResponse(final HttpServletRequest request, final ThreeDSecureFlexForm threeDSecureFlexForm, final RedirectAttributes redirectAttributes) {
         return REDIRECT_PREFIX + configurationService.getConfiguration().getString(WorldpayapiConstants.WORLDPAY_3DSECURE_FLEX_SECOND_AUTH_SUBMIT_URL);
     }
 
     @GetMapping(value = "/response/autosubmit")
-    @RequireHardLogIn
     public String getThreeDSecureResponseAutosubmit(final HttpServletRequest request, final ThreeDSecureFlexForm threeDSecureFlexForm, final RedirectAttributes redirectAttributes) {
         return configurationService.getConfiguration().getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX) + CHECKOUT_3DSECUREFLEX_RESPONSE_AUTOSUBMIT;
     }
@@ -76,7 +74,6 @@ public class WorldpayB2BThreeDSecureFlexEndpointController extends AbstractWorld
      * @return String
      */
     @PostMapping(value = "/response/autosubmit")
-    @RequireHardLogIn
     public String doHandleThreeDSecureResponse(final HttpServletRequest request, @ModelAttribute(B2B_CSE_PAYMENT_FORM) final B2BCSEPaymentForm b2bCSEPaymentForm, final Model model, final HttpServletResponse response) throws CMSItemNotFoundException {
         try {
             final DirectResponseData responseData = worldpayDirectOrderFacade.executeSecondPaymentAuthorisation3DSecure();

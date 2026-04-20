@@ -48,15 +48,15 @@ export class WorldpayCheckoutPaymentRedirectFailureGuard {
 
   protected getReasonMessageKey(reason: TypeOfReason): string {
     switch (reason) {
-    case 'cancel':
-      return 'checkoutReview.redirectPaymentCancelled';
+      case 'cancel':
+        return 'checkoutReview.redirectPaymentCancelled';
 
-    case 'error':
-    case 'failure':
-      return 'checkoutReview.redirectPaymentFailed';
+      case 'error':
+      case 'failure':
+        return 'checkoutReview.redirectPaymentFailed';
 
-    default:
-      return null;
+      default:
+        return null;
     }
   }
 

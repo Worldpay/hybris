@@ -36,20 +36,20 @@ export class WorldpayCheckoutPaymentRedirectGuard {
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
     const params: Params = route.queryParams;
     switch (true) {
-    case params == null || typeof params !== 'object' || Object.keys(params).length === 0:
-      return this.lookUpOrder();
+      case params == null || typeof params !== 'object' || Object.keys(params).length === 0:
+        return this.lookUpOrder();
 
-    case params.hasOwnProperty('orderId'): {
+      case params.hasOwnProperty('orderId'): {
       // @ts-ignore: TS4111
-      return this.placeBankTransferRedirectOrder(params.orderId);
-    }
+        return this.placeBankTransferRedirectOrder(params.orderId);
+      }
 
-    default:
-      return this.placeRedirectOrder({
-        ...params,
-        // @ts-ignore: TS4111
-        pending: route.queryParams.pending ?? false
-      });
+      default:
+        return this.placeRedirectOrder({
+          ...params,
+          // @ts-ignore: TS4111
+          pending: route.queryParams.pending ?? false
+        });
     }
   }
 

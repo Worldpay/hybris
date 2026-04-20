@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { CartNotEmptyGuard, CheckoutAuthGuard } from '@spartacus/checkout/base/components';
 import { CmsConfig, I18nModule, provideConfig, UrlModule } from '@spartacus/core';
 import { CardModule, IconModule } from '@spartacus/storefront';
-import { WorldpayCheckoutReviewPaymentGuard } from '../../../../core/guards/worldpay-checkout-review-payment.guard';
+import { WorldpayCheckoutReviewPaymentGuard } from '../../../../core';
 import { WorldpayCheckoutReviewPaymentComponent } from './worldpay-checkout-review-payment.component';
 
 @NgModule({

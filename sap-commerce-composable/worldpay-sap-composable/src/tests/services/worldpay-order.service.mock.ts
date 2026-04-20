@@ -1,8 +1,7 @@
 import createSpy = jasmine.createSpy;
 import { Order } from '@spartacus/order/root';
 import { Observable, of } from 'rxjs';
-import { WorldpayOrderService } from 'worldpay-sap-composable-services';
-import { APMRedirectResponse, PlaceOrderResponse, ThreeDsDDCInfo } from '../../core/interfaces';
+import { APMRedirectResponse, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayOrderService } from '../../core';
 
 export class MockWorldpayOrderService implements Partial<WorldpayOrderService> {
   placeOrder = createSpy().and.returnValue(of({}));

@@ -1,26 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Converter, Image, OccConfig } from '@spartacus/core';
+import { Image, OccConfig } from '@spartacus/core';
 import { filter, take, tap } from 'rxjs/operators';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
+import { WorldpayACHFacade } from '../facade';
 import { ACHPaymentForm, ApmData, ApmPaymentDetails, OccApmData, OccApmDataConfiguration, PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
+import { BaseImageNormalizer } from './base-image.normalizer';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ApmNormalizer implements Converter<OccApmData, ApmData> {
-
+export class ApmNormalizer extends BaseImageNormalizer<OccApmData, ApmData> {
   /**
    * Constructor
    *
-   * Initializes the ApmNormalizer with the provided OccConfig and WorldpayACHFacade.
-   *
-   * @param config - OccConfig instance used for configuration settings
-   * @param worldpayACHFacade - WorldpayACHFacade instance used for handling ACH payment forms
+   * @param config - The OccConfig object used to configure the backend URLs for media and OCC.
+   * @param worldpayACHFacade
    */
   constructor(
-    protected config: OccConfig,
+    protected override config: OccConfig,
     protected worldpayACHFacade: WorldpayACHFacade
   ) {
+    super(config);
   }
 
   /**
@@ -86,12 +85,24 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
       target = { ...source };
     }
 
-    if (source.cardType) {
+    if (source.cardType || source.code === 'CARD') {
       target.code = PaymentMethod.Card;
     }
 
     if (source.apmCode) {
       target.code = source.apmCode;
+    }
+
+    if (source.save || source.saved) {
+      target.save = source.save || source.saved;
+    }
+
+    if (source?.isAPM) {
+      target.isAPM = source.isAPM;
+    }
+
+    if (source?.subscriptionId) {
+      target.subscriptionId = source.subscriptionId;
     }
 
     if (source?.name?.toLowerCase() === 'ideal') {
@@ -112,28 +123,6 @@ export class ApmNormalizer implements Converter<OccApmData, ApmData> {
       delete target.apmCode;
       delete target.apmName;
     }
-
     return target as ApmPaymentDetails;
-  }
-
-  /** taken from product-image-normalizer.ts
-   * Traditionally, in an on-prem world, medias and other backend related calls
-   * are hosted at the same platform, but in a cloud setup, applications are are
-   * typically distributed cross different environments. For media, we use the
-   * `backend.media.baseUrl` by default, but fallback to `backend.occ.baseUrl`
-   * if none provided.
-   *
-   * @param url - The image URL to be normalized
-   * @returns string - The normalized image URL
-   */
-  private normalizeImageUrl(url: string): string {
-    if (new RegExp(/^(http|data:image|\/\/)/i).test(url)) {
-      return url;
-    }
-    return (
-      (this.config.backend.media.baseUrl ||
-       this.config.backend.occ.baseUrl ||
-       '') + url
-    );
   }
 }

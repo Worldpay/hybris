@@ -1,5 +1,23 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static java.util.Locale.UK;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
@@ -44,50 +62,38 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayChoosePaymentMethodCheckoutStepController.*;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.ERROR_MESSAGES_HOLDER;
-import static java.util.Collections.singletonList;
-import static java.util.Locale.UK;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
+    private static final String TOWN = "town";
+    private static final String TEST = "test";
     private static final String TITLE = "title";
-    private static final String FIRST_NAME = "firstName";
-    private static final String LAST_NAME = "lastName";
+    private static final String EMAIL = "email";
     private static final String LINE_1 = "line1";
     private static final String LINE_2 = "line2";
-    private static final String TOWN = "town";
-    private static final String POSTAL_CODE = "postalCode";
-    private static final String COUNTRY_ISO_CODE = "countryIsoCode";
-    private static final String REGION_ISO_CODE = "regionIsoCode";
-    private static final String DECLINE_MESSAGE = "declineMessage";
-    private static final String PAGE_TITLE = "pageTitle";
-    private static final String ERROR_PAGE = "errorPage";
-    private static final String CHECKOUT_TERMS_AND_CONDITIONS = "/checkout/multi/termsAndConditions";
-    private static final String SELECTED_PAYMENT_METHOD_ID = "selectedPaymentMethodId";
+    private static final String REGIONS = "regions";
+    private static final String LAST_NAME = "lastName";
     private static final String NEXT_PAGE = "nextPage";
-    private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    private static final String ISO_CODE_ADDRESS_FORM = "isoCodeAddressForm";
-    private static final String EMAIL = "email";
-    private static final String PAYMENT_METHOD_ID = "paymentMethodId";
-    private static final String PHONE_NUMBER = "+44 (0) 123-123-123";
-    private static final String PAYMENT_STATUS = "paymentStatus";
-    private static final String SAVED_CARD_SELECTED_ATTRIBUTE = "savedCardSelected";
+    private static final String FIRST_NAME = "firstName";
+    private static final String POSTAL_CODE = "postalCode";
     private static final String CURRENT_DATE = "currentDate";
     private static final String IS_FS_ENABLED = "isFSEnabled";
-    private static final String TEST = "test";
+    private static final String PAYMENT_STATUS = "paymentStatus";
+    private static final String REGION_ISO_CODE = "regionIsoCode";
+    private static final String DECLINE_MESSAGE = "declineMessage";
+    private static final String COUNTRY_ISO_CODE = "countryIsoCode";
+    private static final String PHONE_NUMBER = "+44 (0) 123-123-123";
+    private static final String PAYMENT_METHOD_ID = "paymentMethodId";
+    private static final String ERROR_MESSAGES_HOLDER = "accErrorMsgs";
+    private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
+    private static final String PAYMENT_DETAILS_FORM = "paymentDetailsForm";
+    private static final String ISO_CODE_ADDRESS_FORM = "isoCodeAddressForm";
+    private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
+    private static final String SAVED_CARD_SELECTED_ATTRIBUTE = "savedCardSelected";
+    private static final String SELECTED_PAYMENT_METHOD_ID = "selectedPaymentMethodId";
+    private static final String CHECKOUT_TERMS_AND_CONDITIONS = "/checkout/multi/termsAndConditions";
+    private static final String WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL = "worldpayPaymentAndBillingCheckoutStep";
 
     @Spy
     @InjectMocks

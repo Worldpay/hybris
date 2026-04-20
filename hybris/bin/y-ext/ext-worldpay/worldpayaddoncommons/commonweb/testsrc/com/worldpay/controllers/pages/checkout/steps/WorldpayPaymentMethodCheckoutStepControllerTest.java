@@ -1,8 +1,25 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
 import com.worldpay.data.AdditionalAuthInfo;
-import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.WorldpayBankConfigurationFacade;
@@ -13,7 +30,6 @@ import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
 import com.worldpay.forms.ACHForm;
-import com.worldpay.internal.model.KLARNAV2SSL;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
@@ -47,40 +63,35 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.REDIRECT_URL_CHOOSE_PAYMENT_METHOD;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayPaymentMethodCheckoutStepController.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class WorldpayPaymentMethodCheckoutStepControllerTest {
 
-    private static final String CHECKOUT_FLOW_GROUP_KEY = "checkoutFlowGroupKey";
-    private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
-    private static final String PAYMENT_METHOD_VALUE = "paymentMethodValue";
-    private static final String PAYMENT_METHOD_BANK_TRANSFER = "PAYMENT_METHOD_BANK_TRANSFER";
-    private static final String PAYMENT_METHOD_KLARNA = "KLARNA_V2-SSL";
-    private static final String SHOPPER_BANK_CODE_VALUE = "shopperBankCode";
-    private static final String REDIRECT_URL = "redirectUrl";
-    private static final String HOSTED_ORDER_PAGE = "hostedOrderPostPage";
-    private static final String KLARNA_RESPONSE = "klarnaContent";
-    private static final String KLARNA_RESPONSE_PAGE_DATA_PARAM = "KLARNA_VIEW_DATA";
-    private static final String KLARNA_RESPONSE_PAGE = "pages/klarna/klarnaResponseContentPage";
-    private static final String CONTENT_PAGE_LABEL = "contentPageLabel";
-    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final String REQUEST = "request";
+    private static final String ACH_DATA = "ACHData";
     private static final String ORDER_CODE = "orderCode";
+    private static final String REDIRECT_URL = "redirectUrl";
+    private static final String CMS_PAGE_TITLE = "pageTitle";
+    private static final String BIRTHDAY_DATE = "birthdayDate";
+    private static final String KLARNA_RESPONSE = "klarnaContent";
+    private static final String HOP_DEBUG_MODE_PARAM = "hopDebugMode";
+    private static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
+    private static final String SHOPPER_BANK_CODE = "shopperBankCode";
+    private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
+    private static final String PAYMENT_METHOD_KLARNA = "KLARNA_V2-SSL";
+    private static final String CONTENT_PAGE_LABEL = "contentPageLabel";
+    private static final String HOP_DEBUG_MODE_CONFIG = "hop.debug.mode";
+    private static final String HOSTED_ORDER_PAGE = "hostedOrderPostPage";
+    private static final String PAYMENT_METHOD_VALUE = "paymentMethodValue";
+    private static final String SHOPPER_BANK_CODE_VALUE = "shopperBankCode";
+    private static final String HOSTED_ORDER_PAGE_DATA = "hostedOrderPageData";
+    private static final String CHECKOUT_FLOW_GROUP_KEY = "checkoutFlowGroupKey";
+    private static final String PREFERRED_PAYMENT_METHOD_PARAM = "preferredPaymentMethod";
+    private static final String PAYMENT_METHOD_BANK_TRANSFER = "PAYMENT_METHOD_BANK_TRANSFER";
+    private static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
+    private static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = "redirect:/checkout/multi/worldpay/choose-payment-method";
+
+    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
 
     @Spy
     @InjectMocks

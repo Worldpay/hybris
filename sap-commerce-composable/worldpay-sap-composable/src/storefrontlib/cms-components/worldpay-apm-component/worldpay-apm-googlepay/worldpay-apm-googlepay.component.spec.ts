@@ -7,11 +7,17 @@ import { Address, EventService, GlobalMessageService, GlobalMessageType, I18nTes
 import { Order } from '@spartacus/order/root';
 import { FormErrorsModule } from '@spartacus/storefront';
 import { EMPTY, Observable, of, throwError } from 'rxjs';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
 import { MockActiveCartService, MockGlobalMessageService, MockRoutingService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
-import { GooglePayMerchantConfiguration, GooglePayPaymentRequest } from 'worldpay-sap-core';
-import { WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService, WorldpayGooglepayService, WorldpayOrderService } from '../../../../core/services';
-import { LoadScriptService } from '../../../../core/utils';
+import {
+  GooglePayMerchantConfiguration,
+  GooglePayPaymentRequest,
+  LoadScriptService,
+  WorldpayBillingAddressFormService,
+  WorldpayCheckoutPaymentService,
+  WorldpayConnector,
+  WorldpayGooglepayService,
+  WorldpayOrderService
+} from '../../../../core';
 import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.component';
 
@@ -146,8 +152,7 @@ describe('WorldpayApmGooglepayComponent', () => {
         },
         LoggerService
       ],
-    })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WorldpayApmGooglepayComponent);
     globalMessageService = TestBed.inject(GlobalMessageService);
@@ -317,7 +322,7 @@ describe('WorldpayApmGooglepayComponent', () => {
           }
         }
       } as unknown as Window;
-      
+
       component['initBtn']();
 
       expect(component['initPaymentsClient']).toHaveBeenCalledWith(merchantConfig);

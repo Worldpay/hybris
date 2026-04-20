@@ -1,10 +1,16 @@
 package com.worldpay.converters.populators;
 
+import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
+import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
+import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.commands.WorldpaySubscriptionAuthorizeResult;
-import com.worldpay.service.WorldpayAuthorisationResultService;
 import com.worldpay.data.ErrorDetail;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.RedirectReference;
+import com.worldpay.service.WorldpayAuthorisationResultService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
@@ -14,18 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
-import static com.worldpay.enums.order.AuthorisedStatus.ERROR;
-import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpaySubscriptionAuthoriseResultPopulatorTest {
 
     private static final String ORDER_CODE = "orderCode";
-    private static final String REFERENCE_URL = "referenceUrl";
     private static final String ERROR_MESSAGE = "errorMessage";
 
     @InjectMocks

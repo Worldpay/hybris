@@ -2,7 +2,7 @@ import { APP_BASE_HREF, PlatformLocation } from '@angular/common';
 import { inject, Inject, Injectable, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { ActiveCartFacade } from '@spartacus/cart/base/root';
+import { ActiveCartFacade, PaymentType } from '@spartacus/cart/base/root';
 import { CheckoutPaymentService } from '@spartacus/checkout/base/core';
 import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade, CheckoutState } from '@spartacus/checkout/base/root';
 import {
@@ -24,8 +24,9 @@ import {
 } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable, of, Subscription } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
-import { WorldpayCheckoutPaymentConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
+import { WorldpayCheckoutPaymentConnector, WorldpayConnector } from '../../connectors';
 import {
+  ClearGooglepayEvent,
   ClearInitialPaymentRequestEvent,
   CreateWorldpayPaymentDetailsEvent,
   DDC3dsJwtSetEvent,
@@ -36,11 +37,10 @@ import {
   ThreeDsChallengeIframeUrlSetEvent,
   ThreeDsDDCIframeUrlSetEvent,
   ThreeDsSetEvent
-} from 'worldpay-sap-composable-events';
-import { WorldpayACHFacade, WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
-import { ClearGooglepayEvent } from '../../events/googlepay.events';
+} from '../../events';
+import { WorldpayACHFacade, WorldpayCheckoutPaymentFacade } from '../../facade';
 import { ACHPaymentForm, PaymentMethod, ThreeDsDDCInfo, ThreeDsInfo, WorldpayApmPaymentInfo } from '../../interfaces';
-import { getBaseHref, trimLastSlashFromUrl } from '../../utils/get-base-href';
+import { getBaseHref, trimLastSlashFromUrl } from '../../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let Worldpay: any;
@@ -74,7 +74,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
             }, SetWorldpayPublicKeyEvent);
           },
           error: (): void => {
-            this.globalMessageService.add('paymentForm.publicKey.requestFailed',
+            this.globalMessageService.add({ key: 'paymentForm.publicKey.requestFailed' },
               GlobalMessageType.MSG_TYPE_ERROR
             );
           }
@@ -613,36 +613,61 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       this.getSaveCreditCardValueFromState(),
       this.getSaveAsDefaultCardValueFromState(),
       this.worldpayACHFacade.getACHPaymentFormValue(),
+      this.checkoutQueryFacade.getCheckoutDetailsState(),
     ]).pipe(
-      switchMap(([saveCreditCard, setAsDefaultPayment, achPaymentFormValue]: [boolean, boolean, ACHPaymentForm]): Observable<QueryState<WorldpayApmPaymentInfo>> =>
-        this.checkoutQueryFacade.getCheckoutDetailsState().pipe(
-          map(
-            (state: QueryState<CheckoutState>): QueryState<WorldpayApmPaymentInfo> => {
-              const paymentInfo: WorldpayApmPaymentInfo = {
-                ...state.data?.paymentInfo,
-                ...state.data?.worldpayAPMPaymentInfo,
-              };
+      // eslint-disable-next-line max-len
+      map(([saveCreditCard, setAsDefaultPayment, achPaymentFormValue, checkoutState]: [boolean, boolean, ACHPaymentForm, QueryState<CheckoutState>]): QueryState<WorldpayApmPaymentInfo> => {
 
-              if (paymentInfo.id) {
-                paymentInfo.defaultPayment = setAsDefaultPayment === true ? setAsDefaultPayment : state.data?.paymentInfo?.defaultPayment;
+        if (!checkoutState.data) {
+          return {
+            ...checkoutState,
+            data: undefined
+          };
+        }
 
-                if (saveCreditCard) {
-                  paymentInfo.saved = saveCreditCard === true ? saveCreditCard : state.data?.paymentInfo?.saved;
-                }
-              }
+        const paymentType: PaymentType = checkoutState.data?.paymentType;
+        const worldpayAPMPaymentInfo: WorldpayApmPaymentInfo = checkoutState.data?.worldpayAPMPaymentInfo;
+        const paymentDetails: PaymentDetails = checkoutState.data?.paymentInfo;
 
-              if (paymentInfo.apmCode === PaymentMethod.ACH) {
-                paymentInfo.achPaymentForm = achPaymentFormValue;
-              }
+        let updatedPaymentType: PaymentType = paymentType || {};
 
-              return {
-                ...state,
-                data: paymentInfo
-              };
-            }
-          )
-        )),
+        if (worldpayAPMPaymentInfo && paymentType) {
+          worldpayAPMPaymentInfo.isAPM = true;
+          updatedPaymentType = {
+            ...paymentType,
+            code: worldpayAPMPaymentInfo?.apmCode || paymentType?.code,
+            displayName: worldpayAPMPaymentInfo?.name,
+          };
+        }
+        const paymentInfo: WorldpayApmPaymentInfo = {
+          ...paymentDetails,
+          ...updatedPaymentType,
+          ...worldpayAPMPaymentInfo,
+        };
+
+        if (paymentInfo.id) {
+          paymentInfo.defaultPayment = setAsDefaultPayment || paymentDetails?.defaultPayment;
+          paymentInfo.saved = saveCreditCard || checkoutState.data?.paymentInfo?.saved;
+        }
+
+        if (paymentInfo.apmCode === PaymentMethod.ACH) {
+          paymentInfo.achPaymentForm = achPaymentFormValue;
+        }
+
+        return {
+          ...checkoutState,
+          data: paymentInfo
+        };
+      }),
     );
+  }
+
+  getSelectedPaymentTypeState(): Observable<QueryState<PaymentType | undefined>> {
+    return this.checkoutQueryFacade.getCheckoutDetailsState()
+      .pipe(map((state: QueryState<CheckoutState | undefined>): QueryState<PaymentType> => ({
+        ...state,
+        data: state.data?.paymentType
+      })));
   }
 
   ngOnDestroy(): void {

@@ -20,12 +20,16 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayAPMComponentServiceTest {
 
+    private static final String APM_1 = "apm1";
+    private static final String NOTFOUND = "notfound";
+    private static final String APM_2 = "apm2";
     @InjectMocks
     private DefaultWorldpayAPMComponentService testObj;
 
@@ -89,5 +93,49 @@ public class DefaultWorldpayAPMComponentServiceTest {
         final List<WorldpayAPMComponentModel> result = testObj.getAllAvailableWorldpayAPMComponents();
 
         assertThat(result).isEqualTo(List.of(worldpayAPMComponentModelMock));
+    }
+
+
+    @Test
+    public void getWorldpayAPMComponentByCode_WhenComponentExists_ShouldReturnComponent() {
+        when(worldpayAPMComponentDaoMock.findApmComponentByCode(Collections.singletonList(catalogVersionModelMock), APM_1)).thenReturn(worldpayAPMComponentModelMock);
+
+        final WorldpayAPMComponentModel result = testObj.getWorldpayAPMComponentByCode(APM_1);
+
+        assertThat(result).isEqualTo(worldpayAPMComponentModelMock);
+        verify(worldpayAPMComponentDaoMock).findApmComponentByCode(Collections.singletonList(catalogVersionModelMock), APM_1);
+    }
+
+    @Test
+    public void getWorldpayAPMComponentByCode_WhenComponentDoesNotExist_ShouldReturnNull() {
+        when(worldpayAPMComponentDaoMock.findApmComponentByCode(Collections.singletonList(catalogVersionModelMock), NOTFOUND)).thenReturn(null);
+
+        final WorldpayAPMComponentModel result = testObj.getWorldpayAPMComponentByCode(NOTFOUND);
+
+        assertThat(result).isNull();
+        verify(worldpayAPMComponentDaoMock).findApmComponentByCode(Collections.singletonList(catalogVersionModelMock), NOTFOUND);
+    }
+
+    @Test
+    public void getWorldpayAPMComponentByCode_WhenCodeIsNull_ShouldReturnNull() {
+        when(worldpayAPMComponentDaoMock.findApmComponentByCode(Collections.singletonList(catalogVersionModelMock), null)).thenReturn(null);
+
+        final WorldpayAPMComponentModel result = testObj.getWorldpayAPMComponentByCode(null);
+
+        assertThat(result).isNull();
+        verify(worldpayAPMComponentDaoMock).findApmComponentByCode(Collections.singletonList(catalogVersionModelMock), null);
+    }
+
+    @Test
+    public void getWorldpayAPMComponentByCode_ShouldUseSessionCatalogVersions() {
+        final List<CatalogVersionModel> catalogVersions = Collections.singletonList(catalogVersionModelMock);
+        when(catalogVersionServiceMock.getSessionCatalogVersions()).thenReturn(catalogVersions);
+        when(worldpayAPMComponentDaoMock.findApmComponentByCode(catalogVersions, APM_2)).thenReturn(worldpayAPMComponentModelMock);
+
+        final WorldpayAPMComponentModel result = testObj.getWorldpayAPMComponentByCode(APM_2);
+
+        assertThat(result).isEqualTo(worldpayAPMComponentModelMock);
+        verify(catalogVersionServiceMock).getSessionCatalogVersions();
+        verify(worldpayAPMComponentDaoMock).findApmComponentByCode(catalogVersions, APM_2);
     }
 }

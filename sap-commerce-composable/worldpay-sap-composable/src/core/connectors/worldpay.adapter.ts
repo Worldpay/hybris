@@ -1,9 +1,10 @@
 import { Address, PaymentDetails } from '@spartacus/core';
-import { Order } from '@spartacus/order/root';
+import { OrderAdapter } from '@spartacus/order/core';
+import { Order, ScheduleReplenishmentForm } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
 import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 
-export abstract class WorldpayAdapter {
+export abstract class WorldpayAdapter extends OrderAdapter {
 
   /**
    * Abstract method get Public Key
@@ -48,6 +49,8 @@ export abstract class WorldpayAdapter {
    * @param {string} acceptedTermsAndConditions boolean must be true
    * @param {string} deviceSession optional FraudSight unique session id
    * @param {BrowserInfo} browserInfo Browser Information
+   * @param {ScheduleReplenishmentForm} [scheduleReplenishmentFormData] - Optional data for schedule replenishment.
+   * @returns {Observable<PlaceOrderResponse>} - PlaceOrderResponse as Observable
    */
   abstract initialPaymentRequest(
     userId: string,
@@ -58,7 +61,8 @@ export abstract class WorldpayAdapter {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
-    browserInfo: BrowserInfo
+    browserInfo: BrowserInfo,
+    scheduleReplenishmentFormData?: ScheduleReplenishmentForm
   ): Observable<PlaceOrderResponse>;
 
   /**

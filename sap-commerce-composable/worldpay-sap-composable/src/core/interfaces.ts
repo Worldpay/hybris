@@ -1,7 +1,8 @@
 import { KeyValue } from '@angular/common';
+import { PaymentType } from '@spartacus/cart/base/root';
 import { Address, CardType, CmsComponent, PaymentDetails } from '@spartacus/core';
-import { Order } from '@spartacus/order/root';
-import { MediaContainer } from '@spartacus/storefront';
+import { Order, ScheduleReplenishmentForm } from '@spartacus/order/root';
+import { Card, ICON_TYPE, Media, MediaContainer } from '@spartacus/storefront';
 
 export interface InitialPaymentRequestPayload {
   acceptedTermsAndConditions?: boolean;
@@ -101,24 +102,20 @@ export interface ApmData {
 /*eslint no-shadow: "off"*/
 export enum PaymentMethod {
   ApplePay = 'ApplePay',
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   Card = 'Card',
   GooglePay = 'GooglePay',
   iDeal = 'IDEAL-SSL',
   PayPal = 'PayPal',
   PayPalSSL = 'PAYPAL-SSL',
+  PayPalSSLExpress = 'PAYPAL-EXPRESS',
   ACH = 'ACH_DIRECT_DEBIT-SSL',
+  SepaDirectDebit = 'SEPA_DIRECT_DEBIT-SSL',
+  KlarnaSSL = 'KLARNA-SSL',
 }
 
 declare module '@spartacus/order/root' {
   interface Order {
-    worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
-  }
-}
-
-declare module '@spartacus/cart/base/root' {
-  interface Cart {
-    apmCode?: string;
-    apmName?: string;
     worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
   }
 }
@@ -158,6 +155,7 @@ declare module '@spartacus/cart/base/root' {
   interface Cart {
     apmCode?: string;
     apmName?: string;
+    save?: boolean;
     worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
   }
 
@@ -177,6 +175,7 @@ declare module '@spartacus/cart/base/root' {
 declare module '@spartacus/checkout/base/root' {
   interface CheckoutState {
     worldpayAPMPaymentInfo?: WorldpayApmPaymentInfo;
+    paymentType?: PaymentType;
   }
 }
 
@@ -215,13 +214,26 @@ export interface ApmPaymentDetails extends PaymentDetails {
   name?: string;
   shopperBankCode?: string;
   achPaymentForm?: ACHPaymentForm;
+  isAPM?: boolean;
+}
+
+export interface ApmPaymentDetailsListResponse {
+  payments?: ApmPaymentDetails[];
+}
+
+export interface WorldpayMediaApm extends Media {
+  code?: string;
+  url?: string;
 }
 
 export interface WorldpayApmPaymentInfo extends PaymentDetails {
   apmCode?: string;
   apmName?: string;
+  save?: boolean;
   shopperBankCode?: string;
   achPaymentForm?: ACHPaymentForm;
+  isAPM?: boolean;
+  media?: WorldpayMediaApm;
 }
 
 export interface ThreeDsChallengeResponse {
@@ -261,6 +273,7 @@ export interface PlaceOrderResponse {
   transactionStatus?: string;
   order?: Order;
   returnCode?: string;
+  returnMessage?: string;
 }
 
 export interface ApplePayPaymentRequest {
@@ -355,6 +368,7 @@ export interface CSEPaymentForm {
   acceptedTermsAndConditions?: boolean;
   deviceSession?: string;
   browserInfo?: BrowserInfo;
+  scheduleReplenishmentFormData?: ScheduleReplenishmentForm;
 }
 
 export interface PaymentFormData {
@@ -381,4 +395,51 @@ export interface IdealFormValue {
   bank: {
     code: string | null;
   };
+}
+
+export interface WorldpayCard extends Card {
+  customImg?: WorldpayMediaApm;
+}
+
+// eslint-disable-next-line @typescript-eslint/typedef
+export const WorldpayIconType = {
+  AMEX: 'amex',
+  APPLE_PAY: 'applepay',
+  CARTE_BLEUE: 'cartebleue',
+  DINERS_CLUB: 'dinersclub',
+  DISCOVER: 'discover',
+  GOOGLE_PAY: 'googlepay',
+  JCB: 'jcb',
+  MAESTRO: 'maestro',
+  MASTER_CARD: 'mastercard',
+  PAYPAL: 'paypal',
+  SEPA: 'sepa',
+  VISA: 'visa'
+};
+
+export type WorldpayIconType = typeof WorldpayIconType[keyof typeof WorldpayIconType];
+
+export type SupportedWorldpayIconType = WorldpayIconType | ICON_TYPE;
+
+export const WORLDPAY_ICONS: Record<keyof typeof WorldpayIconType, SupportedWorldpayIconType> = {
+  AMEX: ICON_TYPE.AMEX,
+  APPLE_PAY: WorldpayIconType.APPLE_PAY,
+  CARTE_BLEUE: WorldpayIconType.CARTE_BLEUE,
+  DINERS_CLUB: ICON_TYPE.DINERS_CLUB,
+  DISCOVER: WorldpayIconType.DISCOVER,
+  GOOGLE_PAY: WorldpayIconType.GOOGLE_PAY,
+  JCB: WorldpayIconType.JCB,
+  MAESTRO: WorldpayIconType.MAESTRO,
+  MASTER_CARD: ICON_TYPE.MASTER_CARD,
+  PAYPAL: WorldpayIconType.PAYPAL,
+  SEPA: WorldpayIconType.SEPA,
+  VISA: ICON_TYPE.VISA
+};
+
+export function getWorldpayIconSymbols(): Record<string, string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return Object.entries(WORLDPAY_ICONS).reduce((acc: Record<string, string>, [key, value]: [string, string]): Record<string, string> => {
+    acc[value] = (value as string).toLowerCase().replace(/_/g, '');
+    return acc;
+  }, {} as Record<string, string>);
 }

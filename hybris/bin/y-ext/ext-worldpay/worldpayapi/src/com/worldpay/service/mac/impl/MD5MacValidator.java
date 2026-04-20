@@ -1,18 +1,17 @@
 package com.worldpay.service.mac.impl;
 
-import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.exception.WorldpayMacValidationException;
-import com.worldpay.service.mac.MacValidator;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
-
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isBlank;
+
+import com.worldpay.enums.order.AuthorisedStatus;
+import com.worldpay.exception.WorldpayMacValidationException;
+import com.worldpay.service.mac.MacValidator;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Implementation of the Mac validator supporting the MD5 algorithm.
@@ -35,10 +34,10 @@ public class MD5MacValidator implements MacValidator {
             final String hashString = StringUtils.join(asList(orderKey, paymentAmount, currency, status != null ? status.name() : null, macSecret), "");
 
             final MessageDigest digester = MessageDigest.getInstance("MD5");
-            final byte[] digestedMac = digester.digest(hashString.getBytes(StandardCharsets.UTF_8.name()));
+            final byte[] digestedMac = digester.digest(hashString.getBytes(StandardCharsets.UTF_8));
 
             return worldpayMac.equalsIgnoreCase(Hex.encodeHexString(digestedMac));
-        } catch (final NoSuchAlgorithmException | UnsupportedEncodingException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new WorldpayMacValidationException("Unable to validate mac as hash algorithm incorrectly specified", e);
         }
     }

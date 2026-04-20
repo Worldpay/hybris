@@ -1,5 +1,9 @@
 package com.worldpay.service.request.transform;
 
+import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.data.Address;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.payment.Cse;
@@ -11,7 +15,6 @@ import com.worldpay.internal.model.PaymentTokenCreate;
 import com.worldpay.internal.model.Submit;
 import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.request.CreateTokenServiceRequest;
-import com.worldpay.service.request.ServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
@@ -22,10 +25,6 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static com.worldpay.service.request.CreateTokenServiceRequest.createTokenRequestForShopperToken;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -62,15 +61,13 @@ public class CreateTokenRequestTransformerTest {
 
     @Before
     public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
 
-        final TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest = new TokenRequest();
         tokenRequest.setTokenReason(TOKEN_REASON);
         tokenRequest.setTokenEventReference(TOKEN_REFERENCE);
-        this.tokenRequest = tokenRequest;
 
         when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(VERSION);
         testObj = new CreateTokenRequestTransformer(configurationServiceMock, internalPaymentTokenCreateConverterMock);
@@ -83,7 +80,6 @@ public class CreateTokenRequestTransformerTest {
 
     @Test
     public void transformShouldCreatePaymentServiceRequest() throws WorldpayModelTransformationException {
-
         final Address address = new Address();
         address.setFirstName(FIRST_NAME);
         address.setLastName(LAST_NAME);
@@ -96,15 +92,14 @@ public class CreateTokenRequestTransformerTest {
         cse.setAddress(address);
         cse.setPaymentType(PaymentType.CSEDATA.getMethodCode());
 
-        final ServiceRequest serviceRequest = createTokenRequestForShopperToken(merchantInfo, AUTH_SHOPPER_ID, cse, tokenRequest);
-        final CreateTokenServiceRequest tokenRequest = (CreateTokenServiceRequest) serviceRequest;
+        final CreateTokenServiceRequest serviceRequest = createTokenRequestForShopperToken(merchantInfo, AUTH_SHOPPER_ID, cse, tokenRequest);
 
-        when(internalPaymentTokenCreateConverterMock.convert(tokenRequest.getCardTokenRequest())).thenReturn(paymentTokenCreateMock);
+        when(internalPaymentTokenCreateConverterMock.convert(serviceRequest.getCardTokenRequest())).thenReturn(paymentTokenCreateMock);
 
         final PaymentService result = testObj.transform(serviceRequest);
 
         final Submit submit = (Submit) result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
+        final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken().get(0);
 
         assertThat(result.getMerchantCode()).isEqualTo(merchantInfo.getMerchantCode());
         assertThat(result.getVersion()).isEqualTo(VERSION);

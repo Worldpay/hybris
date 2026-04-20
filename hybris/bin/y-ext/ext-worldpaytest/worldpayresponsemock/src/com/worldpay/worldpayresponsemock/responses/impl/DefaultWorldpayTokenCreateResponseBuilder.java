@@ -34,7 +34,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
 
         final Submit submit = (Submit) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
         final PaymentTokenCreate paymentTokenCreate = (PaymentTokenCreate) submit.
-                getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge().get(0);
+                getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken().get(0);
         final String authenticatedShopperID = paymentTokenCreate.getAuthenticatedShopperID().getvalue();
 
         final String tokenEventReference = paymentTokenCreate.getCreateToken().getTokenEventReference();
@@ -80,7 +80,7 @@ public class DefaultWorldpayTokenCreateResponseBuilder implements com.worldpay.w
 
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(cardDetails);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(paymentInstrument);
-        reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().add(token);
+        reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken().add(token);
         response.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
 
         return response;

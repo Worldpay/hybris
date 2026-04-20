@@ -1,14 +1,14 @@
 package com.worldpay.service;
 
+import static com.worldpay.service.request.AddBackOfficeCodeServiceRequest.createAddBackOfficeCodeRequest;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.AddBackOfficeCodeServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
 
 @UnitTest
 public class AddBackOfficeCodeServiceRequestTest {
@@ -20,21 +20,16 @@ public class AddBackOfficeCodeServiceRequestTest {
 
     private MerchantInfo merchantInfo;
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Before
     public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT1ECOM);
-        this.merchantInfo = merchantInfo;
     }
 
     @Test
     public void createAddBackOfficeCodeRequestShouldContainBackOfficeCodeAndWorldpayConfigAndMerchantInfoAndOrderCode() {
-        final AddBackOfficeCodeServiceRequest request = AddBackOfficeCodeServiceRequest.createAddBackOfficeCodeRequest(merchantInfo, ORDER_CODE, BACK_OFFICE_CODE);
+        final AddBackOfficeCodeServiceRequest request = createAddBackOfficeCodeRequest(merchantInfo, ORDER_CODE, BACK_OFFICE_CODE);
 
         assertEquals(BACK_OFFICE_CODE, request.getBackOfficeCode());
         assertEquals(merchantInfo, request.getMerchantInfo());
@@ -43,22 +38,23 @@ public class AddBackOfficeCodeServiceRequestTest {
 
     @Test
     public void createAddBackOfficeCodeRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        AddBackOfficeCodeServiceRequest.createAddBackOfficeCodeRequest(null, ORDER_CODE, BACK_OFFICE_CODE);
+        assertThatThrownBy(() -> createAddBackOfficeCodeRequest(null, ORDER_CODE, BACK_OFFICE_CODE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Back Office Code cannot be null");
     }
 
     @Test
     public void createAddBackOfficeCodeRequestShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
 
-        AddBackOfficeCodeServiceRequest.createAddBackOfficeCodeRequest(merchantInfo, null, BACK_OFFICE_CODE);
+        assertThatThrownBy(() -> createAddBackOfficeCodeRequest(merchantInfo, null, BACK_OFFICE_CODE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Back Office Code cannot be null");
     }
 
     @Test
     public void createAddBackOfficeCodeRequestShouldRaiseIllegalArgumentExceptionWhenBackOfficeCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        AddBackOfficeCodeServiceRequest.createAddBackOfficeCodeRequest(merchantInfo, ORDER_CODE, null);
+        assertThatThrownBy(() -> createAddBackOfficeCodeRequest(merchantInfo, ORDER_CODE, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Back Office Code cannot be null");
     }
 }

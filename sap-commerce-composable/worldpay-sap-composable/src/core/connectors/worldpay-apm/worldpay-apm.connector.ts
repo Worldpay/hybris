@@ -72,6 +72,7 @@ export class WorldpayApmConnector {
    * @since 6.4.0
    * @param userId - User ID - User ID
    * @param cartId - Cart ID
+   * @param params
    * @returns Observable<Order> - Order as Observable
    */
   placeOrderRedirect(

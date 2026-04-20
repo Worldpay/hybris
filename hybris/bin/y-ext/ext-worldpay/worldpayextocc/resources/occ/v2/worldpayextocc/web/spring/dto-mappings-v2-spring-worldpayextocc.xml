@@ -126,4 +126,18 @@
         </property>
     </bean>
 
+    <bean parent="fieldSetLevelMapping" id="paymentDetailsWsDTOFieldSetLevelMapping">
+        <property name="dtoClass"
+                  value="de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO"/>
+        <property name="levelMapping">
+            <map>
+                <entry key="BASIC" value="id"/>
+                <entry key="DEFAULT"
+                       value="expiryYear,id,issueNumber,startYear,expiryMonth,saved,cardType(DEFAULT),billingAddress(DEFAULT),startMonth,subscriptionId,defaultPayment,cardNumber,accountHolderName,sapPaymentMethod(DEFAULT),isAPM,apmName,googlePayDetails"/>
+                <entry key="FULL"
+                       value="expiryYear,id,issueNumber,startYear,expiryMonth,saved,cardType(FULL),billingAddress(FULL),startMonth,subscriptionId,defaultPayment,cardNumber,accountHolderName,sapPaymentMethod(FULL),isAPM,apmName,googlePayDetails"/>
+            </map>
+        </property>
+    </bean>
+
 </beans>

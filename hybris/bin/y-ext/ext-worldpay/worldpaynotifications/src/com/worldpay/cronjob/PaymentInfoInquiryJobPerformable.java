@@ -1,10 +1,19 @@
 package com.worldpay.cronjob;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
+
+import static de.hybris.platform.cronjob.enums.CronJobResult.FAILURE;
+import static de.hybris.platform.cronjob.enums.CronJobResult.SUCCESS;
+import static de.hybris.platform.cronjob.enums.CronJobStatus.FINISHED;
+
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.OrderInquiryService;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import com.worldpay.strategies.PaymentTransactionRejectionStrategy;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
@@ -16,17 +25,6 @@ import de.hybris.platform.servicelayer.cronjob.AbstractJobPerformable;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-
-import static de.hybris.platform.cronjob.enums.CronJobResult.FAILURE;
-import static de.hybris.platform.cronjob.enums.CronJobResult.SUCCESS;
-import static de.hybris.platform.cronjob.enums.CronJobStatus.FINISHED;
-import static java.text.MessageFormat.format;
 
 /**
  * This job requests missing information for paymentInfos {@link PaymentInfoModel} and handles various timeout scenarios
@@ -36,12 +34,12 @@ import static java.text.MessageFormat.format;
  * Some APMs (such as eNets) are only Orders in Worldpay and do not become Payments. This means that the order inquiry service will not return a
  * Payment Type for that APM. In this situation we will reject all orders with no Payment Type after a configured timeout.
  */
-public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable {
+public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable<CronJobModel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PaymentInfoInquiryJobPerformable.class);
 
-    protected static final String WORLDPAY_APM_MINUTES_BEFORE_INQUIRING_TIMEOUT = "worldpay.APM.minutes.before.inquiring.timeout";
-    protected static final String WORLDPAY_APM_DAYS_BEFORE_STOP_INQUIRING_TIMEOUT = "worldpay.APM.days.before.stop.inquiring.timeout";
+    private static final String WORLDPAY_APM_MINUTES_BEFORE_INQUIRING_TIMEOUT = "worldpay.APM.minutes.before.inquiring.timeout";
+    private static final String WORLDPAY_APM_DAYS_BEFORE_STOP_INQUIRING_TIMEOUT = "worldpay.APM.days.before.stop.inquiring.timeout";
 
     private static final int DEFAULT_WAIT_IN_MINUTES = 15;
     private static final int DEFAULT_BLANKET_TIME_IN_DAYS = 5;
@@ -52,7 +50,11 @@ public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable {
     protected final ConfigurationService configurationService;
     protected final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
 
-    public PaymentInfoInquiryJobPerformable(final PaymentTransactionRejectionStrategy paymentTransactionRejectionStrategy, final OrderInquiryService orderInquiryService, final WorldpayMerchantInfoService worldpayMerchantInfoService, final ConfigurationService configurationService, final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
+    public PaymentInfoInquiryJobPerformable(final PaymentTransactionRejectionStrategy paymentTransactionRejectionStrategy,
+                                            final OrderInquiryService orderInquiryService,
+                                            final WorldpayMerchantInfoService worldpayMerchantInfoService,
+                                            final ConfigurationService configurationService,
+                                            final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
         this.paymentTransactionRejectionStrategy = paymentTransactionRejectionStrategy;
         this.orderInquiryService = orderInquiryService;
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
@@ -77,8 +79,8 @@ public class PaymentInfoInquiryJobPerformable extends AbstractJobPerformable {
                     LOG.info("Processing order Inquiry Service Response for pending payment transaction with worldpay order code [{}]", requestId);
                     orderInquiryService.processOrderInquiryServiceResponse(paymentTransactionModel, orderInquiryServiceResponse);
                 } catch (final WorldpayException e) {
-                    LOG.error(format("Error receiving response from Worldpay for orderInquiry with worldpayOrderCode [{0}]. " +
-                            "Probably the service is down, or there is a problem with the merchant configuration", requestId), e);
+                    LOG.error("Error receiving response from Worldpay for orderInquiry with worldpayOrderCode [{}]. " +
+                            "Probably the service is down, or there is a problem with the merchant configuration", requestId, e);
                     return new PerformResult(FAILURE, FINISHED);
                 }
             }

@@ -19,12 +19,9 @@ import {
 } from '@spartacus/core';
 import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
 import { BehaviorSubject, EMPTY, of, throwError } from 'rxjs';
-import { WorldpayBillingAddressComponent } from 'worldpay-sap-composable-components';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
 import { MockCxCardComponent, MockGlobalMessageService, MockLaunchDialogService, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
-import { WorldpayApmPaymentInfo } from 'worldpay-sap-core';
+import { WorldpayApmPaymentInfo, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentFacade, WorldpayConnector } from '../../../core';
+import { WorldpayBillingAddressComponent } from './worldpay-billing-address.component';
 import createSpy = jasmine.createSpy;
 
 const mockRegions: Region[] = [

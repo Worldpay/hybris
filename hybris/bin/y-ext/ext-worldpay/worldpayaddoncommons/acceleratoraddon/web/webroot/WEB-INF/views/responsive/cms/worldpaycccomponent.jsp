@@ -5,7 +5,7 @@
 <c:set var="hasAvailablePaymentMethods" value="true" scope="session"/>
 <spring:theme var="paymentMethodName" code="worldpay.paymentMethod.creditcard" />
 
-<form:radiobutton id="paymentMethod_CC" path="paymentMethod" cssClass="available-true" value="ONLINE"/>
+<form:radiobutton id="paymentMethod_CC" path="paymentMethod" cssClass="available-true" value="ONLINE" checked="${true}"/>
 <label class="available-true col-xs-6 col-sm-6 col-md-4 col-lg-2" for="paymentMethod_CC">
     <img src="${media.url}" title="${paymentMethodName}" alt="${paymentMethodName}" />
     <span>${paymentMethodName}</span>

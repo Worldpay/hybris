@@ -5,7 +5,7 @@ import { OrderDetailBillingComponent } from '@spartacus/order/components';
 import { Card } from '@spartacus/storefront';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { generateBillingAddressCard } from 'worldpay-sap-composable-utils';
+import { generateBillingAddressCard } from '../../../../core';
 
 @Component({
   selector: 'y-worldpay-order-detail-billing',

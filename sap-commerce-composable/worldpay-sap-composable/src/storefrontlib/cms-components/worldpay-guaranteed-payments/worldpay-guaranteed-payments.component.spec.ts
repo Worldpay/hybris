@@ -8,7 +8,7 @@ import { GlobalMessageService, GlobalMessageType, LoggerService, QueryState, Use
 import { UserAccountService } from '@spartacus/user/account/core';
 import { User } from '@spartacus/user/account/root';
 import { Observable, of, throwError } from 'rxjs';
-import { WorldpayGuaranteedPaymentsService } from 'worldpay-sap-composable-services';
+import { WorldpayGuaranteedPaymentsService } from '../../../core';
 import { WorldpayGuaranteedPaymentsComponent } from './worldpay-guaranteed-payments.component';
 
 const registeredUser: User = {

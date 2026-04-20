@@ -3,6 +3,7 @@ package com.worldpay.service.payment.impl;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.data.*;
 import com.worldpay.data.token.TokenReply;
+import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
@@ -281,8 +282,8 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         } else {
             commerceCheckoutParameter = worldpayOrderService.createCommerceCheckoutParameter(abstractOrderModel, paymentInfoModel, authorisationAmount);
         }
-
-        final PaymentTransactionModel paymentTransaction = worldpayPaymentTransactionService.createPaymentTransaction(false, merchantCode, commerceCheckoutParameter);
+        final boolean pending = AuthorisedStatus.SENT_FOR_AUTHORISATION.equals(paymentReply.getAuthStatus());
+        final PaymentTransactionModel paymentTransaction = worldpayPaymentTransactionService.createPaymentTransaction(pending, merchantCode, commerceCheckoutParameter);
         worldpayPaymentTransactionService.addRiskScore(paymentTransaction, paymentReply);
         worldpayPaymentTransactionService.addExemptionResponseToPaymentTransaction(paymentTransaction, paymentReply);
         worldpayPaymentTransactionService.addFraudSightToPaymentTransaction(paymentTransaction, paymentReply);

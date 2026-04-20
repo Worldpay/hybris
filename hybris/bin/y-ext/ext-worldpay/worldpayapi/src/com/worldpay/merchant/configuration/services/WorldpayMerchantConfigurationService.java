@@ -36,4 +36,11 @@ public interface WorldpayMerchantConfigurationService {
      * @return a {@link Set<WorldpayMerchantConfigurationModel>}
      */
     Set<WorldpayMerchantConfigurationModel> getAllSystemActiveSiteMerchantConfigurations();
+
+    /**
+     * Returns the WorldpayMerchantConfigurationModel for the current site and Open Banking configuration
+     *
+     * @return a {@link WorldpayMerchantConfigurationModel}
+     */
+    WorldpayMerchantConfigurationModel getCurrentOpenBankingConfiguration();
 }

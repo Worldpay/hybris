@@ -1,0 +1,47 @@
+:root {
+  --accordion-border-radius: 12px;
+  --accordion-border-width: thin;
+  --accordion-border-color: var(--cx-color-medium);
+  --accordion-header-background: var(--cx-color-light);
+  --accordion-content-background: var(--cx-tab-btn-bg-color);
+  --accordion-item-background: var(--cx-tab-btn-bg-color);
+  --accordion-item-padding: 1.875rem;
+}
+
+cdk-accordion {
+  border-radius: var(--accordion-border-radius);
+  border: var(--accordion-border-width) solid var(--accordion-border-color);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+cdk-accordion-item {
+  padding: 0;
+  margin: 0;
+  background-color: var(--accordion-item-background);
+
+  &:not(:last-child) {
+    border-bottom: var(--accordion-border-width) solid var(--accordion-border-color);
+  }
+}
+
+.accordion-item-header {
+  border: none;
+  background-color: var(--accordion-header-background);
+  padding: 0;
+  margin: 0;
+
+  &.disabled-action {
+    pointer-events: none;
+  }
+}
+
+.accordion-item-content {
+  border-top: thin solid var(--accordion-border-color);
+  padding-inline-start: var(--accordion-item-padding);
+  padding-inline-end: var(--accordion-item-padding);
+  padding-top: var(--accordion-item-padding);
+  background-color: var(--accordion-content-background);
+}

@@ -1,11 +1,10 @@
-import { ChangeDetectorRef, Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutingService } from '@spartacus/core';
 import { Order, OrderFacade } from '@spartacus/order/root';
 import { Observable, of, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { WorldpayApplepayService } from 'worldpay-sap-composable-services';
-import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../../../core/interfaces';
+import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, WorldpayApplepayService } from '../../../../core';
 
 @Component({
   selector: 'worldpay-applepay',
@@ -14,7 +13,7 @@ import { ApmData, ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderRespo
   standalone: false
 })
 export class WorldpayApplepayComponent implements OnInit {
-  @Input() apm: ApmData;
+  @Output() back: EventEmitter<void> = new EventEmitter<void>();
   isApplePayAvailable$: Observable<boolean> = of(false);
   private paymentRequest$: Subscription;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,6 +88,15 @@ export class WorldpayApplepayComponent implements OnInit {
           this.routingService.go({ cxRoute: 'orderConfirmation' });
         }
       });
+  }
+
+  /**
+   * Emits an event to navigate back to the previous step or screen.
+   * This method triggers the `back` event emitter.
+   * @since 2211.43.0
+   */
+  onBack(): void {
+    this.back.emit();
   }
 
   /**

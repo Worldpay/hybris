@@ -6,6 +6,10 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
+<c:set var="addonPath" value="${contextPath}/_ui/addons/worldpayb2cdemo/images/" />
+<c:set var="cardTypeName" value="${fn:escapeXml(paymentInfo.cardTypeData.name)}"/>
+<c:set var="filename" value="${fn:substring(fn:toLowerCase(cardTypeName),0,fn:indexOf(cardTypeName, ' ') != -1 ? fn:indexOf(cardTypeName, ' ') : fn:length(cardTypeName))}"/>
+
 <div class="col-xs-12 col-sm-6 col-md-4 card">
     <ul class="pull-left">
         <li>
@@ -15,7 +19,14 @@
                 ${fn:escapeXml(paymentInfo.accountHolderName)}<c:if test="${paymentInfo.defaultPaymentInfo}" >&nbsp;(<spring:theme code="text.default" />)</c:if>
                 <c:if test="${paymentInfo.defaultPaymentInfo}" ></strong></c:if>
         </li>
-        <li>${fn:escapeXml(paymentInfo.cardTypeData.name)}</li>
+        <li>
+            <div class="media-body">
+                ${fn:escapeXml(cardTypeName)}
+            </div>
+            <div class="media-right">
+                <img class="media-object img-responsive" style="min-width: 50px" src="${addonPath}${filename}.png" alt="logo"/>
+            </div>
+        </li>
         <li>
             <ycommerce:testId code="paymentDetails_item_cardNumber_text" >${fn:escapeXml(paymentInfo.cardNumber)}</ycommerce:testId>
         </li>

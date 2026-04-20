@@ -1,8 +1,7 @@
 import { Order } from '@spartacus/order/root';
 import { Observable, of } from 'rxjs';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
 import { mockOrder } from 'worldpay-sap-composable-tests';
-import { APMRedirectResponse, ThreeDsDDCInfo } from 'worldpay-sap-core';
+import { APMRedirectResponse, ThreeDsDDCInfo, WorldpayConnector } from '../../core';
 import createSpy = jasmine.createSpy;
 
 const order: Order = mockOrder;

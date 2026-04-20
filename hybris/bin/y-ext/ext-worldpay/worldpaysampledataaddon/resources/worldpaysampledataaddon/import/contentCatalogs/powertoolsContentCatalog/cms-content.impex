@@ -1,14 +1,34 @@
-$contentCatalog=powertoolsContentCatalog
-$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$contentCatalog = powertoolsContentCatalog
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default = $contentCatalog]), CatalogVersion.version[default = Staged])[default = $contentCatalog:Staged]
 
-$media=@media[translator=de.hybris.platform.impex.jalo.media.MediaDataTranslator]
-$lang=en
+$media = @media[translator = de.hybris.platform.impex.jalo.media.MediaDataTranslator]
+$lang = en
 
-INSERT_UPDATE CMSParagraphComponent;$contentCV[unique=true];uid[unique=true];content[lang=$lang];
-;;WorldpayHelpParagraphComponent;"<strong>Need Help setting up your Merchants?</strong> <span>Contact Your Worldpay Relationship Manager and they will only be too happy to help!</span>";
+$siteResource = jar:com.worldpay.constants.WorldpaysampledataaddonConstants&/worldpaysampledataaddon/import/images/apmIcons
+$picture = media(code, $contentCV);
 
-INSERT_UPDATE ContentSlot;$contentCV[unique=true];uid[unique=true];name;active;cmsComponents(uid,$contentCV);;;
-;;SideContent-WorldpayPaymentAndBillingCheckoutPage;Put content here;true;WorldpayHelpParagraphComponent;;;
+INSERT_UPDATE Media; code[unique = true]; $media                              ; mime[default = 'image/jpeg']; $contentCV[unique = true]; folder(qualifier)
+                   ; cc-icon            ; $siteResource/cc-icon.png           ;                             ;                          ; images
+                   ; sepa-icon          ; $siteResource/sepa-en-icon.jpg      ;                             ;                          ; images
+                   ; ach-icon           ; $siteResource/ach-icon.png          ;                             ;                          ; images
+                   ; open-banking-icon  ; $siteResource/open-banking-icon.png ;                             ;                          ; images
 
-INSERT_UPDATE ContentSlotForPage;$contentCV[unique=true];uid[unique=true];position[unique=true];page(uid,$contentCV)[unique=true];contentSlot(uid,$contentCV)[unique=true]
-;;Side-WorldpayPaymentAndBillingCheckoutPage;SideContent;worldpayPaymentAndBillingCheckoutPage;SideContent-WorldpayPaymentAndBillingCheckoutPage
+INSERT_UPDATE CMSParagraphComponent; $contentCV[unique = true]; uid[unique = true]             ; content[lang = $lang]                                                                                                                                    ;
+                                   ;                          ; WorldpayHelpParagraphComponent ; "<strong>Need Help setting up your Merchants?</strong> <span>Contact Your Worldpay Relationship Manager and they will only be too happy to help!</span>" ;
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]                                ; name             ; active; cmsComponents(uid, $contentCV) ; ; ;
+                         ;                          ; SideContent-WorldpayPaymentAndBillingCheckoutPage ; Put content here ; true  ; WorldpayHelpParagraphComponent ; ; ;
+
+INSERT_UPDATE ContentSlotForPage; $contentCV[unique = true]; uid[unique = true]                         ; position[unique = true]; page(uid, $contentCV)[unique = true]  ; contentSlot(uid, $contentCV)[unique = true]
+                                ;                          ; Side-WorldpayPaymentAndBillingCheckoutPage ; SideContent            ; worldpayPaymentAndBillingCheckoutPage ; SideContent-WorldpayPaymentAndBillingCheckoutPage
+
+INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name   ; $picture[lang = $lang]
+                                 ; creditCardComponent ;                          ; "Card" ; cc-icon
+
+INSERT_UPDATE WorldpayAPMComponent; uid[unique = true]      ; $contentCV[unique = true]; name                ; apmConfiguration(code); $picture[lang = $lang]; restrictions(uid, $contentCV)
+                                  ; sepaComponent           ;                          ; "Sepa Direct Debit" ; SEPA_DIRECT_DEBIT-SSL ; sepa-icon             ; AssistedServiceSessionReversedRestriction
+                                  ; achDirectDebitComponent ;                          ; "ACH Direct Debit"  ; ACH_DIRECT_DEBIT-SSL  ; ach-icon              ; AssistedServiceSessionReversedRestriction
+                                  ; openBankingComponent    ;                          ; "Open Banking"      ; OPENBANKING-SSL       ; open-banking-icon     ; AssistedServiceSessionReversedRestriction
+
+INSERT_UPDATE ContentSlot; $contentCV[unique = true]; uid[unique = true]         ; cmsComponents(uid, $contentCV)
+                         ;                          ; WorldpayPaymentButtonsSlot ; creditCardComponent,sepaComponent,achDirectDebitComponent,openBankingComponent

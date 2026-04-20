@@ -12,8 +12,16 @@
 
     <context:annotation-config/>
 
-    <import resource="classpath:/spring/worldpayextocc-services-spring.xml"/>
-    <import resource="classpath:/spring/worldpayextocc-facades-spring.xml"/>
-    <import resource="classpath:/spring/worldpayextocc-converters-spring.xml"/>
+    <alias name="defaultOCCWorldpayOrderFacade" alias="occWorldpayOrderFacade"/>
+    <bean id="defaultOCCWorldpayOrderFacade" class="com.worldpay.worldpayocccommons.facade.impl.DefaultOCCWorldpayOrderFacade"
+          parent="defaultOrderFacade">
+        <constructor-arg name="orderConverter" ref="orderConverter"/>
+        <constructor-arg name="redirectAuthoriseResultConverter" ref="redirectAuthoriseResultConverter"/>
+        <constructor-arg name="worldpayCheckoutFacadeDecorator" ref="worldpayCheckoutFacadeDecorator"/>
+        <constructor-arg name="worldpayHOPNoReturnParamsStrategy" ref="worldpayHOPNoReturnParamsStrategy"/>
+        <constructor-arg name="worldpayHostedOrderFacade" ref="worldpayHostedOrderFacade"/>
+        <constructor-arg name="worldpayOrderCodeVerificationService" ref="worldpayOrderCodeVerificationService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+    </bean>
 
 </beans>

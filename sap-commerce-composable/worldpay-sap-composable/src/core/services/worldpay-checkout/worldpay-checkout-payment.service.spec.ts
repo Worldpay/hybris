@@ -7,11 +7,10 @@ import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { CheckoutPaymentDetailsCreatedEvent, CheckoutPaymentDetailsSetEvent, CheckoutQueryFacade } from '@spartacus/checkout/base/root';
 import { Address, EventService, LoggerService, PaymentDetails, UserIdService } from '@spartacus/core';
 import { Observable, of, throwError } from 'rxjs';
-import { WorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentConnector, WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { ThreeDsChallengeIframeUrlSetEvent, ThreeDsDDCIframeUrlSetEvent } from 'worldpay-sap-composable-events';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
 import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
-import { WorldpayAdapter } from '../../connectors/worldpay.adapter';
+import { WorldpayAdapter, WorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentConnector, WorldpayConnector } from '../../connectors';
+import { ThreeDsChallengeIframeUrlSetEvent, ThreeDsDDCIframeUrlSetEvent } from '../../events';
+import { WorldpayACHFacade } from '../../facade';
 import { PaymentMethod, ThreeDsDDCInfo } from '../../interfaces';
 import { WorldpayCheckoutPaymentService } from './worldpay-checkout-payment.service';
 import createSpy = jasmine.createSpy;
@@ -199,15 +198,17 @@ describe('WorldpayCheckoutPaymentService', () => {
       }, CheckoutPaymentDetailsSetEvent);
   });
 
-  it('should set billing address', () => {
+  it('should set billing address', (done) => {
     spyOn(worldpayConnector, 'setPaymentAddress').and.callThrough();
-    let paymentAddress = null;
-    service.setPaymentAddress(address).subscribe(response => paymentAddress = response).unsubscribe();
-    expect(worldpayConnector.setPaymentAddress).toHaveBeenCalledWith('testUserId', 'testCartId', address);
-    expect(paymentAddress).toEqual({
-      id: 'address-1',
-      formattedAddress: '123 Test St, AA1 2BB'
+    service.setPaymentAddress(address).subscribe(response => {
+      expect(worldpayConnector.setPaymentAddress).toHaveBeenCalledWith('testUserId', 'testCartId', address);
+      expect(response).toEqual({
+        id: 'address-1',
+        formattedAddress: '123 Test St, AA1 2BB'
+      });
+      done();
     });
+
   });
 
   it('should get the 3ds DDC iframe url', () => {
@@ -286,7 +287,13 @@ describe('WorldpayCheckoutPaymentService', () => {
       loading: false,
       error: false,
       data: {
-        worldpayAPMPaymentInfo: { apmCode: PaymentMethod.ACH }
+        worldpayAPMPaymentInfo: {
+          apmCode: PaymentMethod.ACH
+        },
+        paymentType: {
+          code: PaymentMethod.ACH,
+          name: 'ACH'
+        }
       }
     }));
 
@@ -295,7 +302,7 @@ describe('WorldpayCheckoutPaymentService', () => {
     });
   });
 
-  it('should return payment details state without saved and default flags when no id', () => {
+  it('should return payment details state without saved and default flags when no id', (done) => {
     spyOn(service, 'getSaveCreditCardValueFromState').and.returnValue(of(true));
     spyOn(service, 'getSaveAsDefaultCardValueFromState').and.returnValue(of(true));
     spyOn(worldpayACHFacade, 'getACHPaymentFormValue').and.returnValue(of(null));
@@ -304,13 +311,14 @@ describe('WorldpayCheckoutPaymentService', () => {
       error: false,
       data: {
         paymentInfo: {},
-        worldpayAPMPaymentInfo: { apmCode: 'ACH' }
+        worldpayAPMPaymentInfo: { apmCode: PaymentMethod.ACH }
       }
     }));
 
     service.getPaymentDetailsState().subscribe(state => {
       expect(state.data.saved).toBeUndefined();
       expect(state.data.defaultPayment).toBeUndefined();
+      done();
     });
   });
 

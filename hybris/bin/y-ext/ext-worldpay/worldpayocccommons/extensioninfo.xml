@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ Copyright (c) 2021 SAP SE or an SAP affiliate company. All rights reserved.
+--><extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
+               
+    
+    
+    <extension abstractclassprefix="Generated" classprefix="Worldpayocccommons" jaloLogicFree="true" managername="WorldpayocccommonsManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayocccommons" usemaven="false">
+                
+        <requires-extension name="worldpayapi"/>
+                
+        <requires-extension name="commercewebservices"/>
+                
+        <requires-extension name="swaggerintegration"/>
+                
+        <coremodule generated="true" manager="com.worldpay.jalo.WorldpayocccommonsManager" packageroot="com.worldpay.worldpayocccommons"/>
+            
+    </extension>
+                  
+
+
+
+</extensioninfo>

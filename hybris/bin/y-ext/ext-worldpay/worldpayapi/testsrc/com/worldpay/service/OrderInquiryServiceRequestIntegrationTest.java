@@ -48,8 +48,6 @@ public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseT
     public void setUp() throws Exception {
         configurationService.getConfiguration().setProperty(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE.toString());
         configurationService.getConfiguration().setProperty(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE.toString());
-
-
     }
 
     @Test

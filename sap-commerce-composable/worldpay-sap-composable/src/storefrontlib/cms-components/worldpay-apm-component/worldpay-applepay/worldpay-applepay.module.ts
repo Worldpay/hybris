@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { I18nModule } from '@spartacus/core';
-import { WorldpayApplepayAdapter, WorldpayApplepayConnector } from 'worldpay-sap-composable-connectors';
-import { OccWorldpayApplepayAdapter } from 'worldpay-sap-composable-occ';
+import { OccWorldpayApplepayAdapter, WorldpayApplepayAdapter, WorldpayApplepayConnector } from '../../../../core';
 import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
 import { WorldpayApplepayComponent } from './worldpay-applepay.component';
 

@@ -1,0 +1,16 @@
+<form
+  (ngSubmit)="next()"
+  [formGroup]="sepaForm"
+>
+  <div class="row">
+    <div class="col-12">
+      <y-worldpay-billing-address></y-worldpay-billing-address>
+    </div>
+  </div>
+  <!-- BUTTON SECTION -->
+  <y-worldpay-apm-submit-buttons
+    (back)="return()"
+    [disableContinue]="disableContinueButton$ | async"
+    [dataTestId]="'sepa-continue-btn'"
+  />
+</form>

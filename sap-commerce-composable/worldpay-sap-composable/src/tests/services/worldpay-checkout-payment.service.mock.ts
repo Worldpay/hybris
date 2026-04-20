@@ -1,7 +1,7 @@
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Address, PaymentDetails } from '@spartacus/core';
 import { Observable, of } from 'rxjs';
-import { WorldpayCheckoutPaymentService } from 'worldpay-sap-composable-services';
+import { WorldpayCheckoutPaymentService } from '../../core';
 import { ThreeDsDDCInfo, ThreeDsInfo } from '../../core/interfaces';
 
 const mockBillingAddress: Address = {
@@ -25,8 +25,7 @@ const mockCreditCard: PaymentDetails = {
 };
 
 export class MockWorldpayCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentService> {
-  constructor(private sanitizer: DomSanitizer) {
-  }
+  constructor(private sanitizer: DomSanitizer) {}
 
   getPaymentDetailsState(): Observable<any> {
     return of({

@@ -164,6 +164,18 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="ALIPAY_POS-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="quickPayAuthCode" type="xs:string" minOccurs="0"/>
+        <xs:element name="acquirerMerchantId" type="xs:string"/>
+        <xs:element ref="transactionTimeOut" minOccurs="0"/>
+        <xs:element ref="terminalData"/>
+      </xs:sequence>
+      <xs:attribute name="intent" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="AMEX-SSL">
     <xs:complexType>
       <xs:sequence>
@@ -280,6 +292,18 @@
       <xs:sequence/>
       <xs:attribute name="id" type="xs:string" use="required"/>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ApTRId">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="ApTransactionId">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="AuthorisationId">
@@ -551,6 +575,24 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="CFI">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="CHINAUNIONPAY-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
+        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
+        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
+        <xs:element name="errorURL" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="CLEARPAY-SSL">
     <xs:complexType>
       <xs:sequence>
@@ -745,7 +787,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="iban" type="xs:string"/>
-        <xs:element name="accountHolderName" type="xs:string"/>
+        <xs:element name="accountHolderName" type="xs:string" minOccurs="0"/>
         <xs:element name="bankName" type="xs:string" minOccurs="0"/>
         <xs:element name="bankLocation" type="xs:string" minOccurs="0"/>
         <xs:element ref="creditScoring" minOccurs="0"/>
@@ -1114,6 +1156,7 @@
   <xs:element name="GuaranteedPaymentsData">
     <xs:complexType>
       <xs:sequence>
+        <xs:element ref="reauth" minOccurs="0"/>
         <xs:element ref="secondaryAmount"/>
         <xs:element ref="surchargeAmount"/>
         <xs:element ref="userAccount" minOccurs="0"/>
@@ -1219,10 +1262,12 @@
         <xs:choice maxOccurs="unbounded">
           <xs:element ref="cardNumber"/>
           <xs:element ref="expiryDate"/>
+          <xs:element ref="cardHolderName"/>
           <xs:element ref="cvc"/>
           <xs:element ref="billingAddress"/>
           <xs:element ref="encryptedData"/>
           <xs:element ref="TOKEN-SSL"/>
+          <xs:element ref="ELV-SSL"/>
         </xs:choice>
         <xs:element ref="transmissionDate"/>
         <xs:element name="systemsTraceAuditNumber" type="xs:string"/>
@@ -1243,13 +1288,16 @@
         <xs:element ref="issuerCardData" minOccurs="0"/>
         <xs:element name="cardholderIdentificationMethod" type="xs:string" minOccurs="0"/>
         <xs:element ref="EMVRequest" minOccurs="0"/>
+        <xs:element ref="lodging" minOccurs="0"/>
         <xs:element ref="onlinePIN" minOccurs="0"/>
         <xs:element name="singleTapPIN" type="xs:string" minOccurs="0"/>
         <xs:element name="retrievalReferenceNumber" type="xs:string" minOccurs="0"/>
         <xs:element ref="cardBrand" minOccurs="0"/>
         <xs:element ref="POSBankAccount" minOccurs="0"/>
+        <xs:element name="schemeTransactionIdentifier" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="chipCard" type="xs:string"/>
+      <xs:attribute name="accountType" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -1541,6 +1589,17 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="MBWAY-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="successURL" type="xs:string"/>
+        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element name="pendingURL" type="xs:string"/>
+      </xs:sequence>
+      <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="MERCADOPAGO-SSL">
     <xs:complexType>
       <xs:sequence>
@@ -1560,6 +1619,7 @@
         <xs:element name="successURL" type="xs:string"/>
         <xs:element name="cancelURL" type="xs:string"/>
         <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1880,16 +1940,6 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="PBBA-SSL">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="returnURL" type="xs:string"/>
-        <xs:element ref="delivery" minOccurs="0"/>
-        <xs:element name="cookieId" type="xs:string" minOccurs="0"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
   <xs:element name="PERMANENT_SIGNED_DD_GB-SSL">
     <xs:complexType>
       <xs:sequence>
@@ -1989,6 +2039,7 @@
       <xs:attribute name="requestBalance" type="xs:string"/>
       <xs:attribute name="allowPartialAuth" type="xs:string"/>
       <xs:attribute name="isDeferredAuth" type="xs:string"/>
+      <xs:attribute name="dualBrandCardRoutingChoice" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -2125,24 +2176,6 @@
         <xs:element name="pendingURL" type="xs:string"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="SINGLE_UNSIGNED_DD_ES-SSL">
-    <xs:complexType>
-      <xs:sequence/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="SINGLE_UNSIGNED_DD_FR-SSL">
-    <xs:complexType>
-      <xs:sequence/>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="SINGLE_UNSIGNED_DD_NL-SSL">
-    <xs:complexType>
-      <xs:sequence/>
     </xs:complexType>
   </xs:element>
 
@@ -2576,28 +2609,13 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="UPEX-SSL">
+  <xs:element name="UNIONPAY-SSL">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="cardNumber"/>
         <xs:element ref="expiryDate" minOccurs="0"/>
         <xs:element ref="cardHolderName" minOccurs="0"/>
         <xs:element ref="cvc" minOccurs="0"/>
-        <xs:element ref="cardAddress" minOccurs="0"/>
-        <xs:element ref="cardSwipe" minOccurs="0"/>
-        <xs:element ref="comboCard" minOccurs="0"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="UPI-SSL">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="cardNumber"/>
-        <xs:element ref="expiryDate" minOccurs="0"/>
-        <xs:element ref="cardHolderName" minOccurs="0"/>
-        <xs:element ref="cvc" minOccurs="0"/>
-        <xs:element ref="parameter" maxOccurs="unbounded"/>
         <xs:element ref="cardAddress" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
@@ -2682,6 +2700,15 @@
         <xs:element name="pendingURL" type="xs:string"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="accessTokenDetails">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="accessToken" type="xs:string"/>
+        <xs:element name="tokenExpiryInMinutes" type="xs:string"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -2802,7 +2829,7 @@
   <xs:element name="action">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="type" type="xs:string" minOccurs="0"/>
+        <xs:element ref="type" minOccurs="0"/>
         <xs:element name="href" type="xs:string" minOccurs="0"/>
         <xs:element name="method" type="xs:string" minOccurs="0"/>
         <xs:element name="transactionId" type="xs:string" minOccurs="0"/>
@@ -2845,13 +2872,16 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="merchantName" minOccurs="0"/>
+        <xs:element ref="threeRIData" minOccurs="0"/>
       </xs:sequence>
-      <xs:attribute name="dfReferenceId" type="xs:string" use="required"/>
+      <xs:attribute name="dfReferenceId" type="xs:string"/>
+      <xs:attribute name="threeDSSessionId" type="xs:string"/>
       <xs:attribute name="challengeWindowSize" type="xs:string"/>
       <xs:attribute name="challengePreference" type="xs:string"/>
       <xs:attribute name="javaScriptEnabled" type="xs:string"/>
       <xs:attribute name="externalAcquirerId" type="xs:string"/>
       <xs:attribute name="deviceChannel" type="xs:string"/>
+      <xs:attribute name="returnURL" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -3130,6 +3160,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="anonymousPrepaid">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="apmEnrichedData">
     <xs:complexType>
       <xs:sequence>
@@ -3148,9 +3184,11 @@
         <xs:element name="cryptogram" type="xs:string"/>
         <xs:element ref="cryptogramAmount" minOccurs="0"/>
         <xs:element ref="cryptogramOtherAmount" minOccurs="0"/>
+        <xs:element name="tokenRequestorID" type="xs:string" minOccurs="0"/>
         <xs:element name="interchangeProfile" type="xs:string"/>
         <xs:element name="transactionCounter" type="xs:string"/>
         <xs:element name="applicationEffectiveDate" type="xs:string" minOccurs="0"/>
+        <xs:element name="applicationExpirationDate" type="xs:string" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -3197,6 +3235,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:choice maxOccurs="unbounded">
+          <xs:element ref="authenticationOutage"/>
           <xs:element ref="threeDSOutcome"/>
           <xs:element ref="authenticationOptimisationService"/>
         </xs:choice>
@@ -3225,6 +3264,12 @@
           <xs:attribute name="decision" type="xs:string" use="required"/>
         </xs:extension>
       </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="authenticationOutage">
+    <xs:complexType>
+      <xs:sequence/>
     </xs:complexType>
   </xs:element>
 
@@ -3282,6 +3327,15 @@
         <xs:element ref="amount"/>
       </xs:sequence>
       <xs:attribute name="accountType" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="balanceCheckInquiry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="paymentMethod" type="xs:string"/>
+      </xs:sequence>
+      <xs:attribute name="currencyCode" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
@@ -3696,6 +3750,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="iban" type="xs:string"/>
+        <xs:element name="bic" type="xs:string" minOccurs="0"/>
         <xs:element name="accountHolderName" type="xs:string"/>
       </xs:sequence>
     </xs:complexType>
@@ -3844,7 +3899,6 @@
                 <xs:element ref="requestInfo"/>
                 <xs:element ref="challengeRequired"/>
                 <xs:element ref="fxApprovalRequired"/>
-                <xs:element ref="pbbaRTP"/>
                 <xs:element ref="content"/>
                 <xs:element ref="JournalTypeDetail"/>
                 <xs:element ref="token"/>
@@ -3894,6 +3948,18 @@
         <xs:element ref="countryCode" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="bin">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="binLength">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="birthDate">
@@ -3973,6 +4039,7 @@
       <xs:attribute name="immediate" type="xs:string"/>
       <xs:attribute name="instant" type="xs:string"/>
       <xs:attribute name="merchantCode" type="xs:string"/>
+      <xs:attribute name="reference" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -3983,6 +4050,7 @@
         <xs:element ref="POSReversal" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="merchantCode" type="xs:string"/>
+      <xs:attribute name="reference" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -4002,11 +4070,10 @@
   <xs:element name="cancelRetry">
     <xs:complexType>
       <xs:sequence/>
-      <xs:attribute name="reference" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="cancelRetryDone">
+  <xs:element name="cancelRetryReceived">
     <xs:complexType>
       <xs:sequence/>
       <xs:attribute name="orderCode" type="xs:string" use="required"/>
@@ -4040,6 +4107,8 @@
       <xs:attribute name="instant" type="xs:string"/>
       <xs:attribute name="sequenceNumber" type="xs:string"/>
       <xs:attribute name="totalCount" type="xs:string"/>
+      <xs:attribute name="merchantCode" type="xs:string"/>
+      <xs:attribute name="countryCode" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -4130,6 +4199,36 @@
       <xs:attribute name="productType" type="xs:string" use="required"/>
       <xs:attribute name="issuerCountryCode" type="xs:string" use="required"/>
       <xs:attribute name="issuerName" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="cardBinInquiry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="recipient" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="cardBinInquiryResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="type"/>
+          <xs:element ref="cardBrand"/>
+          <xs:element ref="bin"/>
+          <xs:element ref="binLength"/>
+          <xs:element ref="fundingType"/>
+          <xs:element ref="issuerName"/>
+          <xs:element ref="countryCode"/>
+          <xs:element ref="currency"/>
+          <xs:element ref="dccAllowed"/>
+          <xs:element ref="anonymousPrepaid"/>
+          <xs:element ref="category"/>
+          <xs:element ref="errorName"/>
+          <xs:element ref="message"/>
+        </xs:choice>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -4252,7 +4351,10 @@
   <xs:element name="challenge">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="transactionId3DS" type="xs:string"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="transactionId3DS"/>
+          <xs:element ref="threeDSSessionId"/>
+        </xs:choice>
       </xs:sequence>
       <xs:attribute name="orderCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -4267,7 +4369,12 @@
   <xs:element name="challengeRequired">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="threeDSChallengeDetails"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="threeDSChallengeDetails"/>
+          <xs:element ref="threeDSSessionId"/>
+          <xs:element ref="threeDSVersion"/>
+          <xs:element ref="issuerName"/>
+        </xs:choice>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4360,6 +4467,13 @@
     </xs:simpleType>
   </xs:element>
 
+  <xs:element name="createAccessToken">
+    <xs:complexType>
+      <xs:sequence/>
+      <xs:attribute name="usage" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="createToken">
     <xs:complexType>
       <xs:sequence>
@@ -4417,6 +4531,21 @@
     <xs:complexType>
       <xs:sequence/>
       <xs:attribute name="orderCode" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="currency">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="currentBalance">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="paymentMethod" type="xs:string"/>
+        <xs:element ref="amount"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -4500,6 +4629,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="dccAllowed">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="defenceReceived">
     <xs:complexType>
       <xs:sequence/>
@@ -4577,7 +4712,7 @@
         <xs:element name="cardCoBrand" type="xs:string" minOccurs="0"/>
         <xs:element name="issuerCountryCode" type="xs:string"/>
         <xs:element name="obfuscatedPAN" type="xs:string" minOccurs="0"/>
-        <xs:element name="bin" type="xs:string" minOccurs="0"/>
+        <xs:element ref="bin" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4592,6 +4727,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="sessionId" type="xs:string"/>
+        <xs:element name="deviceId" type="xs:string" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4831,7 +4967,7 @@
       <xs:sequence>
         <xs:element name="response" type="xs:string"/>
         <xs:element name="responseTime" type="xs:string"/>
-        <xs:element name="message" type="xs:string"/>
+        <xs:element ref="message"/>
         <xs:element name="acquirerResponseCode" type="xs:string"/>
       </xs:sequence>
       <xs:attribute name="orderCode" type="xs:string" use="required"/>
@@ -4855,9 +4991,10 @@
       <xs:sequence>
         <xs:element name="tokenNumber" type="xs:string" minOccurs="0"/>
         <xs:element ref="tokenId" minOccurs="0"/>
-        <xs:element name="type" type="xs:string" minOccurs="0"/>
+        <xs:element ref="type" minOccurs="0"/>
         <xs:element ref="expiryDate" minOccurs="0"/>
         <xs:element ref="cardHolderName" minOccurs="0"/>
+        <xs:element ref="derived" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4907,6 +5044,12 @@
         </xs:extension>
       </xs:simpleContent>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="errorName">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="eventBooking">
@@ -5028,9 +5171,12 @@
   </xs:element>
 
   <xs:element name="externalProcessor">
-    <xs:simpleType>
-      <xs:restriction base="xs:string"/>
-    </xs:simpleType>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="secureExtraData" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string" use="required"/>
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="fare">
@@ -5180,10 +5326,16 @@
   <xs:element name="fundingParty">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="accountReference" minOccurs="0"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="accountReference"/>
+          <xs:element ref="paymentTokenID"/>
+          <xs:element ref="authenticatedShopperID"/>
+        </xs:choice>
+        <xs:element ref="expiryDate" minOccurs="0"/>
         <xs:element ref="fullName" minOccurs="0"/>
         <xs:element ref="fundingAddress" minOccurs="0"/>
         <xs:element ref="fundingData" minOccurs="0"/>
+        <xs:element name="taxId" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="type" type="xs:string" use="required"/>
     </xs:complexType>
@@ -5209,6 +5361,12 @@
       <xs:attribute name="type" type="xs:string"/>
       <xs:attribute name="category" type="xs:string" use="required"/>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="fundingType">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="futurePayAgreement">
@@ -5462,9 +5620,11 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="amount"/>
+        <xs:element name="authorisationResponseCode" type="xs:string" minOccurs="0"/>
         <xs:element ref="storedCredentials" minOccurs="0"/>
         <xs:element name="amexSubsequentOrderCode" type="xs:string" minOccurs="0"/>
       </xs:sequence>
+      <xs:attribute name="merchantCode" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -5486,6 +5646,7 @@
           <xs:element ref="threeRI"/>
           <xs:element ref="delegatedAuthentication"/>
           <xs:element ref="transactionStatusReason"/>
+          <xs:element ref="transactionStatus"/>
           <xs:element ref="challengeCancelIndicator"/>
           <xs:element ref="networkScore"/>
           <xs:element ref="cardBrand"/>
@@ -5494,6 +5655,7 @@
       </xs:sequence>
       <xs:attribute name="challengePreference" type="xs:string"/>
       <xs:attribute name="effectiveAuthenticationType" type="xs:string"/>
+      <xs:attribute name="authenticationOutage" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -5527,6 +5689,9 @@
           <xs:element ref="bankDetailsInquiry"/>
           <xs:element ref="retrieveInstalmentPlans"/>
           <xs:element ref="cardHolderNameInquiry"/>
+          <xs:element ref="balanceCheckInquiry"/>
+          <xs:element ref="cardBinInquiry"/>
+          <xs:element ref="walletDecryptionInquiry"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -5576,6 +5741,14 @@
         </xs:choice>
       </xs:sequence>
       <xs:attribute name="scheme" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="instalmentProvider">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="instalmentRetailerName" type="xs:string"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -5640,8 +5813,15 @@
         <xs:element name="applicationData" type="xs:string" minOccurs="0"/>
         <xs:element name="formFactorIndicator" type="xs:string" minOccurs="0"/>
         <xs:element name="customerExclusiveData" type="xs:string" minOccurs="0"/>
+        <xs:element name="cardPAR" type="xs:string" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="issuerName">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="issuerURL">
@@ -5876,13 +6056,19 @@
         <xs:element ref="checkInDate" minOccurs="0"/>
         <xs:element ref="checkOutDate" minOccurs="0"/>
         <xs:element name="duration" type="xs:string" minOccurs="0"/>
+        <xs:element name="duration2" type="xs:string" minOccurs="0"/>
+        <xs:element name="duration3" type="xs:string" minOccurs="0"/>
         <xs:element name="customerServicePhone" type="xs:string" minOccurs="0"/>
         <xs:element name="programCode" type="xs:string" minOccurs="0"/>
         <xs:element ref="roomRate" minOccurs="0"/>
+        <xs:element ref="roomRate2" minOccurs="0"/>
+        <xs:element ref="roomRate3" minOccurs="0"/>
         <xs:element ref="roomTax" minOccurs="0"/>
         <xs:element name="numAdults" type="xs:string" minOccurs="0"/>
         <xs:element name="propertyLocalPhone" type="xs:string" minOccurs="0"/>
         <xs:element name="fireSafetyIndicator" type="xs:string" minOccurs="0"/>
+        <xs:element name="lodgingNoShowIndicator" type="xs:string" minOccurs="0"/>
+        <xs:element name="renterName" type="xs:string" minOccurs="0"/>
         <xs:element ref="lodgingCharge" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
@@ -5891,8 +6077,19 @@
   <xs:element name="lodgingCharge">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="chargeType" maxOccurs="unbounded"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="chargeType"/>
+          <xs:element ref="lodgingItem"/>
+        </xs:choice>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="lodgingItem">
+    <xs:complexType>
+      <xs:sequence/>
+      <xs:attribute name="type" type="xs:string" use="required"/>
+      <xs:attribute name="amount" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
@@ -6043,6 +6240,12 @@
         <xs:element name="confirmationURL" type="xs:string"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="message">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="middleNameCardHolderMatchDecision">
@@ -6220,7 +6423,7 @@
           <xs:element ref="deleteTokenReceived"/>
           <xs:element ref="extendExpiryDateReceived"/>
           <xs:element ref="orderReceived"/>
-          <xs:element ref="cancelRetryDone"/>
+          <xs:element ref="cancelRetryReceived"/>
           <xs:element ref="cryptogramReceived"/>
           <xs:element ref="voidSaleReceived"/>
         </xs:choice>
@@ -6279,7 +6482,10 @@
           <xs:element ref="createTokenApproval"/>
           <xs:element ref="orderLines"/>
           <xs:element ref="subMerchantData"/>
+          <xs:element ref="instalmentProvider"/>
+          <xs:element ref="serviceLocationData"/>
           <xs:element ref="dynamicMCC"/>
+          <xs:element ref="partialAuthorisation"/>
           <xs:element ref="dynamicInteractionType"/>
           <xs:element ref="primeRoutingRequest"/>
           <xs:element ref="riskData"/>
@@ -6300,6 +6506,7 @@
           <xs:element ref="info3DSecure"/>
           <xs:element ref="session"/>
         </xs:choice>
+        <xs:element ref="e2eIdentity" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="orderCode" type="xs:string"/>
       <xs:attribute name="agreementId" type="xs:string"/>
@@ -6359,6 +6566,7 @@
         </xs:choice>
       </xs:sequence>
       <xs:attribute name="orderCode" type="xs:string"/>
+      <xs:attribute name="paymentId" type="xs:string"/>
       <xs:attribute name="instant" type="xs:string"/>
       <xs:attribute name="update" type="xs:string"/>
     </xs:complexType>
@@ -6418,11 +6626,12 @@
         <xs:element ref="paymentAdditionalDetails" minOccurs="0"/>
         <xs:element ref="billingAddressDetails" minOccurs="0"/>
         <xs:element ref="token" minOccurs="0"/>
-        <xs:element ref="exemptionResponse" minOccurs="0"/>
         <xs:element ref="journal"/>
         <xs:element ref="shopperWebformRefundDetails" minOccurs="0"/>
         <xs:element ref="payAsOrderUseNewOrderCode" minOccurs="0"/>
+        <xs:element ref="cardBin" minOccurs="0"/>
         <xs:element ref="selectedScheme" minOccurs="0"/>
+        <xs:element name="fastFunds" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="orderCode" type="xs:string" use="required"/>
       <xs:attribute name="backOfficeCode" type="xs:string"/>
@@ -6511,6 +6720,12 @@
         </xs:extension>
       </xs:simpleContent>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="partialAuthorisation">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="parties">
@@ -6621,13 +6836,14 @@
         <xs:element ref="ThreeDSecureResult" minOccurs="0"/>
         <xs:element ref="cardHolderName" minOccurs="0"/>
         <xs:element name="issuerCountryCode" type="xs:string" minOccurs="0"/>
-        <xs:element name="issuerName" type="xs:string" minOccurs="0"/>
+        <xs:element ref="issuerName" minOccurs="0"/>
         <xs:element ref="ThreeDSOutcomeInAuthorisation" minOccurs="0"/>
         <xs:element ref="POSResponse" minOccurs="0"/>
         <xs:element name="balance" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="cardNumber" minOccurs="0"/>
         <xs:element name="cardUpdated" type="xs:string" minOccurs="0"/>
         <xs:element ref="paymentInstrumentUpdated" minOccurs="0"/>
+        <xs:element ref="smartRetryDetails" minOccurs="0"/>
         <xs:element name="cardPAR" type="xs:string" minOccurs="0"/>
         <xs:element name="hashedCardNumber" type="xs:string" minOccurs="0"/>
         <xs:element ref="riskScore" minOccurs="0"/>
@@ -6635,7 +6851,6 @@
         <xs:element ref="shippingAddress" minOccurs="0"/>
         <xs:element name="shopperEmailAddress" type="xs:string" minOccurs="0"/>
         <xs:element name="consumerTrackingReference" type="xs:string" minOccurs="0"/>
-        <xs:element ref="pbbaPayConnect" minOccurs="0"/>
         <xs:element name="instalments" type="xs:string" minOccurs="0"/>
         <xs:element name="acquirerReturnDescription" type="xs:string" minOccurs="0"/>
         <xs:element ref="localAcquirer" minOccurs="0"/>
@@ -6739,9 +6954,6 @@
           <xs:element ref="NEXO-SSL"/>
           <xs:element ref="TARJETASHOPPING-SSL"/>
           <xs:element ref="PERMANENT_SIGNED_DD_NL-FAX"/>
-          <xs:element ref="SINGLE_UNSIGNED_DD_NL-SSL"/>
-          <xs:element ref="SINGLE_UNSIGNED_DD_ES-SSL"/>
-          <xs:element ref="SINGLE_UNSIGNED_DD_FR-SSL"/>
           <xs:element ref="PERMANENT_SIGNED_DD_GB-SSL"/>
           <xs:element ref="PERMANENT_UNSIGNED_DD_GB-SSL"/>
           <xs:element ref="PAYOUT-BANK"/>
@@ -6884,7 +7096,6 @@
           <xs:element ref="BILLKEY-SSL"/>
           <xs:element ref="INIPAY-SSL"/>
           <xs:element ref="WEBPAY-SSL"/>
-          <xs:element ref="PBBA-SSL"/>
           <xs:element ref="APM"/>
           <xs:element ref="MERCADOPAGO-SSL"/>
           <xs:element ref="PAYPAL-SSL"/>
@@ -6901,11 +7112,12 @@
           <xs:element ref="LINEPAY-SSL"/>
           <xs:element ref="PROMPTPAY-SSL"/>
           <xs:element ref="ALIPAY_CN-SSL"/>
+          <xs:element ref="ALIPAY_POS-SSL"/>
           <xs:element ref="SVS_GIFTCARD-SSL"/>
           <xs:element ref="KAKAOPAY-SSL"/>
+          <xs:element ref="UNIONPAY-SSL"/>
           <xs:element ref="TROY-SSL"/>
-          <xs:element ref="UPI-SSL"/>
-          <xs:element ref="UPEX-SSL"/>
+          <xs:element ref="CHINAUNIONPAY-SSL"/>
           <xs:element ref="FF_DISBURSE-SSL"/>
           <xs:element ref="FF_MONEYTRANSFER-SSL"/>
           <xs:element ref="FF_HPP-SSL"/>
@@ -6916,6 +7128,7 @@
           <xs:element ref="BLIK-SSL"/>
           <xs:element ref="PAYBYBANK_AU-SSL"/>
           <xs:element ref="OXXO-SSL"/>
+          <xs:element ref="MBWAY-SSL"/>
           <xs:element ref="cardNumber"/>
           <xs:element ref="expiryDate"/>
           <xs:element ref="cardHolderName"/>
@@ -6929,6 +7142,7 @@
         <xs:element ref="sdwoData" minOccurs="0"/>
         <xs:element name="MVV" type="xs:string" minOccurs="0"/>
         <xs:element name="retailerCountry" type="xs:string" minOccurs="0"/>
+        <xs:element name="foreignRetailerCountry" type="xs:string" minOccurs="0"/>
         <xs:element ref="storedCredentials" minOccurs="0"/>
         <xs:element ref="localDateTimeAtPOS" minOccurs="0"/>
         <xs:element ref="session" minOccurs="0"/>
@@ -6940,6 +7154,7 @@
         <xs:element ref="businessApplication" minOccurs="0"/>
         <xs:element ref="instalmentPlan" minOccurs="0"/>
         <xs:element ref="selectedScheme" minOccurs="0"/>
+        <xs:element name="schemeTransactionIdentifier" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="action" type="xs:string"/>
     </xs:complexType>
@@ -7125,29 +7340,6 @@
     </xs:simpleType>
   </xs:element>
 
-  <xs:element name="pbbaPayConnect">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="cookieId" type="xs:string"/>
-        <xs:element name="cookieExpiryDays" type="xs:string"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="pbbaRTP">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="BRN" type="xs:string"/>
-        <xs:element name="ApTransactionId" type="xs:string"/>
-        <xs:element name="ApTRId" type="xs:string"/>
-        <xs:element name="CFI" type="xs:string" minOccurs="0"/>
-      </xs:sequence>
-      <xs:attribute name="confirmExpiry" type="xs:string" use="required"/>
-      <xs:attribute name="retrievalExpiry" type="xs:string" use="required"/>
-      <xs:attribute name="cookieStatus" type="xs:string" use="required"/>
-    </xs:complexType>
-  </xs:element>
-
   <xs:element name="periodBeginDate">
     <xs:complexType>
       <xs:sequence>
@@ -7216,6 +7408,8 @@
       <xs:sequence>
         <xs:element ref="cardNumber"/>
         <xs:element ref="expiryDate"/>
+        <xs:element ref="cardHolderName" minOccurs="0"/>
+        <xs:element ref="billingAddress" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -7417,6 +7611,13 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="reauth">
+    <xs:complexType>
+      <xs:sequence/>
+      <xs:attribute name="originatingOrderCode" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="receipt">
     <xs:complexType>
       <xs:sequence>
@@ -7447,6 +7648,7 @@
           <xs:element ref="address"/>
           <xs:element ref="countryCode"/>
         </xs:choice>
+        <xs:element ref="birthDate" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="tokenScope" type="xs:string"/>
       <xs:attribute name="fundType" type="xs:string"/>
@@ -7490,6 +7692,7 @@
         </xs:choice>
         <xs:element ref="branchSpecificExtension" minOccurs="0"/>
         <xs:element name="reason" type="xs:string" minOccurs="0"/>
+        <xs:element ref="description" minOccurs="0"/>
         <xs:element name="iban" type="xs:string" minOccurs="0"/>
         <xs:element name="warning" type="xs:string" minOccurs="0"/>
         <xs:element ref="orderLines" minOccurs="0"/>
@@ -7503,6 +7706,8 @@
       <xs:attribute name="immediate" type="xs:string"/>
       <xs:attribute name="shopperWebformRefund" type="xs:string"/>
       <xs:attribute name="fastRefund" type="xs:string"/>
+      <xs:attribute name="allowAutoFastSlowRouting" type="xs:string"/>
+      <xs:attribute name="routeFailedFastToSlow" type="xs:string"/>
       <xs:attribute name="merchantCode" type="xs:string"/>
     </xs:complexType>
   </xs:element>
@@ -7569,12 +7774,14 @@
           <xs:element ref="futurePayPaymentResult"/>
           <xs:element ref="pricePoint"/>
           <xs:element ref="checkCardResponse"/>
+          <xs:element ref="currentBalance"/>
           <xs:element ref="checkCardHolderNameResponse"/>
+          <xs:element ref="cardBinInquiryResponse"/>
+          <xs:element ref="walletDecryptionResponse"/>
           <xs:element ref="echeckVerificationResponse"/>
           <xs:element ref="paymentOption"/>
           <xs:element ref="token"/>
         </xs:choice>
-        <xs:element ref="retry" minOccurs="0"/>
         <xs:element ref="actions" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="complete" type="xs:string"/>
@@ -7698,20 +7905,22 @@
   <xs:element name="retrieveInstalmentPlans">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="paymentInstrument"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="paymentInstrument"/>
+          <xs:element ref="paymentTokenID"/>
+          <xs:element ref="shopper"/>
+        </xs:choice>
         <xs:element ref="amount"/>
       </xs:sequence>
       <xs:attribute name="scheme" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="retry">
+  <xs:element name="retryDate">
     <xs:complexType>
-      <xs:sequence/>
-      <xs:attribute name="status" type="xs:string" use="required"/>
-      <xs:attribute name="retryCount" type="xs:string" use="required"/>
-      <xs:attribute name="retryMaxCount" type="xs:string" use="required"/>
-      <xs:attribute name="retryDaysRemaining" type="xs:string" use="required"/>
+      <xs:sequence>
+        <xs:element ref="date"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -7729,6 +7938,12 @@
         <xs:element ref="location"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="returnURL">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="revoke">
@@ -7767,7 +7982,7 @@
     <xs:complexType>
       <xs:sequence/>
       <xs:attribute name="value" type="xs:string"/>
-      <xs:attribute name="provider" type="xs:string"/>
+      <xs:attribute name="Provider" type="xs:string"/>
       <xs:attribute name="id" type="xs:string"/>
       <xs:attribute name="finalScore" type="xs:string"/>
       <xs:attribute name="score" type="xs:string"/>
@@ -7781,6 +7996,22 @@
   </xs:element>
 
   <xs:element name="roomRate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="amount"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="roomRate2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="amount"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="roomRate3">
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="amount"/>
@@ -7829,7 +8060,15 @@
         <xs:element ref="actionCode" minOccurs="0"/>
         <xs:element ref="responseCode" minOccurs="0"/>
         <xs:element name="transactionIdentifier" type="xs:string" minOccurs="0"/>
+        <xs:element name="supplementaryId" type="xs:string" minOccurs="0"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="screenSize">
+    <xs:complexType>
+      <xs:sequence/>
+      <xs:attribute name="value" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -7962,6 +8201,19 @@
         <xs:element name="accountHolderName" type="xs:string" minOccurs="0"/>
         <xs:element ref="mandateSignatureDate" minOccurs="0"/>
       </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="serviceLocationData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="city" type="xs:string" minOccurs="0"/>
+        <xs:element name="state" type="xs:string" minOccurs="0"/>
+        <xs:element name="postalCode" type="xs:string" minOccurs="0"/>
+        <xs:element ref="countryCode" minOccurs="0"/>
+        <xs:element name="coordinates" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="subMerchantId" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -8264,6 +8516,17 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="smartRetryDetails">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="retryDate" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="status" type="xs:string" use="required"/>
+      <xs:attribute name="retryCount" type="xs:string"/>
+      <xs:attribute name="daysSinceFirstPayment" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="splitFunded">
     <xs:complexType>
       <xs:sequence/>
@@ -8312,7 +8575,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="schemeTransactionIdentifier" type="xs:string" minOccurs="0"/>
-        <xs:element ref="threeRIData" minOccurs="0"/>
+        <xs:element name="supplementaryId" type="xs:string" minOccurs="0"/>
         <xs:element name="isConsumerConsentReceived" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="usage" type="xs:string" use="required"/>
@@ -8340,8 +8603,10 @@
         <xs:element name="subCountryCode" type="xs:string"/>
         <xs:element name="subPostalCode" type="xs:string"/>
         <xs:element name="subTaxId" type="xs:string" minOccurs="0"/>
+        <xs:element name="subURL" type="xs:string" minOccurs="0"/>
         <xs:element name="subEmailAddress" type="xs:string" minOccurs="0"/>
         <xs:element name="subTelephone" type="xs:string" minOccurs="0"/>
+        <xs:element name="subCustomerServicePhone" type="xs:string" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -8358,6 +8623,7 @@
           <xs:element ref="identifyMeRequest"/>
           <xs:element ref="paymentTokenCreate"/>
           <xs:element ref="challenge"/>
+          <xs:element ref="createAccessToken"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -8408,6 +8674,7 @@
         <xs:element name="capabilities" type="xs:string"/>
         <xs:element name="verificationResults" type="xs:string"/>
         <xs:element name="transactionStatusInfo" type="xs:string" minOccurs="0"/>
+        <xs:element name="transactionQualifiers" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="countryCode" type="xs:string" use="required"/>
       <xs:attribute name="serialNumber" type="xs:string"/>
@@ -8428,6 +8695,7 @@
         <xs:element name="storeId" type="xs:string" minOccurs="0"/>
         <xs:element name="terminalModel" type="xs:string" minOccurs="0"/>
         <xs:element name="singleTapEnabled" type="xs:string" minOccurs="0"/>
+        <xs:element ref="screenSize" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="type" type="xs:string"/>
     </xs:complexType>
@@ -8456,7 +8724,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="threeDSVersion"/>
-        <xs:element name="transactionId3DS" type="xs:string"/>
+        <xs:element ref="transactionId3DS"/>
         <xs:element name="acsURL" type="xs:string"/>
         <xs:element name="payload" type="xs:string"/>
       </xs:sequence>
@@ -8487,6 +8755,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="threeDSSessionId">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="threeDSVersion">
     <xs:simpleType>
       <xs:restriction base="xs:string"/>
@@ -8507,6 +8781,7 @@
         <xs:element name="recurringFrequency" type="xs:string" minOccurs="0"/>
         <xs:element ref="priorAuthenticationData" minOccurs="0"/>
       </xs:sequence>
+      <xs:attribute name="value" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
 
@@ -8677,6 +8952,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="transactionId3DS">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="transactionRiskData">
     <xs:complexType>
       <xs:sequence>
@@ -8706,6 +8987,12 @@
         <xs:element ref="date"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="transactionStatus">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="transactionStatusReason">
@@ -8810,6 +9097,12 @@
         <xs:element ref="tripSliceLeg" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="type">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="unitCost">
@@ -8943,7 +9236,9 @@
 
   <xs:element name="voidSale">
     <xs:complexType>
-      <xs:sequence/>
+      <xs:sequence>
+        <xs:element ref="POSReversal" minOccurs="0"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -8975,6 +9270,25 @@
         <xs:element ref="expiration" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="walletDecryptionInquiry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="PAYWITHGOOGLE-SSL"/>
+          <xs:element ref="APPLEPAY-SSL"/>
+          <xs:element ref="CLICKTOPAY-SSL"/>
+          <xs:element ref="SAMSUNGPAY-SSL"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="walletDecryptionResponse">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="xid">
