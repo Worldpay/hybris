@@ -1,0 +1,44 @@
+<form
+  (ngSubmit)="next()"
+  [formGroup]="idealForm"
+>
+  <div class="row">
+    <ng-container *ngIf="apm?.bankConfigurations?.length > 0">
+      <div class="col-md-12 col-xl-10 mb-3">
+        <div
+          class="form-group"
+          formGroupName="bank"
+        >
+          <label aria-required="true">
+            <span class="label-content required">{{ 'paymentForm.idealForm.bank.label' | cxTranslate }}</span>
+            <ng-select
+              [searchable]="true"
+              [clearable]="false"
+              [items]="apm.bankConfigurations"
+              bindLabel="name"
+              bindValue="code"
+              placeholder="{{'paymentForm.idealForm.bank.placeholder' | cxTranslate}}"
+              formControlName="code"
+            >
+            </ng-select>
+
+            <cx-form-errors
+              [prefix]="'paymentForm.idealForm.bank'"
+              [control]="idealForm.get('bank')"
+            ></cx-form-errors>
+          </label>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="col-12">
+      <y-worldpay-billing-address></y-worldpay-billing-address>
+    </div>
+  </div>
+  <!-- BUTTON SECTION -->
+  <y-worldpay-apm-submit-buttons
+    (back)="return()"
+    [disableContinue$]="disableContinueButton(idealForm.invalid)"
+    [dataTestId]="'ideal-continue-btn'"
+  />
+</form>
