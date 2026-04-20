@@ -17,6 +17,7 @@ import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.TransactionStatus;
 import com.worldpay.service.payment.WorldpayDirectOrderService;
+import com.worldpay.service.payment.WorldpayRedirectOrderService;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
@@ -52,7 +53,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
     private static final String ERROR_AUTHORISING_ORDER = "There was a problem authorising the order with worldpayOrderCode [{0}]";
     private static final String THERE_WAS_AN_ERROR_COMMUNICATING_WITH_WORLDPAY = "There was an error communicating with Worldpay";
     private static final String THERE_WAS_AN_ERROR_IN_THE_SERVICE_GATEWAY_MESSAGE = "There was an error in the service gateway: [{0}]";
-    private static final String THERE_IS_NO_CONFIGURATION = "There is no configuration for the requested merchant. Please review your settings.";
+    protected static final String THERE_IS_NO_CONFIGURATION = "There is no configuration for the requested merchant. Please review your settings.";
     private static final String CANNOT_AUTHORIZE_PAYMENT_WHERE_THERE_IS_NO_CART_MESSAGE = "Cannot authorize payment where there is no cart";
 
     protected final WorldpayDirectOrderService worldpayDirectOrderService;
@@ -386,7 +387,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             LOG.error(THERE_IS_NO_CONFIGURATION);
             throw e;
         } catch (final InvalidCartException e) {
-            throw new InvalidCartException(MessageFormat.format("There was an error placing the order for cart [{}]", cart.getCode()));
+            throw new InvalidCartException(MessageFormat.format("There was an error placing the order for cart [{0}]", cart.getCode()));
         }
     }
 
@@ -459,7 +460,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
             final AuthorisedStatus status = paymentReply.getAuthStatus();
             if (AUTHORISED.equals(status) || CAPTURED.equals(status)) {
                 worldpayDirectOrderService.completeAuthoriseACHDirectDebit(serviceResponse, abstractOrderModel, merchantCode);
-                handleAuthorisedResponse(response);
+                handleACHAuthorisedResponse(response);
             } else if (REFUSED.equals(status)) {
                 handleRefusedResponse(response, paymentReply.getReturnCode());
             } else if (CANCELLED.equals(status)) {
@@ -478,7 +479,7 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         final PaymentReply paymentReply = serviceResponse.getPaymentReply();
         if (paymentReply != null) {
             final AuthorisedStatus status = paymentReply.getAuthStatus();
-            if (AUTHORISED.equals(status)) {
+            if (AUTHORISED.equals(status) || SENT_FOR_AUTHORISATION.equals(status)) {
                 worldpayDirectOrderService.completeAuthorise(serviceResponse, abstractOrderModel);
                 handleAuthorisedResponse(response);
                 populateApmAttributes(abstractOrderModel, response);
@@ -517,10 +518,19 @@ public class DefaultWorldpayDirectOrderFacade implements WorldpayDirectOrderFaca
         return serviceResponse.getRedirectReference() != null;
     }
 
+    protected void handlePendingAuthorisedResponse(final DirectResponseData response) throws InvalidCartException {
+        handleAuthorisedResponse(response);
+        response.getOrderData().setIsApmOpen(true);
+    }
+
     protected void handleAuthorisedResponse(final DirectResponseData response) throws InvalidCartException {
         final OrderData orderData = acceleratorCheckoutFacade.placeOrder();
         response.setOrderData(orderData);
         response.setTransactionStatus(TransactionStatus.AUTHORISED);
+    }
+
+    protected void handleACHAuthorisedResponse(final DirectResponseData response) throws InvalidCartException {
+        handleAuthorisedResponse(response);
     }
 
     protected void handleRefusedResponse(final DirectResponseData response, final String returnCode) {

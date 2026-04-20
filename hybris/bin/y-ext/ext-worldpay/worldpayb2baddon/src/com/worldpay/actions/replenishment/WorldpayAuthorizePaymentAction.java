@@ -4,12 +4,14 @@ import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
+import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.platform.b2bacceleratorservices.model.process.ReplenishmentProcessModel;
 import de.hybris.platform.commerceservices.impersonation.ImpersonationContext;
 import de.hybris.platform.commerceservices.impersonation.ImpersonationService;
 import de.hybris.platform.core.enums.OrderStatus;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.order.payment.CreditCardPaymentInfoModel;
+import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.processengine.action.AbstractSimpleDecisionAction;
 import de.hybris.platform.processengine.model.BusinessProcessParameterModel;
@@ -43,7 +45,9 @@ public class WorldpayAuthorizePaymentAction extends AbstractSimpleDecisionAction
         final ImpersonationContext context = new ImpersonationContext();
         context.setOrder(clonedCart);
         return impersonationService.executeInContext(context, (ImpersonationService.Executor<Transition, ImpersonationService.Nothing>) () -> {
-            if (clonedCart.getPaymentInfo() instanceof CreditCardPaymentInfoModel) {
+            final PaymentInfoModel paymentInfo = clonedCart.getPaymentInfo();
+            if (paymentInfo instanceof CreditCardPaymentInfoModel ||
+                    paymentInfo.getPaymentType().equals(PaymentType.SEPA.getMethodCode())) {
                 return authoriseRecurringPaymentWithCreditCard(clonedCart);
             }
             return Transition.OK;

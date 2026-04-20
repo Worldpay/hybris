@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, Input } from '@angular/core';
 import { Observable } from 'rxjs';
-import { WorldpayApmService } from 'worldpay-sap-composable-services';
-import { ApmData } from 'worldpay-sap-core';
+import { ApmData, WorldpayApmService } from '../../../../core';
 
 @Component({
   selector: 'y-worldpay-apm-tile',

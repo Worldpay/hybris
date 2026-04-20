@@ -46,4 +46,12 @@ public interface WorldpayMerchantInfoService {
      * @throws WorldpayConfigurationException
      */
     MerchantInfo getMerchantInfoFromTransaction(PaymentTransactionModel paymentTransactionModel) throws WorldpayConfigurationException;
+
+    /**
+     * Returns the merchant configured for Open Banking to be used depending on the UI experience level.
+     *
+     * @return The merchant info for Open Banking {@link MerchantInfo}
+     * @throws WorldpayConfigurationException
+     */
+    MerchantInfo getCurrentSiteOpenBankingMerchant() throws WorldpayConfigurationException;
 }

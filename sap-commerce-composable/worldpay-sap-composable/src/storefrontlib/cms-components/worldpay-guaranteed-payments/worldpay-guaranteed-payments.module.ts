@@ -4,9 +4,7 @@ import { ActiveCartService } from '@spartacus/cart/base/core';
 import { UserAccountAdapter, UserAccountConnector, UserAccountService } from '@spartacus/user/account/core';
 import { OccUserAccountAdapter } from '@spartacus/user/account/occ';
 import { UserAccountFacade } from '@spartacus/user/account/root';
-import { WorldpayGuaranteedPaymentsAdapter } from '../../../core/connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.adapter';
-import { WorldpayGuaranteedPaymentsConnector } from '../../../core/connectors/worldpay-guaranteed-payments/worldpay-guaranteed-payments.connector';
-import { OccWorldpayGuaranteedPaymentsAdapter } from '../../../core/occ/adapters/worldpay-guaranteed-payments/occ-worldpay-guaranteed-payments.adapter';
+import { OccWorldpayGuaranteedPaymentsAdapter, WorldpayGuaranteedPaymentsAdapter, WorldpayGuaranteedPaymentsConnector } from '../../../core';
 import { WorldpayGuaranteedPaymentsComponent } from './worldpay-guaranteed-payments.component';
 
 @NgModule({

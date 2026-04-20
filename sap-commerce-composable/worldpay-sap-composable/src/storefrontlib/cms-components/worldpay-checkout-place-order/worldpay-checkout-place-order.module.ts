@@ -2,12 +2,11 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { CartNotEmptyGuard, CheckoutAuthGuard } from '@spartacus/checkout/base/components';
 import { I18nModule, provideConfig, UrlModule } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
 import { FormErrorsModule, IconModule, SpinnerModule } from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentConnector } from 'worldpay-sap-composable-connectors';
-import { OccWorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-occ';
-import { WorldpayOrderService } from '../../../core/services';
+import { OccWorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentAdapter, WorldpayCheckoutPaymentConnector, WorldpayOrderService } from '../../../core';
 import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-order.component';
 
 @NgModule({
@@ -28,6 +27,7 @@ import { WorldpayCheckoutPlaceOrderComponent } from './worldpay-checkout-place-o
       cmsComponents: {
         CheckoutPlaceOrder: {
           component: WorldpayCheckoutPlaceOrderComponent,
+          guards: [CheckoutAuthGuard, CartNotEmptyGuard],
         },
       },
     }),

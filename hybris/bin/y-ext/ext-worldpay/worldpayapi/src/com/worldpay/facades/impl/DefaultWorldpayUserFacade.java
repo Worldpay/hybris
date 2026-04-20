@@ -1,6 +1,8 @@
 package com.worldpay.facades.impl;
 
 import com.worldpay.customer.WorldpayCustomerAccountService;
+import com.worldpay.facades.APMAvailabilityFacade;
+import com.worldpay.facades.WorldpayUserFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commercefacades.user.data.AddressData;
@@ -17,28 +19,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNullStandardMessage;
 
-public class DefaultWorldpayUserFacade implements UserFacade {
+public class DefaultWorldpayUserFacade implements WorldpayUserFacade {
 
     protected final CheckoutCustomerStrategy checkoutCustomerStrategy;
     protected final UserFacade userFacade;
     protected final Converter<WorldpayAPMPaymentInfoModel, CCPaymentInfoData> apmPaymentInfoConverter;
     protected final Converter<CreditCardPaymentInfoModel, CCPaymentInfoData> creditCardPaymentInfoConverter;
     protected final WorldpayCustomerAccountService customerAccountService;
+    protected final APMAvailabilityFacade apmAvailabilityFacade;
 
     public DefaultWorldpayUserFacade(final CheckoutCustomerStrategy checkoutCustomerStrategy,
                                      final UserFacade userFacade,
                                      final Converter<WorldpayAPMPaymentInfoModel, CCPaymentInfoData> apmPaymentInfoConverter,
                                      final Converter<CreditCardPaymentInfoModel, CCPaymentInfoData> creditCardPaymentInfoConverter,
-                                     final WorldpayCustomerAccountService customerAccountService) {
+                                     final WorldpayCustomerAccountService customerAccountService, APMAvailabilityFacade apmAvailabilityFacade) {
         this.checkoutCustomerStrategy = checkoutCustomerStrategy;
         this.userFacade = userFacade;
         this.apmPaymentInfoConverter = apmPaymentInfoConverter;
         this.creditCardPaymentInfoConverter = creditCardPaymentInfoConverter;
         this.customerAccountService = customerAccountService;
+        this.apmAvailabilityFacade = apmAvailabilityFacade;
     }
 
     /**
@@ -133,11 +136,34 @@ public class DefaultWorldpayUserFacade implements UserFacade {
     @Override
     public List<CCPaymentInfoData> getCCPaymentInfos(final boolean saved) {
         final CustomerModel currentCustomer = checkoutCustomerStrategy.getCurrentUserForCheckout();
-        List<PaymentInfoModel> savedPaymentInfos = currentCustomer.getPaymentInfos().stream()
-            .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
-            .filter(paymentInfo -> filterBySavedValue(paymentInfo, saved))
-            .collect(Collectors.toList());
+        final List<PaymentInfoModel> savedPaymentInfos = getSavedPaymentInfos(currentCustomer, saved);
 
+        return getCcPaymentInfoData(currentCustomer, savedPaymentInfos);
+    }
+
+    protected List<PaymentInfoModel> getSavedPaymentInfos(final CustomerModel currentCustomer, final boolean saved) {
+        return currentCustomer.getPaymentInfos().stream()
+                .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
+                .filter(paymentInfo -> filterBySavedValue(paymentInfo, saved))
+                .toList();
+    }
+
+    @Override
+    public List<CCPaymentInfoData> getAvailableCCPaymentInfos(boolean saved) {
+        final CustomerModel currentCustomer = checkoutCustomerStrategy.getCurrentUserForCheckout();
+        final List<PaymentInfoModel> savedPaymentInfos = getSavedPaymentInfos(currentCustomer, saved)
+                .stream()
+                .filter(paymentInfoModel -> paymentInfoModel instanceof CreditCardPaymentInfoModel ||
+                        (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel payment &&
+                                apmAvailabilityFacade.isAvailable((payment)
+                                        .getApmConfiguration())))
+                .toList();
+
+        return getCcPaymentInfoData(currentCustomer, savedPaymentInfos);
+    }
+
+    protected List<CCPaymentInfoData> getCcPaymentInfoData(final CustomerModel currentCustomer,
+                                                           final List<PaymentInfoModel> savedPaymentInfos) {
         final List<CCPaymentInfoData> ccPaymentInfos = new ArrayList<>();
         final PaymentInfoModel defaultPaymentInfoModel = currentCustomer.getDefaultPaymentInfo();
         for (final PaymentInfoModel paymentInfoModel : savedPaymentInfos) {
@@ -198,10 +224,10 @@ public class DefaultWorldpayUserFacade implements UserFacade {
         final CustomerModel currentCustomer = checkoutCustomerStrategy.getCurrentUserForCheckout();
 
         currentCustomer.getPaymentInfos().stream()
-            .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
-            .filter(paymentInfo -> id.equals(paymentInfo.getPk().toString()))
-            .findFirst()
-            .ifPresent(paymentInfo -> deletePaymentInfo(paymentInfo, currentCustomer));
+                .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
+                .filter(paymentInfo -> id.equals(paymentInfo.getPk().toString()))
+                .findFirst()
+                .ifPresent(paymentInfo -> deletePaymentInfo(paymentInfo, currentCustomer));
 
         updateDefaultPaymentInfo(currentCustomer);
     }
@@ -225,10 +251,10 @@ public class DefaultWorldpayUserFacade implements UserFacade {
     @Override
     public void setDefaultPaymentInfo(final CCPaymentInfoData paymentInfo) {
         validateParameterNotNullStandardMessage("paymentInfoData", paymentInfo);
-        Optional.ofNullable(paymentInfo)
-            .map(CCPaymentInfoData::getId)
-            .map(this::getPaymentInfoModelForCode)
-            .ifPresent(this::setDefaultPaymentInfo);
+        Optional.of(paymentInfo)
+                .map(CCPaymentInfoData::getId)
+                .map(this::getPaymentInfoModelForCode)
+                .ifPresent(this::setDefaultPaymentInfo);
     }
 
     /**
@@ -280,18 +306,17 @@ public class DefaultWorldpayUserFacade implements UserFacade {
     }
 
     /**
-     * @param code
-     * @return
+     * @return the PaymentInfoModel for the given code
      */
     protected PaymentInfoModel getPaymentInfoModelForCode(final String code) {
         return Optional.ofNullable(checkoutCustomerStrategy.getCurrentUserForCheckout())
-            .map(CustomerModel::getPaymentInfos)
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(paymentInfo -> code.equals(paymentInfo.getPk().toString()))
-            .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
-            .findAny()
-            .orElse(null);
+                .map(CustomerModel::getPaymentInfos)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(paymentInfo -> code.equals(paymentInfo.getPk().toString()))
+                .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
+                .findAny()
+                .orElse(null);
     }
 
     /**
@@ -301,10 +326,10 @@ public class DefaultWorldpayUserFacade implements UserFacade {
      * @return the converted payment info
      */
     protected CCPaymentInfoData convertPaymentInfoModel(final PaymentInfoModel paymentInfoModel) {
-        if (paymentInfoModel instanceof CreditCardPaymentInfoModel) {
-            return creditCardPaymentInfoConverter.convert((CreditCardPaymentInfoModel) paymentInfoModel);
-        } else if (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel) {
-            return apmPaymentInfoConverter.convert((WorldpayAPMPaymentInfoModel) paymentInfoModel);
+        if (paymentInfoModel instanceof CreditCardPaymentInfoModel payment) {
+            return creditCardPaymentInfoConverter.convert(payment);
+        } else if (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel payment) {
+            return apmPaymentInfoConverter.convert(payment);
         }
         return null;
     }
@@ -327,10 +352,10 @@ public class DefaultWorldpayUserFacade implements UserFacade {
      * @param currentCustomer  - the customer to whom the payment info belongs
      */
     protected void deletePaymentInfo(final PaymentInfoModel paymentInfoModel, final CustomerModel currentCustomer) {
-        if (paymentInfoModel instanceof CreditCardPaymentInfoModel) {
-            customerAccountService.deleteCCPaymentInfo(currentCustomer, (CreditCardPaymentInfoModel) paymentInfoModel);
-        } else if (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel) {
-            customerAccountService.deleteAPMPaymentInfo(currentCustomer, (WorldpayAPMPaymentInfoModel) paymentInfoModel);
+        if (paymentInfoModel instanceof CreditCardPaymentInfoModel payment) {
+            customerAccountService.deleteCCPaymentInfo(currentCustomer, payment);
+        } else if (paymentInfoModel instanceof WorldpayAPMPaymentInfoModel payment) {
+            customerAccountService.deleteAPMPaymentInfo(currentCustomer, payment);
         }
     }
 
@@ -342,9 +367,9 @@ public class DefaultWorldpayUserFacade implements UserFacade {
     protected void updateDefaultPaymentInfo(final CustomerModel currentCustomer) {
         if (currentCustomer.getDefaultPaymentInfo() == null) {
             final List<PaymentInfoModel> ccPaymentInfoModelList = currentCustomer.getPaymentInfos().stream()
-                .filter(paymentInfo -> Boolean.valueOf(true).equals(paymentInfo.isSaved()))
-                .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
-                .collect(Collectors.toList());
+                    .filter(paymentInfo -> Boolean.valueOf(true).equals(paymentInfo.isSaved()))
+                    .filter(paymentInfo -> Boolean.FALSE.equals(paymentInfo.getDuplicate()))
+                    .toList();
 
             if (CollectionUtils.isNotEmpty(ccPaymentInfoModelList)) {
                 customerAccountService.setDefaultPaymentInfo(currentCustomer, ccPaymentInfoModelList.get(ccPaymentInfoModelList.size() - 1));

@@ -3,9 +3,8 @@ import { By } from '@angular/platform-browser';
 import { I18nTestingModule, MockTranslatePipe, RoutingService } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
 import { Observable, of } from 'rxjs';
-import { WorldpayApplepayService } from 'worldpay-sap-composable-services';
 import { MockCxSpinnerComponent, MockRoutingService, MockWorldpayBillingAddressComponent } from 'worldpay-sap-composable-tests';
-import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../../../core/interfaces';
+import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, WorldpayApplepayService } from '../../../../core';
 import { WorldpayApplepayComponent } from './worldpay-applepay.component';
 
 class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {

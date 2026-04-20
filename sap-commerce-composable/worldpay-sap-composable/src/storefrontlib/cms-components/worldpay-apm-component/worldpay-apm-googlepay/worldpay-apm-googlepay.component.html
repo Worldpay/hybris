@@ -8,8 +8,16 @@
   </div>
 </ng-template>
 
-<div class="cx-checkout-btns row">
-  <div class="col-sm-12 col-md-6 offset-md-6 text-md-right mb-4">
-    <div #gpayBtn></div>
+<div class="cx-checkout-btns row d-flex align-items-center">
+  <div class="col-sm-12 col-md-6">
+    <button
+      class="btn btn-block btn-secondary btn-back"
+      (click)="onBack()"
+    >
+      {{ 'common.back' | cxTranslate }}
+    </button>
+  </div>
+  <div class="col-sm-12 col-md-6">
+    <div class="w-full" #gpayBtn></div>
   </div>
 </div>

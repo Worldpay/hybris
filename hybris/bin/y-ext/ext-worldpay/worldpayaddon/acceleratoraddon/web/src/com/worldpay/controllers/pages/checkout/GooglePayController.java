@@ -18,6 +18,7 @@ import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
+import de.hybris.platform.servicelayer.session.SessionService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class GooglePayController extends AbstractCheckoutController {
         saveBillingAddresses(authorisationRequest.getBillingAddress());
         final GooglePayAdditionalAuthInfo token = authorisationRequest.getToken();
         token.setSaveCard(authorisationRequest.getSaved());
-        getSessionService().setAttribute("paymentMethod", PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+        callSuperGetSessionService().setAttribute("paymentMethod", PaymentType.PAYWITHGOOGLESSL.getMethodCode());
         return worldpayDirectOrderFacade.authoriseGooglePayDirect(token);
     }
 
@@ -88,6 +89,10 @@ public class GooglePayController extends AbstractCheckoutController {
         } else {
             LOG.debug("Failed to determine region from country {} and region code {}", countryIsoCode, administrativeArea);
         }
-
     }
+
+    protected SessionService callSuperGetSessionService() {
+        return super.getSessionService();
+    }
+
 }

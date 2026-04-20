@@ -41,6 +41,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -65,13 +66,7 @@ public class DefaultWorldpayRequestFactoryTest {
     private static final String SHOPPER_BANK_CODE = "shopperBankCode";
     private static final String PAYMENT_METHOD = "paymentMethod";
     private static final String COUNTRY_CODE = "countryCode";
-    private static final String CARD_HOLDER_NAME = "cardHolderName";
-    private static final String EXPIRY_MONTH = "expiryMonth";
-    private static final String EXPIRY_YEAR = "expiryYear";
     private static final String PAYMENT_TOKEN_ID = "paymentTokenId";
-    private static final String ORDER_CODE = "ORDER_CODE";
-    private static final String PWD = "PWD";
-    private static final String MERCHANT_CODE = "MERCHANT_CODE";
     private static final String TOKEN_UPDATED = "Token updated ";
     private static final String TOKEN_DELETED = "Token deleted ";
     private static final String SESSION_ID = "SESSION_ID";
@@ -179,6 +174,9 @@ public class DefaultWorldpayRequestFactoryTest {
     private AchDirectDebitPayment achDirectDebitPaymentMock;
     @Mock
     private ACHDirectDebitAdditionalAuthInfo ACHDirectDebitAdditionalAuthInfoMock;
+    @Mock
+    private Set<String> tokenizedAPMs;
+
 
     @Captor
     private ArgumentCaptor<AuthoriseRequestParameters> authoriseRequestParametersArgumentCaptor;
@@ -504,6 +502,7 @@ public class DefaultWorldpayRequestFactoryTest {
         doReturn(includedPTsMock).when(testObj).getIncludedPaymentTypeList(additionalAuthInfoMock);
         when(additionalAuthInfoMock.getSaveCard()).thenReturn(Boolean.TRUE);
         when(additionalAuthInfoMock.getInstallationId()).thenReturn(INSTALLATION_ID);
+        when(additionalAuthInfoMock.getPaymentMethod()).thenReturn(PaymentType.ONLINE.getMethodCode());
         when(worldpayRequestServiceMock.createStoredCredentials(Usage.FIRST, null, null)).thenReturn(storedCredentialsMock);
         when(worldpayCartServiceMock.getAuthenticatedShopperId(cartModelMock)).thenReturn(AUTHENTICATED_SHOPPER_ID);
         when(worldpayRequestServiceMock.createAuthenticatedShopper(SHOPPER_EMAIL_ADDRESS, AUTHENTICATED_SHOPPER_ID, null, null)).thenReturn(shopperWithoutSessionNorBrowserMock);
@@ -526,7 +525,7 @@ public class DefaultWorldpayRequestFactoryTest {
     }
 
     @Test
-    public void buildRedirectAuthoriseRequest_WhenPaymentMethodIsNotPaypalExpressAnd_ShouldNotIncludePaymentAttributes() throws WorldpayConfigurationException {
+    public void buildRedirectAuthoriseRequest_WhenPaymentMethodIsNotPaypalExpress_ShouldNotIncludePaymentAttributes() throws WorldpayConfigurationException {
         doReturn(redirectAuthoriseRequestMock).when(testObj).createRedirectAuthoriseRequest(any(AuthoriseRequestParameters.class));
         doReturn(includedPTsMock).when(testObj).getIncludedPaymentTypeList(additionalAuthInfoMock);
         when(additionalAuthInfoMock.getSaveCard()).thenReturn(Boolean.TRUE);

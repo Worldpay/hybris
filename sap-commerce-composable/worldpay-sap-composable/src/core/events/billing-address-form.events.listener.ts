@@ -4,7 +4,7 @@ import { CheckoutPaymentDetailsCreatedEvent } from '@spartacus/checkout/base/roo
 import { CurrencySetEvent, EventService, LoginEvent, LogoutEvent } from '@spartacus/core';
 import { OrderPlacedEvent } from '@spartacus/order/root';
 import { merge } from 'rxjs';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
+import { WorldpayBillingAddressFormService } from '../services';
 import { WorldpayBillingAddressSameAsDeliveryAddressSetEvent, WorldpayClearBillingAddressFormEvent } from './billing-address-form.events';
 import { WorldpayBillingAddressCreatedEvent, WorldpayBillingAddressUpdatedEvent } from './billing-address.events';
 import { SetPaymentAddressEvent } from './checkout-payment.events';

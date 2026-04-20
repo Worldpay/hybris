@@ -1,15 +1,26 @@
 package com.worldpay.facades.order.impl;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
-import de.hybris.platform.acceleratorservices.order.AcceleratorCheckoutService;
-import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
 import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.enums.CountryType;
-import de.hybris.platform.commerceservices.order.CommerceCartModification;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.commerceservices.order.CommerceCheckoutService;
 import de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter;
@@ -22,21 +33,18 @@ import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import de.hybris.platform.storelocator.model.PointOfServiceModel;
-import de.hybris.platform.storelocator.pos.PointOfServiceService;
 import io.netty.util.internal.StringUtil;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -47,26 +55,25 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     private static final String DELIVERY_MODE_CODE = "deliveryModeCode";
     private static final String ADDRESS_CODE = "addressCode";
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Spy
     @InjectMocks
     private WorldpayCheckoutFacadeDecorator testObj;
 
-    @Mock
-    private AddressModel sourceMock;
     @Mock
     private CommerceCheckoutService commerceCheckoutServiceMock;
     @Mock
     private CheckoutFlowFacade checkoutFlowFacadeMock;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CartService cartServiceMock;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private CartModel cartModelMock;
     @Mock
     private Converter<AddressModel, AddressData> addressConverterMock;
+    @Mock
+    private CheckoutCustomerStrategy checkoutCustomerStrategyMock;
+
+    @Mock
+    private AddressModel sourceMock;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private CartModel cartModelMock;
     @Mock
     private AddressData addressDataMock;
     @Mock
@@ -80,25 +87,14 @@ public class WorldpayCheckoutFacadeDecoratorTest {
     @Mock
     private AddressModel addressModelMock;
     @Mock
-    private CartFacade cartFacadeMock;
-    @Mock
-    private CheckoutCustomerStrategy checkoutCustomerStrategyMock;
-    @Mock
-    private PointOfServiceService pointOfServiceServiceMock;
-    @Mock
-    private AcceleratorCheckoutService acceleratorCheckoutService;
-    @Mock
-    private PointOfServiceModel pointOfServiceModelMock;
-    @Mock
-    private CommerceCartModification commerceCartModificationMock;
-    @Mock
     private PaymentInfoModel paymentInfoModelMock;
     @Mock
     private CustomerModel cartUserMock;
+
     @Captor
     private ArgumentCaptor<CommerceCheckoutParameter> commerceCheckoutParameterArgumentCaptor;
 
-    private PK pk = PK.fromLong(123456L);
+    private final PK pk = PK.fromLong(123456L);
 
     @Before
     public void setUp() throws CommerceCartModificationException {
@@ -224,9 +220,11 @@ public class WorldpayCheckoutFacadeDecoratorTest {
         assertNull(cartModel);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void setPaymentDetails_ShouldThrowIllegalArgumentException_WhenPaymentInfoIsNull() {
-        testObj.setPaymentDetails(null);
+        assertThatThrownBy(() -> testObj.setPaymentDetails(null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Parameter paymentInfoId can not be null");
     }
 
     @Test

@@ -8,6 +8,6 @@ INSERT_UPDATE JspIncludeComponent;$contentCV[unique=true];uid[unique=true];name;
 ;;OrderConfirmationThankMessageComponent;Order Confirmation Thank You Message Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/checkout/worldpayCheckoutConfirmationThankMessage.jsp
 # This update modifies the existing CheckoutComponent jspInclude component by setting a new page existing in the worldpayb2baddon
 ;;CheckoutComponent;Checkout Display Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/cart/checkoutDisplay.jsp
-
+;;AccountPaymentDetailsComponent;Account Payment Details Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountPaymentInfoPage.jsp
 UPDATE ReorderAction;$contentCV[unique=true];uid[unique=true];url
 ;;ReorderAction;/checkout/worldpay/summary/reorder

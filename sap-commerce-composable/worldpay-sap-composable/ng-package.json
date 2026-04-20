@@ -23,5 +23,8 @@
   "dest": "../../dist/worldpay-sap-composable",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "assets": [
+    "src/assets"
+  ]
 }

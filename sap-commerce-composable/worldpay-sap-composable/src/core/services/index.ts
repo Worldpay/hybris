@@ -9,3 +9,4 @@ export * from './worldpay-fraudsight/worldpay-fraudsight.service';
 export * from './worldpay-googlepay/worldpay-googlepay.service';
 export * from './worldpay-guaranteed-payments/worldpay-guaranteed-payments.service';
 export * from './worldpay-order/worldpay-order.service';
+export * from './worldpay-user-payment/worldpay-user-payment.service';

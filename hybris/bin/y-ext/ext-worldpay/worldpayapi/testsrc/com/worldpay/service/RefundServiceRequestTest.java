@@ -1,17 +1,16 @@
 package com.worldpay.service;
 
+import static com.worldpay.service.request.RefundServiceRequest.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import com.worldpay.data.Amount;
 import com.worldpay.data.MerchantInfo;
-import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.request.RefundServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 @UnitTest
 public class RefundServiceRequestTest {
@@ -25,10 +24,6 @@ public class RefundServiceRequestTest {
 
     private Amount amount;
     private MerchantInfo merchantInfo;
-
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -47,7 +42,7 @@ public class RefundServiceRequestTest {
     @Test
     public void testRefundFullAmount() {
 
-        final RefundServiceRequest request = RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE, amount, REFERENCE, Boolean.FALSE);
+        final RefundServiceRequest request = createRefundRequest(merchantInfo, ORDER_CODE, amount, REFERENCE, Boolean.FALSE);
 
         assertEquals(amount, request.getAmount());
         assertEquals(merchantInfo, request.getMerchantInfo());
@@ -58,22 +53,22 @@ public class RefundServiceRequestTest {
 
     @Test
     public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenMerchantInfoIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        RefundServiceRequest.createRefundRequest(null, ORDER_CODE, amount, REFERENCE, Boolean.FALSE);
+        assertThatThrownBy(() -> createRefundRequest(null, ORDER_CODE, amount, REFERENCE, Boolean.FALSE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Amount cannot be null");
     }
 
     @Test
     public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenOrderCodeIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        RefundServiceRequest.createRefundRequest(merchantInfo, null, amount, REFERENCE, Boolean.FALSE);
+        assertThatThrownBy(() -> createRefundRequest(merchantInfo, null, amount, REFERENCE, Boolean.FALSE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Amount cannot be null");
     }
 
     @Test
     public void createRefundRequestShouldRaiseIllegalArgumentExceptionWhenAmountIsNull() {
-        expectedException.expect(IllegalArgumentException.class);
-
-        RefundServiceRequest.createRefundRequest(merchantInfo, ORDER_CODE, null, REFERENCE, Boolean.FALSE);
+        assertThatThrownBy(() -> createRefundRequest(merchantInfo, ORDER_CODE, null, REFERENCE, Boolean.FALSE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("WorldpayConfig, MerchantInfo, Order Code and Amount cannot be null");
     }
 }

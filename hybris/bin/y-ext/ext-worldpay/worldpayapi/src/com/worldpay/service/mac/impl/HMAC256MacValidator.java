@@ -1,19 +1,18 @@
 package com.worldpay.service.mac.impl;
 
-import com.worldpay.enums.order.AuthorisedStatus;
-import com.worldpay.exception.WorldpayMacValidationException;
-import com.worldpay.service.mac.MacValidator;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static java.util.Arrays.asList;
+
+import com.worldpay.enums.order.AuthorisedStatus;
+import com.worldpay.exception.WorldpayMacValidationException;
+import com.worldpay.service.mac.MacValidator;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Implementation of the Mac validator supporting the HMAC256 algorithm.
@@ -37,12 +36,12 @@ public class HMAC256MacValidator implements MacValidator {
         final String hashString = StringUtils.join(asList(orderKey, paymentAmount, paymentCurrency, paymentStatus.name()), ":");
         try {
             final Mac hmacSHA256 = Mac.getInstance(HMAC_SHA_256);
-            final SecretKeySpec secretKeySpec = new SecretKeySpec(macSecret.getBytes(StandardCharsets.UTF_8.name()), HMAC_SHA_256);
+            final SecretKeySpec secretKeySpec = new SecretKeySpec(macSecret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256);
             hmacSHA256.init(secretKeySpec);
-            final byte[] hashValue = hmacSHA256.doFinal(hashString.getBytes(StandardCharsets.UTF_8.name()));
+            final byte[] hashValue = hmacSHA256.doFinal(hashString.getBytes(StandardCharsets.UTF_8));
 
             return worldpayMac.equalsIgnoreCase(Hex.encodeHexString(hashValue));
-        } catch (final NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException e) {
+        } catch (final NoSuchAlgorithmException | InvalidKeyException e) {
             throw new WorldpayMacValidationException("Unable to validate mac as hash algorithm incorrectly specified", e);
         }
     }

@@ -1,6 +1,23 @@
 package com.worldpay.service;
 
-import com.worldpay.data.*;
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
+
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.worldpay.data.Address;
+import com.worldpay.data.Amount;
+import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.RedirectReference;
+import com.worldpay.data.Session;
+import com.worldpay.data.Shopper;
 import com.worldpay.data.payment.Cse;
 import com.worldpay.data.payment.Payment;
 import com.worldpay.data.payment.StoredCredentials;
@@ -13,18 +30,8 @@ import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
 import de.hybris.platform.servicelayer.ServicelayerBaseTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @IntegrationTest
 public class RedirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBaseTest {
@@ -53,13 +60,11 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
     private static final String TOKEN_EVENT_REFERENCE_NUMBER = "tokenEventReferenceNumber";
     private static final String TOKEN_REASON = "tokenReason";
 
-    private Address shippingAddress;
     private TokenRequest tokenRequest;
     private Address address;
-    private List<PaymentType> includedPaymentMethods = singletonList(ONLINE);
+    private final List<PaymentType> includedPaymentMethods = List.of(ONLINE);
     private Address billingAddress;
     private Payment payment;
-    private Session session;
     private Shopper shopper;
     private StoredCredentials storedCredentials;
     private String orderCode;
@@ -69,30 +74,24 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway gateway;
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         orderCode = String.valueOf(new Date().getTime());
 
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantCode(MERCHANT_CODE);
         merchantInfo.setMerchantPassword(MERCHANT_PASS);
         merchantInfo.setUsingMacValidation(false);
-        this.merchantInfo = merchantInfo;
 
         final Amount amount = new Amount();
         amount.setValue(VALUE);
         amount.setCurrencyCode(EUR);
         amount.setExponent(EXPONENT);
 
-        final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
+        basicOrderInfo = new BasicOrderInfo();
         basicOrderInfo.setOrderCode(orderCode);
         basicOrderInfo.setDescription(YOUR_ORDER_ORDER_DESC);
         basicOrderInfo.setAmount(amount);
-        this.basicOrderInfo = basicOrderInfo;
 
         final Address shippingAddress = new Address();
         shippingAddress.setFirstName(NAME);
@@ -103,13 +102,11 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
         shippingAddress.setPostalCode(POSTAL_CODE);
         shippingAddress.setCity(CITY);
         shippingAddress.setCountryCode(GB);
-        this.shippingAddress = shippingAddress;
 
-        final TokenRequest tokenRequestData = new TokenRequest();
-        tokenRequestData.setTokenEventReference(TOKEN_EVENT_REFERENCE_NUMBER);
-        tokenRequestData.setTokenReason(TOKEN_REASON);
-        tokenRequestData.setMerchantToken(false);
-        tokenRequest = tokenRequestData;
+        tokenRequest = new TokenRequest();
+        tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE_NUMBER);
+        tokenRequest.setTokenReason(TOKEN_REASON);
+        tokenRequest.setMerchantToken(false);
 
         final Address address = new Address();
         address.setFirstName(NAME);
@@ -135,39 +132,30 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
 
         final Cse payment = new Cse();
         payment.setEncryptedData(ENCRYPTED_DATA);
-        payment.setAddress(this.shippingAddress);
+        payment.setAddress(shippingAddress);
         this.payment = payment;
 
         final Session session = new Session();
         session.setShopperIPAddress(SHOPPER_IP_ADDRESS);
         session.setId(SESSION_ID);
-        this.session = session;
 
-        final Shopper shopper = new Shopper();
+        shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
-        shopper.setSession(this.session);
-        this.shopper = shopper;
+        shopper.setSession(session);
 
-        final StoredCredentials storedCredentials = new StoredCredentials();
+        storedCredentials = new StoredCredentials();
         storedCredentials.setUsage(Usage.FIRST);
-        this.storedCredentials = storedCredentials;
-    }
-
-    protected AuthoriseRequestParameters getAuthoriseRequestParameters() {
-        return AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .build();
     }
 
     @Test
-    public void createRedirectAuthoriseRequestShouldReturnErrorWhenThereAreMissingFields() throws WorldpayException {
+    void createRedirectAuthoriseRequestShouldReturnErrorWhenThereAreMissingFields() throws WorldpayException {
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withPayment(payment)
-            .withShopper(shopper)
-            .withStoredCredentials(storedCredentials)
-            .build();
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withPayment(payment)
+                .withShopper(shopper)
+                .withStoredCredentials(storedCredentials)
+                .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         final RedirectAuthoriseServiceResponse response = gateway.redirectAuthorise(request);
@@ -175,16 +163,16 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
     }
 
     @Test
-    public void createTokenAndRedirectAuthoriseRequestShouldReturnErrorWhenThereAreMissingFields() throws WorldpayException {
+    void createTokenAndRedirectAuthoriseRequestShouldReturnErrorWhenThereAreMissingFields() throws WorldpayException {
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withTokenRequest(tokenRequest)
-            .withPayment(payment)
-            .withShopper(shopper)
-            .withStoredCredentials(storedCredentials)
-            .withIncludedPTs(includedPaymentMethods)
-            .build();
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withTokenRequest(tokenRequest)
+                .withPayment(payment)
+                .withShopper(shopper)
+                .withStoredCredentials(storedCredentials)
+                .withIncludedPTs(includedPaymentMethods)
+                .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         RedirectAuthoriseServiceResponse response = gateway.redirectAuthorise(request);
@@ -192,62 +180,62 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
     }
 
     @Test
-    public void createRedirectAuthoriseRequestShouldGetRedirectReference() throws WorldpayException {
+    void createRedirectAuthoriseRequestShouldGetRedirectReference() throws WorldpayException {
         final Shopper shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withOrderContent(ORDER_CONTENT)
-            .withIncludedPTs(includedPaymentMethods)
-            .withShippingAddress(address)
-            .withBillingAddress(billingAddress)
-            .withStatementNarrative(STATEMENT_NARRATIVE)
-            .withShopper(shopper)
-            .build();
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(includedPaymentMethods)
+                .withShippingAddress(address)
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withShopper(shopper)
+                .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         assertNull(request.getOrder().getTokenRequest());
 
         final RedirectAuthoriseServiceResponse redirectAuthorise = gateway.redirectAuthorise(request);
 
-        assertNotNull("Authorise response is null!", redirectAuthorise);
-        assertFalse("Errors returned from authorise request", redirectAuthorise.isError());
+        assertNotNull(redirectAuthorise, "Authorise response is null!");
+        assertFalse(redirectAuthorise.isError(), "Errors returned from authorise request");
         assertEquals("Order code returned is incorrect", orderCode, redirectAuthorise.getOrderCode());
         final RedirectReference redirectReference = redirectAuthorise.getRedirectReference();
-        assertNotNull("Authorise redirect reference is null!", redirectReference);
+        assertNotNull(redirectReference, "Authorise redirect reference is null!");
         final String url = redirectReference.getValue();
-        assertNotNull("URL returned is null", url);
+        assertNotNull(url, "URL returned is null");
     }
 
     @Test
-    public void createTokenAndRedirectAuthoriseRequestShouldGetRedirectReferenceAndRequestTokenCreation() throws WorldpayException {
+    void createTokenAndRedirectAuthoriseRequestShouldGetRedirectReferenceAndRequestTokenCreation() throws WorldpayException {
         final Shopper shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
         shopper.setAuthenticatedShopperID(AUTH_SHOPPER_ID);
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withOrderContent(ORDER_CONTENT)
-            .withIncludedPTs(includedPaymentMethods)
-            .withShopper(shopper)
-            .withShippingAddress(address)
-            .withBillingAddress(billingAddress)
-            .withStatementNarrative(STATEMENT_NARRATIVE)
-            .withTokenRequest(tokenRequest)
-            .build();
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(includedPaymentMethods)
+                .withShopper(shopper)
+                .withShippingAddress(address)
+                .withBillingAddress(billingAddress)
+                .withStatementNarrative(STATEMENT_NARRATIVE)
+                .withTokenRequest(tokenRequest)
+                .build();
         final RedirectAuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
 
         assertEquals(tokenRequest, request.getOrder().getTokenRequest());
 
         final RedirectAuthoriseServiceResponse redirectAuthorise = gateway.redirectAuthorise(request);
 
-        assertNotNull("Authorise response is null!", redirectAuthorise);
-        assertFalse("Errors returned from authorise request", redirectAuthorise.isError());
+        assertNotNull(redirectAuthorise, "Authorise response is null!");
+        assertFalse(redirectAuthorise.isError(), "Errors returned from authorise request");
         assertEquals("Order code returned is incorrect", orderCode, redirectAuthorise.getOrderCode());
         final RedirectReference redirectReference = redirectAuthorise.getRedirectReference();
-        assertNotNull("Authorise redirect reference is null!", redirectReference);
+        assertNotNull(redirectReference, "Authorise redirect reference is null!");
         final String url = redirectReference.getValue();
-        assertNotNull("URL returned is null", url);
+        assertNotNull(url, "URL returned is null");
     }
 }

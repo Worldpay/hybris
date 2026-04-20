@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { EventService, Query, QueryService, QueryState } from '@spartacus/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { WorldpayFraudsightConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayFraudsightFacade } from 'worldpay-sap-composable-facade';
-import { SetFraudSightEnabledEvent, SetFraudSightIdEvent } from '../../events/worldpay.events';
+import { WorldpayFraudsightConnector } from '../../connectors';
+import { SetFraudSightEnabledEvent, SetFraudSightIdEvent } from '../../events';
+import { WorldpayFraudsightFacade } from '../../facade';
 
 @Injectable({
   providedIn: 'root'

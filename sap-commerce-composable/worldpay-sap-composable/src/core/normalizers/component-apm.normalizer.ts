@@ -1,20 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Converter, Image, OccConfig } from '@spartacus/core';
+import { Image } from '@spartacus/core';
 import { ApmData, OccCmsComponentWithMedia, PaymentMethod } from '../interfaces';
+import { BaseImageNormalizer } from './base-image.normalizer';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ComponentApmNormalizer implements Converter<OccCmsComponentWithMedia, ApmData> {
-
-  /**
-   * Constructor for the ComponentApmNormalizer class.
-   *
-   * @param config - The OccConfig object used to configure the backend URLs for media and OCC.
-   */
-  constructor(protected config: OccConfig) {
-  }
-
+export class ComponentApmNormalizer extends BaseImageNormalizer<OccCmsComponentWithMedia, ApmData> {
   /**
    * Converts an OccCmsComponentWithMedia object to an ApmData object.
    *
@@ -46,26 +38,5 @@ export class ComponentApmNormalizer implements Converter<OccCmsComponentWithMedi
         };
     }
     return target;
-  }
-
-  /** taken from product-image-normalizer.ts
-   * Traditionally, in an on-prem world, medias and other backend related calls
-   * are hosted at the same platform, but in a cloud setup, applications are are
-   * typically distributed cross different environments. For media, we use the
-   * `backend.media.baseUrl` by default, but fallback to `backend.occ.baseUrl`
-   * if none provided.
-   * @param url - The image URL to be normalized
-   * @returns string - The normalized image URL
-   * @since 6.4.0
-   */
-  private normalizeImageUrl(url: string): string {
-    if (new RegExp(/^(http|data:image|\/\/)/i).test(url)) {
-      return url;
-    }
-    return (
-      (this.config.backend.media.baseUrl ||
-       this.config.backend.occ.baseUrl ||
-       '') + url
-    );
   }
 }

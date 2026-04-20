@@ -5,8 +5,8 @@ import { OrderDetailsService, OrderOverviewComponentService } from '@spartacus/o
 import { Order, OrderConfig, ReplenishmentOrder } from '@spartacus/order/root';
 import { CmsComponentData } from '@spartacus/storefront';
 import { Observable, of } from 'rxjs';
-import { WorldpayOrderOverviewComponent } from 'worldpay-sap-composable-components';
 import { MockCxCardComponent, MockTranslationService, MockUrlPipe } from 'worldpay-sap-composable-tests';
+import { WorldpayOrderOverviewComponent } from './worldpay-order-overview.component';
 
 const mockOrderConfig: OrderConfig = { showOrderQuoteLink: true };
 

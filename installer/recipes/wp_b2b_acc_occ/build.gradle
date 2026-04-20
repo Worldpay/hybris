@@ -1,0 +1,261 @@
+apply plugin: 'installer-platform-plugin'
+apply plugin: 'installer-addon2-plugin'
+
+def pl = platform {
+    localProperties {
+        property 'recaptcha.publickey', ''
+        property 'recaptcha.privatekey', ''
+        property 'googleApiKey', ''
+        property 'csrf.allowed.url.patterns', '/[^/]+(/[^?]*)+(sop/response)$,/[^/]+(/[^?]*)+(merchant_callback)$,/[^/]+(/[^?]*)+(hop/response)$,/[^/]+(/[^?]*)+(language)$,/[^/]+(/[^?]*)+(currency)$,/(events)$'
+        property 'testclasses.addonname', 'yacceleratorstorefront'
+        property 'corsfilter.commercewebservices.allowedOrigins', 'http://localhost:4200 https://localhost:4200 https://secure-test.worldpay.com https://secure.worldpay.com'
+        property 'corsfilter.commercewebservices.allowedHeaders', 'origin content-type accept authorization x-anonymous-consents'
+        property 'xss.filter.header.Content-Security-Policy', 'frame-ancestors \'self\' http://localhost:4200 https://localhost:4200'
+
+        property 'worldpay.config.web.merchant.code.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.password.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.macSecret.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.installationId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.statementNarrative.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.code.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.password.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.macSecret.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.installationId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.statementNarrative.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.code.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.password.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.macSecret.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.installationId.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.iss.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.powertools', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.powertools', '<CHANGE_ME>'
+
+
+        property 'worldpay.config.web.merchant.code.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.password.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.macSecret.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.web.googlePay.gatewayMerchantId.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.installationId.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.web.merchant.statementNarrative.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.code.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.password.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.macSecret.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.installationId.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.asm.merchant.statementNarrative.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.code.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.password.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.macSecret.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.installationId.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.replenishment.merchant.statementNarrative.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.iss.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.powertools_spa', '<CHANGE_ME>'
+        property 'worldpay.config.3dsecureflex.jwt.orgunitid.powertools_spa', '<CHANGE_ME>'
+
+        property 'corsfilter.commercewebservices.allowedOrigins', '*'
+        property 'corsfilter.commercewebservices.allowedHeaders', 'origin content-type accept authorization cache-control x-anonymous-consents x-profile-tag-debug x-consent-reference occ-personalization-id occ-personalization-time'
+        property 'corsfilter.commercewebservices.exposedHeaders', 'x-anonymous-consents occ-personalization-id occ-personalization-time'
+        property 'corsfilter.commercewebservices.allowCredentials', 'false'
+
+        property 'occ.rewrite.overlapping.paths.enabled', 'true'
+
+    }
+
+    afterSetup {
+        ensureAdminPasswordSet()
+    }
+
+    extensions {
+
+        extName 'spartacussampledata'
+        // b2b-accelerator
+        extName 'b2bacceleratoraddon'
+        extName 'b2bacceleratorbackoffice'
+        extName 'b2bacceleratorfacades'
+        extName 'b2bacceleratorservices'
+        extName 'b2bocc'
+        extName 'b2boccaddon'
+        extName 'b2bwebservicescommons'
+        extName 'commerceorgaddon'
+        extName 'commerceorgsamplesaddon'
+        // b2b-commerce
+        extName 'b2bcommercebackoffice',
+                // backoffice-framework
+        extName 'platformbackoffice'
+        // base-accelerator
+        extName 'yacceleratorfulfilmentprocess',
+                // base-commerce
+        extName 'basecommerce'
+        extName 'basecommercebackoffice',
+        extName 'payment'
+        extName 'promotions'
+        extName 'promotionsbackoffice'
+        // commerce-services
+        extName 'commercefacades'
+        extName 'commerceservices'
+        extName 'commerceservicesbackoffice'
+        extName 'commercewebservices'
+        extName 'commercewebservicescommons'
+        extName 'oauth2'
+        // consignment-tracking
+        extName 'consignmenttrackingaddon'
+        extName 'consignmenttrackingbackoffice'
+        extName 'consignmenttrackingfacades'
+        extName 'consignmenttrackingmock'
+        extName 'consignmenttrackingocc'
+        extName 'consignmenttrackingservices'
+        // core-accelerator
+        extName 'acceleratorwebservicesaddon',
+                // coupon
+        extName 'couponbackoffice'
+        extName 'couponfacades'
+        extName 'couponservices'
+        extName 'couponwebservices'
+        // customer-coupon
+        extName 'customercouponbackoffice'
+        extName 'customercouponfacades'
+        extName 'customercouponocc'
+        extName 'customercouponoccaddon'
+        extName 'customercouponsamplesaddon'
+        extName 'customercouponservices'
+        // integration-apis
+        extName 'inboundservices'
+        extName 'integrationbackoffice'
+        extName 'integrationmonitoringbackoffice'
+        extName 'integrationservices'
+        extName 'odata2services'
+        extName 'odata2webservices'
+        extName 'outboundservices'
+        extName 'outboundsync'
+        extName 'outboundsyncbackoffice'
+        // npm-ancillary
+        extName 'npmancillary'
+        // personalization
+        extName 'previewpersonalizationweb'
+        extName 'personalizationcmsweb'
+        extName 'personalizationsmartedit'
+        extName 'personalizationpromotionssmartedit'
+        extName 'personalizationsampledataaddon'
+        extName 'personalizationpromotionssampledataaddon'
+        extName 'personalizationpromotions'
+        extName 'personalizationpromotionsweb'
+        extName 'personalizationservicesbackoffice'
+        extName 'personalizationpromotionsbackoffice'
+        extName 'personalizationcmsbackoffice'
+        extName 'personalizationsearchbackoffice'
+        extName 'personalizationsearchsmartedit'
+        extName 'personalizationsearchweb'
+        extName 'personalizationsearchsamplesaddon'
+
+        // promotion-engine
+        extName 'promotionenginesamplesaddon',/**/
+                // rule-engine
+        extName 'rulebuilderbackoffice'
+        extName 'droolsruleengineservices'
+        extName 'ruledefinitions'
+        // search-and-navigation
+        extName 'backofficesolrsearch'
+        extName 'solrfacetsearchbackoffice'
+        extName 'solrserver'
+        // search-services
+        extName 'backofficesearchservices'
+        extName 'searchbackoffice'
+        extName 'searchprovidercssearchbackoffice'
+        extName 'searchprovidercssearchservices'
+        extName 'searchservices'
+        // smartedit
+        extName 'cmswebservices'
+        extName 'smarteditwebservices'
+        extName 'cmssmarteditwebservices'
+        extName 'smarteditaddon'
+        extName 'smartedittools'
+        extName 'cmssmartedit'
+        // text-field-configurator-template
+        extName 'textfieldconfiguratortemplatebackoffice'
+        extName 'textfieldconfiguratortemplateaddon'
+        extName 'textfieldconfiguratortemplateocc'
+        // web-content-management-system
+        extName 'cmsbackoffice'
+        extName 'cmsocc'
+        extName 'permissionswebservices'
+        extName 'previewwebservices'
+        // extName 'cmsoccaddon' // deprecated
+        extName 'cmswebservices'
+        // web-services-commons
+        extName 'permissionswebservices'
+        extName 'swaggerintegration'
+        extName 'ywebservices'
+        // yforms
+        extName 'xyformsbackoffice'
+        extName 'xyformsstorefrontcommons'
+        extName 'xyformssamples'
+        extName 'xyformsweb'
+
+        extName 'powertoolsstore'
+        extName 'worldpayb2baddon'
+        extName 'worldpayaddonbackoffice'
+        extName 'worldpayapi'
+        extName 'worldpaynotifications'
+        extName 'worldpaysampledataaddon'
+        extName 'worldpayaddoncommons'
+        extName 'worldpayhac'
+        extName 'worldpayfulfilment'
+        extName 'worldpayresponsemock'
+        extName 'worldpaytests'
+        extName "${modulegenAcceleratorName}b2bstorefront"
+        extName 'worldpayextb2bocc'
+        extName 'worldpayextocccommons'
+        extName 'worldpayextocctests'
+        extName 'worldpayspartacussampledata'
+    }
+
+    addons {
+        forStoreFronts("${modulegenAcceleratorName}b2bstorefront") {
+            names('worldpayb2baddon', 'worldpaysampledataaddon', 'worldpayspartacussampledata', 'commerceorgsamplesaddon', 'smarteditaddon',
+                    'textfieldconfiguratortemplateaddon', 'consignmenttrackingaddon', 'xyformsstorefrontcommons',
+                    'customercouponoccaddon', 'customercouponsamplesaddon', 'personalizationsampledataaddon',
+                    'personalizationpromotionssampledataaddon', 'personalizationsampledataaddon',
+                    'acceleratorwebservicesaddon', 'commerceorgaddon',
+                    'b2boccaddon', 'b2bacceleratoraddon')
+            template 'yacceleratorstorefront'
+        }
+    }
+}
+
+
+task setup {
+    doLast {
+        pl.setup()
+    }
+}
+
+task buildSystem(dependsOn: setup) {
+    doLast {
+        pl.build()
+    }
+}
+
+task initialize(dependsOn: buildSystem) {
+    doLast {
+        pl.initialize()
+    }
+}
+
+task start {
+    doLast {
+        pl.start()
+    }
+}
+
+task startInBackground {
+    doLast {
+        pl.startInBackground()
+    }
+}
+
+task stopInBackground {
+    doLast {
+        pl.stopInBackground()
+    }
+}

@@ -6,31 +6,29 @@ import com.worldpay.data.ApplePayPaymentMethodUpdateRequest;
 import com.worldpay.dto.applepay.ValidateMerchantRequestWsDTO;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayApplePayPaymentCheckoutFacade;
-import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.payment.applepay.ValidateMerchantRequestDTO;
 import com.worldpay.payment.applepay.ValidateMerchantRequestData;
+import com.worldpay.worldpayocccommons.controllers.AbstractWorldpayController;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 
 
-@Controller
+@RestController
 @RequestMapping(value = "/{baseSiteId}/users/{userId}/carts/applepay")
 @Profile("applepay")
 public class ApplePayController extends AbstractWorldpayController {
-    @Resource
-    protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
+
     @Resource
     protected WorldpayApplePayPaymentCheckoutFacade worldpayApplePayPaymentCheckoutFacade;
     @Resource(name = "worldpayApplePayRestTemplate")
@@ -38,7 +36,6 @@ public class ApplePayController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/request-session", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdAndUserIdParam
     public Object requestPaymentSession(@RequestBody final ValidateMerchantRequestWsDTO validateMerchantRequestWsDTO) {
         final ValidateMerchantRequestData validateMerchantRequestData = dataMapper.map(validateMerchantRequestWsDTO, ValidateMerchantRequestData.class);
@@ -50,7 +47,6 @@ public class ApplePayController extends AbstractWorldpayController {
     @Secured(
             {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdAndUserIdParam
     public DirectResponseData authoriseOrder(@RequestBody final ApplePayAuthorisationRequest authorisationRequest) throws WorldpayException, InvalidCartException {
         worldpayApplePayPaymentCheckoutFacade.saveBillingAddresses(authorisationRequest.getBillingContact());
@@ -61,7 +57,6 @@ public class ApplePayController extends AbstractWorldpayController {
     @Secured(
             {"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/update-payment-method", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdAndUserIdParam
     public ApplePayOrderUpdate updatePaymentMethod(@RequestBody final ApplePayPaymentMethodUpdateRequest paymentMethodUpdateRequest) {
         return worldpayDirectOrderFacade.updatePaymentMethod(paymentMethodUpdateRequest);

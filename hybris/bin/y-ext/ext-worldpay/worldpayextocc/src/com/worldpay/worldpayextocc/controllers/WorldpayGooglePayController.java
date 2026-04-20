@@ -1,10 +1,12 @@
 package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.config.merchant.GooglePayConfigData;
+import com.worldpay.worldpayocccommons.controllers.AbstractWorldpayController;
 import com.worldpay.data.GooglePayAdditionalAuthInfo;
 import com.worldpay.data.GooglePayAddressData;
 import com.worldpay.data.GooglePayAuthorisationRequest;
 import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
+import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
@@ -28,26 +30,17 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
-@Controller
+@RestController
 @RequestMapping(value = "/{baseSiteId}/users/{userId}/carts/{cartId}/google")
 public class WorldpayGooglePayController extends AbstractWorldpayController {
 
     @Resource
-    private WorldpayDirectOrderFacade worldpayDirectOrderFacade;
-    @Resource
     private I18NFacade i18NFacade;
-    @Resource
-    private UserFacade userFacade;
-    @Resource
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
-    @Resource
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
     @Resource
     private CheckoutCustomerStrategy checkoutCustomerStrategy;
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @GetMapping(value = "/merchant-configuration", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
     public ResponseEntity<GooglePayConfigData> getGooglePaySettings() {
         return ResponseEntity.ok(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData().getGooglePaySettings());
@@ -55,7 +48,6 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
 
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_GUEST", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT"})
     @PostMapping(value = "/authorise-order", consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseBody
     @ApiBaseSiteIdUserIdAndCartIdParam
     public PlaceOrderResponseWsDTO authoriseOrder(@RequestBody final GooglePayAuthorisationRequest authorisationRequest, @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields,
                                                   final HttpServletResponse response) throws WorldpayException, InvalidCartException {
@@ -65,7 +57,7 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
         token.setSaveCard(authorisationRequest.getSaved());
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.authoriseGooglePayDirect(token);
 
-        return handleDirectResponse(directResponseData, response, fields);
+        return callSuperHandleDirectResponse(directResponseData, response, fields);
     }
 
     protected void saveBillingAddress(final GooglePayAddressData address) {
@@ -99,4 +91,11 @@ public class WorldpayGooglePayController extends AbstractWorldpayController {
             addressData.setRegion(region);
         }
     }
-}
+
+    protected PlaceOrderResponseWsDTO callSuperHandleDirectResponse(final DirectResponseData directResponseData,
+                                                                    final HttpServletResponse response,
+                                                                    final String fields) throws WorldpayConfigurationException {
+        return super.handleDirectResponse(directResponseData, response, fields);
+    }
+
+    }

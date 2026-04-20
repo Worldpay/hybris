@@ -1,27 +1,31 @@
 package com.worldpay.service.response.transform;
 
-import com.worldpay.exception.WorldpayModelTransformationException;
-import com.worldpay.internal.model.Error;
-import com.worldpay.internal.model.*;
-import com.worldpay.data.token.UpdateTokenReply;
-import com.worldpay.service.response.ServiceResponse;
-import com.worldpay.service.response.UpdateTokenResponse;
-import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.worldpay.data.token.UpdateTokenReply;
+import com.worldpay.exception.WorldpayModelTransformationException;
+import com.worldpay.internal.model.Error;
+import com.worldpay.internal.model.Modify;
+import com.worldpay.internal.model.Ok;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.Reply;
+import com.worldpay.internal.model.Shopper;
+import com.worldpay.internal.model.UpdateTokenReceived;
+import com.worldpay.service.response.ServiceResponse;
+import com.worldpay.service.response.UpdateTokenResponse;
+import de.hybris.bootstrap.annotations.UnitTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -33,10 +37,6 @@ public class UpdateTokenResponseTransformerTest {
     @InjectMocks
     private UpdateTokenResponseTransformer testObj;
 
-    @Rule
-    @SuppressWarnings("PMD.MemberScope")
-    public ExpectedException thrown = ExpectedException.none();
-
     @Mock
     private PaymentService paymentServiceMock;
     @Mock
@@ -46,8 +46,6 @@ public class UpdateTokenResponseTransformerTest {
     @Mock
     private UpdateTokenReceived updateTokenReceivedMock;
     @Mock
-    private Error errorMock;
-    @Mock
     private ServiceResponseTransformerHelper serviceResponseTransformerHelper;
     @Mock
     private UpdateTokenReply updateTokenReplyMock;
@@ -55,8 +53,8 @@ public class UpdateTokenResponseTransformerTest {
     @Before
     public void setUp() {
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(replyMock));
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
-        when(okReplyMock.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryDoneOrCryptogramReceivedOrVoidSaleReceived()).thenReturn(singletonList(updateTokenReceivedMock));
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).thenReturn(singletonList(okReplyMock));
+        when(okReplyMock.getCancelReceivedOrVoidReceivedOrCaptureReceivedOrRevokeReceivedOrRefundReceivedOrBackofficeCodeReceivedOrAuthorisationCodeReceivedOrDefenceReceivedOrUpdateTokenReceivedOrDeleteTokenReceivedOrExtendExpiryDateReceivedOrOrderReceivedOrCancelRetryReceivedOrCryptogramReceivedOrVoidSaleReceived()).thenReturn(singletonList(updateTokenReceivedMock));
     }
 
     @Test
@@ -71,30 +69,30 @@ public class UpdateTokenResponseTransformerTest {
 
     @Test
     public void shouldRaiseWorldpayModelTransformationExceptionWhenThereIsNoReplyInThePaymentService() throws Exception {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(null));
 
-        testObj.transform(paymentServiceMock);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceMock))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
     }
 
     @Test
     public void shouldRaiseWorldpayModelTransformationExceptionWhenResponseIsNotAReply() throws Exception {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(new Modify()));
 
-        testObj.transform(paymentServiceMock);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceMock))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage(ERROR_MSG_NO_REPLY_OR_NOT_EXPECTED_TYPE);
     }
 
     @Test
     public void shouldThrowExceptionWhenResponseIsNotOk() throws Exception {
-        thrown.expect(WorldpayModelTransformationException.class);
-        thrown.expectMessage("UpdateTokenResponse did not contain an OK object");
-        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).
+        when(replyMock.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken()).
                 thenReturn(singletonList(new Shopper()));
 
-        testObj.transform(paymentServiceMock);
+        assertThatThrownBy(() -> testObj.transform(paymentServiceMock))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage("UpdateTokenResponse did not contain an OK object");
     }
 
     @Test

@@ -2,8 +2,8 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { OccConfig, OccEndpointsService } from '@spartacus/core';
-import { OccWorldpayApplepayAdapter } from 'worldpay-sap-composable-occ';
 import { mockUserId } from 'worldpay-sap-composable-tests';
+import { OccWorldpayApplepayAdapter } from './occ-worldpay-applepay.adapter';
 
 const userId = mockUserId;
 const cartId = 'cartId';

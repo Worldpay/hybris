@@ -1,7 +1,8 @@
 # Worldpay Connector for the SAP Composable Storefront
 
-The Worldpay Connector for SAP Composable Storefront is an Angular Library that provides the components to integrate WorldPay payment solutions with the SAP Commerce Cloud Spartacus
-storefront.
+The Worldpay Connector for SAP Composable Storefront is an Angular library that integrates Worldpay payment solutions into the SAP Composable Storefront (formerly Spartacus) for SAP Commerce Cloud.
+
+It provides reusable Angular modules and components to enable secure payment processing, 3D Secure, fraud detection, guaranteed payments, and multiple Alternative Payment Methods (APMs).
 
 ## About Worldpay from FIS
 
@@ -21,7 +22,7 @@ Release information: [https://sap.github.io/spartacus-docs/release-information/]
 
 ## Requirements
 
-Before updating Composable storefront to version 2211.43, you first need to make sure your Angular libraries are up to date. Composable storefront 2211.36 requires Angular 19.
+Before updating Composable storefront to version 2211.43, you first need to make sure your Angular libraries are up to date. Composable storefront 2211.43 requires Angular 19.
 
 - If you are working with Composable storefront 2211, see the 2211 Angular development environment requirements on
   the [SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/cfcf687ce2544bba9799aa6c8314ecd0/bf31098d779f4bdebb7a2d0591917363.html?locale=en-US&version=2211).
@@ -52,7 +53,7 @@ Run the command `./install.sh` to do a clean install and run the example-storefr
     ```
     - #### Using npm   (specific version)
    ```bash
-     npm install @worldpay2020/sap-composable@2211.32.1
+     npm install @worldpay2020/sap-composable@2211.43.0
     ```
 
     - #### Using yarn
@@ -118,13 +119,109 @@ import { WorldpayModule } from '@worldpay2020/sap-composable';
         useExtractedBillingAddressComponent: true,
       };
       return appFeatureToggles;
-    })
+    }),
+    provideConfig({
+      icon: {
+        symbols: getWorldpayIconSymbols(),
+        resources: [
+          {
+            type: IconResourceType.SVG,
+            url: 'assets/worldpay/worldpay-icons.svg',
+            types: Object.values(WORLDPAY_ICONS),
+          },
+        ]
+      }
+    } as IconConfig),
   ],
   ...
 })
 export class WorldpayModule {
 }
 ```
+
+### Customizing iconConfig
+
+If you want to customize Spartacus icons, you can override `iconConfig` in your storefront `app.module.ts`.
+When overriding, keep the Worldpay icon sprite resource so Worldpay payment icons continue to render correctly.
+
+```typescript
+import { IconConfig, IconResourceType } from '@spartacus/storefront';
+import { provideConfig } from '@spartacus/core';
+
+@NgModule({
+  providers: [
+    provideConfig({
+      icon: {
+        // Add or override symbols used by your storefront
+        symbols: {
+          // example: CART: 'shopping-cart'
+        },
+        // Keep the Worldpay icon sprite mapping
+        resources: [
+          {
+            type: IconResourceType.SVG,
+            url: 'assets/worldpay/worldpay-icons.svg',
+            types: Object.values(WORLDPAY_ICONS),
+          },
+        ],
+      },
+    } as IconConfig),
+  ],
+})
+export class AppModule {}
+```
+
+Official Spartacus icon library documentation:
+https://sap.github.io/spartacus-docs/3.x/icon-library/
+
+## B2B Configuration & Functionality
+In addition to standard B2C checkout flows, the Worldpay Connector supports B2B-specific configurations when used with the B2B accelerator features of SAP Commerce Cloud and SAP Composable Storefront.
+
+Enabling B2B in Composable Storefront
+
+Ensure your SAP Commerce backend is configured with:
+•	B2B Units
+•	B2B Users
+The storefront must include B2B feature modules provided by SAP.
+
+Card Payments for B2B Accounts
+•	Standard Worldpay CSE integration
+•	3D Secure (optional)
+•	Company name passed in billing details
+•	Purchase Order number mapping (optional)
+
+No additional connector configuration required.
+
+1. Include Worldpay B2B Module the following in your composable storefront storefront's `app.module.ts` file.
+
+````typescript
+import { WorldpayModule, WorldpayB2BModule } from '@worldpay2020/sap-composable';
+const WorldpayMainModule: typeof WorldpayB2BModule = environment.b2b ? WorldpayB2BModule : WorldpayModule;
+
+@NgModule({
+  imports: [
+    ...
+      WorldpayMainModule,
+  ],
+})
+````
+
+**Note:** WorldpayB2BModule will include the following modules:
+
+@NgModule({
+declarations: [],
+imports: [
+    WorldpayModule,
+    OccWorldpayB2bModule,
+    WorldpayB2BCheckoutReviewSubmitModule,
+    WorldpayB2bCheckoutPaymentMethodModule,
+    WorldpayCheckoutScheduledReplenishmentModule
+],
+})
+export class WorldpayB2BModule {
+}
+
+
 
 2. Include Worldpay script before closing the body tag inside the index.html file
 
@@ -138,6 +235,44 @@ export class WorldpayModule {
 </html>
 ```
 
+## Assets Configuration
+
+Add the following entry to the `assets` array in your `angular.json` under the `build` architect options:
+```json
+{
+  "glob": "**/*",
+  "input": "node_modules/@worldpay2020/sap-composable/src/assets",
+  "output": "assets/worldpay"
+}
+```
+
+This makes the Worldpay assets (images, icons, etc.) available at `/assets/worldpay/` in your application.
+
+### Example
+```json
+"assets": [
+  "src/favicon.ico",
+  "src/assets",
+  {
+    "glob": "**/*",
+    "input": "node_modules/@worldpay2020/sap-composable/src/assets",
+    "output": "assets/worldpay"
+  }
+]
+```
+
+## Styles Configuration
+
+Add the Worldpay stylesheet to the `styles` array in your `angular.json`:
+```json
+"styles": [
+  "src/styles.scss",
+  "node_modules/@worldpay2020/sap-composable/src/assets/styles/styles.scss"
+]
+```
+
+
+# Optional Modules
 ## Enable Guaranteed Payments
 
 To enable Guaranteed Payments, you must:
@@ -202,7 +337,7 @@ export const environment = {
 
 ## License
 
-Copyright (c) 2022 Worldpay Ltd.
+Copyright (c) 2026 Worldpay Ltd.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without
 restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom
@@ -213,6 +348,21 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
 AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### Release 2211.43.0
+* Compatible with SAP Commerce Cloud 2211.43
+* Removed deprecated APM's:
+* Supported APM’s for B2B recipe:
+
+| Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
+|-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
+| ACH Direct Debit      | US                            | USD             | Yes                | Account type, Account Number, Routing Number, Check Number, Company Name, Custom Identifier |
+| Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
+| Open Banking          | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
+
+
+Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method to their customers in the United States and Europe, providing a convenient and secure way for customers to make payments directly from their bank accounts.
+
 
 ### Release 2211.43
 

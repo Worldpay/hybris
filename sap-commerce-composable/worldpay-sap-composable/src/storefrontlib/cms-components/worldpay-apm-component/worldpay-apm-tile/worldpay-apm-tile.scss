@@ -2,26 +2,62 @@
 .wp__apm {
   height: 100%;
   width: 100%;
-  padding: 1rem 1rem 0;
-  display: block;
-  border: 1px solid var(--cx-color-light);
+  padding: 0.5rem 1rem;
   text-align: center;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
 
   cx-media {
-    height: 50px;
-    max-width: 100%;
-    margin-bottom: 0.5rem;
+    height: 45px;
+    width: 100%;
+    max-width: 120px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  }
+
+  &--selector {
+    position: relative;
+    border: medium solid var(--cx-color-medium);
+    border-radius: 50%;
+    background: white;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
   }
 
   &-label {
     font-size: 1rem;
     text-align: center;
+    margin-bottom: 0;
   }
 
-  &--selected,
   &:hover,
   &:focus {
-    border-color: var(--cx-color-primary);
+    background-color: #e9ecf1;
+
+    .wp__apm--selector {
+      background-color: var(--cx-color-light);
+    }
+  }
+
+  &--selected {
+    &:hover,
+    &:focus {
+      .wp__apm--selector {
+        background-color: var(--cx-color-primary);
+        border-color: var(--cx-color-primary);
+      }
+    }
+
+    .wp__apm--selector {
+      background-color: var(--cx-color-primary);
+      border-color: var(--cx-color-primary);
+    }
   }
 }

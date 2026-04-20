@@ -1,7 +1,7 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EventService } from '@spartacus/core';
-import { WorldpayGooglepayService } from 'worldpay-sap-composable-services';
+import { WorldpayGooglepayService } from '../services';
 import { ClearGooglepayEvent, GooglePayMerchantConfigurationSetEvent } from './googlepay.events';
 
 /**

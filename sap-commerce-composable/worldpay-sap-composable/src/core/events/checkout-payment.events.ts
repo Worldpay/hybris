@@ -71,6 +71,7 @@ export class InitialPaymentRequestSetEvent extends CxEvent {
   transactionStatus: string;
   order: Order;
   returnCode: string;
+  returnMessage: string;
 }
 
 /**

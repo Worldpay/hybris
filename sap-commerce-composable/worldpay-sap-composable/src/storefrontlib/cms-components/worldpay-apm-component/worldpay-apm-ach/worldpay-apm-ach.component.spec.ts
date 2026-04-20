@@ -1,21 +1,15 @@
+import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { Address, CommandService, EventService, I18nTestingModule, LoggerService, QueryService, QueryState, UserIdService } from '@spartacus/core';
 import { FormErrorsModule } from '@spartacus/storefront';
-import { of } from 'rxjs';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayACHFacade } from 'worldpay-sap-composable-facade';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
-import {
-  MockActiveCartFacade,
-  MockUserIdService,
-  MockWorldpayApmSubmitButtonsComponent,
-  MockWorldpayBillingAddressComponent,
-  MockWorldpayConnector
-} from 'worldpay-sap-composable-tests';
-import { AccountTypes, PaymentMethod } from 'worldpay-sap-core';
+import { BehaviorSubject, of } from 'rxjs';
+import { MockActiveCartFacade, MockUserIdService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
+import { AccountTypes, PaymentMethod, WorldpayACHFacade, WorldpayBillingAddressFormService, WorldpayConnector } from '../../../../core';
+import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmAchComponent } from './worldpay-apm-ach.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -67,7 +61,7 @@ describe('WorldpayApmAchComponent', () => {
       declarations: [
         WorldpayApmAchComponent,
         MockWorldpayBillingAddressComponent,
-        MockWorldpayApmSubmitButtonsComponent
+        WorldpayApmSubmitButtonsComponent
       ],
       imports: [
         I18nTestingModule,
@@ -98,8 +92,7 @@ describe('WorldpayApmAchComponent', () => {
           useClass: MockWorldpayConnector
         },
       ],
-    })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WorldpayApmAchComponent);
     billingAddressFormService = TestBed.inject(WorldpayBillingAddressFormService);
@@ -108,6 +101,13 @@ describe('WorldpayApmAchComponent', () => {
     worldpayACHFacade.getACHPaymentFormValue.and.returnValue(of(null));
     worldpayACHFacade.getACHBankAccountTypesState.and.returnValue(mockACHBankAccountTypesState);
   });
+
+  const regenerateComponent: (sameAsDeliveryAddress: boolean) => WorldpayApmAchComponent = (sameAsDeliveryAddress: boolean): WorldpayApmAchComponent => {
+    let sameAsDeliveryAddress$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(sameAsDeliveryAddress);
+    spyOn(billingAddressFormService, 'getSameAsDeliveryAddress').and.returnValue(sameAsDeliveryAddress$.asObservable());
+    fixture = TestBed.createComponent(WorldpayApmAchComponent);
+    return fixture.componentInstance;
+  };
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -342,6 +342,91 @@ describe('WorldpayApmAchComponent', () => {
 
       expect(worldpayACHFacade.setACHPaymentFormValue).not.toHaveBeenCalled();
       expect(component['createPaymentDetails']).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('UI tests', () => {
+    const getSubmitButtonsComponent = (): DebugElement => fixture.debugElement.query(By.directive(WorldpayApmSubmitButtonsComponent));
+    const getBillingAddressComponent = (): MockWorldpayBillingAddressComponent => fixture.nativeElement.querySelector('y-worldpay-billing-address');
+    const getContinueButton = (): DebugElement => fixture.debugElement.query(By.css('[data-test-id="ach-continue-btn"]'));
+
+    it('should render billing address component', () => {
+      fixture.detectChanges();
+      const billingAddressComponent = getBillingAddressComponent();
+      expect(billingAddressComponent).toBeTruthy();
+    });
+
+    it('should render worldpay apm submit buttons component', () => {
+      fixture.detectChanges();
+      const submitButtonsComponent = getSubmitButtonsComponent();
+      expect(submitButtonsComponent).toBeTruthy();
+    });
+
+    it('should disable continue button when submitting', () => {
+      component = regenerateComponent(true);
+      spyOn(component, 'next');
+      const form = new UntypedFormGroup({});
+      form.setErrors(null);
+      spyOn(billingAddressFormService, 'getBillingAddressForm').and.returnValue(form);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      component.isSubmitting$.next(true);
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeTrue();
+      continueButton.nativeElement.click();
+      expect(component.next).not.toHaveBeenCalled();
+    });
+
+    it('should disable continue button when billing address is not same as delivery address and form is invalid', () => {
+      component = regenerateComponent(false);
+      spyOn(component, 'next');
+      component.isSubmitting$.next(false);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeTrue();
+      continueButton.nativeElement.click();
+      expect(component.next).not.toHaveBeenCalled();
+    });
+
+    it('should disable continue button when billing address is same as delivery address, ach form is invalid and is not submitting the form', () => {
+      component = regenerateComponent(true);
+      spyOn(component, 'next');
+      component['billingAddressForm'] = billingAddressFormService.getBillingAddressForm();
+      component.isSubmitting$.next(false);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      component.achForm.reset();
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeTrue();
+      continueButton.nativeElement.click();
+      expect(component.next).not.toHaveBeenCalled();
+    });
+
+    it('should enable continue button when billing address is same as delivery address, ach form is valid and is not submitting the form', () => {
+      component = regenerateComponent(true);
+      spyOn(component, 'next');
+      component['billingAddressForm'] = billingAddressFormService.getBillingAddressForm();
+      component.isSubmitting$.next(false);
+      component.ngOnInit();
+      component['billingAddressForm'].markAsDirty();
+      component['billingAddressForm'].updateValueAndValidity();
+      component.achForm.patchValue(mockACHPaymentFormValue);
+      fixture.detectChanges();
+
+      const continueButton = getContinueButton();
+      expect(continueButton.nativeElement.disabled).toBeFalse();
+      continueButton.nativeElement.click();
+      expect(component.next).toHaveBeenCalled();
     });
   });
 });

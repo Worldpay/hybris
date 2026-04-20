@@ -6,10 +6,9 @@ import { CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
 import { I18nTestingModule, PaymentDetails, TranslationService } from '@spartacus/core';
 import { IconTestingModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
-import { WorldpayCheckoutReviewPaymentComponent } from 'worldpay-sap-composable-components';
-import { WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
 import { MockActivatedRoute, MockCxCardComponent, MockUrlPipe } from 'worldpay-sap-composable-tests';
-import { WorldpayApmPaymentInfo } from 'worldpay-sap-core';
+import { WorldpayApmPaymentInfo, WorldpayCheckoutPaymentFacade } from '../../../../core';
+import { WorldpayCheckoutReviewPaymentComponent } from './worldpay-checkout-review-payment.component';
 import createSpy = jasmine.createSpy;
 
 const mockPaymentDetails: PaymentDetails = {

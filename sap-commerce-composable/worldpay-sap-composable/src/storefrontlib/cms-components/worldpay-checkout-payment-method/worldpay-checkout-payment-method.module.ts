@@ -17,13 +17,17 @@ import {
   NgSelectA11yModule,
   SpinnerModule
 } from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentAdapter } from '../../../core/connectors/worldpay-payment-connector/worldpay-checkout-payment.adapter';
-import { WorldpayCheckoutPaymentRedirectFailureGuard } from '../../../core/guards/worldpay-checkout-payment-redirect-failure.guard';
-import { OccWorldpayCheckoutPaymentAdapter } from '../../../core/occ/adapters/worldpay-checkout-payment-connector/occ-worldpay-checkout-payment.adapter';
-import { WorldpayCheckoutPaymentService } from '../../../core/services/worldpay-checkout/worldpay-checkout-payment.service';
+import {
+  OccWorldpayCheckoutPaymentAdapter,
+  OccWorldpayUserPaymentAdapter,
+  WorldpayCheckoutPaymentAdapter,
+  WorldpayCheckoutPaymentRedirectFailureGuard,
+  WorldpayCheckoutPaymentService,
+  WorldpayUserPaymentAdapter
+} from '../../../core';
 import { WorldpayApmModule } from '../worldpay-apm-component/worldpay-apm.module';
 import { WorldpayBillingAddressModule } from '../worldpay-billing-address/worldpay-billing-address.module';
-import { WorldpayPaymentFormComponent } from './payment-form/worldpay-payment-form.component';
+import { WorldpayPaymentFormModule } from './payment-form/worldpay-payment-form.module';
 import { WorldpayCheckoutPaymentMethodComponent } from './worldpay-checkout-payment-method.component';
 
 @NgModule({
@@ -46,10 +50,10 @@ import { WorldpayCheckoutPaymentMethodComponent } from './worldpay-checkout-paym
     FeaturesConfigModule,
     FormRequiredLegendComponent,
     FormRequiredAsterisksComponent,
+    WorldpayPaymentFormModule,
   ],
   declarations: [
-    WorldpayCheckoutPaymentMethodComponent,
-    WorldpayPaymentFormComponent,
+    WorldpayCheckoutPaymentMethodComponent
   ],
   exports: [
     WorldpayCheckoutPaymentMethodComponent
@@ -80,6 +84,10 @@ import { WorldpayCheckoutPaymentMethodComponent } from './worldpay-checkout-paym
     {
       provide: WorldpayCheckoutPaymentAdapter,
       useClass: OccWorldpayCheckoutPaymentAdapter,
+    },
+    {
+      provide: WorldpayUserPaymentAdapter,
+      useClass: OccWorldpayUserPaymentAdapter
     },
     PathLocationStrategy
   ],

@@ -1,6 +1,19 @@
 package com.worldpay.service.request.transform;
 
-import com.worldpay.data.*;
+import java.util.List;
+
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
+
+import com.worldpay.data.Address;
+import com.worldpay.data.Amount;
+import com.worldpay.data.BasicOrderInfo;
+import com.worldpay.data.MerchantInfo;
+import com.worldpay.data.Order;
+import com.worldpay.data.Shopper;
 import com.worldpay.data.token.TokenRequest;
 import com.worldpay.exception.WorldpayModelTransformationException;
 import com.worldpay.internal.model.PaymentService;
@@ -12,24 +25,17 @@ import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.List;
-
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class AuthoriseRequestTransformerTest {
+@ExtendWith(MockitoExtension.class)
+class AuthoriseRequestTransformerTest {
 
     private static final String WORLDPAY_CONFIG_VERSION = "worldpay.config.version";
     private static final String FIRST_NAME = "John";
@@ -71,29 +77,25 @@ public class AuthoriseRequestTransformerTest {
     @Mock
     private com.worldpay.internal.model.Order intOrderMock;
 
-    @Before
-    public void setUp() {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+    @BeforeEach
+    void setUp() {
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
 
-        final TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest = new TokenRequest();
         tokenRequest.setTokenReason(TOKEN_REASON);
         tokenRequest.setTokenEventReference(TOKEN_REFERENCE);
-        this.tokenRequest = tokenRequest;
 
         final Amount amount = new Amount();
         amount.setExponent("2");
         amount.setCurrencyCode("EUR");
         amount.setValue("100");
 
-        final BasicOrderInfo basicOrderInfo = new BasicOrderInfo();
+        basicOrderInfo = new BasicOrderInfo();
         basicOrderInfo.setOrderCode(ORDER_CODE);
         basicOrderInfo.setDescription(DESCRIPTION);
         basicOrderInfo.setAmount(amount);
-        this.basicOrderInfo = basicOrderInfo;
-
 
         final Address address = new Address();
         address.setFirstName(FIRST_NAME);
@@ -108,71 +110,76 @@ public class AuthoriseRequestTransformerTest {
         this.shippingAddress = address;
         this.billingAddress = address;
 
-        final Shopper shopper = new Shopper();
+        shopper = new Shopper();
         shopper.setShopperEmailAddress(SHOPPER_EMAIL_ADDRESS);
         shopper.setAuthenticatedShopperID(AUTH_SHOPPER_ID);
-        this.shopper = shopper;
 
-        when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(VERSION);
-    }
-
-    @Test(expected = WorldpayModelTransformationException.class)
-    public void populate_WhenRequestIsNull_ShouldThrowAnException() throws WorldpayModelTransformationException {
-        testObj.transform(null);
-    }
-
-    @Test(expected = WorldpayModelTransformationException.class)
-    public void populate_WhenMerchantInfoIsNull_ShouldThrowAnException() throws WorldpayModelTransformationException {
-        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(null)
-            .withOrderInfo(basicOrderInfo)
-            .withOrderContent(ORDER_CONTENT)
-            .withIncludedPTs(INCLUDED_PTS)
-            .withShopper(shopper)
-            .withShippingAddress(shippingAddress)
-            .withBillingAddress(billingAddress)
-            .withTokenRequest(tokenRequest)
-            .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
-            .build();
-
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
-
-        testObj.transform(request);
-    }
-
-    @Test(expected = WorldpayModelTransformationException.class)
-    public void populate_WhenOrderCodeIsNull_ShouldThrowAnException() throws WorldpayModelTransformationException {
-        basicOrderInfo.setOrderCode(null);
-        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withOrderContent(ORDER_CONTENT)
-            .withIncludedPTs(INCLUDED_PTS)
-            .withShopper(shopper)
-            .withShippingAddress(shippingAddress)
-            .withBillingAddress(billingAddress)
-            .withTokenRequest(tokenRequest)
-            .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
-            .build();
-
-        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
-
-        testObj.transform(request);
     }
 
     @Test
-    public void transform_WhenEveryFieldIsNotEmpty_ShouldTransformRequest() throws WorldpayModelTransformationException {
+    void populate_WhenRequestIsNull_ShouldThrowAnException() {
+        assertThatThrownBy(() -> testObj.transform(null))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage("Request provided to do the authorise is invalid.");
+    }
+
+    @Test
+    void populate_WhenMerchantInfoIsNull_ShouldThrowAnException() {
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
-            .withMerchantInfo(merchantInfo)
-            .withOrderInfo(basicOrderInfo)
-            .withOrderContent(ORDER_CONTENT)
-            .withIncludedPTs(INCLUDED_PTS)
-            .withShopper(shopper)
-            .withShippingAddress(shippingAddress)
-            .withBillingAddress(billingAddress)
-            .withTokenRequest(tokenRequest)
-            .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
-            .build();
+                .withMerchantInfo(null)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(INCLUDED_PTS)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withTokenRequest(tokenRequest)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
+
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
+
+        assertThatThrownBy(() -> testObj.transform(request)).isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage("Request provided to do the authorise is invalid.");
+    }
+
+    @Test
+    void populate_WhenOrderCodeIsNull_ShouldThrowAnException() {
+        basicOrderInfo.setOrderCode(null);
+        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(INCLUDED_PTS)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withTokenRequest(tokenRequest)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
+
+        final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
+
+        assertThatThrownBy(() -> testObj.transform(request))
+                .isInstanceOf(WorldpayModelTransformationException.class)
+                .hasMessage("Request provided to do the authorise is invalid.");
+    }
+
+    @Test
+    void transform_WhenEveryFieldIsNotEmpty_ShouldTransformRequest() throws WorldpayModelTransformationException {
+        when(configurationServiceMock.getConfiguration().getString(WORLDPAY_CONFIG_VERSION)).thenReturn(VERSION);
+
+        final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
+                .withMerchantInfo(merchantInfo)
+                .withOrderInfo(basicOrderInfo)
+                .withOrderContent(ORDER_CONTENT)
+                .withIncludedPTs(INCLUDED_PTS)
+                .withShopper(shopper)
+                .withShippingAddress(shippingAddress)
+                .withBillingAddress(billingAddress)
+                .withTokenRequest(tokenRequest)
+                .withStatementNarrative(STATEMENT_NARRATIVE_TEXT)
+                .build();
         final AuthoriseServiceRequest request = RedirectAuthoriseServiceRequest.createRedirectAuthoriseRequest(authoriseRequestParameters);
         when(internalOrderConverterMock.convert(request.getOrder())).thenReturn(intOrderMock);
 
@@ -183,7 +190,7 @@ public class AuthoriseRequestTransformerTest {
 
         final List<Object> submitList = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         final Submit submit = (Submit) submitList.get(0);
-        final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge();
+        final List<Object> orderList = submit.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken();
         final com.worldpay.internal.model.Order intOrder = (com.worldpay.internal.model.Order) orderList.get(0);
 
         assertThat(intOrder).isEqualTo(intOrderMock);

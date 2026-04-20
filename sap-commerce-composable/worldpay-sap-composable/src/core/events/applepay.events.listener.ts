@@ -2,7 +2,7 @@ import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EventService } from '@spartacus/core';
 import { OrderPlacedEvent } from '@spartacus/order/root';
-import { WorldpayApplepayService } from 'worldpay-sap-composable-services';
+import { WorldpayApplepayService } from '../services';
 
 /**
  * Worldpay Applepay Event Listener.

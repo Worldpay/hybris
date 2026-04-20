@@ -47,6 +47,16 @@ public class DefaultWorldpayMerchantInfoService implements WorldpayMerchantInfoS
      * {@inheritDoc}
      */
     @Override
+    public MerchantInfo getCurrentSiteOpenBankingMerchant() {
+        final WorldpayMerchantConfigurationModel currentSiteMerchantConfig =
+                worldpayMerchantConfigurationService.getCurrentOpenBankingConfiguration();
+        return createMerchantInfo(currentSiteMerchantConfig);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public MerchantInfo getReplenishmentMerchant(final BaseSiteModel site) {
         checkArgument(site != null, CURRENT_BASE_SITE_CANNOT_BE_NULL);
         checkArgument(site.getReplenishmentMerchantConfiguration() != null, "The Replenishment for site " + site.getUid() + " cannot be null");

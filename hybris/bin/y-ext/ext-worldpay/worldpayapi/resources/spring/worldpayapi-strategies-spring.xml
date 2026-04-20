@@ -148,7 +148,14 @@
         <ref bean="worldpayLevel23Strategy"/>
         <ref bean="worldpaySepaMandateStrategy"/>
         <ref bean="worldpayGuaranteedPaymentsStrategy"/>
+        <ref bean="worldpayOpenBankingStrategy"/>
     </util:list>
+
+    <alias name="defaultWorldpayOpenBankingStrategy" alias="worldpayOpenBankingStrategy"/>
+    <bean id="defaultWorldpayOpenBankingStrategy"
+          class="com.worldpay.service.payment.impl.DefaultWorldpayOpenBankingStrategy">
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+    </bean>
 
     <alias name="defaultWorldpaySepaMandateStrategy" alias="worldpaySepaMandateStrategy"/>
     <bean id="defaultWorldpaySepaMandateStrategy"

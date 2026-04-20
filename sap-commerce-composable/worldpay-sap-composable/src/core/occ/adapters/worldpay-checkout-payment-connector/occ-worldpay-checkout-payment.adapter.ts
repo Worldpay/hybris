@@ -4,7 +4,7 @@ import { OccCheckoutPaymentAdapter } from '@spartacus/checkout/base/occ';
 import { backOff, HttpErrorModel, isJaloError, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { WorldpayCheckoutPaymentAdapter } from 'worldpay-sap-composable-connectors';
+import { WorldpayCheckoutPaymentAdapter } from '../../../connectors';
 
 @Injectable()
 export class OccWorldpayCheckoutPaymentAdapter extends OccCheckoutPaymentAdapter implements WorldpayCheckoutPaymentAdapter {

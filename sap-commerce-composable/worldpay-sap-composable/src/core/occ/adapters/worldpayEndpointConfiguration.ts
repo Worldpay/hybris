@@ -1,6 +1,6 @@
 import { OccConfig, OccEndpoint } from '@spartacus/core';
 
-export const wordlpayOccConfig: OccConfig = {
+export const worldpayOccConfig: OccConfig = {
   backend: {
     occ: {
       endpoints: {
@@ -27,14 +27,16 @@ export const wordlpayOccConfig: OccConfig = {
         placeBankTransferRedirectOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-banktransfer-redirect-order',
         /* Guaranteed Payments */
         isGuaranteedPaymentsEnabled: '/worldpayapi/guaranteedpayments/enabled',
-        getCheckoutDetails: 'users/${userId}/carts/${cartId}?fields=deliveryAddress(FULL),deliveryMode(FULL),paymentInfo(FULL),worldpayAPMPaymentInfo',
         // eslint-disable-next-line max-len
-        cart: 'users/${userId}/carts/${cartId}?fields=DEFAULT,potentialProductPromotions,appliedProductPromotions,potentialOrderPromotions,appliedOrderPromotions,entries(totalPrice(formattedValue),product(images(FULL),stock(FULL)),basePrice(formattedValue,value),updateable),totalPrice(formattedValue),totalItems,totalPriceWithTax(formattedValue),totalDiscounts(value,formattedValue),subTotal(formattedValue),totalUnitCount,deliveryItemsQuantity,deliveryCost(formattedValue),totalTax(formattedValue, value),pickupItemsQuantity,net,appliedVouchers,productDiscounts(formattedValue),user,saveTime,name,description,worldpayAPMPaymentInfo(FULL)',
+        getCheckoutDetails: 'users/${userId}/carts/${cartId}?fields=deliveryAddress(FULL),deliveryMode(FULL),paymentInfo(FULL),paymentType(FULL),paymentType(FULL),worldpayAPMPaymentInfo',
+        // eslint-disable-next-line max-len
+        cart: 'users/${userId}/carts/${cartId}?fields=DEFAULT,paymentType(FULL),potentialProductPromotions,appliedProductPromotions,potentialOrderPromotions,appliedOrderPromotions,entries(totalPrice(formattedValue),product(images(FULL),stock(FULL)),basePrice(formattedValue,value),updateable),totalPrice(formattedValue),totalItems,totalPriceWithTax(formattedValue),totalDiscounts(value,formattedValue),subTotal(formattedValue),totalUnitCount,deliveryItemsQuantity,deliveryCost(formattedValue),totalTax(formattedValue, value),pickupItemsQuantity,net,appliedVouchers,productDiscounts(formattedValue),user,saveTime,name,description,worldpayAPMPaymentInfo(FULL)',
         // ACH
         getACHBankAccountTypes: '/users/${userId}/carts/${cartId}/payment-method/achdirectdebit/types',
         placeACHOrder: '/users/${userId}/carts/${cartId}/worldpayorders/place-ach-direct-order',
         // Checkout payments
         // setApmPaymentDetails: 'users/${userId}/carts/${cartId}/checkoutcomapmpaymentdetails',
+        paymentDetailsAllForCart: 'users/${userId}/carts/${cartId}/paymentdetails?fields=FULL',
       },
     },
   },
@@ -68,6 +70,7 @@ declare module '@spartacus/core' {
     cart?: string | OccEndpoint;
     getACHBankAccountTypes?: string | OccEndpoint;
     placeACHOrder?: string | OccEndpoint;
+    paymentDetailsAllForCart?: string | OccEndpoint;
     // setApmPaymentDetails?: string | OccEndpoint;
   }
 }

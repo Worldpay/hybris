@@ -1,11 +1,22 @@
 package com.worldpay.commands.impl;
 
+import java.math.BigDecimal;
+import java.util.Currency;
+
+import static java.util.Locale.UK;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.worldpay.data.Amount;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.merchant.WorldpayMerchantInfoService;
 import com.worldpay.service.WorldpayServiceGateway;
-import com.worldpay.data.Amount;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.RefundServiceRequest;
 import com.worldpay.service.response.RefundServiceResponse;
@@ -25,22 +36,12 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.util.Currency;
-
-import static java.util.Locale.UK;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpayFollowOnRefundCommandTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
     private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
-    private static final String GBP = "GBP";
     private static final String TOTAL_VALUE = "10000";
     private static final String EXCEPTION_MESSAGE = "exceptionMessage";
     private static final String PAYMENT_TRANSACTION_ENTRY_CODE = "paymentTransactionEntryCode";
@@ -73,8 +74,8 @@ public class DefaultWorldpayFollowOnRefundCommandTest {
     @Mock
     private WorldpayOrderService worldpayOrderServiceMock;
 
-    private Currency currency = Currency.getInstance(UK);
-    private BigDecimal amount = new BigDecimal(TOTAL_VALUE);
+    private final Currency currency = Currency.getInstance(UK);
+    private final BigDecimal amount = new BigDecimal(TOTAL_VALUE);
 
     @Before
     public void setUp() throws WorldpayConfigurationException {

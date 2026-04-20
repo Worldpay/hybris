@@ -29,10 +29,9 @@ public class AddBackOfficeCodeServiceRequestIntegrationTest extends Servicelayer
 
     @Before
     public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
     }
 
     @Test

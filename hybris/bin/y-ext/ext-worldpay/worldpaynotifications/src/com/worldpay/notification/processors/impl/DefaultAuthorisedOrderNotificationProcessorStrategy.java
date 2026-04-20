@@ -102,7 +102,6 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
             .map(PaymentTransactionModel::getOrder)
             .map(AbstractOrderModel::getSite)
             .ifPresent(site -> addSiteAttributes(site, paymentTransactionModel, paymentReply));
-
     }
 
     protected void addSiteAttributes(final BaseSiteModel site, PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
@@ -114,5 +113,4 @@ public class DefaultAuthorisedOrderNotificationProcessorStrategy implements Orde
             worldpayExemptionStrategy.addExemptionResponse(paymentTransactionModel, paymentReply);
         }
     }
-
 }

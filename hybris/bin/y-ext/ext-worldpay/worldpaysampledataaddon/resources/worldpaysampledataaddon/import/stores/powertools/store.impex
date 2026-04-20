@@ -1,4 +1,17 @@
+$unitedKingdom=GB,GG,IM,JE
+$europeNotUK=AD,AL,AT,BA,BE,BG,BY,CH,CY,CZ,DE,DK,EE,ES,FI,FO,FR,GI,GL,GR,HR,HU,IE,IS,IT,LI,LT,LU,LV,MC,MD,ME,MK,MT,NL,NO,PL,PT,RO,RS,RU,SE,SI,SK,SM,TR,UA,VA
+$asianCountries=CN,JP,VN,HK,KP,KR,SG
+$americas=US,BR
+$deliveryCountries=$unitedKingdom,$europeNotUK,$asianCountries,$americas
+$currencies=USD,EUR
+$storeUid=powertools
+
 "#% if: de.hybris.platform.jalo.extension.ExtensionManager.getInstance().isExtensionInstalled(""worldpayb2baddon"")"
 INSERT_UPDATE BaseStore2DeliveryModeRel; source(uid)[unique = true]; target(code)[unique = true]
                                        ; powertools                ; free-standard-shipping-net
+
+# Base Store
+INSERT_UPDATE BaseStore;uid[unique=true];currencies(isocode);deliveryCountries(isocode)
+                       ;$storeUid;$currencies;$deliveryCountries
 #% endif:
+

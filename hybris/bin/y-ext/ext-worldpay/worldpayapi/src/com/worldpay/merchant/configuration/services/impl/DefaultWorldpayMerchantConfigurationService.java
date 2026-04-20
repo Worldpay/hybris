@@ -42,6 +42,17 @@ public class DefaultWorldpayMerchantConfigurationService implements WorldpayMerc
      * {@inheritDoc}
      */
     @Override
+    public WorldpayMerchantConfigurationModel getCurrentOpenBankingConfiguration() {
+        final BaseSiteModel currentBaseSite = baseSiteService.getCurrentBaseSite();
+        checkArgument(currentBaseSite != null, CURRENT_BASE_SITE_CANNOT_BE_NULL);
+
+        return currentBaseSite.getOpenBankingMerchantConfiguration();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public WorldpayMerchantConfigurationModel getCurrentAsmConfiguration() {
         final BaseSiteModel currentBaseSite = baseSiteService.getCurrentBaseSite();
         checkArgument(currentBaseSite != null, CURRENT_BASE_SITE_CANNOT_BE_NULL);

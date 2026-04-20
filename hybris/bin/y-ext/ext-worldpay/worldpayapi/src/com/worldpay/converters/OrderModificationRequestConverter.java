@@ -4,7 +4,13 @@ import com.worldpay.data.JournalReply;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.WebformRefundReply;
 import com.worldpay.data.token.TokenReply;
-import com.worldpay.internal.model.*;
+import com.worldpay.internal.model.Journal;
+import com.worldpay.internal.model.Notify;
+import com.worldpay.internal.model.OrderStatusEvent;
+import com.worldpay.internal.model.Payment;
+import com.worldpay.internal.model.PaymentService;
+import com.worldpay.internal.model.ShopperWebformRefundDetails;
+import com.worldpay.internal.model.Token;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.response.transform.ServiceResponseTransformerHelper;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
@@ -64,11 +70,6 @@ public class OrderModificationRequestConverter implements Converter<PaymentServi
         if (intShopperWebformRefundDetails != null) {
             final WebformRefundReply webformRefundReply = serviceResponseTransformerHelper.buildWebformRefundReply(intShopperWebformRefundDetails);
             target.setWebformRefundReply(webformRefundReply);
-        }
-
-        final ExemptionResponse intExemptionResponse = orderStatusEvent.getExemptionResponse();
-        if (intExemptionResponse != null && paymentReply != null) {
-            paymentReply.setExemptionResponseInfo(serviceResponseTransformerHelper.buildExemptionResponse(intExemptionResponse));
         }
 
         return target;

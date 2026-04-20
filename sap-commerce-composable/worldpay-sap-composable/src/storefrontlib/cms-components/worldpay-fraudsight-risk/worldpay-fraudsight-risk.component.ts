@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, DestroyRef, inject, Input, NgZone, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EventService, LoggerService, QueryState, WindowRef } from '@spartacus/core';
-import { WorldpayFraudsightService } from 'worldpay-sap-composable-services';
+import { WorldpayFraudsightService } from '../../../core';
 
 @Component({
   selector: 'worldpay-fraudsight-risk',

@@ -367,6 +367,7 @@
                         <editorArea:attribute qualifier="webMerchantConfiguration"/>
                         <editorArea:attribute qualifier="asmMerchantConfiguration"/>
                         <editorArea:attribute qualifier="replenishmentMerchantConfiguration"/>
+                        <editorArea:attribute qualifier="openBankingMerchantConfiguration"/>
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.pr.section">
                         <editorArea:attribute qualifier="enablePR"/>
@@ -382,7 +383,7 @@
                         <editorArea:attribute qualifier="enableLevel3"/>
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.paypalssl.section">
-                        <editorArea:attribute qualifier="paypalsslIntent"/>
+                        <editorArea:attribute qualifier="paypalSSLIntent"/>
                     </editorArea:section>
                     <editorArea:section name="sec.configuration.worldpay.ee.section">
                         <editorArea:attribute qualifier="enableEE"/>

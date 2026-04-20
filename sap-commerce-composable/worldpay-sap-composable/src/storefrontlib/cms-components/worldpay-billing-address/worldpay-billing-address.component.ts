@@ -5,9 +5,7 @@ import { CheckoutBillingAddressFormComponent } from '@spartacus/checkout/base/co
 import { Address, Country, LoggerService, QueryState, Region } from '@spartacus/core';
 import { combineLatest, Observable, of } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayCheckoutPaymentFacade } from 'worldpay-sap-composable-facade';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
-import { WorldpayApmPaymentInfo } from 'worldpay-sap-core';
+import { WorldpayApmPaymentInfo, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentFacade } from '../../../core';
 
 @Component({
   selector: 'y-worldpay-billing-address',
@@ -45,6 +43,7 @@ export class WorldpayBillingAddressComponent extends CheckoutBillingAddressFormC
     this.bindRegionsChanges();
     this.bindLoadingState();
     this.buildForm();
+    this.bindSameAsDeliveryAddressCheckbox();
     this.updateBillingAddressForm();
   }
 

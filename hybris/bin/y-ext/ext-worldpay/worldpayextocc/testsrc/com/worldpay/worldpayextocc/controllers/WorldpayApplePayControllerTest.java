@@ -4,7 +4,6 @@ import com.worldpay.data.ApplePayAdditionalAuthInfo;
 import com.worldpay.data.ApplePayAuthorisationRequest;
 import com.worldpay.data.ApplePayPaymentContact;
 import com.worldpay.data.ApplePayPaymentRequest;
-import com.worldpay.dto.order.PlaceOrderResponseWsDTO;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.WorldpayDirectResponseFacade;
 import com.worldpay.facades.order.WorldpayApplePayPaymentCheckoutFacade;

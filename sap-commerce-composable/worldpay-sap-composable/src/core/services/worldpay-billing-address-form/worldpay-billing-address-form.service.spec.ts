@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { Address, CommandService, EventService, LoggerService, OCC_USER_ID_ANONYMOUS, QueryService, UserIdService } from '@spartacus/core';
 import { of } from 'rxjs';
-import { WorldpayConnector } from 'worldpay-sap-composable-connectors';
-import { WorldpayBillingAddressSameAsDeliveryAddressSetEvent } from 'worldpay-sap-composable-events';
 import { MockActiveCartFacade, MockUserIdService, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
+import { WorldpayConnector } from '../../connectors';
+import { WorldpayBillingAddressSameAsDeliveryAddressSetEvent } from '../../events';
 import { WorldpayBillingAddressFormService } from './worldpay-billing-address-form.service';
 
 const mockAddress: Address = {

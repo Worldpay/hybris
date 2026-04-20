@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { FormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Address } from '@spartacus/core';
 import { Observable, of } from 'rxjs';
-import { WorldpayBillingAddressFormService } from 'worldpay-sap-composable-services';
+import { WorldpayBillingAddressFormService } from '../../core';
 
 const mockCountries = [{
   isocode: 'US',

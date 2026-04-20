@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Address, PaymentDetails } from '@spartacus/core';
-import { Order } from '@spartacus/order/root';
+import { OrderConnector } from '@spartacus/order/core';
+import { Order, ScheduleReplenishmentForm } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
 import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 import { WorldpayAdapter } from './worldpay.adapter';
@@ -8,13 +9,14 @@ import { WorldpayAdapter } from './worldpay.adapter';
 @Injectable({
   providedIn: 'root'
 })
-export class WorldpayConnector {
+export class WorldpayConnector extends OrderConnector {
 
   /**
    * Constructor
    * @param adapter - WorldpayAdapter
    */
-  constructor(protected adapter: WorldpayAdapter) {
+  constructor(protected override adapter: WorldpayAdapter) {
+    super(adapter);
   }
 
   /**
@@ -28,6 +30,9 @@ export class WorldpayConnector {
    * @param acceptedTermsAndConditions - Boolean Accepted Terms And Conditions
    * @param deviceSession - Device Session
    * @param browserInfo - BrowserInfo Browser information
+   * @param {ScheduleReplenishmentForm} [scheduleReplenishmentFormData] - Optional data for schedule replenishment.
+   * @since 6.4.0
+   * @returns Observable<PlaceOrderResponse> - PlaceOrderResponse as Observable
    */
   public initialPaymentRequest(
     userId: string,
@@ -38,7 +43,8 @@ export class WorldpayConnector {
     cseToken: string,
     acceptedTermsAndConditions: boolean,
     deviceSession: string,
-    browserInfo: BrowserInfo
+    browserInfo: BrowserInfo,
+    scheduleReplenishmentFormData?: ScheduleReplenishmentForm
   ): Observable<PlaceOrderResponse> {
     return this.adapter.initialPaymentRequest(
       userId,
@@ -49,7 +55,8 @@ export class WorldpayConnector {
       cseToken,
       acceptedTermsAndConditions,
       deviceSession,
-      browserInfo
+      browserInfo,
+      scheduleReplenishmentFormData
     );
   }
 

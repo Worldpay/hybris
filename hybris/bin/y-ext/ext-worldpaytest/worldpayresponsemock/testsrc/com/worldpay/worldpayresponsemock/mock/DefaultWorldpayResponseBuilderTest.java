@@ -45,26 +45,23 @@ public class DefaultWorldpayResponseBuilderTest {
     public void shouldCreateRedirectResponse() {
         when(paymentServiceMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
         when(paymentServiceMock.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify()).thenReturn(singletonList(submitMock));
-        when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallenge()).thenReturn(singletonList(orderMock));
+        when(submitMock.getOrderOrOrderBatchOrShopperOrFuturePayAgreementOrMakeFuturePayPaymentOrIdentifyMeRequestOrPaymentTokenCreateOrChallengeOrCreateAccessToken()).thenReturn(singletonList(orderMock));
         when(orderMock.getOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
 
         final PaymentService result = testObj.buildRedirectResponse(paymentServiceMock, request);
 
         final List<Object> paymentServiceElements = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify();
         for (final Object paymentServiceElement : paymentServiceElements) {
-            if (paymentServiceElement instanceof Reply) {
-                final Reply reply = (Reply) paymentServiceElement;
-                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCheckCardHolderNameResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
+            if (paymentServiceElement instanceof final Reply reply) {
+                final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
                 assertThat(replyElements, hasItems(instanceOf(OrderStatus.class)));
                 for (final Object replyElement : replyElements) {
-                    if (replyElement instanceof OrderStatus) {
-                        final OrderStatus orderStatus = (OrderStatus) replyElement;
+                    if (replyElement instanceof final OrderStatus orderStatus) {
                         assertEquals(WORLDPAY_ORDER_CODE, orderStatus.getOrderCode());
-                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrPbbaRTPOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
+                        final List<Object> orderStatusElements = orderStatus.getReferenceOrBankAccountOrApmEnrichedDataOrErrorOrPaymentOrQrCodeOrCardBalanceOrPaymentAdditionalDetailsOrBillingAddressDetailsOrExemptionResponseOrInstalmentPlanOrRetryDetailsOrOrderModificationOrJournalOrRequestInfoOrChallengeRequiredOrFxApprovalRequiredOrContentOrJournalTypeDetailOrTokenOrDateOrEchoDataOrPayAsOrderUseNewOrderCodeOrSelectedSchemeOrAuthenticateResponse();
                         assertThat(orderStatusElements, hasItems(instanceOf(Reference.class)));
                         for (final Object orderStatusElement : orderStatusElements) {
-                            if (orderStatusElement instanceof Reference) {
-                                final Reference reference = (Reference) orderStatusElement;
+                            if (orderStatusElement instanceof final Reference reference) {
                                 assertTrue(reference.getvalue().endsWith("/worldpayresponsemock/redirect?"));
                             }
                         }

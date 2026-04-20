@@ -4,14 +4,12 @@ import com.worldpay.core.services.WorldpayCartService;
 import com.worldpay.data.*;
 import com.worldpay.internal.model.Memberships;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.payment.WorldpayAdditionalDataRequestStrategy;
 import com.worldpay.service.payment.WorldpayGuaranteedPaymentsStrategy;
 import com.worldpay.service.request.AuthoriseRequestParameters;
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.core.model.order.AbstractOrderEntryModel;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
-import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
@@ -39,8 +37,7 @@ public class DefaultWorldpayGuaranteedPaymentsStrategy extends AbstractWorldpayG
     private static final String PICKUP = "pickup";
     private static final String NULL = "null";
     private static final String ACTION = "Action[";
-    public static final String ZERO_VALUE = "0.00";
-    //private static final List<> VALUES = List.of(PaymentType.CARD_SSL.getMethodCode(), PaymentType.TOKENSSL.getMethodCode(), PaymentType.PAYWITHGOOGLESSL.getMethodCode(), PaymentType.APPLEPAYSSL.getMethodCode())
+    private static final String ZERO_VALUE = "0.00";
 
     protected final WorldpayCartService worldpayCartService;
     protected final BaseSiteService baseSiteService;

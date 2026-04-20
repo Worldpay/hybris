@@ -1,6 +1,7 @@
 package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.data.cms.WorldpayAPMComponentData;
+import com.worldpay.dto.cms.WorldpayAPMComponentWsDTO;
 import com.worldpay.dto.cms.WorldpayAPMComponentsWsDTO;
 import com.worldpay.facades.WorldpayAPMComponentFacade;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.when;
 public class WorldpayComponentControllerTest {
 
     private static final String FIELDS = "DEFAULT";
+    private static final String APM_CODE = "apmCode";
 
     @InjectMocks
     private WorldpayComponentController testObj;
@@ -36,6 +38,8 @@ public class WorldpayComponentControllerTest {
     private WorldpayAPMComponentData worldpayAPMComponentDataMock;
     @Mock
     private WorldpayAPMComponentsWsDTO worldpayAPMComponentsWsDTOMock;
+    @Mock
+    private WorldpayAPMComponentWsDTO worldpayAPMComponentWsDTOMock;
 
     @Test
     public void getAvailableApmComponents_ShouldReturnAnObjectWithComponents() {
@@ -46,4 +50,25 @@ public class WorldpayComponentControllerTest {
 
         assertThat(result).isEqualTo(worldpayAPMComponentsWsDTOMock);
     }
+
+    @Test
+    public void getApmComponent_ShouldReturnMappedDto() {
+        when(worldpayAPMComponentFacadeMock.getWorldpayAPMComponentByCode(APM_CODE)).thenReturn(worldpayAPMComponentDataMock);
+        when(dataMapperMock.map(worldpayAPMComponentDataMock, WorldpayAPMComponentWsDTO.class, FIELDS)).thenReturn(worldpayAPMComponentWsDTOMock);
+
+        final WorldpayAPMComponentWsDTO result = testObj.getApmComponent(APM_CODE, FIELDS);
+
+        assertThat(result).isEqualTo(worldpayAPMComponentWsDTOMock);
+    }
+
+    @Test
+    public void getApmComponent_ShouldReturnNull_WhenComponentNotFound() {
+        when(worldpayAPMComponentFacadeMock.getWorldpayAPMComponentByCode(APM_CODE)).thenReturn(null);
+        when(dataMapperMock.map(null, WorldpayAPMComponentWsDTO.class, FIELDS)).thenReturn(null);
+
+        final WorldpayAPMComponentWsDTO result = testObj.getApmComponent(APM_CODE, FIELDS);
+
+        assertThat(result).isNull();
+    }
+
 }

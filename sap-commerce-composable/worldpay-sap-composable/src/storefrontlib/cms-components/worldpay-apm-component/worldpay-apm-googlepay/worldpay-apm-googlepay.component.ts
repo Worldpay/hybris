@@ -4,11 +4,11 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  ElementRef,
+  ElementRef, EventEmitter,
   inject,
-  Input,
   NgZone,
   OnInit,
+  Output,
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
@@ -19,9 +19,18 @@ import { EventService, GlobalMessageService, GlobalMessageType, LoggerService, R
 import { Order } from '@spartacus/order/root';
 import { BehaviorSubject, EMPTY, finalize, forkJoin, from, Observable } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, tap } from 'rxjs/operators';
-import { WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService, WorldpayGooglepayService, WorldpayOrderService } from 'worldpay-sap-composable-services';
-import { LoadScriptService, makeFormErrorsVisible } from 'worldpay-sap-composable-utils';
-import { ApmData, GooglePayMerchantConfiguration, GooglePayPaymentRequest, GooglepayPaymentRequest, OCCResponse } from 'worldpay-sap-core';
+import {
+  GooglePayMerchantConfiguration,
+  GooglePayPaymentRequest,
+  GooglepayPaymentRequest,
+  LoadScriptService,
+  makeFormErrorsVisible,
+  OCCResponse,
+  WorldpayBillingAddressFormService,
+  WorldpayCheckoutPaymentService,
+  WorldpayGooglepayService,
+  WorldpayOrderService
+} from '../../../../core';
 
 @Component({
   selector: 'y-worldpay-apm-googlepay',
@@ -30,8 +39,8 @@ import { ApmData, GooglePayMerchantConfiguration, GooglePayPaymentRequest, Googl
   standalone: false
 })
 export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
-  @Input() apm: ApmData;
   @ViewChild('gpayBtn', { static: false }) gpayBtn: ElementRef = null;
+  @Output() back: EventEmitter<void> = new EventEmitter<void>();
   public nativeWindow: Window = this.winRef.nativeWindow;
   protected destroyRef: DestroyRef = inject(DestroyRef);
   protected error$: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -258,5 +267,14 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
         this.logger.error('authorisePayment with errors', { error });
       }
     });
+  }
+
+  /**
+   * Emits an event to navigate back to the previous step or screen.
+   * This method triggers the `back` event emitter.
+   * @since 2211.43.0
+   */
+  onBack(): void {
+    this.back.emit();
   }
 }

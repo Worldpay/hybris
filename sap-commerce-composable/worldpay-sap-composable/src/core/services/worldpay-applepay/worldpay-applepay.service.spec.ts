@@ -4,9 +4,9 @@ import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { CommandService, EventService, GlobalMessageService, LoggerService, OCC_USER_ID_ANONYMOUS, QueryService, UserIdService, WindowRef } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
 import { of, throwError } from 'rxjs';
-import { WorldpayApplepayAdapter, WorldpayApplepayConnector } from 'worldpay-sap-composable-connectors';
 import { mockUserId, MockUserIdService } from 'worldpay-sap-composable-tests';
-import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events/applepay.events';
+import { WorldpayApplepayAdapter, WorldpayApplepayConnector } from '../../connectors';
+import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events';
 import { ApplePayPaymentRequest } from '../../interfaces';
 
 import { WorldpayApplepayService } from './worldpay-applepay.service';

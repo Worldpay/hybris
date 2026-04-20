@@ -1,80 +1,132 @@
-<ng-container>
-  <div class="row my-3">
+<div class="row my-3">
 
-    <div
-      class="col-6 col-sm-4 col-md-3 my-2 cc"
-      *ngIf="card$ | async as cardApm"
-    >
-      <y-worldpay-apm-tile [apm]="cardApm"></y-worldpay-apm-tile>
+  <!-- Loading template -->
+  <ng-template #loading>
+    <div class="cx-spinner">
+      <cx-spinner></cx-spinner>
     </div>
+  </ng-template>
 
-    <div
-      class="col-6 col-sm-4 col-md-3 my-2"
-      *ngFor="let apm of (apms | async)"
-    >
-      <y-worldpay-apm-tile [apm]="apm"></y-worldpay-apm-tile>
-    </div>
-
-    <div
-      class="col-6 col-sm-4 col-md-3 my-2 gpay"
-      *ngIf="googlePay$ | async as googlepayApm"
-    >
-      <y-worldpay-apm-tile [apm]="googlepayApm"></y-worldpay-apm-tile>
-    </div>
-
-    <div
-      class="col-6 col-sm-4 col-md-3 my-2 apay"
-      *ngIf="applePay$ | async as applePayApm"
-    >
-      <y-worldpay-apm-tile [apm]="applePayApm"></y-worldpay-apm-tile>
-    </div>
-  </div>
-
-  <div *ngIf="selectedApm$ | async as selectedApm">
-    <div [ngSwitch]="selectedApm.code">
-      <ng-container *ngSwitchCase="paymentMethod.Card"></ng-container>
-
-      <y-worldpay-apm-ideal
-        *ngSwitchCase="paymentMethod.iDeal"
-        [apm]="selectedApm"
-        (setPaymentDetails)="setPaymentDetails.emit($event)"
-        (back)="return()"
-      ></y-worldpay-apm-ideal>
-
-      <y-worldpay-apm-googlepay
-        *ngSwitchCase="paymentMethod.GooglePay"
-        [apm]="selectedApm"
-      ></y-worldpay-apm-googlepay>
-
-      <worldpay-applepay
-        *ngSwitchCase="paymentMethod.ApplePay"
-      ></worldpay-applepay>
-
-      <y-worldpay-apm-ach
-        *ngSwitchCase="paymentMethod.ACH"
-        [apm]="selectedApm"
-        (setPaymentDetails)="setPaymentDetails.emit($event)"
-        (back)="return()"
-      ></y-worldpay-apm-ach>
-    </div>
-
+  <!-- Show Billing form and continue button for APMs that require additional details after selection, hide for those that don't require additional details -->
+  <ng-template #showBillingAddressForm let-selectedApm="selectedApm">
     <ng-container *ngIf="(isLoading$ | async) !== true; else loading">
       <ng-container *ngIf="showBillingFormAndContinueButton(selectedApm.code)">
         <y-worldpay-billing-address />
         <!-- BUTTON SECTION -->
         <y-worldpay-apm-submit-buttons
+          [attr.data-test-id]="'apm-submit-buttons-' + selectedApm.code"
           (back)="return()"
           (continue)="selectApmPaymentDetails()"
-          [disableContinue]="disableContinueButton$() | async"
+          [disableContinue]="disableContinueButton$ | async"
         />
       </ng-container>
     </ng-container>
+  </ng-template>
 
-    <ng-template #loading>
-      <div class="cx-spinner">
-        <cx-spinner></cx-spinner>
+  <!-- Accordion header template -->
+  <ng-template #accordionHeader let-accordionItem="accordionItem" let-apm="apm">
+    <button
+      type="button"
+      class="accordion-item-header"
+      [class.disabled-action]="accordionItem.expanded"
+      (click)="selectApm(apm); accordionItem.toggle()"
+      [attr.id]="'accordion-header-' + apm.code"
+      [attr.aria-expanded]="accordionItem.expanded"
+      [attr.aria-controls]="'accordion-body-' + apm.code">
+      <y-worldpay-apm-tile [apm]="apm"></y-worldpay-apm-tile>
+    </button>
+  </ng-template>
+
+  <!-- Accordion content template-->
+  <ng-template #accordionContent let-apm="apm" let-selectedApm="selectedApm" let-accordionItem="accordionItem">
+    @if (accordionItem.expanded && selectedApm) {
+      <div
+        class="accordion-item-content"
+        [style.display]="selectedApm.code ? '' : 'none'"
+        [attr.id]="'accordion-body-' + apm.code"
+        [attr.aria-labelledby]="'accordion-header-' + apm.code"
+      >
+        @switch (selectedApm.code) {
+
+          @case(paymentMethod.Card) {
+            <ng-container
+              *ngIf="cardTemplate"
+              [ngTemplateOutlet]="cardTemplate"
+            />
+
+            <ng-container *ngTemplateOutlet="showBillingAddressForm; context: { selectedApm: selectedApm }" />
+          }
+
+          @case (paymentMethod.iDeal) {
+            <y-worldpay-apm-ideal
+              [apm]="selectedApm"
+              (setPaymentDetails)="setPaymentDetails.emit($event)"
+              (back)="return()"
+            ></y-worldpay-apm-ideal>
+          }
+
+          @case (paymentMethod.SepaDirectDebit) {
+            <!-- Update worldpay-apm-sepa to worldpay-b2b-apm-sepa for B2B SEPAs -->
+            <y-worldpay-apm-sepa
+              [apm]="selectedApm"
+              (setPaymentDetails)="setPaymentDetails.emit($event)"
+              (back)="return()"
+            ></y-worldpay-apm-sepa>
+          }
+
+          @case (paymentMethod.GooglePay) {
+            <y-worldpay-apm-googlepay
+              (back)="return()"
+            />
+          }
+
+          @case (paymentMethod.ApplePay) {
+            <worldpay-applepay
+              (back)="return()"
+            />
+          }
+
+          @case (paymentMethod.ACH) {
+            <y-worldpay-apm-ach
+              [apm]="selectedApm"
+              (setPaymentDetails)="setPaymentDetails.emit($event)"
+              (back)="return()"
+            ></y-worldpay-apm-ach>
+          }
+        }
+
+        <ng-container *ngTemplateOutlet="showBillingAddressForm; context: { selectedApm: selectedApm }" />
       </div>
-    </ng-template>
-  </div>
+    }
+  </ng-template>
 
-</ng-container>
+  <div class="col-12">
+    <cdk-accordion>
+      @if((card$ | async); as cardApm){
+        <cdk-accordion-item #accordionItem="cdkAccordionItem" class="d-flex justify-start items-center cc flex-column" [expanded]="(selectedApm$ | async)?.code === paymentMethod.Card">
+          <ng-container *ngTemplateOutlet="accordionHeader; context: { accordionItem: accordionItem, apm: cardApm }"></ng-container>
+          <ng-container *ngTemplateOutlet="accordionContent; context: { apm: cardApm, selectedApm: selectedApm$ | async, accordionItem: accordionItem }"></ng-container>
+        </cdk-accordion-item>
+      }
+      @for (apm of (apms | async); track apm.code; let index = $index) {
+        <cdk-accordion-item #accordionItem="cdkAccordionItem" class="d-flex justify-start items-center flex-column" [expanded]="(selectedApm$ | async)?.code === apm.code">
+          <ng-container *ngTemplateOutlet="accordionHeader; context: { accordionItem: accordionItem, apm }"></ng-container>
+          <ng-container *ngTemplateOutlet="accordionContent; context: { apm: apm, selectedApm: selectedApm$ | async, accordionItem: accordionItem }"></ng-container>
+        </cdk-accordion-item>
+      }
+      @if (googlePay$ | async; as googlepayApm) {
+        <cdk-accordion-item #accordionItem="cdkAccordionItem" class="d-flex justify-start items-center cc flex-column gpay" [expanded]="(selectedApm$ | async)?.code === paymentMethod.GooglePay">
+          <ng-container *ngTemplateOutlet="accordionHeader; context: { accordionItem: accordionItem, apm: googlepayApm }"></ng-container>
+          <ng-container *ngTemplateOutlet="accordionContent; context: { apm: googlepayApm, selectedApm: selectedApm$ | async, accordionItem: accordionItem }"></ng-container>
+        </cdk-accordion-item>
+      }
+
+      @if (applePay$ | async; as applePayApm) {
+        <cdk-accordion-item #accordionItem="cdkAccordionItem" class="d-flex justify-start items-center cc flex-column apay" [expanded]="(selectedApm$ | async)?.code === paymentMethod.ApplePay">
+          <ng-container *ngTemplateOutlet="accordionHeader; context: { accordionItem: accordionItem, apm: applePayApm }"></ng-container>
+          <ng-container *ngTemplateOutlet="accordionContent; context: { apm: applePayApm, selectedApm: selectedApm$ | async, accordionItem: accordionItem }"></ng-container>
+        </cdk-accordion-item>
+      }
+    </cdk-accordion>
+  </div>
+</div>
