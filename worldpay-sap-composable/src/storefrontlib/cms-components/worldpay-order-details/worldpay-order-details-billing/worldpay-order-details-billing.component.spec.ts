@@ -49,7 +49,7 @@ class MockOrderDetailsService {
   }
 }
 
-describe('OrderDetailsBillingComponent', () => {
+describe('WorldpayOrderDetailsBillingComponent', () => {
   let component: WorldpayOrderDetailsBillingComponent;
   let fixture: ComponentFixture<WorldpayOrderDetailsBillingComponent>;
   let translationService: TranslationService;
@@ -57,10 +57,7 @@ describe('OrderDetailsBillingComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        imports: [I18nTestingModule],
-        declarations: [
-          WorldpayOrderDetailsBillingComponent
-        ],
+        imports: [I18nTestingModule, WorldpayOrderDetailsBillingComponent],
         providers: [
           {
             provide: OrderDetailsService,

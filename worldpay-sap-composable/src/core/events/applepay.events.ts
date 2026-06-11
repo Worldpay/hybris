@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CxEvent } from '@spartacus/core';
-import { ApplePayPaymentRequest, PlaceOrderResponse } from '../interfaces';
+import { PlaceOrderResponse } from '../interfaces';
+import { ApplePayMerchantSession, ApplePayPaymentRequest } from '../models';
 
 /**
  * RequestApplePayPaymentRequestEvent
@@ -17,7 +18,7 @@ export class RequestApplePayPaymentRequestEvent extends CxEvent {
  */
 export class ApplePayMerchantSessionEvent extends CxEvent {
   static override readonly type: string = 'ValidateApplePayMerchantEvent';
-  merchantSession: any;
+  merchantSession: ApplePayMerchantSession;
 }
 
 /**

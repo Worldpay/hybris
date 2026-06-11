@@ -7,7 +7,7 @@ import com.worldpay.service.response.ServiceResponse;
 import de.hybris.platform.converters.impl.AbstractConverter;
 import de.hybris.platform.payment.commands.result.AbstractResult;
 import de.hybris.platform.payment.dto.TransactionStatusDetails;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Currency;

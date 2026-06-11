@@ -3,20 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.worldpay.worldpaynotifications</groupId>
     <artifactId>worldpaynotifications-web</artifactId>
-    <version>6.5.0.0-RC16</version>
+    <version>2211-jdk21.10</version>
 
     <packaging>jar</packaging>
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+    </properties>
 
     <dependencies>
-       <dependency>
-            <groupId>displaytag</groupId>
-            <artifactId>displaytag</artifactId>
-            <version>1.2</version>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.web</groupId>
-            <artifactId>jstl-impl</artifactId>
-            <version>1.2</version>
+            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+            <version>3.0.1</version>
         </dependency>
     </dependencies>
 </project>

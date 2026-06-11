@@ -1,12 +1,13 @@
-import { KeyValue } from '@angular/common';
+import { AsyncPipe, KeyValue } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, NgZone, OnDestroy, OnInit, Renderer2, ViewEncapsulation } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { SafeResourceUrl } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CheckoutPlaceOrderComponent, CheckoutStepService } from '@spartacus/checkout/base/components';
-import { GlobalMessageService, GlobalMessageType, HttpErrorModel, LoggerService, PaymentDetails, QueryState, WindowRef } from '@spartacus/core';
+import { GlobalMessageService, GlobalMessageType, HttpErrorModel, LoggerService, PaymentDetails, QueryState, TranslatePipe, UrlPipe, WindowRef } from '@spartacus/core';
 import { Order, ScheduleReplenishmentForm } from '@spartacus/order/root';
+import { FormErrorsComponent } from '@spartacus/storefront';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import {
@@ -24,7 +25,7 @@ import {
   WorldpayChallengeResponse,
   WorldpayCheckoutPaymentFacade,
   WorldpayFraudsightFacade,
-  WorldpayOrderFacade,
+  WorldpayOrderFacade
 } from '../../../core';
 
 @Component({
@@ -32,7 +33,14 @@ import {
   templateUrl: './worldpay-checkout-place-order.component.html',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    FormErrorsComponent,
+    AsyncPipe,
+    UrlPipe,
+    TranslatePipe
+  ]
 })
 export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderComponent implements OnInit, OnDestroy {
 
@@ -107,9 +115,9 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       next: ([apm, paymentDetails, achPaymentFormValue]: [ApmPaymentDetails, QueryState<PaymentDetails>, ACHPaymentForm]): void => {
         switch (true) {
           case (!apm || Boolean(apm?.cardType)): {
-            if (apm.cardType) {
+            if (apm?.cardType) {
               this.browserInfo = {
-              // eslint-disable-next-line deprecation/deprecation
+                // eslint-disable-next-line deprecation/deprecation,@typescript-eslint/no-deprecated
                 javaEnabled: navigator.javaEnabled(),
                 javascriptEnabled: true,
                 language: navigator.language,
@@ -133,7 +141,11 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
             if (achPaymentFormValue) {
               this.placeACHOrder(achPaymentFormValue);
             } else {
-              this.worldpayApmFacade.getAPMRedirectUrl(apmPaymentDetails);
+              if(apm.code === 'ACCOUNT') {
+                this.placeAccountOrder();
+              } else {
+                this.worldpayApmFacade.getAPMRedirectUrl(apmPaymentDetails);
+              }
             }
           }
         }
@@ -579,5 +591,15 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
       this.logger.error('Failed to process challenge event data', err);
     }
     this.orderFacade.challengeFailed('checkoutReview.challengeFailed');
+  }
+
+  placeAccountOrder(): void {
+    this.orderFacade.placeOrder(this.checkoutSubmitForm.valid).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (): void => {
+        this.globalMessageService.remove(GlobalMessageType.MSG_TYPE_INFO);
+      }
+    });
   }
 }

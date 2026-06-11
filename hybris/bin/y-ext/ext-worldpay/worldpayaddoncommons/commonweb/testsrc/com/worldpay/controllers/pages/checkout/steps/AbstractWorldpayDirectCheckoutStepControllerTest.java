@@ -22,7 +22,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static org.junit.Assert.assertEquals;

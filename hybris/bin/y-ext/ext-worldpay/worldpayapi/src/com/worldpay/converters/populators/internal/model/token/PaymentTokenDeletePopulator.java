@@ -34,20 +34,20 @@ public class PaymentTokenDeletePopulator implements Populator<DeleteTokenRequest
 
         Optional.ofNullable(source.getAuthenticatedShopperId()).ifPresent(shopperId -> {
             final AuthenticatedShopperID internalAuthenticatedShopperID = new AuthenticatedShopperID();
-            internalAuthenticatedShopperID.setvalue(shopperId);
+            internalAuthenticatedShopperID.setValue(shopperId);
             target.setAuthenticatedShopperID(internalAuthenticatedShopperID);
         });
 
         Optional.ofNullable(source.getPaymentTokenId()).ifPresent(paymentTokenId -> {
             final PaymentTokenID internalPaymentTokenIDWrapper = new PaymentTokenID();
-            internalPaymentTokenIDWrapper.setvalue(paymentTokenId);
+            internalPaymentTokenIDWrapper.setValue(paymentTokenId);
             target.setPaymentTokenID(internalPaymentTokenIDWrapper);
         });
 
         Optional.ofNullable(source.getTokenRequest()).ifPresent(tokenRequest -> {
             target.setTokenEventReference(tokenRequest.getTokenEventReference());
             final TokenReason internalTokenReason = new TokenReason();
-            internalTokenReason.setvalue(tokenRequest.getTokenReason());
+            internalTokenReason.setValue(tokenRequest.getTokenReason());
             target.setTokenReason(internalTokenReason);
         });
     }

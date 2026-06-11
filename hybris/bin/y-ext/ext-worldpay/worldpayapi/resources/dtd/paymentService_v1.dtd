@@ -125,6 +125,8 @@
                 (createToken|createTokenApproval)?,
                 orderLines?,
                 (subMerchantData|instalmentProvider)?,
+                typeOfDigitalCurrency?,
+                rampData?,
                 serviceLocationData?,
                 dynamicMCC?,
                 partialAuthorisation?,
@@ -137,7 +139,7 @@
                 productSku?,
                 FraudSightData?,
                 deviceSession?,
-                dynamicCurrencyConversion?,
+                (dynamicCurrencyConversion|dynamicCurrencyConversionOffer)?,
                 overrideNarrative?,
                 GuaranteedPaymentsData?,
                 delivery?,
@@ -716,7 +718,7 @@
                 countryCode NMTOKEN  #IMPLIED
                 maximumBilledMessages NMTOKEN  #IMPLIED >
         <!ELEMENT paymentOptionsInquiry  EMPTY>
-        <!ATTLIST paymentOptionsInquiry countryCode NMTOKEN  #REQUIRED >
+        <!ATTLIST paymentOptionsInquiry    countryCode NMTOKEN  #REQUIRED >
         <!ELEMENT bankAccountInquiry EMPTY>
         <!ATTLIST bankAccountInquiry source NMTOKEN #REQUIRED>
         <!ATTLIST bankAccountInquiry shopperCountryCode NMTOKEN #REQUIRED>
@@ -725,7 +727,7 @@
         <!ELEMENT devicePayload (#PCDATA )>
         <!ELEMENT cardAuthenticationCapabilitiesInquiry (paymentTokenInquiry?,cardNumber?,shopperEmailAddress,devicePayload)>
         <!ATTLIST cardAuthenticationCapabilitiesInquiry transactionId NMTOKEN  #REQUIRED>
-        <!ELEMENT paymentTokenInquiry (authenticatedShopperID?, paymentTokenID)>
+        <!ELEMENT paymentTokenInquiry (authenticatedShopperID?, paymentTokenID, rsaPublicKey?)>
         <!ATTLIST paymentTokenInquiry tokenScope (shopper | merchant) 'shopper'>
         <!ATTLIST paymentTokenInquiry detokenisation (true|false) 'false'>
         <!ATTLIST paymentTokenInquiry markUsed (true|false) 'false'>
@@ -1067,7 +1069,7 @@
                 SVS_GIFTCARD-SSL | KAKAOPAY-SSL | UNIONPAY-SSL |
                 TROY-SSL | CHINAUNIONPAY-SSL |
                 FF_DISBURSE-SSL | FF_MONEYTRANSFER-SSL | FF_HPP-SSL | EPS_ENV-SSL | MYBANK-SSL | SATISPAY-SSL | BANCOMATPAY-SSL | BLIK-SSL | PAYBYBANK_AU-SSL |
-                OXXO-SSL | MBWAY-SSL |
+                OXXO-SSL | MBWAY-SSL | PAZE-SSL |
                 (cardNumber, expiryDate, cardHolderName,
                         (cvc | issueNumber | startDate)? ) |
                 POSRequest |
@@ -1208,7 +1210,8 @@
         response data necessary to complete a 3D Secure transaction.
         -->
         <!ELEMENT info3DSecure ((paResponse|(mpiProvider,mpiResponse)|attemptedAuthentication|completedAuthentication|(threeDSVersion?, merchantName?, xid?,
-                dsTransactionId?, cavv?, eci, threeRI?, delegatedAuthentication?, transactionStatusReason?, transactionStatus?, challengeCancelIndicator?, networkScore?, cardBrand?,
+                dsTransactionId?, cavv?, eci?, threeRI?, delegatedAuthentication?, transactionStatusReason?, transactionStatus?, challengeCancelIndicator?,
+                networkScore?, cardBrand?,
                 cavvAlgorithm?))?)>
         <!ATTLIST info3DSecure challengePreference (noPreference | noChallengeRequested | challengeRequested | challengeMandated | TRAAlreadyPerformed | dataOnly) #IMPLIED
                 effectiveAuthenticationType (challenge | frictionless | frictionlessDelegated) #IMPLIED
@@ -1300,6 +1303,22 @@
         <!ELEMENT instalmentProvider (instalmentRetailerName)>
         <!ELEMENT instalmentRetailerName (#PCDATA)>
 
+        <!ELEMENT typeOfDigitalCurrency (#PCDATA)>
+        <!ELEMENT rampData (rampProvider+)>
+        <!ELEMENT rampProvider (providerId, affiliateData?)>
+        <!ATTLIST rampProvider scheme CDATA #IMPLIED>
+        <!ELEMENT providerId (#PCDATA)>
+        <!ELEMENT affiliateData (affiliateId, affiliateName?, affiliateStreet?, affiliateCity?, affiliateState?, affiliatePostalCode?, affiliateCountryCode,
+                affiliateURL?, affiliateTaxId?)>
+        <!ELEMENT affiliateId (#PCDATA)>
+        <!ELEMENT affiliateStreet (#PCDATA)>
+        <!ELEMENT affiliateCity (#PCDATA)>
+        <!ELEMENT affiliateState (#PCDATA)>
+        <!ELEMENT affiliatePostalCode (#PCDATA)>
+        <!ELEMENT affiliateCountryCode (#PCDATA)>
+        <!ELEMENT affiliateURL (#PCDATA)>
+        <!ELEMENT affiliateTaxId (#PCDATA)>
+
         <!-- Prime Routing (pinless debit) request data -->
         <!ELEMENT primeRoutingRequest  (routingPreference?, preferredNetworks?)>
         <!-- routingPreference: pinlessDebitOnly / signatureOnly / regular -->
@@ -1381,7 +1400,9 @@
                 MAC?,
                 fundingLinkId?,
                 acquirerResponseEci?,
-                authenticationOptimisationService?)>
+                authenticationOptimisationService?,
+                retrievalReferenceNumber?,
+                acquirerMerchantId?)>
 
         <!ELEMENT authenticateResponse (authenticationOutage | threeDSOutcome | authenticationOptimisationService) >
 
@@ -1604,16 +1625,17 @@
                 recipientMatchesSender (true|false) #IMPLIED>
         <!ELEMENT FF_HPP-SSL (paymentInstrument | (cvc, session))>
         <!ELEMENT ELV-SSL    (iban, accountHolderName?, bankName?, bankLocation?, creditScoring?)>
+        <!ELEMENT GLV-SSL    (iban)>
         <!ELEMENT SEPA_DIRECT_DEBIT-SSL (bankAccount-SEPA)>
         <!ELEMENT bankAccount-SEPA (iban, bic?, accountHolderName)>
         <!ELEMENT ACH_DIRECT_DEBIT-SSL (echeckSale | echeckVerification)>
         <!ELEMENT PERMANENT_SIGNED_DD_NL-FAX EMPTY>
-        <!--<!ELEMENT SINGLE_UNSIGNED_DD_NL-SSL (BankAccount_NL)>-->
-        <!--<!ELEMENT SINGLE_UNSIGNED_DD_FR-SSL (BankAccount_FR)>-->
-        <!--<!ELEMENT SINGLE_UNSIGNED_DD_ES-SSL (BankAccount_ES)>-->
+<!--        <!ELEMENT SINGLE_UNSIGNED_DD_NL-SSL (BankAccount_NL)>-->
+<!--        <!ELEMENT SINGLE_UNSIGNED_DD_FR-SSL (BankAccount_FR)>-->
+<!--        <!ELEMENT SINGLE_UNSIGNED_DD_ES-SSL (BankAccount_ES)>-->
         <!ELEMENT PERMANENT_SIGNED_DD_GB-SSL (bankAccount-GB)>
         <!ELEMENT PERMANENT_UNSIGNED_DD_GB-SSL (bankAccount-GB)>
-        <!--<!ELEMENT SINGLE_SIGNED_DD_ES-SSL (BankAccount_ES)>-->
+<!--        <!ELEMENT SINGLE_SIGNED_DD_ES-SSL (BankAccount_ES)>-->
         <!ELEMENT PAYOUT-BANK EMPTY>
         <!ELEMENT VISACHECKOUT-SSL (callId, extraData?)>
         <!ELEMENT PAYPAL-EXPRESS (successURL, failureURL, cancelURL)>
@@ -1702,6 +1724,7 @@
         <!ATTLIST PAGA_VERVE-SSL shopperCountryCode NMTOKEN #REQUIRED>
         <!ELEMENT PAYU-SSL (successURL, cancelURL, pendingURL)>
         <!ATTLIST PAYU-SSL shopperCountryCode NMTOKEN #REQUIRED>
+        <!ELEMENT PAZE-SSL (pazeEncryptedPayload)>
         <!ELEMENT PLUSPAY-SSL (successURL, cancelURL, pendingURL)>
         <!ATTLIST PLUSPAY-SSL shopperCountryCode NMTOKEN #REQUIRED>
         <!ELEMENT POLI-SSL (successURL, cancelURL, pendingURL)>
@@ -1916,6 +1939,10 @@
         <!ELEMENT reportingTokenID (#PCDATA)>
         <!ELEMENT reportingTokenExpiry (date)>
 
+        <!ELEMENT rsaPublicKey (modulus , exponent)>
+        <!ELEMENT modulus (#PCDATA)>
+        <!ELEMENT exponent (#PCDATA)>
+
         <!-- CHILD ELEMENTS OF FF_DISBURSE-SSL and FF_MONEYTRANSFER-SSL -->
         <!ELEMENT sender ((fundReference | ((paymentTokenID, authenticatedShopperID?)?, paymentInstrument?)), address?)>
         <!ATTLIST sender tokenScope (shopper | merchant) 'shopper'>
@@ -1978,7 +2005,7 @@
 
         <!ELEMENT PAYWITHGOOGLE-SSL (protocolVersion, signature, signedMessage, comboCard?)>
 
-        <!ELEMENT CLICKTOPAY-SSL (encryptedPayload)>
+        <!ELEMENT CLICKTOPAY-SSL (encryptedPayload | transientToken)>
 
         <!ELEMENT KLARNA-SSL (purchaseCountry, shopperLocale, merchantUrls, extraMerchantData?) >
 
@@ -2107,6 +2134,25 @@
 
         <!ATTLIST dynamicCurrencyConversionData exchangeRate NMTOKEN #REQUIRED>
 
+        <!ELEMENT dynamicCurrencyConversionOffer (exchangeRate?, amount?, date?)>
+
+        <!ATTLIST dynamicCurrencyConversionOffer status (accepted |
+                rejectedByCustomer |
+                serviceUnavailable |
+                lessThanMinimumValue |
+                unsupportedLocalCard |
+                unsupportedCard |
+                noInformationAvailable |
+                ratesUnavailable |
+                unauthorisedRequest |
+                invalidRequest) #REQUIRED>
+
+        <!ELEMENT exchangeRate EMPTY>
+
+        <!ATTLIST exchangeRate rate NMTOKEN #REQUIRED
+                rateProvider CDATA #REQUIRED
+                markupRate NMTOKEN #REQUIRED>
+
         <!ELEMENT sessionId   (#PCDATA)>
 
         <!ELEMENT deviceId    (#PCDATA)>
@@ -2201,6 +2247,10 @@
 
         <!--CHILD ELEMENTS FOR CLICKTOPAY-SSL PAYMENT METHOD -->
         <!ELEMENT encryptedPayload (#PCDATA)>
+        <!ELEMENT transientToken (#PCDATA)>
+
+        <!--CHILD ELEMENTS FOR PAZE-SSL PAYMENT METHOD -->
+        <!ELEMENT pazeEncryptedPayload (#PCDATA)>
 
         <!-- CHILD ELEMENTS OF CB-SSL, CARTEBLEUE-SSL, VISA-SSL, -->
         <!-- DISCOVER-SSL, JCB-SSL, LASER-SSL, DANKORT-SSL, JCB-SSL, -->
@@ -2302,7 +2352,7 @@
         <!-- BankAccount_NL is deprecated for use in new elements, instead
              bankAccount-NL must be used.
              Use is still required within a SINGLE_UNSIGNED_DD_NL-SSL element -->
-        <!--<!ELEMENT BankAccount_NL (iban, accountHolderName, accountHolderResidence)>-->
+<!--        <!ELEMENT BankAccount_NL (iban, accountHolderName, accountHolderResidence)>-->
 
         <!-- CHILD ELEMENTS of SINGLE_UNSIGNED_DD_FR-SSL -->
         <!-- The element BankAccount_FR represents a french -->
@@ -2315,7 +2365,7 @@
         <!-- BankAccount_FR is deprecated for use in new elements, instead
              bankAccount-FR must be used.
              Use is still required within a SINGLE_UNSIGNED_DD_FR-SSL element -->
-        <!--<!ELEMENT BankAccount_FR (bankCode, branchCode, bankAccountNr, controlCode, accountHolderName)>-->
+<!--        <!ELEMENT BankAccount_FR (bankCode, branchCode, bankAccountNr, controlCode, accountHolderName)>-->
 
         <!-- CHILD ELEMENTS of SINGLE_UNSIGNED_DD_ES-SSL -->
         <!-- Spanish bank account
@@ -2326,7 +2376,7 @@
              bankName       non empty string
              bankAddress    non empty string
              bankCity       non empty string  -->
-        <!--<!ELEMENT BankAccount_ES (swiftCode?, bankCode, branchCode, controlCode, bankAccountNr, bankName?, bankAddress?, bankCity?, accountHolderName)>-->
+<!--        <!ELEMENT BankAccount_ES (swiftCode?, bankCode, branchCode, controlCode, bankAccountNr, bankName?, bankAddress?, bankCity?, accountHolderName)>-->
 
 
         <!-- Convenience container element for country-specific bank accounts. -->
@@ -2623,11 +2673,12 @@
                 allowPartialAuth (true|false) 'false'
                 isDeferredAuth (true|false) 'false'
                 dualBrandCardRoutingChoice (merchant|cardholder) #IMPLIED>
-        <!ELEMENT ISO8583Request (((cardNumber, expiryDate, cardHolderName?, cvc?, billingAddress?) | encryptedData | TOKEN-SSL | ELV-SSL), transmissionDate, systemsTraceAuditNumber,
+        <!ELEMENT ISO8583Request (((cardNumber, expiryDate, cardHolderName?, cvc?, billingAddress?) | encryptedData | TOKEN-SSL | ELV-SSL | GLV-SSL), transmissionDate,
+                systemsTraceAuditNumber,
                 localDateTimeAtPOS, originalLocalDateTimeAtPOS?,
                 POSEntryMode, POSConditionCode, cardholderActivatedTerminal?, track?, terminalData, applicationPANSequenceNumber?, CVMR?, reasonForOnline?, ISOResponseIndicator?,
                 AuthorisationId?, authorisationResponseCode?, acquirerMerchantId, issuerCardData?, cardholderIdentificationMethod?, EMVRequest?, lodging?, onlinePIN?,
-                singleTapPIN?, retrievalReferenceNumber?, cardBrand?, POSBankAccount?, schemeTransactionIdentifier?) >
+                singleTapPIN?, retrievalReferenceNumber?, cardBrand?, POSBankAccount?, schemeTransactionIdentifier?, originalOrderCode?) >
         <!ATTLIST ISO8583Request chipCard (true|false) 'false' accountType (savings|cheque|credit) #IMPLIED>
 
         <!-- CHILD ELEMENTS FOR WeChatPay -->
@@ -2720,6 +2771,7 @@
         <!ELEMENT PINEncryptionMetadata (#PCDATA)>
         <!ELEMENT singleTapPIN (#PCDATA)>
         <!ELEMENT retrievalReferenceNumber (#PCDATA)>
+        <!ELEMENT originalOrderCode (#PCDATA)>
 
         <!ELEMENT POSResponse ((ISO8583Response, balanceReturn?) | inquiryURL)>
         <!ELEMENT balanceReturn (amount)>
@@ -2865,7 +2917,7 @@
                 extendedResponse    CDATA #IMPLIED
                 triggeredRules        CDATA #IMPLIED>
 
-        <!ELEMENT FraudSight (reasonCodes, insights?) >
+        <!ELEMENT FraudSight (reasonCodes, insights?, triggeredRules?) >
         <!ATTLIST FraudSight score   CDATA #REQUIRED
                 id      CDATA #REQUIRED
                 message CDATA #REQUIRED>
@@ -2877,6 +2929,11 @@
 
         <!ELEMENT insights (insight+)>
         <!ELEMENT insight (#PCDATA)>
+
+        <!ELEMENT triggeredRules (rule*)>
+        <!ELEMENT rule EMPTY>
+        <!ATTLIST rule    name CDATA #REQUIRED
+                action CDATA #IMPLIED>
 
         <!-- END - CHILD ELEMENTS OF FraudSight -->
 
@@ -2933,7 +2990,7 @@
 
         <!-- CHILD ELEMENTS OF ORDERMODIFICATION ELEMENT -->
         <!-- ================================================== -->
-        <!ELEMENT cancel (amount?, localDateTimeAtPOS?, (POSRequest | POSReversal)?, occurredAt?)>
+        <!ELEMENT cancel (amount?, localDateTimeAtPOS?, (POSRequest | POSReversal)?, occurredAt?, e2eIdentity?)>
         <!-- The cancel immediate attribute can only used for EMV transactions.
              If the merchant is not participating in EMV the value is not checked.
              When the value is set to 'yes', a cancel will be processed directly,
@@ -2944,7 +3001,7 @@
         <!ATTLIST cancel instant (true|false) #IMPLIED >
         <!ATTLIST cancel merchantCode CDATA #IMPLIED >
         <!ATTLIST cancel reference CDATA #IMPLIED >
-        <!ELEMENT cancelOrRefund (amount?, POSReversal?)>
+        <!ELEMENT cancelOrRefund (amount?, POSReversal?, e2eIdentity?)>
         <!ATTLIST cancelOrRefund merchantCode CDATA #IMPLIED >
         <!ATTLIST cancelOrRefund reference CDATA #IMPLIED >
         <!ELEMENT POSCaptureRequest ((cryptogram, ICCCryptogramInformation)?, transactionStatusInfo?)>
@@ -2984,7 +3041,7 @@
         <!ELEMENT extendExpiryDate EMPTY>
         <!ELEMENT cancelRefund EMPTY>
         <!ELEMENT cancelRetry EMPTY>
-        <!ELEMENT voidSale (POSReversal)?>
+        <!ELEMENT voidSale (POSReversal?, e2eIdentity?)>
         <!ELEMENT approve EMPTY>
         <!ELEMENT processBatchTime  (#PCDATA )>
         <!ELEMENT occurredAt (#PCDATA)>
@@ -3051,8 +3108,11 @@
                 state?,
                 countryCode,
                 telephoneNumber?,
-                emailAddress? )>
-        <!ATTLIST address    relaxPostalCodeCheck    (true | false) #IMPLIED>
+                emailAddress?,
+                additional? )>
+
+        <!ATTLIST address    relaxPostalCodeCheck    (true | false) #IMPLIED
+                relaxCityCheck            (true | false) #IMPLIED>
 
         <!-- CHILD ELEMENTS OF ADDRESS ELEMENT -->
         <!-- ================================= -->
@@ -3071,6 +3131,7 @@
         <!ELEMENT countryCode        (#PCDATA )>
         <!ELEMENT telephoneNumber    (#PCDATA )>
         <!ELEMENT emailAddress (#PCDATA )>
+        <!ELEMENT additional (#PCDATA )>
 
         <!ELEMENT invoiceNumber (#PCDATA)>
         <!-- CHILD ELEMENTS OF ALL TICKET-DETAILS ELEMENTS -->
@@ -3136,15 +3197,24 @@
                 (ticket|nonTicket),
                 agent,
                 agentFeeAmounts?,
-                totalAirlineTaxes?)>
+                totalAirlineTaxes?,
+                ancillaryServices? )>
         <!-- Code, length 3, consists of the IATA airline code -->
         <!ATTLIST airline    code NMTOKEN #REQUIRED
-                planNumber (03|06|09|12|00) #IMPLIED>
+                planNumber (03|06|09|12|00) #IMPLIED
+                purchaseType (ticket|ancillary) 'ticket'>
 
         <!-- CHILD ELEMENTS OF ALL AIRLINENAME ELEMENTS -->
         <!-- ================================= -->
         <!-- Contains the name of an airline as it may appear on a bill -->
         <!ELEMENT    airlineName  (    #PCDATA )>
+
+        <!-- CHILD ELEMENTS OF ALL ANCILLARYSERVICES ELEMENTS -->
+        <!-- ================================= -->
+        <!ELEMENT ancillaryServices ( ancillaryService+ )>
+        <!ATTLIST ancillaryServices documentNumber NMTOKEN #IMPLIED>
+        <!ELEMENT ancillaryService ( amountNoCurrency? )>
+        <!ATTLIST ancillaryService category (BF | BG | CF | CG | CO | FF | GF | GT | IE | LG | MD | ML | OT | PA | PT | SA | SB | SF | ST | TS | UN | UP | WI) #REQUIRED>
 
 
         <!-- CHILD ELEMENTS OF ALL RAILWAY ELEMENTS -->

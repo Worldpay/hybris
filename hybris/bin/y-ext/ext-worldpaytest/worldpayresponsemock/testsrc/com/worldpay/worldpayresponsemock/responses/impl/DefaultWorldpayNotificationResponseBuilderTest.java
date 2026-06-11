@@ -31,7 +31,7 @@ import com.worldpay.internal.model.TokenReason;
 import com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -158,7 +158,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
-        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getvalue());
+        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getValue());
         assertEquals(CARD_MONTH, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getMonth());
         assertEquals(CARD_YEAR, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getYear());
         assertEquals(TEST_CREDIT_CARD, payment.getPaymentMethodDetail().getCard().getNumber());
@@ -185,7 +185,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
-        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getvalue());
+        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getValue());
         assertEquals(CARD_MONTH, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getMonth());
         assertEquals(CARD_YEAR, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getYear());
         assertEquals(TEST_CREDIT_CARD, payment.getPaymentMethodDetail().getCard().getNumber());
@@ -213,7 +213,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
-        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getvalue());
+        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getValue());
         assertEquals(CARD_MONTH, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getMonth());
         assertEquals(CARD_YEAR, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getYear());
         assertEquals(TEST_CREDIT_CARD, payment.getPaymentMethodDetail().getCard().getNumber());
@@ -300,23 +300,23 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
             if (tokenElement instanceof final TokenDetails tokenDetails) {
-                assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
+                assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getValue());
                 final PaymentTokenExpiry paymentTokenExpiry = tokenDetails.getPaymentTokenExpiry();
 
                 assertEquals(TOKEN_EXPIRY_DAY_VALUE, paymentTokenExpiry.getDate().getDayOfMonth());
                 assertEquals(TOKEN_EXPIRY_MONTH_VALUE, paymentTokenExpiry.getDate().getMonth());
                 assertEquals(TOKEN_EXPIRY_YEAR_VALUE, paymentTokenExpiry.getDate().getYear());
 
-                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getvalue());
+                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getValue());
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof final PaymentInstrument paymentInstrument) {
                 final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
-                assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getvalue());
+                assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getValue());
 
                 final Derived derived = cardDetails.getDerived();
                 assertEquals(DERIVED_CARD_SUB_BRAND_VALUE, derived.getCardSubBrand());
-                assertEquals(DERIVED_CARD_BRAND_VALUE, derived.getCardBrand().getvalue());
+                assertEquals(DERIVED_CARD_BRAND_VALUE, derived.getCardBrand().getValue());
                 assertEquals(DERIVED_OBFUSCATED_PAN_VALUE, derived.getObfuscatedPAN());
                 assertEquals(DERIVED_ISSUER_COUNTRY_CODE_VALUE, derived.getIssuerCountryCode());
 
@@ -330,22 +330,22 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(ADDRESS_LAST_NAME_VALUE, address.getLastName());
                 assertEquals(ADDRESS_POSTAL_CODE_VALUE, address.getPostalCode());
                 assertEquals(ADDRESS_CITY_VALUE, address.getCity());
-                assertEquals(ADDRESS_COUNTRY_CODE_VALUE, address.getCountryCode().getvalue());
+                assertEquals(ADDRESS_COUNTRY_CODE_VALUE, address.getCountryCode().getValue());
                 for (Object addressElement : address.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3()) {
                     if (addressElement instanceof Address1) {
-                        assertEquals(ADDRESS_1_VALUE, ((Address1) addressElement).getvalue());
+                        assertEquals(ADDRESS_1_VALUE, ((Address1) addressElement).getValue());
                     } else if (addressElement instanceof Address2) {
-                        assertEquals(ADDRESS_2_VALUE, ((Address2) addressElement).getvalue());
+                        assertEquals(ADDRESS_2_VALUE, ((Address2) addressElement).getValue());
                     } else if (addressElement instanceof Address3) {
-                        assertEquals(ADDRESS_3_VALUE, ((Address3) addressElement).getvalue());
+                        assertEquals(ADDRESS_3_VALUE, ((Address3) addressElement).getValue());
                     }
                 }
             } else if (tokenElement instanceof final TokenReason tokenReason) {
-                assertEquals(TOKEN_REASON_VALUE, tokenReason.getvalue());
+                assertEquals(TOKEN_REASON_VALUE, tokenReason.getValue());
             }
         }
 
-        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getvalue());
+        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getValue());
         assertEquals(TOKEN_EVENT_REFERENCE_VALUE, token.getTokenEventReference());
     }
 
@@ -373,14 +373,14 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
             if (tokenElement instanceof final TokenDetails tokenDetails) {
-                assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getvalue());
+                assertEquals(TOKEN_DETAILS_REASON_VALUE, tokenDetails.getTokenReason().getValue());
                 final PaymentTokenExpiry paymentTokenExpiry = tokenDetails.getPaymentTokenExpiry();
 
                 assertEquals(TOKEN_EXPIRY_DAY_VALUE, paymentTokenExpiry.getDate().getDayOfMonth());
                 assertEquals(TOKEN_EXPIRY_MONTH_VALUE, paymentTokenExpiry.getDate().getMonth());
                 assertEquals(TOKEN_EXPIRY_YEAR_VALUE, paymentTokenExpiry.getDate().getYear());
 
-                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getvalue());
+                assertEquals(PAYMENT_TOKEN_ID_VALUE, tokenDetails.getPaymentTokenID().getValue());
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof final PaymentInstrument paymentInstrument) {
@@ -388,11 +388,11 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertNotNull(paypal);
 
             } else if (tokenElement instanceof final TokenReason tokenReason) {
-                assertEquals(TOKEN_REASON_VALUE, tokenReason.getvalue());
+                assertEquals(TOKEN_REASON_VALUE, tokenReason.getValue());
             }
         }
 
-        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getvalue());
+        assertEquals(AUTHENTICATED_SHOPPER_ID_VALUE, token.getAuthenticatedShopperID().getValue());
         assertEquals(TOKEN_EVENT_REFERENCE_VALUE, token.getTokenEventReference());
     }
 
@@ -485,7 +485,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
-        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getvalue());
+        assertEquals(CARD_HOLDER_NAME_VALUE, payment.getCardHolderName().getValue());
         assertEquals(CARD_MONTH, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getMonth());
         assertEquals(CARD_YEAR, payment.getPaymentMethodDetail().getCard().getExpiryDate().getDate().getYear());
         assertEquals(TEST_CREDIT_CARD, payment.getPaymentMethodDetail().getCard().getNumber());

@@ -1,14 +1,14 @@
 package com.worldpay.forms.validation;
 
+import java.time.LocalDate;
+
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.B2BCSEPaymentForm;
-import org.apache.commons.lang.StringUtils;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import javax.annotation.Resource;
-import java.util.Date;
 
 /**
  * Validate CSE form
@@ -46,7 +46,7 @@ public class B2BCseFormValidator implements Validator {
      * @param birthdayDate the birthday date
      * @return true if valid, false otherwise
      */
-    private boolean isValidDate(final Date birthdayDate) {
-        return birthdayDate != null && birthdayDate.before(new Date());
+    private boolean isValidDate(final LocalDate birthdayDate) {
+        return birthdayDate != null && birthdayDate.isBefore(LocalDate.now());
     }
 }

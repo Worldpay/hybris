@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
         
-    <extension abstractclassprefix="Generated" classprefix="Worldpayoms" managername="WorldpayomsManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayoms" usemaven="false">
+    <extension abstractclassprefix="Generated" classprefix="Worldpayoms" description="worldpayoms extension" jaloLogicFree="true" name="worldpayoms">
                 
         <requires-extension name="platformbackoffice"/>
                 

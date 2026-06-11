@@ -9,34 +9,19 @@ import { WorldpayGuaranteedPaymentsFacade } from '../../../core';
 
 @Component({
   selector: 'worldpay-guaranteed-payments',
-  template: '',
-  standalone: false
+  template: ''
 })
 export class WorldpayGuaranteedPaymentsComponent implements OnInit {
 
   sessionId: string = '';
   firstLoad: boolean = true;
+  protected activeCartFacade: ActiveCartFacade = inject(ActiveCartFacade);
+  protected userIdService: UserIdService = inject(UserIdService);
+  protected userAccountFacade: UserAccountFacade = inject(UserAccountFacade);
+  protected globalMessage: GlobalMessageService = inject(GlobalMessageService);
+  protected worldpayGuaranteedPaymentsFacade: WorldpayGuaranteedPaymentsFacade = inject(WorldpayGuaranteedPaymentsFacade);
   private logger: LoggerService = inject(LoggerService);
   private destroyRef: DestroyRef = inject(DestroyRef);
-
-  /**
-   * Constructor for the WorldpayGuaranteedPaymentsComponent.
-   *
-   * @param activeCartFacade - Service to manage the active cart.
-   * @param userIdService - Service to manage user IDs.
-   * @param userAccountFacade - Service to manage user accounts.
-   * @param globalMessage - Service to display global messages.
-   * @param worldpayGuaranteedPaymentsFacade - Service to manage Worldpay guaranteed payments.
-   * @since 6.4.0
-   */
-  constructor(
-    protected activeCartFacade: ActiveCartFacade,
-    protected userIdService: UserIdService,
-    protected userAccountFacade: UserAccountFacade,
-    protected globalMessage: GlobalMessageService,
-    protected worldpayGuaranteedPaymentsFacade: WorldpayGuaranteedPaymentsFacade,
-  ) {
-  }
 
   /**
    * Angular lifecycle hook that is called after the component's view has been initialized.
@@ -49,7 +34,7 @@ export class WorldpayGuaranteedPaymentsComponent implements OnInit {
     this.getSessionId();
     this.isGuaranteedPaymentsEnabledState();
     this.updateSessionId().pipe(
-      takeUntilDestroyed(this.destroyRef),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (sessionId: string): void => {
         if (sessionId) {
@@ -74,28 +59,25 @@ export class WorldpayGuaranteedPaymentsComponent implements OnInit {
    * @since 4.3.6
    */
   getSessionId(): void {
-    this.worldpayGuaranteedPaymentsFacade.getSessionId()
-      .pipe(
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (sessionId: string): void => {
-          if (sessionId !== this.sessionId || this.firstLoad) {
-            this.sessionId = sessionId;
-            if (this.sessionId) {
-              this.worldpayGuaranteedPaymentsFacade.generateScript(sessionId);
-            }
-            this.firstLoad = false;
+    this.worldpayGuaranteedPaymentsFacade.getSessionId().pipe(
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (sessionId: string): void => {
+        if (sessionId !== this.sessionId || this.firstLoad) {
+          this.sessionId = sessionId;
+          if (this.sessionId) {
+            this.worldpayGuaranteedPaymentsFacade.generateScript(sessionId);
           }
-        },
-        error: (error: unknown): void => {
-          this.showErrorMessage(error as HttpErrorModel);
-          this.logger.error('Failed to get Guaranteed Payments session Id, check component configuration', error);
-          this.worldpayGuaranteedPaymentsFacade.setGuaranteedPaymentsEnabledEvent(false);
+          this.firstLoad = false;
         }
+      },
+      error: (error: unknown): void => {
+        this.showErrorMessage(error as HttpErrorModel);
+        this.logger.error('Failed to get Guaranteed Payments session Id, check component configuration', error);
+        this.worldpayGuaranteedPaymentsFacade.setGuaranteedPaymentsEnabledEvent(false);
       }
-      );
+    });
   }
 
   /**
@@ -110,6 +92,7 @@ export class WorldpayGuaranteedPaymentsComponent implements OnInit {
    */
   isGuaranteedPaymentsEnabledState(): void {
     this.worldpayGuaranteedPaymentsFacade.isGuaranteedPaymentsEnabledState().pipe(
+      filter((state: QueryState<boolean>): boolean => !state.loading),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
       next: (response: QueryState<boolean>): void => {
@@ -135,22 +118,21 @@ export class WorldpayGuaranteedPaymentsComponent implements OnInit {
    * @since 4.3.6
    */
   updateSessionId(): Observable<string> {
-    return this.worldpayGuaranteedPaymentsFacade.isGuaranteedPaymentsEnabledState()
-      .pipe(
-        concatMap((): Observable<string> => combineLatest([
-          this.activeCartFacade.getActive(),
-          this.userAccountFacade.get(),
-          this.userIdService.getUserId(),
-        ]).pipe(
-          distinctUntilChanged(),
-          filter(([cart, user, userId]: [Cart, User, string]): boolean => (!!user?.uid || !!userId) && !!cart?.guid),
-          map(([cart, userAccount, userId]: [Cart, User, string]): string =>
-            userId === 'anonymous' ?
-              `${userId}_${cart?.guid}` :
-              `${userAccount?.customerId}_${cart?.guid}`
-          ),
-        )),
-      );
+    return this.worldpayGuaranteedPaymentsFacade.isGuaranteedPaymentsEnabledState().pipe(
+      concatMap((): Observable<string> => combineLatest([
+        this.activeCartFacade.getActive(),
+        this.userAccountFacade.get(),
+        this.userIdService.getUserId()
+      ]).pipe(
+        distinctUntilChanged(),
+        filter(([cart, user, userId]: [Cart, User, string]): boolean => (!!user?.uid || !!userId) && !!cart?.guid),
+        map(([cart, userAccount, userId]: [Cart, User, string]): string =>
+          userId === 'anonymous' ?
+            `${userId}_${cart?.guid}` :
+            `${userAccount?.customerId}_${cart?.guid}`
+        )
+      ))
+    );
   }
 
   /**

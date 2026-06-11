@@ -46,8 +46,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Locale;
 import java.util.Map;
 
@@ -186,7 +186,7 @@ public class WorldpayCartsControllerTest {
     public void addPaymentDetails_WhenPaymentDetailsAreValidCheckoutCartExistsAndTokenizeDoesNotThrowAnException_ShouldPopulatePaymentDetailsFromRequestAndAddThem() throws WorldpayException, NoCheckoutCartException {
         final PaymentDetailsWsDTO result = testObj.addPaymentDetails(requestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
 
-        verify(httpRequestPaymentDetailsWsDTOPopulatorMock).populate(eq(requestMock), any(PaymentDetailsWsDTO.class), anyCollectionOf(PaymentDetailsWsDTOOption.class));
+        verify(httpRequestPaymentDetailsWsDTOPopulatorMock).populate(eq(requestMock), any(PaymentDetailsWsDTO.class), anyCollection());
         verify(checkoutFacadeMock).hasCheckoutCart();
         verify(paymentDetailsDTOValidatorMock).validate(any(PaymentDetailsWsDTO.class), any(BeanPropertyBindingResult.class));
         verify(worldpayAdditionalInfoFacadeMock).createWorldpayAdditionalInfoData(requestMock);

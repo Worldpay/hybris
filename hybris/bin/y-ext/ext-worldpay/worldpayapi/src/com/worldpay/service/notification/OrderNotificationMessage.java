@@ -3,12 +3,14 @@ package com.worldpay.service.notification;
 import com.worldpay.data.*;
 import com.worldpay.data.token.TokenReply;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * This class represents the details that are passed back from a notification message
  */
 public class OrderNotificationMessage implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String orderCode;

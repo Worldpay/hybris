@@ -24,10 +24,12 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+
 import static com.worldpay.enums.order.AuthorisedStatus.AUTHORISED;
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -78,7 +80,7 @@ public class DefaultOrderNotificationServiceTest {
         testObj.processOrderNotificationMessage(orderNotificationMessageMock, worldpayOrderModificationMock);
 
         verify(worldpayPaymentTransactionDaoMock, never()).findPaymentTransactionByRequestIdFromOrdersOnly(anyString());
-        verify(orderNotificationProcessorStrategyMock, never()).processNotificationMessage(anyObject(), anyObject());
+        verify(orderNotificationProcessorStrategyMock, never()).processNotificationMessage(any(), any());
     }
 
     @Test

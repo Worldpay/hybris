@@ -1,23 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../interfaces';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPayment, ApplePayPaymentRequest } from '../../models';
 import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorldpayApplepayConnector {
-
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param adapter
-   */
-  constructor(
-    protected adapter: WorldpayApplepayAdapter
-  ) {
-  }
+  protected adapter: WorldpayApplepayAdapter = inject(WorldpayApplepayAdapter);
 
   /**
    * Request Apple Pay Payment Request
@@ -39,13 +30,13 @@ export class WorldpayApplepayConnector {
    * @param userId - User ID
    * @param cartId - Cart ID
    * @param validationURL - Validation URL
-   * @returns Observable<ValidateMerchant> - ValidateMerchant as Observable
+   * @returns Observable<ApplePayMerchantSession> - Merchant Session as Observable
    */
   public validateApplePayMerchant(
     userId: string,
     cartId: string,
     validationURL: string
-  ): Observable<ValidateMerchant> {
+  ): Observable<ApplePayMerchantSession> {
     return this.adapter.validateApplePayMerchant(userId, cartId, validationURL);
   }
 
@@ -60,7 +51,7 @@ export class WorldpayApplepayConnector {
   public authorizeApplePayPayment(
     userId: string,
     cartId: string,
-    payment: any
+    payment: ApplePayPayment
   ): Observable<ApplePayAuthorization> {
     return this.adapter.authorizeApplePayPayment(userId, cartId, payment);
   }

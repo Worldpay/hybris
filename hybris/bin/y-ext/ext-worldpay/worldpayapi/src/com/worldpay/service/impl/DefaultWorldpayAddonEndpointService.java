@@ -3,7 +3,7 @@ package com.worldpay.service.impl;
 import com.worldpay.service.WorldpayAddonEndpointService;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * {@inheritDoc}

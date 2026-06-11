@@ -2,89 +2,82 @@
   <caption class="cx-visually-hidden">
     {{ 'cartItems.caption' | cxTranslate }}
   </caption>
-  <thead *ngIf="hasHeader">
-  <tr
-    class="cx-item-list-header"
-    role="row"
-  >
-    <th
-      class="cx-item-list-desc"
-      role="columnheader"
-    >
-      {{ 'cartItems.item' | cxTranslate }}
-    </th>
-
-    <ng-template
-      role="columnheader"
-      [cxOutlet]="CartOutlets.CPQ_QUOTE_HEADING"
-      [cxOutletContext]="items"
-    ></ng-template>
-
-    <th
-      *cxFeature="'a11yQTY2Quantity'"
-      role="columnheader"
-      scope="col"
-      class="cx-item-list-qty"
-    >
-      {{ 'cartItems.quantityFull' | cxTranslate }}
-    </th>
-
-    <th
-      *cxFeature="'!a11yQTY2Quantity'"
-      role="columnheader"
-      scope="col"
-      class="cx-item-list-qty"
-    >
-      {{ 'cartItems.quantity' | cxTranslate }}
-    </th>
-    <ng-container *ngIf="options.isSaveForLater; else totalHeader">
-      <th
-        class="cx-item-list-total"
-        role="columnheader"
-      >
-        {{ 'saveForLaterItems.stock' | cxTranslate }}
-      </th>
-    </ng-container>
-    <ng-container
-      *ngIf="!readonly || options.isSaveForLater || options.displayAddToCart"
-    >
-      <th
-        class="cx-item-list-actions"
-        role="columnheader"
-      >
-        {{ 'cartItems.actions' | cxTranslate }}
-      </th>
-    </ng-container>
-  </tr>
-  </thead>
-  <tbody class="cx-item-list-items">
-  <ng-container *ngFor="let item of items; let i = index">
-    <ng-container
-      *ngIf="getControl(item) | async as control"
-      [class.is-changed]="control.get('quantity').disabled"
-    >
+  @if (hasHeader) {
+    <thead>
       <tr
-        [attr.aria-rowindex]="i + 1"
-        [item]="item"
-        [options]="options"
-        [promotionLocation]="promotionLocation"
-        [quantityControl]="castQtyControl(control.get('quantity'))"
-        [readonly]="readonly"
-        class="cx-item-list-row"
-        data-bdd="cx-item"
-        y-worldpay-cart-item-list-row
+        class="cx-item-list-header"
         role="row"
-      ></tr>
-    </ng-container>
-  </ng-container>
+        >
+        <th
+          class="cx-item-list-desc"
+          role="columnheader"
+          >
+          {{ 'cartItems.item' | cxTranslate }}
+        </th>
+        <ng-template
+          role="columnheader"
+          [cxOutlet]="CartOutlets.CPQ_QUOTE_HEADING"
+          [cxOutletContext]="items"
+        ></ng-template>
+        <th
+          role="columnheader"
+          scope="col"
+          class="cx-item-list-qty"
+          >
+          {{ 'cartItems.quantityFull' | cxTranslate }}
+        </th>
+        <th
+          role="columnheader"
+          scope="col"
+          class="cx-item-list-qty"
+          >
+          {{ 'cartItems.quantity' | cxTranslate }}
+        </th>
+        @if (options.isSaveForLater) {
+          <th
+            class="cx-item-list-total"
+            role="columnheader"
+            >
+            {{ 'saveForLaterItems.stock' | cxTranslate }}
+          </th>
+        } @else {
+          <th
+            class="cx-item-list-total"
+            role="columnheader"
+            >
+            {{ 'cartItems.total' | cxTranslate }}
+          </th>
+        }
+        @if (!readonly || options.isSaveForLater || options.displayAddToCart) {
+          <th
+            class="cx-item-list-actions"
+            role="columnheader"
+            >
+            {{ 'cartItems.actions' | cxTranslate }}
+          </th>
+        }
+      </tr>
+    </thead>
+  }
+  <tbody class="cx-item-list-items">
+    @for (item of items; track item; let i = $index) {
+      @if (getControl(item) | async; as control) {
+        <ng-container [class.is-changed]="control.get('quantity').disabled">
+          <tr
+            [attr.aria-rowindex]="i + 1"
+            [items]="items"
+            [item]="item"
+            [promotionLocation]="promotionLocation"
+            [quantityControl]="castQtyControl(control.get('quantity'))"
+            [readonly]="readonly"
+            class="cx-item-list-row"
+            data-bdd="cx-item"
+            y-worldpay-cart-item-list-row
+            role="row"
+          ></tr>
+        </ng-container>
+      }
+    }
   </tbody>
 </table>
 
-<ng-template #totalHeader>
-  <th
-    class="cx-item-list-total"
-    role="columnheader"
-  >
-    {{ 'cartItems.total' | cxTranslate }}
-  </th>
-</ng-template>

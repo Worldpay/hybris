@@ -39,8 +39,11 @@ describe('WorldpayCheckoutScheduleReplenishmentOrderComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [I18nTestingModule, IconTestingModule],
-      declarations: [WorldpayCheckoutScheduleReplenishmentOrderComponent],
+      imports: [
+        I18nTestingModule,
+        IconTestingModule,
+        WorldpayCheckoutScheduleReplenishmentOrderComponent
+      ],
       providers: [
         {
           provide: CheckoutReplenishmentFormService,

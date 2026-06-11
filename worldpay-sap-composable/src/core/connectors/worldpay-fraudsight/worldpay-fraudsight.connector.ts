@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorldpayFraudsightAdapter } from './worldpay-fraudsight.adapter';
 
@@ -7,15 +7,7 @@ import { WorldpayFraudsightAdapter } from './worldpay-fraudsight.adapter';
 })
 export class WorldpayFraudsightConnector {
 
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param adapter - WorldpayFraudsightAdapter
-   */
-  constructor(
-    protected adapter: WorldpayFraudsightAdapter
-  ) {
-  }
+  protected adapter: WorldpayFraudsightAdapter = inject(WorldpayFraudsightAdapter);
 
   /**
    * Method used to get FraudSight status.

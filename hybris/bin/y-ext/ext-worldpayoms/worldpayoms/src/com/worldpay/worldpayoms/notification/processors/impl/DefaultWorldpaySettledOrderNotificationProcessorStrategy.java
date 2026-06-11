@@ -5,7 +5,6 @@ import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
 
 /**
@@ -22,12 +21,10 @@ public class DefaultWorldpaySettledOrderNotificationProcessorStrategy implements
                 worldpayPaymentTransactionService.createNotPendingSettledPaymentTransactionEntry(paymentTransactionModel, orderNotificationMessage));
     }
 
-    @Required
     public void setTransactionTemplate(TransactionOperations transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
     }
 
-    @Required
     public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }

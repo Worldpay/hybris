@@ -7,12 +7,13 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <context:component-scan base-package="com.worldpay.worldpayextb2bocc.controllers"/>
+    <context:component-scan base-package="com.worldpay.worldpayextb2bocc.controllers, com.worldpay.worldpayocccommons.controllers,
+    com.worldpay.worldpayocccommons.populators, com.worldpay.worldpayocccommons.validator "/>
 
     <alias name="defaultPaymentDetailsDTOValidator" alias="paymentDetailsDTOValidator"/>
     <bean id="defaultPaymentDetailsDTOValidator"
           class="com.worldpay.worldpayocccommons.validator.PaymentDetailsDTOValidator">
-        <property name="paymentAddressValidator" ref="paymentAddressValidator"/>
+        <constructor-arg name="paymentAddressValidator" ref="paymentAddressValidator"/>
     </bean>
 
     <alias name="defaultACHDirectDebitPaymentDetailsDTOValidator" alias="achDirectDebitPaymentDetailsDTOValidator"/>
@@ -54,9 +55,9 @@
         <property name="validators">
             <list>
                 <bean class="com.worldpay.worldpayocccommons.validator.BooleanValidator">
-                    <property name="errorMessageID" value="cart.notCalculated"/>
-                    <property name="fieldPath" value="calculated"/>
-                    <property name="booleanValue" value="true"/>
+                    <constructor-arg name="errorMessageID" value="cart.notCalculated" />
+                    <constructor-arg name="fieldPath" value="calculated" />
+                    <constructor-arg name="booleanValue" value= "true" />
                 </bean>
                 <bean class="de.hybris.platform.webservicescommons.validators.FieldNotEmptyValidator">
                     <property name="fieldPath" value="paymentInfo"/>

@@ -7,7 +7,6 @@ import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.action.AbstractAction;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.util.Set;
 
@@ -80,7 +79,6 @@ public class WorldpayCheckAuthorizeOrderPaymentAction extends WorldpayAbstractOr
         modelService.save(entry);
     }
 
-    @Required
     public void setPaymentTransactionService(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
         this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
     }

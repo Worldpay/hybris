@@ -1,14 +1,14 @@
 <form
   (ngSubmit)="next()"
   [formGroup]="idealForm"
->
+  >
   <div class="row">
-    <ng-container *ngIf="apm?.bankConfigurations?.length > 0">
+    @if (apm?.bankConfigurations?.length > 0) {
       <div class="col-md-12 col-xl-10 mb-3">
         <div
           class="form-group"
           formGroupName="bank"
-        >
+          >
           <label aria-required="true">
             <span class="label-content required">{{ 'paymentForm.idealForm.bank.label' | cxTranslate }}</span>
             <ng-select
@@ -19,9 +19,8 @@
               bindValue="code"
               placeholder="{{'paymentForm.idealForm.bank.placeholder' | cxTranslate}}"
               formControlName="code"
-            >
+              >
             </ng-select>
-
             <cx-form-errors
               [prefix]="'paymentForm.idealForm.bank'"
               [control]="idealForm.get('bank')"
@@ -29,7 +28,7 @@
           </label>
         </div>
       </div>
-    </ng-container>
+    }
 
     <div class="col-12">
       <y-worldpay-billing-address></y-worldpay-billing-address>
@@ -40,5 +39,5 @@
     (back)="return()"
     [disableContinue$]="disableContinueButton(idealForm.invalid)"
     [dataTestId]="'ideal-continue-btn'"
-  />
+    />
 </form>

@@ -4,8 +4,8 @@ import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.strategy.APMAvailabilityStrategy;
 import de.hybris.platform.core.model.order.CartModel;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.commons.collections4.CollectionUtils;
+
 
 /**
  * {@see APMAvailabilityStrategy}
@@ -14,7 +14,11 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class APMAvailabilityBankStrategy implements APMAvailabilityStrategy {
 
-    private WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService;
+    protected final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService;
+
+    public APMAvailabilityBankStrategy(final WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService) {
+        this.worldpayBankConfigurationLookupService = worldpayBankConfigurationLookupService;
+    }
 
     /**
      * Returns true if the APM is not a bank or if the configured bank list for the APM is not empty.
@@ -32,8 +36,4 @@ public class APMAvailabilityBankStrategy implements APMAvailabilityStrategy {
         }
     }
 
-    @Required
-    public void setWorldpayBankConfigurationLookupService(WorldpayBankConfigurationLookupService worldpayBankConfigurationLookupService) {
-        this.worldpayBankConfigurationLookupService = worldpayBankConfigurationLookupService;
-    }
 }

@@ -23,16 +23,8 @@ export interface Scripts {
 })
 export class LoadScriptService {
 
+  protected winRef: WindowRef = inject(WindowRef);
   private logger: LoggerService = inject(LoggerService);
-
-  /**
-   * Constructor
-   * @param winRef WindowRef
-   */
-  constructor(
-    protected winRef: WindowRef
-  ) {
-  }
 
   /**
    * Load script to DOM
@@ -117,7 +109,7 @@ export class LoadScriptService {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateScript(node: any, attributes: { [key: string]: string }): any {
-    if (node && attributes) {
+    if (node && attributes && this.winRef.isBrowser()) {
       for (const key of Object.keys(attributes)) {
         node.setAttribute(key, attributes[key]);
       }

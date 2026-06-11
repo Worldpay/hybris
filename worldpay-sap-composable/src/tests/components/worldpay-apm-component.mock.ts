@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApmData } from '../../core';
@@ -5,7 +6,9 @@ import { ApmData } from '../../core';
 @Component({
   selector: 'y-worldpay-apm-component, y-worldpay-b2b-apm-component',
   template: '<ng-container [ngTemplateOutlet]="cardTemplate"></ng-container>',
-  standalone: false
+  imports: [
+    NgTemplateOutlet
+  ]
 })
 export class MockWorldpayApmComponent {
   @Input() apms: Observable<ApmData[]>;

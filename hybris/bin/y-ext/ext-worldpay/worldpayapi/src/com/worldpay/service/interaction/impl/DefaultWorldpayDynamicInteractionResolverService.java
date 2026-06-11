@@ -4,7 +4,8 @@ import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.interaction.WorldpayDynamicInteractionResolverService;
 import de.hybris.platform.assistedserviceservices.AssistedServiceService;
-import org.springframework.beans.factory.annotation.Required;
+import de.hybris.platform.servicelayer.dto.converter.Converter;
+
 
 import static com.worldpay.enums.order.DynamicInteractionType.*;
 
@@ -13,8 +14,11 @@ import static com.worldpay.enums.order.DynamicInteractionType.*;
  */
 public class DefaultWorldpayDynamicInteractionResolverService implements WorldpayDynamicInteractionResolverService {
 
-    private AssistedServiceService assistedServiceService;
+    protected final AssistedServiceService assistedServiceService;
 
+    protected DefaultWorldpayDynamicInteractionResolverService(final AssistedServiceService assistedServiceService) {
+        this.assistedServiceService = assistedServiceService;
+    }
     /**
      * {@inheritDoc}
      */
@@ -31,8 +35,4 @@ public class DefaultWorldpayDynamicInteractionResolverService implements Worldpa
         return assistedServiceService.getAsmSession() != null && assistedServiceService.getAsmSession().getAgent() != null;
     }
 
-    @Required
-    public void setAssistedServiceService(final AssistedServiceService assistedServiceService) {
-        this.assistedServiceService = assistedServiceService;
-    }
 }

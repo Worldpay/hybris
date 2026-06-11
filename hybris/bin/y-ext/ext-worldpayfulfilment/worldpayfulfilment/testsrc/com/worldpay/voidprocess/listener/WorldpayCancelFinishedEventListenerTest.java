@@ -2,7 +2,7 @@ package com.worldpay.voidprocess.listener;
 
 import com.google.common.collect.ImmutableList;
 import com.worldpay.dao.ProcessDefinitionDao;
-import com.worldpay.voidprocess.model.WorldpayVoidProcessModel;
+import com.worldpay.model.WorldpayVoidProcessModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.ordercancel.events.CancelFinishedEvent;

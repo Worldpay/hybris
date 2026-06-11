@@ -2,7 +2,7 @@ package com.worldpay.worldpayocccommons.validator;
 
 import com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO;
 import de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 

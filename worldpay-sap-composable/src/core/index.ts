@@ -1,3 +1,4 @@
+export * from './models';
 export * from './interfaces';
 export * from './connectors';
 export * from './facade';

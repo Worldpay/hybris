@@ -2,7 +2,7 @@ package com.worldpay.util;
 
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

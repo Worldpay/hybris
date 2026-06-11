@@ -19,7 +19,7 @@ public class DefaultWorldpayTokenEventReferenceCreationStrategyTest {
     private static final String CART_CODE = "cartCode";
 
     @InjectMocks
-    private DefaultWorldpayTokenEventReferenceCreationStrategy testObj = new DefaultWorldpayTokenEventReferenceCreationStrategy();
+    private DefaultWorldpayTokenEventReferenceCreationStrategy testObj;
     @Mock
     private CartService cartServiceMock;
 

@@ -1,13 +1,17 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Type } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Type } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync, } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { CheckoutFlowOrchestratorService, CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutDeliveryModesFacade, } from '@spartacus/checkout/base/root';
-import { Address, FeatureConfigService, FeaturesConfig, FeaturesConfigModule, GlobalMessageService, I18nTestingModule, UserAddressService, } from '@spartacus/core';
+import { Address, CxDatePipe, FeatureConfigService, FeaturesConfig, GlobalMessageService, TranslatePipe, UserAddressService, } from '@spartacus/core';
+import { CardComponent } from '@spartacus/storefront';
 import { EMPTY, of } from 'rxjs';
-import { MockCxCardComponent, MockCxFeatureLevelDirective, MockCxSpinnerComponent, MockGlobalMessageService } from 'worldpay-sap-composable-tests';
+import { MockGlobalMessageService } from 'worldpay-sap-composable-tests';
+import { MockWorldpayAddressFormComponent } from '../../../tests/components/worldpay-address-form.mock';
+import { WorldpayAddressFormComponent } from '../worldpay-address-form/worldpay-address-form.component';
 import { WorldpayCheckoutDeliveryAddressComponent } from './worldpay-checkout-delivery-address.component';
 import createSpy = jasmine.createSpy;
 
@@ -43,20 +47,6 @@ const mockActivatedRoute = {
     url: ['checkout', 'shipping-address'],
   },
 };
-
-@Component({
-  selector: 'y-worldpay-address-form',
-  template: '',
-  standalone: false
-})
-class MockWorldpayAddressFormComponent {
-  @Input() showTitleCode: boolean;
-  @Input() setAsDefaultField: boolean;
-  @Input() addressData: Address;
-  @Input() cancelBtnLabel: string;
-  @Output() submitAddress = new EventEmitter<any>();
-  @Output() backToAddress = new EventEmitter<any>();
-}
 
 class MockCheckoutDeliveryModesFacade implements Partial<CheckoutDeliveryModesFacade> {
   clearCheckoutDeliveryMode = createSpy().and.returnValue(EMPTY);
@@ -114,15 +104,11 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
-        I18nTestingModule,
-        FeaturesConfigModule
-      ],
-      declarations: [
         WorldpayCheckoutDeliveryAddressComponent,
-        MockWorldpayAddressFormComponent,
-        MockCxCardComponent,
-        MockCxSpinnerComponent,
-        MockCxFeatureLevelDirective
+        CardComponent,
+        TranslatePipe,
+        CxDatePipe,
+        AsyncPipe
       ],
       providers: [
         {
@@ -154,7 +140,7 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
           useClass: MockCheckoutDeliveryModesFacade,
         },
         {
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line deprecation/deprecation, @typescript-eslint/no-deprecated
           provide: FeaturesConfig,
           useValue: {
             features: { level: '6.3' },
@@ -169,11 +155,19 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
           useClass: MockFeatureConfigService,
         },
       ],
-    })
-      .overrideComponent(WorldpayCheckoutDeliveryAddressComponent, {
-        set: { changeDetection: ChangeDetectionStrategy.Default },
-      })
-      .compileComponents();
+    }).overrideComponent(WorldpayCheckoutDeliveryAddressComponent, {
+      remove: {
+        imports: [
+          WorldpayAddressFormComponent,
+        ],
+      },
+      add: {
+        changeDetection: ChangeDetectionStrategy.Eager,
+        imports: [
+          MockWorldpayAddressFormComponent,
+        ],
+      },
+    }).compileComponents();
 
     checkoutDeliveryAddressFacade = TestBed.inject(
       CheckoutDeliveryAddressFacade
@@ -195,7 +189,7 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
     spyOn(component, 'addAddress').and.callThrough();
     spyOn(component, 'selectAddress').and.callThrough();
     spyOn<any>(component, 'setAddress').and.callThrough();
-    spyOn<any>(component, 'getCardRole').and.callThrough();
+    spyOn<any>(component, 'getCardContent').and.callThrough();
   });
 
   it('should be created', () => {
@@ -338,7 +332,7 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
         spyOn(featureConfig, 'isEnabled').and.returnValue(true);
       });
 
-      it('should be set to "application" for selected address', () => {
+      it('should be set to "region" for selected address', () => {
         expect(
           component.getCardContent(
             mockAddress1,
@@ -349,11 +343,10 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
             'P',
             'M'
           ).role
-        ).toEqual('application');
-        expect(component['getCardRole']).toHaveBeenCalledWith(true);
+        ).toEqual('region');
       });
 
-      it('should be set to "button" for all non selected addresses', () => {
+      it('should be set to "group" for all non selected addresses', () => {
         expect(
           component.getCardContent(
             mockAddress1,
@@ -364,8 +357,53 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
             'P',
             'M'
           ).role
-        ).toEqual('button');
-        expect(component['getCardRole']).toHaveBeenCalledWith(false);
+        ).toEqual('group');
+      });
+    });
+
+    describe('role in template', () => {
+      beforeEach(() => {
+        spyOn(featureConfig, 'isEnabled').and.returnValue(true);
+      });
+
+      it('should pass "region" role to cx-card for selected address', () => {
+        checkoutDeliveryAddressFacade.getDeliveryAddressState =
+          createSpy().and.returnValue(
+            of({
+              loading: false,
+              error: false,
+              data: mockAddress1
+            })
+          );
+        fixture.detectChanges();
+
+        const cards = fixture.debugElement.queryAll(By.css('cx-card'));
+        const selectedCard = cards.find(
+          (card) => card.componentInstance.content?.role === 'region'
+        );
+        expect(selectedCard).toBeTruthy();
+        expect(selectedCard?.componentInstance.role).toEqual('region');
+      });
+
+      it('should pass "group" role to cx-card for non-selected addresses', () => {
+        checkoutDeliveryAddressFacade.getDeliveryAddressState =
+          createSpy().and.returnValue(
+            of({
+              loading: false,
+              error: false,
+              data: mockAddress1
+            })
+          );
+        fixture.detectChanges();
+
+        const cards = fixture.debugElement.queryAll(By.css('cx-card'));
+        const nonSelectedCards = cards.filter(
+          (card) => card.componentInstance.content?.role === 'group'
+        );
+        expect(nonSelectedCards.length).toBeGreaterThan(0);
+        nonSelectedCards.forEach((card) => {
+          expect(card.componentInstance.role).toEqual('group');
+        });
       });
     });
   });
@@ -414,12 +452,12 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
     const getBackBtn = () =>
       fixture.debugElement
         .queryAll(By.css('.btn-secondary'))
-        .find((el) => el.nativeElement.innerText === 'Common.Back');
+        .find((el) => el.nativeElement.innerText.toLowerCase() === 'common.back');
 
     it('should call "back" function after being clicked', () => {
       spyOn(component, 'back').and.callThrough();
       fixture.detectChanges();
-      getBackBtn().nativeElement.click();
+      getBackBtn()?.nativeElement.click();
       expect(component.back).toHaveBeenCalled();
     });
   });
@@ -467,7 +505,7 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
       fixture.detectChanges();
       expect(getNewAddressForm()).toBeFalsy();
 
-      getAddNewAddressBtn().nativeElement.click();
+      getAddNewAddressBtn()?.nativeElement.click();
       fixture.detectChanges();
       expect(getNewAddressForm()).toBeTruthy();
     });
@@ -544,7 +582,7 @@ describe('WorldpayCheckoutDeliveryAddressComponent', () => {
       card.tabIndex = 0;
       document.body.appendChild(card);
       selectButton.focus();
-      component.isUpdating$ = of(false);
+      component['isUpdating$'] = of(false);
       spyOn(card, 'focus');
       spyOn(component['focusService'], 'findFirstFocusable').and.returnValue(
         card

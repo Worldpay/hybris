@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
         
-    <extension abstractclassprefix="Generated" classprefix="Worldpaysampledataaddon" description="worldpaysampledataaddon extension" managername="WorldpaysampledataaddonManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpaysampledataaddon">
+    <extension abstractclassprefix="Generated" classprefix="Worldpaysampledataaddon" description="worldpaysampledataaddon extension" jaloLogicFree="true" name="worldpaysampledataaddon">
                 
         <!-- Needed to ensure loading of accelerator data before adding sample data -->
                 

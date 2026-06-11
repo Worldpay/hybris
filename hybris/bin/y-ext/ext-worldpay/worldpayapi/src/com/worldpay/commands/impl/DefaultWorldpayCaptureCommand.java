@@ -1,12 +1,21 @@
 package com.worldpay.commands.impl;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Currency;
+import java.util.List;
+import java.util.Objects;
+
+import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
+
 import com.worldpay.core.services.WorldpayHybrisOrderService;
-import com.worldpay.exception.WorldpayException;
-import com.worldpay.merchant.WorldpayMerchantInfoService;
-import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.data.Amount;
 import com.worldpay.data.Date;
 import com.worldpay.data.MerchantInfo;
+import com.worldpay.exception.WorldpayException;
+import com.worldpay.merchant.WorldpayMerchantInfoService;
+import com.worldpay.service.WorldpayServiceGateway;
 import com.worldpay.service.payment.WorldpayOrderService;
 import com.worldpay.service.request.CaptureServiceRequest;
 import com.worldpay.service.response.CaptureServiceResponse;
@@ -20,16 +29,6 @@ import de.hybris.platform.payment.commands.result.CaptureResult;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Currency;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static de.hybris.platform.payment.dto.TransactionStatus.ERROR;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.COMMUNICATION_PROBLEM;
 
 
 /**
@@ -73,9 +72,9 @@ public class DefaultWorldpayCaptureCommand extends WorldpayCommand implements Ca
     protected List<String> getShippingInfosFromOrder(final String orderCode) {
         final OrderModel orderModel = worldpayHybrisOrderService.findOrderByWorldpayOrderCode(orderCode);
         return orderModel.getConsignments().stream()
-            .map(ConsignmentModel::getTrackingID)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .map(ConsignmentModel::getTrackingID)
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private CaptureResult createErrorCaptureResult() {

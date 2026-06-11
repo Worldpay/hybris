@@ -34,7 +34,9 @@ class WorldpayAPMComponentsTest extends AbstractWorldpaySpockTest {
 
         then: "the expected WorldpayAPMComponents are getting"
         with(response) {
-            if (isNotEmpty(data) && isNotEmpty(data.errors)) println(data)
+            if (isNotEmpty(data) && isNotEmpty(data.errors)) {
+                println(data)
+            }
             status == SC_OK
             data.apmComponents.collect { it.apmConfiguration.code } == expectedAPMs
         }

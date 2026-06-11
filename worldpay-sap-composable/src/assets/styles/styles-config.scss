@@ -1,6 +1,8 @@
 $useLatestStyles: true;
 
-@import "./mixins";
+@import "@spartacus/styles/scss/features";
+@import "@spartacus/styles/scss/mixins";
+@import "@spartacus/styles/scss/page-template";
 @import "@spartacus/asm";
 @import "@spartacus/cart";
 @import "@spartacus/checkout";

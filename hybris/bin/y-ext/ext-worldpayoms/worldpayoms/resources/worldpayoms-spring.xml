@@ -6,17 +6,20 @@
 
     <!-- Process Definitions -->
     <alias name="worldpayOmsOrderProcessDefinitionResource" alias="orderProcessDefinitionResource"/>
-    <bean id="worldpayOmsOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <bean id="worldpayOmsOrderProcessDefinitionResource"
+          class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayoms/process/order-process.xml"/>
     </bean>
 
     <alias name="worldpayConsignmentProcessDefinitionResource" alias="consignmentProcessDefinitionResource"/>
-    <bean id="worldpayConsignmentProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <bean id="worldpayConsignmentProcessDefinitionResource"
+          class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayoms/process/consignment-process.xml"/>
     </bean>
 
     <alias name="worldpayReturnProcessDefinitionResource" alias="returnProcessDefinitionResource"/>
-    <bean id="worldpayReturnProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <bean id="worldpayReturnProcessDefinitionResource"
+          class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayoms/process/return-process.xml"/>
     </bean>
 
@@ -29,59 +32,70 @@
     </bean>
 
     <alias name="worldpayCaptureRefundAction" alias="captureRefundAction"/>
-    <bean name="worldpayCaptureRefundAction" class="com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCaptureRefundAction" parent="abstractAction">
+    <bean name="worldpayCaptureRefundAction"
+          class="com.worldpay.worldpayoms.fulfilmentprocess.actions.order.WorldpayCaptureRefundAction"
+          parent="abstractAction">
         <constructor-arg name="paymentService" ref="paymentService"/>
         <constructor-arg name="refundAmountCalculationService" ref="refundAmountCalculationService"/>
     </bean>
 
     <!-- Journal Type Strategies -->
-    <bean id="worldpayRefundedStrategyMapMergeDirective" depends-on="journalTypeToNotificationProcessorStrategyMap" parent="mapMergeDirective">
+    <bean id="worldpayRefundedStrategyMapMergeDirective" depends-on="journalTypeToNotificationProcessorStrategyMap"
+          parent="mapMergeDirective">
         <property name="key">
             <value type="com.worldpay.enums.order.AuthorisedStatus">REFUNDED</value>
         </property>
         <property name="value" ref="refundedOrderNotificationProcessorStrategy"/>
     </bean>
 
-    <bean id="worldpayRefundFollowOnMapMergeDirective" depends-on="paymentTransactionTypeMap" parent="mapMergeDirective">
+    <bean id="worldpayRefundFollowOnMapMergeDirective" depends-on="paymentTransactionTypeMap"
+          parent="mapMergeDirective">
         <property name="key">
             <value type="com.worldpay.enums.order.AuthorisedStatus">REFUNDED</value>
         </property>
         <property name="value" ref="refundFollowOnPaymentTransactionType"/>
     </bean>
 
-    <util:constant id="refundFollowOnPaymentTransactionType" static-field="de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON" />
+    <util:constant id="refundFollowOnPaymentTransactionType"
+                   static-field="de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON"/>
 
-    <bean id="worldpayDependingTransactionRefundFollowOnMapMergeDirective" depends-on="dependingPaymentTransaction" parent="mapMergeDirective">
+    <bean id="worldpayDependingTransactionRefundFollowOnMapMergeDirective" depends-on="dependingPaymentTransaction"
+          parent="mapMergeDirective">
         <property name="key" ref="refundFollowOnPaymentTransactionType"/>
         <property name="value">
             <value type="de.hybris.platform.payment.enums.PaymentTransactionType">CAPTURE</value>
         </property>
     </bean>
 
-    <util:constant id="settledPaymentTransactionType" static-field="de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED" />
+    <util:constant id="settledPaymentTransactionType"
+                   static-field="de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED"/>
 
-    <bean id="worldpayDependingTransactionSettledMapMergeDirective" depends-on="dependingPaymentTransaction" parent="mapMergeDirective">
+    <bean id="worldpayDependingTransactionSettledMapMergeDirective" depends-on="dependingPaymentTransaction"
+          parent="mapMergeDirective">
         <property name="key" ref="settledPaymentTransactionType"/>
         <property name="value">
             <value type="de.hybris.platform.payment.enums.PaymentTransactionType">CAPTURE</value>
         </property>
     </bean>
 
-    <bean id="worldpayJournalTypeSettledProcessorStrategyMapMergeDirective" depends-on="journalTypeToNotificationProcessorStrategyMap" parent="mapMergeDirective">
+    <bean id="worldpayJournalTypeSettledProcessorStrategyMapMergeDirective"
+          depends-on="journalTypeToNotificationProcessorStrategyMap" parent="mapMergeDirective">
         <property name="key">
             <value type="com.worldpay.enums.order.AuthorisedStatus">SETTLED</value>
         </property>
         <property name="value" ref="settledOrderNotificationProcessorStrategy"/>
     </bean>
 
-    <bean id="worldpayPaymentTransactionTypeSettledMapMergeDirective" depends-on="paymentTransactionTypeMap" parent="mapMergeDirective">
+    <bean id="worldpayPaymentTransactionTypeSettledMapMergeDirective" depends-on="paymentTransactionTypeMap"
+          parent="mapMergeDirective">
         <property name="key">
             <value type="com.worldpay.enums.order.AuthorisedStatus">SETTLED</value>
         </property>
         <property name="value" ref="settledPaymentTransactionType"/>
     </bean>
 
-    <bean id="worldpayPaymentTransactionTypeRefundWebformIssuedMapMergeDirective" depends-on="paymentTransactionTypeMap" parent="mapMergeDirective">
+    <bean id="worldpayPaymentTransactionTypeRefundWebformIssuedMapMergeDirective" depends-on="paymentTransactionTypeMap"
+          parent="mapMergeDirective">
         <property name="key">
             <value type="com.worldpay.enums.order.AuthorisedStatus">REFUND_WEBFORM_ISSUED</value>
         </property>
@@ -89,13 +103,15 @@
     </bean>
 
     <alias name="refundedOrderNotificationProcessorStrategy" alias="refundedOrderNotificationProcessorStrategy"/>
-    <bean id="refundedOrderNotificationProcessorStrategy" class="com.worldpay.worldpayoms.notification.processors.impl.DefaultRefundedOrderNotificationProcessorStrategy">
+    <bean id="refundedOrderNotificationProcessorStrategy"
+          class="com.worldpay.worldpayoms.notification.processors.impl.DefaultRefundedOrderNotificationProcessorStrategy">
         <property name="modelService" ref="modelService"/>
         <property name="transactionTemplate" ref="transactionTemplate"/>
     </bean>
 
     <alias name="worldpaySettledOrderNotificationProcessorStrategy" alias="settledOrderNotificationProcessorStrategy"/>
-    <bean id="worldpaySettledOrderNotificationProcessorStrategy" class="com.worldpay.worldpayoms.notification.processors.impl.DefaultWorldpaySettledOrderNotificationProcessorStrategy">
+    <bean id="worldpaySettledOrderNotificationProcessorStrategy"
+          class="com.worldpay.worldpayoms.notification.processors.impl.DefaultWorldpaySettledOrderNotificationProcessorStrategy">
         <property name="transactionTemplate">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
                 <property name="transactionManager" ref="txManager"/>

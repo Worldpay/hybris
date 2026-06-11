@@ -140,7 +140,7 @@ describe('WorldpayUserPaymentService', () => {
 
   describe('triggerLoadAllPaymentMethods', () => {
     it('should return the current state of loadAllPaymentMethodsQuery$', () => {
-      const mockState = {
+      const mockState: QueryState<ApmPaymentDetails[]> = {
         loading: false,
         error: null,
         data: [apmPaymentDetail]
@@ -153,7 +153,7 @@ describe('WorldpayUserPaymentService', () => {
     });
 
     it('should handle an error state from loadAllPaymentMethodsQuery$', () => {
-      const mockErrorState = {
+      const mockErrorState: QueryState<ApmPaymentDetails[]> = {
         loading: false,
         error,
         data: null
@@ -195,7 +195,7 @@ describe('WorldpayUserPaymentService', () => {
     });
 
     it('should dispatch error action when query state contains an error', () => {
-      const mockQueryState = {
+      const mockQueryState: QueryState<ApmPaymentDetails[]> = {
         loading: false,
         error,
         data: null
@@ -309,4 +309,5 @@ describe('WorldpayUserPaymentService', () => {
       );
     });
   });
+  // TODO: pending to update tests for triggerLoadAllPaymentMethods, when cartId is null
 });

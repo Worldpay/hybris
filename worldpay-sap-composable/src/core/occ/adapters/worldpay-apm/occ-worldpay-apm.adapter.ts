@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Params } from '@angular/router';
 import { Cart } from '@spartacus/cart/base/root';
 import { backOff, CmsComponent, ConverterService, HttpErrorModel, isJaloError, LoggerService, OccEndpointsService, PaymentDetails, tryNormalizeHttpError } from '@spartacus/core';
@@ -12,21 +12,10 @@ import { APM_NORMALIZER } from '../../converters';
 
 @Injectable()
 export class OccWorldpayApmAdapter implements WorldpayApmAdapter {
-  /**
-   * Constructor for OccWorldpayApmAdapter
-   *
-   * @param http - HttpClient for making HTTP requests
-   * @param occEndpoints - Service for building OCC endpoint URLs
-   * @param converter - Service for converting data
-   * @param loggerService - Service for logging errors
-   */
-  constructor(
-    protected http: HttpClient,
-    protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService,
-    protected loggerService: LoggerService
-  ) {
-  }
+  protected http: HttpClient = inject(HttpClient);
+  protected occEndpoints: OccEndpointsService = inject(OccEndpointsService);
+  protected converter: ConverterService = inject(ConverterService);
+  protected loggerService: LoggerService = inject(LoggerService);
 
   /**
    * Redirect authorise APM payment

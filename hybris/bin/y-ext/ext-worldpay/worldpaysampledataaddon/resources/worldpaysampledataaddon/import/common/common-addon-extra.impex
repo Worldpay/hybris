@@ -52,6 +52,7 @@ INSERT_UPDATE Currency; isocode[unique = true]; conversion; digits; symbol; name
                       ; BRL                   ; 1         ; 2     ; R$    ; Brazilian real
                       ; AUD                   ; 1         ; 2     ; $     ; Australian dollar
                       ; NZD                   ; 1         ; 2     ; $     ; New Zealand dollar
+                      ; USD                   ; 1         ; 2     ; $     ; US-Dollar
 
 # SiteMap Language Currencies
 INSERT_UPDATE SiteMapLanguageCurrency; &siteMapLanguageCurrency; language(isoCode)[unique = true]; currency(isocode)[unique = true];

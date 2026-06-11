@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { EventService, Query, QueryService, QueryState } from '@spartacus/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -9,6 +9,9 @@ import { WorldpayFraudsightFacade } from '../../facade/worldpay-fraudsight.facad
 @Injectable()
 export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
 
+  protected queryService: QueryService = inject(QueryService);
+  protected eventService: EventService = inject(EventService);
+  protected worldpayFraudsightConnector: WorldpayFraudsightConnector = inject(WorldpayFraudsightConnector);
   /**
    * Command used to get FraudSight status
    * @since 6.4.0
@@ -20,20 +23,6 @@ export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
     );
   // Fraud Sight
   private fraudSightId$: BehaviorSubject<string> = new BehaviorSubject('');
-
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param queryService
-   * @param eventService
-   * @param worldpayFraudsightConnector
-   */
-  constructor(
-    protected queryService: QueryService,
-    protected eventService: EventService,
-    protected worldpayFraudsightConnector: WorldpayFraudsightConnector
-  ) {
-  }
 
   /**
    *  Method used to get FraudSight status

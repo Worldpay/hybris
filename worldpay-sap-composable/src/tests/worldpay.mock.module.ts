@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import {
   MockCxAddToHomeScreenBannerComponent,
@@ -19,40 +18,37 @@ import { MockWorldpayApmSepaComponent, MockWorldpayB2BApmSepaComponent } from '.
 import { MockAtMessageDirective, MockCxFeatureDirective, MockCxFeatureLevelDirective, MockCxOutletContextDirective, MockCxOutletDirective } from './directives';
 import { MockUrlPipe } from './pipes';
 
+// eslint-disable-next-line @typescript-eslint/typedef
+const config = [
+  // Components
+  MockCxAddToHomeScreenBannerComponent,
+  MockCxCardComponent,
+  MockCxConsignmentTrackingComponent,
+  MockCxGuestRegisterFormComponent,
+  MockCxIconComponent,
+  MockCxMediaComponent,
+  MockCxSpinnerComponent,
+  MockFormRequiredAsterisksComponent,
+  MockFormRequiredLegendComponent,
+  MockWorldpayAPMACHComponent,
+  MockWorldpayApmSubmitButtonsComponent,
+  MockWorldpayBillingAddressComponent,
+  MockWorldpayApmComponent,
+  MockWorldpayApmSepaComponent,
+  MockWorldpayB2BApmSepaComponent,
+  // Directives
+  MockAtMessageDirective,
+  MockCxOutletDirective,
+  MockCxOutletContextDirective,
+  MockCxFeatureLevelDirective,
+  MockCxFeatureDirective,
+  // Pipes
+  MockUrlPipe
+];
+
 @NgModule({
-  declarations: [
-    // Components
-    MockCxAddToHomeScreenBannerComponent,
-    MockCxCardComponent,
-    MockCxConsignmentTrackingComponent,
-    MockCxGuestRegisterFormComponent,
-    MockCxIconComponent,
-    MockCxMediaComponent,
-    MockCxSpinnerComponent,
-    MockFormRequiredAsterisksComponent,
-    MockFormRequiredLegendComponent,
-    MockWorldpayAPMACHComponent,
-    MockWorldpayApmSubmitButtonsComponent,
-    MockWorldpayBillingAddressComponent,
-    MockWorldpayApmComponent,
-    MockWorldpayApmSepaComponent,
-    MockWorldpayB2BApmSepaComponent,
-    // Directives
-    MockAtMessageDirective,
-    MockCxOutletDirective,
-    MockCxOutletContextDirective,
-    MockCxFeatureLevelDirective,
-    MockCxFeatureDirective,
-    // Pipes
-    MockUrlPipe
-  ],
-  exports: [
-    MockCxOutletContextDirective,
-    MockWorldpayB2BApmSepaComponent
-  ],
-  imports: [
-    CommonModule
-  ]
+  imports: config,
+  exports: config,
 })
 export class WorldpayMockModule {
 }

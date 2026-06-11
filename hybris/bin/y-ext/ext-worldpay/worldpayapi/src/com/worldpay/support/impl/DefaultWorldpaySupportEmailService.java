@@ -2,7 +2,7 @@ package com.worldpay.support.impl;
 
 import com.worldpay.support.WorldpaySupportEmailService;
 import com.worldpay.support.appender.WorldpaySupportEmailAppender;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.List;
 
@@ -11,7 +11,11 @@ import java.util.List;
  */
 public class DefaultWorldpaySupportEmailService implements WorldpaySupportEmailService {
 
-    private List<WorldpaySupportEmailAppender> emailAppenders;
+    protected final List<WorldpaySupportEmailAppender> emailAppenders;
+
+    public DefaultWorldpaySupportEmailService(final List<WorldpaySupportEmailAppender> emailAppenders) {
+        this.emailAppenders = emailAppenders;
+    }
 
     /**
      * {@inheritDoc}
@@ -19,14 +23,14 @@ public class DefaultWorldpaySupportEmailService implements WorldpaySupportEmailS
     @Override
     public String createEmailBody() {
         final StringBuilder bodyBuilder = new StringBuilder();
-        for (final WorldpaySupportEmailAppender emailAppender : emailAppenders) {
+        for (final WorldpaySupportEmailAppender emailAppender : getEmailAppenders()) {
             bodyBuilder.append(emailAppender.appendContent());
         }
         return bodyBuilder.toString();
     }
 
-    @Required
-    public void setEmailAppenders(List<WorldpaySupportEmailAppender> emailAppenders) {
-        this.emailAppenders = emailAppenders;
+    protected List<WorldpaySupportEmailAppender> getEmailAppenders() {
+        return emailAppenders;
     }
+
 }

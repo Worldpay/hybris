@@ -2,21 +2,21 @@
   (ngSubmit)="submitForm()"
   [formGroup]="checkoutSubmitForm"
   class="cx-place-order-form form-check"
->
+  >
   <div class="form-group">
     <label>
       <input
         class="form-check-input"
         formControlName="termsAndConditions"
         type="checkbox"
-      />
+        />
       <span class="form-check-label">
         {{ 'checkoutReview.confirmThatRead' | cxTranslate }}
         <a
           [routerLink]="{ cxRoute: 'termsAndConditions' } | cxUrl"
           class="cx-tc-link"
           target="_blank"
-        >
+          >
           {{ 'checkoutReview.termsAndConditions' | cxTranslate }}
         </a>
       </span>
@@ -30,53 +30,57 @@
     [disabled]="!paymentAuthorized || (isLoading$ | async)"
     class="btn btn-primary btn-block btn-submit"
     type="submit"
-  >
+    >
     {{ 'checkoutReview.placeOrder' | cxTranslate }}
   </button>
 
 </form>
 
-<iframe
-  *ngIf="ddcIframeUrl$ | async"
-  [src]="ddcIframeUrl$ | async"
-  height="1"
-  style="visibility: hidden"
-  width="1"
-></iframe>
-
-<div
-  *ngIf="challengeIframeUrl$ | async as challengeIframeUrl"
-  class="wp-challenge"
->
+@if (ddcIframeUrl$ | async) {
   <iframe
-    [height]="challengeIframeHeight"
-    [src]="challengeIframeUrl"
-    [width]="challengeIframeWidth"
+    [src]="ddcIframeUrl$ | async"
+    height="1"
+    style="visibility: hidden"
+    width="1"
   ></iframe>
-</div>
+}
 
-<div
-  *ngIf="redirectData$ | async as redirectData"
-  class="d-none"
->
-  <form
-    [action]="redirectData.postUrl"
-    id="redirect-form"
-    method="GET"
-    ngNoForm
-  >
-    <input
-      *ngFor="let queryParams of queryParams"
-      [name]="queryParams.key"
-      [value]="queryParams.value"
-      type="hidden"
-    />
-    <input
-      *ngFor="let redirectParameter of redirectData.parameters?.entry"
-      [name]="redirectParameter.key"
-      [value]="redirectParameter.value"
-      type="hidden"
-    />
+@if (challengeIframeUrl$ | async; as challengeIframeUrl) {
+  <div
+    class="wp-challenge"
+    >
+    <iframe
+      [height]="challengeIframeHeight"
+      [src]="challengeIframeUrl"
+      [width]="challengeIframeWidth"
+    ></iframe>
+  </div>
+}
 
-  </form>
-</div>
+@if (redirectData$ | async; as redirectData) {
+  <div
+    class="d-none"
+    >
+    <form
+      [action]="redirectData.postUrl"
+      id="redirect-form"
+      method="GET"
+      ngNoForm
+      >
+      @for (queryParams of queryParams; track queryParams) {
+        <input
+          [name]="queryParams.key"
+          [value]="queryParams.value"
+          type="hidden"
+          />
+      }
+      @for (redirectParameter of redirectData.parameters?.entry; track redirectParameter) {
+        <input
+          [name]="redirectParameter.key"
+          [value]="redirectParameter.value"
+          type="hidden"
+          />
+      }
+    </form>
+  </div>
+}

@@ -1,5 +1,12 @@
 package com.worldpay.service.payment.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Objects;
+
+import static java.util.stream.Collectors.toList;
+
 import com.worldpay.data.LineItem;
 import com.worldpay.data.LineItemReference;
 import com.worldpay.data.OrderLines;
@@ -13,15 +20,6 @@ import de.hybris.platform.servicelayer.i18n.CommonI18NService;
 import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
 import org.apache.commons.text.StringEscapeUtils;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * {@inheritDoc}
@@ -93,18 +91,18 @@ public class DefaultWorldpayKlarnaService implements WorldpayKlarnaService {
         if (BigDecimal.valueOf(totalTax).compareTo(BigDecimal.valueOf(roundedCalculatedTotalTaxAmount)) != 0) {
             final double taxRoundingDifference = Math.abs(totalTax - roundedCalculatedTotalTaxAmount);
             orderLines.getLineItems().stream()
-                .filter(lineItem1 -> LineItemType.DISCOUNT.equals(lineItem1.getLineItemType()))
-                .findAny()
-                .ifPresentOrElse(discountLine -> {
-                    final double adjustedLineItemTaxAmount = discountLine.getTotalTaxAmountValue() - taxRoundingDifference;
-                    discountLine.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
-                }, () -> orderLines.getLineItems().stream()
-                    .filter(lineItem1 -> LineItemType.SHIPPING_FEE.equals(lineItem1.getLineItemType()))
+                    .filter(lineItem1 -> LineItemType.DISCOUNT.equals(lineItem1.getLineItemType()))
                     .findAny()
-                    .ifPresent(shippingLineItem -> {
-                        final double adjustedLineItemTaxAmount = shippingLineItem.getTotalTaxAmountValue() - taxRoundingDifference;
-                        shippingLineItem.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
-                    }));
+                    .ifPresentOrElse(discountLine -> {
+                        final double adjustedLineItemTaxAmount = discountLine.getTotalTaxAmountValue() - taxRoundingDifference;
+                        discountLine.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
+                    }, () -> orderLines.getLineItems().stream()
+                            .filter(lineItem1 -> LineItemType.SHIPPING_FEE.equals(lineItem1.getLineItemType()))
+                            .findAny()
+                            .ifPresent(shippingLineItem -> {
+                                final double adjustedLineItemTaxAmount = shippingLineItem.getTotalTaxAmountValue() - taxRoundingDifference;
+                                shippingLineItem.setTotalTaxAmount(convertDoubleToStringFormat(digits, adjustedLineItemTaxAmount));
+                            }));
         }
     }
 

@@ -75,7 +75,7 @@ public class TokenRequestPopulatorTest {
         final com.worldpay.internal.model.CreateToken target = new com.worldpay.internal.model.CreateToken();
         testObj.populate(sourceMock, target);
 
-        assertThat(target.getTokenReason().getvalue()).isEqualTo(TOKEN_REASON);
+        assertThat(target.getTokenReason().getValue()).isEqualTo(TOKEN_REASON);
         assertThat(target.getTokenEventReference()).isEqualTo(TOKEN_REFERENCE);
         assertThat(target.getTokenScope()).isEqualTo(MERCHANT);
     }

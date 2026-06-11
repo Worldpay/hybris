@@ -1,10 +1,15 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { I18nModule } from '@spartacus/core';
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'y-worldpay-apm-submit-buttons',
   templateUrl: './worldpay-apm-submit-buttons.component.html',
-  standalone: false
+  imports: [
+    I18nModule,
+    AsyncPipe
+  ]
 })
 export class WorldpayApmSubmitButtonsComponent {
   @Input() disableContinue$: Observable<boolean>;

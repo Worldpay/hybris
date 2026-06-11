@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WorldpayGuaranteedPaymentsAdapter } from './worldpay-guaranteed-payments.adapter';
 
@@ -7,15 +7,7 @@ import { WorldpayGuaranteedPaymentsAdapter } from './worldpay-guaranteed-payment
 })
 export class WorldpayGuaranteedPaymentsConnector {
 
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param adapter WorldpayGuaranteedPaymentsAdapter
-   */
-  constructor(
-    protected adapter: WorldpayGuaranteedPaymentsAdapter
-  ) {
-  }
+  protected adapter: WorldpayGuaranteedPaymentsAdapter = inject(WorldpayGuaranteedPaymentsAdapter);
 
   /**
    * Method used to check BaseSite configuration and validate if Guaranteed Payments is enabled

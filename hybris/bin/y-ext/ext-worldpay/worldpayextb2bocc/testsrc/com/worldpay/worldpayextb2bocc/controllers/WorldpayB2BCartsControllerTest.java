@@ -56,8 +56,8 @@ import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Locale;
 
@@ -111,7 +111,7 @@ public class WorldpayB2BCartsControllerTest {
     private APMAvailabilityFacade apmAvailabilityFacadeMock;
     @Mock
     private WorldpayBankConfigurationFacade worldpayBankConfigurationFacadeMock;
-    @Mock
+    @Mock(name = "checkoutFacade")
     private WorldpayB2BAcceleratorCheckoutFacadeDecorator worldpayB2BAcceleratorCheckoutFacadeDecoratorMock;
     @Mock
     private CartLoaderStrategy cartLoaderStrategyMock;
@@ -205,7 +205,7 @@ public class WorldpayB2BCartsControllerTest {
 
         final PaymentDetailsWsDTO result = testObj.addPaymentDetails(requestMock, FieldSetLevelHelper.DEFAULT_LEVEL);
 
-        verify(httpRequestPaymentDetailsWsDTOPopulatorMock).populate(eq(requestMock), any(PaymentDetailsWsDTO.class), anyCollectionOf(PaymentDetailsWsDTOOption.class));
+        verify(httpRequestPaymentDetailsWsDTOPopulatorMock).populate(eq(requestMock), any(PaymentDetailsWsDTO.class), anyCollection());
 
         assertThat(result).isEqualTo(paymentDetailsWsDTOMock);
     }

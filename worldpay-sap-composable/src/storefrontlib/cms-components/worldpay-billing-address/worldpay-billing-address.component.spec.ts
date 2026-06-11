@@ -118,7 +118,10 @@ describe('WorldpayBillingAddressComponent', () => {
         I18nTestingModule,
         FormErrorsModule,
         FormRequiredAsterisksComponent,
-        FormRequiredLegendComponent
+        FormRequiredLegendComponent,
+        WorldpayBillingAddressComponent,
+        MockTranslatePipe,
+        MockCxCardComponent
       ],
       providers: [
         {
@@ -158,16 +161,9 @@ describe('WorldpayBillingAddressComponent', () => {
           provide: LoggerService,
         }
       ],
-      declarations: [
-        WorldpayBillingAddressComponent,
-        MockTranslatePipe,
-        MockCxCardComponent
-      ],
-    })
-      .overrideComponent(WorldpayBillingAddressComponent, {
-        set: { changeDetection: ChangeDetectionStrategy.Default },
-      })
-      .compileComponents();
+    }).overrideComponent(WorldpayBillingAddressComponent, {
+      set: { changeDetection: ChangeDetectionStrategy.Eager },
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -545,8 +541,7 @@ describe('WorldpayBillingAddressComponent', () => {
           expect(logger.error).toHaveBeenCalledWith('Error fetching delivery address', { error });
           done();
         },
-      }
-      );
+      });
     });
   });
 

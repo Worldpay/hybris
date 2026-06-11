@@ -23,8 +23,9 @@ public class WorldpayPaymentInfoIsApmHandlerTest {
     public static final String PAYMENT_1 = "payment1";
     public static final String PAYMENT_2 = "payment2";
     public static final String NOT_APM = "notAPM";
+
     @InjectMocks
-    private WorldpayPaymentInfoIsApmHandler testObj = new WorldpayPaymentInfoIsApmHandler();
+    private WorldpayPaymentInfoIsApmHandler testObj;
     @Mock
     private PaymentInfoModel paymentInfoModelMock;
     @Mock

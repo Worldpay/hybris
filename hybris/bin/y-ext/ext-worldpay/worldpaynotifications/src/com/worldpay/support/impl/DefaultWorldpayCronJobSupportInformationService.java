@@ -4,7 +4,7 @@ import com.worldpay.support.WorldpayCronJobSupportInformationService;
 import com.worldpay.worldpaynotifications.model.OrderModificationCronJobModel;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.servicelayer.search.FlexibleSearchService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +15,11 @@ import java.util.Set;
  */
 public class DefaultWorldpayCronJobSupportInformationService implements WorldpayCronJobSupportInformationService {
 
-    private FlexibleSearchService flexibleSearchService;
+    protected final FlexibleSearchService flexibleSearchService;
+
+    public DefaultWorldpayCronJobSupportInformationService(final FlexibleSearchService flexibleSearchService) {
+        this.flexibleSearchService = flexibleSearchService;
+    }
 
     /**
      * {@inheritDoc}
@@ -31,10 +35,5 @@ public class DefaultWorldpayCronJobSupportInformationService implements Worldpay
             paymentTransactionTypes.addAll(orderNotificationCronJobModel.getPaymentTransactionTypes());
         }
         return paymentTransactionTypes;
-    }
-
-    @Required
-    public void setFlexibleSearchService(FlexibleSearchService flexibleSearchService) {
-        this.flexibleSearchService = flexibleSearchService;
     }
 }

@@ -6,7 +6,7 @@
            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="worldpayPaymentInfoIsApmHandler" class="com.worldpay.attributehandlers.WorldpayPaymentInfoIsApmHandler">
-        <property name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
+        <constructor-arg name="apmConfigurationLookupService" ref="apmConfigurationLookupService"/>
     </bean>
 
     <bean id="worldpayAPMPaymentInfoIsKlarnaPaymentTypeCodeDynamicAttributeHandler"
@@ -18,7 +18,7 @@
     <bean id="worldpayDynamicAttributesOrderStatusDisplayByMap"
           class="com.worldpay.core.checkout.attribute.WorldpayOrderStatusDisplayDynamicAttributeHandler"
           parent="acceleratorDynamicAttributesOrderStatusDisplayByMap">
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
     </bean>
 
 </beans>

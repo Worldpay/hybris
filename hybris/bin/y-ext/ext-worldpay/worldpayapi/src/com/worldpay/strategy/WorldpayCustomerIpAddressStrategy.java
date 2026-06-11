@@ -1,6 +1,6 @@
 package com.worldpay.strategy;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Exposes method to retrieve the customer's Ip address from the request

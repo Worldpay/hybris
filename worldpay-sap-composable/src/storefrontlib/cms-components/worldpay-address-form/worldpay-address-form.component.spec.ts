@@ -57,10 +57,7 @@ const mockAddress: Address = {
 
 const dialogClose$ = new BehaviorSubject<any>('');
 
-@Directive({
-  selector: '[cxNgSelectA11y]',
-  standalone: false,
-})
+@Directive({ selector: '[cxNgSelectA11y]', })
 class MockNgSelectA11yDirective {
   @Input() cxNgSelectA11y: { ariaLabel?: string; ariaControls?: string };
 }
@@ -87,11 +84,9 @@ describe('WorldpayAddressFormComponent', () => {
         FormErrorsModule,
         NgSelectA11yModule,
         FormRequiredAsterisksComponent,
-        FormRequiredLegendComponent
-      ],
-      declarations: [
+        FormRequiredLegendComponent,
         WorldpayAddressFormComponent,
-        MockNgSelectA11yDirective,
+        MockNgSelectA11yDirective
       ],
       providers: [
         {
@@ -111,11 +106,9 @@ describe('WorldpayAddressFormComponent', () => {
           useClass: MockGlobalMessageService
         },
       ],
-    })
-      .overrideComponent(AddressFormComponent, {
-        set: { changeDetection: ChangeDetectionStrategy.Default },
-      })
-      .compileComponents();
+    }).overrideComponent(AddressFormComponent, {
+      set: { changeDetection: ChangeDetectionStrategy.Eager },
+    }).compileComponents();
 
     userService = TestBed.inject(UserProfileFacade);
     userAddressService = TestBed.inject(UserAddressService);
@@ -315,7 +308,7 @@ describe('WorldpayAddressFormComponent', () => {
     component.ngOnInit();
     component.regions$.subscribe();
     expect(
-      component.addressForm['controls']['country']['controls']['isocode'].value
+      component.addressForm.get('country').get('isocode').value
     ).toEqual(mockCountryIsocode);
     expect(userAddressService.getRegions).toHaveBeenCalledWith(
       mockCountryIsocode
@@ -329,9 +322,7 @@ describe('WorldpayAddressFormComponent', () => {
     component.ngOnInit();
     component.regions$.subscribe();
     component.verifyAddress();
-    expect(
-      component.addressForm.controls['region']['controls']['isocode']['value']
-    ).toEqual(mockCountryIsocode);
+    expect(component.addressForm.get('region').get('isocode').value).toEqual(mockCountryIsocode);
     expect(component.verifyAddress).toHaveBeenCalled();
   });
 
@@ -355,8 +346,8 @@ describe('WorldpayAddressFormComponent', () => {
       controls['lastName'].setValue('test lastName');
       controls['line1'].setValue('test line1');
       controls['town'].setValue('test town');
-      controls['region']['controls']['isocode'].setValue('test region isocode');
-      controls['country']['controls']['isocode'].setValue('test country isocode');
+      controls['region'].get('isocode').setValue('test region isocode');
+      controls['country'].get('isocode').setValue('test country isocode');
       controls['postalCode'].setValue('test postalCode');
       fixture.detectChanges();
 

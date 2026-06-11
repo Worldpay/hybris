@@ -9,8 +9,8 @@ import de.hybris.platform.addonsupport.interceptors.BeforeViewHandlerAdaptee;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.ui.ModelMap;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static com.worldpay.config.Environment.PROD;
 

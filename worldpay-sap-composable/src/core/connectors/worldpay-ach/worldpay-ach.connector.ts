@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Order } from '@spartacus/order/root';
 import { Observable } from 'rxjs';
 import { AccountTypes, ACHPaymentForm } from '../../interfaces';
@@ -8,16 +8,7 @@ import { WorldpayACHAdapter } from './worldpay-ach.adapter';
   providedIn: 'root'
 })
 export class WorldpayACHConnector {
-
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param adapter - WorldpayApmAdapter
-   */
-  constructor(
-    protected adapter: WorldpayACHAdapter
-  ) {
-  }
+  protected adapter: WorldpayACHAdapter = inject(WorldpayACHAdapter);
 
   /**
    * Get ACH Bank Account Types

@@ -3,7 +3,7 @@ package com.worldpay.support.appender.impl;
 import com.worldpay.merchant.configuration.services.WorldpayMerchantConfigurationService;
 import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

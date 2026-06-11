@@ -2,52 +2,25 @@
   {{ 'checkoutAddress.shippingAddress' | cxTranslate }}
 </h2>
 
-<section
-  *ngIf="
-    featureConfigService?.isEnabled('a11yCheckoutStepsLandmarks');
-    else content
-  "
-  [attr.aria-label]="'checkoutAddress.shippingAddress' | cxTranslate"
->
-  <ng-template [ngTemplateOutlet]="content"></ng-template>
-</section>
-<ng-template #content>
-  <ng-container *ngIf="cards$ | async as cards">
-    <ng-container *ngIf="(isUpdating$ | async) !== true; else loading">
-      <div
-        *cxFeature="'!a11yRemoveStatusLoadedRole'"
-        [attr.aria-label]="'common.loaded' | cxTranslate"
-        role="status"
-      ></div>
+@if (cards$ | async; as cards) {
+  @if ((isUpdating$ | async) !== true) {
+    @if (cards?.length && !addressFormOpened) {
+      <p class="cx-checkout-text">
+        {{ 'checkoutAddress.selectYourDeliveryAddress' | cxTranslate }}
+      </p>
 
-      <ng-container
-        *ngIf="
-        cards?.length && !addressFormOpened;
-        then showExistingAddresses;
-        else newAddressForm
-      "
-      >
-      </ng-container>
+      <div class="cx-checkout-btns cx-checkout-btns-top">
+        <button
+          (click)="showNewAddressForm()"
+          class="btn btn-block btn-secondary"
+        >
+          {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
+        </button>
+      </div>
 
-      <ng-template #showExistingAddresses>
-        <p class="cx-checkout-text">
-          {{ 'checkoutAddress.selectYourDeliveryAddress' | cxTranslate }}
-        </p>
-
-        <div class="cx-checkout-btns cx-checkout-btns-top">
-          <button
-            (click)="showNewAddressForm()"
-            class="btn btn-block btn-secondary"
-          >
-            {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
-          </button>
-        </div>
-
-        <div class="cx-checkout-body row">
-          <div
-            *ngFor="let card of cards; let i = index"
-            class="cx-delivery-address-card col-md-12 col-lg-6"
-          >
+      <div class="cx-checkout-body row">
+        @for (card of cards; track $index; let i = $index) {
+          <div class="cx-delivery-address-card col-md-12 col-lg-6">
             <div
               (click)="selectAddress(card.address)"
               class="cx-delivery-address-card-inner"
@@ -58,64 +31,62 @@
                 [content]="card.card"
                 [fitToContainer]="true"
                 [index]="i"
+                [role]="card.card.role"
               ></cx-card>
             </div>
           </div>
-        </div>
+        }
+      </div>
 
-        <div class="cx-checkout-btns cx-checkout-btns-bottom">
+      <div class="cx-checkout-btns cx-checkout-btns-bottom">
+        <button
+          (click)="showNewAddressForm()"
+          class="btn btn-block btn-secondary"
+        >
+          {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
+        </button>
+      </div>
+
+      <div class="cx-checkout-btns row">
+        <div class="col-md-12 col-lg-6">
           <button
-            (click)="showNewAddressForm()"
-            class="btn btn-block btn-secondary"
+            (click)="back()"
+            class="cx-btn btn btn-block btn-secondary"
           >
-            {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
+            {{ backBtnText | cxTranslate }}
           </button>
         </div>
-
-        <div class="cx-checkout-btns row">
-          <div class="col-md-12 col-lg-6">
-            <button
-              (click)="back()"
-              class="cx-btn btn btn-block btn-secondary"
-            >
-              {{ backBtnText | cxTranslate }}
-            </button>
-          </div>
-          <div class="col-md-12 col-lg-6">
-            <button
-              (click)="next()"
-              [disabled]="!(selectedAddress$ | async)?.id"
-              class="cx-btn btn btn-block btn-primary"
-            >
-              {{ 'common.continue' | cxTranslate }}
-            </button>
-          </div>
+        <div class="col-md-12 col-lg-6">
+          <button
+            (click)="next()"
+            [disabled]="!(selectedAddress$ | async)?.id"
+            class="cx-btn btn btn-block btn-primary"
+          >
+            {{ 'common.continue' | cxTranslate }}
+          </button>
         </div>
-      </ng-template>
-
-      <ng-template #newAddressForm>
+      </div>
+    } @else {
+      @if (cards.length) {
         <y-worldpay-address-form
           (backToAddress)="hideNewAddressForm(false)"
           (submitAddress)="addAddress($event)"
-          *ngIf="cards.length; else initialAddressForm"
           [showTitleCode]="true"
         ></y-worldpay-address-form>
-        <ng-template #initialAddressForm>
-          <y-worldpay-address-form
-            (backToAddress)="hideNewAddressForm(true)"
-            (submitAddress)="addAddress($event)"
-            [addressData]="selectedAddress"
-            [setAsDefaultField]="!isGuestCheckout"
-            [showTitleCode]="true"
-            cancelBtnLabel="{{ backBtnText | cxTranslate }}"
-          ></y-worldpay-address-form>
-        </ng-template>
-      </ng-template>
-    </ng-container>
-  </ng-container>
-</ng-template>
-<ng-template #loading>
-  <div class="cx-spinner">
-    <cx-spinner></cx-spinner>
-  </div>
-</ng-template>
+      } @else {
+        <y-worldpay-address-form
+          (backToAddress)="hideNewAddressForm(true)"
+          (submitAddress)="addAddress($event)"
+          [addressData]="selectedAddress"
+          [setAsDefaultField]="!isGuestCheckout"
+          [showTitleCode]="true"
+          cancelBtnLabel="{{ backBtnText | cxTranslate }}"
+        ></y-worldpay-address-form>
+      }
+    }
+  } @else {
+    <div class="cx-spinner">
+      <cx-spinner></cx-spinner>
+    </div>
+  }
+}

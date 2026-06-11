@@ -1,4 +1,5 @@
 export const WORLDPAY_ORDER_FEATURE: string = 'worldpayOrder';
+export const WORLDPAY_REPLENISHMENT_ORDER_FEATURE: string = 'worldpayReplenishmentOrder';
 export const WORLDPAY_GUARANTEED_PAYMENTS_FEATURE: string = 'worldpayGuaranteedPayments';
 export const WORLDPAY_FRAUD_SIGHT_FEATURE: string = 'worldpayFraudSight';
 export const WORLDPAY_APM_FEATURE: string = 'worldpayApm';

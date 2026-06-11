@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-// eslint-disable-next-line deprecation/deprecation
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
-import { I18nTestingModule, PaymentDetails, TranslationService } from '@spartacus/core';
+import { I18nTestingModule, PaymentDetails, TranslationService, UrlPipe } from '@spartacus/core';
 import { IconTestingModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
 import { MockActivatedRoute, MockCxCardComponent, MockUrlPipe } from 'worldpay-sap-composable-tests';
@@ -85,12 +84,9 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
       imports: [
         I18nTestingModule,
         IconTestingModule,
-        RouterLink
-      ],
-      declarations: [
+        RouterLink,
         WorldpayCheckoutReviewPaymentComponent,
-        MockUrlPipe,
-        MockCxCardComponent,
+        MockCxCardComponent
       ],
       providers: [
         {
@@ -106,7 +102,19 @@ describe('WorldpayCheckoutReviewPaymentComponent', () => {
           useClass: MockCheckoutStepService,
         },
       ],
-    }).compileComponents();
+    }).overrideComponent(WorldpayCheckoutReviewPaymentComponent,
+      {
+        remove: {
+          imports: [
+            UrlPipe
+          ]
+        },
+        add: {
+          imports: [
+            MockUrlPipe
+          ]
+        }
+      }).compileComponents();
 
     fixture = TestBed.createComponent(WorldpayCheckoutReviewPaymentComponent);
     component = fixture.componentInstance;

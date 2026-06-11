@@ -12,6 +12,7 @@ import com.worldpay.payment.applepay.ValidateMerchantRequestData;
 import com.worldpay.worldpayocccommons.controllers.AbstractWorldpayController;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdAndUserIdParam;
+import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -19,10 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.Resource;
-
 
 @RestController
 @RequestMapping(value = "/{baseSiteId}/users/{userId}/carts/applepay")

@@ -1,21 +1,24 @@
 package com.worldpay.facades.payment.merchant.converters.populators;
 
+import java.util.Optional;
+
 import com.worldpay.config.merchant.ApplePayConfigData;
 import com.worldpay.config.merchant.GooglePayConfigData;
 import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
-import com.worldpay.enums.*;
+import com.worldpay.enums.ApplePayMerchantCapabilities;
+import com.worldpay.enums.ApplePaySupportedNetworks;
+import com.worldpay.enums.ChallengePreference;
+import com.worldpay.enums.GooglePayCardAuthMethods;
+import com.worldpay.enums.GooglePayCardNetworks;
 import com.worldpay.model.WorldpayApplePayConfigurationModel;
 import com.worldpay.model.WorldpayGooglePayConfigurationModel;
 import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import com.worldpay.model.WorldpayThreeDS2JsonWebTokenConfigurationModel;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Populates the ApplePaySettingsData from the CheckoutComApplePayConfigurationModel
@@ -40,20 +43,20 @@ public class WorldPayMerchantConfigDataPopulator implements Populator<WorldpayMe
         target.setOrderContent(source.getOrderContent());
 
         Optional.ofNullable(source.getApplePayConfiguration())
-            .map(this::createApplePayConfigData)
-            .ifPresent(target::setApplePaySettings);
+                .map(this::createApplePayConfigData)
+                .ifPresent(target::setApplePaySettings);
 
         Optional.ofNullable(source.getGooglePayConfiguration())
-            .map(this::createGooglePayConfigData)
-            .ifPresent(target::setGooglePaySettings);
+                .map(this::createGooglePayConfigData)
+                .ifPresent(target::setGooglePaySettings);
 
         Optional.ofNullable(source.getThreeDSFlexJsonWebTokenSettings())
-            .map(this::createThreeDSFlexJsonWebTokenSettings)
-            .ifPresent(target::setThreeDSFlexJsonWebTokenSettings);
+                .map(this::createThreeDSFlexJsonWebTokenSettings)
+                .ifPresent(target::setThreeDSFlexJsonWebTokenSettings);
 
         Optional.ofNullable(source.getThreeDSFlexChallengePreference())
-            .map(ChallengePreference::getCode)
-            .ifPresent(target::setThreeDSFlexChallengePreference);
+                .map(ChallengePreference::getCode)
+                .ifPresent(target::setThreeDSFlexChallengePreference);
     }
 
     private ApplePayConfigData createApplePayConfigData(final WorldpayApplePayConfigurationModel applePayConfiguration) {
@@ -64,16 +67,16 @@ public class WorldPayMerchantConfigDataPopulator implements Populator<WorldpayMe
 
         if (CollectionUtils.isNotEmpty(applePayConfiguration.getMerchantCapabilities())) {
             applePaySettings.setMerchantCapabilities(applePayConfiguration.getMerchantCapabilities()
-                .stream()
-                .map(ApplePayMerchantCapabilities::getCode)
-                .collect(Collectors.toList()));
+                    .stream()
+                    .map(ApplePayMerchantCapabilities::getCode)
+                    .toList());
         }
 
         if (CollectionUtils.isNotEmpty(applePayConfiguration.getSupportedNetworks())) {
             applePaySettings.setSupportedNetworks(applePayConfiguration.getSupportedNetworks()
-                .stream()
-                .map(ApplePaySupportedNetworks::getCode)
-                .collect(Collectors.toList()));
+                    .stream()
+                    .map(ApplePaySupportedNetworks::getCode)
+                    .toList());
 
         }
         return applePaySettings;
@@ -89,16 +92,16 @@ public class WorldPayMerchantConfigDataPopulator implements Populator<WorldpayMe
 
         if (CollectionUtils.isNotEmpty(googlePayConfiguration.getAllowedCardNetworks())) {
             googlePayConfigData.setAllowedCardNetworks(googlePayConfiguration.getAllowedCardNetworks()
-                .stream()
-                .map(GooglePayCardNetworks::getCode)
-                .collect(Collectors.toList()));
+                    .stream()
+                    .map(GooglePayCardNetworks::getCode)
+                    .toList());
         }
 
         if (CollectionUtils.isNotEmpty(googlePayConfiguration.getAllowedAuthMethods())) {
             googlePayConfigData.setAllowedAuthMethods(googlePayConfiguration.getAllowedAuthMethods()
-                .stream()
-                .map(GooglePayCardAuthMethods::getCode)
-                .collect(Collectors.toList()));
+                    .stream()
+                    .map(GooglePayCardAuthMethods::getCode)
+                    .toList());
 
         }
         return googlePayConfigData;

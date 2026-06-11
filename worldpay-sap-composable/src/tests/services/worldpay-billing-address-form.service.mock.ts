@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { FormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Address } from '@spartacus/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { WorldpayBillingAddressFormService } from '../../core';
 
 const mockCountries = [{
@@ -12,8 +12,9 @@ const mockCountries = [{
 export class MockWorldpayBillingAddressFormService implements Partial<WorldpayBillingAddressFormService> {
   form: UntypedFormGroup;
   fb = inject(FormBuilder);
+  public editModeStatus$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  getBillingAddress() {
+  getBillingAddress(): Address {
     return undefined;
   }
 
@@ -62,6 +63,10 @@ export class MockWorldpayBillingAddressFormService implements Partial<WorldpayBi
     return of(mockCountries);
   }
 
+  getAllBillingCountries(): Observable<any> {
+    return of(mockCountries);
+  }
+
   isBillingAddressSameAsDeliveryAddress(): boolean {
     return true;
   }
@@ -84,5 +89,9 @@ export class MockWorldpayBillingAddressFormService implements Partial<WorldpayBi
   }
 
   updateDeliveryAddress(address: any): void {
+  }
+
+  public setEditToggleState(state: boolean): void {
+    this.editModeStatus$.next(state);
   }
 }

@@ -114,7 +114,7 @@
 
     <bean id="worldpayOrderDataPopulator"
           class="com.worldpay.facades.order.converters.populators.WorldpayOrderDataPopulator">
-        <property name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
+        <constructor-arg name="worldpayPaymentTransactionService" ref="worldpayPaymentTransactionService"/>
     </bean>
 
     <bean id="applePayConfigDataToValidateMerchantRequestDTOPopulator"
@@ -136,7 +136,7 @@
 
     <bean name="worldpayAbstractOrderPopulator"
           class="com.worldpay.order.converters.populator.WorldpayAbstractOrderPopulator">
-        <property name="addressConverter" ref="addressConverter"/>
+        <constructor-arg name="addressConverter" ref="addressConverter"/>
     </bean>
 
     <bean parent="modifyPopulatorList">

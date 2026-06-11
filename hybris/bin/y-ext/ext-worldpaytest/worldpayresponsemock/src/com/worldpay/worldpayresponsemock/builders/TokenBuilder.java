@@ -2,7 +2,7 @@ package com.worldpay.worldpayresponsemock.builders;
 
 import com.worldpay.enums.token.TokenEvent;
 import com.worldpay.internal.model.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -138,14 +138,14 @@ public final class TokenBuilder {
         final Token token = new Token();
 
         final TokenDetails tokenDetails = new TokenDetails();
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(tokenReasonForTokenDetails)) {
+        if (org.apache.commons.lang3.StringUtils.isNotEmpty(tokenReasonForTokenDetails)) {
             final TokenReason tokenDetailsReason = new TokenReason();
-            tokenDetailsReason.setvalue(tokenReasonForTokenDetails);
+            tokenDetailsReason.setValue(tokenReasonForTokenDetails);
             tokenDetails.setTokenReason(tokenDetailsReason);
         }
 
         final PaymentTokenID paymentTokenId = new PaymentTokenID();
-        paymentTokenId.setvalue(Optional.ofNullable(tokenId).orElseGet(() -> String.valueOf(Instant.now().toEpochMilli())));
+        paymentTokenId.setValue(Optional.ofNullable(tokenId).orElseGet(() -> String.valueOf(Instant.now().toEpochMilli())));
         tokenDetails.setPaymentTokenID(paymentTokenId);
         Optional.ofNullable(tokenEvent).ifPresent(tokenDetails::setTokenEvent);
         Optional.ofNullable(tokenDetailsTokenEventReference).ifPresent(tokenDetails::setTokenEventReference);
@@ -160,12 +160,12 @@ public final class TokenBuilder {
 
         Optional.ofNullable(authenticatedShopperId).map(shopperId -> {
             final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-            intAuthenticatedShopperID.setvalue(shopperId);
+            intAuthenticatedShopperID.setValue(shopperId);
             return intAuthenticatedShopperID;
         }).ifPresent(token::setAuthenticatedShopperID);
         Optional.ofNullable(tokenEventReference).ifPresent(token::setTokenEventReference);
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(tokenReasonValue);
+        tokenReason.setValue(tokenReasonValue);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(tokenReason);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(tokenDetails);
         token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError().add(createPaymentInstrument());
@@ -184,7 +184,7 @@ public final class TokenBuilder {
     private PaymentInstrument addPaypalDetails() {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
-        paypal.setvalue(StringUtils.EMPTY);
+        paypal.setValue(StringUtils.EMPTY);
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(paypal);
         return paymentInstrument;
     }
@@ -208,11 +208,11 @@ public final class TokenBuilder {
         cardDetails.setExpiryDate(expiryDateForCard);
 
         final CardHolderName cardHolderName = new CardHolderName();
-        cardHolderName.setvalue(cardHolderNameValue);
+        cardHolderName.setValue(cardHolderNameValue);
         cardDetails.setCardHolderName(cardHolderName);
         final Derived derived = new Derived();
         derived.setCardSubBrand(cardSubBrand);
-        cardBrand.setvalue(cardBrandCode);
+        cardBrand.setValue(cardBrandCode);
         derived.setCardBrand(cardBrand);
         derived.setObfuscatedPAN(obfuscatedPAN);
         derived.setIssuerCountryCode(issuerCountryCode);

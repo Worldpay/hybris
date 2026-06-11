@@ -63,7 +63,7 @@ public class RedirectAuthoriseResponseTransformer extends AbstractServiceRespons
 
 
         final RedirectReference redirectReference = new RedirectReference();
-        redirectReference.setValue(reference.getvalue());
+        redirectReference.setValue(reference.getValue());
         redirectReference.setId(reference.getId());
         authResponse.setRedirectReference(redirectReference);
 

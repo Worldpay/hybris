@@ -119,7 +119,7 @@ public class CreateTokenResponseTransformerTest {
         final List<Object> responses = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Error error = new Error();
         error.setCode(ERROR_CODE);
-        error.setvalue(ERROR_VALUE);
+        error.setValue(ERROR_VALUE);
         responses.add(error);
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
 
@@ -167,7 +167,7 @@ public class CreateTokenResponseTransformerTest {
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
-        paypal.setvalue(PAYPAL_TOKEN);
+        paypal.setValue(PAYPAL_TOKEN);
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(paypal);
         tokenResponses.add(paymentInstrument);
 
@@ -178,7 +178,7 @@ public class CreateTokenResponseTransformerTest {
     private Token createToken() {
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         return token;
@@ -188,7 +188,7 @@ public class CreateTokenResponseTransformerTest {
         final TokenDetails tokenDetails = new TokenDetails();
         tokenDetails.setTokenEvent(TOKEN_EVENT);
         final PaymentTokenID paymentTokenID = new PaymentTokenID();
-        paymentTokenID.setvalue(TOKEN_ID);
+        paymentTokenID.setValue(TOKEN_ID);
         tokenDetails.setPaymentTokenID(paymentTokenID);
         tokenDetails.setTokenEventReference(TOKEN_EVENT_REFERENCE);
         tokenDetails.setTokenReason(createTokenReason());
@@ -200,7 +200,7 @@ public class CreateTokenResponseTransformerTest {
 
     private TokenReason createTokenReason() {
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(TOKEN_REASON);
+        tokenReason.setValue(TOKEN_REASON);
         return tokenReason;
     }
 
@@ -218,7 +218,7 @@ public class CreateTokenResponseTransformerTest {
         expiryDate.setDate(date);
         cardDetails.setExpiryDate(expiryDate);
         final CardHolderName cardHolderName = new CardHolderName();
-        cardHolderName.setvalue(CARD_HOLDER_NAME);
+        cardHolderName.setValue(CARD_HOLDER_NAME);
         cardDetails.setCardHolderName(cardHolderName);
         final CardAddress cardAddress = new CardAddress();
         final Address address = new Address();
@@ -227,7 +227,7 @@ public class CreateTokenResponseTransformerTest {
         cardDetails.setCardAddress(cardAddress);
         final Derived derived = new Derived();
         final CardBrand cardBrand = new CardBrand();
-        cardBrand.setvalue(CARD_BRAND);
+        cardBrand.setValue(CARD_BRAND);
         derived.setCardBrand(cardBrand);
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(DK);

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Router, UrlTree } from '@angular/router';
 import { GlobalMessageService, GlobalMessageType, QueryState, SemanticPathService } from '@spartacus/core';
 import { Observable } from 'rxjs';
@@ -10,14 +10,10 @@ import { PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
   providedIn: 'root'
 })
 export class WorldpayCheckoutReviewPaymentGuard {
-
-  constructor(
-    protected router: Router,
-    protected semanticPathService: SemanticPathService,
-    protected globalMessageService: GlobalMessageService,
-    protected worldpayCheckoutPaymentFacade: WorldpayCheckoutPaymentFacade,
-  ) {
-  }
+  protected router: Router = inject(Router);
+  protected semanticPathService: SemanticPathService = inject(SemanticPathService);
+  protected globalMessageService: GlobalMessageService = inject(GlobalMessageService);
+  protected worldpayCheckoutPaymentFacade: WorldpayCheckoutPaymentFacade = inject(WorldpayCheckoutPaymentFacade);
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.worldpayCheckoutPaymentFacade.getPaymentDetailsState().pipe(

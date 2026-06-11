@@ -8,5 +8,6 @@
 
     <alias name="defaultTestWorldpayLevel23Strategy" alias="worldpayLevel23Strategy"/>
     <bean id="defaultTestWorldpayLevel23Strategy"
-          class="com.worldpay.service.payment.impl.DefaultTestWorldpayLevel23Strategy" parent="defaultWorldpayLevel23Strategy"/>
+          class="com.worldpay.service.payment.impl.DefaultTestWorldpayLevel23Strategy"
+          parent="defaultWorldpayLevel23Strategy"/>
 </beans>

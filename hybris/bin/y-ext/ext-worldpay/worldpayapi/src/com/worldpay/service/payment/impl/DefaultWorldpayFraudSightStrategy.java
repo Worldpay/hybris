@@ -136,7 +136,7 @@ public class DefaultWorldpayFraudSightStrategy extends AbstractWorldpayFraudSigh
             .ifPresent(shopperFields::setShopperAddress);
 
         Optional.ofNullable(worldpayAdditionalInfoData.getDateOfBirth()).ifPresent(dob -> {
-            final LocalDateTime dateOfBirth = Instant.ofEpochMilli(dob.getTime())
+            final LocalDateTime dateOfBirth = dob.atStartOfDay()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
             shopperFields.setBirthDate(WorldpayInternalModelTransformerUtil.newDateFromLocalDateTime(dateOfBirth));

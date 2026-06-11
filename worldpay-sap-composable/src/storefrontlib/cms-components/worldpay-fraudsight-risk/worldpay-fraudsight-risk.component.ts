@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, DestroyRef, inject, Input, NgZone, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EventService, LoggerService, QueryState, WindowRef } from '@spartacus/core';
+import { filter } from 'rxjs/operators';
 import { WorldpayFraudsightFacade } from '../../../core';
 
 @Component({
   selector: 'worldpay-fraudsight-risk',
-  template: '',
-  standalone: false
+  template: ''
 })
 export class WorldpayFraudsightRiskComponent implements OnInit, AfterViewInit {
   @Input() threatMetrix: string = 'wprofile';
@@ -15,11 +15,11 @@ export class WorldpayFraudsightRiskComponent implements OnInit, AfterViewInit {
   @Input() pageId: string;
   @Input() randomIdLength: number = 128;
   protected logger: LoggerService = inject(LoggerService);
-  private destroyRef: DestroyRef = inject(DestroyRef);
   protected ngZone: NgZone = inject(NgZone);
   protected windowRef: WindowRef = inject(WindowRef);
   protected eventService: EventService = inject(EventService);
   protected worldpayFraudsightFacade: WorldpayFraudsightFacade = inject(WorldpayFraudsightFacade);
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     if (!this.windowRef.isBrowser()) {
@@ -28,6 +28,7 @@ export class WorldpayFraudsightRiskComponent implements OnInit, AfterViewInit {
     }
 
     this.worldpayFraudsightFacade.isFraudSightEnabled().pipe(
+      filter((state: QueryState<boolean>): boolean => !state.loading),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (response: QueryState<boolean>): void => {

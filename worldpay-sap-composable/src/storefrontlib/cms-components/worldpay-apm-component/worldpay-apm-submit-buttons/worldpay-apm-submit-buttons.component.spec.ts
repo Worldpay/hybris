@@ -11,9 +11,9 @@ describe('WorldpayApmSubmitButtonsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WorldpayApmSubmitButtonsComponent],
       imports: [
         I18nTestingModule,
+        WorldpayApmSubmitButtonsComponent,
       ]
     }).compileComponents();
 

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GooglePayMerchantConfiguration, PlaceOrderResponse } from '../../interfaces';
+import { PlaceOrderResponse } from '../../interfaces';
+import { GooglePayMerchantConfiguration } from '../../models';
 import { WorldpayGooglepayAdapter } from './worldpay-googlepay.adapter';
 
 @Injectable({
@@ -9,15 +10,7 @@ import { WorldpayGooglepayAdapter } from './worldpay-googlepay.adapter';
 })
 export class WorldpayGooglePayConnector {
 
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param adapter WorldpayApplepayAdapter
-   */
-  constructor(
-    protected adapter: WorldpayGooglepayAdapter
-  ) {
-  }
+  protected adapter: WorldpayGooglepayAdapter = inject(WorldpayGooglepayAdapter);
 
   /**
    * Request current merchant configuration

@@ -93,7 +93,8 @@ export const worldpayTranslations: any = {
         },
         googlepay: {
           authorisationFailed: 'Your GooglePay payment could not be processed',
-          help: 'When you press the Google Pay button you can pay your order in an instance.'
+          help: 'When you press the Google Pay button you can pay your order in an instance.',
+          paymentFailed: 'We couldn\'t process your order. Please check the details and try again.'
         },
         idealForm: {
           bank: {

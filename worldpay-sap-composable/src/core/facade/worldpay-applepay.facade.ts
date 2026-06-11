@@ -14,7 +14,7 @@
 import { Injectable } from '@angular/core';
 import { facadeFactory, QueryState } from '@spartacus/core';
 import { Observable } from 'rxjs';
-import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../interfaces';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPaymentRequest } from '../models';
 import { WORLDPAY_APPLE_PAY_FEATURE } from './worldpay-feature-name';
 
 @Injectable({
@@ -87,10 +87,10 @@ export abstract class WorldpayApplepayFacade {
 
   /**
    * Gets the Apple Pay merchant session from the state.
-   * @returns Observable emitting the PlaceOrderResponse for the merchant session.
+   * @returns Observable emitting the ApplePayMerchantSession for the merchant session.
    * @since 2211.43.0
    */
-  abstract getMerchantSessionFromState(): Observable<PlaceOrderResponse>;
+  abstract getMerchantSessionFromState(): Observable<ApplePayMerchantSession>;
 
   /**
    * Gets the Apple Pay payment authorization from the state.
@@ -128,10 +128,10 @@ export abstract class WorldpayApplepayFacade {
 
   /**
    * Sets the Apple Pay merchant session in the state.
-   * @param paymentRequest The Apple Pay payment request object.
+   * @param merchantSession The Apple Pay payment request object.
    * @since 2211.43.0
    */
-  abstract setMerchantSession(paymentRequest: ApplePayPaymentRequest | null): void;
+  abstract setMerchantSession(merchantSession: ApplePayMerchantSession | null): void;
 
   /**
    * Sets the Apple Pay payment authorization in the state.

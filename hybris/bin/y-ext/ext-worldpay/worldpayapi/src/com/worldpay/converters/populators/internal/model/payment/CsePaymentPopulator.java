@@ -44,7 +44,7 @@ public class CsePaymentPopulator implements Populator<Cse, CSEDATA> {
 
         Optional.ofNullable(source.getEncryptedData()).ifPresent(encryptedData -> {
             final EncryptedData internalEncryptedData = new EncryptedData();
-            internalEncryptedData.setvalue(encryptedData);
+            internalEncryptedData.setValue(encryptedData);
             target.setEncryptedData(internalEncryptedData);
         });
     }

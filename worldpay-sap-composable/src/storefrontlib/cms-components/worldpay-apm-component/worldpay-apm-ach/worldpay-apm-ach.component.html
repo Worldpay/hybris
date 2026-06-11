@@ -1,28 +1,9 @@
-<ng-template #noAccountTypes>
-  <div class="row">
-    <div class="col-md-12">
-      <div class="alert alert-danger">
-        {{ 'paymentForm.achForm.noAccountTypesAvailable' | cxTranslate }}
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-
-<ng-template #loading>
-  <div class="row">
-    <div class="col-md-12">
-      <cx-spinner></cx-spinner>
-    </div>
-  </div>
-</ng-template>
-
-<ng-container *ngIf="(achBankAccountTypesState$ | async) as achBackAccountTypesState">
-  <ng-container *ngIf="achBackAccountTypesState.loading === false; else loading">
+@if ((achBankAccountTypesState$ | async); as achBackAccountTypesState) {
+  @if (achBackAccountTypesState.loading === false) {
+    @if (achBackAccountTypesState.data?.length > 0) {
     <form
       (ngSubmit)="next()"
       [formGroup]="achForm"
-      *ngIf="achBackAccountTypesState.data?.length > 0; else noAccountTypes"
     >
       <div class="row">
         <div class="col-md-12 col-xl-10">
@@ -43,11 +24,9 @@
                 formControlName="code"
               >
               </ng-select>
-
               <cx-form-errors [control]="achForm.get('accountType')"></cx-form-errors>
             </label>
           </div>
-
           <!-- Account Number -->
           <div class="form-group">
             <label>
@@ -63,7 +42,6 @@
               <cx-form-errors [control]="achForm.get('accountNumber')"></cx-form-errors>
             </label>
           </div>
-
           <!-- Routing Number -->
           <div class="form-group">
             <label>
@@ -79,7 +57,6 @@
               <cx-form-errors [control]="achForm.get('routingNumber')"></cx-form-errors>
             </label>
           </div>
-
           <!-- Check Number -->
           <div class="form-group">
             <label>
@@ -95,7 +72,6 @@
               <cx-form-errors [control]="achForm.get('checkNumber')"></cx-form-errors>
             </label>
           </div>
-
           <!-- Company Name -->
           <div class="form-group">
             <label>
@@ -110,8 +86,7 @@
               <cx-form-errors [control]="achForm.get('companyName')"></cx-form-errors>
             </label>
           </div>
-
-          <!-- Company Name -->
+          <!-- Company Custom Identifier -->
           <div class="form-group">
             <label>
               <span class="label-content required">{{ 'paymentForm.achForm.customIdentifier' | cxTranslate }}</span>
@@ -125,14 +100,11 @@
               <cx-form-errors [control]="achForm.get('customIdentifier')"></cx-form-errors>
             </label>
           </div>
-
         </div>
-
         <div class="col-12 mt-3">
           <y-worldpay-billing-address></y-worldpay-billing-address>
         </div>
       </div>
-
       <!-- BUTTON SECTION -->
       <y-worldpay-apm-submit-buttons
         [disableContinue$]="disableContinueButton(achForm.invalid)"
@@ -140,5 +112,20 @@
         [dataTestId]="'ach-continue-btn'"
       />
     </form>
-  </ng-container>
-</ng-container>
+    } @else {
+      <div class="row">
+        <div class="col-md-12">
+          <div class="alert alert-danger">
+            {{ 'paymentForm.achForm.noAccountTypesAvailable' | cxTranslate }}
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="row">
+      <div class="col-md-12">
+        <cx-spinner></cx-spinner>
+      </div>
+    </div>
+  }
+}

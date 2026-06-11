@@ -10,7 +10,7 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.processengine.model.BusinessProcessModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.List;
 
@@ -21,10 +21,20 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZAT
  */
 public class DefaultPaymentTransactionRejectionStrategy implements PaymentTransactionRejectionStrategy {
 
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private ModelService modelService;
-    private ProcessDefinitionDao processDefinitionDao;
-    private BusinessProcessService businessProcessService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final ModelService modelService;
+    protected final ProcessDefinitionDao processDefinitionDao;
+    protected final BusinessProcessService businessProcessService;
+
+    public DefaultPaymentTransactionRejectionStrategy(final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                                      final ModelService modelService,
+                                                      final ProcessDefinitionDao processDefinitionDao,
+                                                      final BusinessProcessService businessProcessService) {
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.modelService = modelService;
+        this.processDefinitionDao = processDefinitionDao;
+        this.businessProcessService = businessProcessService;
+    }
 
     /**
      * {@inheritDoc}
@@ -56,23 +66,4 @@ public class DefaultPaymentTransactionRejectionStrategy implements PaymentTransa
         return businessProcessModel.getCode() + "_" + paymentTransactionType;
     }
 
-    @Required
-    public void setModelService(ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setProcessDefinitionDao(ProcessDefinitionDao processDefinitionDao) {
-        this.processDefinitionDao = processDefinitionDao;
-    }
-
-    @Required
-    public void setBusinessProcessService(BusinessProcessService businessProcessService) {
-        this.businessProcessService = businessProcessService;
-    }
 }

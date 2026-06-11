@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2025 SAP SE or an SAP affiliate company. All rights reserved.
- */
 package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
@@ -22,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 
 @Controller
@@ -40,8 +37,7 @@ public class WorldpayCartPaymentsController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(operationId = "replaceCartPaymentDetails", summary = "Sets credit card payment details for the cart.", description = "Sets credit card payment details for the specified cart.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    public void replaceCartPaymentDetails(
-            @Parameter(description = "Payment details identifier.", required = true) @RequestParam final String paymentDetailsId) throws WorldpayInvalidPaymentInfoException {
+    public void replaceCartPaymentDetails(@Parameter(description = "Payment details identifier.", required = true) @RequestParam final String paymentDetailsId) throws WorldpayInvalidPaymentInfoException {
         setPaymentDetailsInternal(paymentDetailsId);
     }
 

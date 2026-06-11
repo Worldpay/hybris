@@ -1,23 +1,43 @@
+import { CdkAccordion, CdkAccordionItem } from '@angular/cdk/accordion';
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PaymentDetails } from '@spartacus/core';
+import { I18nModule, PaymentDetails } from '@spartacus/core';
+import { MediaModule, SpinnerModule } from '@spartacus/storefront';
 import { Observable, shareReplay } from 'rxjs';
 import { distinctUntilChanged, first, map, switchMap, take } from 'rxjs/operators';
-import {
-  ApmData,
-  GooglePayMerchantConfiguration,
-  PaymentMethod,
-  WorldpayApmService,
-  WorldpayApplepayService,
-  WorldpayGooglepayService
-} from '../../../core';
+import { ApmData, GooglePayMerchantConfiguration, PaymentMethod, WorldpayApmService, WorldpayApplepayService, WorldpayGooglepayService } from '../../../core';
+import { WorldpayBillingAddressComponent } from '../worldpay-billing-address/worldpay-billing-address.component';
+import { WorldpayApmAchComponent } from './worldpay-apm-ach/worldpay-apm-ach.component';
 import { WorldpayApmBaseComponent } from './worldpay-apm-base/worldpay-apm-base.component';
+import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay/worldpay-apm-googlepay.component';
+import { WorldpayApmIdealComponent } from './worldpay-apm-ideal/worldpay-apm-ideal.component';
+import { WorldpayApmSepaComponent } from './worldpay-apm-sepa/worldpay-apm-sepa.component';
+import { WorldpayApmSubmitButtonsComponent } from './worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
+import { WorldpayApmTileComponent } from './worldpay-apm-tile/worldpay-apm-tile.component';
+import { WorldpayApplepayComponent } from './worldpay-applepay/worldpay-applepay.component';
 
 @Component({
   selector: 'y-worldpay-apm-component',
   templateUrl: './worldpay-apm.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    MediaModule,
+    SpinnerModule,
+    I18nModule,
+    NgTemplateOutlet,
+    CdkAccordionItem,
+    CdkAccordion,
+    WorldpayBillingAddressComponent,
+    WorldpayApmIdealComponent,
+    WorldpayApmGooglepayComponent,
+    WorldpayApplepayComponent,
+    WorldpayApmAchComponent,
+    WorldpayApmSubmitButtonsComponent,
+    WorldpayApmSepaComponent,
+    WorldpayApmTileComponent,
+  ],
 })
 export class WorldpayApmComponent extends WorldpayApmBaseComponent implements OnInit, OnDestroy {
   @Input() apms: Observable<ApmData[]>;

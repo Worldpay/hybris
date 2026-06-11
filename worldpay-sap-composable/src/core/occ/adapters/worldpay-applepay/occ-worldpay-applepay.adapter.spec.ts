@@ -4,10 +4,22 @@ import { TestBed } from '@angular/core/testing';
 import { OccConfig, OccEndpointsService } from '@spartacus/core';
 import { mockUserId } from 'worldpay-sap-composable-tests';
 import { MockOccEndpointsService } from '../../../../tests/services/occ-endpoint.service.mock';
+import { ApplePayPayment } from '../../../models';
 import { OccWorldpayApplepayAdapter } from './occ-worldpay-applepay.adapter';
 
 const userId = mockUserId;
 const cartId = 'cartId';
+const payment: ApplePayPayment = {
+  token: {
+    transactionIdentifier: '100',
+    paymentMethod: {
+      displayName: 'Payment Method',
+    }
+  },
+  shippingContact: {
+    familyName: 'Shipping Contact',
+  }
+};
 
 const MockOccModuleConfig: OccConfig = {
   backend: {
@@ -143,13 +155,12 @@ describe('OccWorldpayApplepayAdapter', () => {
 
   describe('authorizeApplePayPayment', () => {
     it('should build URL and make POST request for Apple Pay Payment Authorization', () => {
-      const request = { request: 'bar' };
+      const request = payment;
       service.authorizeApplePayPayment(userId, cartId, request).subscribe();
 
       const mockReq = httpMock.expectOne(req =>
         req.method === 'POST' &&
-        req.urlWithParams === 'authorizeApplePayPayment' &&
-        req.body.request === 'bar'
+        req.urlWithParams === 'authorizeApplePayPayment'
       );
 
       expect(occEndpointsService.buildUrl).toHaveBeenCalledWith(
@@ -162,12 +173,13 @@ describe('OccWorldpayApplepayAdapter', () => {
         }
       );
 
+      expect(mockReq.request.body).toEqual(payment);
       expect(mockReq.cancelled).toBeFalsy();
       mockReq.flush({ request });
     });
 
     it('should handle error when authorizeApplePayPayment fails', () => {
-      const request = { request: 'bar' };
+      const request = payment;
       const error = new ProgressEvent('error');
       service.authorizeApplePayPayment(userId, cartId, request).subscribe({
         error: (err) => {
@@ -177,10 +189,10 @@ describe('OccWorldpayApplepayAdapter', () => {
 
       const mockReq = httpMock.expectOne(req =>
         req.method === 'POST' &&
-        req.urlWithParams === 'authorizeApplePayPayment' &&
-        req.body.request === 'bar'
+        req.urlWithParams === 'authorizeApplePayPayment'
       );
 
+      expect(mockReq.request.body).toEqual(payment);
       mockReq.error(error);
     });
   });

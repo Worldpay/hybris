@@ -39,7 +39,7 @@ public class ShopperPopulator implements Populator<Shopper, com.worldpay.interna
 
         Optional.ofNullable(source.getAuthenticatedShopperID()).ifPresent(authenticatedShopperID -> {
             final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-            intAuthenticatedShopperID.setvalue(authenticatedShopperID);
+            intAuthenticatedShopperID.setValue(authenticatedShopperID);
             target.setAuthenticatedShopperID(intAuthenticatedShopperID);
         });
 

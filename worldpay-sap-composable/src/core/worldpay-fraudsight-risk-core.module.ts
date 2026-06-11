@@ -1,12 +1,8 @@
 import { NgModule } from '@angular/core';
-import { worldpayFraudsightConnectorProvider } from './connectors';
-import { worldpayFraudsightFacadeProviders } from './facade';
+import { worldpayFraudsightCoreProviders } from '../providers/worldpay-fraudsight-core.provider';
 
 @NgModule({
-  providers: [
-    ...worldpayFraudsightConnectorProvider,
-    ...worldpayFraudsightFacadeProviders
-  ]
+  providers: worldpayFraudsightCoreProviders()
 })
 export class WorldpayFraudsightRiskCoreModule {
 }

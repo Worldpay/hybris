@@ -1,5 +1,15 @@
 package com.worldpay.worldpayextb2bocc.controllers;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
+import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.FULL_LEVEL;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
@@ -48,19 +58,21 @@ import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartI
 import de.hybris.platform.webservicescommons.swagger.ApiFieldsParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-
-import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
-import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.FULL_LEVEL;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller for handling Worldpay specific payments
@@ -82,7 +94,7 @@ import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.
 @RestController
 @RequestMapping(value = "/{baseSiteId}/users/{userId}/carts")
 @CacheControl(directive = CacheControlDirective.NO_CACHE)
-@SuppressWarnings({"java:S110","common-java:DuplicatedBlocks","squid:S2387"})
+@SuppressWarnings({"java:S110", "common-java:DuplicatedBlocks", "squid:S2387"})
 public class WorldpayB2BCartsController extends AbstractWorldpayController {
 
     @Resource
@@ -111,7 +123,6 @@ public class WorldpayB2BCartsController extends AbstractWorldpayController {
     protected WorldpayB2BDirectOrderFacade worldpayB2BDirectOrderFacade;
     @Resource(name = "cartLoaderStrategy")
     private CartLoaderStrategy cartLoaderStrategy;
-
 
 
     /**
@@ -222,7 +233,7 @@ public class WorldpayB2BCartsController extends AbstractWorldpayController {
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = callSuperCreateWorldpayAdditionalInfo(request, paymentDetails, cartId, cseAdditionalAuthInfo);
         worldpayAdditionalInfoData.setDeviceSession(paymentDetails.getDeviceSession());
         Optional.ofNullable(paymentDetails.getDateOfBirth())
-                .map(this::convertStringToDate)
+                .map(this::convertStringToLocalDate)
                 .ifPresent(worldpayAdditionalInfoData::setDateOfBirth);
 
         final DirectResponseData directResponseData = worldpayB2BDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);
@@ -367,8 +378,8 @@ public class WorldpayB2BCartsController extends AbstractWorldpayController {
 
 
     protected PaymentDetailsWsDTO callSuperAddPaymentDetailsInternal(final HttpServletRequest request,
-                                                            final PaymentDetailsWsDTO paymentDetails,
-                                                            final String fields) throws NoCheckoutCartException, WorldpayException {
+                                                                     final PaymentDetailsWsDTO paymentDetails,
+                                                                     final String fields) throws NoCheckoutCartException, WorldpayException {
         return super.addPaymentDetailsInternal(request, paymentDetails, fields);
     }
 

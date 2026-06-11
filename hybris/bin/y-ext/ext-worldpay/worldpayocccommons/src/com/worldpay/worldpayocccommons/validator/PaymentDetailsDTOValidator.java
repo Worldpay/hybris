@@ -1,8 +1,8 @@
 package com.worldpay.worldpayocccommons.validator;
 
 import de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -15,7 +15,12 @@ import java.util.Calendar;
  */
 public class PaymentDetailsDTOValidator implements Validator {
     private static final String FIELD_REQUIRED_MESSAGE_ID = "field.required";
-    private Validator paymentAddressValidator;
+
+    protected final Validator paymentAddressValidator;
+
+    public PaymentDetailsDTOValidator(final Validator paymentAddressValidator) {
+        this.paymentAddressValidator = paymentAddressValidator;
+    }
 
     @SuppressWarnings("squid:S3740")
     @Override
@@ -61,8 +66,4 @@ public class PaymentDetailsDTOValidator implements Validator {
         paymentAddressValidator.validate(paymentDetails, errors);
     }
 
-    @Required
-    public void setPaymentAddressValidator(final Validator paymentAddressValidator) {
-        this.paymentAddressValidator = paymentAddressValidator;
-    }
 }

@@ -1,97 +1,51 @@
-import { Component, DebugElement, Directive, Injector, Input, Pipe, PipeTransform, SimpleChange, TemplateRef, ViewContainerRef } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ControlContainer, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import { Component, DebugElement, Directive, Injector, Input, Pipe, PipeTransform, SimpleChange, } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ControlContainer, ReactiveFormsModule, UntypedFormControl, } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { CartItemContextSource } from '@spartacus/cart/base/components';
 import { CartItemContext, PromotionLocation } from '@spartacus/cart/base/root';
-import { FeaturesConfigModule, GlobalMessageEntities, GlobalMessageService, I18nTestingModule } from '@spartacus/core';
-import { AtMessageModule, OutletDirective, OutletModule } from '@spartacus/storefront';
-import { Observable, of } from 'rxjs';
-import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
+import { CxDatePipe, FeatureLevelDirective, MockDatePipe, MockTranslatePipe, Promotion, TranslatePipe, UrlPipe, } from '@spartacus/core';
+import { AtMessageDirective, ItemCounterComponent, MediaComponent, OutletModule, PromotionsComponent, } from '@spartacus/storefront';
+import { MockCxFeatureLevelDirective } from 'worldpay-sap-composable-tests';
+import { WorldpayCartItemValidationWarningComponent } from '../worldpay-cart-item-warning/worldpay-cart-item-validation-warning.component';
 import { WorldpayCartItemComponent } from './worldpay-cart-item.component';
-import createSpy = jasmine.createSpy;
 
-@Directive({
-  selector: '[cxFeatureLevel]',
-  standalone: false
-})
-export class MockFeatureLevelDirective {
-  constructor(
-    protected templateRef: TemplateRef<any>,
-    protected viewContainer: ViewContainerRef
-  ) {
-  }
-
-  @Input() set cxFeatureLevel(_feature: string | number) {
-    this.viewContainer.createEmbeddedView(this.templateRef);
-  }
-}
-
-@Pipe({
-  name: 'cxUrl',
-  standalone: false
-})
+@Pipe({ name: 'cxUrl' })
 class MockUrlPipe implements PipeTransform {
   transform() {
   }
 }
 
-/*
-@Directive({
-  selector: '[cxModal]',
-})
-class MockModalDirective implements Partial<ModalDirective> {
-  @Input() cxModal;
-}
-*/
-
-@Directive({
-  selector: '[cxOutlet]',
-  standalone: false
-})
-class MockOutletDirective implements Partial<OutletDirective> {
-  @Input() cxOutlet: string;
-}
-
 @Component({
   template: '',
   selector: 'cx-media',
-  standalone: false
+  imports: [],
 })
 class MockMediaComponent {
-  @Input() container;
-  @Input() format;
+  @Input() container: string;
+  @Input() format: string;
 }
 
 @Component({
   template: '',
   selector: 'cx-item-counter',
-  standalone: false
+  imports: [],
 })
 class MockItemCounterComponent {
-  @Input() control;
-  @Input() readonly;
-  @Input() max;
-  @Input() allowZero;
-}
-
-@Component({
-  template: '',
-  selector: 'cx-cart-item-validation-warning',
-  standalone: false
-})
-class MockCartItemValidationWarningComponent {
-  @Input() code;
+  @Input() control: UntypedFormControl;
+  @Input() readonly: boolean;
+  @Input() max: number;
+  @Input() allowZero: boolean;
 }
 
 @Component({
   template: '',
   selector: 'cx-promotions',
-  standalone: false
+  imports: [],
 })
 class MockPromotionsComponent {
-  @Input() promotions;
+  @Input() promotions: Promotion[];
 }
 
 const mockProduct = {
@@ -116,12 +70,18 @@ const mockProduct = {
   },
 };
 
-class MockGlobalMessageService {
-  add = createSpy('add').and.callThrough();
+@Component({
+  selector: 'cx-cart-item-validation-warning',
+  template: '',
+  imports: [],
+})
+class MockCartItemValidationWarningComponent {
+  @Input() code: string;
+}
 
-  get(): Observable<GlobalMessageEntities> {
-    return of({});
-  }
+@Directive({ selector: '[cxAtMessage]' })
+class MockAtMessageDirective {
+  @Input() cxAtMessage: string | string[] | undefined;
 }
 
 describe('WorldpayCartItemComponent', () => {
@@ -135,42 +95,48 @@ describe('WorldpayCartItemComponent', () => {
     'isLevel',
   ]);
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
       imports: [
-        RouterLink,
         ReactiveFormsModule,
-        I18nTestingModule,
-        FeaturesConfigModule,
         OutletModule,
-        AtMessageModule,
-      ],
-      declarations: [
         WorldpayCartItemComponent,
-        MockMediaComponent,
-        MockItemCounterComponent,
-        MockPromotionsComponent,
-        MockUrlPipe,
-        MockFeatureLevelDirective,
-        MockOutletDirective,
-        MockCartItemValidationWarningComponent
+        RouterModule.forRoot([]),
       ],
       providers: [
         {
-          provide: ActivatedRoute,
-          useClass: MockActivatedRoute
-        },
-        {
           provide: ControlContainer,
         },
-        {
-          provide: GlobalMessageService,
-          useClass: MockGlobalMessageService
-        }
       ],
-    })
-      .compileComponents();
-  });
+    }).overrideComponent(WorldpayCartItemComponent, {
+      remove: {
+        imports: [
+          TranslatePipe,
+          CxDatePipe,
+          UrlPipe,
+          MediaComponent,
+          ItemCounterComponent,
+          PromotionsComponent,
+          FeatureLevelDirective,
+          WorldpayCartItemValidationWarningComponent,
+          AtMessageDirective,
+        ],
+      },
+      add: {
+        imports: [
+          MockTranslatePipe,
+          MockDatePipe,
+          MockUrlPipe,
+          MockMediaComponent,
+          MockItemCounterComponent,
+          MockPromotionsComponent,
+          MockCxFeatureLevelDirective,
+          MockCartItemValidationWarningComponent,
+          MockAtMessageDirective,
+        ],
+      },
+    }).compileComponents();
+  }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(WorldpayCartItemComponent);
@@ -291,6 +257,7 @@ describe('WorldpayCartItemComponent', () => {
   });
 
   it('should call removeItem()', () => {
+    fixture.detectChanges();
     const button: DebugElement = fixture.debugElement.query(By.css('button'));
     button.nativeElement.click();
     fixture.detectChanges();

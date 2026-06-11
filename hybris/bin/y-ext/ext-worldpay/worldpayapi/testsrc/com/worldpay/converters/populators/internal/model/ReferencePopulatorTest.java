@@ -44,7 +44,7 @@ public class ReferencePopulatorTest {
         testObj.populate(sourceMock, targetMock);
 
         assertThat(targetMock.getId()).isEqualTo(ID);
-        assertThat(targetMock.getvalue()).isEqualTo(VALUE);
+        assertThat(targetMock.getValue()).isEqualTo(VALUE);
     }
 }
 

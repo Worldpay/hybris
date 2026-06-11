@@ -32,7 +32,7 @@ export const worldpayUserPaymentConnectorProvider: Provider[] = [WorldpayUserPay
  *
  * @since 2211.43.0
  */
-export const provideWorldpayConnectors: () => Provider[] = (): Provider[] => [
+export const worldpayConnectorsProviders: () => Provider[] = (): Provider[] => [
   ...worldpayAchConnectorProvider,
   ...worldpayApmConnectorProvider,
   ...worldpayApplepayConnectorProvider,

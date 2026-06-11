@@ -21,7 +21,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.List;
 
@@ -33,12 +33,26 @@ public class DefaultWorldpayApplePayPaymentCheckoutFacade implements WorldpayApp
     private static final String TOTAL_LINE_ITEM_TYPE = "final";
     private static final String REQUIRED_POSTAL_ADDR = "postalAddress";
 
-    private Converter<ApplePayConfigData, ValidateMerchantRequestDTO> applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter;
-    private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
-    private I18NFacade i18NFacade;
-    private CheckoutCustomerStrategy checkoutCustomerStrategy;
-    private UserFacade userFacade;
-    private WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+    protected final Converter<ApplePayConfigData, ValidateMerchantRequestDTO> applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter;
+    protected final WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
+    protected final I18NFacade i18NFacade;
+    protected final CheckoutCustomerStrategy checkoutCustomerStrategy;
+    protected final UserFacade userFacade;
+    protected final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade;
+
+    public DefaultWorldpayApplePayPaymentCheckoutFacade(final Converter<ApplePayConfigData, ValidateMerchantRequestDTO> applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter,
+                                                        final WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade,
+                                                        final I18NFacade i18NFacade,
+                                                        final CheckoutCustomerStrategy checkoutCustomerStrategy,
+                                                        final UserFacade userFacade,
+                                                        final WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade) {
+        this.applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter = applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter;
+        this.worldpayPaymentCheckoutFacade = worldpayPaymentCheckoutFacade;
+        this.i18NFacade = i18NFacade;
+        this.checkoutCustomerStrategy = checkoutCustomerStrategy;
+        this.userFacade = userFacade;
+        this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
+    }
 
     @Override
     public void saveBillingAddresses(final ApplePayPaymentContact billingContact) {
@@ -107,33 +121,4 @@ public class DefaultWorldpayApplePayPaymentCheckoutFacade implements WorldpayApp
         return paymentRequest;
     }
 
-    @Required
-    public void setWorldpayPaymentCheckoutFacade(WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade) {
-        this.worldpayPaymentCheckoutFacade = worldpayPaymentCheckoutFacade;
-    }
-
-    @Required
-    public void setI18NFacade(I18NFacade i18NFacade) {
-        this.i18NFacade = i18NFacade;
-    }
-
-    @Required
-    public void setCheckoutCustomerStrategy(CheckoutCustomerStrategy checkoutCustomerStrategy) {
-        this.checkoutCustomerStrategy = checkoutCustomerStrategy;
-    }
-
-    @Required
-    public void setUserFacade(UserFacade userFacade) {
-        this.userFacade = userFacade;
-    }
-
-    @Required
-    public void setWorldpayMerchantConfigDataFacade(WorldpayMerchantConfigDataFacade worldpayMerchantConfigDataFacade) {
-        this.worldpayMerchantConfigDataFacade = worldpayMerchantConfigDataFacade;
-    }
-
-    @Required
-    public void setApplePayConfigDataToValidateMerchantRequestDTOPopulatingConverter(Converter<ApplePayConfigData, ValidateMerchantRequestDTO> applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter) {
-        this.applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter = applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter;
-    }
 }

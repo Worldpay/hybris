@@ -10,7 +10,8 @@ import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.springframework.beans.factory.annotation.Required;
+import de.hybris.platform.servicelayer.time.TimeService;
+
 
 import java.util.Optional;
 
@@ -20,7 +21,12 @@ import java.util.Optional;
 public class WorldpayAbstractOrderPopulator implements Populator<AbstractOrderModel, AbstractOrderData>{
 
 
-    private Converter<AddressModel, AddressData> addressConverter;
+    protected final Converter<AddressModel, AddressData> addressConverter;
+
+    protected WorldpayAbstractOrderPopulator(final Converter<AddressModel, AddressData> addressConverter) {
+        this.addressConverter = addressConverter;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -44,8 +50,5 @@ public class WorldpayAbstractOrderPopulator implements Populator<AbstractOrderMo
         return !(paymentInfo instanceof CreditCardPaymentInfoModel);
     }
 
-    @Required
-    public void setAddressConverter(final Converter<AddressModel, AddressData> addressConverter) {
-        this.addressConverter = addressConverter;
-    }
+
 }

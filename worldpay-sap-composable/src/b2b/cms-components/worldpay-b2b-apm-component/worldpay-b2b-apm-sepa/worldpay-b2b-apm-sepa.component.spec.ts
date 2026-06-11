@@ -8,7 +8,7 @@ import { FormErrorsModule } from '@spartacus/storefront';
 import { BehaviorSubject, of } from 'rxjs';
 import { MockWorldpayApmService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
 import { PaymentMethod, WorldpayApmFacade, WorldpayBillingAddressFormService, WorldpayConnector } from '../../../../core';
-import { WorldpayApmSubmitButtonsComponent } from '../../../../storefrontlib';
+import { WorldpayApmSubmitButtonsComponent, WorldpayBillingAddressComponent } from '../../../../storefrontlib';
 import { WorldpayB2BApmSepaComponent } from './worldpay-b2b-apm-sepa.component';
 
 describe('WorldpayB2BApmSepaComponent', () => {
@@ -32,12 +32,6 @@ describe('WorldpayB2BApmSepaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayB2BApmSepaComponent,
-        MockTranslatePipe,
-        MockWorldpayBillingAddressComponent,
-        WorldpayApmSubmitButtonsComponent,
-      ],
       providers: [
         UntypedFormBuilder,
         WorldpayBillingAddressFormService,
@@ -56,7 +50,17 @@ describe('WorldpayB2BApmSepaComponent', () => {
         FormErrorsModule,
         ReactiveFormsModule,
         NgSelectModule,
+        WorldpayB2BApmSepaComponent,
+        MockTranslatePipe,
+        WorldpayApmSubmitButtonsComponent,
       ]
+    }).overrideComponent(WorldpayB2BApmSepaComponent, {
+      remove: {
+        imports: [WorldpayBillingAddressComponent]
+      },
+      add: {
+        imports: [MockWorldpayBillingAddressComponent]
+      }
     }).compileComponents();
   });
 

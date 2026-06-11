@@ -1,12 +1,24 @@
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, HostBinding, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
-import { CheckoutPaymentMethodComponent, CheckoutStepService } from '@spartacus/checkout/base/components';
+import { CheckoutPaymentFormModule, CheckoutPaymentMethodComponent, CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutStep, CheckoutStepType } from '@spartacus/checkout/base/root';
-import { Address, getLastValueSync, GlobalMessageService, GlobalMessageType, PaymentDetails, TranslationService } from '@spartacus/core';
-import { Card } from '@spartacus/storefront';
+import {
+  Address,
+  FeaturesConfigModule,
+  getLastValueSync,
+  GlobalMessageService,
+  GlobalMessageType,
+  I18nModule,
+  PaymentDetails,
+  TranslationService,
+  UrlModule
+} from '@spartacus/core';
+import { Card, CardModule, FormErrorsModule, GenericLinkModule, IconModule, NgSelectA11yModule, SpinnerModule } from '@spartacus/storefront';
 import { BehaviorSubject, combineLatest, Observable, startWith } from 'rxjs';
 import { distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import {
@@ -21,15 +33,36 @@ import {
   WorldpayBillingAddressFormService,
   WorldpayCard,
   WorldpayCheckoutPaymentFacade,
-  WorldpayUserPaymentService,
-  worldpayGetCardIcon
+  worldpayGetCardIcon,
+  WorldpayUserPaymentService
 } from '../../../core';
+import { WorldpayApmComponent } from '../worldpay-apm-component/worldpay-apm.component';
+import { WorldpayCheckoutPaymentFormComponent } from './payment-form/worldpay-checkout-payment-form.component';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Component({
   selector: 'y-worldpay-payment-method',
   templateUrl: './worldpay-checkout-payment-method.component.html',
   encapsulation: ViewEncapsulation.None,
-  standalone: false,
+  imports: [
+    I18nModule,
+    CheckoutPaymentFormModule,
+    GenericLinkModule,
+    SpinnerModule,
+    CardModule,
+    IconModule,
+    NgSelectModule,
+    ReactiveFormsModule,
+    RouterModule,
+    UrlModule,
+    FormErrorsModule,
+    NgSelectA11yModule,
+    FeaturesConfigModule,
+    AsyncPipe,
+    NgTemplateOutlet,
+    WorldpayApmComponent,
+    WorldpayCheckoutPaymentFormComponent,
+  ]
 })
 export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMethodComponent implements OnInit, OnDestroy {
   @HostBinding('class.d-none') hidden: boolean = false;
@@ -38,7 +71,7 @@ export class WorldpayCheckoutPaymentMethodComponent extends CheckoutPaymentMetho
   cvnForm: UntypedFormGroup = this.fb.group({
     cvn: [null, [Validators.required, Validators.minLength(3)]]
   });
-  selectedPayment$: BehaviorSubject<ApmPaymentDetails> = this.worldpayApmService.selectedApm$;
+  selectedPayment$: Observable<ApmPaymentDetails> = this.worldpayApmService.getSelectedAPMFromState();
   isCardPayment: boolean;
   public processing$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   protected apmNormalizer: ApmNormalizer = inject(ApmNormalizer);

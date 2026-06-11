@@ -1,12 +1,12 @@
 package com.worldpay.voidprocess.actions.order;
 
-import com.worldpay.voidprocess.model.WorldpayVoidProcessModel;
+import com.worldpay.model.WorldpayVoidProcessModel;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.PaymentService;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.action.AbstractAction;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,11 @@ import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
  */
 public class WorldpayVoidOrderAction extends AbstractAction<WorldpayVoidProcessModel> {
 
-    private PaymentService paymentService;
+    protected final PaymentService paymentService;
+
+    public WorldpayVoidOrderAction(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @Override
     public String execute(final WorldpayVoidProcessModel worldpayVoidProcessModel) {
@@ -61,8 +65,4 @@ public class WorldpayVoidOrderAction extends AbstractAction<WorldpayVoidProcessM
         }
     }
 
-    @Required
-    public void setPaymentService(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
 }

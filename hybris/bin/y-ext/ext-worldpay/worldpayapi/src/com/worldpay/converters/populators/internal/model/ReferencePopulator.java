@@ -25,6 +25,6 @@ public class ReferencePopulator implements Populator<LineItemReference, Referenc
         validateParameterNotNull(target, "Target must not be null!");
 
         target.setId(source.getId());
-        target.setvalue(source.getValue());
+        target.setValue(source.getValue());
     }
 }

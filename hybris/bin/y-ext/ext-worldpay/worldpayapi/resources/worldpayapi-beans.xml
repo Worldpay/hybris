@@ -109,6 +109,14 @@
         <value>EXPRESS</value>
     </enum>
 
+    <enum class="com.worldpay.data.ApplePayPaymentPassActivationState">
+        <value>activated</value>
+        <value>requiresActivation</value>
+        <value>activating</value>
+        <value>suspended</value>
+        <value>deactivated</value>
+    </enum>
+
     <bean class="de.hybris.platform.commerceservices.service.data.CommerceCheckoutParameter">
         <property name="order" type="de.hybris.platform.core.model.order.AbstractOrderModel">
             <description>Used for recurring orders where no CartModel is provided</description>
@@ -154,7 +162,7 @@
         <property name="replenishmentOrder" type="boolean"/>
         <property name="additional3DS2" type="com.worldpay.data.Additional3DS2Info"/>
         <property name="transactionIdentifier" type="java.lang.String"/>
-        <property name="dateOfBirth" type="java.util.Date"/>
+        <property name="dateOfBirth" type="java.time.LocalDate"/>
         <property name="deviceSession" type="java.lang.String"/>
         <property name="javaEnabled" type="java.lang.Boolean"/>
         <property name="javascriptEnabled" type="java.lang.Boolean"/>
@@ -274,11 +282,11 @@
     </bean>
 
     <bean class="com.worldpay.config.merchant.ApplePayConfigData">
-        <property name="merchantId" type="java.lang.String"/>
-        <property name="merchantName" type="java.lang.String"/>
-        <property name="supportedNetworks" type="java.util.List&lt;String>"/>
-        <property name="merchantCapabilities" type="java.util.List&lt;String>"/>
-        <property name="countryCode" type="java.lang.String"/>
+        <property name="merchantId" type="String"/>
+        <property name="merchantName" type="String"/>
+        <property name="supportedNetworks" type="java.util.List&lt;String&gt;"/>
+        <property name="merchantCapabilities" type="java.util.List&lt;String&gt;"/>
+        <property name="countryCode" type="String"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayAuthorisationRequest">
@@ -294,13 +302,13 @@
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentContact">
-        <property name="phoneNumber" type="java.lang.String"/>
-        <property name="emailAddress" type="java.lang.String"/>
-        <property name="givenName" type="java.lang.String"/>
-        <property name="familyName" type="java.lang.String"/>
-        <property name="phoneticGivenName" type="java.lang.String"/>
-        <property name="phoneticFamilyName" type="java.lang.String"/>
-        <property name="addressLines" type="java.util.List&lt;java.lang.String>"/>
+        <property name="phoneNumber" type="String"/>
+        <property name="emailAddress" type="String"/>
+        <property name="givenName" type="String"/>
+        <property name="familyName" type="String"/>
+        <property name="phoneticGivenName" type="String"/>
+        <property name="phoneticFamilyName" type="String"/>
+        <property name="addressLines" type="java.util.List&lt;String&gt;"/>
         <property name="subLocality" type="java.lang.String"/>
         <property name="locality" type="java.lang.String"/>
         <property name="postalCode" type="java.lang.String"/>
@@ -308,13 +316,6 @@
         <property name="administrativeArea" type="java.lang.String"/>
         <property name="country" type="java.lang.String"/>
         <property name="countryCode" type="java.lang.String"/>
-    </bean>
-
-    <bean class="com.worldpay.data.ApplePayPaymentMethod">
-        <property name="displayName" type="java.lang.String"/>
-        <property name="network" type="java.lang.String"/>
-        <property name="type" type="java.lang.String"/>
-        <property name="paymentPass" type="com.worldpay.data.ApplePayPaymentPass"/>
     </bean>
 
     <bean class="com.worldpay.data.ApplePayPaymentPass">
@@ -325,13 +326,12 @@
         <property name="activationState" type="com.worldpay.data.ApplePayPaymentPassActivationState"/>
     </bean>
 
-    <enum class="com.worldpay.data.ApplePayPaymentPassActivationState">
-        <value>activated</value>
-        <value>requiresActivation</value>
-        <value>activating</value>
-        <value>suspended</value>
-        <value>deactivated</value>
-    </enum>
+    <bean class="com.worldpay.data.ApplePayPaymentMethod">
+        <property name="displayName" type="java.lang.String"/>
+        <property name="network" type="java.lang.String"/>
+        <property name="type" type="java.lang.String"/>
+        <property name="paymentPass" type="com.worldpay.data.ApplePayPaymentPass"/>
+    </bean>
 
     <bean class="com.worldpay.data.ApplePayLineItem">
         <property name="type" type="java.lang.String"/>
@@ -1107,26 +1107,32 @@
     <bean class="com.worldpay.data.partnertracker.PluginData">
         <import type="com.fasterxml.jackson.annotation.JsonProperty"/>
         <property name="ecommercePlatformEdition" type="java.lang.String">
-            <annotations>@JsonProperty("ecommerce_platform_edition")</annotations>
+            <annotations>
+                @JsonProperty("ecommerce_platform_edition")</annotations>
         </property>
         <property name="integrationVersion" type="java.lang.String">
-            <annotations>@JsonProperty("integration_version")</annotations>
+            <annotations>
+                @JsonProperty("integration_version")</annotations>
         </property>
         <property name="historicIntegrationVersion" type="java.lang.String">
-            <annotations>@JsonProperty("historic_integration_version")</annotations>
+            <annotations>
+                @JsonProperty("historic_integration_version")</annotations>
         </property>
         <property name="additionalDetails" type="com.worldpay.data.partnertracker.AdditionalDetails">
-            <annotations>@JsonProperty("additional_details")</annotations>
+            <annotations>
+                @JsonProperty("additional_details")</annotations>
         </property>
     </bean>
 
     <bean class="com.worldpay.data.partnertracker.AdditionalDetails">
         <import type="com.fasterxml.jackson.annotation.JsonProperty"/>
         <property name="paymentMethod" type="java.lang.String">
-            <annotations>@JsonProperty("payment_method")</annotations>
+            <annotations>
+                @JsonProperty("payment_method")</annotations>
         </property>
         <property name="currency" type="java.lang.String">
-            <annotations>@JsonProperty("currency")</annotations>
+            <annotations>
+                @JsonProperty("currency")</annotations>
         </property>
     </bean>
 

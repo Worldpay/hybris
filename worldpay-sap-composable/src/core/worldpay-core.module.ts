@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
-import { worldpayProviders } from '../providers';
+import { worldpayCoreProviders } from '../providers';
 
 @NgModule({
-  providers: [
-    ...worldpayProviders()
-  ]
+  providers: worldpayCoreProviders()
 })
 export class WorldpayCoreModule {
 }

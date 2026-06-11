@@ -1,6 +1,5 @@
 package com.worldpay.service;
 
-import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -29,13 +28,13 @@ import com.worldpay.service.request.AuthoriseRequestParameters;
 import com.worldpay.service.request.RedirectAuthoriseServiceRequest;
 import com.worldpay.service.response.RedirectAuthoriseServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
-import de.hybris.platform.servicelayer.ServicelayerBaseTest;
-import org.junit.jupiter.api.BeforeEach;
+import de.hybris.platform.servicelayer.ServicelayerJUnit5BaseTest;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 @IntegrationTest
-public class RedirectAuthoriseServiceRequestIntegrationTest extends ServicelayerBaseTest {
-
+class RedirectAuthoriseServiceRequestIntegrationTest extends ServicelayerJUnit5BaseTest {
     private static final String ORDER_CONTENT = "orderContent";
     private static final String EMAIL_ADDRESS = "jshopper@myprovider.com";
     private static final String AUTH_SHOPPER_ID = "authShopperId";
@@ -108,7 +107,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
         tokenRequest.setTokenReason(TOKEN_REASON);
         tokenRequest.setMerchantToken(false);
 
-        final Address address = new Address();
+        address = new Address();
         address.setFirstName(NAME);
         address.setLastName(SHOPPER);
         address.setAddress1(SHOPPER_ADDRESS_1);
@@ -117,9 +116,8 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
         address.setPostalCode(POSTAL_CODE);
         address.setCity(CITY);
         address.setCountryCode(GB);
-        this.address = address;
 
-        final Address billingAddress = new Address();
+        billingAddress = new Address();
         billingAddress.setFirstName(NAME);
         billingAddress.setLastName(SHOPPER);
         billingAddress.setAddress1(SHOPPER_ADDRESS_1);
@@ -128,12 +126,11 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
         billingAddress.setPostalCode(POSTAL_CODE);
         billingAddress.setCity(CITY);
         billingAddress.setCountryCode(GB);
-        this.billingAddress = billingAddress;
 
-        final Cse payment = new Cse();
-        payment.setEncryptedData(ENCRYPTED_DATA);
-        payment.setAddress(shippingAddress);
-        this.payment = payment;
+        final Cse csePayment = new Cse();
+        csePayment.setEncryptedData(ENCRYPTED_DATA);
+        csePayment.setAddress(shippingAddress);
+        payment = csePayment;
 
         final Session session = new Session();
         session.setShopperIPAddress(SHOPPER_IP_ADDRESS);
@@ -181,7 +178,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
 
     @Test
     void createRedirectAuthoriseRequestShouldGetRedirectReference() throws WorldpayException {
-        final Shopper shopper = new Shopper();
+        shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
                 .withMerchantInfo(merchantInfo)
@@ -201,7 +198,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
 
         assertNotNull(redirectAuthorise, "Authorise response is null!");
         assertFalse(redirectAuthorise.isError(), "Errors returned from authorise request");
-        assertEquals("Order code returned is incorrect", orderCode, redirectAuthorise.getOrderCode());
+        assertEquals(orderCode, redirectAuthorise.getOrderCode(), "Order code returned is incorrect");
         final RedirectReference redirectReference = redirectAuthorise.getRedirectReference();
         assertNotNull(redirectReference, "Authorise redirect reference is null!");
         final String url = redirectReference.getValue();
@@ -210,7 +207,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
 
     @Test
     void createTokenAndRedirectAuthoriseRequestShouldGetRedirectReferenceAndRequestTokenCreation() throws WorldpayException {
-        final Shopper shopper = new Shopper();
+        shopper = new Shopper();
         shopper.setShopperEmailAddress(EMAIL_ADDRESS);
         shopper.setAuthenticatedShopperID(AUTH_SHOPPER_ID);
         final AuthoriseRequestParameters authoriseRequestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
@@ -232,7 +229,7 @@ public class RedirectAuthoriseServiceRequestIntegrationTest extends Servicelayer
 
         assertNotNull(redirectAuthorise, "Authorise response is null!");
         assertFalse(redirectAuthorise.isError(), "Errors returned from authorise request");
-        assertEquals("Order code returned is incorrect", orderCode, redirectAuthorise.getOrderCode());
+        assertEquals(orderCode, redirectAuthorise.getOrderCode(), "Order code returned is incorrect");
         final RedirectReference redirectReference = redirectAuthorise.getRedirectReference();
         assertNotNull(redirectReference, "Authorise redirect reference is null!");
         final String url = redirectReference.getValue();

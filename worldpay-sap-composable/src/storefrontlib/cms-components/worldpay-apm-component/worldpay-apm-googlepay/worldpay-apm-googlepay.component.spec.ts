@@ -9,8 +9,9 @@ import { FormErrorsModule } from '@spartacus/storefront';
 import { EMPTY, Observable, of, throwError } from 'rxjs';
 import { MockActiveCartService, MockGlobalMessageService, MockRoutingService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
 import {
-  GooglePayMerchantConfiguration,
-  GooglePayPaymentRequest,
+  GooglePayIsReadyToPayRequest,
+  GooglePaymentsClient,
+  GooglePayMerchantConfiguration, GooglePayPaymentDataRequest,
   LoadScriptService,
   WorldpayBillingAddressFormService,
   WorldpayCheckoutPaymentFacade,
@@ -20,6 +21,24 @@ import {
 } from '../../../../core';
 import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay.component';
+
+let mockButton: HTMLButtonElement = document.createElement('button');
+
+type GooglePaymentsClientProvider = GooglePaymentsClient | (() => GooglePaymentsClient) | (new () => GooglePaymentsClient);
+
+interface GooglePaymentsAPI {
+  PaymentsClient: GooglePaymentsClientProvider;
+}
+
+declare global {
+  interface Window {
+    google?: {
+      payments?: {
+        api?: GooglePaymentsAPI;
+      };
+    };
+  }
+}
 
 const merchantConfig: GooglePayMerchantConfiguration = {
   allowedAuthMethods: [],
@@ -57,14 +76,14 @@ class MockWorldpayGooglepayService implements Partial<WorldpayGooglepayService> 
     return of(merchantConfig);
   }
 
-  createInitialPaymentRequest(): GooglePayPaymentRequest {
+  createInitialPaymentRequest(): GooglePayIsReadyToPayRequest {
     return {
       apiVersion: 2,
       apiVersionMinor: 0
     };
   }
 
-  createFullPaymentRequest(): GooglePayPaymentRequest {
+  createFullPaymentRequest(): GooglePayPaymentDataRequest {
     return {
       apiVersion: 2,
       apiVersionMinor: 0
@@ -82,7 +101,7 @@ class MockCheckoutPaymentService implements Partial<WorldpayCheckoutPaymentFacad
   }
 }
 
-const googlePayAuth: GooglePayPaymentRequest = {
+const googlePayAuth: GooglePayIsReadyToPayRequest = {
   apiVersion: 2,
   apiVersionMinor: 0,
 };
@@ -107,16 +126,14 @@ describe('WorldpayApmGooglepayComponent', () => {
     mockDocument.documentElement.appendChild(headElement);
 
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayApmGooglepayComponent,
-        WorldpayApmSubmitButtonsComponent,
-        MockWorldpayBillingAddressComponent
-      ],
       imports: [
         I18nTestingModule,
         FormErrorsModule,
         ReactiveFormsModule,
         NgSelectModule,
+        WorldpayApmGooglepayComponent,
+        WorldpayApmSubmitButtonsComponent,
+        MockWorldpayBillingAddressComponent,
       ],
       providers: [
         EventService,
@@ -303,7 +320,6 @@ describe('WorldpayApmGooglepayComponent', () => {
 
   describe('initBtn', () => {
     it('should initialize PaymentsClient if available', () => {
-      let mockButton = document.createElement('button');
       // @ts-ignore
       spyOn(component, 'initPaymentsClient');
       spyOn(worldpayGooglePayFacade, 'getMerchantConfigurationFromState').and.returnValue(of(merchantConfig));
@@ -394,7 +410,7 @@ describe('WorldpayApmGooglepayComponent', () => {
     it('should handle error when isReadyToPay fails', fakeAsync(() => {
       const mockMerchantConfig = { clientSettings: {} } as GooglePayMerchantConfiguration;
       const error = { statusMessage: 'Error' };
-      window['google'] = {
+      window.google = {
         payments: {
           api: {
             PaymentsClient: function() {
@@ -427,7 +443,6 @@ describe('WorldpayApmGooglepayComponent', () => {
     const mockMerchantConfig = { clientSettings: {} } as GooglePayMerchantConfiguration;
 
     component.nativeWindow = {
-      // @ts-ignore
       google: {
         payments: {
           api: {
@@ -438,7 +453,7 @@ describe('WorldpayApmGooglepayComponent', () => {
           }
         }
       }
-    };
+    } as unknown as Window;
 
     spyOn(worldpayGooglePayFacade, 'getMerchantConfigurationFromState').and.returnValue(of(mockMerchantConfig));
     // @ts-ignore

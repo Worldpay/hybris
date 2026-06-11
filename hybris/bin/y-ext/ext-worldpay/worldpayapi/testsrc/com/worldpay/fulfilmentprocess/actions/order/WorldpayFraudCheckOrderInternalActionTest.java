@@ -1,5 +1,17 @@
 package com.worldpay.fulfilmentprocess.actions.order;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static de.hybris.platform.basecommerce.enums.FraudStatus.CHECK;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.basecommerce.enums.FraudStatus;
 import de.hybris.platform.core.enums.OrderStatus;
@@ -13,48 +25,40 @@ import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.time.TimeService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static de.hybris.platform.basecommerce.enums.FraudStatus.CHECK;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.endsWith;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class WorldpayFraudCheckOrderInternalActionTest {
+@ExtendWith(MockitoExtension.class)
+class WorldpayFraudCheckOrderInternalActionTest {
 
-    private static final String PROVIDER_NAME = "providerName";
-    private static final String FRAUD_REPORT_CODE = "fraudReportCode";
     private static final String OK_STRING = "OK";
     private static final String DESCRIPTION = "description";
+    private static final String PROVIDER_NAME = "providerName";
+    private static final String FRAUD_REPORT_CODE = "fraudReportCode";
 
     @Spy
     @InjectMocks
     private WorldpayFraudCheckOrderInternalAction testObj;
+
+    @Mock
+    private FraudService fraudServiceMock;
+    @Mock
+    private ModelService modelServiceMock;
+    @Mock
+    private TimeService timeServiceMock;
+
     @Mock
     private FraudServiceResponse fraudServiceResponseMock;
     @Mock
     private OrderModel orderModelMock;
     @Mock
-    private ModelService modelServiceMock;
-    @Mock
     private FraudReportModel fraudReportModelMock;
-    @Mock
-    private TimeService timeServiceMock;
     @Mock
     private FraudSymptom fraudSymptomMock;
     @Mock
@@ -63,23 +67,20 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     private OrderHistoryEntryModel orderHistoryEntryModelMock;
     @Mock
     private OrderProcessModel orderProcessModelMock;
-    @Mock
-    private FraudService fraudServiceMock;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         testObj.setProviderName(PROVIDER_NAME);
-
-        when(modelServiceMock.create(FraudReportModel.class)).thenReturn(fraudReportModelMock);
-        when(modelServiceMock.create(FraudSymptomScoringModel.class)).thenReturn(fraudSymptomScoringModelMock);
-        when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
-        final Set<FraudReportModel> fraudReportModels = new HashSet<>();
-        fraudReportModels.add(fraudReportModelMock);
-        when(orderModelMock.getFraudReports()).thenReturn(fraudReportModels);
     }
 
     @Test
-    public void testCreateFraudReport() {
+    void testCreateFraudReport() {
+        when(modelServiceMock.create(FraudReportModel.class)).thenReturn(fraudReportModelMock);
+        when(modelServiceMock.create(FraudSymptomScoringModel.class)).thenReturn(fraudSymptomScoringModelMock);
+        final Set<FraudReportModel> fraudReportModels = new HashSet<>();
+        fraudReportModels.add(fraudReportModelMock);
+        when(orderModelMock.getFraudReports()).thenReturn(fraudReportModels);
+
         when(fraudServiceResponseMock.getSymptoms()).thenReturn(Collections.singletonList(fraudSymptomMock));
 
         testObj.createFraudReport(PROVIDER_NAME, fraudServiceResponseMock, orderModelMock, CHECK);
@@ -95,7 +96,9 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateHistoryLog() {
+    void testCreateHistoryLog() {
+        when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
+
         testObj.createHistoryLog(PROVIDER_NAME, orderModelMock, CHECK, FRAUD_REPORT_CODE);
 
         verify(orderHistoryEntryModelMock).setTimestamp(timeServiceMock.getCurrentTime());
@@ -104,7 +107,9 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateHistoryLogOkStatus() {
+    void testCreateHistoryLogOkStatus() {
+        when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
+
         testObj.createHistoryLog(PROVIDER_NAME, orderModelMock, FraudStatus.OK, FRAUD_REPORT_CODE);
 
         verify(orderHistoryEntryModelMock).setTimestamp(timeServiceMock.getCurrentTime());
@@ -113,7 +118,9 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testCreateHistoryLogEntryModel() {
+    void testCreateHistoryLogEntryModel() {
+        when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
+
         testObj.createHistoryLog(DESCRIPTION, orderModelMock);
 
         verify(orderHistoryEntryModelMock).setDescription(DESCRIPTION);
@@ -122,7 +129,14 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testExecuteActionShouldReturnTransactionOK() {
+    void testExecuteActionShouldReturnTransactionOK() {
+        when(testObj.getProviderName()).thenReturn(PROVIDER_NAME);
+        when(modelServiceMock.create(FraudReportModel.class)).thenReturn(fraudReportModelMock);
+        when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
+        final Set<FraudReportModel> fraudReportModels = new HashSet<>();
+        fraudReportModels.add(fraudReportModelMock);
+        when(orderModelMock.getFraudReports()).thenReturn(fraudReportModels);
+
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(fraudServiceMock.recognizeOrderSymptoms(PROVIDER_NAME, orderModelMock)).thenReturn(fraudServiceResponseMock);
         when(fraudServiceResponseMock.getSymptoms()).thenReturn(Collections.emptyList());
@@ -136,7 +150,14 @@ public class WorldpayFraudCheckOrderInternalActionTest {
     }
 
     @Test
-    public void testExecuteActionShouldReturnTransactionFraud() {
+    void testExecuteActionShouldReturnTransactionFraud() {
+        when(modelServiceMock.create(FraudReportModel.class)).thenReturn(fraudReportModelMock);
+        when(modelServiceMock.create(FraudSymptomScoringModel.class)).thenReturn(fraudSymptomScoringModelMock);
+        when(modelServiceMock.create(OrderHistoryEntryModel.class)).thenReturn(orderHistoryEntryModelMock);
+        final Set<FraudReportModel> fraudReportModels = new HashSet<>();
+        fraudReportModels.add(fraudReportModelMock);
+        when(orderModelMock.getFraudReports()).thenReturn(fraudReportModels);
+
         when(orderProcessModelMock.getOrder()).thenReturn(orderModelMock);
         when(fraudServiceMock.recognizeOrderSymptoms(PROVIDER_NAME, orderModelMock)).thenReturn(fraudServiceResponseMock);
         when(fraudServiceResponseMock.getSymptoms()).thenReturn(Collections.singletonList(fraudSymptomMock));

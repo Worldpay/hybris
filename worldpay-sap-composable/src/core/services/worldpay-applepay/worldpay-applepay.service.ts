@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any, @angular-eslint/prefer-inject */
 import { inject, Injectable } from '@angular/core';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import {
@@ -22,7 +22,8 @@ import { distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators'
 import { WorldpayApplepayConnector } from '../../connectors';
 import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events';
 import { WorldpayApplepayFacade } from '../../facade';
-import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
+import { PlaceOrderResponse } from '../../interfaces';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPayment, ApplePayPaymentAuthorizedEvent, ApplePayPaymentRequest } from '../../models';
 import { createApplePaySession } from './worldpay-applepay-session';
 
 @Injectable()
@@ -30,7 +31,7 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
 
   AppleSession: any;
   nativeWindow: any = this.winRef.nativeWindow;
-  merchantSession$: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  merchantSession$: BehaviorSubject<ApplePayMerchantSession> = new BehaviorSubject<ApplePayMerchantSession>(null);
   paymentAuthorization$: BehaviorSubject<ApplePayAuthorization> = new BehaviorSubject<ApplePayAuthorization>(null);
   protected logger: LoggerService = inject(LoggerService);
 
@@ -57,13 +58,13 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
   /**
    * Command to validate the Apple Pay Merchant.
    * @protected
-   * @type {Command<{ validationURL: string }, ApplePayPaymentRequest>}
+   * @type {Command<{ validationURL: string }, ApplePayMerchantSession>}
    * @since 6.4.0
    */
-  protected validateApplePayMerchantCommand: Command<{ validationURL: string }, ApplePayPaymentRequest> =
-    this.commandService.create<{ validationURL: string }, ApplePayPaymentRequest>(
-      ({ validationURL }: { validationURL: string }): Observable<any> => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]: [string, string]): Observable<any> =>
+  protected validateApplePayMerchantCommand: Command<{ validationURL: string }, ApplePayMerchantSession> =
+    this.commandService.create<{ validationURL: string }, ApplePayMerchantSession>(
+      ({ validationURL }: { validationURL: string }): Observable<ApplePayMerchantSession> => this.checkoutPreconditions().pipe(
+        switchMap(([userId, cartId]: [string, string]): Observable<ApplePayMerchantSession> =>
           this.worldpayApplepayConnector.validateApplePayMerchant(userId, cartId, validationURL).pipe(
             tap((response: any): void => {
               this.eventService.dispatch({
@@ -83,8 +84,8 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
    * @type {Command<{ payment: any }, PlaceOrderResponse>}
    * @since 6.4.0
    */
-  protected authorizeApplepayPaymentCommand: Command<{ payment: any }, PlaceOrderResponse> =
-    this.commandService.create<{ payment: any }, PlaceOrderResponse>(
+  protected authorizeApplepayPaymentCommand: Command<{ payment: ApplePayPayment }, PlaceOrderResponse> =
+    this.commandService.create<{ payment: ApplePayPayment }, PlaceOrderResponse>(
       ({ payment }: { payment: any }): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
         switchMap(([userId, cartId]: [string, string]): Observable<PlaceOrderResponse> =>
           this.worldpayApplepayConnector.authorizeApplePayPayment(userId, cartId, payment).pipe(
@@ -139,7 +140,7 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
       distinctUntilChanged()
     ).subscribe({
       next: (event: ApplePayMerchantSessionEvent): void => {
-        this.merchantSession$.next(event.merchantSession);
+        this.setMerchantSession(event.merchantSession);
       }
     });
   }
@@ -153,7 +154,7 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
       distinctUntilChanged()
     ).subscribe({
       next: (event: ApplePayAuthorizePaymentEvent): void => {
-        this.paymentAuthorization$.next(event.authorizePaymentEvent);
+        this.setPaymentAuthorization(event.authorizePaymentEvent);
       }
     });
   }
@@ -230,7 +231,7 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
    * @returns {Observable<PlaceOrderResponse>} An observable that emits the Apple Pay merchant session.
    * @since 4.3.6
    */
-  getMerchantSessionFromState(): Observable<PlaceOrderResponse> {
+  getMerchantSessionFromState(): Observable<ApplePayMerchantSession> {
     return this.merchantSession$.asObservable();
   }
 
@@ -281,10 +282,10 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
   /**
    * Handle the order after Apple Pay has authorized the payment.
    * @param {Object} event - The event object containing the payment information.
-   * @param {any} event.payment - The payment information from Apple Pay.
+   * @param {ApplePayPaymentAuthorizedEvent} event - The payment information from Apple Pay.
    * @since 4.3.6
    */
-  onPaymentAuthorized(event: { payment: any }): void {
+  onPaymentAuthorized(event: ApplePayPaymentAuthorizedEvent): void {
     this.authorizeApplepayPaymentCommand.execute({ payment: event.payment })
       .subscribe({
         next: (response: PlaceOrderResponse): void => {
@@ -312,20 +313,20 @@ export class WorldpayApplepayService implements WorldpayApplepayFacade {
   /**
    * Sets the Apple Pay merchant session in the service state.
    *
-   * @param {ApplePayPaymentRequest | null} paymentRequest - The Apple Pay payment request or null to clear the merchant session state.
+   * @param {ApplePayMerchantSession | null} merchantSession - The Apple Pay merchant session or null to clear the merchant session state.
    * @since 2211.43.0
    */
-  setMerchantSession(paymentRequest: ApplePayPaymentRequest | null): void {
-    this.merchantSession$.next(paymentRequest);
+  setMerchantSession(merchantSession: ApplePayMerchantSession | null): void {
+    this.merchantSession$.next(merchantSession);
   }
 
   /**
    * Sets the Apple Pay payment authorization in the service state.
    *
-   * @param {any} payment - The payment authorization object returned by Apple Pay.
+   * @param {PlaceOrderResponse} placeOrder - The payment authorization object returned by Apple Pay.
    * @since 2211.43.0
    */
-  setPaymentAuthorization(payment: any): void {
-    this.paymentAuthorization$.next(payment);
+  setPaymentAuthorization(placeOrder: PlaceOrderResponse): void {
+    this.paymentAuthorization$.next(placeOrder);
   }
 }

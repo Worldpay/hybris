@@ -3,8 +3,7 @@ import { Consignment } from '@spartacus/order/root';
 
 @Component({
   selector: 'cx-consignment-tracking',
-  template: '',
-  standalone: false,
+  template: ''
 })
 export class MockCxConsignmentTrackingComponent {
   @Input()

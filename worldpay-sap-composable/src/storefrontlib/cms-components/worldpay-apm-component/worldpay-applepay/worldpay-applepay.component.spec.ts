@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { I18nTestingModule, MockTranslatePipe, RoutingService } from '@spartacus/core';
+import { I18nTestingModule, RoutingService } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
+import { SpinnerComponent } from '@spartacus/storefront';
 import { Observable, of } from 'rxjs';
-import { MockCxSpinnerComponent, MockRoutingService, MockWorldpayBillingAddressComponent } from 'worldpay-sap-composable-tests';
-import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, WorldpayApplepayService } from '../../../../core';
+import { MockRoutingService, MockWorldpayBillingAddressComponent } from 'worldpay-sap-composable-tests';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPaymentRequest, WorldpayApplepayService } from '../../../../core';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 import { WorldpayApplepayComponent } from './worldpay-applepay.component';
 
 class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {
@@ -35,15 +37,8 @@ class MockWorldpayApplepayService implements Partial<WorldpayApplepayService> {
     });
   }
 
-  getMerchantSessionFromState(): Observable<PlaceOrderResponse> {
-    return of({
-      order: {
-        code: '00001'
-      },
-      transactionStatus: 'AUTHORISED',
-      threeDSecureInfo: null,
-      threeDSecureNeeded: false
-    });
+  getMerchantSessionFromState(): Observable<ApplePayMerchantSession> {
+    return of({ merchantSessionIdentifier: 'merchant-session' });
   }
 
   getPaymentAuthorizationFromState(): Observable<ApplePayAuthorization> {
@@ -72,12 +67,8 @@ describe('WorldpayApplepayComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         I18nTestingModule,
-      ],
-      declarations: [
         WorldpayApplepayComponent,
-        MockTranslatePipe,
-        MockWorldpayBillingAddressComponent,
-        MockCxSpinnerComponent,
+        SpinnerComponent,
       ],
       providers: [
         {
@@ -97,6 +88,17 @@ describe('WorldpayApplepayComponent', () => {
           useClass: MockWorldpayApplepayService
         },
       ]
+    }).overrideComponent(WorldpayApplepayComponent, {
+      remove: {
+        imports: [
+          WorldpayBillingAddressComponent,
+        ]
+      },
+      add: {
+        imports: [
+          MockWorldpayBillingAddressComponent
+        ]
+      }
     }).compileComponents();
   });
 

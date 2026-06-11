@@ -1,8 +1,11 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgSelectComponent } from '@ng-select/ng-select';
 import { CheckoutBillingAddressFormComponent } from '@spartacus/checkout/base/components';
-import { Address, Country, LoggerService, QueryState, Region } from '@spartacus/core';
+import { Address, Country, LoggerService, QueryState, Region, TranslatePipe } from '@spartacus/core';
+import { CardComponent, FormErrorsComponent, FormRequiredAsterisksComponent, FormRequiredLegendComponent, NgSelectA11yDirective } from '@spartacus/storefront';
 import { combineLatest, Observable, of } from 'rxjs';
 import { catchError, distinctUntilChanged, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { WorldpayApmPaymentInfo, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentFacade } from '../../../core';
@@ -11,8 +14,18 @@ import { WorldpayApmPaymentInfo, WorldpayBillingAddressFormService, WorldpayChec
   selector: 'y-worldpay-billing-address',
   templateUrl: './worldpay-billing-address.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
   encapsulation: ViewEncapsulation.None,
+  imports: [
+    CardComponent,
+    ReactiveFormsModule,
+    FormRequiredLegendComponent,
+    FormRequiredAsterisksComponent,
+    NgSelectComponent,
+    NgSelectA11yDirective,
+    FormErrorsComponent,
+    AsyncPipe,
+    TranslatePipe,
+  ],
 })
 export class WorldpayBillingAddressComponent extends CheckoutBillingAddressFormComponent implements OnInit {
   public jpLabel: string = '';

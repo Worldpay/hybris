@@ -8,6 +8,7 @@
 
     <alias name="defaultTestWorldpayFraudSightStrategy" alias="worldpayFraudSightStrategy"/>
     <bean id="defaultTestWorldpayFraudSightStrategy"
-          class="com.worldpay.service.payment.impl.DefaultTestWorldpayFraudSightStrategy" parent="defaultWorldpayFraudSightStrategy"/>
+          class="com.worldpay.service.payment.impl.DefaultTestWorldpayFraudSightStrategy"
+          parent="defaultWorldpayFraudSightStrategy"/>
 
 </beans>

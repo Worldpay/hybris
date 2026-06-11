@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
         
-    <extension abstractclassprefix="Generated" classprefix="Worldpayspartacussampledata" managername="WorldpayspartacussampledataManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayspartacussampledata">
+    <extension abstractclassprefix="Generated" classprefix="Worldpayspartacussampledata" description="worldpayspartacussampledata extension" jaloLogicFree="true" name="worldpayspartacussampledata">
                 
-        <requires-extension name="spartacussampledata"/>
+        <requires-extension name="worldpaysampledataaddon"/>
                 
         <requires-extension name="addonsupport"/>
                 

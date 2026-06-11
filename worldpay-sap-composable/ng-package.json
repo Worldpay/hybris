@@ -22,7 +22,11 @@
   ],
   "dest": "../../dist/worldpay-sap-composable",
   "lib": {
-    "entryFile": "src/public-api.ts"
+    "entryFile": "src/public-api.ts",
+    "styleIncludePaths": [
+      "../../node_modules",
+      "../../projects/example-storefront/src/styles"
+    ]
   },
   "assets": [
     "src/assets"

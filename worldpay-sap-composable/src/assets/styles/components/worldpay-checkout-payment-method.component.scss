@@ -1,40 +1,33 @@
-@import "../../../assets/styles/mixins";
-@import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
-@import "@spartacus/checkout/base/styles/components/steps";
-
 :root {
   --worldpay-cx-icon-width: 50px;
   --worldpay-cx-icon-height: 50px;
 }
 
+%worldpay-payment-method-icon {
+  height: var(--worldpay-cx-icon-height);
+  width: 100%;
+  max-width: var(--worldpay-cx-icon-width);
+  display: inline-block;
+
+  svg {
+    height: 100%;
+    width: 100%;
+  }
+}
+
 y-worldpay-payment-method, y-worldpay-b2b-payment-method {
   @extend %cx-payment-method !optional;
+}
 
-  .cx-card-container {
-    cx-icon, .cx-icon {
-      display: inline-block;
-      width: 100%;
-      max-width: var(--worldpay-cx-icon-width);
-      height: var(--worldpay-cx-icon-height);
-
-      svg {
-        height: 100%;
-        width: 100%;
-      }
-    }
+y-worldpay-payment-method .cx-card-container,
+y-worldpay-b2b-payment-method .cx-card-container {
+  cx-icon, .cx-icon {
+    @extend %worldpay-payment-method-icon;
   }
 }
 
 .cx-payment-inner {
   cx-icon, .cx-icon {
-    display: inline-block;
-    width: 100%;
-    max-width: var(--worldpay-cx-icon-width);
-    height: var(--worldpay-cx-icon-height);
-
-    svg {
-      height: 100%;
-      width: 100%;
-    }
+    @extend %worldpay-payment-method-icon;
   }
 }

@@ -20,34 +20,6 @@ export interface GetOrderPayload {
   userId?: string;
 }
 
-export interface GooglePayMerchantConfiguration {
-  allowedAuthMethods?: string[];
-  allowedCardNetworks?: string[];
-  cardType?: string;
-  environment?: string;
-  gatewayMerchantId?: string;
-  merchantId?: string;
-  merchantName?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  clientSettings?: any;
-}
-
-export interface GooglePayPaymentRequest {
-  apiVersion?: number;
-  apiVersionMinor?: number;
-  paymentMethodData?: {
-    description?: string;
-    info?: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      billingAddress?: any;
-    };
-    tokenizationData?: {
-      token?: string;
-    };
-    type?: string;
-  };
-}
-
 export interface APMRedirectRequestBody {
   paymentMethod?: string;
   save?: boolean;
@@ -63,6 +35,22 @@ export interface APMRedirectResponse {
   postUrl?: string;
 }
 
+
+/*eslint no-shadow: "off"*/
+export enum PaymentMethod {
+  ApplePay = 'ApplePay',
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  Card = 'Card',
+  GooglePay = 'GooglePay',
+  iDeal = 'IDEAL-SSL',
+  PayPal = 'PayPal',
+  PayPalSSL = 'PAYPAL-SSL',
+  PayPalSSLExpress = 'PAYPAL-EXPRESS',
+  ACH = 'ACH_DIRECT_DEBIT-SSL',
+  SepaDirectDebit = 'SEPA_DIRECT_DEBIT-SSL',
+  KlarnaSSL = 'KLARNA-SSL',
+  SEPA = 'SEPA'
+}
 export interface OccApmDataConfiguration {
   bankConfigurations?: {
     bankCode?: string;
@@ -89,6 +77,42 @@ export interface OccApmData {
   };
 }
 
+export interface ACHPaymentFormCommon {
+  accountNumber?: string;
+  routingNumber?: string;
+  checkNumber?: string;
+  companyName?: string;
+  customIdentifier?: string;
+}
+
+export interface ACHPaymentForm extends ACHPaymentFormCommon {
+  accountType?: string;
+}
+
+export interface ApmPaymentDetails extends PaymentDetails {
+  code?: PaymentMethod | string;
+  name?: string;
+  shopperBankCode?: string;
+  achPaymentForm?: ACHPaymentForm;
+  isAPM?: boolean;
+}
+
+
+export interface WorldpayMediaApm extends Media {
+  code?: string;
+  url?: string;
+}
+
+export interface WorldpayApmPaymentInfo extends PaymentDetails {
+  apmCode?: string;
+  apmName?: string;
+  save?: boolean;
+  shopperBankCode?: string;
+  achPaymentForm?: ACHPaymentForm;
+  isAPM?: boolean;
+  media?: WorldpayMediaApm;
+}
+
 export interface ApmData {
   bankConfigurations?: {
     code?: string;
@@ -97,21 +121,6 @@ export interface ApmData {
   code?: PaymentMethod | string;
   media?: MediaContainer;
   name?: string;
-}
-
-/*eslint no-shadow: "off"*/
-export enum PaymentMethod {
-  ApplePay = 'ApplePay',
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  Card = 'Card',
-  GooglePay = 'GooglePay',
-  iDeal = 'IDEAL-SSL',
-  PayPal = 'PayPal',
-  PayPalSSL = 'PAYPAL-SSL',
-  PayPalSSLExpress = 'PAYPAL-EXPRESS',
-  ACH = 'ACH_DIRECT_DEBIT-SSL',
-  SepaDirectDebit = 'SEPA_DIRECT_DEBIT-SSL',
-  KlarnaSSL = 'KLARNA-SSL',
 }
 
 declare module '@spartacus/order/root' {
@@ -179,22 +188,10 @@ declare module '@spartacus/checkout/base/root' {
   }
 }
 
-export interface ACHPaymentFormCommon {
-  accountNumber?: string;
-  routingNumber?: string;
-  checkNumber?: string;
-  companyName?: string;
-  customIdentifier?: string;
-}
-
 export interface ACHPaymentFormRaw extends ACHPaymentFormCommon {
   accountType?: {
     code: string;
   };
-}
-
-export interface ACHPaymentForm extends ACHPaymentFormCommon {
-  accountType?: string;
 }
 
 export interface AccountTypes {
@@ -209,31 +206,8 @@ export interface ACHBankAccountType {
   name?: string;
 }
 
-export interface ApmPaymentDetails extends PaymentDetails {
-  code?: PaymentMethod | string;
-  name?: string;
-  shopperBankCode?: string;
-  achPaymentForm?: ACHPaymentForm;
-  isAPM?: boolean;
-}
-
 export interface ApmPaymentDetailsListResponse {
   payments?: ApmPaymentDetails[];
-}
-
-export interface WorldpayMediaApm extends Media {
-  code?: string;
-  url?: string;
-}
-
-export interface WorldpayApmPaymentInfo extends PaymentDetails {
-  apmCode?: string;
-  apmName?: string;
-  save?: boolean;
-  shopperBankCode?: string;
-  achPaymentForm?: ACHPaymentForm;
-  isAPM?: boolean;
-  media?: WorldpayMediaApm;
 }
 
 export interface ThreeDsChallengeResponse {
@@ -274,31 +248,9 @@ export interface PlaceOrderResponse {
   order?: Order;
   returnCode?: string;
   returnMessage?: string;
-}
-
-export interface ApplePayPaymentRequest {
-  currencyCode?: string;
-  countryCode?: string;
-  supportedNetworks?: string[];
-  merchantCapabilities?: string[];
-  total?: {
-    type?: string;
-    label?: string;
-    amount?: string;
-  };
-  requiredBillingContactFields?: string[];
-}
-
-export interface ApplePayAuthorization {
-  transactionStatus?: string;
-  order?: Order;
-}
-
-export interface ValidateMerchant {
-  displayName?: string;
-  merchantIdentifier?: string;
-  initiative?: string;
-  initiativeContext?: string;
+  redirectUrl?: string;
+  status?: string;
+  orderData?: Order;
 }
 
 export interface GooglepayPaymentRequest {

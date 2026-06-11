@@ -1,5 +1,17 @@
 package com.worldpay.forms.validation;
 
+import java.time.LocalDate;
+
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.ACHForm;
@@ -13,37 +25,42 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.verification.VerificationMode;
 import org.springframework.validation.Errors;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import static com.worldpay.forms.validation.PaymentDetailsFormValidator.*;
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class PaymentDetailsFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PaymentDetailsFormValidatorTest {
 
-    private static final String APM_PAYMENT_METHOD = "apmPaymentMethod";
     private static final String BANK_CODE = "bankCode";
-    private static final String BIRTH_DAY_DATE_FORMAT = "dd/MM/yyyy";
     private static final String ACCOUNT_TYPE = "accountType";
-    private static final String ACCOUNT_NUMBER = "12345678901234567";
     private static final String ROUTING_NUMBER = "123456789";
     private static final String CHECK_NUMBER = "123456789012345";
+    private static final String ACCOUNT_NUMBER = "12345678901234567";
     private static final String CUSTOM_IDENTIFIER = "12345678901234";
+    private static final String APM_PAYMENT_METHOD = "apmPaymentMethod";
     private static final String CUSTOM_IDENTIFIER_INVALID = "1234567890123456";
+
+    private static final String GLOBAL_MISSING_DELIVERY_ADDRESS = "checkout.multi.paymentMethod.createSubscription.billingAddress.noneSelectedMsg";
+    private static final String CHECKOUT_ERROR_TERMS_NOT_ACCEPTED = "checkout.error.terms.not.accepted";
+    private static final String CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY = "checkout.error.fraudSight.dob.mandatory";
+
+    private static final String FIELD_PAYMENT_METHOD = "paymentMethod";
+    private static final String FIELD_SHOPPER_BANK_CODE = "shopperBankCode";
+    private static final String FIELD_BILLING_ADDRESS_FIRST_NAME = "billingAddress.firstName";
+    private static final String FIELD_BILLING_ADDRESS_LAST_NAME = "billingAddress.lastName";
+    private static final String FIELD_BILLING_ADDRESS_LINE1 = "billingAddress.line1";
+    private static final String FIELD_BILLING_ADDRESS_TOWN_CITY = "billingAddress.townCity";
+    private static final String FIELD_BILLING_ADDRESS_POSTCODE = "billingAddress.postcode";
+    private static final String FIELD_BILLING_ADDRESS_COUNTRY_ISO = "billingAddress.countryIso";
+    private static final String WORLDPAY_PAYMENT_METHOD_INVALID = "worldpay.paymentMethod.invalid";
+    private static final String WORLDPAY_PAYMENT_METHOD_NO_SHOPPER_BANK_CODE = "worldpay.paymentMethod.noShopperBankCode";
 
     @Spy
     @InjectMocks
@@ -74,20 +91,15 @@ public class PaymentDetailsFormValidatorTest {
     @Mock
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
 
-    @Before
-    public void setUp() {
-        doNothing().when(testObj).validateField(any(), anyString(), anyString());
-        lenient().doNothing().when(testObj).validateField(any(), anyString(), anyString(), anyString());
+    @Test
+    void whenCheckTermsAreNotCheckedAddError() {
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
         when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
         when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
         when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
-    }
 
-    @Test
-    public void whenCheckTermsAreNotCheckedAddError() {
         when(paymentDetailsFormMock.isTermsCheck()).thenReturn(false);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -96,7 +108,12 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateChecksBillingAddressWhenShippingNotSameAsBilling() {
+    void validateChecksBillingAddressWhenShippingNotSameAsBilling() {
+        doNothing().when(testObj).validateField(any(), anyString(), anyString());
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(false);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -105,7 +122,13 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateBillingAddressNotValidatedWhenShippingSameAsBilling() {
+    void validateBillingAddressNotValidatedWhenShippingSameAsBilling() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
@@ -114,7 +137,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateDoesNotCheckApmAvailabilityWhenPaymentMethodValidationFails() {
+    void validateDoesNotCheckApmAvailabilityWhenPaymentMethodValidationFails() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(errorsMock.hasErrors()).thenReturn(true);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -125,7 +155,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateDoesNotCheckApmAvailabilityWhenPaymentMethodIsONLINE() {
+    void validateDoesNotCheckApmAvailabilityWhenPaymentMethodIsONLINE() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(ONLINE.getMethodCode());
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -136,7 +173,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateChecksApmAvailabilityWhenPaymentMethodIsNotCreditCardAndNoErrorsOnPaymentMethodValidation() {
+    void validateChecksApmAvailabilityWhenPaymentMethodIsNotCreditCardAndNoErrorsOnPaymentMethodValidation() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(APM_PAYMENT_METHOD);
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(APM_PAYMENT_METHOD)).thenReturn(apmConfigurationMock);
         when(cartServiceMock.getSessionCart()).thenReturn(cartMock);
@@ -149,7 +193,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateRejectsFieldIfShopperBankCodeIsNotSelectedWhenIsBankApm() {
+    void validateRejectsFieldIfShopperBankCodeIsNotSelectedWhenIsBankApm() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(APM_PAYMENT_METHOD);
         when(cartServiceMock.getSessionCart()).thenReturn(cartMock);
         when(apmConfigurationLookupServiceMock.getAPMConfigurationForCode(APM_PAYMENT_METHOD)).thenReturn(apmConfigurationMock);
@@ -162,7 +213,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateDoesNotRaiseErrorWhenShopperBankSelectedForBankApm() {
+    void validateDoesNotRaiseErrorWhenShopperBankSelectedForBankApm() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(APM_PAYMENT_METHOD);
         when(paymentDetailsFormMock.getShopperBankCode()).thenReturn(BANK_CODE);
         when(cartServiceMock.getSessionCart()).thenReturn(cartMock);
@@ -175,10 +233,16 @@ public class PaymentDetailsFormValidatorTest {
         verify(errorsMock, never()).rejectValue(eq(FIELD_SHOPPER_BANK_CODE), anyString(), anyString());
     }
 
-
     @Test
-    public void validateAddErrorWhenUseBillingAsAddressAndCartDoesNotHaveDeliveryAddress() {
-        when(checkoutFacadeMock.getCheckoutCart().getDeliveryAddress()).thenReturn(null);
+    void validateAddErrorWhenUseBillingAsAddressAndCartDoesNotHaveDeliveryAddress() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
@@ -186,7 +250,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateAddGlobalErrorWhenNoPaymentMethodIsSelectedIsEmpty() {
+    void validateAddGlobalErrorWhenNoPaymentMethodIsSelectedIsEmpty() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn("");
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -195,7 +266,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validateAddGlobalErrorWhenNoPaymentMethodIsSelectedAndValueIsNull() {
+    void validateAddGlobalErrorWhenNoPaymentMethodIsSelectedAndValueIsNull() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -204,7 +282,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_WhenFSIsEnabledAndBirthdayDateNull_ShouldAddTheError() {
+    void validate_WhenFSIsEnabledAndBirthdayDateNull_ShouldAddTheError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
@@ -213,9 +298,15 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_WhenFSIsEnabledAndBirthdayDateNotInThePast_ShouldAddTheError() throws ParseException {
-        final SimpleDateFormat df = new SimpleDateFormat(BIRTH_DAY_DATE_FORMAT);
-        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(df.parse("21/10/2100"));
+    void validate_WhenFSIsEnabledAndBirthdayDateNotInThePast_ShouldAddTheError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
+        when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(LocalDate.of(2100, 10, 21));
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
@@ -223,9 +314,13 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_WhenFSIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
+    void validate_WhenFSIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
-        lenient().when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
@@ -233,9 +328,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_WhenFSIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
+    void validate_WhenFSIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.isDobRequired()).thenReturn(false);
-        lenient().when(paymentDetailsFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(paymentDetailsFormMock, errorsMock);
 
@@ -243,7 +343,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndAchFormIsNull_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndAchFormIsNull_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(null);
 
@@ -253,7 +360,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndAccountTypeIsBlank_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndAccountTypeIsBlank_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn("");
@@ -264,7 +378,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndAccountNumberIsBlank_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndAccountNumberIsBlank_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -276,7 +397,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndAccountNumberIsNotNumeric_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndAccountNumberIsNotNumeric_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -288,7 +416,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndAccountNumberIsTooLong_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndAccountNumberIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -300,7 +435,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsBlank_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsBlank_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -313,7 +455,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsNull_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsNull_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -326,7 +475,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsNotNumeric_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsNotNumeric_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -339,7 +495,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsTooLong_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndRoutingNumberIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -352,7 +515,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndCheckNumberIsNotNumeric_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndCheckNumberIsNotNumeric_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -366,7 +536,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndCheckNumberIsTooLong_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndCheckNumberIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -380,7 +557,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsTooLong_shouldAddError() {
+    void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsTooLong_shouldAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -395,7 +579,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsNotTooLong_shouldNotAddError() {
+    void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsNotTooLong_shouldNotAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -410,7 +601,14 @@ public class PaymentDetailsFormValidatorTest {
     }
 
     @Test
-    public void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsNull_shouldNotAddError() {
+    void validate_whenAchPaymentMethodSelectedAndCustomIdentifierIsNull_shouldNotAddError() {
+        when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(checkoutCartMock);
+        when(checkoutCartMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
+        when(paymentDetailsFormMock.isTermsCheck()).thenReturn(true);
+        when(paymentDetailsFormMock.isDobRequired()).thenReturn(true);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+
         when(paymentDetailsFormMock.getPaymentMethod()).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
         when(paymentDetailsFormMock.getAchForm()).thenReturn(achFormMock);
         when(paymentDetailsFormMock.getAchForm().getAccountType()).thenReturn(ACCOUNT_TYPE);
@@ -423,7 +621,6 @@ public class PaymentDetailsFormValidatorTest {
 
         verify(errorsMock, never()).rejectValue("achForm.customIdentifier", "worldpay.achForm.customIdentifier.invalid");
     }
-
 
     protected void verifyBillingAddressValidation(VerificationMode verificationMode) {
         verify(testObj, verificationMode).validateField(eq(errorsMock), eq(FIELD_BILLING_ADDRESS_FIRST_NAME), anyString());

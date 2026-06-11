@@ -1,31 +1,28 @@
-/*
- * SPDX-FileCopyrightText: 2025 SAP Spartacus team <spartacus-team@sap.com>
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { CartNotEmptyGuard, CheckoutAuthGuard, } from '@spartacus/checkout/base/components';
-import { CmsConfig, I18nModule, provideConfig } from '@spartacus/core';
-import { IconModule } from '@spartacus/storefront';
 import { WorldpayCheckoutScheduleReplenishmentOrderComponent } from './worldpay-checkout-schedule-replenishment-order.component';
+import { WORLDPAY_CHECKOUT_SCHEDULE_REPLENISHMENT_ORDER_FEATURE_PROVIDERS } from './worldpay-checkout-schedule-replenishment-order.providers';
 
+/**
+ * Angular module for the Worldpay Checkout Schedule Replenishment Order feature.
+ *
+ * This module is maintained for backward compatibility. For new implementations,
+ * it is recommended to use the standalone `WorldpayCheckoutScheduleReplenishmentOrderComponent`.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayCheckoutScheduleReplenishmentOrderComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) using `provideWorldpayScheduleReplenishmentOrder()` if needed.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically registers the required
+ * CMS configuration and exports the standalone component.
+ *
+ * @since 221121.11.0
+ * - `WorldpayCheckoutScheduleReplenishmentOrderComponent` is now a standalone component.
+ */
 @NgModule({
-  imports: [CommonModule, RouterModule, I18nModule, IconModule],
-  providers: [
-    provideConfig(<CmsConfig>{
-      cmsComponents: {
-        CheckoutScheduleReplenishmentOrder: {
-          component: WorldpayCheckoutScheduleReplenishmentOrderComponent,
-          guards: [CheckoutAuthGuard, CartNotEmptyGuard],
-        },
-      },
-    }),
-  ],
-  declarations: [WorldpayCheckoutScheduleReplenishmentOrderComponent],
+  imports: [WorldpayCheckoutScheduleReplenishmentOrderComponent],
   exports: [WorldpayCheckoutScheduleReplenishmentOrderComponent],
+  providers: WORLDPAY_CHECKOUT_SCHEDULE_REPLENISHMENT_ORDER_FEATURE_PROVIDERS,
 })
 export class WorldpayCheckoutScheduleReplenishmentOrderModule {
 }

@@ -1,29 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ConverterService, HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { WorldpayGooglepayAdapter } from '../../../connectors/worldpay-googlepay/worldpay-googlepay.adapter';
-import { GooglePayMerchantConfiguration, PlaceOrderResponse } from '../../../interfaces';
+import { PlaceOrderResponse } from '../../../interfaces';
+import { GooglePayMerchantConfiguration } from '../../../models';
 
 @Injectable()
 export class OccWorldpayGooglepayAdapter implements WorldpayGooglepayAdapter {
-
-  /**
-   * Constructor for OccWorldpayGooglepayAdapter
-   * @param {HttpClient} http - The HTTP client for making requests
-   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoint URLs
-   * @param {ConverterService} converter - Service for converting data
-   * @param {LoggerService} loggerService - Service for logging errors
-   */
-  constructor(
-    protected http: HttpClient,
-    protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService,
-    protected loggerService: LoggerService
-  ) {
-  }
+  protected http: HttpClient = inject(HttpClient);
+  protected occEndpoints: OccEndpointsService = inject(OccEndpointsService);
+  protected converter: ConverterService = inject(ConverterService);
+  protected loggerService: LoggerService = inject(LoggerService);
 
   /**
    * Get GooglePay Merchant Configuration

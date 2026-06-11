@@ -1,5 +1,25 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
@@ -24,71 +44,72 @@ import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
 import de.hybris.platform.commercefacades.order.CartFacade;
-import de.hybris.platform.commercefacades.order.data.*;
+import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
+import de.hybris.platform.commercefacades.order.data.CartData;
+import de.hybris.platform.commercefacades.order.data.CartModificationData;
+import de.hybris.platform.commercefacades.order.data.CartRestorationData;
+import de.hybris.platform.commercefacades.order.data.DeliveryModeData;
+import de.hybris.platform.commercefacades.order.data.OrderEntryData;
 import de.hybris.platform.commercefacades.product.ProductFacade;
 import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.commerceservices.order.CommerceCartModificationException;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.session.SessionService;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import static com.worldpay.controllers.pages.checkout.steps.WorldpaySummaryCheckoutStepController.*;
-import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
-import static de.hybris.platform.commercefacades.product.ProductOption.BASIC;
-import static de.hybris.platform.commercefacades.product.ProductOption.PRICE;
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorldpaySummaryCheckoutStepControllerTest {
 
-    private static final String NEXT_PAGE = "/nextPage";
-    private static final String PREVIOUS_PAGE = "/previousPage";
-    private static final String SECURITY_CODE = "securityCode";
-    private static final String SUBSCRIPTION_ID = "subscriptionId";
-    private static final String MULTI_STEP_CHECKOUT_SUMMARY = "multiStepCheckoutSummary";
-    private static final String PAGE_TITLE = "pageTitle";
-    private static final String RESOLVED_CONTENT_PAGE_TITLE = "resolvedContentPageTitle";
-    private static final String SOME_FLOW_GROUP = "someFlowGroup";
-    private static final String SUMMARY = "summary";
-    private static final String EXCEPTION_MESSAGE = "exceptionMessage";
-    private static final String PRODUCT_CODE = "productCode";
-    private static final String NOINDEX_NOFOLLOW = "noindex,nofollow";
-    private static final String CSE_PAYMENT_FORM = "csePaymentForm";
-    private static final String REDIRECT_VIEW = "redirectView";
-    private static final String CHECKOUT_MULTI_DELIVERY_METHOD_CHOOSE = "/checkout/multi/delivery-method/choose";
-    private static final String CHECKOUT_SUMMARY_PAGE = "CheckoutSummaryPage";
-    private static final String THREEDSECURE_FLEX_DDC_URL_VALUE = "threeDSecureDDCUrlValue";
-    private static final String THREEDSFLEX_JSON_WEB_TOKEN_VALUE = "THREEDSFLEX_JSON_WEB_TOKEN_VALUE";
-    private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE = "EVENT_ORIGIN_DOMAIN_VALUE";
-    private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
     private static final String BIN = "bin";
+    private static final String NEXT = "next";
+    private static final String SUMMARY = "summary";
     private static final String BIN_VALUE = "78954";
     private static final String PREVIOUS = "previous";
-    private static final String NEXT = "next";
+    private static final String CART_SUFFIX = "/cart";
+    private static final String CART_DATA = "cartData";
+    private static final String ALL_ITEMS = "allItems";
+    private static final String NEXT_PAGE = "/nextPage";
+    private static final String PAGE_TITLE = "pageTitle";
+    private static final String META_ROBOTS = "metaRobots";
+    private static final String CMS_PAGE_MODEL = "cmsPage";
+    private static final String BREADCRUMBS = "breadcrumbs";
+    private static final String PAYMENT_INFO = "paymentInfo";
+    private static final String PRODUCT_CODE = "productCode";
+    private static final String REDIRECT_PREFIX = "redirect:";
+    private static final String DELIVERY_MODE = "deliveryMode";
+    private static final String REDIRECT_VIEW = "redirectView";
+    private static final String SECURITY_CODE = "securityCode";
+    private static final String PREVIOUS_PAGE = "/previousPage";
+    private static final String SOME_FLOW_GROUP = "someFlowGroup";
+    private static final String SUBSCRIPTION_ID = "subscriptionId";
+    private static final String CSE_PAYMENT_FORM = "csePaymentForm";
+    private static final String DELIVERY_ADDRESS = "deliveryAddress";
+    private static final String NOINDEX_NOFOLLOW = "noindex,nofollow";
+    private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
+    private static final String EXCEPTION_MESSAGE = "exceptionMessage";
+    private static final String CHECKOUT_SUMMARY_PAGE = "CheckoutSummaryPage";
+    private static final String REQUEST_SECURITY_CODE = "requestSecurityCode";
+    private static final String MULTI_STEP_CHECKOUT_SUMMARY = "multiStepCheckoutSummary";
+    private static final String RESOLVED_CONTENT_PAGE_TITLE = "resolvedContentPageTitle";
+    private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE = "EVENT_ORIGIN_DOMAIN_VALUE";
+    private static final String THREEDSFLEX_JSON_WEB_TOKEN_VALUE = "THREEDSFLEX_JSON_WEB_TOKEN_VALUE";
+    private static final String CHECKOUT_MULTI_DELIVERY_METHOD_CHOOSE = "/checkout/multi/delivery-method/choose";
+    private static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = "redirect:/checkout/multi/worldpay/choose-payment-method";
+    private static final String THREE_DS_FLEX_IFRAME = "3DSFlexChallengeIframe";
 
     @Spy
     @InjectMocks
@@ -104,7 +125,6 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Mock
     private WorldpayDDCFacade worldpayDDCFacadeMock;
 
-
     @Mock
     private RedirectAttributes redirectAttributesMock;
     @Mock
@@ -117,7 +137,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     private CartModificationData cartModificationDataMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CartData cartDataMock;
-    @Mock
+    @Mock(name = "checkoutFacade")
     private AcceleratorCheckoutFacade checkoutFacadeMock;
     @Mock
     private CheckoutFlowFacade checkoutFlowFacadeMock;
@@ -166,23 +186,19 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     @Mock
     private HttpServletResponse responseMock;
 
-    private Map<String, String> transitions = Map.of(PREVIOUS, PREVIOUS_PAGE, NEXT, NEXT_PAGE);
+    private final Map<String, String> transitions = Map.of(PREVIOUS, PREVIOUS_PAGE, NEXT, NEXT_PAGE);
 
-    private Model modelMock = new ExtendedModelMap();
+    private final Model modelMock = new ExtendedModelMap();
 
-    @Before
-    public void setUp() throws CMSItemNotFoundException {
-        when(checkoutStepMock.getTransitions()).thenReturn(transitions);
+    @Test
+    @SuppressWarnings("unchecked")
+    public void enterStepShouldReturnCheckoutSummaryPage() throws CMSItemNotFoundException {
         when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
-        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
         when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
         when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
         when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
         when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
         when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
-        when(formMock.isTermsCheck()).thenReturn(true);
-        when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
-        when(cartDataMock.isCalculated()).thenReturn(true);
         when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
         when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
         when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
@@ -192,23 +208,19 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
         when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
         when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
-        when(productFacadeMock.getProductForCodeAndOptions(PRODUCT_CODE, Arrays.asList(BASIC, PRICE))).thenReturn(productDataMock);
-        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
-        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
-        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
         when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
-        doNothing().when(testObj).setupAddPaymentPage(modelMock);
-        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
-    }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void enterStepShouldReturnCheckoutSummaryPage() throws CMSItemNotFoundException {
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
         when(cartDataMock.getDeliveryAddress()).thenReturn(deliveryAddressMock);
         when(cartDataMock.getDeliveryMode()).thenReturn(deliveryModeDataMock);
         when(paymentInfoMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
+
+        when(checkoutStepMock.previousStep()).thenReturn(PREVIOUS);
+        when(checkoutStepMock.nextStep()).thenReturn(NEXT);
+        when(checkoutStepMock.currentStep()).thenReturn(SUMMARY);
+        when(checkoutStepMock.getProgressBarId()).thenReturn(CHECKOUT_MULTI_DELIVERY_METHOD_CHOOSE);
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock, responseMock);
 
@@ -216,7 +228,7 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
         final List<OrderEntryData> orderEntryDatas = (List<OrderEntryData>) modelMock.asMap().get(ALL_ITEMS);
         assertEquals(1, orderEntryDatas.size());
-        assertEquals(orderEntryDataMock, orderEntryDatas.get(0));
+        assertEquals(orderEntryDataMock, orderEntryDatas.getFirst());
 
         assertEquals(deliveryAddressMock, modelMock.asMap().get(DELIVERY_ADDRESS));
         assertEquals(deliveryModeDataMock, modelMock.asMap().get(DELIVERY_MODE));
@@ -224,34 +236,62 @@ public class WorldpaySummaryCheckoutStepControllerTest {
         assertEquals(paymentInfoMock, modelMock.asMap().get(PAYMENT_INFO));
 
         assertEquals(true, modelMock.asMap().get(REQUEST_SECURITY_CODE));
-        assertNull(((CSEPaymentForm) modelMock.asMap().get(CSE_PAYMENT_FORM)).getSecurityCode());
-        assertFalse(((CSEPaymentForm) modelMock.asMap().get(CSE_PAYMENT_FORM)).isTermsCheck());
+        Assertions.assertNull(((CSEPaymentForm) modelMock.asMap().get(CSE_PAYMENT_FORM)).getSecurityCode());
+        Assertions.assertFalse(((CSEPaymentForm) modelMock.asMap().get(CSE_PAYMENT_FORM)).isTermsCheck());
         assertEquals(contentPageModelMock, modelMock.asMap().get(CMS_PAGE_MODEL));
-        assertEquals(EMPTY_LIST, modelMock.asMap().get(BREADCRUMBS_KEY));
+        assertEquals(emptyList(), modelMock.asMap().get(BREADCRUMBS));
         assertEquals(NOINDEX_NOFOLLOW, modelMock.asMap().get(META_ROBOTS));
 
-        assertEquals(StringUtils.remove(checkoutStepMock.previousStep(), REDIRECT_PREFIX), modelMock.asMap().get("previousStepUrl"));
-        assertEquals(StringUtils.remove(checkoutStepMock.nextStep(), REDIRECT_PREFIX), modelMock.asMap().get("nextStepUrl"));
-        assertEquals(StringUtils.remove(checkoutStepMock.currentStep(), REDIRECT_PREFIX), modelMock.asMap().get("currentStepUrl"));
+        assertEquals(checkoutStepMock.previousStep().replace(REDIRECT_PREFIX, ""), modelMock.asMap().get("previousStepUrl"));
+        assertEquals(checkoutStepMock.nextStep().replace(REDIRECT_PREFIX, ""), modelMock.asMap().get("nextStepUrl"));
+        assertEquals(checkoutStepMock.currentStep().replace(REDIRECT_PREFIX, ""), modelMock.asMap().get("currentStepUrl"));
         assertEquals(checkoutStepMock.getProgressBarId(), modelMock.asMap().get("progressBarId"));
 
         assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
     @Test
-    public void enterStep__IfPaymentInfoIsNull_ShouldNotThrowException() throws CMSItemNotFoundException {
+    public void enterStep_IfPaymentInfoIsNull_ShouldNotThrowException() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
         when(cartDataMock.getPaymentInfo()).thenReturn(null);
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock, responseMock);
 
-        assertEquals(null, modelMock.asMap().get(PAYMENT_INFO));
+        Assertions.assertNull(modelMock.asMap().get(PAYMENT_INFO));
         assertEquals(CHECKOUT_SUMMARY_PAGE, result);
     }
 
-
     @Test
     public void placeOrder_shouldRedirectToOrderConfirmationPage() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(formMock.isTermsCheck()).thenReturn(true);
+        when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
+        when(cartDataMock.isCalculated()).thenReturn(true);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(worldpayDirectOrderFacadeMock.authoriseRecurringPayment(worldpayAdditionalInfoDataMock)).thenReturn(directResponseDataMock);
         doReturn(REDIRECT_VIEW).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
 
@@ -263,8 +303,20 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_OnInvalidCartException_ShouldRedirectsToSummaryPage() throws InvalidCartException, CMSItemNotFoundException, WorldpayException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(formMock.isTermsCheck()).thenReturn(true);
+        when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
+        when(cartDataMock.isCalculated()).thenReturn(true);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        doNothing().when(testObj).setupAddPaymentPage(modelMock);
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         doThrow(new InvalidCartException(EXCEPTION_MESSAGE)).when(worldpayDirectOrderFacadeMock).authoriseRecurringPayment(worldpayAdditionalInfoDataMock);
-        when(worldpayMerchantConfigDataMock.getThreeDSFlexJsonWebTokenSettings().getDdcUrl()).thenReturn(THREEDSECURE_FLEX_DDC_URL_VALUE);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
 
@@ -273,6 +325,19 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_OnWorldpayException_ShouldRedirectsToSummaryPage() throws InvalidCartException, CMSItemNotFoundException, WorldpayException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(formMock.isTermsCheck()).thenReturn(true);
+        when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
+        when(cartDataMock.isCalculated()).thenReturn(true);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        doNothing().when(testObj).setupAddPaymentPage(modelMock);
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         doThrow(new WorldpayException(EXCEPTION_MESSAGE)).when(worldpayDirectOrderFacadeMock).authoriseRecurringPayment(worldpayAdditionalInfoDataMock);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -282,6 +347,9 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenCartIsInvalid_ShouldRedirectToCartPage() throws CMSItemNotFoundException, CommerceCartModificationException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+
         when(cartFacadeMock.validateCartData()).thenReturn(singletonList(cartModificationDataMock));
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -291,6 +359,26 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenSecurityCodeIsBlankAndPaymentInfoIsNotAPM_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(cartDataMock.getWorldpayAPMPaymentInfo()).thenReturn(null);
         when(cartDataMock.getPaymentInfo().getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
         when(formMock.getSecurityCode()).thenReturn(StringUtils.EMPTY);
@@ -302,7 +390,17 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenSecurityCodeIsBlankAndPaymentInfoIsAPM_ShouldRedirectToOrderConfirmationPage() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
-        when(cartDataMock.getWorldpayAPMPaymentInfo().getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(formMock.isTermsCheck()).thenReturn(true);
+        when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
+        when(cartDataMock.isCalculated()).thenReturn(true);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(worldpayDirectOrderFacadeMock.authoriseRecurringPayment(worldpayAdditionalInfoDataMock)).thenReturn(directResponseDataMock);
         doReturn(REDIRECT_VIEW).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
 
@@ -313,6 +411,26 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenNoDeliveryAddress_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFlowFacadeMock.hasNoDeliveryAddress()).thenReturn(true);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -322,6 +440,26 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenNoDeliveryMode_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFlowFacadeMock.hasNoDeliveryMode()).thenReturn(true);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -331,6 +469,26 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenNoPaymentInfo_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -340,6 +498,26 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenTermsAreNotChecked_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         // By default, the mock returns false, but we explicitly mock the answer here for the sake of clarity
         when(formMock.isTermsCheck()).thenReturn(false);
 
@@ -350,6 +528,27 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenCartDoesNotContainTaxValues_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(formMock.isTermsCheck()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.containsTaxValues()).thenReturn(false);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -359,6 +558,28 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void placeOrder_WhenCartIsNotCalculated_ShouldStayOnSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(formMock.getSecurityCode()).thenReturn(SECURITY_CODE);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(formMock.isTermsCheck()).thenReturn(true);
+        when(checkoutFacadeMock.containsTaxValues()).thenReturn(true);
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(cartDataMock.isCalculated()).thenReturn(false);
 
         final String result = testObj.placeOrder(formMock, modelMock, httpServletRequestMock, redirectAttributesMock, responseMock);
@@ -368,6 +589,10 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenItIsRestored_ShouldRedirectToCartPage() throws CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+
         when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(cartRestorationDataMock);
         when(cartRestorationDataMock.getModifications()).thenReturn(singletonList(cartModificationDataMock));
 
@@ -379,6 +604,27 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsSUCCESS_ShouldRedirectSummaryPage() throws CMSItemNotFoundException {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(MULTI_STEP_CHECKOUT_SUMMARY, pagePreviewCriteriaMock)).thenReturn(contentPageModelMock);
+        when(pageTitleResolverMock.resolveContentPageTitle(PAGE_TITLE)).thenReturn(RESOLVED_CONTENT_PAGE_TITLE);
+        when(contentPageModelMock.getTitle()).thenReturn(PAGE_TITLE);
+        when(resourceBreadcrumbBuilderMock.getBreadcrumbs(anyString())).thenReturn(emptyList());
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(paymentInfoMock.getBin()).thenReturn(BIN_VALUE);
+        when(orderEntryDataMock.getProduct()).thenReturn(productDataMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(productDataMock.getCode()).thenReturn(PRODUCT_CODE);
+        when(productFacadeMock.getProductForCodeAndOptions(eq(PRODUCT_CODE), anyList())).thenReturn(productDataMock);
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(worldpayAddonEndpointServiceMock.getCheckoutSummaryPage()).thenReturn(CHECKOUT_SUMMARY_PAGE);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.SUCCESS);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -388,7 +634,13 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsErrorDeliveryAddress_ShouldRedirectAddDeliveryAddress() throws
-        CMSItemNotFoundException {
+            CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_DELIVERY_ADDRESS);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -398,7 +650,13 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckoutShouldRedirectChooseDeliveryMethodWhenCartIsValidAndPerformExpressCheckoutIsErrorDeliveryMode() throws
-        CMSItemNotFoundException {
+            CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_DELIVERY_MODE);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -408,7 +666,13 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsCheapestDeliveryMode_ShouldRedirectChooseDeliveryMethod() throws
-        CMSItemNotFoundException {
+            CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_CHEAPEST_DELIVERY_MODE);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -418,7 +682,13 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsErrorPaymentInfo_ShouldRedirectChoosePaymentMethod() throws
-        CMSItemNotFoundException {
+            CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_PAYMENT_INFO);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -428,7 +698,13 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void performExpressCheckout_WhenCartIsValidAndPerformExpressCheckoutIsErrorNotAvailable_ShouldRedirectCartPage() throws
-        CMSItemNotFoundException {
+            CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(sessionServiceMock.getAttribute(WebConstants.CART_RESTORATION)).thenReturn(null);
+        when(checkoutFlowFacadeMock.hasValidCart()).thenReturn(true);
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         when(checkoutFacadeMock.performExpressCheckout()).thenReturn(AcceleratorCheckoutFacade.ExpressCheckoutResult.ERROR_NOT_AVAILABLE);
 
         final String result = testObj.performExpressCheckout(modelMock, redirectAttributesMock, responseMock);
@@ -437,7 +713,11 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     }
 
     @Test
-    public void getDDCIframeContent_shouldPopulate3DSecureJsonWebToken() {
+    public void getDDCIframeContent_shouldPopulate3DSecureJsonWebToken() throws CMSItemNotFoundException {
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
+
         when(worldpayDDCFacadeMock.createJsonWebTokenForDDC()).thenReturn(THREEDSFLEX_JSON_WEB_TOKEN_VALUE);
         lenient().when(worldpayDDCFacadeMock.getEventOriginDomainForDDC()).thenReturn(THREEDSFLEX_EVENT_ORIGIN_DOMAIN_VALUE);
         when(worldpayAddonEndpointServiceMock.getDdcIframe3dSecureFlex()).thenReturn(THREDSFLEX_DDC_PAGE);
@@ -449,13 +729,24 @@ public class WorldpaySummaryCheckoutStepControllerTest {
 
     @Test
     public void getChallengeIframeContent_ShouldReturnTheWorldpayChallengeIframe() {
-        testObj.getChallengeIframeContent(modelMock);
+        when(worldpayAddonEndpointServiceMock.getChallengeIframe3dSecureFlex()).thenReturn(THREE_DS_FLEX_IFRAME);
 
-        verify(worldpayAddonEndpointServiceMock).getChallengeIframe3dSecureFlex();
+        final String result = testObj.getChallengeIframeContent(modelMock);
+
+        assertThat(result).isEqualTo(THREE_DS_FLEX_IFRAME);
     }
 
     @Test
     public void back_ShouldReturnThePreviousPage() {
+        when(checkoutStepMock.getTransitions()).thenReturn(transitions);
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         doCallRealMethod().when(checkoutStepMock).previousStep();
         doCallRealMethod().when(checkoutStepMock).go(PREVIOUS);
 
@@ -465,7 +756,16 @@ public class WorldpaySummaryCheckoutStepControllerTest {
     }
 
     @Test
-    public void next_ShouldReturnTheNextPage() {
+    public void next_ShouldReturnTheNextPage() throws CMSItemNotFoundException {
+        when(checkoutStepMock.getTransitions()).thenReturn(transitions);
+        when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(SOME_FLOW_GROUP);
+        when(checkoutFlowGroupMapMock.get(SOME_FLOW_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(SUMMARY)).thenReturn(checkoutStepMock);
+        when(cartDataMock.getPaymentInfo()).thenReturn(paymentInfoMock);
+        when(cartDataMock.getEntries()).thenReturn(singletonList(orderEntryDataMock));
+        when(testObj.getCheckoutFacade()).thenReturn(checkoutFacadeMock);
+
         doCallRealMethod().when(checkoutStepMock).nextStep();
         doCallRealMethod().when(checkoutStepMock).go(NEXT);
 

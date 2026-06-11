@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ConverterService, OccEndpointsService } from '@spartacus/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -7,12 +7,9 @@ import { WorldpayFraudsightAdapter } from '../../../connectors';
 
 @Injectable()
 export class OccWorldpayFraudsightAdapter implements WorldpayFraudsightAdapter {
-  constructor(
-    protected http: HttpClient,
-    protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService
-  ) {
-  }
+  protected http: HttpClient = inject(HttpClient);
+  protected occEndpoints: OccEndpointsService = inject(OccEndpointsService);
+  protected converter: ConverterService = inject(ConverterService);
 
   /**
    * Method verify if Fraud Sight is enabled.

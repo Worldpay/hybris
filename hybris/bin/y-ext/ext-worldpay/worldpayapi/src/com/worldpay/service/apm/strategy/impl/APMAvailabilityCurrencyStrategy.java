@@ -4,7 +4,7 @@ import com.worldpay.model.WorldpayAPMConfigurationModel;
 import com.worldpay.service.apm.strategy.APMAvailabilityStrategy;
 import de.hybris.platform.core.model.c2l.C2LItemModel;
 import de.hybris.platform.core.model.order.CartModel;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * {@see APMAvailabilityStrategy}

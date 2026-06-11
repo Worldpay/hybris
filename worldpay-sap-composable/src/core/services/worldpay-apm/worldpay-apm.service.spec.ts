@@ -51,6 +51,7 @@ class MockActiveCartFacade {
 class CmsServiceStub {
   getComponentData(uid: string, code: string) {
     return of({
+      // eslint-disable-next-line deprecation/deprecation,@typescript-eslint/no-deprecated
       name,
       code
     });
@@ -621,3 +622,4 @@ describe('WorldpayApmService', () => {
     });
   });
 });
+

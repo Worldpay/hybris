@@ -1,5 +1,14 @@
 package com.worldpay.cronjob;
 
+import java.util.Collections;
+
+import static de.hybris.platform.cronjob.enums.CronJobResult.SUCCESS;
+import static de.hybris.platform.cronjob.enums.CronJobStatus.FINISHED;
+import static de.hybris.platform.payment.dto.TransactionStatus.REVIEW;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -12,39 +21,31 @@ import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.processengine.BusinessProcessService;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
-import java.util.Collections;
-
-import static de.hybris.platform.cronjob.enums.CronJobResult.SUCCESS;
-import static de.hybris.platform.cronjob.enums.CronJobStatus.FINISHED;
-import static de.hybris.platform.payment.dto.TransactionStatus.REVIEW;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class APMOrderTimeoutJobPerformableTest {
+@ExtendWith(MockitoExtension.class)
+class APMOrderTimeoutJobPerformableTest {
 
-    public static final String ORDER_PROCESS_CODE = "orderProcessCode";
+    private static final String ORDER_PROCESS_CODE = "orderProcessCode";
 
-    @InjectMocks
-    @Spy
-    private APMOrderTimeoutJobPerformable testObj = new APMOrderTimeoutJobPerformable();
+    private APMOrderTimeoutJobPerformable testObj;
 
     @Mock
     private WorldpayPaymentTransactionDao worldpayPaymentTransactionDaoMock;
+    @Mock
+    private BusinessProcessService businessProcessServiceMock;
+    @Mock
+    private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
+
     @Mock
     private PaymentTransactionModel paymentTransactionModelMock;
     @Mock
@@ -52,11 +53,7 @@ public class APMOrderTimeoutJobPerformableTest {
     @Mock
     private CronJobModel cronJobModelMock;
     @Mock
-    private BusinessProcessService businessProcessServiceMock;
-    @Mock
     private OrderProcessModel orderProcessModelMock;
-    @Mock
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;
     @Mock
     private PaymentTransactionEntryModel paymentTransactionEntryModelMock;
     @Mock
@@ -64,16 +61,17 @@ public class APMOrderTimeoutJobPerformableTest {
     @Mock
     private ModelService modelServiceMock;
 
-    private TransactionOperations transactionOperationsMock = new TransactionOperations() {
+    private final TransactionOperations transactionOperationsMock = new TransactionOperations() {
         @Override
         public <T> T execute(final TransactionCallback<T> transactionCallback) throws TransactionException {
             return transactionCallback.doInTransaction(transactionStatusMock);
         }
     };
 
-    @Before
-    public void setUp() throws Exception {
-        testObj.setTransactionTemplate(transactionOperationsMock);
+    @BeforeEach
+    void setUp() {
+        testObj = new APMOrderTimeoutJobPerformable(worldpayPaymentTransactionDaoMock, businessProcessServiceMock, worldpayPaymentTransactionServiceMock, transactionOperationsMock);
+        testObj.setModelService(modelServiceMock);
         when(paymentTransactionModelMock.getOrder()).thenReturn(orderModelMock);
         when(worldpayPaymentTransactionDaoMock.findCancellablePendingAPMPaymentTransactions()).thenReturn(Collections.singletonList(paymentTransactionModelMock));
         when(orderModelMock.getOrderProcess()).thenReturn(Collections.singletonList(orderProcessModelMock));
@@ -82,7 +80,7 @@ public class APMOrderTimeoutJobPerformableTest {
     }
 
     @Test
-    public void testPerformShouldReturnSuccess() throws Exception {
+    void testPerformShouldReturnSuccess() {
         final PerformResult result = testObj.perform(cronJobModelMock);
 
         assertEquals(SUCCESS, result.getResult());

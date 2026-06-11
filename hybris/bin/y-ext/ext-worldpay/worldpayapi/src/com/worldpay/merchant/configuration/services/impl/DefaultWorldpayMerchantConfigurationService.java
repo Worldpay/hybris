@@ -1,18 +1,17 @@
 package com.worldpay.merchant.configuration.services.impl;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
+
 import com.worldpay.merchant.configuration.services.WorldpayMerchantConfigurationService;
 import com.worldpay.model.WorldpayMerchantConfigurationModel;
 import de.hybris.platform.basecommerce.model.site.BaseSiteModel;
 import de.hybris.platform.cms2.model.site.CMSSiteModel;
 import de.hybris.platform.site.BaseSiteService;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
 
 /**
  * Default implementation of the {@link WorldpayMerchantConfigurationService}
@@ -77,16 +76,16 @@ public class DefaultWorldpayMerchantConfigurationService implements WorldpayMerc
     @Override
     public Set<WorldpayMerchantConfigurationModel> getAllSystemActiveSiteMerchantConfigurations() {
         final List<CMSSiteModel> allActiveSites = baseSiteService.getAllBaseSites()
-            .stream()
-            .map(CMSSiteModel.class::cast)
-            .filter(CMSSiteModel::getActive)
-            .collect(Collectors.toList());
+                .stream()
+                .map(CMSSiteModel.class::cast)
+                .filter(CMSSiteModel::getActive)
+                .toList();
 
         final Set<WorldpayMerchantConfigurationModel> systemMerchantConfigurations = new HashSet<>();
         allActiveSites.forEach(site -> systemMerchantConfigurations.addAll(asList(
-            site.getWebMerchantConfiguration(),
-            site.getAsmMerchantConfiguration(),
-            site.getReplenishmentMerchantConfiguration())));
+                site.getWebMerchantConfiguration(),
+                site.getAsmMerchantConfiguration(),
+                site.getReplenishmentMerchantConfiguration())));
         systemMerchantConfigurations.remove(null);
 
         return systemMerchantConfigurations;

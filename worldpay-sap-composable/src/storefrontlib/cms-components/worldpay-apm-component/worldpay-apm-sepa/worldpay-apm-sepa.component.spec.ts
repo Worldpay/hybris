@@ -3,13 +3,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { Address, I18nTestingModule, LoggerService, MockTranslatePipe } from '@spartacus/core';
+import { Address, I18nTestingModule, LoggerService } from '@spartacus/core';
 import { FormErrorsModule } from '@spartacus/storefront';
 import { BehaviorSubject, of } from 'rxjs';
 import { MockWorldpayApmService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
 import { PaymentMethod, WorldpayApmService, WorldpayBillingAddressFormService, WorldpayConnector } from '../../../../core';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
-import { WorldpayApmSubmitButtonsModule } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.module';
 import { WorldpayApmSepaComponent } from './worldpay-apm-sepa.component';
 
 describe('WorldpayApmSepaComponent', () => {
@@ -32,11 +32,6 @@ describe('WorldpayApmSepaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayApmSepaComponent,
-        MockTranslatePipe,
-        MockWorldpayBillingAddressComponent,
-      ],
       providers: [
         UntypedFormBuilder,
         WorldpayBillingAddressFormService,
@@ -55,8 +50,20 @@ describe('WorldpayApmSepaComponent', () => {
         FormErrorsModule,
         ReactiveFormsModule,
         NgSelectModule,
-        WorldpayApmSubmitButtonsModule
+        WorldpayApmSubmitButtonsComponent,
+        WorldpayApmSepaComponent,
       ]
+    }).overrideComponent(WorldpayApmSepaComponent, {
+      remove: {
+        imports: [
+          WorldpayBillingAddressComponent
+        ]
+      },
+      add: {
+        imports: [
+          MockWorldpayBillingAddressComponent
+        ]
+      }
     }).compileComponents();
   });
 
