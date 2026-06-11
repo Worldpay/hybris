@@ -14,7 +14,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static com.worldpay.controllers.cms.WorldpayAPMComponentController.IS_AVAILABLE;
 import static org.mockito.Mockito.*;

@@ -63,6 +63,6 @@ public class CsePaymentPopulatorTest {
         testObj.populate(sourceMock, targetMock);
 
         assertThat(targetMock.getCardAddress().getAddress()).isEqualTo(internalAddressMock);
-        assertThat(targetMock.getEncryptedData().getvalue()).isEqualTo(ENCRYPTED_DATA);
+        assertThat(targetMock.getEncryptedData().getValue()).isEqualTo(ENCRYPTED_DATA);
     }
 }

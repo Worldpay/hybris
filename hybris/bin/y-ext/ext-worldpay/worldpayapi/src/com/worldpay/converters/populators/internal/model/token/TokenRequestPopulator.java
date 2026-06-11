@@ -28,7 +28,7 @@ public class TokenRequestPopulator implements Populator<TokenRequest, CreateToke
 
         Optional.ofNullable(source.getTokenReason()).ifPresent(token -> {
             final TokenReason intTokenReason = new TokenReason();
-            intTokenReason.setvalue(token);
+            intTokenReason.setValue(token);
             target.setTokenReason(intTokenReason);
         });
 

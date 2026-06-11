@@ -9,7 +9,7 @@ import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.request.AddBackOfficeCodeServiceRequest;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

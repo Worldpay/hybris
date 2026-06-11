@@ -1,34 +1,63 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <projectDescription>
-	<name>worldpayextocctests</name>
-	<comment></comment>
-	<projects>
+    	
+    <name>worldpayextocctests</name>
+    	
+    <comment/>
+    	
+    <projects>
 	</projects>
-	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
-			<triggers>auto,full,</triggers>
-			<arguments>
-				<dictionary>
-					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/HybrisCodeGeneration.launch</value>
-				</dictionary>
+    	
+    <buildSpec>
+        		
+        <buildCommand>
+            			
+            <name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+            			
+            <triggers>auto,full,</triggers>
+            			
+            <arguments>
+                				
+                <dictionary>
+                    					
+                    <key>LaunchConfigHandle</key>
+                    					
+                    <value>&lt;project&gt;/.externalToolBuilders/HybrisCodeGeneration.launch</value>
+                    				
+                </dictionary>
+                			
+            </arguments>
+            		
+        </buildCommand>
+        		
+        <buildCommand>
+            			
+            <name>org.eclipse.jdt.core.javabuilder</name>
+            			
+            <arguments>
 			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
+            		
+        </buildCommand>
+        		
+        <buildCommand>
+            			
+            <name>org.springframework.ide.eclipse.core.springbuilder</name>
+            			
+            <arguments>
 			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.springframework.ide.eclipse.core.springbuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-	</buildSpec>
-	<natures>
-		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
-		<nature>org.springframework.ide.eclipse.core.springnature</nature>
-		<nature>org.eclipse.jdt.core.javanature</nature>
-	</natures>
+            		
+        </buildCommand>
+        	
+    </buildSpec>
+    	
+    <natures>
+        		
+        <nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
+        		
+        <nature>org.springframework.ide.eclipse.core.springnature</nature>
+        		
+        <nature>org.eclipse.jdt.core.javanature</nature>
+        	
+    </natures>
+    
 </projectDescription>

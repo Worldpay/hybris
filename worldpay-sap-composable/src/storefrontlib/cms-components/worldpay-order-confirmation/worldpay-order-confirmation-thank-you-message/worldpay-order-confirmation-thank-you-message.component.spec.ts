@@ -2,10 +2,22 @@ import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { GlobalMessageService, GlobalMessageType, I18nTestingModule, TranslationService, } from '@spartacus/core';
+import {
+  CxDatePipe,
+  FeatureLevelDirective,
+  GlobalMessageService,
+  GlobalMessageType,
+  I18nTestingModule,
+  MockDatePipe,
+  MockTranslatePipe,
+  TranslatePipe,
+  TranslationService,
+} from '@spartacus/core';
+import { OrderGuestRegisterFormComponent } from '@spartacus/order/components';
 import { OrderFacade } from '@spartacus/order/root';
+import { AddToHomeScreenBannerComponent } from '@spartacus/storefront';
 import { of } from 'rxjs';
-import { MockFeatureLevelDirective } from '../../worldpay-cart-shared/worldpay-cart-item/worldpay-cart-item.component.spec';
+import { MockCxFeatureLevelDirective } from 'worldpay-sap-composable-tests';
 import { WorldpayOrderConfirmationThankYouMessageComponent } from './worldpay-order-confirmation-thank-you-message.component';
 import createSpy = jasmine.createSpy;
 
@@ -20,15 +32,15 @@ const mockOrder = {
 @Component({
   selector: 'cx-add-to-home-screen-banner',
   template: '',
-  standalone: false
+  imports: [I18nTestingModule]
 })
 class MockAddtoHomeScreenBannerComponent {
 }
 
 @Component({
-  selector: 'y-worldpay-order-guest-register-form',
+  selector: 'cx-guest-register-form',
   template: '',
-  standalone: false
+  imports: [I18nTestingModule]
 })
 class MockGuestRegisterFormComponent {
   @Input() guid: string;
@@ -66,12 +78,9 @@ describe('WorldpayOrderConfirmationThankYouMessageComponent', () => {
 
   beforeEach(async () =>
     await TestBed.configureTestingModule({
-      imports: [I18nTestingModule],
-      declarations: [
-        WorldpayOrderConfirmationThankYouMessageComponent,
-        MockAddtoHomeScreenBannerComponent,
-        MockGuestRegisterFormComponent,
-        MockFeatureLevelDirective,
+      imports: [
+        I18nTestingModule,
+        WorldpayOrderConfirmationThankYouMessageComponent
       ],
       providers: [
         {
@@ -91,6 +100,25 @@ describe('WorldpayOrderConfirmationThankYouMessageComponent', () => {
           useValue: mockActivatedRoute
         }
       ],
+    }).overrideComponent(WorldpayOrderConfirmationThankYouMessageComponent, {
+      remove: {
+        imports: [
+          TranslatePipe,
+          CxDatePipe,
+          AddToHomeScreenBannerComponent,
+          OrderGuestRegisterFormComponent,
+          FeatureLevelDirective,
+        ],
+      },
+      add: {
+        imports: [
+          MockTranslatePipe,
+          MockDatePipe,
+          MockAddtoHomeScreenBannerComponent,
+          MockGuestRegisterFormComponent,
+          MockCxFeatureLevelDirective,
+        ],
+      },
     }).compileComponents()
   );
 
@@ -130,7 +158,7 @@ describe('WorldpayOrderConfirmationThankYouMessageComponent', () => {
   it('should display guest register form for guest user', () => {
     fixture.detectChanges();
 
-    expect(fixture.debugElement.query(By.css('y-worldpay-order-guest-register-form'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.directive(MockGuestRegisterFormComponent))).not.toBeNull();
   });
 
   it('should not display guest register form for login user', () => {
@@ -148,7 +176,8 @@ describe('WorldpayOrderConfirmationThankYouMessageComponent', () => {
 
   it('should add assistive message after view init', () => {
 
-    const expectedMessage = `testMessage ${mockOrder.code}. testMessage testMessage`;
+    // eslint-disable-next-line max-len
+    const expectedMessage = `checkoutOrderConfirmation.confirmationOfOrder ${mockOrder.code}. checkoutOrderConfirmation.thankYou checkoutOrderConfirmation.invoiceHasBeenSentByEmail`;
 
     component.ngOnInit();
     component.ngAfterViewInit();

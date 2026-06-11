@@ -24,7 +24,7 @@ export const worldpayComponentApmNormalizerProvider: Provider[] = [
  *
  * @since 2211.43.0
  */
-export const provideWorldpayNormalizers: () => Provider[] = (): Provider[] => [
+export const worldpayNormalizersProviders: () => Provider[] = (): Provider[] => [
   ...worldpayApmNormalizerProvider,
   ...worldpayComponentApmNormalizerProvider,
 ];

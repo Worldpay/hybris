@@ -42,7 +42,7 @@ public class ItemPopulator implements Populator<Item, com.worldpay.internal.mode
 
         Optional.ofNullable(source.getDescription()).ifPresent(description -> {
             final Description intDescription = new Description();
-            intDescription.setvalue(description);
+            intDescription.setValue(description);
             target.setDescription(intDescription);
         });
 

@@ -64,7 +64,7 @@ public class RedirectAuthoriseResponseTransformerTest {
 
         final Reference reference = new Reference();
         reference.setId(REFERENCE_ID);
-        reference.setvalue(REFERENCE_VALUE);
+        reference.setValue(REFERENCE_VALUE);
         referenceElements.add(reference);
 
         final Token token = new Token();
@@ -114,7 +114,7 @@ public class RedirectAuthoriseResponseTransformerTest {
         final List<Object> replyElements = reply.getOrderStatusOrBatchStatusOrErrorOrAddressCheckResponseOrRefundableAmountOrAccountBatchOrShopperOrOkOrFuturePayAgreementStatusOrShopperAuthenticationResultOrFuturePayPaymentResultOrPricePointOrCheckCardResponseOrCurrentBalanceOrCheckCardHolderNameResponseOrCardBinInquiryResponseOrWalletDecryptionResponseOrEcheckVerificationResponseOrPaymentOptionOrToken();
         final Error intError = new Error();
         intError.setCode(ERROR_CODE);
-        intError.setvalue(ERROR_DETAIL);
+        intError.setValue(ERROR_DETAIL);
         replyElements.add(intError);
         responseType.add(reply);
 

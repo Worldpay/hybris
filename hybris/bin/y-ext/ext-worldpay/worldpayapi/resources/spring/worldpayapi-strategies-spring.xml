@@ -16,7 +16,7 @@
     <alias name="defaultWorldpayCustomerIpAddressStrategy" alias="worldpayCustomerIpAddressStrategy"/>
     <bean id="defaultWorldpayCustomerIpAddressStrategy"
           class="com.worldpay.strategy.impl.DefaultWorldpayCustomerIpAddressStrategy">
-        <property name="headerName" value="X-Forwarded-For"/>
+        <constructor-arg name="headerName" value="X-Forwarded-For"/>
 
         <!-- Possible headers that contain the customer IP
             <property name="headerName" value="Proxy-Client-IP"/>
@@ -30,14 +30,14 @@
            alias="recurringGenerateMerchantTransactionCodeStrategy"/>
     <bean id="defaultRecurringGenerateMerchantTransactionCodeStrategy"
           class="com.worldpay.core.services.strategies.impl.DefaultRecurringGenerateMerchantTransactionCodeStrategy">
-        <property name="modelService" ref="modelService"/>
-        <property name="cartService" ref="cartService"/>
+        <constructor-arg name="modelService" ref="modelService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
     </bean>
 
     <alias name="defaultApmAvailabilityCountryStrategy" alias="apmAvailabilityCountryStrategy"/>
     <bean id="defaultApmAvailabilityCountryStrategy"
           class="com.worldpay.service.apm.strategy.impl.APMAvailabilityCountryStrategy">
-        <property name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
+        <constructor-arg name="worldpayDeliveryAddressStrategy" ref="worldpayDeliveryAddressStrategy"/>
     </bean>
 
     <alias name="defaultWorldpayDeliveryAddressStrategy" alias="worldpayDeliveryAddressStrategy"/>
@@ -55,14 +55,14 @@
     <alias name="defaultApmAvailabilityBankStrategy" alias="apmAvailabilityBankStrategy"/>
     <bean id="defaultApmAvailabilityBankStrategy"
           class="com.worldpay.service.apm.strategy.impl.APMAvailabilityBankStrategy">
-        <property name="worldpayBankConfigurationLookupService" ref="worldpayBankConfigurationLookupService"/>
+        <constructor-arg name="worldpayBankConfigurationLookupService" ref="worldpayBankConfigurationLookupService"/>
     </bean>
 
     <alias name="defaultWorldpayTokenEventReferenceCreationStrategy"
            alias="worldpayTokenEventReferenceCreationStrategy"/>
     <bean id="defaultWorldpayTokenEventReferenceCreationStrategy"
           class="com.worldpay.service.payment.impl.DefaultWorldpayTokenEventReferenceCreationStrategy">
-        <property name="cartService" ref="cartService"/>
+        <constructor-arg name="cartService" ref="cartService"/>
     </bean>
 
     <!-- Cancellation strategies -->

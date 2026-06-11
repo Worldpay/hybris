@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 public class WorldpayOrderCancelNotificationServiceAdapterTest {
 
     @InjectMocks
-    private WorldpayOrderCancelNotificationServiceAdapter testObj = new WorldpayOrderCancelNotificationServiceAdapter();
+    private WorldpayOrderCancelNotificationServiceAdapter testObj;
     @Mock
     private OrderCancelRecordEntryModel orderCancelRecordEntryModelMock;
     @Mock

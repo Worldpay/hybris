@@ -1,12 +1,10 @@
 import { Component, DebugElement, Input, Pipe, PipeTransform, } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CartValidationStateService } from '@spartacus/cart/base/core';
-import { CartModification, CartValidationStatusCode } from '@spartacus/cart/base/root';
-import { ICON_TYPE } from '@spartacus/storefront';
+import { CartModification, CartValidationFacade, CartValidationStatusCode, } from '@spartacus/cart/base/root';
+import { TranslatePipe, UrlPipe } from '@spartacus/core';
+import { ICON_TYPE, IconComponent } from '@spartacus/storefront';
 import { ReplaySubject } from 'rxjs';
-import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
 import { WorldpayCartItemValidationWarningComponent } from './worldpay-cart-item-validation-warning.component';
 
 const mockCode = 'productCode1';
@@ -29,73 +27,68 @@ const mockData = [
   },
 ];
 
-const dataReplaySubject = new ReplaySubject<CartModification[]>(0);
+// eslint-disable-next-line rxjs/no-ignored-replay-buffer
+const dataReplaySubject = new ReplaySubject<CartModification[]>();
 
-class MockCartValidationStateService implements Partial<CartValidationStateService> {
-  cartValidationResult$ = dataReplaySubject;
+class MockCartValidationFacade {
+  getValidationResults() {
+    return dataReplaySubject;
+  }
 }
 
 @Component({
   selector: 'cx-icon',
   template: '',
-  standalone: false
 })
 class MockCxIconComponent {
   @Input() type: ICON_TYPE;
 }
 
-@Pipe({
-  name: 'cxTranslate',
-  standalone: false
-})
+@Pipe({ name: 'cxTranslate' })
 class MockTranslatePipe implements PipeTransform {
   transform(): any {
   }
 }
 
-@Pipe({
-  name: 'cxUrl',
-  standalone: false
-})
+@Pipe({ name: 'cxUrl' })
 class MockUrlPipe implements PipeTransform {
   transform() {
   }
 }
 
-describe('CartItemValidationWarningComponent', () => {
+describe('WorldpayCartItemValidationWarningComponent', () => {
   let component: WorldpayCartItemValidationWarningComponent;
   let fixture: ComponentFixture<WorldpayCartItemValidationWarningComponent>;
-  let mockCartValidationStateService: CartValidationStateService;
+  let cartValidationFacade: CartValidationFacade;
   let el: DebugElement;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RouterLink],
-      declarations: [
-        WorldpayCartItemValidationWarningComponent,
-        MockCxIconComponent,
-        MockTranslatePipe,
-        MockUrlPipe,
-      ],
+      imports: [WorldpayCartItemValidationWarningComponent],
       providers: [
         {
-          provide: ActivatedRoute,
-          useClass: MockActivatedRoute
-        },
-        {
-          provide: CartValidationStateService,
-          useClass: MockCartValidationStateService,
+          provide: CartValidationFacade,
+          useClass: MockCartValidationFacade,
         },
       ],
+    }).overrideComponent(WorldpayCartItemValidationWarningComponent, {
+      remove: {
+        imports: [IconComponent, TranslatePipe, UrlPipe],
+      },
+      add: {
+        imports: [MockCxIconComponent, MockTranslatePipe, MockUrlPipe],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorldpayCartItemValidationWarningComponent);
     component = fixture.componentInstance;
     el = fixture.debugElement;
-    mockCartValidationStateService = TestBed.inject(CartValidationStateService);
+    cartValidationFacade = TestBed.inject(CartValidationFacade);
 
     (
-      mockCartValidationStateService.cartValidationResult$ as ReplaySubject<CartModification[]>
+      cartValidationFacade.getValidationResults() as ReplaySubject<
+        CartModification[]
+      >
     ).next([]);
     component.code = mockCode;
 
@@ -108,12 +101,15 @@ describe('CartItemValidationWarningComponent', () => {
 
   it('should find proper cart modification object', () => {
     (
-      mockCartValidationStateService.cartValidationResult$ as ReplaySubject<CartModification[]>
+      cartValidationFacade.getValidationResults() as ReplaySubject<
+        CartModification[]
+      >
     ).next(mockData);
     let result;
 
     component.cartModification$.subscribe((value) => (result = value));
 
+    // @ts-ignore
     expect(result.entry.product.code).toEqual(mockCode);
   });
 
@@ -122,7 +118,9 @@ describe('CartItemValidationWarningComponent', () => {
     expect(button).toBeNull();
 
     (
-      mockCartValidationStateService.cartValidationResult$ as ReplaySubject<CartModification[]>
+      cartValidationFacade.getValidationResults() as ReplaySubject<
+        CartModification[]
+      >
     ).next(mockData);
     fixture.detectChanges();
 

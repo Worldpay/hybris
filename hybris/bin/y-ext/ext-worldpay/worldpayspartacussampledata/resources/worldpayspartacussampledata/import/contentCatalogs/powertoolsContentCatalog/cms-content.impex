@@ -1,4 +1,4 @@
-#electronics
+#powertools
 
 $contentCatalog = powertools-spaContentCatalog
 $contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default = $contentCatalog]), CatalogVersion.version[default = Staged])[default = $contentCatalog:Staged]
@@ -7,14 +7,9 @@ $siteResource = jar:com.worldpay.constants.WorldpaysampledataaddonConstants&/wor
 $picture = media(code, $contentCV)
 $lang = en
 
-INSERT_UPDATE ContentPage; $contentCV[unique = true]; uid[unique = true]            ; name                          ; masterTemplate(uid, $contentCV); label; defaultPage[default = 'true']; approvalStatus(code)[default = 'approved']; homepage[default = 'false']
-                         ;                          ; worldpay-3ds-device-detection ; Worldpay 3ds DDC Iframe       ; ContentPage1Template           ; /worldpay-3ds-device-detection
-                         ;                          ; worldpay-3ds-challenge        ; Worldpay 3ds Challenge Iframe ; ContentPage1Template           ; /worldpay-3ds-challenge
-
-
-
-INSERT_UPDATE WorldpayCCComponent; uid[unique = true]  ; $contentCV[unique = true]; name
-                                 ; creditCardComponent ;                          ; "Card"
+INSERT_UPDATE ContentPage; $contentCV[unique = true]; uid[unique = true]            ; name                          ; masterTemplate(uid, $contentCV); label                          ; defaultPage[default = 'true']; approvalStatus(code)[default = 'approved']; homepage[default = 'false']
+                         ;                          ; worldpay-3ds-device-detection ; Worldpay 3ds DDC Iframe       ; ContentPage1Template           ; /worldpay-3ds-device-detection ;                              ;                                           ;
+                         ;                          ; worldpay-3ds-challenge        ; Worldpay 3ds Challenge Iframe ; ContentPage1Template           ; /worldpay-3ds-challenge        ;                              ;                                           ;
 
 INSERT_UPDATE CMSParagraphComponent; uid[unique = true]; $contentCV[unique = true]; name
                                    ; apmIntroduction   ;                          ; APM Introduction

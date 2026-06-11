@@ -1,11 +1,11 @@
 #Ant properties
-#Mon Apr 20 13:58:22 GMT 2026
-builddate=20260420 1358
+#Wed Jun 10 15:19:25 GMT 2026
+builddate=20260610 1519
 description=worldpayextocc
 group.id=de.hybris.platform
 module.name=platform-module
 name=worldpayextocc
-releasedate=20260302 1830
+releasedate=20260505 1652
 vendor=hybris
-version=2211.50
-version.api=2211
+version=2211-jdk21.11
+version.api=2211-jdk21

@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { BrowserInfo, PlaceOrderResponse, ThreeDsDDCInfo } from '../interfaces';
 import { WorldpayAdapter } from './worldpay.adapter';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Injectable({
   providedIn: 'root'
 })

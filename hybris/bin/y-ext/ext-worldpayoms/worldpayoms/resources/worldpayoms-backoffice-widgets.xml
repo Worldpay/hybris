@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hybris.com/schema/cockpitng/widgets.xsd">
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.hybris.com/schema/cockpitng/widgets.xsd">
 
-    <widget-connection inputId="input" outputId="nodeSelected" sourceWidgetId="worldpayoms-explorer-tree" targetWidgetId="worldpayoms-tree-node-adapter"/>
-    <widget-connection inputId="genericInput" outputId="true" sourceWidgetId="worldpayoms-tree-node-adapter" targetWidgetId="worldpayoms-typecode-extractor"/>
-    <widget-connection inputId="genericInput" outputId="true" sourceWidgetId="worldpayoms-tree-node-adapter" targetWidgetId="worldpayoms-search-enabler"/>
-    <widget-connection inputId="genericInput" outputId="false" sourceWidgetId="worldpayoms-tree-node-adapter" targetWidgetId="worldpayoms-search-disabler"/>
-    <widget-connection inputId="type" outputId="genericOutput" sourceWidgetId="worldpayoms-typecode-extractor" targetWidgetId="worldpayoms-search-logic"/>
-    <widget-connection inputId="enabled" outputId="genericOutput" sourceWidgetId="worldpayoms-search-enabler" targetWidgetId="worldpayoms-text-search"/>
-    <widget-connection inputId="enabled" outputId="genericOutput" sourceWidgetId="worldpayoms-search-disabler" targetWidgetId="worldpayoms-text-search"/>
-    <widget-connection inputId="searchtext" outputId="query" sourceWidgetId="worldpayoms-text-search" targetWidgetId="worldpayoms-search-logic"/>
-    <widget-connection inputId="pageable" outputId="pageable" sourceWidgetId="worldpayoms-search-logic" targetWidgetId="worldpayoms-simple-list"/>
-    <widget-connection sourceWidgetId="STUB_com.worldpay.worldpayoms.actions.order.cancelorderaction" outputId="cancelOrderContext"
+    <widget-connection inputId="input" outputId="nodeSelected" sourceWidgetId="worldpayoms-explorer-tree"
+                       targetWidgetId="worldpayoms-tree-node-adapter"/>
+    <widget-connection inputId="genericInput" outputId="true" sourceWidgetId="worldpayoms-tree-node-adapter"
+                       targetWidgetId="worldpayoms-typecode-extractor"/>
+    <widget-connection inputId="genericInput" outputId="true" sourceWidgetId="worldpayoms-tree-node-adapter"
+                       targetWidgetId="worldpayoms-search-enabler"/>
+    <widget-connection inputId="genericInput" outputId="false" sourceWidgetId="worldpayoms-tree-node-adapter"
+                       targetWidgetId="worldpayoms-search-disabler"/>
+    <widget-connection inputId="type" outputId="genericOutput" sourceWidgetId="worldpayoms-typecode-extractor"
+                       targetWidgetId="worldpayoms-search-logic"/>
+    <widget-connection inputId="enabled" outputId="genericOutput" sourceWidgetId="worldpayoms-search-enabler"
+                       targetWidgetId="worldpayoms-text-search"/>
+    <widget-connection inputId="enabled" outputId="genericOutput" sourceWidgetId="worldpayoms-search-disabler"
+                       targetWidgetId="worldpayoms-text-search"/>
+    <widget-connection inputId="searchtext" outputId="query" sourceWidgetId="worldpayoms-text-search"
+                       targetWidgetId="worldpayoms-search-logic"/>
+    <widget-connection inputId="pageable" outputId="pageable" sourceWidgetId="worldpayoms-search-logic"
+                       targetWidgetId="worldpayoms-simple-list"/>
+    <widget-connection sourceWidgetId="STUB_com.worldpay.worldpayoms.actions.order.cancelorderaction"
+                       outputId="cancelOrderContext"
                        targetWidgetId="omsCancelOrderPopup" inputId="inputObject"/>
-
     <widget-connection sourceWidgetId="STUB_com.worldpay.worldpayoms.actions.returns.createreturnrequestaction"
-                       outputId="createReturnRequestContext" targetWidgetId="omsCreateReturnRequestPopup" inputId="inputObject"/>
+                       outputId="createReturnRequestContext" targetWidgetId="omsCreateReturnRequestPopup"
+                       inputId="inputObject"/>
 </widgets>

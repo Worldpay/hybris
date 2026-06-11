@@ -7,7 +7,7 @@ import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.fraud.impl.FraudServiceResponse;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

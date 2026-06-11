@@ -1,5 +1,5 @@
 cx-page-slot {
-  y-worldpay-checkout-place-order {
+  y-worldpay-checkout-place-order, y-worldpay-b2b-checkout-place-order {
     padding-bottom: 0;
     padding-top: 1rem;
     flex: unset;
@@ -41,7 +41,7 @@ cx-page-slot {
       }
     }
 
-    y-worldpay-checkout-place-order {
+    y-worldpay-checkout-place-order, y-worldpay-b2b-checkout-place-order {
       max-width: 50%;
       padding-bottom: 2rem;
     }
@@ -56,7 +56,7 @@ cx-page-slot {
       min-width: 100%;
     }
 
-    y-worldpay-checkout-place-order {
+    y-worldpay-checkout-place-order, y-worldpay-b2b-checkout-place-order {
       max-width: 100%;
     }
   }
@@ -68,7 +68,7 @@ cx-page-slot {
   inset: 0;
   position: fixed;
   z-index: 999;
-  background: rgba(0, 0, 0, 25%);
+  background: rgb(0, 0, 0, 25%);
 
   iframe {
     left: 50%;

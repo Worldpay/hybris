@@ -15,31 +15,26 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.commercefacades.order.data.AbstractOrderData;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.apache.commons.configuration.Configuration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.configuration2.Configuration;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
 import static de.hybris.platform.addonsupport.controllers.AbstractAddOnController.REDIRECT_PREFIX;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class WorldpayB2BThreeDSecureFlexEndpointControllerTest {
+@ExtendWith(MockitoExtension.class)
+class WorldpayB2BThreeDSecureFlexEndpointControllerTest {
 
     private static final String CHECKOUT_MULTI_WORLDPAY_3_DSECUREFLEX_SOP_RESPONSE_AUTOSUBMIT = "/checkout/multi/worldpay/3dsecureflex/sop/response/autosubmit";
     private static final String WORLDPAY_ADDON_PREFIX = "worldpay.addon.prefix";
@@ -57,9 +52,9 @@ public class WorldpayB2BThreeDSecureFlexEndpointControllerTest {
     private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
     @Mock
     private ConfigurationService configurationServiceMock;
-    @Mock
+    @Mock(name = "checkoutFacade")
     private WorldpayB2BAcceleratorCheckoutFacadeDecorator worldpayCheckoutFacadeMock;
-    @Mock
+    @Mock(name = "worldpayDirectOrderFacade")
     private WorldpayDirectOrderFacade worldpayDirectOrderFacadeMock;
     @Mock
     private Configuration configurationMock;
@@ -82,33 +77,33 @@ public class WorldpayB2BThreeDSecureFlexEndpointControllerTest {
     @Mock
     private HttpServletResponse responseMock;
 
-    @Before
-    public void setUp() {
+    @Test
+    void testDoHandleThreeDSecureResponse() {
         when(configurationServiceMock.getConfiguration()).thenReturn(configurationMock);
         when(configurationMock.getString(WorldpayapiConstants.WORLDPAY_3DSECURE_FLEX_SECOND_AUTH_SUBMIT_URL)).thenReturn(CHECKOUT_MULTI_WORLDPAY_3_DSECUREFLEX_SOP_RESPONSE_AUTOSUBMIT);
-        when(configurationServiceMock.getConfiguration().getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX)).thenReturn(ADDON_WORLDPAYADDON);
-        when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
-        when(testObj.getB2BCheckoutFacade()).thenReturn(worldpayCheckoutFacadeMock);
-        lenient().when(testObj.getCheckoutFacade()).thenReturn(worldpayCheckoutFacadeMock);
         lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
-    }
 
-    @Test
-    public void testDoHandleThreeDSecureResponse() {
         final String response = testObj.doHandleThreeDSecureResponse(requestMock, threeDSecureFlexFormMock, redirectAttributesMock);
 
-        Assert.assertEquals(REDIRECT_PREFIX + CHECKOUT_MULTI_WORLDPAY_3_DSECUREFLEX_SOP_RESPONSE_AUTOSUBMIT, response);
+        assertEquals(REDIRECT_PREFIX + CHECKOUT_MULTI_WORLDPAY_3_DSECUREFLEX_SOP_RESPONSE_AUTOSUBMIT, response);
     }
 
     @Test
-    public void testGetThreeDSecureResponseAutosubmit() {
+    void testGetThreeDSecureResponseAutoSubmit() {
+        when(configurationServiceMock.getConfiguration()).thenReturn(configurationMock);
+        when(configurationServiceMock.getConfiguration().getString(WORLDPAY_ADDON_PREFIX, UNDEFINED_PREFIX)).thenReturn(ADDON_WORLDPAYADDON);
+        lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
+
         final String response = testObj.getThreeDSecureResponseAutosubmit(requestMock, threeDSecureFlexFormMock, redirectAttributesMock);
 
-        Assert.assertEquals(ADDON_WORLDPAYADDON + CHECKOUT_3DSECUREFLEX_RESPONSE_AUTOSUBMIT, response);
+        assertEquals(ADDON_WORLDPAYADDON + CHECKOUT_3DSECUREFLEX_RESPONSE_AUTOSUBMIT, response);
     }
 
     @Test
-    public void testDoHandleThreeDSecureResponseThatShouldRedirectToOrderConfirmation() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
+    void testDoHandleThreeDSecureResponseThatShouldRedirectToOrderConfirmation() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
+        when(testObj.getB2BCheckoutFacade()).thenReturn(worldpayCheckoutFacadeMock);
+        lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
+
         lenient().doReturn(CHECKOUT_ORDER_CONFIRMATION).when(testObj).handleDirectResponse(modelMock, directResponseDataMock, responseMock);
         when(directResponseDataMock.getTransactionStatus()).thenReturn(AUTHORISED);
         when(worldpayDirectOrderFacadeMock.executeSecondPaymentAuthorisation3DSecure()).thenReturn(directResponseDataMock);
@@ -121,7 +116,10 @@ public class WorldpayB2BThreeDSecureFlexEndpointControllerTest {
     }
 
     @Test
-    public void testDoHandleThreeDSecureResponseWithException() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
+    void testDoHandleThreeDSecureResponseWithException() throws CMSItemNotFoundException, InvalidCartException, WorldpayException {
+        when(worldpayAddonEndpointServiceMock.getCSEPaymentDetailsPage()).thenReturn(CSE_PAYMENT_DETAILS_PAGE);
+        lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(true);
+
         when(worldpayDirectOrderFacadeMock.executeSecondPaymentAuthorisation3DSecure()).thenThrow(new WorldpayException("errorMessage"));
         doNothing().when(testObj).setupAddPaymentPage(modelMock);
 

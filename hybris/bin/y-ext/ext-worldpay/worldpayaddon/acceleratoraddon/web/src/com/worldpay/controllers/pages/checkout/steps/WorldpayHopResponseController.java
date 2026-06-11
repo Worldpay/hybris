@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.Set;
 
@@ -178,8 +178,10 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
     @GetMapping(value = "/error")
     @RequireHardLogIn
     public String doHostedOrderPageError(@RequestParam(value = "paymentStatus", required = false) final String paymentStatus, final RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, paymentStatus != null ? paymentStatus : AuthorisedStatus.ERROR.name());
-        return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + paymentStatus;
+        final String resolvedPaymentStatusResult = paymentStatus != null ? paymentStatus : AuthorisedStatus.ERROR.name();
+
+        redirectAttributes.addFlashAttribute(PAYMENT_STATUS_PARAMETER_NAME, resolvedPaymentStatusResult);
+        return REDIRECT_URL_CHOOSE_PAYMENT_METHOD + "?" + PAYMENT_STATUS_PARAMETER_NAME + "=" + resolvedPaymentStatusResult;
     }
 
     /**
@@ -188,6 +190,7 @@ public class WorldpayHopResponseController extends WorldpayChoosePaymentMethodCh
      * @param model              the {@link Model} to be used
      * @return the address form
      */
+    @Override
     @GetMapping(value = "/billingaddressform")
     public String getCountryAddressForm(@RequestParam("countryIsoCode") final String countryIsoCode,
                                         @RequestParam("useDeliveryAddress") final boolean useDeliveryAddress, final Model model) {

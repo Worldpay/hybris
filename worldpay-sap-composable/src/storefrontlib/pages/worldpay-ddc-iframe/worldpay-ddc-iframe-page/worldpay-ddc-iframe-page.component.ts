@@ -3,10 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService, WindowRef } from '@spartacus/core';
 
-@Component({
-  templateUrl: './worldpay-ddc-iframe-page.component.html',
-  standalone: false
-})
+@Component({ templateUrl: './worldpay-ddc-iframe-page.component.html' })
 export class WorldpayDdcIframePageComponent implements OnInit, AfterViewInit {
   action: SafeResourceUrl;
   bin: string;
@@ -16,13 +13,9 @@ export class WorldpayDdcIframePageComponent implements OnInit, AfterViewInit {
   private readonly BIN_ROUTE_PARAM: string = 'bin';
   private readonly JWT_ROUTE_PARAM: string = 'jwt';
   private readonly FORM_SELECTOR: string = '#collectionForm';
-
-  constructor(
-    private sanitizer: DomSanitizer,
-    private route: ActivatedRoute,
-    private winRef: WindowRef
-  ) {
-  }
+  private sanitizer: DomSanitizer = inject(DomSanitizer);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private winRef: WindowRef = inject(WindowRef);
 
   ngOnInit(): void {
     this.action = this.sanitizer.bypassSecurityTrustResourceUrl(

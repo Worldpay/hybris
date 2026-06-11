@@ -1,14 +1,16 @@
 <%@ tag trimDirectiveWhitespaces="true" %>
-<%@ attribute name="paymentInfo" required="true" type="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ attribute name="paymentInfo" required="true"
+              type="de.hybris.platform.commercefacades.order.data.CCPaymentInfoData" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="ycommerce" uri="http://hybris.com/tld/ycommercetags" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
-<c:set var="addonPath" value="${contextPath}/_ui/addons/worldpayb2cdemo/images/" />
+<c:set var="addonPath" value="${contextPath}/_ui/addons/worldpayb2cdemo/images/"/>
 <c:set var="cardTypeName" value="${fn:escapeXml(paymentInfo.cardTypeData.name)}"/>
-<c:set var="filename" value="${fn:substring(fn:toLowerCase(cardTypeName),0,fn:indexOf(cardTypeName, ' ') != -1 ? fn:indexOf(cardTypeName, ' ') : fn:length(cardTypeName))}"/>
+<c:set var="filename"
+       value="${fn:substring(fn:toLowerCase(cardTypeName),0,fn:indexOf(cardTypeName, ' ') != -1 ? fn:indexOf(cardTypeName, ' ') : fn:length(cardTypeName))}"/>
 
 <div class="col-xs-12 col-sm-6 col-md-4 card">
     <ul class="pull-left">
@@ -16,19 +18,22 @@
             <c:if test="${paymentInfo.defaultPaymentInfo}">
             <strong>
                 </c:if>
-                ${fn:escapeXml(paymentInfo.accountHolderName)}<c:if test="${paymentInfo.defaultPaymentInfo}" >&nbsp;(<spring:theme code="text.default" />)</c:if>
-                <c:if test="${paymentInfo.defaultPaymentInfo}" ></strong></c:if>
+                ${fn:escapeXml(paymentInfo.accountHolderName)}
+                <c:if test="${paymentInfo.defaultPaymentInfo}">&nbsp;(<spring:theme code="text.default"/>)</c:if>
+                <c:if test="${paymentInfo.defaultPaymentInfo}"></strong></c:if>
         </li>
         <li>
             <div class="media-body">
                 ${fn:escapeXml(cardTypeName)}
             </div>
             <div class="media-right">
-                <img class="media-object img-responsive" style="min-width: 50px" src="${addonPath}${filename}.png" alt="logo"/>
+                <img class="media-object img-responsive" style="min-width: 50px" src="${addonPath}${filename}.png"
+                     alt="logo"/>
             </div>
         </li>
         <li>
-            <ycommerce:testId code="paymentDetails_item_cardNumber_text" >${fn:escapeXml(paymentInfo.cardNumber)}</ycommerce:testId>
+            <ycommerce:testId
+                    code="paymentDetails_item_cardNumber_text">${fn:escapeXml(paymentInfo.cardNumber)}</ycommerce:testId>
         </li>
         <li>
             <c:if test="${paymentInfo.expiryMonth lt 10}">0</c:if>
@@ -41,19 +46,21 @@
         </c:if>
     </ul>
     <div class="account-cards-actions pull-left">
-        <ycommerce:testId code="paymentDetails_deletePayment_button" >
-            <a class="action-links removePaymentDetailsButton" href="#" data-payment-id="${fn:escapeXml(paymentInfo.id)}" data-popup-title="<spring:theme code="text.account.paymentDetails.delete.popup.title"/>">
+        <ycommerce:testId code="paymentDetails_deletePayment_button">
+            <a class="action-links removePaymentDetailsButton" href="#"
+               data-payment-id="${fn:escapeXml(paymentInfo.id)}"
+               data-popup-title="<spring:theme code="text.account.paymentDetails.delete.popup.title"/>">
                 <span class="glyphicon glyphicon-remove"></span>
             </a>
         </ycommerce:testId>
     </div>
-    <c:if test="${not paymentInfo.defaultPaymentInfo}" >
+    <c:if test="${not paymentInfo.defaultPaymentInfo}">
         <c:url value="/my-account/set-default-payment-details" var="setDefaultPaymentActionUrl"/>
         <form:form id="setDefaultPaymentDetails${paymentInfo.id}" action="${setDefaultPaymentActionUrl}" method="post">
             <input type="hidden" name="paymentInfoId" value="${fn:escapeXml(paymentInfo.id)}"/>
-            <ycommerce:testId code="paymentDetails_setAsDefault_button" >
+            <ycommerce:testId code="paymentDetails_setAsDefault_button">
                 <button type="submit" class="account-set-default-address">
-                    <spring:theme code="text.setDefault" />
+                    <spring:theme code="text.setDefault"/>
                 </button>
             </ycommerce:testId>
         </form:form>
@@ -81,10 +88,10 @@
         <c:url value="/my-account/remove-payment-method" var="removePaymentActionUrl"/>
         <form:form id="removePaymentDetails${paymentInfo.id}" action="${removePaymentActionUrl}" method="post">
             <input type="hidden" name="paymentInfoId" value="${fn:escapeXml(paymentInfo.id)}"/>
-            <br />
+            <br/>
             <div class="modal-actions">
                 <div class="row">
-                    <ycommerce:testId code="paymentDetailsDelete_delete_button" >
+                    <ycommerce:testId code="paymentDetailsDelete_delete_button">
                         <div class="col-xs-12 col-sm-6 col-sm-push-6">
                             <button type="submit" class="btn btn-default btn-primary btn-block paymentsDeleteBtn">
                                 <spring:theme code="text.account.paymentDetails.delete"/>
@@ -92,8 +99,9 @@
                         </div>
                     </ycommerce:testId>
                     <div class="col-xs-12 col-sm-6 col-sm-pull-6">
-                        <a class="btn btn-default closeColorBox paymentsDeleteBtn btn-block" data-payment-id="${fn:escapeXml(paymentInfo.id)}">
-                            <spring:theme code="text.button.cancel" />
+                        <a class="btn btn-default closeColorBox paymentsDeleteBtn btn-block"
+                           data-payment-id="${fn:escapeXml(paymentInfo.id)}">
+                            <spring:theme code="text.button.cancel"/>
                         </a>
                     </div>
                 </div>

@@ -1,67 +1,29 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { CartNotEmptyGuard, CheckoutAuthGuard, CheckoutPaymentFormModule } from '@spartacus/checkout/base/components';
-import { FeaturesConfigModule, I18nModule, provideConfig, UrlModule } from '@spartacus/core';
-import {
-  CardModule,
-  FormErrorsModule,
-  FormRequiredAsterisksComponent,
-  FormRequiredLegendComponent,
-  GenericLinkModule,
-  IconModule,
-  NgSelectA11yModule,
-  SpinnerModule
-} from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentRedirectFailureGuard, } from '../../../core';
-import { WorldpayApmModule, WorldpayBillingAddressModule } from '../../../storefrontlib';
-import { WorldpayPaymentFormModule } from '../../../storefrontlib/cms-components/worldpay-checkout-payment-method/payment-form/worldpay-payment-form.module';
-import { WorldpayB2bApmModule } from '../worldpay-b2b-apm-component';
 import { WorldpayB2bCheckoutPaymentMethodComponent } from './worldpay-b2b-checkout-payment-method.component';
+import { WORLDPAY_B2B_CHECKOUT_PAYMENT_METHOD_PROVIDERS } from './worldpay-b2b-checkout-payment-method.providers';
 
+/**
+ * Angular module for the Worldpay B2B Checkout Payment Method feature.
+ *
+ * This module enables integration of the WorldpayB2bCheckoutPaymentMethodComponent and its providers
+ * for B2B checkout payment method functionality. For new implementations, it is recommended to use
+ * the standalone WorldpayB2bCheckoutPaymentMethodComponent and register providers via `provideWorldpayB2BCheckoutPaymentMethod()`
+ * in your app configuration.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayB2bCheckoutPaymentMethodComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) using `provideWorldpayB2BCheckoutPaymentMethod()`.
+ *
+ * ### Module Usage:
+ * Import this module to automatically register the required providers for the CheckoutPaymentDetails
+ * CMS component and export the standalone component.
+ *
+ * @since 221121.11.0
+ */
 @NgModule({
-  imports: [
-    CommonModule,
-    I18nModule,
-    CheckoutPaymentFormModule,
-    GenericLinkModule,
-    SpinnerModule,
-    CardModule,
-    IconModule,
-    NgSelectModule,
-    ReactiveFormsModule,
-    RouterModule,
-    UrlModule,
-    WorldpayB2bApmModule,
-    FormErrorsModule,
-    WorldpayBillingAddressModule,
-    NgSelectA11yModule,
-    FeaturesConfigModule,
-    FormRequiredLegendComponent,
-    FormRequiredAsterisksComponent,
-    WorldpayPaymentFormModule,
-    WorldpayApmModule,
-  ],
-  declarations: [WorldpayB2bCheckoutPaymentMethodComponent],
-  exports: [
-    WorldpayB2bCheckoutPaymentMethodComponent
-  ],
-  providers: [
-    provideConfig({
-      cmsComponents: {
-        CheckoutPaymentDetails: {
-          component: WorldpayB2bCheckoutPaymentMethodComponent,
-          guards: [
-            CheckoutAuthGuard,
-            CartNotEmptyGuard,
-            WorldpayCheckoutPaymentRedirectFailureGuard,
-          ],
-        },
-      }
-    })
-  ],
+  imports: [WorldpayB2bCheckoutPaymentMethodComponent],
+  exports: [WorldpayB2bCheckoutPaymentMethodComponent],
+  providers: WORLDPAY_B2B_CHECKOUT_PAYMENT_METHOD_PROVIDERS
 })
 export class WorldpayB2bCheckoutPaymentMethodModule {
 }

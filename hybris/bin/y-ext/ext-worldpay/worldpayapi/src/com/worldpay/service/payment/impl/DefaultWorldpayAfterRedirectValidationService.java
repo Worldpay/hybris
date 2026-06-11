@@ -5,7 +5,7 @@ import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.mac.MacValidator;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.payment.WorldpayAfterRedirectValidationService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

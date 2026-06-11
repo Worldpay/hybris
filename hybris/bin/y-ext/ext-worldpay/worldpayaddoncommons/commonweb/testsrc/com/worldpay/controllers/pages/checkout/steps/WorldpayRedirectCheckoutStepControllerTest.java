@@ -1,8 +1,11 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.PAYMENT_METHOD_PARAM;
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SAVE_PAYMENT_INFO;
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.SHOPPER_BANK_CODE;
 import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singleton;
@@ -51,7 +54,7 @@ public class WorldpayRedirectCheckoutStepControllerTest {
     private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
     private static final String BILLING_ERROR_VIEW = "billingErrorView";
 
-    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final LocalDate BIRTHDAY_DATE_VALUE = LocalDate.of(1990, 5, 17);
 
     @Spy
     @InjectMocks

@@ -16,19 +16,20 @@ import java.util.Map;
 
 import static com.worldpay.core.checkout.attribute.WorldpayOrderStatusDisplayDynamicAttributeHandler.APM_OPEN;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class WorldpayOrderStatusDisplayDynamicAttributeHandlerTest {
 
     private static final String SOME_ORDER_STATUS = "someOrderStatus";
     private static final String ORDER_STATUS_FOR_NULL_ORDER = "orderStatusForNullOrder";
     private static final String APM_OPEN_VALUE = "apmOpenValue";
 
-    @InjectMocks
     @Spy
-    private WorldpayOrderStatusDisplayDynamicAttributeHandler testObj = new WorldpayOrderStatusDisplayDynamicAttributeHandler();
+    @InjectMocks
+    private WorldpayOrderStatusDisplayDynamicAttributeHandler testObj;
 
     @Mock
     private OrderModel orderMock;
@@ -62,7 +63,7 @@ public class WorldpayOrderStatusDisplayDynamicAttributeHandlerTest {
         final String result = testObj.get(orderMock);
 
         assertEquals(APM_OPEN_VALUE, result);
-        verify(testObj, never()).invokeSuperGet(anyObject());
+        verify(testObj, never()).invokeSuperGet(any());
     }
 
     @Test

@@ -12,7 +12,7 @@ $contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default = $content
 INSERT_UPDATE OAuthClientDetails; clientId[unique = true]; resourceIds; scope    ; authorizedGrantTypes                                         ; authorities         ; clientSecret; registeredRedirectUri
                                 ; client-side            ; hybris     ; basic    ; implicit,client_credentials                                  ; ROLE_CLIENT         ; secret      ; http://localhost:9001/authorizationserver/oauth2_implicit_callback ;
                                 ; mobile_android         ; hybris     ; basic    ; authorization_code,refresh_token,password,client_credentials ; ROLE_CLIENT         ; secret      ; http://localhost:9001/authorizationserver/oauth2_callback          ;
-                                ; trusted_client         ; hybris     ; extended ; authorization_code,refresh_token,password,client_credentials ; ROLE_TRUSTED_CLIENT ; secret      ;                                                                    ;
+                                ; trusted_client         ; hybris     ; extended ; authorization_code,refresh_token,password,client_credentials ; ROLE_TRUSTED_CLIENT ; secret      ; https://localhost:9002/authorizationserver/oauth2_callback         ;
 
 INSERT_UPDATE WorldpayCurrencyRange; currency(isocode)[unique = true]; min[unique = true]; max[unique = true]
                                    ; EUR                             ; 1                 ; 2000
@@ -43,15 +43,15 @@ INSERT_UPDATE WorldpayAPMConfiguration; code[unique = true]   ; name[lang = $lan
                                       ; ACH_DIRECT_DEBIT-SSL  ; ACH Direct Debit  ; ACH Direct Debit         ;                      ; USD                ; US                                     ; USD:1:8000                                      ;                                  ; true
 
 INSERT_UPDATE WorldpayBankConfiguration; code[unique = true]; name[lang = $lang]; description[lang = $lang]; active[default = false]; apm(code)
-                                       ; ABN_AMRO           ; ABN AMRO          ; ABN AMRO                 ;                    ;
-                                       ; ASN                ; ASN               ; ASN                      ;                    ;
-                                       ; ING                ; ING               ; ING                      ;                    ;
-                                       ; RABOBANK           ; Rabobank          ; Rabobank                 ;                    ;
-                                       ; SNS                ; SNS               ; SNS Bank                 ;                    ;
-                                       ; SNS_REGIO          ; SNS Regio         ; SNS Regio Bank           ;                    ;
-                                       ; TRIODOS            ; Triodos           ; Triodos Bank             ;                    ;
-                                       ; VAN_LANSCHOT       ; Van Lanschot      ; Van Lanschot Bank        ;                    ;
-                                       ; KNAB               ; Knab              ; Knab bank                ;                    ;
-                                       ; BUNQ               ; Bunq              ; Bunq bank                ;                    ;
-                                       ; HANDELSBANKEN      ; Handelsbanken     ; Handelsbanken bank       ;                    ;
-                                       ; MONEYOU            ; Moneyou           ; Moneyou bank             ;                    ;
+                                       ; ABN_AMRO           ; ABN AMRO          ; ABN AMRO                 ;                        ;
+                                       ; ASN                ; ASN               ; ASN                      ;                        ;
+                                       ; ING                ; ING               ; ING                      ;                        ;
+                                       ; RABOBANK           ; Rabobank          ; Rabobank                 ;                        ;
+                                       ; SNS                ; SNS               ; SNS Bank                 ;                        ;
+                                       ; SNS_REGIO          ; SNS Regio         ; SNS Regio Bank           ;                        ;
+                                       ; TRIODOS            ; Triodos           ; Triodos Bank             ;                        ;
+                                       ; VAN_LANSCHOT       ; Van Lanschot      ; Van Lanschot Bank        ;                        ;
+                                       ; KNAB               ; Knab              ; Knab bank                ;                        ;
+                                       ; BUNQ               ; Bunq              ; Bunq bank                ;                        ;
+                                       ; HANDELSBANKEN      ; Handelsbanken     ; Handelsbanken bank       ;                        ;
+                                       ; MONEYOU            ; Moneyou           ; Moneyou bank             ;                        ;

@@ -50,7 +50,7 @@ public class OrderInquiryResponseTransformerTest {
 
         testObj.transform(paymentServiceMock);
 
-        verify(referenceMock).getvalue();
+        verify(referenceMock).getValue();
         verify(referenceMock).getId();
         verify(serviceResponseTransformerHelperMock, times(2)).buildPaymentReply(paymentMock);
     }
@@ -62,7 +62,7 @@ public class OrderInquiryResponseTransformerTest {
 
         testObj.transform(paymentServiceMock);
 
-        verify(referenceMock, never()).getvalue();
+        verify(referenceMock, never()).getValue();
         verify(referenceMock, never()).getId();
         verify(serviceResponseTransformerHelperMock, never()).buildPaymentReply(paymentMock);
     }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DefaultWorldpayIntegrationVersionService implements WorldpayIntegrationVersionService {
+public class  DefaultWorldpayIntegrationVersionService implements WorldpayIntegrationVersionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultWorldpayAuthorisationResultService.class);
 

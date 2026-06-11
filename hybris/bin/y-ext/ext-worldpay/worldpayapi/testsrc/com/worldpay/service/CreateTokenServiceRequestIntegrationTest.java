@@ -8,7 +8,7 @@ import de.hybris.bootstrap.annotations.IntegrationTest;
 import de.hybris.platform.servicelayer.ServicelayerBaseTest;
 import org.junit.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;

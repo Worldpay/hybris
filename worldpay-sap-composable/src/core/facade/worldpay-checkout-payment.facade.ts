@@ -196,24 +196,36 @@ export abstract class WorldpayCheckoutPaymentFacade extends CheckoutPaymentFacad
 
   /**
    * Gets the save credit card value from state.
+   * @returns {Observable<boolean>}
    * @since 6.4.0
    */
   abstract getSaveCreditCardValueFromState(): Observable<boolean>;
 
   /**
    * Sets the save as default credit card value.
+   * @returns {Observable<boolean>}
    */
   abstract setSaveAsDefaultCardValue(saveAsDefaultCreditCard: boolean): void;
 
   /**
    * Gets the save as default credit card value from state.
+   * @returns {Observable<boolean>}
    * @since 6.4.0
    */
   abstract getSaveAsDefaultCardValueFromState(): Observable<boolean>;
 
   /**
    * Gets the selected payment type state.
+   * @returns {Observable<QueryState<unknown>>}
    * @since 6.4.0
    */
   abstract getSelectedPaymentTypeState(): Observable<QueryState<unknown>>;
+
+  /**
+   * Determines whether the current user is allowed to save a card. *
+   * A user can save a card if they are authenticated (not an anonymous user). Anonymous users are identified by the OCC_USER_ID_ANONYMOUS constant. *
+   * @returns {Observable<boolean>} An observable that emits `true` if the user can save a card, false` if the user is anonymous or userId is falsy *
+   * @since 221121.11.0
+   */
+  abstract canSaveCard(): Observable<boolean>
 }

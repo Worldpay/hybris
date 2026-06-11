@@ -15,9 +15,9 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ui.Model;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.Optional;
 

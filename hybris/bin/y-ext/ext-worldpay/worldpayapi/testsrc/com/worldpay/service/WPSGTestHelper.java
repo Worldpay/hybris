@@ -11,7 +11,7 @@ import com.worldpay.service.model.payment.PaymentType;
 import com.worldpay.service.request.*;
 import com.worldpay.service.response.*;
 import com.worldpay.util.WorldpayInternalModelTransformerUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class WPSGTestHelper {
 
@@ -38,6 +38,9 @@ public class WPSGTestHelper {
     private static final Address BILLING_ADDRESS = createAddress();
     private static final String EUR = "EUR";
     private static final String EXPONENT = "2";
+    private static final String SUCCESS_URL = "https://example.com/worldpay/success";
+    private static final String FAILURE_URL = "https://example.com/worldpay/failure";
+    private static final String CANCEL_URL = "https://example.com/worldpay/cancel";
 
     public static DirectAuthoriseServiceResponse directAuthorise(final WorldpayServiceGateway gateway, final MerchantInfo merchantInfo, final String orderCode) throws WorldpayException {
         final Amount amount = new Amount();
@@ -51,7 +54,15 @@ public class WPSGTestHelper {
         orderInfo.setAmount(amount);
 
         final Payment payment = WorldpayInternalModelTransformerUtil
-            .createAlternativeShopperBankCodePayment(PaymentType.IDEAL, "ASN", "successURL", "failureURL",  "cancelURL", StringUtils.EMPTY, StringUtils.EMPTY);
+                .createAlternativeShopperBankCodePayment(
+                        PaymentType.IDEAL,
+                        "ASN",
+                        SUCCESS_URL,
+                        FAILURE_URL,
+                        CANCEL_URL,
+                        StringUtils.EMPTY,
+                        StringUtils.EMPTY
+                );
 
         final Session session =  new Session();
         session.setShopperIPAddress(SESSION_IP);

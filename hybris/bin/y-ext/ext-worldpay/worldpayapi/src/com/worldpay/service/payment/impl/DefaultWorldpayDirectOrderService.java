@@ -331,14 +331,6 @@ public class DefaultWorldpayDirectOrderService extends AbstractWorldpayOrderServ
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayConfigurationException {
-        completeAuthorise(serviceResponse, abstractOrderModel);
-    }
-
     protected Optional<String> getTransactionIdentifier(final DirectAuthoriseServiceResponse serviceResponse) {
         return Optional.ofNullable(serviceResponse.getPaymentReply().getSchemeResponse())
                 .map(SchemeResponse::getTransactionIdentifier);

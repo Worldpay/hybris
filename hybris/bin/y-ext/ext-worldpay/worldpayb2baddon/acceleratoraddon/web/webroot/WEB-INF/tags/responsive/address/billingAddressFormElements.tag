@@ -2,7 +2,7 @@
 <%@ attribute name="regions" required="true" type="java.util.List" %>
 <%@ attribute name="country" required="false" type="java.lang.String" %>
 <%@ attribute name="tabindex" required="false" type="java.lang.Integer" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="formElement" tagdir="/WEB-INF/tags/responsive/formElement" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="theme" tagdir="/WEB-INF/tags/shared/theme" %>

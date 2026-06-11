@@ -138,24 +138,26 @@ export class WorldpayGuaranteedPaymentsService implements WorldpayGuaranteedPaym
    * @param {string} sessionId - The session ID to be used for the script
    */
   generateScript(sessionId: string): void {
-    this.window.tmx_profiling_started = false;
-    this.setSessionId(sessionId);
-    const attributes: { [p: string]: string } = {
-      [this.attributeId]: sessionId
-    };
-    const node: Element = this.document.querySelector(`script#${this.idScript}`);
+    if (this.winRef.isBrowser()) {
+      this.window.tmx_profiling_started = false;
+      this.setSessionId(sessionId);
+      const attributes: { [p: string]: string } = {
+        [this.attributeId]: sessionId
+      };
+      const node: Element = this.document.querySelector(`script#${this.idScript}`);
 
-    if (node) {
-      this.removeScript();
-      this.loadScriptService.updateScript(node, attributes);
-      this.window?.SIGNIFYD_GLOBAL?.init();
-    } else if (sessionId) {
-      this.loadScriptService.loadScript({
-        idScript: this.idScript,
-        src: 'https://cdn-scripts.signifyd.com/api/script-tag.js',
-        defer: true,
-        attributes,
-      });
+      if (node) {
+        this.removeScript();
+        this.loadScriptService.updateScript(node, attributes);
+        this.window?.SIGNIFYD_GLOBAL?.init();
+      } else if (sessionId) {
+        this.loadScriptService.loadScript({
+          idScript: this.idScript,
+          src: 'https://cdn-scripts.signifyd.com/api/script-tag.js',
+          defer: true,
+          attributes,
+        });
+      }
     }
   }
 

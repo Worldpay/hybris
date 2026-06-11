@@ -75,7 +75,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     private ErrorDetail buildErrorDetail(final com.worldpay.internal.model.Error intError) {
         final ErrorDetail error = new ErrorDetail();
         error.setCode(intError.getCode());
-        error.setMessage(intError.getvalue());
+        error.setMessage(intError.getValue());
         return error;
     }
 
@@ -114,10 +114,10 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         final SchemeResponse schemeResponse = new SchemeResponse();
 
         Optional.ofNullable(intSchemeResponse.getActionCode())
-            .map(ActionCode::getvalue)
+            .map(ActionCode::getValue)
             .ifPresent(schemeResponse::setActionCode);
         Optional.ofNullable(intSchemeResponse.getResponseCode())
-            .map(ResponseCode::getvalue)
+            .map(ResponseCode::getValue)
             .ifPresent(schemeResponse::setResponseCode);
         Optional.ofNullable(intSchemeResponse.getSchemeName())
             .ifPresent(schemeResponse::setSchemeName);
@@ -150,7 +150,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 fraudSight.setReasonCodes(intFraudSight.getReasonCodes()
                     .getReasonCode()
                     .stream()
-                    .map(ReasonCode::getvalue)
+                    .map(ReasonCode::getValue)
                     .toList());
             }
 
@@ -257,7 +257,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     public TokenReply buildTokenReply(final Token intToken) {
         final TokenReply tokenReply = new TokenReply();
         Optional.ofNullable(intToken.getAuthenticatedShopperID())
-            .map(AuthenticatedShopperID::getvalue)
+            .map(AuthenticatedShopperID::getValue)
             .ifPresent(tokenReply::setAuthenticatedShopperID);
 
         tokenReply.setTokenEventReference(intToken.getTokenEventReference());
@@ -265,7 +265,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         final List<Object> tokenInformationFields = intToken.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
         for (final Object tokenInformationField : tokenInformationFields) {
             if (tokenInformationField instanceof TokenReason tokenReason) {
-                tokenReply.setTokenReason(tokenReason.getvalue());
+                tokenReply.setTokenReason(tokenReason.getValue());
             } else if (tokenInformationField instanceof TokenDetails intTokenDetails) {
                 final com.worldpay.data.token.TokenDetails tokenDetails = transformTokenDetails(intTokenDetails);
                 tokenReply.setTokenDetails(tokenDetails);
@@ -286,7 +286,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         final com.worldpay.data.token.TokenDetails tokenDetails = new com.worldpay.data.token.TokenDetails();
 
         Optional.ofNullable(tokenInformationField.getTokenReason())
-            .map(TokenReason::getvalue)
+            .map(TokenReason::getValue)
             .ifPresent(tokenDetails::setTokenReason);
 
         Optional.ofNullable(tokenInformationField.getTokenEventReference())
@@ -296,7 +296,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             .ifPresent(tokenDetails::setTokenEvent);
 
         Optional.ofNullable(tokenInformationField.getPaymentTokenID())
-            .map(PaymentTokenID::getvalue)
+            .map(PaymentTokenID::getValue)
             .ifPresent(tokenDetails::setPaymentTokenID);
 
         Optional.ofNullable(tokenInformationField.getReportingTokenID())
@@ -360,24 +360,24 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     private com.worldpay.data.payment.Card transformCard(final CardDetails intCardDetails) {
         final Derived derived = intCardDetails.getDerived();
         if (derived != null) {
-            final String cvc = intCardDetails.getCvc() == null ? null : intCardDetails.getCvc().getvalue();
+            final String cvc = intCardDetails.getCvc() == null ? null : intCardDetails.getCvc().getValue();
             Date expiryDate = null;
             if (intCardDetails.getExpiryDate() != null) {
                 expiryDate = transformDate(intCardDetails.getExpiryDate().getDate());
             }
             final Address address = transformAddress(intCardDetails.getCardAddress());
-            if (derived.getCardBrand() == null || StringUtils.isBlank(derived.getCardBrand().getvalue()) || Arrays.stream(PaymentType.values()).map(PaymentType::getMethodCode).noneMatch(derived.getCardBrand().getvalue()::equals)) {
+            if (derived.getCardBrand() == null || StringUtils.isBlank(derived.getCardBrand().getValue()) || Arrays.stream(PaymentType.values()).map(PaymentType::getMethodCode).noneMatch(derived.getCardBrand().getValue()::equals)) {
                 setCardBrand(derived);
             }
             final String cardHolderName = transformCardHolderName(intCardDetails.getCardHolderName());
 
             final com.worldpay.data.payment.Card card = new com.worldpay.data.payment.Card();
-            card.setPaymentType(PaymentType.getPaymentType(derived.getCardBrand().getvalue()).getMethodCode());
+            card.setPaymentType(PaymentType.getPaymentType(derived.getCardBrand().getValue()).getMethodCode());
             card.setCardNumber(derived.getObfuscatedPAN());
             card.setCvc(cvc);
             card.setExpiryDate(expiryDate);
             card.setCardHolderName(cardHolderName);
-            card.setBin(derived.getBin().getvalue());
+            card.setBin(derived.getBin().getValue());
             card.setCardAddress(address);
             return card;
         }
@@ -397,8 +397,8 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             if (isEFTPOSAUCardCoBrand(derived)) {
                 derived.setCardBrand(cardBrandFactory.createCardBrandWithValue(PaymentType.EFTPOS_AU.getMethodCode()));
             }
-        } else if (derived.getCardBrand() != null && StringUtils.isNotEmpty(derived.getCardBrand().getvalue())) {
-            switch (derived.getCardBrand().getvalue()) {
+        } else if (derived.getCardBrand() != null && StringUtils.isNotEmpty(derived.getCardBrand().getValue())) {
+            switch (derived.getCardBrand().getValue()) {
                 case "VISA":
                     derived.setCardBrand(cardBrandFactory.createCardBrandWithValue(PaymentType.VISA.getMethodCode()));
                     break;
@@ -439,16 +439,16 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     }
 
     private boolean isCarteBleuCardCoBrand(final Derived derived) {
-        return "VISA".equals(derived.getCardBrand().getvalue()) && "CARTEBLEUE".equals(derived.getCardCoBrand());
+        return "VISA".equals(derived.getCardBrand().getValue()) && "CARTEBLEUE".equals(derived.getCardCoBrand());
     }
 
     private boolean isCarteBancaireCardCoBrand(final Derived derived) {
-        return "ECMC".equals(derived.getCardBrand().getvalue()) && "CB".equals(derived.getCardCoBrand());
+        return "ECMC".equals(derived.getCardBrand().getValue()) && "CB".equals(derived.getCardCoBrand());
     }
 
     private boolean isEFTPOSAUCardCoBrand(final Derived derived) {
         return "EFTPOS_AU".equals(derived.getCardCoBrand()) &&
-            ("VISA".equals(derived.getCardBrand().getvalue()) || "ECMC".equals(derived.getCardBrand().getvalue()));
+            ("VISA".equals(derived.getCardBrand().getValue()) || "ECMC".equals(derived.getCardBrand().getValue()));
     }
 
     private com.worldpay.data.payment.Card transformCard(final Card intCard, final CardHolderName cardHolderName) {
@@ -468,7 +468,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
 
     private String transformCardHolderName(final CardHolderName cardHolderName) {
         return Optional.ofNullable(cardHolderName)
-            .map(CardHolderName::getvalue)
+            .map(CardHolderName::getValue)
             .filter(StringUtils::isNotBlank)
             .orElse(null);
     }
@@ -487,7 +487,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
             address.setTelephoneNumber(intAddress.getTelephoneNumber());
 
             Optional.ofNullable(intAddress.getCountryCode())
-                .ifPresent(countryCode -> address.setCountryCode(countryCode.getvalue()));
+                .ifPresent(countryCode -> address.setCountryCode(countryCode.getValue()));
 
             return address;
         }
@@ -497,25 +497,25 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
     private void setAddressFields(final List<Object> streetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3, final Address address) {
         for (final Object intAddressDetails : streetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3) {
             if (intAddressDetails instanceof Street street) {
-                address.setStreet(street.getvalue());
+                address.setStreet(street.getValue());
             }
             if (intAddressDetails instanceof HouseName houseName) {
-                address.setHouseName(houseName.getvalue());
+                address.setHouseName(houseName.getValue());
             }
             if (intAddressDetails instanceof HouseNumber houseNumber) {
-                address.setHouseNumber(houseNumber.getvalue());
+                address.setHouseNumber(houseNumber.getValue());
             }
             if (intAddressDetails instanceof HouseNumberExtension houseNumberExtension) {
-                address.setHouseNumberExtension(houseNumberExtension.getvalue());
+                address.setHouseNumberExtension(houseNumberExtension.getValue());
             }
             if (intAddressDetails instanceof Address1 address1) {
-                address.setAddress1(address1.getvalue());
+                address.setAddress1(address1.getValue());
             }
             if (intAddressDetails instanceof Address2 address2) {
-                address.setAddress2(address2.getvalue());
+                address.setAddress2(address2.getValue());
             }
             if (intAddressDetails instanceof Address3 address3) {
-                address.setAddress3(address3.getvalue());
+                address.setAddress3(address3.getValue());
             }
         }
     }

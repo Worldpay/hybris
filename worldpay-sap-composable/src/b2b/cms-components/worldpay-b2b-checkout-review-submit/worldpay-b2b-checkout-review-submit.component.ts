@@ -1,23 +1,35 @@
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { B2BCheckoutReviewSubmitComponent } from '@spartacus/checkout/b2b/components';
 import { CheckoutCostCenterFacade, CheckoutPaymentTypeFacade, } from '@spartacus/checkout/b2b/root';
 import { CheckoutStepService, } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutDeliveryModesFacade, } from '@spartacus/checkout/base/root';
-import { PaymentDetails, QueryState, TranslationService, UserCostCenterService, } from '@spartacus/core';
+import { PaymentDetails, QueryState, TranslatePipe, TranslationService, UrlPipe, UserCostCenterService } from '@spartacus/core';
 import { billingAddressCard } from '@spartacus/order/root';
-import { Card } from '@spartacus/storefront';
+import { Card, CardComponent, IconComponent, OutletDirective, PromotionsComponent } from '@spartacus/storefront';
 import { combineLatest, Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { WorldpayApmPaymentInfo, WorldpayCheckoutPaymentFacade } from '../../../core';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Component({
   selector: 'y-worldpay-b2b-review-submit',
   templateUrl: './worldpay-b2b-checkout-review-submit.component.html',
-  styleUrls: ['./worldpay-b2b-checkout-review-submit.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
   encapsulation: ViewEncapsulation.None,
+  imports: [
+    NgTemplateOutlet,
+    CardComponent,
+    RouterLink,
+    IconComponent,
+    OutletDirective,
+    PromotionsComponent,
+    AsyncPipe,
+    TranslatePipe,
+    UrlPipe,
+  ],
 })
 export class WorldpayB2BCheckoutReviewSubmitComponent extends B2BCheckoutReviewSubmitComponent {
 

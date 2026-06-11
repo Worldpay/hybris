@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class WorldpayOrderDataPopulatorTest {
 
     @InjectMocks
-    private WorldpayOrderDataPopulator testObj = new WorldpayOrderDataPopulator();
+    private WorldpayOrderDataPopulator testObj;
 
     @Mock
     private OrderData orderDataMock;

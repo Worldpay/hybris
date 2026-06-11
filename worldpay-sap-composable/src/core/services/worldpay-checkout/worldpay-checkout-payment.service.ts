@@ -45,6 +45,7 @@ import { getBaseHref, trimLastSlashFromUrl } from '../../utils';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let Worldpay: any;
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Injectable()
 export class WorldpayCheckoutPaymentService extends CheckoutPaymentService implements WorldpayCheckoutPaymentFacade, OnDestroy {
   baseHref: string;
@@ -76,8 +77,8 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
               GlobalMessageType.MSG_TYPE_ERROR
             );
           }
-        }),
-      ),
+        })
+      )
     );
 
   protected getThreeDsDDCJwtQuery$: Query<ThreeDsDDCInfo> =
@@ -205,7 +206,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       commandService,
       eventService,
       checkoutPaymentConnector,
-      checkoutQueryFacade,
+      checkoutQueryFacade
     );
     this.baseHref = getBaseHref(this.platformLocation);
 
@@ -393,7 +394,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
 
         return this.createWorldpayPaymentMethodCommand.execute({
           paymentDetails,
-          cseToken,
+          cseToken
         });
       })
     );
@@ -581,7 +582,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       this.eventService.get(ThreeDsDDCIframeUrlSetEvent).subscribe({
         next: (event: ThreeDsDDCIframeUrlSetEvent): void => {
           this.eventService.dispatch({
-            threeDsDDCIframeUrl: event.threeDsDDCIframeUrl,
+            threeDsDDCIframeUrl: event.threeDsDDCIframeUrl
           }, ThreeDsSetEvent);
         }
       })
@@ -629,7 +630,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
       this.getSaveCreditCardValueFromState(),
       this.getSaveAsDefaultCardValueFromState(),
       this.worldpayACHFacade.getACHPaymentFormValue(),
-      this.checkoutQueryFacade.getCheckoutDetailsState(),
+      this.checkoutQueryFacade.getCheckoutDetailsState()
     ]).pipe(
       // eslint-disable-next-line max-len
       map(([saveCreditCard, setAsDefaultPayment, achPaymentFormValue, checkoutState]: [boolean, boolean, ACHPaymentForm, QueryState<CheckoutState>]): QueryState<WorldpayApmPaymentInfo> => {
@@ -652,13 +653,13 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
           updatedPaymentType = {
             ...paymentType,
             code: worldpayAPMPaymentInfo?.apmCode || paymentType?.code,
-            displayName: worldpayAPMPaymentInfo?.name,
+            displayName: worldpayAPMPaymentInfo?.name
           };
         }
         const paymentInfo: WorldpayApmPaymentInfo = {
           ...paymentDetails,
           ...updatedPaymentType,
-          ...worldpayAPMPaymentInfo,
+          ...worldpayAPMPaymentInfo
         };
 
         if (paymentInfo.id) {
@@ -674,7 +675,7 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
           ...checkoutState,
           data: paymentInfo
         };
-      }),
+      })
     );
   }
 
@@ -688,5 +689,17 @@ export class WorldpayCheckoutPaymentService extends CheckoutPaymentService imple
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * Determines whether the current user is allowed to save a card. *
+   * A user can save a card if they are authenticated (not an anonymous user). Anonymous users are identified by the OCC_USER_ID_ANONYMOUS constant. *
+   * @returns {Observable<boolean>} An observable that emits `true` if the user can save a card, false` if the user is anonymous or userId is falsy *
+   * @since 221121.11.0
+   */
+  public canSaveCard(): Observable<boolean> {
+    return this.userIdService.getUserId().pipe(
+      map((userId: string): boolean => userId && userId !== OCC_USER_ID_ANONYMOUS)
+    );
   }
 }

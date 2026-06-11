@@ -9,10 +9,8 @@ import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.internal.dao.AbstractItemDao;
 import de.hybris.platform.servicelayer.search.FlexibleSearchQuery;
-import de.hybris.platform.servicelayer.search.FlexibleSearchService;
 import de.hybris.platform.servicelayer.search.SearchResult;
-import org.apache.commons.lang.time.DateUtils;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.time.Instant;
 import java.util.Date;
@@ -86,7 +84,6 @@ public class DefaultWorldpayPaymentTransactionDao extends AbstractItemDao implem
             "AND {os.code} = ?" + ORDER_STATUS_PARAMETER + " " +
             "AND {pi." + WorldpayAPMPaymentInfoModel.TIMEOUTDATE + "} <= ?" + TIMEOUT_DATE_PARAMETER;
 
-    private FlexibleSearchService flexibleSearchService;
 
     /**
      * {@inheritDoc}
@@ -133,18 +130,9 @@ public class DefaultWorldpayPaymentTransactionDao extends AbstractItemDao implem
         query.addQueryParameter(TIMEOUT_DATE_PARAMETER, Date.from(Instant.now()));
         query.addQueryParameter(ORDER_STATUS_PARAMETER, PAYMENT_PENDING.getCode());
 
-        final SearchResult<PaymentTransactionModel> result = flexibleSearchService.search(query);
+        final SearchResult<PaymentTransactionModel> result = getFlexibleSearchService().search(query);
         return result.getResult();
     }
 
-    @Override
-    public FlexibleSearchService getFlexibleSearchService() {
-        return flexibleSearchService;
-    }
 
-    @Override
-    @Required
-    public void setFlexibleSearchService(final FlexibleSearchService flexibleSearchService) {
-        this.flexibleSearchService = flexibleSearchService;
-    }
 }

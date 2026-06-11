@@ -28,7 +28,7 @@ public class WorldpayAbstractOrderPopulatorTest {
     public static final String WORLDPAY_DECLINE_CODE = "A19";
 
     @InjectMocks
-    private WorldpayAbstractOrderPopulator testObj = new WorldpayAbstractOrderPopulator();
+    private WorldpayAbstractOrderPopulator testObj;
 
     @Mock
     private CreditCardPaymentInfoModel creditCardPaymentInfoMock;

@@ -5,22 +5,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class WorldPayApplePayHttpClientFactoryBeanTest {
-
-    private static final String PKCS_12 = "PKCS12";
-    private static final String CHANGEIT = "changeit";
+@ExtendWith(MockitoExtension.class)
+class WorldPayApplePayHttpClientFactoryBeanTest {
 
     @InjectMocks
     private WorldPayApplePayHttpClientFactoryBean testObj;
@@ -28,18 +25,16 @@ public class WorldPayApplePayHttpClientFactoryBeanTest {
     @Mock
     private Resource resourceMock;
 
-    @Before
-    public void setup() {
-        when(resourceMock.getFilename()).thenReturn("/path/certificate.p12");
+    @BeforeEach
+    void setup() {
+        testObj.setKeyStoreType("PKCS12");
+        testObj.setPassword("password");
     }
 
     @Test
-    public void createInstanceDoesNotFail() throws Exception {
+    void createInstanceDoesNotFail() throws Exception {
         when(resourceMock.exists()).thenReturn(true);
         when(resourceMock.isReadable()).thenReturn(true);
-        testObj.setCertificateFile(resourceMock);
-        testObj.setKeyStoreType(PKCS_12);
-        testObj.setPassword(CHANGEIT);
 
         final HttpClient result = testObj.createInstance();
 
@@ -47,12 +42,8 @@ public class WorldPayApplePayHttpClientFactoryBeanTest {
     }
 
     @Test
-    public void createInstanceWithNonExistentFileThrowsAnException() throws Exception {
+    void createInstanceWithNonExistentFileThrowsAnException() throws Exception {
         when(resourceMock.exists()).thenReturn(false);
-
-        testObj.setCertificateFile(resourceMock);
-        testObj.setKeyStoreType(PKCS_12);
-        testObj.setPassword(CHANGEIT);
 
         assertThatThrownBy(() -> testObj.createInstance())
                 .isInstanceOf(ResourceNotFoundException.class)

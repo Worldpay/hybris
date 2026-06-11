@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Params } from '@angular/router';
 import { Cart } from '@spartacus/cart/base/root';
 import { PaymentDetails } from '@spartacus/core';
@@ -11,19 +11,7 @@ import { WorldpayApmAdapter } from './worldpay-apm.adapter';
   providedIn: 'root'
 })
 export class WorldpayApmConnector {
-
-  /**
-   * Constructor
-   *
-   * Initializes the WorldpayApmConnector with the provided WorldpayApmAdapter.
-   *
-   * @param adapter - WorldpayApmAdapter instance used for making APM-related requests
-   * @since 6.4.0
-   */
-  constructor(
-    protected adapter: WorldpayApmAdapter
-  ) {
-  }
+  protected adapter: WorldpayApmAdapter = inject(WorldpayApmAdapter);
 
   /**
    * Authorise APM Redirect

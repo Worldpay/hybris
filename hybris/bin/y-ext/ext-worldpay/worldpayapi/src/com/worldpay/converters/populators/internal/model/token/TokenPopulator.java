@@ -41,7 +41,7 @@ public class TokenPopulator implements Populator<Token, TOKENSSL> {
         final List<Object> tokenElements = target.getPaymentTokenIDOrPaymentInstrumentOrCvcOrSession();
         Optional.ofNullable(source.getPaymentTokenID()).ifPresent(tokenId -> {
             final PaymentTokenID paymentTokenIDElement = new PaymentTokenID();
-            paymentTokenIDElement.setvalue(tokenId);
+            paymentTokenIDElement.setValue(tokenId);
             tokenElements.add(paymentTokenIDElement);
         });
 

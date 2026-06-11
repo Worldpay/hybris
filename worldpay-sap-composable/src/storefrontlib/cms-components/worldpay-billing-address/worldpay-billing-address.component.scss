@@ -1,7 +1,0 @@
-@import "../../../assets/styles/mixins";
-@import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
-@import "@spartacus/checkout/base/styles/components/steps/payment/payment-form";
-
-y-worldpay-billing-address {
-  @extend %cx-payment-form !optional;
-}

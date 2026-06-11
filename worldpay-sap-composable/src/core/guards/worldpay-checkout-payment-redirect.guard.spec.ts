@@ -216,7 +216,7 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
   });
 
   describe('should call Place Bank Transfer Redirect Order when orderId queryParam is found', () => {
-    let spyRedirectOrder;
+    let spyRedirectOrder:  jasmine.Spy<() => Observable<boolean>>;
     beforeEach(() => {
       spyRedirectOrder = spyOn(worldpayOrderFacade, 'placeBankTransferRedirectOrder');
     });
@@ -239,6 +239,7 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
     });
 
     it('should show error message and redirect to Checkout Payment Details page', () => {
+      pathSpy.and.returnValue('checkoutPaymentDetails');
       spyRedirectOrder.and.returnValue(throwError(() =>'error'));
       orderDetailsSpy.and.returnValue(of({ code: '001' } as Order));
       const activatedRouteWithParams = {
@@ -256,6 +257,7 @@ describe('WorldpayCheckoutPaymentRedirectGuard', () => {
     });
 
     it('should redirect to order confirmation page on timeout', () => {
+      pathSpy.and.returnValue('orderConfirmation');
       spyOn(worldpayOrderFacade, 'placeRedirectOrder').and.returnValue(throwError(() => 'timeout'));
       const result$ = guard['placeRedirectOrder'](mockParams);
       result$.pipe(take(1)).subscribe((result) => {

@@ -1,7 +1,7 @@
 package com.worldpay.worldpayocccommons.controllers;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -106,8 +106,6 @@ public class AbstractWorldpayControllerTest {
     private static final String ORDER_CODE = "order123";
     private static final String DIFFERENT_CODE = "differentCode";
     private static final String PAYMENT_ID = "paymentId";
-    private static final String FORMAT_DATE = "yyyy-MM-dd";
-    private static final String DATE_STR = "2026-01-16";
     private static final String CHALLENGE_WINDOWS_SIZE = "600";
     private static final String DF_REFERENCE_ID = "dfid";
     private static final String CHALLENGE_PREFERENCE = "CHALLENGE";
@@ -550,19 +548,6 @@ public class AbstractWorldpayControllerTest {
         assertThat(result.getSecurityCode()).isEqualTo(CVC);
         assertThat(result.getTransactionIdentifier()).isEqualTo(CART_ID);
         assertThat(result.getAdditional3DS2()).isSameAs(add3ds2);
-    }
-
-    @Test
-    public void convertStringToDate_ShouldReturnDate() {
-        final Date result = testObj.convertStringToDate(DATE_STR);
-
-        assertThat(result).isNotNull();
-        assertThat(new SimpleDateFormat(FORMAT_DATE).format(result)).isEqualTo(DATE_STR);
-    }
-
-    @Test
-    public void convertStringToDate_ShouldReturnNullOnParseError() {
-        assertThat(testObj.convertStringToDate("not-a-date")).isNull();
     }
 
     @Test

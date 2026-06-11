@@ -17,12 +17,19 @@
                     <mkdir dir="${ant.xjc.target.dir}"/>
                 </else>
             </if>
-            <xjc destdir="${ant.xjc.target.dir}/" package="com.worldpay.internal.model"
-                 schema="${ext.worldpayapi.path}/resources/dtd/paymentService_v1.dtd" fork="true">
-                <arg line="-dtd -verbose"/>
+            <taskdef name="worldpayapi_xjc" classname="com.sun.tools.xjc.XJC2Task">
+                <classpath>
+                    <fileset dir="${ext.worldpayapi.path}/lib/dtd-conversion" includes="*.jar"/>
+                </classpath>
+            </taskdef>
+            <worldpayapi_xjc destdir="${ant.xjc.target.dir}/" package="com.worldpay.internal.model"
+                             schema="${ext.worldpayapi.path}/resources/dtd/paymentService_v1.dtd" fork="true">
+                <arg line="-dtd -verbose -quiet"/>
                 <arg line="-XautoNameResolution"/>
                 <jvmarg value="-DenableExternalEntityProcessing=true"/>
-            </xjc>
+                <jvmarg value="-Duser.language=en"/>
+                <jvmarg value="-Duser.country=US"/>
+            </worldpayapi_xjc>
             <echo message="Worldpay dtd classes created in the gensrc folder"/>
         </sequential>
     </macrodef>

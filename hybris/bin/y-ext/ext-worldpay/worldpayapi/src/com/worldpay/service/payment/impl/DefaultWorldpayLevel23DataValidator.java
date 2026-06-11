@@ -3,7 +3,7 @@ package com.worldpay.service.payment.impl;
 import com.worldpay.data.Item;
 import com.worldpay.data.Purchase;
 import com.worldpay.service.payment.WorldpayLevel23DataValidator;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class DefaultWorldpayLevel23DataValidator implements WorldpayLevel23DataV
      */
     @Override
     public boolean isValidLevel2Data(final List<Purchase> purchaseList) {
-        final Purchase purchaseData = purchaseList.get(0);
+        final Purchase purchaseData = purchaseList.getFirst();
 
         boolean isValid = isValidField(purchaseData.getCustomerReference(), 17)
             && isValidField(purchaseData.getCardAcceptorTaxId(), 20);
@@ -45,7 +45,8 @@ public class DefaultWorldpayLevel23DataValidator implements WorldpayLevel23DataV
      */
     @Override
     public boolean isValidLevel3Data(final List<Purchase> purchaseList) {
-        final Purchase purchaseData = purchaseList.get(0);
+        final Purchase purchaseData = purchaseList.getFirst();
+
         return isValidField(purchaseData.getCustomerReference(), 17)
             && isValidField(purchaseData.getCardAcceptorTaxId(), 20)
             && isValidField(purchaseData.getDestinationPostalCode(), 10)

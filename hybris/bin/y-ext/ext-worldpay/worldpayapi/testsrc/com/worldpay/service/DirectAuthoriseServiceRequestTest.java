@@ -304,7 +304,7 @@ class DirectAuthoriseServiceRequestTest {
         assertEquals(billingAddress, result.getOrder().getBillingAddress());
         assertEquals(shopperWithShopperID, result.getOrder().getShopper());
         assertThat(requestOrder.getOrderLines().getLineItems()).hasSize(1);
-        final LineItemReference lineItemReference1 = requestOrder.getOrderLines().getLineItems().get(0).getLineItemReference();
+        final LineItemReference lineItemReference1 = requestOrder.getOrderLines().getLineItems().getFirst().getLineItemReference();
         assertThat(lineItemReference1.getId()).isEqualTo(LINE_ITEM_REFERENCE_ID);
         assertThat(lineItemReference1.getValue()).isEqualTo(LINE_ITEM_REFERENCE_VALUE);
 
@@ -458,16 +458,16 @@ class DirectAuthoriseServiceRequestTest {
 
     @Test
     void shouldCreateGooglePayDirectAuthorisationRequest() {
-        final PayWithGoogleSSL payment = new PayWithGoogleSSL();
-        payment.setProtocolVersion("protocolVersion");
-        payment.setSignature("signature");
-        payment.setSignedMessage("signedMessage");
-        payment.setPaymentType(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
+        final PayWithGoogleSSL paymentWithGoogleSSL = new PayWithGoogleSSL();
+        paymentWithGoogleSSL.setProtocolVersion("protocolVersion");
+        paymentWithGoogleSSL.setSignature("signature");
+        paymentWithGoogleSSL.setSignedMessage("signedMessage");
+        paymentWithGoogleSSL.setPaymentType(PaymentType.PAYWITHGOOGLESSL.getMethodCode());
 
         final AuthoriseRequestParameters requestParameters = AuthoriseRequestParameters.AuthoriseRequestParametersBuilder.getInstance()
                 .withMerchantInfo(merchantInfo)
                 .withOrderInfo(basicOrderInfo)
-                .withPayment(payment)
+                .withPayment(paymentWithGoogleSSL)
                 .withShopper(shopperWithoutBrowserNorSession)
                 .withShippingAddress(shippingAddress)
                 .withBillingAddress(null)

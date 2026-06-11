@@ -8,7 +8,7 @@ import {
   CommandService,
   EventService,
   GlobalMessageService,
-  GlobalMessageType,
+  GlobalMessageType, HttpErrorModel,
   LoggerService,
   PaymentDetails,
   QueryState,
@@ -181,7 +181,7 @@ describe('WorldpayOrderService', () => {
       return of();
     }
 
-    showErrorMessage(error): void {
+    showErrorMessage(error: HttpErrorModel): void {
       const errorMessage: string = error?.details?.[0]?.message || ' ';
       globalMessageService.add({ key: errorMessage }, GlobalMessageType.MSG_TYPE_ERROR);
     }
@@ -400,7 +400,7 @@ describe('WorldpayOrderService', () => {
   });
 
   it('should checkoutPreconditions', () => {
-    let checkoutPreconditions = [];
+    let checkoutPreconditions: ArrayLike<any> = [];
     // @ts-ignore
     service.checkoutPreconditions().subscribe(response => checkoutPreconditions = response);
     expect(checkoutPreconditions).toEqual([userId, 'cartId']);

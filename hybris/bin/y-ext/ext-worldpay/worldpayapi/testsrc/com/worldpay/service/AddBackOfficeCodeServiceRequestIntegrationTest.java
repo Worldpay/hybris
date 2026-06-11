@@ -9,7 +9,7 @@ import de.hybris.platform.servicelayer.ServicelayerBaseTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Date;
 
 import static org.junit.Assert.*;

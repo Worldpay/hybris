@@ -46,8 +46,8 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
   let userAccountFacade: UserAccountFacade;
   let globalMessageService: GlobalMessageService;
   let loggerService: LoggerService;
-  let spyUserId;
-  let spyAccount;
+  let spyUserId: jasmine.Spy<() => Observable<string>>;
+  let spyAccount: jasmine.Spy<() => Observable<User>>;
 
   class MockWorldpayGuaranteedPaymentsService implements Partial<WorldpayGuaranteedPaymentsFacade> {
     getSessionId(): Observable<string> {
@@ -66,11 +66,11 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
       });
     }
 
-    generateScript(sessionId) {
+    generateScript(sessionId: string) {
       return sessionId;
     }
 
-    setSessionId(sessionId) {
+    setSessionId(sessionId: string) {
       component.sessionId = sessionId;
     }
 
@@ -80,12 +80,10 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayGuaranteedPaymentsComponent,
-      ],
       imports: [
         StoreModule.forRoot({}),
-        EffectsModule.forRoot([])
+        EffectsModule.forRoot([]),
+        WorldpayGuaranteedPaymentsComponent
       ],
       providers: [
         Store,
@@ -160,7 +158,7 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
   describe('should be enabled', () => {
     beforeEach(() => {
       spyOn(worldpayGuaranteedPaymentsFacade, 'isGuaranteedPaymentsEnabled').and.returnValue(of(true));
-      spyAccount.and.returnValue(of(''));
+      spyAccount.and.returnValue(of({} as User));
       spyUserId.and.returnValue(of('anonymous'));
       spyOn(activeCartFacade, 'getActive').and.returnValue(of(cart));
     });
@@ -179,7 +177,7 @@ describe('WorldpayGuaranteedPaymentsComponent', () => {
       userAccountFacade.get().subscribe(user => {
         userUid = user;
       });
-      expect(userUid).toEqual('');
+      expect(userUid).toEqual({});
 
       let userId;
       userIdService.getUserId().subscribe(active => {

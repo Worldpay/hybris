@@ -6,7 +6,8 @@ import { mockUserId } from 'worldpay-sap-composable-tests';
 import { WorldpayGooglePayConnector } from '../../connectors/worldpay-googlepay/worldpay-googlepay.connector';
 import { GooglePayMerchantConfigurationSetEvent } from '../../events/googlepay.events';
 import { WorldpayOrderFacade } from '../../facade';
-import { GooglePayMerchantConfiguration, GooglePayPaymentRequest, PlaceOrderResponse } from '../../interfaces';
+import { PlaceOrderResponse } from '../../interfaces';
+import { GooglePayMerchantConfiguration, GooglePayPaymentResponse } from '../../models';
 import { WorldpayOrderService } from '../worldpay-order/worldpay-order.service';
 
 import { WorldpayGooglepayService } from './worldpay-googlepay.service';
@@ -116,7 +117,7 @@ describe('WorldpayGooglepayService', () => {
 
   it('should request authorise order', () => {
     spyOn(worldpayGooglepayConnector, 'authoriseGooglePayPayment').and.callThrough();
-    const paymentRequest: GooglePayPaymentRequest = {
+    const paymentRequest: GooglePayPaymentResponse = {
       apiVersion: 2,
       apiVersionMinor: 0,
       paymentMethodData: {

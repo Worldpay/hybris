@@ -2,6 +2,7 @@ package com.worldpay.forms;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class CSEPaymentForm {
@@ -16,8 +17,8 @@ public class CSEPaymentForm {
     private String expiryMonth;
     private String referenceId;
     private String windowSizePreference;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateOfBirth;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dateOfBirth;
     private String deviceSession;
     private boolean dobRequired;
     private BrowserInfo browserInfo;
@@ -102,11 +103,11 @@ public class CSEPaymentForm {
         this.securityCode = securityCode;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(final Date dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

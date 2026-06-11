@@ -1,7 +1,10 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { UntypedFormGroup, Validators } from '@angular/forms';
-import { QueryState } from '@spartacus/core';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { I18nModule, QueryState } from '@spartacus/core';
+import { FormErrorsModule, SpinnerModule } from '@spartacus/storefront';
 import { Observable } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import {
@@ -14,13 +17,24 @@ import {
   PaymentMethod,
   WorldpayACHFacade
 } from '../../../../core';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 import { WorldpayApmBaseComponent } from '../worldpay-apm-base/worldpay-apm-base.component';
+import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 
 @Component({
   selector: 'y-worldpay-apm-ach',
   templateUrl: './worldpay-apm-ach.component.html',
   styleUrls: ['./worldpay-apm-ach.component.scss'],
-  standalone: false
+  imports: [
+    AsyncPipe,
+    ReactiveFormsModule,
+    FormErrorsModule,
+    I18nModule,
+    WorldpayBillingAddressComponent,
+    NgSelectModule,
+    SpinnerModule,
+    WorldpayApmSubmitButtonsComponent,
+  ]
 })
 export class WorldpayApmAchComponent extends WorldpayApmBaseComponent {
   achBankAccountTypesState$: Observable<QueryState<ACHBankAccountType[]>>;

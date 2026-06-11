@@ -4,8 +4,8 @@ import com.worldpay.support.WorldpaySupportEmailService;
 import com.worldpay.support.WorldpaySupportService;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.util.mail.MailUtils;
-import org.apache.commons.mail.Email;
-import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail2.jakarta.Email;
+import org.apache.commons.mail2.core.EmailException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -3,8 +3,7 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'y-worldpay-apm-submit-buttons',
-  template: '',
-  standalone: false
+  template: ''
 })
 export class MockWorldpayApmSubmitButtonsComponent {
   @Input() disableContinue$: Observable<boolean>;

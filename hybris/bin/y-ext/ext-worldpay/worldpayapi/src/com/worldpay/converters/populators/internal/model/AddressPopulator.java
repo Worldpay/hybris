@@ -4,7 +4,7 @@ import com.worldpay.internal.model.*;
 import com.worldpay.data.Address;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class AddressPopulator implements Populator<Address, com.worldpay.interna
 
         Optional.ofNullable(source.getCountryCode()).ifPresent(country -> {
             CountryCode countryCode = new CountryCode();
-            countryCode.setvalue(source.getCountryCode());
+            countryCode.setValue(source.getCountryCode());
             target.setCountryCode(countryCode);
         });
 
@@ -44,43 +44,43 @@ public class AddressPopulator implements Populator<Address, com.worldpay.interna
 
         Optional.ofNullable(source.getStreet()).ifPresent(street -> {
             final Street intStreet = new Street();
-            intStreet.setvalue(street);
+            intStreet.setValue(street);
             addressDetails.add(intStreet);
         });
 
         Optional.ofNullable(source.getHouseName()).ifPresent(houseName -> {
             final HouseName intHouseName = new HouseName();
-            intHouseName.setvalue(houseName);
+            intHouseName.setValue(houseName);
             addressDetails.add(intHouseName);
         });
 
         Optional.ofNullable(source.getHouseNumber()).ifPresent(houseNumber -> {
             final HouseNumber intHouseNumber = new HouseNumber();
-            intHouseNumber.setvalue(houseNumber);
+            intHouseNumber.setValue(houseNumber);
             addressDetails.add(intHouseNumber);
         });
 
         Optional.ofNullable(source.getHouseNumberExtension()).ifPresent(houseNumberExtension -> {
             final HouseNumberExtension intHouseNumberExt = new HouseNumberExtension();
-            intHouseNumberExt.setvalue(houseNumberExtension);
+            intHouseNumberExt.setValue(houseNumberExtension);
             addressDetails.add(intHouseNumberExt);
         });
 
         Optional.ofNullable(source.getAddress1()).ifPresent(address1 -> {
             final Address1 intAddress1 = new Address1();
-            intAddress1.setvalue(address1);
+            intAddress1.setValue(address1);
             addressDetails.add(intAddress1);
         });
 
         Optional.ofNullable(source.getAddress2()).ifPresent(address2 -> {
             final Address2 intAddress2 = new Address2();
-            intAddress2.setvalue(address2);
+            intAddress2.setValue(address2);
             addressDetails.add(intAddress2);
         });
 
         Optional.ofNullable(source.getAddress3()).ifPresent(address3 -> {
             final Address3 intAddress3 = new Address3();
-            intAddress3.setvalue(address3);
+            intAddress3.setValue(address3);
             addressDetails.add(intAddress3);
         });
 

@@ -1,6 +1,10 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgSelectComponent } from '@ng-select/ng-select';
+import { TranslatePipe } from '@spartacus/core';
+import { FormErrorsComponent, FormRequiredAsterisksComponent, FormRequiredLegendComponent, NgSelectA11yDirective } from '@spartacus/storefront';
 import { AddressFormComponent } from '@spartacus/user/profile/components';
 
 @Component({
@@ -8,7 +12,16 @@ import { AddressFormComponent } from '@spartacus/user/profile/components';
   templateUrl: './worldpay-address-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  imports: [
+    FormRequiredLegendComponent,
+    ReactiveFormsModule,
+    FormRequiredAsterisksComponent,
+    NgSelectComponent,
+    NgSelectA11yDirective,
+    FormErrorsComponent,
+    AsyncPipe,
+    TranslatePipe
+  ]
 })
 export class WorldpayAddressFormComponent extends AddressFormComponent implements OnInit, OnDestroy {
   jpLabel: string = '';

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Observable } from 'rxjs';
-import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../interfaces';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPayment, ApplePayPaymentRequest } from '../../models';
 
 export abstract class WorldpayApplepayAdapter {
 
@@ -24,26 +24,26 @@ export abstract class WorldpayApplepayAdapter {
    * @param {string} userId - User ID
    * @param {string} cartId - Cart ID
    * @param {string} validationURL - Validation URL
-   * @returns {Observable<ValidateMerchant>} - ValidateMerchant as Observable
+   * @returns {Observable<ApplePayMerchantSession>} - ApplePayMerchantSession as Observable
    */
   abstract validateApplePayMerchant(
     userId: string,
     cartId: string,
     validationURL: string
-  ): Observable<ValidateMerchant>;
+  ): Observable<ApplePayMerchantSession>;
 
   /**
    * Handle the order after Apple Pay has authorized the payment
    * @since 6.4.0
    * @param {string} userId - User ID
    * @param {string} cartId - Cart ID
-   * @param {any} payment - Apple Payment Method
+   * @param {ApplePayPayment} payment - Apple Payment Method
    * @returns {Observable<ApplePayAuthorization>} - ApplePayAuthorization as Observable
    */
   abstract authorizeApplePayPayment(
     userId: string,
     cartId: string,
-    payment: any
+    payment: ApplePayPayment
   ): Observable<ApplePayAuthorization>;
 
 }

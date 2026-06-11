@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import { EventService, OCC_USER_ID_ANONYMOUS, Query, QueryService, QueryState, UserIdService } from '@spartacus/core';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
@@ -10,7 +10,11 @@ import { AccountTypes, ACHPaymentForm, ACHPaymentFormRaw } from '../../interface
 
 @Injectable()
 export class WorldpayACHService implements WorldpayACHFacade {
-
+  protected userIdService: UserIdService = inject(UserIdService);
+  protected activeCartFacade: ActiveCartFacade = inject(ActiveCartFacade);
+  protected queryService: QueryService = inject(QueryService);
+  protected eventService: EventService = inject(EventService);
+  protected worldpayACHConnector: WorldpayACHConnector = inject(WorldpayACHConnector);
   /**
    * Query used to get available APMs
    * @since 6.4.0
@@ -26,15 +30,6 @@ export class WorldpayACHService implements WorldpayACHFacade {
       )
     );
   private achPaymentFormValue$: BehaviorSubject<ACHPaymentForm> = new BehaviorSubject<ACHPaymentForm>(null);
-
-  constructor(
-    protected userIdService: UserIdService,
-    protected activeCartFacade: ActiveCartFacade,
-    protected queryService: QueryService,
-    protected eventService: EventService,
-    protected worldpayACHConnector: WorldpayACHConnector
-  ) {
-  }
 
   /**
    * Checks if the conditions for checkout are met

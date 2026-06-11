@@ -1,7 +1,20 @@
 package com.worldpay.service.payment.impl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import com.worldpay.core.services.WorldpayCartService;
-import com.worldpay.data.*;
+import com.worldpay.data.Date;
+import com.worldpay.data.GuaranteedPaymentsData;
+import com.worldpay.data.Membership;
+import com.worldpay.data.Product;
+import com.worldpay.data.PurchaseDiscount;
+import com.worldpay.data.UserAccount;
 import com.worldpay.internal.model.Memberships;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.payment.WorldpayAdditionalDataRequestStrategy;
@@ -16,15 +29,6 @@ import de.hybris.platform.servicelayer.dto.converter.Converter;
 import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.util.DiscountValue;
 import org.apache.commons.collections4.CollectionUtils;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * Default implementation of {@link WorldpayGuaranteedPaymentsStrategy}.
@@ -140,7 +144,7 @@ public class DefaultWorldpayGuaranteedPaymentsStrategy extends AbstractWorldpayG
         if (CollectionUtils.isNotEmpty(abstractOrder.getGlobalDiscountValues())) {
             return abstractOrder.getGlobalDiscountValues().stream()
                 .map(this::createDiscountCode)
-                .collect(Collectors.toList());
+                .toList();
         } else {
             final PurchaseDiscount purchaseDiscount = new PurchaseDiscount();
             purchaseDiscount.setPurchaseDiscountCode(NULL);

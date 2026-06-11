@@ -19,7 +19,7 @@ import org.springframework.validation.Validator;
 public class PaymentDetailsDTOValidatorTest {
 
     @InjectMocks
-    private PaymentDetailsDTOValidator testObj = new PaymentDetailsDTOValidator();
+    private PaymentDetailsDTOValidator testObj;
 
     @Mock
     private Validator paymentAddressValidator;

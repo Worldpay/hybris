@@ -1,23 +1,21 @@
 package com.worldpay.worldpayocccommons.validator;
 
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class BooleanValidatorTest {
+@ExtendWith(MockitoExtension.class) 
+class BooleanValidatorTest {
 
     @InjectMocks
     private BooleanValidator testObj;
@@ -28,15 +26,13 @@ public class BooleanValidatorTest {
     private static final String FIELD_PATH = "active";
     private static final String ERROR_MESSAGE_ID = "error.boolean.mismatch";
 
-    @Before
-    public void setUp() {
-        testObj.setBooleanValue("true");
-        testObj.setFieldPath(FIELD_PATH);
-        testObj.setErrorMessageID(ERROR_MESSAGE_ID);
+    @BeforeEach
+    void setUp() {
+        testObj = new BooleanValidator(Boolean.TRUE.toString(),FIELD_PATH,ERROR_MESSAGE_ID);
     }
 
     @Test
-    public void shouldNotRejectWhenBooleanMatches() {
+    void shouldNotRejectWhenBooleanMatches() {
         when(errors.getFieldValue(FIELD_PATH)).thenReturn(Boolean.TRUE);
 
         testObj.validate(new Object(), errors);
@@ -45,7 +41,7 @@ public class BooleanValidatorTest {
     }
 
     @Test
-    public void shouldRejectWhenBooleanDoesNotMatch() {
+    void shouldRejectWhenBooleanDoesNotMatch() {
         when(errors.getFieldValue(FIELD_PATH)).thenReturn(Boolean.FALSE);
 
         testObj.validate(new Object(), errors);
@@ -54,7 +50,7 @@ public class BooleanValidatorTest {
     }
 
     @Test
-    public void shouldRejectWhenFieldValueIsNotBoolean() {
+    void shouldRejectWhenFieldValueIsNotBoolean() {
         when(errors.getFieldValue(FIELD_PATH)).thenReturn("notABoolean");
 
         testObj.validate(new Object(), errors);
@@ -62,9 +58,10 @@ public class BooleanValidatorTest {
         verify(errors).rejectValue(eq(FIELD_PATH), eq(ERROR_MESSAGE_ID), any(String[].class), isNull());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenErrorsIsNull() {
-        testObj.validate(new Object(), null);
+    @Test
+    void shouldThrowExceptionWhenErrorsIsNull() {
+        final Object obj = new Object(); // optional, just to be explicit
+        assertThrows(IllegalArgumentException.class, () -> testObj.validate(obj, null));
     }
 
 }

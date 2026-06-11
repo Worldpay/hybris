@@ -1,27 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpErrorModel, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { WorldpayApplepayAdapter } from '../../../connectors';
-import { ApplePayAuthorization, ApplePayPaymentRequest, ValidateMerchant } from '../../../interfaces';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPayment, ApplePayPaymentRequest } from '../../../models';
 
 @Injectable()
 export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
-  /**
-   * Constructor
-   * @param {HttpClient} http - The HTTP client for making requests
-   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoints
-   * @param {LoggerService} loggerService - Service for logging errors
-   * @since 4.3.6
-   */
-  constructor(
-    protected http: HttpClient,
-    protected occEndpoints: OccEndpointsService,
-    protected loggerService: LoggerService
-  ) {
-  }
+  protected http: HttpClient = inject(HttpClient);
+  protected occEndpoints: OccEndpointsService = inject(OccEndpointsService);
+  protected loggerService: LoggerService = inject(LoggerService);
 
   /**
    * Request Apple Pay Payment Request
@@ -60,14 +50,14 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
    * @param {string} userId - User ID
    * @param {string} cartId - Cart ID
    * @param {string} validationURL - Validation URL
-   * @returns {Observable<ValidateMerchant>} - Observable of Validate Merchant response
+   * @returns {Observable<ApplePayMerchantSession>} - Observable of Merchant Session
    * @since 4.3.6
    */
   validateApplePayMerchant(
     userId: string,
     cartId: string,
     validationURL: string
-  ): Observable<ValidateMerchant> {
+  ): Observable<ApplePayMerchantSession> {
     const body: { validationURL: string } = {
       validationURL
     };
@@ -81,7 +71,7 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
       }
     );
 
-    return this.http.post<ValidateMerchant>(url, body, {}).pipe(
+    return this.http.post<ApplePayMerchantSession>(url, body, {}).pipe(
       catchError((error: unknown): Observable<never> => throwError((): HttpErrorModel | Error => tryNormalizeHttpError(error, this.loggerService))),
     );
   }
@@ -94,18 +84,19 @@ export class OccWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
    *
    * @param {string} userId - User ID
    * @param {string} cartId - Cart ID
-   * @param {any} request - Authorization request payload
+   * @param {ApplePayPayment} request - Authorization request payload
    * @returns {Observable<ApplePayAuthorization>} - Observable of Apple Pay Authorization response
    * @since 4.3.6
    */
   authorizeApplePayPayment(
     userId: string,
     cartId: string,
-    request: any
+    request: ApplePayPayment
   ): Observable<ApplePayAuthorization> {
     const body: any = {
       ...request
     };
+
     const url: string = this.occEndpoints.buildUrl(
       'authorizeApplePayPayment',
       {

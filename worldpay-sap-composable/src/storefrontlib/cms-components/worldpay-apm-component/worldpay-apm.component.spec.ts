@@ -1,20 +1,22 @@
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-import { Component, DebugElement, EventEmitter, Input, Output } from '@angular/core';
+import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Address, I18nTestingModule, LoggerService, MockTranslatePipe } from '@spartacus/core';
-import { LaunchDialogService } from '@spartacus/storefront';
+import { I18nTestingModule, LoggerService, TranslatePipe } from '@spartacus/core';
+import { LaunchDialogService, SpinnerComponent } from '@spartacus/storefront';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
-  MockCxSpinnerComponent,
   MockLaunchDialogService,
   MockWorldpayAPMACHComponent,
+  MockWorldpayApmGooglepayComponent,
+  MockWorldpayApmIdealComponent,
+  MockWorldpayApmTileComponent,
+  MockWorldpayApplePayComponent,
   MockWorldpayBillingAddressComponent,
   MockWorldpayConnector
 } from 'worldpay-sap-composable-tests';
 import {
   ApmData,
-  ApmPaymentDetails,
   GooglePayMerchantConfiguration,
   PaymentMethod,
   WorldpayApmService,
@@ -25,44 +27,15 @@ import {
   WorldpayOrderService
 } from '../../../core';
 import { MockWorldpayApmSepaComponent } from '../../../tests/components/worldpay-apm-sepa.component.mock';
+import { WorldpayBillingAddressComponent } from '../worldpay-billing-address/worldpay-billing-address.component';
+import { WorldpayApmAchComponent } from './worldpay-apm-ach/worldpay-apm-ach.component';
+import { WorldpayApmGooglepayComponent } from './worldpay-apm-googlepay/worldpay-apm-googlepay.component';
+import { WorldpayApmIdealComponent } from './worldpay-apm-ideal/worldpay-apm-ideal.component';
+import { WorldpayApmSepaComponent } from './worldpay-apm-sepa/worldpay-apm-sepa.component';
 import { WorldpayApmSubmitButtonsComponent } from './worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
+import { WorldpayApmTileComponent } from './worldpay-apm-tile/worldpay-apm-tile.component';
 import { WorldpayApmComponent } from './worldpay-apm.component';
-
-@Component({
-  selector: 'y-worldpay-apm-googlepay',
-  template: '',
-  standalone: false
-})
-class MockWorldpayApmGooglepayComponent {
-  @Input() apm;
-}
-
-@Component({
-  selector: 'y-worldpay-apm-tile',
-  template: '',
-  standalone: false
-})
-class MockWorldpayApmTileComponent {
-  @Input() apm: ApmData;
-}
-
-@Component({
-  selector: 'y-worldpay-apm-ideal',
-  template: '',
-  standalone: false
-})
-class MockWorldpayApmIdealComponent {
-  @Input() apm: ApmData;
-  @Output() setPaymentDetails = new EventEmitter<{ paymentDetails: ApmPaymentDetails; billingAddress: Address }>();
-}
-
-@Component({
-  selector: 'worldpay-applepay',
-  template: '',
-  standalone: false
-})
-class MockWorldpayApplePayComponent {
-}
+import { WorldpayApplepayComponent } from './worldpay-applepay/worldpay-applepay.component';
 
 describe('WorldpayApmComponent', () => {
   let component: WorldpayApmComponent;
@@ -141,21 +114,12 @@ describe('WorldpayApmComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        CdkAccordionModule,
         I18nTestingModule,
-        CdkAccordionModule
-      ],
-      declarations: [
+        TranslatePipe,
+        SpinnerComponent,
         WorldpayApmComponent,
-        MockTranslatePipe,
-        MockWorldpayBillingAddressComponent,
-        MockWorldpayApmGooglepayComponent,
-        MockWorldpayApmTileComponent,
-        MockWorldpayApmIdealComponent,
-        MockCxSpinnerComponent,
-        MockWorldpayApplePayComponent,
-        MockWorldpayAPMACHComponent,
         WorldpayApmSubmitButtonsComponent,
-        MockWorldpayApmSepaComponent,
       ],
       providers: [
         {
@@ -185,6 +149,30 @@ describe('WorldpayApmComponent', () => {
         },
         LoggerService,
       ]
+    }).overrideComponent(WorldpayApmComponent, {
+      remove: {
+        imports: [
+          WorldpayBillingAddressComponent,
+          WorldpayApmGooglepayComponent,
+          WorldpayApmTileComponent,
+          WorldpayApmIdealComponent,
+          WorldpayApplepayComponent,
+          WorldpayApmAchComponent,
+          WorldpayApmSepaComponent
+        ]
+      },
+      add: {
+        imports: [
+          MockWorldpayBillingAddressComponent,
+          MockWorldpayApmGooglepayComponent,
+          MockWorldpayApmTileComponent,
+          MockWorldpayApmIdealComponent,
+          MockWorldpayApplePayComponent,
+          MockWorldpayAPMACHComponent,
+          WorldpayApmSubmitButtonsComponent,
+          MockWorldpayApmSepaComponent
+        ]
+      }
     }).compileComponents();
   });
 

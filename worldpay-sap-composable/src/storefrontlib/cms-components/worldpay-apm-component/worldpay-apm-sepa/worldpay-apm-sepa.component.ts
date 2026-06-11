@@ -1,13 +1,26 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { I18nModule } from '@spartacus/core';
+import { FormErrorsModule } from '@spartacus/storefront';
 import { ApmPaymentDetails } from '../../../../core';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 import { WorldpayApmBaseComponent } from '../worldpay-apm-base/worldpay-apm-base.component';
+import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 
 @Component({
   selector: 'y-worldpay-apm-sepa',
   templateUrl: './worldpay-apm-sepa.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    I18nModule,
+    FormErrorsModule,
+    NgSelectModule,
+    WorldpayBillingAddressComponent,
+    WorldpayApmSubmitButtonsComponent,
+  ]
 })
 export class WorldpayApmSepaComponent extends WorldpayApmBaseComponent {
   /**

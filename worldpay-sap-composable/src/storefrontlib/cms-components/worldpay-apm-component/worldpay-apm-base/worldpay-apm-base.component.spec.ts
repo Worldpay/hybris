@@ -11,8 +11,7 @@ import SpyObj = jasmine.SpyObj;
 
 @Component({
   selector: 'app-test-apm',
-  template: '',
-  standalone: false
+  template: ''
 })
 class TestApmComponent extends WorldpayApmBaseComponent {
 }
@@ -24,7 +23,7 @@ describe('WorldpayApmBaseComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TestApmComponent],
+      imports: [TestApmComponent],
       providers: [
         WorldpayBillingAddressFormService,
         {

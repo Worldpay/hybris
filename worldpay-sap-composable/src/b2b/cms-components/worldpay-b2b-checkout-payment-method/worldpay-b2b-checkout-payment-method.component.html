@@ -1,9 +1,8 @@
 <h2 class="cx-checkout-title d-none d-lg-block d-xl-block">
   {{ 'paymentForm.payment' | cxTranslate }}
 </h2>
-<ng-container *ngIf="cards$ | async as cards">
-  <ng-container *ngIf="(isUpdating$ | async) !== true else loading">
-
+@if (cards$ | async; as cards) {
+  @if ((isUpdating$ | async) !== true) {
     <y-worldpay-b2b-apm-component
       (back)="back()"
       (setPaymentDetails)="setApmPaymentDetails($event)"
@@ -13,18 +12,15 @@
     ></y-worldpay-b2b-apm-component>
 
     <ng-template #cardTemplate>
-      <ng-container *ngIf="isCardPayment">
-        <ng-container
-          *ngIf="
-            cards?.length && !newPaymentFormManuallyOpened;
-            then hasExistingPaymentMethods;
-            else newPaymentForm
-          "
-        >
-        </ng-container>
+      @if (isCardPayment) {
+        @if (cards?.length && !newPaymentFormManuallyOpened) {
+          <ng-container *ngTemplateOutlet="hasExistingPaymentMethods"></ng-container>
+        } @else {
+          <ng-container *ngTemplateOutlet="newPaymentForm"></ng-container>
+        }
 
         <ng-template #hasExistingPaymentMethods>
-          <ng-container *ngIf="cards?.length && !newPaymentFormManuallyOpened;else newPaymentForm">
+          @if (cards?.length && !newPaymentFormManuallyOpened) {
             <p class="cx-checkout-text">
               {{ 'paymentForm.choosePaymentMethod' | cxTranslate }}
             </p>
@@ -39,29 +35,31 @@
             </div>
 
             <div class="cx-checkout-body row">
-              <div
-                *ngFor="let card of cards; let i = index"
-                class="cx-payment-card col-md-12 col-lg-6"
-              >
+              @for (card of ($any(cards) ?? []); track $index; let i = $index) {
                 <div
-                  (click)="selectPaymentMethod(card.paymentMethod)"
-                  class="cx-payment-card-inner"
+                  class="cx-payment-card col-md-12 col-lg-6"
                 >
-                  <cx-card
-                    (sendCard)="selectPaymentMethod(card.paymentMethod)"
-                    [border]="true"
-                    [content]="card.content"
-                    [fitToContainer]="true"
-                    [index]="i"
-                  ></cx-card>
+                  <div
+                    (click)="selectPaymentMethod(card.paymentMethod)"
+                    class="cx-payment-card-inner"
+                  >
+                    <cx-card
+                      (sendCard)="selectPaymentMethod(card.paymentMethod)"
+                      [border]="true"
+                      [content]="card.content"
+                      [fitToContainer]="true"
+                      [index]="i"
+                    ></cx-card>
+                  </div>
                 </div>
-              </div>
+              }
             </div>
 
-            <ng-container *ngIf="(selectedPayment$ | async) as selectedPayment">
-              <div [formGroup]="cvnForm" *ngIf="selectedPayment?.id && !selectedPayment.isAPM">
-                <div class="form-group col-md-7 cVVNumber">
-                  <label>
+            @if ((selectedPayment$ | async); as selectedPayment) {
+              @if (selectedPayment?.id && !selectedPayment.isAPM) {
+                <div [formGroup]="cvnForm">
+                  <div class="form-group col-md-7 cVVNumber">
+                    <label>
                       <span class="label-content">
                         {{ 'paymentForm.securityCode' | cxTranslate }}
                         <cx-icon
@@ -72,18 +70,19 @@
                           title="{{ 'paymentForm.securityCodeTitle' | cxTranslate }}"
                         ></cx-icon>
                       </span>
-                    <input
-                      class="form-control"
-                      formControlName="cvn"
-                      id="cVVNumber"
-                      minlength="3"
-                      type="text"
-                    />
-                    <cx-form-errors [control]="cvnForm.get('cvn')"></cx-form-errors>
-                  </label>
+                      <input
+                        class="form-control"
+                        formControlName="cvn"
+                        id="cVVNumber"
+                        minlength="3"
+                        type="text"
+                      />
+                      <cx-form-errors [control]="cvnForm.get('cvn')"></cx-form-errors>
+                    </label>
+                  </div>
                 </div>
-              </div>
-            </ng-container>
+              }
+            }
 
             <div class="cx-checkout-btns cx-checkout-btns-bottom">
               <button
@@ -114,7 +113,9 @@
                 </button>
               </div>
             </div>
-          </ng-container>
+          } @else {
+            <ng-container *ngTemplateOutlet="newPaymentForm"></ng-container>
+          }
         </ng-template>
 
         <ng-template #newPaymentForm>
@@ -129,11 +130,12 @@
             [setAsDefaultField]="false"
           ></wp-payment-form>
         </ng-template>
-      </ng-container>
+      }
     </ng-template>
-
-  </ng-container>
-</ng-container>
+  } @else {
+    <ng-container *ngTemplateOutlet="loading"></ng-container>
+  }
+}
 
 <ng-template #loading>
   <div class="cx-spinner">

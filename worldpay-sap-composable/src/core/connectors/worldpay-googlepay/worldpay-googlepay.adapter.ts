@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Observable } from 'rxjs';
-import { GooglePayMerchantConfiguration, PlaceOrderResponse } from '../../interfaces';
+import { PlaceOrderResponse } from '../../interfaces';
+import { GooglePayMerchantConfiguration } from '../../models';
 
 export abstract class WorldpayGooglepayAdapter {
 

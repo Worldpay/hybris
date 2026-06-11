@@ -1,16 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2016 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
--->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -64,8 +52,8 @@
         <property name="progressBarId" value="deliveryAddress.noPickup"/>
     </bean>
 
-    <alias name="defaultWorldpayB2BDeliveryMethodCheckoutStep" alias="worldpayB2BDeliveryMethodCheckoutStep" />
-    <bean id="defaultWorldpayB2BDeliveryMethodCheckoutStep"  parent="checkoutStep">
+    <alias name="defaultWorldpayB2BDeliveryMethodCheckoutStep" alias="worldpayB2BDeliveryMethodCheckoutStep"/>
+    <bean id="defaultWorldpayB2BDeliveryMethodCheckoutStep" parent="checkoutStep">
         <property name="checkoutGroup" ref="worldpayB2BCheckoutGroup"/>
         <property name="checkoutStepValidator" ref="deliveryMethodCheckoutValidator"/>
         <property name="transitions">
@@ -78,7 +66,7 @@
         <property name="progressBarId" value="deliveryMethod"/>
     </bean>
 
-    <alias name="defaultWorldpayB2BPickupLocationCheckoutStep" alias="worldpayB2BPickupLocationCheckoutStep" />
+    <alias name="defaultWorldpayB2BPickupLocationCheckoutStep" alias="worldpayB2BPickupLocationCheckoutStep"/>
     <bean id="defaultWorldpayB2BPickupLocationCheckoutStep" parent="checkoutStep">
         <property name="checkoutGroup" ref="worldpayB2BCheckoutGroup"/>
         <property name="checkoutStepValidator" ref="defaultPickupCheckoutValidator"/>
@@ -107,7 +95,9 @@
     </bean>
 
     <alias name="defaultWorldpayB2BPaymentMethodCheckoutStep" alias="worldpayB2BPaymentMethodCheckoutStep"/>
-    <bean id="defaultWorldpayB2BPaymentMethodCheckoutStep" class="de.hybris.platform.b2bacceleratoraddon.checkout.steps.B2BPaymentMethodCheckoutStep" parent="checkoutStep">
+    <bean id="defaultWorldpayB2BPaymentMethodCheckoutStep"
+          class="de.hybris.platform.b2bacceleratoraddon.checkout.steps.B2BPaymentMethodCheckoutStep"
+          parent="checkoutStep">
         <property name="checkoutGroup" ref="worldpayB2BCheckoutGroup"/>
         <property name="checkoutStepValidator" ref="defaultPaymentMethodCheckoutValidator"/>
         <property name="checkoutFacade" ref="b2bCheckoutFacade"/>
@@ -140,7 +130,8 @@
     <!-- Default checkout group -->
 
     <alias name="defaultworldpayB2BCheckoutGroup" alias="worldpayB2BCheckoutGroup"/>
-    <bean id="defaultworldpayB2BCheckoutGroup" class="de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup">
+    <bean id="defaultworldpayB2BCheckoutGroup"
+          class="de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup">
         <property name="groupId" value="worldpayB2BCheckoutGroup"/>
         <property name="checkoutStepMap">
             <map merge="true">
@@ -178,7 +169,8 @@
     </bean>
 
     <!--Checkout GroupMap-->
-    <bean id="worldpayB2BCheckoutFlowGroupMapMergeDirective" depends-on="checkoutFlowGroupMap" parent="mapMergeDirective">
+    <bean id="worldpayB2BCheckoutFlowGroupMapMergeDirective" depends-on="checkoutFlowGroupMap"
+          parent="mapMergeDirective">
         <property name="key" value="worldpayB2BCheckoutGroup"/>
         <property name="value" ref="worldpayB2BCheckoutGroup"/>
     </bean>

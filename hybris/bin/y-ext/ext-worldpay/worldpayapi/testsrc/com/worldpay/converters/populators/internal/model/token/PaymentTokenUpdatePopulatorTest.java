@@ -83,7 +83,7 @@ public class PaymentTokenUpdatePopulatorTest {
         testObj.populate(sourceMock, target);
 
         assertThat(target.getTokenScope()).isEqualTo(SHOPPER);
-        assertThat(target.getAuthenticatedShopperID().getvalue()).isEqualTo(SHOPPER_ID);
+        assertThat(target.getAuthenticatedShopperID().getValue()).isEqualTo(SHOPPER_ID);
     }
 
     @Test
@@ -131,10 +131,10 @@ public class PaymentTokenUpdatePopulatorTest {
         testObj.populate(sourceMock, target);
 
         assertThat(target.getTokenScope()).isEqualTo(SHOPPER);
-        assertThat(target.getAuthenticatedShopperID().getvalue()).isEqualTo(SHOPPER_ID);
-        assertThat(target.getPaymentTokenID().getvalue()).isEqualTo(PAYMENT_TOKEN_ID);
+        assertThat(target.getAuthenticatedShopperID().getValue()).isEqualTo(SHOPPER_ID);
+        assertThat(target.getPaymentTokenID().getValue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(target.getTokenEventReference()).isEqualTo(TOKEN_EVENT_REFERENCE);
         assertThat(target.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0)).isEqualTo(intCardDetailsMock);
-        assertThat(target.getTokenReason().getvalue()).isEqualTo(TOKEN_REASON);
+        assertThat(target.getTokenReason().getValue()).isEqualTo(TOKEN_REASON);
     }
 }

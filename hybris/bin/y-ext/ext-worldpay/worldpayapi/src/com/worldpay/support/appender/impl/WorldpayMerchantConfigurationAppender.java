@@ -7,7 +7,7 @@ import com.worldpay.support.appender.WorldpaySupportEmailAppender;
 import java.util.Collection;
 import java.util.Set;
 
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * Implementation of {@see WorldpaySupportEmailAppender } to include the merchants configured

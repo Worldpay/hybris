@@ -2,8 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'y-worldpay-billing-address',
-  template: '',
-  standalone: false
+  template: ''
 })
 export class MockWorldpayBillingAddressComponent {
 }

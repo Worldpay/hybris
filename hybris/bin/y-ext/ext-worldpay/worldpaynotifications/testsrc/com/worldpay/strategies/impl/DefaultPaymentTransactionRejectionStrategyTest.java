@@ -30,7 +30,7 @@ public class DefaultPaymentTransactionRejectionStrategyTest {
     public static final String BUSINESS_PROCESS_CODE = "businessProcessCode";
 
     @InjectMocks
-    private DefaultPaymentTransactionRejectionStrategy testObj = new DefaultPaymentTransactionRejectionStrategy();
+    private DefaultPaymentTransactionRejectionStrategy testObj;
 
     @Mock
     private WorldpayPaymentTransactionService worldpayPaymentTransactionServiceMock;

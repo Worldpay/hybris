@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { select } from '@ngrx/store';
 import { ActiveCartFacade } from '@spartacus/cart/base/root';
 import {
   CheckoutDeliveryAddressCreatedEvent,
@@ -6,7 +7,18 @@ import {
   CheckoutPaymentDetailsCreatedEvent,
   CheckoutPaymentDetailsSetEvent
 } from '@spartacus/checkout/base/root';
-import { CurrencySetEvent, LoggerService, Query, QueryNotifier, QueryService, QueryState, tryNormalizeHttpError, UserActions, UserPaymentService } from '@spartacus/core';
+import {
+  CurrencySetEvent,
+  LoggerService,
+  Query,
+  QueryNotifier,
+  QueryService,
+  QueryState,
+  tryNormalizeHttpError,
+  UserActions,
+  UserPaymentService,
+  UsersSelectors
+} from '@spartacus/core';
 import { OrderPlacedEvent } from '@spartacus/order/root';
 import { combineLatest, Observable } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
@@ -34,9 +46,13 @@ export class WorldpayUserPaymentService extends UserPaymentService {
   protected loadAllPaymentMethodsQuery$: Query<ApmPaymentDetails[]> =
     this.queryService.create<ApmPaymentDetails[]>(
       (): Observable<ApmData[]> => this.checkoutPreconditions().pipe(
-        switchMap(([userId, cartId]: [string, string]): Observable<ApmPaymentDetails[]> =>
-          this.userPaymentMethodConnector.loadAllForCart(userId, cartId)
-        )
+        switchMap(([userId, cartId]: [string, string]): Observable<ApmPaymentDetails[]> => {
+          if (cartId && cartId !== '') {
+            return this.userPaymentMethodConnector.loadAllForCart(userId, cartId);
+          }
+          super.loadPaymentMethods();
+          return this.store.pipe(select(UsersSelectors.getPaymentMethods));
+        })
       ),
       {
         reloadOn: this.reloadSavedPaymentMethodsEvents(),
@@ -93,11 +109,11 @@ export class WorldpayUserPaymentService extends UserPaymentService {
   checkoutPreconditions(): Observable<[string, string]> {
     return combineLatest([
       this.userIdService.takeUserId(),
-      this.activeCartFacade.takeActiveCartId(),
+      this.activeCartFacade.getActiveCartId(),
     ]).pipe(
       take(1),
       map(([userId, cartId]: [string, string]): [string, string] => {
-        if (!userId || !cartId) {
+        if (!userId) {
           throw new Error('Checkout conditions not met');
         }
         return [userId, cartId];

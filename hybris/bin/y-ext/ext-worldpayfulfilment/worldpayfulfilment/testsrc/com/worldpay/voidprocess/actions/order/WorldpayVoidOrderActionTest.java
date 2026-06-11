@@ -15,7 +15,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.worldpay.voidprocess.model.WorldpayVoidProcessModel;
+import com.worldpay.model.WorldpayVoidProcessModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.payment.PaymentService;
@@ -32,7 +32,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class WorldpayVoidOrderActionTest {
 
     @InjectMocks
-    private WorldpayVoidOrderAction testObj = new WorldpayVoidOrderAction();
+    private WorldpayVoidOrderAction testObj;
     @Mock
     private WorldpayVoidProcessModel worldpayVoidProcessModelMock;
     @Mock

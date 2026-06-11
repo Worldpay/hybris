@@ -53,7 +53,7 @@ public class OrderInquiryResponseTransformer extends AbstractServiceResponseTran
             } else if (orderStatusElement instanceof Reference intReference) {
                 final RedirectReference reference = new RedirectReference();
                 reference.setId(intReference.getId());
-                reference.setValue(intReference.getvalue());
+                reference.setValue(intReference.getValue());
                 orderInquiryResponse.setReference(reference);
             }
         }

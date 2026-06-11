@@ -1,5 +1,16 @@
 package com.worldpay.service.payment.impl;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
+import static java.lang.String.valueOf;
+
 import com.worldpay.data.BranchSpecificExtension;
 import com.worldpay.data.Item;
 import com.worldpay.data.Purchase;
@@ -20,18 +31,6 @@ import de.hybris.platform.util.DiscountValue;
 import de.hybris.platform.util.TaxValue;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
-import static java.lang.String.valueOf;
-
 /**
  * Default implementation of {@link WorldpayLevel23Strategy}.
  */
@@ -45,9 +44,11 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
     protected final WorldpayOrderService worldpayOrderService;
     protected final WorldpayLevel23DataValidator worldpayLevel23DataValidator;
 
-    public DefaultWorldpayLevel23Strategy(final WorldpayMerchantStrategy worldpayMerchantStrategy,
-                                          final WorldpayOrderService worldpayOrderService,
-                                          final WorldpayLevel23DataValidator worldpayLevel23DataValidator) {
+    public DefaultWorldpayLevel23Strategy(
+            final WorldpayMerchantStrategy worldpayMerchantStrategy,
+            final WorldpayOrderService worldpayOrderService,
+            final WorldpayLevel23DataValidator worldpayLevel23DataValidator
+    ) {
         this.worldpayMerchantStrategy = worldpayMerchantStrategy;
         this.worldpayOrderService = worldpayOrderService;
         this.worldpayLevel23DataValidator = worldpayLevel23DataValidator;
@@ -57,9 +58,11 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
      * {@inheritDoc}
      */
     @Override
-    public void populateRequestWithAdditionalData(final AbstractOrderModel cart,
-                                                  final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
-                                                  final AuthoriseRequestParametersCreator authoriseRequestParametersCreator) {
+    public void populateRequestWithAdditionalData(
+            final AbstractOrderModel cart,
+            final WorldpayAdditionalInfoData worldpayAdditionalInfoData,
+            final AuthoriseRequestParametersCreator authoriseRequestParametersCreator
+    ) {
         if (isLevel3Enabled(cart) || isLevel2Enabled(cart)) {
             final BranchSpecificExtension level23Data = createLevel23Data(cart);
             if (worldpayLevel23DataValidator.isValidLevel3Data(level23Data.getPurchase()) || worldpayLevel23DataValidator.isValidLevel2Data(level23Data.getPurchase())) {
@@ -95,11 +98,12 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
         final LocalDateTime orderDate = Instant.ofEpochMilli(abstractOrder.getDate().getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
+
         purchase.setOrderDate(WorldpayInternalModelTransformerUtil.newDateFromLocalDateTime(orderDate));
 
         final List<Item> items = abstractOrder.getEntries().stream()
                 .map(orderEntry -> createItem(orderEntry, currency))
-                .collect(Collectors.toList());
+                .toList();
         purchase.setItem(items);
 
         final BranchSpecificExtension branchSpecificExtension = new BranchSpecificExtension();
@@ -140,7 +144,7 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
      */
     protected boolean isLevel2Enabled(final AbstractOrderModel abstractOrder) {
         return abstractOrder.getSite().getEnableLevel2()
-            && isBillingAddressUSorCA(abstractOrder);
+                && isBillingAddressUSorCA(abstractOrder);
     }
 
     /**
@@ -151,7 +155,7 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
      */
     protected boolean isLevel3Enabled(final AbstractOrderModel abstractOrder) {
         return abstractOrder.getSite().getEnableLevel3()
-            && isBillingAddressUSorCA(abstractOrder);
+                && isBillingAddressUSorCA(abstractOrder);
     }
 
     /**
@@ -161,7 +165,11 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
      * @param currency      the order currency
      * @param abstractOrder the order
      */
-    protected void setSalesTaxAndTaxExempt(final Purchase purchase, final CurrencyModel currency, final AbstractOrderModel abstractOrder) {
+    protected void setSalesTaxAndTaxExempt(
+            final Purchase purchase,
+            final CurrencyModel currency,
+            final AbstractOrderModel abstractOrder
+    ) {
         final Double totalTax = abstractOrder.getTotalTax();
         purchase.setSalesTax(worldpayOrderService.createAmount(currency, totalTax));
         purchase.setTaxExempt(BigDecimal.ZERO.compareTo(BigDecimal.valueOf(totalTax)) == 0);
@@ -186,7 +194,7 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
 
         final Double totalPriceWithTax = orderEntry.getTotalPrice();
         item.setItemTotalWithTax(worldpayOrderService.createAmount(currency, totalPriceWithTax));
-        final Double appliedTax = getAppliedTaxValue(orderEntry);
+        final double appliedTax = getAppliedTaxValue(orderEntry);
         item.setTaxAmount(worldpayOrderService.createAmount(currency, appliedTax));
         item.setItemTotal(worldpayOrderService.createAmount(currency, totalPriceWithTax - appliedTax));
         item.setItemDiscountAmount(worldpayOrderService.createAmount(currency, getDiscountValue(orderEntry)));
@@ -217,8 +225,8 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
      */
     protected Double getDiscountValue(final AbstractOrderEntryModel orderEntry) {
         return orderEntry.getDiscountValues().stream()
-            .map(DiscountValue::getAppliedValue)
-            .reduce(0d, Double::sum);
+                .map(DiscountValue::getAppliedValue)
+                .reduce(0d, Double::sum);
     }
 
     /**
@@ -229,7 +237,7 @@ public class DefaultWorldpayLevel23Strategy extends AbstractWorldpayLevel23Strat
      */
     protected double getAppliedTaxValue(final AbstractOrderEntryModel orderEntry) {
         return orderEntry.getTaxValues().stream()
-            .map(TaxValue::getAppliedValue)
-            .reduce(0d, Double::sum);
+                .map(TaxValue::getAppliedValue)
+                .reduce(0d, Double::sum);
     }
 }

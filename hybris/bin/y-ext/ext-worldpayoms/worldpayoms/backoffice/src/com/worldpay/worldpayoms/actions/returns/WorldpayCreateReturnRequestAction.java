@@ -9,10 +9,10 @@ import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.returns.ReturnService;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static com.hybris.cockpitng.actions.ActionResult.SUCCESS;
 import static com.hybris.cockpitng.actions.ActionResult.StatusFlag.OBJECT_PERSISTED;
@@ -21,7 +21,7 @@ import static de.hybris.platform.basecommerce.enums.ConsignmentStatus.SHIPPED;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 /**
  * Back Office action for performing Order returns

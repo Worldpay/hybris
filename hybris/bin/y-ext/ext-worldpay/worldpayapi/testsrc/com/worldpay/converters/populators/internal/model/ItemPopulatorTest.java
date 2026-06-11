@@ -131,7 +131,7 @@ public class ItemPopulatorTest {
         assertThat(target.getCommodityCode()).isEqualTo(COMMODITY_CODE);
         assertThat(target.getQuantity()).isEqualTo(QUANTITY);
         assertThat(target.getUnitOfMeasure()).isEqualTo(UNIT_OF_MEASURE);
-        assertThat(target.getDescription().getvalue()).isEqualTo(DESCRIPTION);
+        assertThat(target.getDescription().getValue()).isEqualTo(DESCRIPTION);
         assertThat(target.getUnitCost().getAmount()).isEqualTo(intUnitCostMock);
         assertThat(target.getItemTotal().getAmount()).isEqualTo(intItemTotalMock);
         assertThat(target.getItemTotalWithTax().getAmount()).isEqualTo(intItemTotalWithTaxMock);

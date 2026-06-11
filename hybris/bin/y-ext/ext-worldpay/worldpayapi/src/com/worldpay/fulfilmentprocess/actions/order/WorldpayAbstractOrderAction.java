@@ -5,7 +5,6 @@ import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.processengine.action.AbstractAction;
 import de.hybris.platform.servicelayer.time.TimeService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * The Worldpay Abstract Order Action. Can create order history logs.
@@ -36,7 +35,6 @@ public abstract class WorldpayAbstractOrderAction<T extends OrderProcessModel> e
         return timeService;
     }
 
-    @Required
     public void setTimeService(final TimeService timeService) {
         this.timeService = timeService;
     }

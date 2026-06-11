@@ -1,5 +1,7 @@
 package com.worldpay.core.services.impl;
 
+import java.util.List;
+
 import com.worldpay.core.dao.WorldpayAPMComponentDao;
 import com.worldpay.core.services.WorldpayAPMComponentService;
 import com.worldpay.model.WorldpayAPMComponentModel;
@@ -8,9 +10,6 @@ import de.hybris.platform.catalog.CatalogVersionService;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.exceptions.AmbiguousIdentifierException;
 import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -40,7 +39,7 @@ public class DefaultWorldpayAPMComponentService implements WorldpayAPMComponentS
         return worldpayAPMComponentDao.findAllApmComponents(catalogVersionService.getSessionCatalogVersions()).stream()
             .filter(worldpayAPMComponentModel -> worldpayAPMComponentModel.getApmConfiguration() != null)
             .filter(worldpayAPMComponentModel -> apmAvailabilityService.isAvailable(worldpayAPMComponentModel.getApmConfiguration(), cartService.getSessionCart()))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**

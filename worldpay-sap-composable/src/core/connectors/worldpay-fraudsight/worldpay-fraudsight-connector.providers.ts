@@ -1,7 +1,7 @@
 import { Provider } from '@angular/core';
 import { WorldpayFraudsightConnector } from './worldpay-fraudsight.connector';
 
-export const worldpayFraudsightConnectorProvider: Provider[] = [
+export const worldpayFraudsightConnectorProviders: Provider[] = [
   WorldpayFraudsightConnector,
 ];
 

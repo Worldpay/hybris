@@ -1,5 +1,12 @@
 package com.worldpay.worldpayaddonbackoffice.renderers;
 
+import java.util.List;
+
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.hybris.cockpitng.core.config.impl.jaxb.listview.ListColumn;
 import com.hybris.cockpitng.dataaccess.facades.type.DataType;
 import com.hybris.cockpitng.engine.WidgetInstanceManager;
@@ -8,24 +15,22 @@ import com.worldpay.model.WorldpayAavResponseModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.omsbackoffice.renderers.NestedAttributeUtils;
 import de.hybris.platform.payment.model.PaymentTransactionEntryModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.zkoss.zul.Listcell;
 
-import static org.mockito.Mockito.*;
-
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorldpayNullSafeCellRendererTest {
 
     private static final String QUALIFIER = "aavResponse.aavAddressResultCode";
 
     @InjectMocks
-    private final WorldpayNullSafeCellRenderer testObj = new WorldpayNullSafeCellRenderer();
+    private WorldpayNullSafeCellRenderer testObj;
     @Mock
     private WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer;
     @Mock
@@ -36,17 +41,18 @@ public class WorldpayNullSafeCellRendererTest {
     private ListColumn columnConfigurationMock;
     @Mock
     private DataType dataTypeMock;
+    @Mock
+    private NestedAttributeUtils nestedAttributeUtilsMock;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(columnConfigurationMock.getQualifier()).thenReturn(QUALIFIER);
-
-        testObj.setNestedAttributeUtils(new NestedAttributeUtils());
     }
 
     @Test
     public void render_ShouldNotRender_WhenAavResponseIsNull() {
         final PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
+        when(nestedAttributeUtilsMock.splitQualifier(anyString())).thenReturn(List.of("String"));
 
         testObj.render(listCellMock, columnConfigurationMock, paymentTransactionEntryModel, dataTypeMock, widgetInstanceManagerMock);
 
@@ -55,6 +61,8 @@ public class WorldpayNullSafeCellRendererTest {
 
     @Test
     public void render_ShouldNotRender_WhenAavAddressResultCodeIsNull() {
+        when(nestedAttributeUtilsMock.splitQualifier(anyString())).thenReturn(List.of("String"));
+
         final PaymentTransactionEntryModel paymentTransactionEntryModel = new PaymentTransactionEntryModel();
         final WorldpayAavResponseModel worldpayAavResponseModel = new WorldpayAavResponseModel();
         paymentTransactionEntryModel.setAavResponse(worldpayAavResponseModel);

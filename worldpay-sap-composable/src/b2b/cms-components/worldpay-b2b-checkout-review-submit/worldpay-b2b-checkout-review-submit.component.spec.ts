@@ -6,7 +6,7 @@ import { ActiveCartFacade, Cart, DeliveryMode, OrderEntry, PaymentType, } from '
 import { CheckoutCostCenterFacade, CheckoutPaymentTypeFacade, } from '@spartacus/checkout/b2b/root';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutDeliveryAddressFacade, CheckoutDeliveryModesFacade, CheckoutStep, CheckoutStepType, } from '@spartacus/checkout/base/root';
-import { Address, CostCenter, Country, I18nTestingModule, PaymentDetails, QueryState, UserCostCenterService, } from '@spartacus/core';
+import { Address, CostCenter, Country, I18nTestingModule, PaymentDetails, QueryState, UrlPipe, UserCostCenterService, } from '@spartacus/core';
 import { CardComponent, IconTestingModule, OutletModule, PromotionsModule } from '@spartacus/storefront';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { MockActivatedRoute } from 'worldpay-sap-composable-tests';
@@ -206,10 +206,7 @@ class MockUserCostCenterService implements Partial<UserCostCenterService> {
   }
 }
 
-@Pipe({
-  name: 'cxUrl',
-  standalone: false
-})
+@Pipe({ name: 'cxUrl' })
 export class MockUrlPipe implements PipeTransform {
   transform(route: any): any {
     if (route?.cxRoute) {
@@ -234,11 +231,8 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
         IconTestingModule,
         OutletModule,
         RouterLink,
-      ],
-      declarations: [
-        WorldpayB2BCheckoutReviewSubmitComponent,
         CardComponent,
-        MockUrlPipe,
+        WorldpayB2BCheckoutReviewSubmitComponent,
       ],
       providers: [
         {
@@ -278,6 +272,13 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
           useClass: MockActivatedRoute
         },
       ],
+    }).overrideComponent(WorldpayB2BCheckoutReviewSubmitComponent, {
+      remove: {
+        imports: [ UrlPipe]
+      },
+      add: {
+        imports: [ MockUrlPipe]
+      }
     }).compileComponents();
   }));
 
@@ -421,7 +422,7 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
   });
 
   it('should return a payment card with payment details when apmCode is not provided', (done) => {
-    const paymentDetails = {
+    const paymentDetails: WorldpayApmPaymentInfo = {
       accountHolderName: 'John Doe',
       cardNumber: '1234',
       expiryMonth: '12',
@@ -517,7 +518,6 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(purchaseOrderNumberCard).toBeTruthy();
       expect(title.nativeElement.textContent).toContain('checkoutB2B.review.poNumber');
       expect(cardLabelBold.nativeElement.textContent).toContain('test-po');
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-address');
     });
 
@@ -532,7 +532,6 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(paymentTypeCard).toBeTruthy();
       expect(title.nativeElement.textContent).toContain('checkoutB2B.progress.methodOfPayment');
       expect(cardLabelBold.nativeElement.textContent).toContain('paymentTypes.paymentType_Card');
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-address');
     });
 
@@ -558,7 +557,6 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(paymentTypeCard).toBeTruthy();
       expect(title.nativeElement.textContent).toContain('checkoutB2B.progress.methodOfPayment');
       expect(cardLabelBold.nativeElement.textContent).toContain(mockApmDetails.apmName);
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-address');
     });
 
@@ -580,7 +578,6 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(costCenterCard).toBeTruthy();
       expect(title.nativeElement.textContent).toContain('checkoutB2B.costCenter');
       expect(cardLabelBold.nativeElement.textContent).toContain('test-cc-name');
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-address');
     });
 
@@ -606,13 +603,11 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(deliveryAddressCard).toBeTruthy();
       expect(title.nativeElement.textContent).toContain('addressCard.shipTo');
       expect(cardLabelBold.nativeElement.textContent).toContain(`${mockAddress.firstName} ${mockAddress.lastName}`);
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-address');
       expect(line1.nativeElement.textContent).toContain(mockAddress.line1);
       expect(line2.nativeElement.textContent).toContain(mockAddress.line2);
       expect(line3.nativeElement.textContent).toContain(`${mockAddress.town}, ${mockAddress.region?.isocode}, ${mockAddress.country?.name}`);
       expect(line4.nativeElement.textContent).toContain(mockAddress.postalCode);
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-address');
     });
 
@@ -639,7 +634,6 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(cardLabelBold.nativeElement.textContent).toContain(mockDeliveryMode.name);
       expect(line1.nativeElement.textContent).toContain(mockDeliveryMode.description);
       expect(line2.nativeElement.textContent).toContain('');
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/delivery-mode');
     });
 
@@ -668,8 +662,269 @@ describe('WorldpayB2BCheckoutReviewSubmitComponent', () => {
       expect(cardLabelBold).toBeNull();
       expect(line1.nativeElement.textContent).toContain('paymentCard.expires month:01 year:2022');
       expect(line2.nativeElement.textContent).toContain('undefined undefined');
-      expect(link.nativeElement.textContent).toContain('PENCIL');
       expect(link.nativeElement.getAttribute('href')).toContain('/payment-details');
+    });
+  });
+
+  describe('getPaymentDetailsLineTranslation', () => {
+    it('should return payment card expires translation when expiryYear is provided', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '12',
+        expiryYear: '2030',
+        name: 'Visa',
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.expires month:12 year:2030');
+        done();
+      });
+    });
+
+    it('should return payment card apm translation when expiryYear is not provided', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: 'PayPal',
+        apmCode: PaymentMethod.PayPal,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.apm apm:PayPal');
+        done();
+      });
+    });
+
+    it('should use expiryMonth and expiryYear when expiryYear exists', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '01',
+        expiryYear: '2025',
+        name: 'MasterCard',
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.expires month:01 year:2025');
+        done();
+      });
+    });
+
+    it('should use payment name for apm translation when expiryYear is not provided', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: 'Google Pay',
+        apmCode: PaymentMethod.GooglePay,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.apm apm:Google Pay');
+        done();
+      });
+    });
+
+    it('should handle null expiryYear', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '12',
+        expiryYear: null,
+        name: 'ACH',
+        apmCode: PaymentMethod.ACH,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.apm apm:ACH');
+        done();
+      });
+    });
+
+    it('should handle undefined expiryYear', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '06',
+        expiryYear: undefined,
+        name: 'Apple Pay',
+        apmCode: PaymentMethod.ApplePay,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.apm apm:Apple Pay');
+        done();
+      });
+    });
+
+    it('should handle empty string expiryYear', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '03',
+        expiryYear: '',
+        name: 'Directdebit',
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.apm apm:Directdebit');
+        done();
+      });
+    });
+
+    it('should pass correct parameters to translate service for payment card', (done) => {
+      spyOn(component['translationService'], 'translate').and.callThrough();
+
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '05',
+        expiryYear: '2028',
+        name: 'Amex',
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe(() => {
+        expect(component['translationService'].translate).toHaveBeenCalledWith(
+          'paymentCard.expires',
+          {
+            month: '05',
+            year: '2028',
+          }
+        );
+        done();
+      });
+    });
+
+    it('should pass correct parameters to translate service for apm', (done) => {
+      spyOn(component['translationService'], 'translate').and.callThrough();
+
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: 'SEPA',
+        apmCode: PaymentMethod.SEPA,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe(() => {
+        expect(component['translationService'].translate).toHaveBeenCalledWith(
+          'paymentCard.apm',
+          { apm: 'SEPA' }
+        );
+        done();
+      });
+    });
+
+    it('should return observable for payment card expires', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '11',
+        expiryYear: '2027',
+        name: 'Visa',
+      };
+
+      const result = component.getPaymentDetailsLineTranslation(paymentDetails);
+
+      expect(result instanceof Observable).toBeTrue();
+      result.subscribe((translation) => {
+        expect(typeof translation).toBe('string');
+        done();
+      });
+    });
+
+    it('should return observable for payment card apm', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: 'iDEAL',
+        apmCode: PaymentMethod.iDeal,
+      };
+
+      const result = component.getPaymentDetailsLineTranslation(paymentDetails);
+
+      expect(result instanceof Observable).toBeTrue();
+      result.subscribe((translation) => {
+        expect(typeof translation).toBe('string');
+        done();
+      });
+    });
+
+    it('should handle zero month and year values', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '00',
+        expiryYear: '0000',
+        name: 'Test Card',
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.expires month:00 year:0000');
+        done();
+      });
+    });
+
+    it('should handle special characters in payment name', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: 'PayPal (Test Account)',
+        apmCode: PaymentMethod.PayPal,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.apm apm:PayPal (Test Account)');
+        done();
+      });
+    });
+
+    it('should prioritize expiryYear check over apmCode when both are present', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '08',
+        expiryYear: '2026',
+        name: 'Credit Card',
+        apmCode: PaymentMethod.PayPal,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.expires month:08 year:2026');
+        done();
+      });
+    });
+
+    it('should handle very long payment names', (done) => {
+      const longName = 'A'.repeat(100);
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: longName,
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toContain(longName);
+        done();
+      });
+    });
+
+    it('should handle numeric string months and years', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '02',
+        expiryYear: '2099',
+        name: 'Visa',
+      };
+
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe((translation) => {
+        expect(translation).toEqual('paymentCard.expires month:02 year:2099');
+        done();
+      });
+    });
+
+    it('should complete observable after emitting translation for card', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        expiryMonth: '04',
+        expiryYear: '2024',
+        name: 'Mastercard',
+      };
+
+      let emitted = false;
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe({
+        next: () => {
+          emitted = true;
+        },
+        complete: () => {
+          expect(emitted).toBeTrue();
+          done();
+        }
+      });
+    });
+
+    it('should complete observable after emitting translation for apm', (done) => {
+      const paymentDetails: WorldpayApmPaymentInfo = {
+        name: 'Alipay',
+      };
+
+      let emitted = false;
+      component.getPaymentDetailsLineTranslation(paymentDetails).subscribe({
+        next: () => {
+          emitted = true;
+        },
+        complete: () => {
+          expect(emitted).toBeTrue();
+          done();
+        }
+      });
     });
   });
 });

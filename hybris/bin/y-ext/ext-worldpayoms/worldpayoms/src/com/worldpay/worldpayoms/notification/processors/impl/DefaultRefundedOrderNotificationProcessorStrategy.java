@@ -4,7 +4,7 @@ import com.worldpay.notification.processors.OrderNotificationProcessorStrategy;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
+
 import org.springframework.transaction.support.TransactionOperations;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
@@ -38,12 +38,12 @@ public class DefaultRefundedOrderNotificationProcessorStrategy implements OrderN
                 });
     }
 
-    @Required
+
     public void setModelService(ModelService modelService) {
         this.modelService = modelService;
     }
 
-    @Required
+
     public void setTransactionTemplate(TransactionOperations transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
     }

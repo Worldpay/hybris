@@ -131,18 +131,17 @@ export const generateBillingFromAddress = (address: Address): Address => {
     'postalCode'
   ];
 
-  const form: Partial<Address> = fields.reduce((acc, key) => {
+  return fields.reduce((acc: Partial<Address>, key: string): Partial<Address> => {
     if (key === 'region' && region) {
       acc[key] = region; // Assign modified region object
     } else if (key === 'country' && region) {
       acc[key] = country;
-    } else if (address[key] !== undefined) {
-      acc[key] = address[key]; // Copy other values
+    } else if (address[key as keyof Address] !== undefined) {
+      // @ts-ignore
+      acc[key] = address[key as keyof Address]; // Copy other values
     }
     return acc;
   }, {} as Partial<Address>);
-
-  return form;
 };
 
 

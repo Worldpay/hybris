@@ -9,7 +9,7 @@ About Worldpay: Worldpay (formerly RBS WorldPay) is a payment processing company
 The extension is crafted for SAP Commerce Cloud as well previous versions of what was formerly called Hybris.
 
 ### Release Information
-This release is tailored for SAP Commerce Cloud 2211. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
+This release is tailored for SAP Commerce Cloud 2211 jdk21. It is advised to use the latest release available in Github to get the benefits of newest development made to this extension.
 
 # Installation and Usage
 
@@ -17,13 +17,11 @@ This release is tailored for SAP Commerce Cloud 2211. It is advised to use the l
 
 The AddOn provides three gradle recipes to be used with the hybris installer.
 
-1. *wp_b2c_acc* with fulfilment functionality for both accelerator storefront and OCC.
+1. *wp_b2c_acc_oms* with OMS functionality for both accelerator storefront and OCC.
 
-2. *wp_b2c_acc_oms* with OMS functionality for both accelerator storefront and OCC.
+2. *wp_b2c_acc_occ* with fulfilment functionality for b2c accelerator storefront and extra porperties for Spartacus.
 
-3. *wp_b2b_acc* with fulfilment functionality for b2b accelerator storefront.
-
-4. *wp_b2c_acc_occ* with fulfilment functionality for b2c accelerator storefront and extra porperties for Spartacus.
+3. *wp_b2b_acc_occ* with fulfilment functionality for b2b accelerator storefront and extra porperties for Spartacus.
 
 The recipes are based on the *b2c_acc*, *b2c_acc_oms* and *b2b_acc* recipes provided by hybris.
 
@@ -40,4 +38,4 @@ In order to install the AddOn using one of the recipes, run the following comman
 ## RELEASE NOTES
 
 ### Features:
-- Updated SAP Commerce version to 2211.43
+- Updated SAP Commerce version to 2211-jdk21.11

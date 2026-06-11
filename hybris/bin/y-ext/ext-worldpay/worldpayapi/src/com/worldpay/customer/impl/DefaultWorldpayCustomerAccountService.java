@@ -12,7 +12,7 @@ import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.core.model.user.CustomerModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
 
@@ -73,12 +73,10 @@ public class DefaultWorldpayCustomerAccountService extends DefaultCustomerAccoun
         }
     }
 
-    @Required
     public void setWorldpayDirectOrderService(final WorldpayDirectOrderService worldpayDirectOrderService) {
         this.worldpayDirectOrderService = worldpayDirectOrderService;
     }
 
-    @Required
     public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
         this.worldpayMerchantInfoService = worldpayMerchantInfoService;
     }

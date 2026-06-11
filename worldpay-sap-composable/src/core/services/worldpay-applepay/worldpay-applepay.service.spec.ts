@@ -7,7 +7,7 @@ import { of, throwError } from 'rxjs';
 import { mockUserId, MockUserIdService } from 'worldpay-sap-composable-tests';
 import { WorldpayApplepayAdapter, WorldpayApplepayConnector } from '../../connectors';
 import { ApplePayAuthorizePaymentEvent, ApplePayMerchantSessionEvent, RequestApplePayPaymentRequestEvent } from '../../events';
-import { ApplePayPaymentRequest } from '../../interfaces';
+import { ApplePayMerchantSession, ApplePayPaymentRequest } from '../../models';
 
 import { WorldpayApplepayService } from './worldpay-applepay.service';
 
@@ -36,6 +36,31 @@ class MockWorldpayApplepayConnector implements Partial<WorldpayApplepayConnector
     return of({ order: { code: '0001' } });
   }
 }
+
+const sessionMockData: any = {
+  onvalidatemerchant: null,
+  onpaymentauthorized: null,
+  onerror: null,
+  oncancel: null,
+  begin: jasmine.createSpy()
+};
+
+const sessionMock = class {
+  onvalidatemerchant: any = null;
+  onpaymentauthorized: any = null;
+  onerror: any = null;
+  oncancel: any = null;
+
+  constructor() {
+  }
+
+  begin() {
+  }
+};
+
+const mockMerchantSession: ApplePayMerchantSession = {
+  merchantSessionIdentifier: 'testMerchantIdentifier',
+};
 
 describe('WorldpayApplepayService', () => {
   let service: WorldpayApplepayService;
@@ -162,9 +187,7 @@ describe('WorldpayApplepayService', () => {
         merchantSession: {
           merchantIdentifier: 'testMerchantIdentifier'
         }
-      },
-      ApplePayMerchantSessionEvent
-      );
+      }, ApplePayMerchantSessionEvent);
       service.merchantSession$.subscribe(response => merchantSession = response);
       expect(merchantSession).toEqual({ merchantIdentifier: 'testMerchantIdentifier' });
     });
@@ -175,7 +198,15 @@ describe('WorldpayApplepayService', () => {
       let paymentAuthorization = null;
       const event = {
         payment: {
-          something: 'test'
+          token: {
+            transactionIdentifier: '100',
+            paymentMethod: {
+              displayName: 'Payment Method',
+            }
+          },
+          shippingContact: {
+            familyName: 'Shipping Contact',
+          }
         }
       };
       // @ts-ignore
@@ -188,9 +219,7 @@ describe('WorldpayApplepayService', () => {
             code: '0001'
           }
         }
-      },
-      ApplePayAuthorizePaymentEvent
-      );
+      }, ApplePayAuthorizePaymentEvent);
       service.paymentAuthorization$.subscribe(response => paymentAuthorization = response);
       expect(paymentAuthorization).toEqual({
         order: {
@@ -328,6 +357,296 @@ describe('WorldpayApplepayService', () => {
       session.oncancel();
       expect(service['onPaymentError']).toHaveBeenCalled();
     });
+
+    it('should create an Apple Pay session with correct version and payment request', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+      const mockSession: any = {
+        onvalidatemerchant: null,
+        onpaymentauthorized: null,
+        onerror: null,
+        oncancel: null,
+        begin: jasmine.createSpy('begin')
+      };
+      spyOn(service, 'createSession').and.returnValue(mockSession);
+
+      const session = service.createSession(paymentRequest);
+
+      expect(service.createSession).toHaveBeenCalledWith(paymentRequest);
+      expect(session).toBeDefined();
+    });
+
+    it('should set onvalidatemerchant handler to onValidateMerchant method', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+      spyOn(service, 'onValidateMerchant');
+      service.AppleSession = sessionMock;
+
+      service.createSession(paymentRequest);
+
+      expect(service.onValidateMerchant).not.toHaveBeenCalled();
+    });
+
+    it('should set onpaymentauthorized handler to onPaymentAuthorized method', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+      spyOn(service, 'onPaymentAuthorized');
+
+      service.AppleSession = sessionMock;
+
+      service.createSession(paymentRequest);
+
+      expect(service.onPaymentAuthorized).not.toHaveBeenCalled();
+    });
+
+    it('should set onerror handler to onPaymentError method', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+      spyOn(service, 'onPaymentError');
+
+      service.AppleSession = sessionMock;
+
+      service.createSession(paymentRequest);
+
+      expect(service.onPaymentError).not.toHaveBeenCalled();
+    });
+
+    it('should set oncancel handler to onPaymentError method', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+      spyOn(service, 'onPaymentError');
+
+      service.AppleSession = sessionMock;
+
+      service.createSession(paymentRequest);
+
+      expect(service.onPaymentError).not.toHaveBeenCalled();
+    });
+
+    it('should call begin method on the session', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+      const mockBegin = jasmine.createSpy('begin');
+
+      service.AppleSession = jasmine.createSpy().and.returnValue({
+        ...sessionMock,
+        begin: mockBegin
+      });
+
+      service.createSession(paymentRequest);
+
+      expect(mockBegin).toHaveBeenCalled();
+    });
+
+    it('should return the created session', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      service.AppleSession = sessionMock;
+
+      const session = service.createSession(paymentRequest);
+
+      expect(session).toBeTruthy();
+      expect(session.onvalidatemerchant).toBeDefined();
+      expect(session.onpaymentauthorized).toBeDefined();
+      expect(session.onerror).toBeDefined();
+      expect(session.oncancel).toBeDefined();
+    });
+
+    it('should pass version 5 to AppleSession constructor', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      let capturedVersion: number;
+      service.AppleSession = class {
+        constructor(version: number) {
+          capturedVersion = version;
+        }
+
+        begin() {
+        }
+      };
+
+      service.createSession(paymentRequest);
+
+      expect(capturedVersion).toEqual(5);
+    });
+
+    it('should pass payment request to AppleSession constructor', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      let capturedPaymentRequest: any;
+      service.AppleSession = class {
+        constructor(version: number, req: any) {
+          capturedPaymentRequest = req;
+        }
+
+        begin() {
+        }
+      };
+
+      service.createSession(paymentRequest);
+
+      expect(capturedPaymentRequest).toEqual(paymentRequest);
+    });
+
+    it('should bind onvalidatemerchant handler to service context', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      service.AppleSession = sessionMock;
+      const session = service.createSession(paymentRequest);
+
+      expect(session.onvalidatemerchant).toBeTruthy();
+      expect(typeof session.onvalidatemerchant).toBe('function');
+    });
+
+    it('should bind onpaymentauthorized handler to service context', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      service.AppleSession = sessionMock;
+
+      const session = service.createSession(paymentRequest);
+
+      expect(session.onpaymentauthorized).toBeTruthy();
+      expect(typeof session.onpaymentauthorized).toBe('function');
+    });
+
+    it('should bind onerror handler to service context', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      service.AppleSession = sessionMock;
+
+      const session = service.createSession(paymentRequest);
+
+      expect(session.onerror).toBeTruthy();
+      expect(typeof session.onerror).toBe('function');
+    });
+
+    it('should bind oncancel handler to service context', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      service.AppleSession = sessionMock;
+
+      const session = service.createSession(paymentRequest);
+
+      expect(session.oncancel).toBeTruthy();
+      expect(typeof session.oncancel).toBe('function');
+    });
+
+    it('should handle session creation with all payment request properties', () => {
+      const paymentRequest = {
+        currencyCode: 'EUR',
+        countryCode: 'DE',
+        total: {
+          label: 'Total',
+          amount: '100.00',
+        },
+        lineItems: [{
+          label: 'Item',
+          amount: '100.00'
+        }]
+      };
+
+      service.AppleSession = sessionMock;
+
+      const session = service.createSession(paymentRequest);
+
+      expect(session).toBeDefined();
+    });
+
+    it('should create session when AppleSession constructor throws error', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      service.AppleSession = class {
+        constructor() {
+          throw new Error('AppleSession not available');
+        }
+      };
+
+      expect(() => service.createSession(paymentRequest)).toThrow();
+    });
+
+    it('should set all event handlers before calling begin', () => {
+      const paymentRequest: ApplePayPaymentRequest = {
+        currencyCode: 'USD',
+        countryCode: 'US'
+      };
+
+      let handlersSetBeforeBegin = false;
+      service.AppleSession = jasmine.createSpy().and.returnValue({
+        ...sessionMock,
+        begin() {
+          handlersSetBeforeBegin = this.onvalidatemerchant !== null &&
+                                   this.onpaymentauthorized !== null &&
+                                   this.onerror !== null &&
+                                   this.oncancel !== null;
+        }
+      });
+
+      service.createSession(paymentRequest);
+
+      expect(handlersSetBeforeBegin).toBeTrue();
+    });
+
+    it('should create session with null payment request', () => {
+      const paymentRequest: ApplePayPaymentRequest = null;
+      service.AppleSession = sessionMock;
+      const session = service.createSession(paymentRequest);
+
+      expect(session).toBeDefined();
+    });
+
+    it('should register apple pay callbacks', () => {
+      service.AppleSession = jasmine.createSpy().and.returnValue(sessionMockData);
+      service.createSession({} as ApplePayPaymentRequest);
+      expect(sessionMockData.onvalidatemerchant).toEqual(jasmine.any(Function));
+      expect(sessionMockData.onpaymentauthorized).toEqual(jasmine.any(Function));
+      expect(sessionMockData.onerror).toEqual(jasmine.any(Function));
+      expect(sessionMockData.oncancel).toEqual(jasmine.any(Function));
+    });
+
+    it('should create session with undefined payment request', () => {
+      const paymentRequest: ApplePayPaymentRequest = undefined;
+
+      service.AppleSession = sessionMock;
+      const session = service.createSession(paymentRequest);
+
+      expect(session).toBeDefined();
+    });
   });
 
   describe('checkoutPreconditions', () => {
@@ -385,7 +704,6 @@ describe('WorldpayApplepayService', () => {
 
   describe('getMerchantSessionFromState', () => {
     it('should return the merchant session from state', () => {
-      const mockMerchantSession = { merchantIdentifier: 'testMerchantIdentifier' };
       service.merchantSession$.next(mockMerchantSession);
 
       let merchantSession;
@@ -447,6 +765,235 @@ describe('WorldpayApplepayService', () => {
 
       expect(service['onPaymentError']).toHaveBeenCalled();
       expect(logger.error).toHaveBeenCalledWith('Applepay payment Error', mockError);
+    });
+  });
+
+  describe('setMerchantSession', () => {
+    it('should set merchant session with valid payment request', () => {
+      service.setMerchantSession(mockMerchantSession);
+
+      let merchantSession;
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+
+      expect(merchantSession).toEqual(mockMerchantSession);
+    });
+
+    it('should set merchant session to null', () => {
+      service.setMerchantSession(null);
+
+      let merchantSession;
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+
+      expect(merchantSession).toBeNull();
+    });
+
+    it('should update merchant session when called multiple times', () => {
+      const firstSession = mockMerchantSession;
+      const secondSession = { merchantSessionIdentifier: 'testMerchantIdentifier2' };
+
+      service.setMerchantSession(firstSession);
+      service.setMerchantSession(secondSession);
+
+      let merchantSession;
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+
+      expect(merchantSession).toEqual(secondSession);
+    });
+
+    it('should clear merchant session by setting to null', () => {
+      service.setMerchantSession(mockMerchantSession);
+      service.setMerchantSession(null);
+
+      let merchantSession;
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+
+      expect(merchantSession).toBeNull();
+    });
+
+    it('should preserve merchant session object reference equality', () => {
+      service.setMerchantSession(mockMerchantSession);
+
+      let receivedSession;
+      service.getMerchantSessionFromState().subscribe(response => receivedSession = response);
+
+      expect(receivedSession).toBe(mockMerchantSession);
+    });
+
+    it('should handle undefined merchant session', () => {
+      service.setMerchantSession(undefined as any);
+
+      let merchantSession;
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+
+      expect(merchantSession).toBeUndefined();
+    });
+  });
+
+  describe('setPaymentAuthorization', () => {
+    it('should set payment authorization with valid payment object', () => {
+      const mockPayment = { order: { code: '0001' } };
+      service.setPaymentAuthorization(mockPayment);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toEqual(mockPayment);
+    });
+
+    it('should set payment authorization to null', () => {
+      service.setPaymentAuthorization(null);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toBeNull();
+    });
+
+    it('should update payment authorization when called multiple times', () => {
+      const firstPayment = { order: { code: '0001' } };
+      const secondPayment = { order: { code: '0002' } };
+
+      service.setPaymentAuthorization(firstPayment);
+      service.setPaymentAuthorization(secondPayment);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toEqual(secondPayment);
+    });
+
+    it('should clear payment authorization by setting to null', () => {
+      const mockPayment = { order: { code: '0001' } };
+      service.setPaymentAuthorization(mockPayment);
+      service.setPaymentAuthorization(null);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toBeNull();
+    });
+
+    it('should emit new value to subscribers when payment authorization is set', (done) => {
+      const mockPayment = { order: { code: '0001' } };
+      let emittedCount = 0;
+
+      service.getPaymentAuthorizationFromState().subscribe(response => {
+        emittedCount++;
+        if (emittedCount === 2) {
+          expect(response).toEqual(mockPayment);
+          done();
+        }
+      });
+
+      service.setPaymentAuthorization(mockPayment);
+    });
+
+    it('should handle complex payment authorization objects', () => {
+      const complexPayment = {
+        order: {
+          code: '123456',
+          date: new Date(),
+          total: '99.99'
+        },
+        token: 'payment_token_123',
+        timestamp: new Date()
+      };
+
+      service.setPaymentAuthorization(complexPayment);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toEqual(complexPayment);
+    });
+
+    it('should preserve payment authorization object reference equality', () => {
+      const mockPayment = { order: { code: '0001' } };
+      service.setPaymentAuthorization(mockPayment);
+
+      let receivedPayment;
+      service.getPaymentAuthorizationFromState().subscribe(response => receivedPayment = response);
+
+      expect(receivedPayment).toBe(mockPayment);
+    });
+
+    it('should handle undefined payment authorization', () => {
+      service.setPaymentAuthorization(undefined);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toBeUndefined();
+    });
+
+    it('should handle payment authorization with empty object', () => {
+      const emptyPayment = {};
+      service.setPaymentAuthorization(emptyPayment);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toEqual(emptyPayment);
+    });
+  });
+
+  describe('setMerchantSession and setPaymentAuthorization together', () => {
+    it('should manage merchant session and payment authorization independently', () => {
+      const mockPayment = { order: { code: '0001' } };
+
+      service.setMerchantSession(mockMerchantSession);
+      service.setPaymentAuthorization(mockPayment);
+
+      let merchantSession;
+      let paymentAuthorization;
+
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(merchantSession).toEqual(mockMerchantSession);
+      expect(paymentAuthorization).toEqual(mockPayment);
+    });
+
+    it('should update merchant session without affecting payment authorization', () => {
+      const initialPayment = { order: { code: '0001' } };
+
+      service.setPaymentAuthorization(initialPayment);
+      service.setMerchantSession(mockMerchantSession);
+
+      let paymentAuthorization;
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(paymentAuthorization).toEqual(initialPayment);
+    });
+
+    it('should update payment authorization without affecting merchant session', () => {
+      const newPayment = { order: { code: '0002' } };
+
+      service.setMerchantSession(mockMerchantSession);
+      service.setPaymentAuthorization(newPayment);
+
+      let merchantSession;
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+
+      expect(merchantSession).toEqual(mockMerchantSession);
+    });
+
+    it('should clear both states independently', () => {
+      const mockPayment = { order: { code: '0001' } };
+
+      service.setMerchantSession(mockMerchantSession);
+      service.setPaymentAuthorization(mockPayment);
+
+      service.setMerchantSession(null);
+
+      let merchantSession;
+      let paymentAuthorization;
+
+      service.getMerchantSessionFromState().subscribe(response => merchantSession = response);
+      service.getPaymentAuthorizationFromState().subscribe(response => paymentAuthorization = response);
+
+      expect(merchantSession).toBeNull();
+      expect(paymentAuthorization).toEqual(mockPayment);
     });
   });
 });

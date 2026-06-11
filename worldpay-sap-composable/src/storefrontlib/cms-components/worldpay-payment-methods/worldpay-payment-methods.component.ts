@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AsyncPipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { CardType, TranslationService, } from '@spartacus/core';
-import { Card, PaymentMethodsComponent } from '@spartacus/storefront';
+import { CardType, TranslatePipe, TranslationService } from '@spartacus/core';
+import { Card, CardComponent, FormRequiredLegendComponent, PaymentMethodsComponent, SpinnerComponent } from '@spartacus/storefront';
 import { combineLatest, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { createCreditCardCard, WorldpayApmPaymentInfo, WorldpayCard, worldpayGetCardIcon } from '../../../core';
@@ -14,7 +15,13 @@ import { createCreditCardCard, WorldpayApmPaymentInfo, WorldpayCard, worldpayGet
 @Component({
   selector: 'cx-payment-methods',
   templateUrl: './worldpay-payment-methods.component.html',
-  standalone: false,
+  imports: [
+    FormRequiredLegendComponent,
+    SpinnerComponent,
+    CardComponent,
+    AsyncPipe,
+    TranslatePipe,
+  ],
 })
 export class WorldpayPaymentMethodsComponent extends PaymentMethodsComponent implements OnInit {
   private translationService: TranslationService = inject(TranslationService);

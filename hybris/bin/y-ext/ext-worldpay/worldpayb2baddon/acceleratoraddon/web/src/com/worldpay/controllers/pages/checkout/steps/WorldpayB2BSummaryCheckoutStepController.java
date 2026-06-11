@@ -1,5 +1,17 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
+import static com.worldpay.payment.TransactionStatus.AUTHORISED;
+import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.addErrorMessage;
+
 import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.order.data.WorldpayAPMPaymentInfoData;
@@ -26,7 +38,10 @@ import de.hybris.platform.commercefacades.product.ProductOption;
 import de.hybris.platform.commercefacades.product.data.ProductData;
 import de.hybris.platform.cronjob.enums.DayOfWeek;
 import de.hybris.platform.order.InvalidCartException;
-import org.apache.commons.lang.StringUtils;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -38,16 +53,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.worldpay.payment.TransactionStatus.AUTHORISED;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMessages.addErrorMessage;
 
 /**
  * Worldpay summary checkout step controller
@@ -100,7 +105,7 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
             for (final OrderEntryData entry : cartData.getEntries()) {
                 final String productCode = entry.getProduct().getCode();
                 final ProductData product = getProductFacade().getProductForCodeAndOptions(productCode,
-                        Arrays.asList(ProductOption.BASIC, ProductOption.PRICE, ProductOption.VARIANT_MATRIX_BASE, ProductOption.PRICE_RANGE));
+                        List.of(ProductOption.BASIC, ProductOption.PRICE, ProductOption.VARIANT_MATRIX_BASE, ProductOption.PRICE_RANGE));
                 entry.setProduct(product);
             }
         }
@@ -119,7 +124,7 @@ public class WorldpayB2BSummaryCheckoutStepController extends AbstractWorldpayDi
         daysOfWeek.add(DayOfWeek.MONDAY);
         b2bCSEPaymentForm.setnDaysOfWeek(daysOfWeek);
         if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
-            b2bCSEPaymentForm.setDateOfBirth((Date) model.asMap().get(BIRTHDAY_DATE));
+            b2bCSEPaymentForm.setDateOfBirth((LocalDate) model.asMap().get(BIRTHDAY_DATE));
         }
         if (worldpayPaymentCheckoutFacade.isFSEnabled() || worldpayPaymentCheckoutFacade.isGPEnabled()) {
             b2bCSEPaymentForm.setDeviceSession((String) model.asMap().get(DEVICE_SESSION));

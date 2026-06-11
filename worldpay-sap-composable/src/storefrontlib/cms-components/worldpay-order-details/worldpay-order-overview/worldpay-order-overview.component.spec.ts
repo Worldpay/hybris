@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { DeliveryMode } from '@spartacus/cart/base/root';
-import { Address, CmsOrderDetailOverviewComponent, I18nTestingModule, PaymentDetails, TranslationService, } from '@spartacus/core';
+import { Address, CmsOrderDetailOverviewComponent, I18nTestingModule, PaymentDetails, TranslationService, UrlPipe, } from '@spartacus/core';
 import { OrderDetailsService, OrderOverviewComponentService } from '@spartacus/order/components';
 import { Order, OrderConfig, ReplenishmentOrder } from '@spartacus/order/root';
-import { CmsComponentData } from '@spartacus/storefront';
+import { CardComponent, CmsComponentData } from '@spartacus/storefront';
 import { Observable, of } from 'rxjs';
-import { MockCxCardComponent, MockTranslationService, MockUrlPipe } from 'worldpay-sap-composable-tests';
+import { MockTranslationService } from 'worldpay-sap-composable-tests';
 import { WorldpayOrderOverviewComponent } from './worldpay-order-overview.component';
 
 const mockOrderConfig: OrderConfig = { showOrderQuoteLink: true };
@@ -137,8 +137,12 @@ describe('WorldpayOrderOverviewComponent', () => {
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
-        imports: [I18nTestingModule],
-        declarations: [WorldpayOrderOverviewComponent, MockCxCardComponent, MockUrlPipe],
+        imports: [
+          I18nTestingModule,
+          WorldpayOrderOverviewComponent,
+          CardComponent,
+          UrlPipe
+        ],
         providers: [
           {
             provide: TranslationService,
@@ -423,7 +427,7 @@ describe('WorldpayOrderOverviewComponent', () => {
     });
 
     it('should return card content with APM details when order has APM payment info', (doneFn) => {
-      const mockOrderWithAPM = {
+      const mockOrderWithAPM: Order = {
         ...mockOrder,
         paymentInfo: {
           expiryYear: null,
@@ -565,7 +569,7 @@ describe('WorldpayOrderOverviewComponent', () => {
 
     it('should call getDeliveryModeCard(deliveryMode: DeliveryMode)', () => {
       spyOn(component, 'getDeliveryModeCard').and.callThrough();
-      const apmOrder = {
+      const apmOrder: Order = {
         ...mockOrder,
         paymentInfo: { expiryYear: null },
         worldpayAPMPaymentInfo: { name: 'iDeal' }

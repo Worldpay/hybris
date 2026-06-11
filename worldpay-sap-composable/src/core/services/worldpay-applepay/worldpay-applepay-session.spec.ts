@@ -21,7 +21,7 @@ describe('createApplePaySession', () => {
 
   it('should return ApplePaySession if in browser and ApplePaySession is supported', () => {
     windowRefMock.isBrowser.and.returnValue(true);
-    windowRefMock.nativeWindow['ApplePaySession'] = 'MockApplePaySession';
+    (windowRefMock.nativeWindow as { ApplePaySession?: string }).ApplePaySession = 'MockApplePaySession';
 
     const result = createApplePaySession(windowRefMock);
 
@@ -31,7 +31,7 @@ describe('createApplePaySession', () => {
 
   it('should return null if in browser but ApplePaySession is not supported', () => {
     windowRefMock.isBrowser.and.returnValue(true);
-    windowRefMock.nativeWindow['ApplePaySession'] = undefined;
+    (windowRefMock.nativeWindow as { ApplePaySession?: string | undefined }).ApplePaySession = undefined;
 
     const result = createApplePaySession(windowRefMock);
 

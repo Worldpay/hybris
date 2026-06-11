@@ -224,8 +224,7 @@
             </attributes>
         </itemtype>
 
-        <itemtype code="Payload"
-                  jaloclass="com.worldpay.jalo.Payload">
+        <itemtype code="Payload">
             <deployment table="Payload" typecode="19035"/>
             <attributes>
                 <attribute qualifier="payload" type="java.lang.String">
@@ -260,8 +259,7 @@
             </attributes>
         </itemtype>
 
-        <itemtype code="WorldpayCartThreeDSChallengeSession"
-                  jaloclass="com.worldpay.jalo.WorldpayCartThreeDSChallengeSession">
+        <itemtype code="WorldpayCartThreeDSChallengeSession">
             <deployment table="Worldpay3dsSession" typecode="19024"/>
             <attributes>
                 <attribute qualifier="echoData" type="java.lang.String">
@@ -279,7 +277,7 @@
             </attributes>
         </itemtype>
 
-        <itemtype code="WorldpayCurrencyRange" jaloclass="com.worldpay.jalo.WorldpayCurrencyRange">
+        <itemtype code="WorldpayCurrencyRange">
             <deployment table="WorldpayCurrencyRange" typecode="19021"/>
             <attributes>
                 <attribute qualifier="currency" type="Currency">
@@ -359,10 +357,7 @@
             </attributes>
         </itemtype>
 
-        <itemtype code="WorldpayAPMPaymentInfo"
-                  extends="PaymentInfo"
-                  jaloclass="de.hybris.platform.jalo.order.payment.PaymentInfo"
-                  generate="false">
+        <itemtype code="WorldpayAPMPaymentInfo" extends="PaymentInfo" generate="false">
             <attributes>
                 <attribute qualifier="obfuscatedCardNumber" type="java.lang.String">
                     <persistence type="property"/>
@@ -507,10 +502,7 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayAavResponse"
-                  jaloclass="com.worldpay.jalo.WorldpayAavResponse"
-                  autocreate="true"
-                  generate="true">
+        <itemtype code="WorldpayAavResponse" autocreate="true" generate="true">
             <deployment table="WorldpayAavResponse" typecode="19022"/>
             <attributes>
                 <attribute qualifier="code" autocreate="true" type="java.lang.String">
@@ -545,10 +537,7 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayRiskScore"
-                  jaloclass="com.worldpay.jalo.WorldpayRiskScore"
-                  autocreate="true"
-                  generate="true">
+        <itemtype code="WorldpayRiskScore" autocreate="true" generate="true">
             <deployment table="WorldpayRiskScore" typecode="19019"/>
             <attributes>
                 <attribute qualifier="code" autocreate="true" type="java.lang.String">
@@ -674,8 +663,7 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayAPMConfiguration" autocreate="true" generate="true"
-                  jaloclass="com.worldpay.jalo.WorldpayAPMConfiguration">
+        <itemtype code="WorldpayAPMConfiguration" autocreate="true" generate="true">
             <deployment table="WorldpayAPMConfiguration" typecode="19020"/>
             <attributes>
                 <attribute qualifier="code" type="java.lang.String">
@@ -723,8 +711,7 @@
             </indexes>
         </itemtype>
 
-        <itemtype code="WorldpayBankConfiguration" autocreate="true" generate="true"
-                  jaloclass="com.worldpay.jalo.WorldpayBankConfiguration">
+        <itemtype code="WorldpayBankConfiguration" autocreate="true" generate="true">
             <deployment table="WorldpayBankConfig" typecode="19023"/>
             <attributes>
                 <attribute qualifier="code" type="java.lang.String">
@@ -1058,13 +1045,13 @@
         </typegroup>
 
         <typegroup name="cms">
-            <itemtype code="WorldpayPaymentPage" jaloclass="com.worldpay.jalo.WorldpayPaymentPage"
+            <itemtype code="WorldpayPaymentPage"
                       autocreate="true" generate="true" extends="ContentPage">
             </itemtype>
         </typegroup>
 
         <typegroup name="version">
-            <itemtype code="IntegrationVersion" jaloclass="com.worldpay.jalo.IntegrationVersion"
+            <itemtype code="IntegrationVersion"
                       autocreate="true" generate="true" extends="GenericItem">
                 <deployment table="IntegrationVersion" typecode="19036"/>
                 <attributes>

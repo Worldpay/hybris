@@ -1,9 +1,11 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutStepType } from '@spartacus/checkout/base/root';
-import { PaymentDetails, QueryState, TranslationService } from '@spartacus/core';
+import { PaymentDetails, QueryState, TranslatePipe, TranslationService, UrlPipe } from '@spartacus/core';
 import { paymentMethodCard } from '@spartacus/order/root';
-import { Card, ICON_TYPE } from '@spartacus/storefront';
+import { Card, CardComponent, ICON_TYPE, IconComponent } from '@spartacus/storefront';
 import { combineLatest, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { generateBillingAddressCard, WorldpayApmPaymentInfo, WorldpayCheckoutPaymentFacade } from '../../../../core';
@@ -12,15 +14,22 @@ import { generateBillingAddressCard, WorldpayApmPaymentInfo, WorldpayCheckoutPay
   selector: 'y-worldpay-checkout-review-payment',
   templateUrl: './worldpay-checkout-review-payment.component.html',
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  imports: [
+    CardComponent,
+    RouterLink,
+    IconComponent,
+    AsyncPipe,
+    TranslatePipe,
+    UrlPipe
+  ]
 })
 export class WorldpayCheckoutReviewPaymentComponent {
-
-  iconTypes: typeof ICON_TYPE = ICON_TYPE;
-
-  paymentDetailsStepRoute: string = this.checkoutStepService.getCheckoutStepRoute(
+  public iconTypes: typeof ICON_TYPE = ICON_TYPE;
+  protected checkoutStepService: CheckoutStepService = inject(CheckoutStepService);
+  public paymentDetailsStepRoute: string = this.checkoutStepService.getCheckoutStepRoute(
     CheckoutStepType.PAYMENT_DETAILS
   );
+  protected checkoutPaymentFacade: WorldpayCheckoutPaymentFacade = inject(WorldpayCheckoutPaymentFacade);
   /**
    * Get payment details
    * @since 6.4.0
@@ -30,20 +39,7 @@ export class WorldpayCheckoutReviewPaymentComponent {
       filter((state: QueryState<PaymentDetails>): boolean => !state.loading && !state.error),
       map((state: QueryState<PaymentDetails>): PaymentDetails => state.data)
     );
-
-  /**
-   * Constructor
-   * @since 6.4.0
-   * @param checkoutStepService CheckoutStepService
-   * @param checkoutPaymentFacade WorldpayCheckoutPaymentFacade
-   * @param translationService TranslationService
-   */
-  constructor(
-    protected checkoutStepService: CheckoutStepService,
-    protected checkoutPaymentFacade: WorldpayCheckoutPaymentFacade,
-    protected translationService: TranslationService
-  ) {
-  }
+  protected translationService: TranslationService = inject(TranslationService);
 
   /**
    * Get payment method card

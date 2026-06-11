@@ -109,7 +109,7 @@ public class ShopperPopulatorTest {
         testObj.populate(sourceMock, target);
 
         assertThat(target.getShopperEmailAddress()).isEqualTo(EMAIL);
-        assertThat(target.getAuthenticatedShopperID().getvalue()).isEqualTo(AUTHENTICATED_SHOPPER_ID);
+        assertThat(target.getAuthenticatedShopperID().getValue()).isEqualTo(AUTHENTICATED_SHOPPER_ID);
         assertThat(target.getBrowser()).isEqualTo(intBrowserMock);
         assertThat(target.getSession()).isEqualTo(intSessionMock);
     }

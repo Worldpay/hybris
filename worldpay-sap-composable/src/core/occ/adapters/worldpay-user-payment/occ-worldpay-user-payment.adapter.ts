@@ -37,7 +37,6 @@ export class OccWorldpayUserPaymentAdapter extends OccUserPaymentAdapter impleme
         throw tryNormalizeHttpError((): unknown => error, this.logger);
       }),
       map((paymentList: ApmPaymentDetailsListResponse): ApmPaymentDetails[] => paymentList.payments ?? []),
-      // this.converter.pipeableMany(APM_NORMALIZER)
     );
   }
 }

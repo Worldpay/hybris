@@ -1,18 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { Component, ViewEncapsulation } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DeliveryMode } from '@spartacus/cart/base/root';
-import { Address, PaymentDetails } from '@spartacus/core';
+import { Address, CxDatePipe, PaymentDetails, TranslatePipe, UrlPipe } from '@spartacus/core';
 import { OrderOverviewComponent } from '@spartacus/order/components';
 import { deliveryAddressCard, deliveryModeCard, Order } from '@spartacus/order/root';
-import { Card } from '@spartacus/storefront';
+import { Card, CardComponent, OutletDirective, SpinnerComponent } from '@spartacus/storefront';
 import { combineLatest, Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
+import { WorldpayOrderDetailsBillingComponent } from '../worldpay-order-details-billing/worldpay-order-details-billing.component';
 
 @Component({
   selector: 'y-worldpay-order-overview',
   templateUrl: './worldpay-order-overview.component.html',
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  imports: [
+    CardComponent,
+    OutletDirective,
+    NgTemplateOutlet,
+    WorldpayOrderDetailsBillingComponent,
+    SpinnerComponent,
+    RouterLink,
+    AsyncPipe,
+    TranslatePipe,
+    CxDatePipe,
+    UrlPipe
+  ]
 })
 export class WorldpayOrderOverviewComponent extends OrderOverviewComponent {
 

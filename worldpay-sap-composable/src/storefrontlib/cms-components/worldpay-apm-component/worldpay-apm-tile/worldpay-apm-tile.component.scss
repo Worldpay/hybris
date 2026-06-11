@@ -1,0 +1,61 @@
+/* stylelint-disable-next-line selector-class-pattern -- Reason for disabling Stylelint. */
+.wp__apm {
+  height: 100%;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+
+  cx-media {
+    height: 45px;
+    width: 100%;
+    max-width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--selector {
+    height: 20px;
+    width: 20px;
+    left: 0;
+    top: 0;
+    position: relative;
+    display: inline-block;
+    border: medium solid var(--cx-color-medium);
+    border-radius: 50%;
+    background: white;
+  }
+
+  &-label {
+    margin-bottom: 0;
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  &--selected .wp__apm--selector {
+    border-color: var(--cx-color-primary);
+    background-color: var(--cx-color-primary);
+  }
+
+  &:hover,
+  &:focus {
+    background-color: #e9ecf1;
+
+    .wp__apm--selector {
+      background-color: var(--cx-color-light);
+    }
+  }
+
+  &--selected:hover .wp__apm--selector,
+  &--selected:focus .wp__apm--selector {
+    border-color: var(--cx-color-primary);
+    background-color: var(--cx-color-primary);
+  }
+
+}
+

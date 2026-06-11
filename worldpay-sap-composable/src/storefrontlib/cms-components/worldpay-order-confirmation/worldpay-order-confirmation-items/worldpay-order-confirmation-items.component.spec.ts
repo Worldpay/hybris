@@ -1,28 +1,15 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Directive, Input, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { OrderEntry, PromotionLocation } from '@spartacus/cart/base/root';
-import { FeaturesConfig, FeaturesConfigModule, I18nTestingModule } from '@spartacus/core';
+import { FeaturesConfig, I18nTestingModule } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
-import { AtMessageModule, OutletDirective, OutletModule, PromotionsModule } from '@spartacus/storefront';
+import { PromotionsModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
 import { WorldpayOrderConfirmationItemsComponent } from './worldpay-order-confirmation-items.component';
 import createSpy = jasmine.createSpy;
 
-@Component({
-  selector: 'y-worldpay-cart-item-list',
-  template: '',
-  standalone: false
-})
-class MockReviewSubmitComponent {
-  @Input() items: OrderEntry[];
-  @Input() readonly: boolean;
-  @Input() promotionLocation: PromotionLocation = PromotionLocation.Checkout;
-}
-
 class MockOrderFacade implements Partial<OrderFacade> {
-  clearPlacedOrder = createSpy();
   getOrderDetails = createSpy().and.returnValue(
     of({
+      code: 'order-123',
       entries: [
         {
           entryNumber: 1,
@@ -31,14 +18,9 @@ class MockOrderFacade implements Partial<OrderFacade> {
       ],
     })
   );
-}
 
-@Directive({
-  selector: '[cxOutlet]',
-  standalone: false,
-})
-class MockOutletDirective implements Partial<OutletDirective> {
-  @Input() cxOutlet: string;
+  clearPlacedOrder() {
+  }
 }
 
 describe('WorldpayOrderConfirmationItemsComponent', () => {
@@ -50,14 +32,7 @@ describe('WorldpayOrderConfirmationItemsComponent', () => {
       imports: [
         I18nTestingModule,
         PromotionsModule,
-        FeaturesConfigModule,
-        AtMessageModule,
-        OutletModule,
-      ],
-      declarations: [
         WorldpayOrderConfirmationItemsComponent,
-        MockReviewSubmitComponent,
-        MockOutletDirective
       ],
       providers: [
         {
@@ -65,16 +40,14 @@ describe('WorldpayOrderConfirmationItemsComponent', () => {
           useClass: MockOrderFacade
         },
         {
-          // eslint-disable-next-line deprecation/deprecation
+          // eslint-disable-next-line deprecation/deprecation,@typescript-eslint/no-deprecated
           provide: FeaturesConfig,
           useValue: {
             features: { level: '1.3' },
           },
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    })
-      .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Converter, Image, OccConfig } from '@spartacus/core';
 
 /**
@@ -11,14 +11,7 @@ import { Converter, Image, OccConfig } from '@spartacus/core';
  */
 @Injectable()
 export abstract class BaseImageNormalizer<S, T> implements Converter<S, T> {
-
-  /**
-   * Constructor
-   *
-   * @param config - The OccConfig object used to configure the backend URLs for media and OCC.
-   */
-  constructor(protected config: OccConfig) {
-  }
+  protected config: OccConfig = inject(OccConfig);
 
   /**
    * Abstract convert method to be implemented by child classes
@@ -47,7 +40,7 @@ export abstract class BaseImageNormalizer<S, T> implements Converter<S, T> {
     if (!url) {
       return '';
     }
-    
+
     if (new RegExp(/^(http|data:image|\/\/)/i).test(url)) {
       return url;
     }

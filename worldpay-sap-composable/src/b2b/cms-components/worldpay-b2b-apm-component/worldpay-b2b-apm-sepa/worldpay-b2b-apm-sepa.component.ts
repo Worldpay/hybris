@@ -1,14 +1,21 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { TranslatePipe } from '@spartacus/core';
 import { tap } from 'rxjs/operators';
 import { ApmPaymentDetails, WorldpayApmFacade } from '../../../../core';
-import { WorldpayApmSepaComponent } from '../../../../storefrontlib';
+import { WorldpayApmSepaComponent, WorldpayApmSubmitButtonsComponent, WorldpayBillingAddressComponent } from '../../../../storefrontlib';
 
 @Component({
   selector: 'y-worldpay-b2b-apm-sepa',
   templateUrl: './worldpay-b2b-apm-sepa.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    TranslatePipe,
+    ReactiveFormsModule,
+    WorldpayBillingAddressComponent,
+    WorldpayApmSubmitButtonsComponent,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorldpayB2BApmSepaComponent extends WorldpayApmSepaComponent implements OnInit {
   protected worldpayApmFacade: WorldpayApmFacade = inject(WorldpayApmFacade);

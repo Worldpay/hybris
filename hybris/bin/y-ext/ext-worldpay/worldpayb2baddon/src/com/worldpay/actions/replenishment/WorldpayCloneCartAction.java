@@ -11,7 +11,7 @@ import de.hybris.platform.processengine.action.AbstractProceduralAction;
 import de.hybris.platform.servicelayer.keygenerator.KeyGenerator;
 import de.hybris.platform.servicelayer.type.TypeService;
 import de.hybris.platform.servicelayer.user.UserService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.Collections;
 
@@ -49,27 +49,25 @@ public class WorldpayCloneCartAction extends AbstractProceduralAction<Replenishm
         processParameterHelper.setProcessParameter(process, "cart", clonedCart);
     }
 
-    @Required
     public void setKeyGenerator(KeyGenerator keyGenerator) {
         this.keyGenerator = keyGenerator;
     }
 
-    @Required
     public void setGuidKeyGenerator(KeyGenerator guidKeyGenerator) {
         this.guidKeyGenerator = guidKeyGenerator;
     }
 
-    @Required
+
     public void setCartService(final CartService cartService) {
         this.cartService = cartService;
     }
 
-    @Required
+
     public void setTypeService(final TypeService typeService) {
         this.typeService = typeService;
     }
 
-    @Required
+
     public void setUserService(final UserService userService) {
         this.userService = userService;
     }

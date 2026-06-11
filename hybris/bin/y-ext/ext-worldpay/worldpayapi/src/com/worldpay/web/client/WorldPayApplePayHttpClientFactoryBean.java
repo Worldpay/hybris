@@ -1,16 +1,25 @@
 package com.worldpay.web.client;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.core.io.Resource;
-
-import javax.net.ssl.SSLContext;
-import java.security.KeyStore;
 
 public class WorldPayApplePayHttpClientFactoryBean extends AbstractFactoryBean<HttpClient> {
     private Resource certificateFile;
@@ -23,17 +32,28 @@ public class WorldPayApplePayHttpClientFactoryBean extends AbstractFactoryBean<H
     }
 
     @Override
-    @SuppressWarnings("squid:S00112")
-    protected HttpClient createInstance() throws Exception {
+    protected HttpClient createInstance() throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyManagementException {
         final SSLContext sslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(getKeyStore(), password.toCharArray())
-                .loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+                .loadTrustMaterial(null, (chain, authType) -> true)
+                .build();
 
-        return HttpClients.custom().setSSLContext(sslContext).build();
+        final SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(Timeout.ofSeconds(30L))
+                .build();
+
+        final PoolingHttpClientConnectionManager connManager = PoolingHttpClientConnectionManagerBuilder.create()
+                .setTlsSocketStrategy(new DefaultClientTlsStrategy(sslContext))
+                .setDefaultSocketConfig(socketConfig)
+                .build();
+
+        return HttpClients.custom()
+                .setConnectionManager(connManager)
+                .build();
+
     }
 
-    @SuppressWarnings("squid:S00112")
-    private KeyStore getKeyStore() throws Exception {
+    private KeyStore getKeyStore() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
         if (!certificateFile.exists() || !certificateFile.isReadable()) {
             throw new ResourceNotFoundException("Certificate in path [" + certificateFile.getFilename() + "] file does not exists");
@@ -42,17 +62,14 @@ public class WorldPayApplePayHttpClientFactoryBean extends AbstractFactoryBean<H
         return keyStore;
     }
 
-    @Required
     public void setPassword(final String password) {
         this.password = password;
     }
 
-    @Required
     public void setKeyStoreType(final String keyStoreType) {
         this.keyStoreType = keyStoreType;
     }
 
-    @Required
     public void setCertificateFile(Resource certificateFile) {
         this.certificateFile = certificateFile;
     }

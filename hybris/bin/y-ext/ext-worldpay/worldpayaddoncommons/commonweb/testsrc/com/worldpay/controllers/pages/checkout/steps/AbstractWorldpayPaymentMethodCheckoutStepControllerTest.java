@@ -2,18 +2,15 @@ package com.worldpay.controllers.pages.checkout.steps;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
@@ -24,7 +21,6 @@ import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
 import com.worldpay.facades.payment.merchant.WorldpayMerchantConfigDataFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.bootstrap.annotations.UnitTest;
-import de.hybris.platform.acceleratorfacades.flow.CheckoutFlowFacade;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
@@ -37,7 +33,6 @@ import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
-import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.CardTypeData;
 import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.enums.CountryType;
@@ -46,19 +41,18 @@ import de.hybris.platform.core.model.enumeration.EnumerationValueModel;
 import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.servicelayer.type.TypeService;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
+@ExtendWith(MockitoExtension.class)
+class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     private static final String SAVINGS = "SAVINGS";
     private static final String CORPORATE = "CORPORATE";
@@ -78,9 +72,9 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
     private static final String WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL = "worldpayPaymentAndBillingCheckoutStep";
 
-    private final List<CountryData> billingCountries = emptyList();
-    private final List<CardTypeData> supportedCardTypes = emptyList();
-    private final List<Breadcrumb> breadcrumbs = Collections.emptyList();
+    private final List<CountryData> billingCountries = List.of();
+    private final List<CardTypeData> supportedCardTypes = List.of();
+    private final List<Breadcrumb> breadcrumbs = List.of();
     private final Model model = new ExtendedModelMap();
 
     @InjectMocks
@@ -90,8 +84,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private RedirectAttributes redirectAttributes;
     @Mock
     private AcceleratorCheckoutFacade checkoutFacadeMock;
-    @Mock
-    private CheckoutFlowFacade checkoutFlowFacadeMock;
+
     @Mock
     private ResourceBreadcrumbBuilder resourceBreadcrumbBuilder;
     @Mock
@@ -100,8 +93,6 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     private CMSPageService cmsPageServiceMock;
     @Mock
     private SiteConfigService siteConfigServiceMock;
-    @Mock
-    private CartFacade cartFacadeMock;
     @Mock
     private PageTitleResolver pageTitleResolverMock;
     @Mock(name = "checkoutFlowGroupMap")
@@ -133,20 +124,9 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     @Mock
     private EnumerationValueModel enumerationValueModelOneMock, enumerationValueModelTwoMock;
 
-    @Before
-    public void setUp() {
-        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
-        when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
-        lenient().when(checkoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_GROUP);
-        when(checkoutFlowGroupMapMock.get(CHECKOUT_GROUP)).thenReturn(checkoutGroupMock);
-        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
-        when(checkoutStepMapMock.get(PAYMENT_METHOD_STEP_NAME)).thenReturn(checkoutStepMock);
-        when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
-    }
-
     @Test
-    public void shouldPopulateModelWithBillingCountries() {
-        lenient().when(checkoutFacadeMock.getCountries(CountryType.BILLING)).thenReturn(billingCountries);
+    void shouldPopulateModelWithBillingCountries() {
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
 
         final Collection<CountryData> result = testObj.getBillingCountries();
 
@@ -154,8 +134,8 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldPopulateModelWithSupportedCardTypes() {
-        lenient().when(checkoutFacadeMock.getSupportedCardTypes()).thenReturn(supportedCardTypes);
+    void shouldPopulateModelWithSupportedCardTypes() {
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
 
         final Collection<CardTypeData> result = testObj.getCardTypes();
 
@@ -163,7 +143,9 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldPopulateModelWithAllMonths() {
+    void shouldPopulateModelWithAllMonths() {
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+
         final List<AbstractCheckoutController.SelectOption> result = testObj.getMonths();
 
         for (int i = 0; i < 11; i++) {
@@ -177,7 +159,8 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldPopulateModelWithExpiryYears() {
+    void shouldPopulateModelWithExpiryYears() {
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
 
         final List<AbstractCheckoutController.SelectOption> result = testObj.getExpiryYears();
         final int currentYear = LocalDate.now().getYear();
@@ -191,14 +174,26 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddNotAllowCheckoutPagesToBeIndexed() throws CommerceCartModificationException, CMSItemNotFoundException {
+    void shouldAddNotAllowCheckoutPagesToBeIndexed() throws CMSItemNotFoundException, CommerceCartModificationException {
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
+        when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        when(checkoutFlowGroupMapMock.get(CHECKOUT_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(PAYMENT_METHOD_STEP_NAME)).thenReturn(checkoutStepMock);
+
         testObj.enterStep(model, redirectAttributes);
 
         assertEquals(NOINDEX_NOFOLLOW, model.asMap().get(META_ROBOTS));
     }
 
     @Test
-    public void shouldAddHasNoPaymentInfoToModel() throws CommerceCartModificationException, CMSItemNotFoundException {
+    void shouldAddHasNoPaymentInfoToModel() throws CMSItemNotFoundException, CommerceCartModificationException {
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
+        when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        when(checkoutFlowGroupMapMock.get(CHECKOUT_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(PAYMENT_METHOD_STEP_NAME)).thenReturn(checkoutStepMock);
+
         when(worldpayCheckoutFacadeDecoratorMock.hasNoPaymentInfo()).thenReturn(true);
 
         testObj.enterStep(model, redirectAttributes);
@@ -207,7 +202,14 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddBreadcrumbsToModel() throws CommerceCartModificationException, CMSItemNotFoundException {
+    void shouldAddBreadcrumbsToModel() throws CMSItemNotFoundException, CommerceCartModificationException {
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
+        when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        when(checkoutFlowGroupMapMock.get(CHECKOUT_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(PAYMENT_METHOD_STEP_NAME)).thenReturn(checkoutStepMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(eq(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL), any())).thenReturn(contentPageModelMock);
+
         when(resourceBreadcrumbBuilder.getBreadcrumbs(CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB)).thenReturn(breadcrumbs);
 
         testObj.enterStep(model, redirectAttributes);
@@ -216,7 +218,12 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddCmsPageToModel() throws CommerceCartModificationException, CMSItemNotFoundException {
+    void shouldAddCmsPageToModel() throws CMSItemNotFoundException, CommerceCartModificationException {
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn("checkoutGroup");
+        when(siteConfigServiceMock.getBoolean(anyString(), anyBoolean())).thenReturn(true);
+        when(checkoutFlowGroupMapMock.get(CHECKOUT_GROUP)).thenReturn(checkoutGroupMock);
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+        when(checkoutStepMapMock.get(PAYMENT_METHOD_STEP_NAME)).thenReturn(checkoutStepMock);
         when(cmsPageServiceMock.getPageForLabelOrId(eq(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL), any())).thenReturn(contentPageModelMock);
 
         testObj.enterStep(model, redirectAttributes);
@@ -225,7 +232,10 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldPopulateCCFieldsToCseAdditionalAuthInfo() {
+    void shouldPopulateCCFieldsToCseAdditionalAuthInfo() {
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
+
+        when(worldpayPaymentCheckoutFacadeMock.hasBillingDetails()).thenReturn(true);
         when(worldpayMerchantConfigDataFacadeMock.getCurrentSiteMerchantConfigData()).thenReturn(worldpayMerchantConfigDataMock);
         when(worldpayMerchantConfigDataMock.getThreeDSFlexChallengePreference()).thenReturn(CHALLENGE_PREFERENCE);
         when(csePaymentFormMock.getNameOnCard()).thenReturn(CARD_HOLDER_NAME);
@@ -245,7 +255,8 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldGetACHDirectDebitValues() {
+    void shouldGetACHDirectDebitValues() {
+        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
         when(enumerationServiceMock.getEnumerationValues(AchDirectDebitAccountType._TYPECODE)).
                 thenReturn(List.of(AchDirectDebitAccountType.CORPORATE, AchDirectDebitAccountType.SAVINGS));
         when(typeServiceMock.getEnumerationValue(AchDirectDebitAccountType.CORPORATE)).thenReturn(enumerationValueModelOneMock);
@@ -266,7 +277,7 @@ public class AbstractWorldpayPaymentMethodCheckoutStepControllerTest {
 
     }
 
-    private class TestWorldpayPaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
+    private static class TestWorldpayPaymentMethodCheckoutStepController extends AbstractWorldpayPaymentMethodCheckoutStepController {
         @Override
         public String enterStep(final Model model, final RedirectAttributes redirectAttributes) throws CMSItemNotFoundException {
             setupAddPaymentPage(model);

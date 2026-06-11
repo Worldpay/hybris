@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
         
-    <extension abstractclassprefix="Generated" classprefix="Worldpayfulfilment" managername="WorldpayfulfilmentManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayfulfilment" usemaven="false">
+    <extension abstractclassprefix="Generated" classprefix="Worldpayfulfilment" description="worldpayfulfilment extension" jaloLogicFree="true" name="worldpayfulfilment">
                 
         <requires-extension name="worldpayapi"/>
                 

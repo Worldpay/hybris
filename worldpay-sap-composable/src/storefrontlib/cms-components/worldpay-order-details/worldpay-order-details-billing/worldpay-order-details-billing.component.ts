@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { AsyncPipe } from '@angular/common';
 import { Component, ViewEncapsulation } from '@angular/core';
 import { PaymentDetails } from '@spartacus/core';
 import { OrderDetailBillingComponent } from '@spartacus/order/components';
-import { Card } from '@spartacus/storefront';
+import { Card, CardComponent } from '@spartacus/storefront';
 import { combineLatest, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { generateBillingAddressCard } from '../../../../core';
@@ -10,9 +11,11 @@ import { generateBillingAddressCard } from '../../../../core';
 @Component({
   selector: 'y-worldpay-order-detail-billing',
   templateUrl: './worldpay-order-details-billing.component.html',
-  styleUrls: ['./worldpay-order-details-billing.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  imports: [
+    CardComponent,
+    AsyncPipe
+  ]
 })
 export class WorldpayOrderDetailsBillingComponent extends OrderDetailBillingComponent {
 

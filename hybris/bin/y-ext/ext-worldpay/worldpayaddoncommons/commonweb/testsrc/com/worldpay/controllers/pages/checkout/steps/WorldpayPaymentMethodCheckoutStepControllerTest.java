@@ -1,35 +1,27 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
-import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.WorldpayBankConfigurationFacade;
-import com.worldpay.facades.WorldpayCartFacade;
 import com.worldpay.facades.WorldpayDirectResponseFacade;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
-import com.worldpay.forms.ACHForm;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
@@ -42,45 +34,39 @@ import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.acceleratorservices.storefront.util.PageTitleResolver;
 import de.hybris.platform.acceleratorstorefrontcommons.breadcrumb.ResourceBreadcrumbBuilder;
 import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutGroup;
-import de.hybris.platform.acceleratorstorefrontcommons.checkout.steps.CheckoutStep;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.cms2.servicelayer.services.CMSPageService;
 import de.hybris.platform.cms2.servicelayer.services.CMSPreviewService;
-import de.hybris.platform.commercefacades.order.CartFacade;
 import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.servicelayer.session.SessionService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class WorldpayPaymentMethodCheckoutStepControllerTest {
+@ExtendWith(MockitoExtension.class)
+class WorldpayPaymentMethodCheckoutStepControllerTest {
 
     private static final String REQUEST = "request";
-    private static final String ACH_DATA = "ACHData";
     private static final String ORDER_CODE = "orderCode";
     private static final String REDIRECT_URL = "redirectUrl";
     private static final String CMS_PAGE_TITLE = "pageTitle";
     private static final String BIRTHDAY_DATE = "birthdayDate";
-    private static final String KLARNA_RESPONSE = "klarnaContent";
     private static final String HOP_DEBUG_MODE_PARAM = "hopDebugMode";
     private static final String SAVE_PAYMENT_INFO = "savePaymentInfo";
     private static final String SHOPPER_BANK_CODE = "shopperBankCode";
     private static final String PAYMENT_METHOD_PARAM = "paymentMethod";
     private static final String PAYMENT_METHOD_KLARNA = "KLARNA_V2-SSL";
-    private static final String CONTENT_PAGE_LABEL = "contentPageLabel";
-    private static final String HOP_DEBUG_MODE_CONFIG = "hop.debug.mode";
     private static final String HOSTED_ORDER_PAGE = "hostedOrderPostPage";
     private static final String PAYMENT_METHOD_VALUE = "paymentMethodValue";
     private static final String SHOPPER_BANK_CODE_VALUE = "shopperBankCode";
@@ -91,7 +77,7 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private static final String CHECKOUT_MULTI_PAYMENT_METHOD_BREADCRUMB = "checkout.multi.paymentMethod.breadcrumb";
     private static final String REDIRECT_URL_CHOOSE_PAYMENT_METHOD = "redirect:/checkout/multi/worldpay/choose-payment-method";
 
-    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final LocalDate BIRTHDAY_DATE_VALUE = LocalDate.of(1990, 5, 17);
 
     @Spy
     @InjectMocks
@@ -103,8 +89,6 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private CheckoutFlowFacade checkoutFlowFacadeMock;
     @Mock
     private SiteConfigService siteConfigServiceMock;
-    @Mock
-    private CartFacade cartFacadeMock;
     @Mock
     private ResourceBreadcrumbBuilder resourceBreadcrumbBuilderMock;
     @Mock
@@ -127,7 +111,6 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     private WorldpayDirectResponseFacade worldpayDirectResponseFacadeMock;
     @Mock
     private CheckoutCustomerStrategy checkoutCustomerStrategyMock;
-
     @Mock(answer = RETURNS_DEEP_STUBS)
     private CheckoutGroup checkoutGroupMock;
     @Mock
@@ -137,13 +120,9 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     @Mock
     private ContentPageModel contentPageModelMock;
     @Mock
-    private CheckoutStep checkoutStepMock;
-    @Mock
     private PaymentData paymentDataMock;
     @Mock
     private Map<String, String> paymentDataParametersMock;
-    @Mock
-    private Map<String, CheckoutStep> checkoutStepMapMock;
     @Mock(answer = RETURNS_DEEP_STUBS)
     private HttpServletRequest httpServletRequestMock;
     @Mock
@@ -153,46 +132,29 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     @Mock
     private WorldpayAddonEndpointService worldpayAddonEndpointServiceMock;
     @Mock
-    private AdditionalAuthInfo additionalAuthInfoMock;
-    @Mock
-    private ACHDirectDebitAdditionalAuthInfo ACHDirectDebitAdditionalAuthInfoMock;
-    @Mock
+    @SuppressWarnings("unused")
     private CMSPreviewService cmsPreviewServiceMock;
-    @Mock
-    private WorldpayCartFacade worldpayCartFacadeMock;
-    @Mock
-    private ACHForm achFormMock;
     @Mock
     private DirectResponseData directResponseDataMock;
     @Mock
     private OrderData orderDataMock;
 
-    @Before
-    public void setUp() throws Exception {
-        doReturn(additionalAuthInfoMock).when(testObj).createAdditionalAuthInfo(anyBoolean(), anyString());
-
-        lenient().when(contentPageModelMock.getLabel()).thenReturn(CONTENT_PAGE_LABEL);
+    @Test
+    void testEnterStepForCard() throws CMSItemNotFoundException, WorldpayException {
         when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
         when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
+        when(siteConfigServiceMock.getBoolean("oms.enabled", false)).thenReturn(false);
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
         when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
         when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
-        when(checkoutGroupMock.getCheckoutStepMap()).thenReturn(checkoutStepMapMock);
-        when(checkoutStepMapMock.get(anyString())).thenReturn(checkoutStepMock);
-        when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_VALUE);
         when(modelMock.asMap().get(SAVE_PAYMENT_INFO)).thenReturn(true);
-        when(modelMock.asMap().get(SHOPPER_BANK_CODE)).thenReturn(SHOPPER_BANK_CODE_VALUE);
+        when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);
         when(modelMock.asMap().get(REQUEST)).thenReturn(httpServletRequestMock);
-        when(paymentDataMock.getParameters()).thenReturn(paymentDataParametersMock);
         when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
-        when(siteConfigServiceMock.getBoolean(HOP_DEBUG_MODE_CONFIG, false)).thenReturn(false);
         when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn(HOSTED_ORDER_PAGE);
         when(modelMock.asMap().get(BIRTHDAY_DATE)).thenReturn(BIRTHDAY_DATE_VALUE);
-        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
-    }
 
-    @Test
-    public void testEnterStepForCard() throws CMSItemNotFoundException {
         doReturn(true).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_VALUE);
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
@@ -211,8 +173,17 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testEnterStepRedirectsToBankTransfer() throws CMSItemNotFoundException, WorldpayException {
-        lenient().doReturn(false).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_VALUE);
+    void testEnterStepRedirectsToBankTransfer() throws CMSItemNotFoundException, WorldpayException {
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
+        when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
+        when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
+        when(modelMock.asMap().get(REQUEST)).thenReturn(httpServletRequestMock);
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(modelMock.asMap().get(SHOPPER_BANK_CODE)).thenReturn(SHOPPER_BANK_CODE_VALUE);
+
+        doReturn(false).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_BANK_TRANSFER);
+
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_BANK_TRANSFER);
         when(bankConfigurationFacadeMock.isBankTransferApm(PAYMENT_METHOD_BANK_TRANSFER)).thenReturn(true);
         when(worldpayDirectOrderFacadeMock.authoriseBankTransferRedirect(any(BankTransferAdditionalAuthInfo.class), eq(worldpayAdditionalInfoDataMock))).thenReturn(REDIRECT_URL);
@@ -231,13 +202,16 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testEnterStepRedirectsToACHDirectDebitPayment() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
+    void testEnterStepRedirectsToACHDirectDebitPayment() throws CMSItemNotFoundException, WorldpayException, InvalidCartException {
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
+        when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PaymentType.ACHDIRECTDEBITSSL.getMethodCode());
-        when(modelMock.asMap().get(ACH_DATA)).thenReturn(achFormMock);
         doReturn(directResponseDataMock).when(worldpayDirectOrderFacadeMock).authoriseACHDirectDebit(any(), any());
         when(worldpayDirectResponseFacadeMock.isAuthorised(directResponseDataMock)).thenReturn(true);
         when(directResponseDataMock.getOrderData()).thenReturn(orderDataMock);
         when(orderDataMock.getCode()).thenReturn(ORDER_CODE);
+
         doReturn(false).when(checkoutCustomerStrategyMock).isAnonymousCheckout();
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
@@ -248,7 +222,17 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testEnterStepRedirectToHopPageIfNotBankTransferPayment() throws CMSItemNotFoundException {
+    void testEnterStepRedirectToHopPageIfNotBankTransferPayment() throws CMSItemNotFoundException, WorldpayException {
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
+        when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
+        when(modelMock.asMap().get(SAVE_PAYMENT_INFO)).thenReturn(true);
+        when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);
+        when(modelMock.asMap().get(REQUEST)).thenReturn(httpServletRequestMock);
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn(HOSTED_ORDER_PAGE);
+        when(paymentDataMock.getParameters()).thenReturn(paymentDataParametersMock);
+
         doReturn(false).when(testObj).paymentMethodIsOnline(PAYMENT_METHOD_VALUE);
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_VALUE);
 
@@ -260,7 +244,16 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldReturnToChoosePaymentMethodOnWorldpayException() throws WorldpayException, CMSItemNotFoundException {
+    void shouldReturnToChoosePaymentMethodOnWorldpayException() throws WorldpayException, CMSItemNotFoundException {
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
+        when(contentPageModelMock.getTitle()).thenReturn(CMS_PAGE_TITLE);
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
+        when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
+        when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_VALUE);
+        when(modelMock.asMap().get(SAVE_PAYMENT_INFO)).thenReturn(true);
+        when(modelMock.asMap().get(REQUEST)).thenReturn(httpServletRequestMock);
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+
         doThrow(WorldpayException.class).when(worldpayHostedOrderFacadeMock).redirectAuthorise(any(), any());
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
@@ -269,9 +262,18 @@ public class WorldpayPaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRedirectToInternalUrlWithKlarnaContentWhenPaymentTypeIsKlarna() throws Exception {
+    void shouldRedirectToInternalUrlWithKlarnaContentWhenPaymentTypeIsKlarna() throws Exception {
+        when(cmsPageServiceMock.getPageForLabelOrId(anyString(), any())).thenReturn(contentPageModelMock);
+        when(acceleratorCheckoutFacadeMock.getCheckoutFlowGroupForCheckout()).thenReturn(CHECKOUT_FLOW_GROUP_KEY);
+        when(checkoutGroupMap.get(CHECKOUT_FLOW_GROUP_KEY)).thenReturn(checkoutGroupMock);
+        when(modelMock.asMap().get(SAVE_PAYMENT_INFO)).thenReturn(true);
+        when(worldpayHostedOrderFacadeMock.redirectAuthorise(any(), eq(worldpayAdditionalInfoDataMock))).thenReturn(paymentDataMock);
+        when(modelMock.asMap().get(REQUEST)).thenReturn(httpServletRequestMock);
+        when(worldpayAdditionalInfoFacadeMock.createWorldpayAdditionalInfoData(httpServletRequestMock)).thenReturn(worldpayAdditionalInfoDataMock);
+        when(worldpayAddonEndpointServiceMock.getHostedOrderPostPage()).thenReturn(HOSTED_ORDER_PAGE);
+        when(paymentDataMock.getParameters()).thenReturn(paymentDataParametersMock);
+
         when(modelMock.asMap().get(PAYMENT_METHOD_PARAM)).thenReturn(PAYMENT_METHOD_KLARNA);
-        lenient().when(worldpayDirectOrderFacadeMock.authoriseKlarnaRedirect(worldpayAdditionalInfoDataMock, additionalAuthInfoMock)).thenReturn(KLARNA_RESPONSE);
 
         final String result = testObj.enterStep(modelMock, redirectAttributesMock);
 

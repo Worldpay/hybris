@@ -27,7 +27,7 @@ import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.core.model.user.AddressModel;
-import org.apache.commons.beanutils.ConversionException;
+import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

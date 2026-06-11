@@ -14,15 +14,12 @@ import { ClearWorldpayPaymentDetailsEvent, ClearWorldpayPaymentStateEvent, SetWo
 })
 export class WorldpayEventsListener {
   protected destroyRef: DestroyRef = inject(DestroyRef);
-
+  protected eventService: EventService = inject(EventService);
   /**
    * Constructor for WorldpayEventsListener.
-   * @param {EventService} eventService - The event service used to handle events.
    * @since 6.4.0
    */
-  constructor(
-    protected eventService: EventService,
-  ) {
+  constructor() {
     this.onOrderPlacedEvent();
     this.onClearWorldpayPaymentStateEvent();
   }

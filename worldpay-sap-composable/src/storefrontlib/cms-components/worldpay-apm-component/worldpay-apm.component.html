@@ -9,8 +9,8 @@
 
   <!-- Show Billing form and continue button for APMs that require additional details after selection, hide for those that don't require additional details -->
   <ng-template #showBillingAddressForm let-selectedApm="selectedApm">
-    <ng-container *ngIf="(isLoading$ | async) !== true; else loading">
-      <ng-container *ngIf="showBillingFormAndContinueButton(selectedApm.code)">
+    @if ((isLoading$ | async) !== true) {
+      @if (showBillingFormAndContinueButton(selectedApm.code)) {
         <y-worldpay-billing-address />
         <!-- BUTTON SECTION -->
         <y-worldpay-apm-submit-buttons
@@ -19,8 +19,10 @@
           (continue)="selectApmPaymentDetails()"
           [disableContinue$]="disableContinueButton$"
         />
-      </ng-container>
-    </ng-container>
+      }
+    } @else {
+      <ng-container *ngTemplateOutlet="loading"></ng-container>
+    }
   </ng-template>
 
   <!-- Accordion header template -->
@@ -49,10 +51,9 @@
         @switch (selectedApm.code) {
 
           @case(paymentMethod.Card) {
-            <ng-container
-              *ngIf="cardTemplate"
-              [ngTemplateOutlet]="cardTemplate"
-            />
+            @if (cardTemplate) {
+              <ng-container [ngTemplateOutlet]="cardTemplate" />
+            }
 
             <ng-container *ngTemplateOutlet="showBillingAddressForm; context: { selectedApm: selectedApm }" />
           }
@@ -108,7 +109,7 @@
           <ng-container *ngTemplateOutlet="accordionContent; context: { apm: cardApm, selectedApm: selectedApm$ | async, accordionItem: accordionItem }"></ng-container>
         </cdk-accordion-item>
       }
-      @for (apm of (apms | async); track apm.code) {
+      @for (apm of ($any(apms | async) ?? []); track apm.code) {
         <cdk-accordion-item #accordionItem="cdkAccordionItem" class="d-flex justify-start items-center flex-column" [expanded]="(selectedApm$ | async)?.code === apm.code">
           <ng-container *ngTemplateOutlet="accordionHeader; context: { accordionItem: accordionItem, apm }"></ng-container>
           <ng-container *ngTemplateOutlet="accordionContent; context: { apm: apm, selectedApm: selectedApm$ | async, accordionItem: accordionItem }"></ng-container>

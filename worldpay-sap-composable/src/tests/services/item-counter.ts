@@ -4,7 +4,6 @@ import { UntypedFormControl } from '@angular/forms';
 @Component({
   template: '',
   selector: 'cx-item-counter',
-  standalone: false
 })
 export class MockItemCounterComponent {
   @Input() min: number;

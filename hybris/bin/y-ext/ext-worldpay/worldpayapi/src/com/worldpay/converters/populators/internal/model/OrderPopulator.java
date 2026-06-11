@@ -58,14 +58,14 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         validateParameterNotNull(source, "Source must not be null!");
         validateParameterNotNull(target, "Target list must not be null!");
 
-        final List<Object> childElements = target.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrInstalmentProviderOrServiceLocationDataOrDynamicMCCOrPartialAuthorisationOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession();
+        final List<Object> childElements = target.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrInstalmentProviderOrTypeOfDigitalCurrencyOrRampDataOrServiceLocationDataOrDynamicMCCOrPartialAuthorisationOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrDynamicCurrencyConversionOfferOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession();
 
         Optional.ofNullable(source.getOrderCode())
                 .ifPresent(target::setOrderCode);
 
         Optional.ofNullable(source.getDescription()).ifPresent(description -> {
             final Description intDescription = new Description();
-            intDescription.setvalue(source.getDescription());
+            intDescription.setValue(source.getDescription());
             childElements.add(intDescription);
         });
 
@@ -78,7 +78,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
 
         Optional.ofNullable(source.getOrderContent()).ifPresent(orderContent -> {
             final OrderContent intOrderContent = new OrderContent();
-            intOrderContent.setvalue(orderContent);
+            intOrderContent.setValue(orderContent);
             childElements.add(intOrderContent);
         });
 
@@ -90,7 +90,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
 
         Optional.ofNullable(source.getCheckoutId()).ifPresent(checkoutId -> {
             final CheckoutId intCheckoutId = new CheckoutId();
-            intCheckoutId.setvalue(checkoutId);
+            intCheckoutId.setValue(checkoutId);
             childElements.add(intCheckoutId);
         });
 
@@ -143,14 +143,14 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
         Optional.ofNullable(source.getStatementNarrative())
                 .ifPresent(statementNarrative -> {
                     final StatementNarrative intStatementNarrative = new StatementNarrative();
-                    intStatementNarrative.setvalue(statementNarrative);
+                    intStatementNarrative.setValue(statementNarrative);
                     childElements.add(intStatementNarrative);
                 });
 
         Optional.ofNullable(source.getEchoData())
                 .ifPresent(echoData -> {
                     final EchoData intEchoData = new EchoData();
-                    intEchoData.setvalue(echoData);
+                    intEchoData.setValue(echoData);
                     childElements.add(intEchoData);
                 });
 
@@ -162,7 +162,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
                 .ifPresent(paResponse -> {
                     final Info3DSecure intInfo3dSecure = new Info3DSecure();
                     final PaResponse intPaResponse = new PaResponse();
-                    intPaResponse.setvalue(paResponse);
+                    intPaResponse.setValue(paResponse);
                     intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrThreeRIOrDelegatedAuthenticationOrTransactionStatusReasonOrTransactionStatusOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
                     childElements.add(intInfo3dSecure);
                 });

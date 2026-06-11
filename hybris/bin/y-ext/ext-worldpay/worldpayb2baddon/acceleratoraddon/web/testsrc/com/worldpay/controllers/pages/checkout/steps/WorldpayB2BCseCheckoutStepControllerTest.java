@@ -34,6 +34,7 @@ import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.servicelayer.session.Session;
 import de.hybris.platform.servicelayer.session.SessionService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,10 +47,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Date;
 
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
 import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
@@ -79,7 +78,7 @@ public class WorldpayB2BCseCheckoutStepControllerTest {
     private static final String EVENT_ORIGIN_DOMAIN = "EVENT_ORIGIN_DOMAIN";
     private static final String THREEDSFLEX_EVENT_ORIGIN_DOMAIN = "originEventDomain3DSFlex";
     private static final String BIRTHDAY_DATE = "birthdayDate";
-    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final LocalDate BIRTHDAY_DATE_VALUE = LocalDate.of(1990, 5, 17);
     private static final String DEVICE_SESSION = "DEVICE_SESSION";
     private static final String DEVICE_SESSION_VALUE = "device_session_value";
 

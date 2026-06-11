@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -86,7 +88,7 @@ public class WorldpayIframeCheckoutStepController extends WorldpayChoosePaymentM
         return REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS;
     }
 
-    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final Date dateOfBirth) {
+    protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final HttpServletRequest request, final LocalDate dateOfBirth) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData(request);
         worldpayAdditionalInfoData.setDateOfBirth(dateOfBirth);
         return worldpayAdditionalInfoData;

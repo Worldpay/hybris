@@ -1,157 +1,464 @@
-# Worldpay Connector for the SAP Composable Storefront
+# Worldpay Connector for SAP Composable Storefront
 
-The Worldpay Connector for SAP Composable Storefront is an Angular library that integrates Worldpay payment solutions into the SAP Composable Storefront (formerly Spartacus) for SAP Commerce Cloud.
+The Worldpay Connector for SAP Composable Storefront is an Angular library that integrates Worldpay payment solutions into the SAP Composable Storefront (formerly Spartacus) for
+SAP Commerce Cloud.
+It provides reusable Angular modules and components to enable secure payment processing, 3D Secure, fraud detection, guaranteed payments, and multiple Alternative Payment Methods (
+APMs).
 
-It provides reusable Angular modules and components to enable secure payment processing, 3D Secure, fraud detection, guaranteed payments, and multiple Alternative Payment Methods (APMs).
+> **Version:** 221121.11.0 | **Status:** ✅ Stable | **Compatible with:** SAP Composable Storefront 2211.x & Angular 21+
 
-## About Worldpay from FIS
+## Table of Contents
+
+| What do you need?             | Go to                                                                           |
+|-------------------------------|---------------------------------------------------------------------------------|
+| **Worldpay**                  | [About Worldpay](#about-worldpay-from-global-payments)                          |
+| **SAP Composable Storefront** | [About SAP Composable Storefront](#about-sap-composable-storefront)             |
+| **Verify compatibility**      | [Requirements](#requirements)                                                   |
+| **Install the package**       | [Installation](#installation)                                                   |
+| **Compatibility**             | [Compatibility](#compatibility)                                                 |
+| **Configure it**              | [Configuration](#configuration)                                                 |
+| **Understand features**       | [Features & Modules](#features--modules)                                        |
+| **See how to use it**         | [Usage Examples](#usage-examples)                                               |
+| **Customize it**              | [Advanced Configuration](#advanced-configuration)                               |
+| **Pre-deployment checklist**  | [Application Checklist](#application-checklist)                                 |
+| **Payment methods**           | [Supported Alternative Payment Methods](#supported-alternative-payment-methods) |
+| **Fix problems**              | [Troubleshooting](#troubleshooting)                                             |
+| **Release Notes**             | [Release Notes](#release-notes)                                                 |
+
+## What This Library Provides
+
+### Standalone Components
+
+All Worldpay components are implemented as standalone components, following Angular best practices:
+
+- Import components directly into feature modules or other standalone components.
+- No need for NgModules for component registration; add the component to your `imports` array.
+- Providers for each feature are exposed via factory functions (e.g., `provideWorldpayPaymentMethods()`), which can be registered globally.
+
+### Integration Approaches
+
+| Approach   | Description                                                           | Recommended For                          |
+|------------|-----------------------------------------------------------------------|------------------------------------------|
+| Standalone | Import components directly, register providers via factory functions. | New projects, lazy loading, tree-shaking |
+| NgModule   | Use Angular modules for registration.                                 | Existing projects, gradual migration     |
+
+Both approaches are fully supported. See [Usage Examples](#usage-examples) for details.
+
+This connector integrates Worldpay payment solutions into SAP Commerce Cloud with:
+
+- **Secure credit card payments** - Client-side encryption (PCI compliant)
+- **3D Secure authentication** - Enhanced security for high-value transactions
+- **11+ Alternative Payment Methods** - Apple Pay, Google Pay, iDEAL, Klarna, and more
+- **Fraud detection** - Built-in FraudSight risk assessment
+- **B2B support** - Purchase orders, company information, scheduled replenishment
+- **Guaranteed Payments** - Optional payment guarantee feature
+- **Standalone Angular components** - Import directly, no NgModules required
+
+## About Worldpay from Global Payments
 
 Worldpay from FIS is one of the world's leading global eCommerce and payment technology companies. FIS is a leading provider of technology solutions for merchants, banks and
 capital markets firms globally.
 
+---
+
 ## About SAP Composable Storefront
 
-Starting with version 2211.19, composable storefront has aligned its versioning with SAP Commerce Cloud. The previous release of composable storefront was version 6.8. For more
-information,
+SAP Composable Storefront is the modern JavaScript storefront for SAP Commerce Cloud. Starting with version 2211.19, composable storefront has aligned its versioning with SAP
+Commerce Cloud. The previous release was version 6.8. For more information,
 see [Changes to Release Numbering and Update Policies for Composable Storefront Starting in February 2024](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/6c7b98dbe68f4a508cac17a207182f4c/5fea969613a341308e2519c5f2827331.html?locale=en-US&version=2211).
 
 Composable storefront is based off the Spartacus open source code, and is included in the SAP Commerce Cloud license at no extra cost. Composable storefront has a roll-forward
 update policy.
-Spartacus documentation: [https://sap.github.io/spartacus-docs/](https://sap.github.io/spartacus-docs/).
-Release information: [https://sap.github.io/spartacus-docs/release-information/](https://sap.github.io/spartacus-docs/release-information/).
+
+Spartacus documentation: [https://sap.github.io/spartacus-docs/](https://sap.github.io/spartacus-docs/)
+Release information: [https://sap.github.io/spartacus-docs/release-information/](https://sap.github.io/spartacus-docs/release-information/)
+
+---
 
 ## Requirements
 
-Before updating Composable storefront to version 2211.43, you first need to make sure your Angular libraries are up to date. Composable storefront 2211.43 requires Angular 19.
+Before updating composable storefront to version 221121.11.0, ensure your Angular libraries are up to date. Composable storefront 221121.11.0 requires Angular 21.
 
-- If you are working with Composable storefront 2211, see the 2211 Angular development environment requirements on
-  the [SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/cfcf687ce2544bba9799aa6c8314ecd0/bf31098d779f4bdebb7a2d0591917363.html?locale=en-US&version=2211).
-- **[Angular CLI:](https://angular.io/)** Version 19.2.0 is the minimum required. The most recent 19.x version is strongly recommended.
-- **[npm:](https://www.npmjs.com/)** Version 10.9.2 or newer.
-- **[Node.js](https://nodejs.org/)**: Version 22.14.0 is the minimum required. The most recent 22.x version is strongly recommended.
+| Requirement            | Version     | Notes                                                                                                                                                                             |
+|------------------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Angular**            | `^21.0.0`   | TypeScript 5.x required                                                                                                                                                           |
+| **Angular CLI**        | `^21.0.0`   | Latest 21.x version recommended                                                                                                                                                   |
+| **Angular Animations** | `^21.0.0`   | Latest 21.x version recommended                                                                                                                                                   |
+| **Angular CDK**        | `^21.0.0`   | Latest 21.x version recommended                                                                                                                                                   |
+| **Node.js**            | `>=22.14.0` | Latest 22.x version recommended                                                                                                                                                   |
+| **npm**                | `>=10.9.2`  | or yarn 4.x                                                                                                                                                                       |
+| **SAP Commerce Cloud** | `2211+`     | [SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/cfcf687ce2544bba9799aa6c8314ecd0/bf31098d779f4bdebb7a2d0591917363.html?locale=en-US&version=2211). |
 
+> Some features require API endpoints only available in newer SAP Commerce Cloud versions.
 
-**Note:** Some Spartacus features require API endpoints that are only available in newer versions of SAP Commerce Cloud. For more information, see Feature Compatibility.
+---
 
 ## Compatibility
 
-The Connector is compatible with the Composable storefront Release 2211.43.0
+| Package                        | Version       |
+|--------------------------------|---------------|
+| `@worldpay2020/sap-composable` | `221121.11.0` |
+| SAP Composable Storefront      | `221121.11.0` |
+| Angular                        | `^21.0.0`     |
+| SAP Commerce Cloud             | `2211+`       |
 
-## Installation & Usage
+---
 
-### Development
+## Installation
 
-Run the command `./install.sh` to do a clean install and run the example-storefront
+### Using npm (Recommended)
 
-### Installing Composable storefront
+```bash
+npm install @worldpay2020/sap-composable
+```
 
-- Install `@worldpay2020/sap-composable` to your Composable project - final name pending
+### Using yarn
 
-    - #### Using npm
-    ```bash
-     npm install @worldpay2020/sap-composable
-    ```
-    - #### Using npm   (specific version)
-   ```bash
-     npm install @worldpay2020/sap-composable@2211.43.0
-    ```
+```bash
+yarn add @worldpay2020/sap-composable
+```
 
-    - #### Using yarn
-    ```bash
-    yarn install @worldpay2020/sap-composable
-    ```
-    - #### Using yarn   (specific version)
-    ```bash
-    yarn install @worldpay2020/sap-composable@2211.43.0
-    ```
+### Specific Version
 
-## Configuring SAP Composable Storefront
+```bash
+npm install @worldpay2020/sap-composable@221121.11.0
+```
 
-1. Include Worldpay Module the following in your Composable storefront's `app.module.ts` file.
+### Install dependencies:
 
-````typescript
+```bash
+npm install @angular/animations@^21.2.0
+npm install @angular/cdk@^21.2.0
+```
+
+---
+
+## Configuration
+
+### Step 1: Configure in `app.config.ts`
+
+For **B2C (Standard) Configuration:**
+
+```typescript
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { provideClientHydration, withEventReplay, withNoHttpTransferCache } from '@angular/platform-browser';
 import { WorldpayModule } from '@worldpay2020/sap-composable';
 
-@NgModule({
-  imports: [
-    ...
-      WorldpayModule,
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideHttpClient(withFetch(), withInterceptorsFromDi()),
+    provideClientHydration(withEventReplay(), withNoHttpTransferCache()),
+    importProvidersFrom(AppModule),
+    importProvidersFrom(WorldpayModule),
+    // Optional: Include additional feature modules as needed
+    // importProvidersFrom(WorldpayFraudsightRiskFeatureModule)
   ],
-})
-````
+};
+```
 
-### WorldpayModule Included Components
+### Step 2: Bootstrap your application with the config
 
-**WorldpayModule** is the main module that includes core payment functionality and optional feature modules. It imports:
+In your `main.ts`:
 
-#### Core Feature Module
-- **WorldpayFeatureModule** - Contains:
-  - OCC API adapters and connectors for Worldpay backend integration
-  - Checkout payment method components and forms
-  - Delivery address management
-  - 3D Secure (3DS) Device Data Collection (DDC) iframe
-  - 3DS Challenge iframe for 3D Secure authentication
-  - Place order orchestration and processing
-  - Payment review and confirmation components
-  - Cart and order confirmation management
-  - i18n translations for all supported languages
-  - Payment method icons and assets
+```typescript
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
 
-#### Included Modules in WorldpayModule
+bootstrapApplication(AppComponent, appConfig).catch(err =>
+  console.error(err)
+);
+```
 
-The `WorldpayModule` automatically imports:
+### Step 3: Include required scripts in `index.html`
+
+```html
+<html>
+<head>
+  <!-- ... other head content ... -->
+  <!-- Optional: FraudSight ThreatMetrix script (only if displaying the FraudSight Risk component) -->
+  <script
+    src="./public/worldpay.threatmetrix.js"
+    type="text/javascript"
+  ></script>
+</head>
+<body>
+<app-root></app-root>
+<!-- Required: Worldpay CSE script for secure payment processing -->
+<script src="https://secure.worldpay.com/resources/cse/js/worldpay-cse-1.latest.min.js"></script>
+</body>
+</html>
+```
+
+### Step 4: Configure Assets (in `angular.json`)
+
+Add the Worldpay assets to your `angular.json`:
+
+```json
+{
+  "projects": {
+    "your-app": {
+      "architect": {
+        "build": {
+          "options": {
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/@worldpay2020/sap-composable/src/assets",
+                "output": "assets/worldpay"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Step 5: Configure Styles (in `angular.json`)
+
+Add the Worldpay stylesheet to your `angular.json`:
+
+```json
+{
+  "projects": {
+    "your-app": {
+      "architect": {
+        "build": {
+          "options": {
+            "styles": [
+              "src/styles.scss",
+              "node_modules/@worldpay2020/sap-composable/src/assets/styles/styles.scss"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## Features & Modules
+
+Not sure what you need? This matrix shows what's included and what's optional:
+
+| Feature                                       | Included?   | Required?   | When to Use                      |
+|-----------------------------------------------|-------------|-------------|----------------------------------|
+| **Credit Card**                               | ✅ Default   | ✓ Yes       | All merchants                    |
+| **3D Secure**                                 | ✅ Default   | ⚠️ Optional | High-value transactions          |
+| **FraudSight Risk Service**                   | ✅ Automatic | ✅ Yes       | Always enabled (internal)        |
+| **FraudSight Risk UI**                        | ❌ Separate  | ⚠️ Optional | Display fraud scores to users    |
+| **APMs** (Apple Pay, Google Pay, iDEAL, etc.) | ✅ Default   | ⚠️ Optional | Accept e-wallets                 |
+| **Guaranteed Payments**                       | ❌ Separate  | ⚠️ Optional | Offer payment guarantees         |
+| **B2B Module**                                | ❌ Separate  | ⚠️ Optional | B2B merchants (PO numbers, etc.) |
+
+**Legend:**
+
+- ✅ **Default** = Already included in WorldpayModule
+- ⚠️ **Optional** = Configure only if you need this feature
+- ✓ **Required** = Must configure, payment won't work without it
+- ❌ **Separate** = Requires additional import/configuration
+- ✅ **Automatic** = Works by itself, zero configuration needed
+
+### WorldpayModule Architecture
+
+**WorldpayModule** is the main module that includes core payment functionality and optional feature modules.
+
+#### Core Components
+
+The `WorldpayModule` automatically includes:
 
 ```typescript
 @NgModule({
   imports: [
     WorldpayFeatureModule,                      // Core payment functionality
-    WorldpayGuaranteedPaymentsFeatureModule     // Guaranteed Payments (optional feature)
+    WorldpayGuaranteedPaymentsFeatureModule     // Guaranteed Payments (optional)
   ],
 })
 export class WorldpayModule {
 }
 ```
 
-#### Optional Feature Modules (included by default)
-- **WorldpayGuaranteedPaymentsFeatureModule** - Payment guarantee features (can be disabled if not needed)
+#### WorldpayFeatureModule Contains
 
-**Important:** The FraudSight Risk service is **automatically included** in WorldpayFeatureModule. It is used internally by the place-order functionality to collect fraud risk data during payment processing. The `<worldpay-fraudsight-risk>` **component** is optional and only needed if you want to display fraud risk information to users.
+- OCC API adapters and connectors for Worldpay backend integration
+- Checkout payment method components and forms
+- Delivery address management
+- 3D Secure (3DS) Device Data Collection (DDC) iframe
+- 3DS Challenge iframe for 3D Secure authentication
+- Place order orchestration and processing
+- Payment review and confirmation components
+- Cart and order confirmation management
+- i18n translations for all supported languages
+- Payment method icons and assets
 
-**Note:** Optional feature modules are included by default in WorldpayModule. See [Optional Modules](#optional-modules) section below for information on Guaranteed Payments configuration.
+#### Important Notes
 
-### Include Required Scripts
+- The **FraudSight Risk service** is automatically included in WorldpayFeatureModule and used internally by place-order functionality
+- The `<worldpay-fraudsight-risk>` **component** is optional and only needed if you want to display fraud risk information to users
+- Optional feature modules (like WorldpayGuaranteedPaymentsFeatureModule) are included by default in WorldpayModule
 
-Include the following scripts in your `index.html` file to enable payment processing:
+---
 
-**Required:** Worldpay CSE (Client-Side Encryption) script for secure payment processing:
+## Usage Examples
 
-```html
-<html>
-  <head>
-    <!-- ... other head content ... -->
-  </head>
-  <body>
-    <app-root></app-root>
-    <!-- Required: Worldpay CSE script -->
-    <script src="https://secure.worldpay.com/resources/cse/js/worldpay-cse-1.latest.min.js"></script>
-  </body>
-</html>
+Choose your use case and follow the example:
+
+### Example 1: Standard B2C Checkout (Most Common)
+
+For a regular ecommerce storefront with all payment methods enabled:
+
+```typescript
+// app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { importProvidersFrom } from '@angular/core';
+import { WorldpayModule } from '@worldpay2020/sap-composable';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    importProvidersFrom(WorldpayModule), // Includes all payment methods
+  ],
+};
 ```
 
-**Optional:** FraudSight ThreatMetrix script (only if displaying the FraudSight Risk component):
+**What's included:**
 
-```html
-<head>
-  <!-- ... other head content ... -->
-  <!-- Optional: Include only if using <worldpay-fraudsight-risk> component -->
-  <script src="./public/worldpay.threatmetrix.js" type="text/javascript"></script>
-</head>
+- Credit card form
+- 3D Secure (optional, user can enable)
+- Apple Pay, Google Pay, iDEAL, Klarna, and all APMs
+- FraudSight risk assessment (internal)
+
+---
+
+### Example 2: B2B with Purchase Orders
+
+For business-to-business transactions with PO number support:
+
+```typescript
+// app.config.ts
+import { WorldpayB2bModule } from '@worldpay2020/sap-composable';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    importProvidersFrom(WorldpayB2bModule), // B2B features auto-enabled
+  ],
+};
 ```
 
-### Customizing iconConfig
+**What's included:**
 
-If you want to customize Spartacus icons, you can override `iconConfig` in your storefront `app.module.ts`.
-When overriding, keep the Worldpay icon sprite resource so Worldpay payment icons continue to render correctly.
+- Credit card form with company information
+- PO number field (required)
+- 3D Secure (optional)
+- Scheduled replenishment support
+- All payment methods
+
+---
+
+### Example 3: Display Fraud Risk to Users
+
+For merchants who want to show fraud assessment results to customers:
+
+```typescript
+// app.config.ts - Configuration
+import { WorldpayModule } from '@worldpay2020/sap-composable';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    importProvidersFrom(WorldpayModule),
+  ],
+};
+```
+
+```html
+<!-- app.component.html - Display component -->
+<cx-storefront></cx-storefront>
+
+<!-- Optional: Display fraud risk information -->
+<worldpay-fraudsight-risk
+  threatMetrix="wprofile"
+  [randomIdLength]="128"
+  [organisationId]="fraudsightConfig.organisationId"
+  [pageId]="fraudsightConfig.pageId"
+  [profilingDomain]="fraudsightConfig.profilingDomain"
+></worldpay-fraudsight-risk>
+```
+
+```typescript
+// environment.ts - Configuration
+export const environment = {
+  fraudSight: {
+    organisationId: 'YOUR_ORGANISATION_ID',
+    profilingDomain: 'PROFILING_DOMAIN',
+    pageId: 'PAGE_ID',
+  },
+};
+```
+
+---
+
+### Example 4: Guaranteed Payments
+
+For merchants offering payment guarantees:
+
+```typescript
+// app.config.ts
+import {
+  WorldpayModule,
+  WorldpayGuaranteedPaymentsFeatureModule
+} from '@worldpay2020/sap-composable';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(),
+    importProvidersFrom(WorldpayModule),
+    importProvidersFrom(WorldpayGuaranteedPaymentsFeatureModule),
+  ],
+};
+```
+
+```html
+<!-- app.component.html -->
+<cx-storefront></cx-storefront>
+<worldpay-guaranteed-payments></worldpay-guaranteed-payments>
+```
+
+---
+
+## Advanced Configuration
+
+### Using NgModule Approach (Legacy)
+
+If your project still uses NgModules:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { WorldpayModule } from '@worldpay2020/sap-composable';
+
+@NgModule({
+  imports: [WorldpayModule],
+})
+export class PaymentModule {
+}
+```
+
+Both approaches (standalone and NgModule) are fully supported.
+
+### Customizing Icons
+
+If you want to customize Spartacus icons, you can override `iconConfig` in your storefront `app.module.ts`. When overriding, keep the Worldpay icon sprite resource so Worldpay payment icons continue to render correctly.
 
 ```typescript
 import { IconConfig, IconResourceType } from '@spartacus/storefront';
@@ -177,266 +484,135 @@ import { provideConfig } from '@spartacus/core';
     } as IconConfig),
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
-Official Spartacus icon library documentation:
+**Official Spartacus icon library documentation:**
 https://sap.github.io/spartacus-docs/3.x/icon-library/
 
-## B2B Configuration & Functionality
+---
 
-The Worldpay Connector supports B2B-specific payment configurations in addition to standard B2C checkout flows. B2B features are enabled through the `WorldpayB2BModule` which extends the core `WorldpayModule` with B2B-specific components and services.
+## Application Checklist
 
-### Prerequisites
+Before going live, verify everything works:
 
-Before enabling B2B functionality, ensure your SAP Commerce backend is properly configured:
+- [ ] `npm install` completed without errors
+- [ ] Angular version is 21+ (`ng version`)
+- [ ] Worldpay CSE script added to `index.html`
+- [ ] Assets configured in `angular.json` (worldpay icons load correctly)
+- [ ] Styles imported in `angular.json`
+- [ ] `WorldpayModule` imported in `app.config.ts`
+- [ ] Backend OCC endpoints enabled in SAP Commerce
+- [ ] 3D Secure configured (if needed for your region)
+- [ ] Mobile payment methods tested (Apple Pay, Google Pay on mobile)
+- [ ] Fraud detection working (if enabled)
+- [ ] B2B PO number field working (if B2B module enabled)
+- [ ] Payment form renders without errors
+- [ ] Test transaction completes successfully
+- [ ] Error messages display correctly
+- [ ] Production environment variables configured
 
-1. **SAP Commerce Cloud Configuration**
-   - B2B Units and organizational hierarchy configured
-   - B2B User accounts created and assigned to units
-   - B2B feature modules activated in your SAP Commerce installation
+## Supported Alternative Payment Methods
 
-2. **SAP Composable Storefront**
-   - B2B accelerator features from SAP enabled
-   - B2B routing and configuration in place
+The following APMs are enabled by default. Region and currency availability varies:
 
-### B2B Payment Features
+| Method               | Regions     | Currencies         | Setup |
+|----------------------|-------------|--------------------|-------|
+| **Apple Pay**        | All         | All                | Auto  |
+| **Google Pay**       | All         | All                | Auto  |
+| **iDEAL**            | Netherlands | EUR                | Auto  |
+| **Klarna**           | 8 countries | EUR, GBP           | Auto  |
+| **Bancontact**       | Belgium     | EUR                | Auto  |
+| **Przelewy24**       | Poland      | EUR                | Auto  |
+| **EPS**              | Austria     | EUR                | Auto  |
+| **ACH Direct Debit** | USA         | USD                | Auto  |
+| **AliPay**           | China       | USD, EUR           | Auto  |
+| **China Union Pay**  | China       | GBP, EUR, USD, SGD | Auto  |
+| **PayPal**           | All         | All                | Auto  |
+| **SEPA**             | EU          | EUR                | Auto  |
 
-The `WorldpayB2BModule` automatically imports:
+All methods are configured automatically. Just enable/disable in your backend configuration.
+
+## Troubleshooting
+
+### Installation Issues
+
+#### "Module not found" error
+
+```
+Error: Cannot find module '@worldpay2020/sap-composable'
+```
+
+**Solution:**
+
+```bash
+# Clear npm cache
+npm cache clean --force
+ 
+# Remove and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### "Integrity check failed" error
+
+```
+npm ERR! Integrity check failed for @worldpay2020/sap-composable
+```
+
+**Solution:**
+
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
+---
+
+### Configuration Issues
+
+#### "WorldpayModule is not defined"
+
+```
+Error: Unexpected value 'WorldpayModule' imported by the module
+```
+
+**Solution:** Ensure import is correct in `app.config.ts`:
 
 ```typescript
-@NgModule({
-  imports: [
-    WorldpayB2bFeatureModule,                   // B2B Core payment functionality
-    WorldpayGuaranteedPaymentsFeatureModule     // Guaranteed Payments (optional feature)
-  ],
-})
-export class WorldpayB2BModule {
-}
+import { WorldpayModule } from '@worldpay2020/sap-composable';
 ```
 
-The B2B module provides:
+#### Payment form not showing
 
-- **Standard Worldpay CSE Payment Integration** - Client-side encryption for secure card payments
-- **3D Secure Authentication** (optional) - Enhanced security for high-value transactions
-- **Company Information** - Company name and organizational details in billing information
-- **Purchase Order Management** (optional) - PO number tracking and validation
-- **Scheduled Replenishment** - Automated recurring order scheduling for B2B accounts
-
-No additional connector configuration is required beyond the base Worldpay configuration.
-
-### Implementation
-
-**Step 1: Import WorldpayB2BModule**
-
-Update your `app.module.ts` to conditionally import the B2B or B2C module based on your environment:
-
-```typescript
-import { WorldpayModule, WorldpayB2BModule } from '@worldpay2020/sap-composable';
-
-// Dynamically select module based on environment configuration
-const WorldpayMainModule: typeof WorldpayB2BModule = environment.b2b ? WorldpayB2BModule : WorldpayModule;
-
-@NgModule({
-  imports: [
-    // ... other imports
-    WorldpayMainModule,
-  ],
-})
-export class AppModule {
-}
+```
+Warning: worldpay-payment-form component not recognized
 ```
 
-The `WorldpayB2BModule` automatically imports and configures WorldpayB2BFeatureModule which includes all necessary components and services for B2B payment processing:
+**Solution:**
 
-```typescript
+1. Check DevTools → Network → Verify CSE script loaded (https://secure.worldpay.com/resources/cse/js/worldpay-cse-1.latest.min.js)
+2. Check Console for JavaScript errors
+3. Verify WorldpayModule is imported
+4. Clear browser cache: `Ctrl+Shift+Delete` (or `Cmd+Shift+Delete` on Mac)
 
-@NgModule({
-  imports: [
-    WorldpayModule,                                   // Core payment functionality
-    OccWorldpayB2bModule,                             // B2B OCC API adapters
-    WorldpayB2BCheckoutReviewSubmitModule,            // B2B order review and submission
-    WorldpayB2bCheckoutPaymentMethodModule,           // B2B-specific payment method selection
-    WorldpayCheckoutScheduledReplenishmentModule      // Automated order scheduling
-  ]
-})
-export class WorldpayB2BFeatureModule {
-}
+---
+
+### Runtime Issues
+
+#### Payment always fails with "Invalid merchant key"
+
+```
+Error: Invalid or expired merchant key
 ```
 
-**Module Descriptions':**
-- **OccWorldpayB2bModule** - Handles B2B-specific OCC API communication with backend
-- **WorldpayB2BCheckoutReviewSubmitModule** - B2B-specific checkout review workflow with company/PO information
-- **WorldpayB2bCheckoutPaymentMethodModule** - Enhanced payment method selection with B2B-specific options
-- **WorldpayCheckoutScheduledReplenishmentModule** - Manages automated recurring order scheduling for B2B accounts
+**Solution:**
 
-## Assets Configuration
-
-Add the following entry to the `assets` array in your `angular.json` under the `build` architect options:
-```json
-{
-  "glob": "**/*",
-  "input": "node_modules/@worldpay2020/sap-composable/src/assets",
-  "output": "assets/worldpay"
-}
-```
-
-This makes the Worldpay assets (images, icons, etc.) available at `/assets/worldpay/` in your application.
-
-### Example
-```json
-"assets": [
-  "src/favicon.ico",
-  "src/assets",
-  {
-    "glob": "**/*",
-    "input": "node_modules/@worldpay2020/sap-composable/src/assets",
-    "output": "assets/worldpay"
-  }
-]
-```
-
-## Styles Configuration
-
-Add the Worldpay stylesheet to the `styles` array in your `angular.json`:
-```json
-"styles": [
-  "src/styles.scss",
-  "node_modules/@worldpay2020/sap-composable/src/assets/styles/styles.scss"
-]
-```
-
-
-# Optional Modules
-
-## Overview
-
-WorldpayModule provides complete payment processing functionality. Some features are required, while others are truly optional:
-
-- **Required Components** - Automatically included in WorldpayModule
-  - Core payment checkout and processing
-  - FraudSight Risk service (internal, no UI)
-  - 3D Secure authentication
-  - Order confirmation and tracking
-
-- **Optional Components** - Include only if needed
-  - Guaranteed Payments feature module
-  - FraudSight Risk UI component (for displaying fraud scores to users)
-
-### When to Use Optional Features
-
-| Feature                          | Required?      | When to Include               | When to Skip                     |
-|----------------------------------|----------------|-------------------------------|----------------------------------|
-| **FraudSight Risk Service**      | Yes (built-in) | Always available              | N/A                              |
-| **FraudSight Risk UI Component** | No             | Display fraud scores to users | Just use internal service        |
-| **Guaranteed Payments Module**   | No             | Offer payment guarantees      | Standard payment processing only |
-
-### How Optional Features Work
-
-When you **don't** import an optional feature:
--  The service/component is not loaded
--  No bundle size impact
--  Payment processing continues normally
--  No configuration needed
-
-When you **do** import an optional feature:
--  Additional capabilities become available
--  Component is registered in Angular
--  Services are injected in dependency container
--  Follow the setup instructions in relevant section
-
-### Key Points
-
-- **FraudSight Risk service is automatic** - No extra steps needed. It's built into the core payment flow.
-- **FraudSight Risk component is optional** - Only add if you want to display fraud information to users.
-- **Guaranteed Payments is fully optional** - Only import if your business requires payment guarantees.
-
-## Enable Guaranteed Payments (Optional)
-
-Guaranteed Payments is an optional feature that provides payment guarantee capabilities. If you don't need this feature, you can skip this section.
-
-### Implementation
-
-1. **Import the module** in your `app.module.ts` file:
-
-```typescript
-import { WorldpayModule, WorldpayGuaranteedPaymentsFeatureModule } from '@worldpay2020/sap-composable';
-
-@NgModule({
-  imports: [
-    // ... other imports
-    WorldpayModule,
-    WorldpayGuaranteedPaymentsFeatureModule  // Optional: Only if you need payment guarantee features
-  ],
-})
-export class AppModule {
-}
-```
-
-2. **Add the component** to your `app.component.html` to display the guaranteed payments UI:
-
-```html
-<cx-storefront></cx-storefront>
-<!-- Optional: Add this component if you want to display guaranteed payments -->
-<worldpay-guaranteed-payments></worldpay-guaranteed-payments>
-```
-
-## Display FraudSight Risk Information (Optional)
-
-The FraudSight Risk service is **automatically included** in WorldpayModule and provides fraud risk assessment during payment processing.
-
-The `<worldpay-fraudsight-risk>` **component** is optional and only needed if you want to **display** fraud risk information to users. Most merchants can skip this section and just use the automatic service.
-
-### When to Add the FraudSight Risk Component
-
-Add this component only if:
--  You have FraudSight Risk configured with Worldpay
--  Your UX requires displaying fraud assessment results
-
-### Implementation
-
-**Step 1: Add the ThreatMetrix script** to your `index.html` before the closing `</body>` tag:
-
-```html
-<body>
-  <!-- ... your app content ... -->
-  
-  <!-- Required for FraudSight component display -->
-  <script src="./public/worldpay.threatmetrix.js" type="text/javascript"></script>
-</body>
-```
-
-**Note:** Ensure the `worldpay.threatmetrix.js` file exists in your `public` folder.
-
-**Step 2: Configure environment variables** in your `environment.ts` file:
-
-```typescript
-export const environment = {
-  // ... other config ...
-  fraudSight: {
-    organisationId: 'YOUR_ORGANISATION_ID',
-    profilingDomain: 'PROFILING_DOMAIN',
-    pageId: 'PAGE_ID',
-  },
-};
-```
-
-**Step 3: Add the component** to your `app.component.html` to display the fraud risk UI:
-
-```html
-<cx-storefront></cx-storefront>
-
-<!-- Optional: Display fraud risk information to users -->
-<worldpay-fraudsight-risk
-  threatMetrix="wprofile"
-  [randomIdLength]="128"
-  [organisationId]="fraudsightConfig.organisationId"
-  [pageId]="fraudsightConfig.pageId"
-  [profilingDomain]="fraudsightConfig.profilingDomain"
-></worldpay-fraudsight-risk>
-```
-
-**Note:** If you skip this entire section, the FraudSight service will still work internally to assess fraud risk during payment processing. This component is purely for displaying results to users.
+1. Verify merchant key is correct in your configuration
+2. Check merchant key is active in [Worldpay dashboard](https://www.worldpay.com/en/payments)
+3. Ensure key is for correct environment (test vs. production)
 
 ## License
 
@@ -452,29 +628,40 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Release Notes
+
+### Release 221121.11.0 (Current)
+
+* Compatible with SAP Commerce Cloud 221121
+* Updated components to be standalone Angular 21
+* Enhanced 3D Secure support
+* Improved FraudSight integration
+* B2B module stabilization
+* Better error messages
+
 ### Release 2211.43.0
+
 * Compatible with SAP Commerce Cloud 2211.43
-* Removed deprecated APM's:
-* Supported APM’s for B2B recipe:
+* Removed deprecated APMs
+* Supported APM's for B2B recipe:
 
-| Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
-|-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
-| ACH Direct Debit      | US                            | USD             | Yes                | Account type, Account Number, Routing Number, Check Number, Company Name, Custom Identifier |
-| Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
-| Open Banking          | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
+| Payment          | Enabled Country         | Currency | Requires User Data | Additional User Data                                                                        |
+|------------------|-------------------------|----------|--------------------|---------------------------------------------------------------------------------------------|
+| ACH Direct Debit | US                      | USD      | Yes                | Account type, Account Number, Routing Number, Check Number, Company Name, Custom Identifier |
+| Sepa             | AT,BE,FR,DE,IE,IT,NL,ES | EUR      |                    |                                                                                             |
+| Open Banking     | AT,BE,FR,DE,IE,IT,NL,ES | EUR      |                    |                                                                                             |
 
-
-Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method to their customers in the United States and Europe, providing a convenient and secure way for customers to make payments directly from their bank accounts.
-
+Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method to their customers in the United States and Europe, providing a convenient and secure way for
+customers to make payments directly from their bank accounts.
 
 ### Release 2211.43
 
 * Compatible with SAP Commerce Cloud 2211.43
 * Removed deprecated APM's:
-  * GiroPay
-  * Postepay
-  * Sofort
-* Supported APM’s:
+    * GiroPay
+    * Postepay
+    * Sofort
+* Supported APM's:
 
 | Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
 |-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
@@ -493,10 +680,10 @@ Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method t
 | POLi                  | NZ                            | NZ              |                    |                                                                                             |
 | Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                                                                                             |
 
-### Release 2211.28.0
+### Release 2211.28
 
-* Compatible with SAP Commerce Cloud 2211.27.0
-* Supported APM’s:
+* Compatible with SAP Commerce Cloud 2211.28
+* Supported APM's:
 
 | Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
 |-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
@@ -521,7 +708,7 @@ Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method t
 ### Release 6.4.2
 
 * Included ACH payment method for United States
-* Supported APM’s:
+* Supported APM's:
 
 | Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data                                                                        |
 |-----------------------|-------------------------------|-----------------|--------------------|---------------------------------------------------------------------------------------------|
@@ -552,9 +739,9 @@ Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method t
 
 * Credit card form
 * Supports Guest checkout
-* 3d Secure
+* 3D Secure
 * Fraud Sight
-* Supported APM’s:
+* Supported APM's:
 
 | Payment               | Enabled Country               | Currency        | Requires User Data | Additional User Data |
 |-----------------------|-------------------------------|-----------------|--------------------|----------------------|
@@ -574,5 +761,3 @@ Merchants can now offer ACH SEPA Open Banking Direct Debit as a payment method t
 | Postepay              | IT                            | EUR             |                    |                      |
 | Sepa                  | AT,BE,FR,DE,IE,IT,NL,ES       | EUR             |                    |                      |
 | Sofort                | AT,BE,FR,DE,CH                | EUR,CHF         |                    |                      |
-
-

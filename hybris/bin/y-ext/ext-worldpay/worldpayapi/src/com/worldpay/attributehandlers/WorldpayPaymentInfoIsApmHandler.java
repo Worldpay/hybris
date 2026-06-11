@@ -3,7 +3,7 @@ package com.worldpay.attributehandlers;
 import com.worldpay.core.services.APMConfigurationLookupService;
 import de.hybris.platform.core.model.order.payment.PaymentInfoModel;
 import de.hybris.platform.servicelayer.model.attribute.DynamicAttributeHandler;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.Set;
 
@@ -12,7 +12,11 @@ import java.util.Set;
  */
 public class WorldpayPaymentInfoIsApmHandler implements DynamicAttributeHandler<Boolean, PaymentInfoModel> {
 
-    private APMConfigurationLookupService apmConfigurationLookupService;
+    protected final APMConfigurationLookupService apmConfigurationLookupService;
+
+    public WorldpayPaymentInfoIsApmHandler(APMConfigurationLookupService apmConfigurationLookupService) {
+        this.apmConfigurationLookupService = apmConfigurationLookupService;
+    }
 
     /**
      * Returns true if the paymentType of the PaymentInfoModel is a configured APM. False otherwise.
@@ -38,8 +42,4 @@ public class WorldpayPaymentInfoIsApmHandler implements DynamicAttributeHandler<
         throw new UnsupportedOperationException("You can not set a value for this property");
     }
 
-    @Required
-    public void setApmConfigurationLookupService(final APMConfigurationLookupService apmConfigurationLookupService) {
-        this.apmConfigurationLookupService = apmConfigurationLookupService;
-    }
 }

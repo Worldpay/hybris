@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MockWorldpayApmBaseComponent } from './worldpay-apm-base-component.mock';
 
@@ -5,7 +6,9 @@ import { MockWorldpayApmBaseComponent } from './worldpay-apm-base-component.mock
   selector: 'y-worldpay-apm-sepa',
   template: '<ng-container [ngTemplateOutlet]="cardTemplate"></ng-container>',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    NgTemplateOutlet
+  ]
 })
 export class MockWorldpayApmSepaComponent extends MockWorldpayApmBaseComponent {
 }
@@ -14,7 +17,9 @@ export class MockWorldpayApmSepaComponent extends MockWorldpayApmBaseComponent {
   selector: 'y-worldpay-b2b-apm-sepa',
   template: '<ng-container [ngTemplateOutlet]="cardTemplate"></ng-container>',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    NgTemplateOutlet
+  ]
 })
 export class MockWorldpayB2BApmSepaComponent extends MockWorldpayApmBaseComponent {
 }

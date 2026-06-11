@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { facadeFactory } from '@spartacus/core';
 import { Observable } from 'rxjs';
-import { GooglePayMerchantConfiguration, GooglePayPaymentRequest } from '../interfaces';
+import { GooglePayMerchantConfiguration, GooglePayPaymentResponse } from '../models';
 import { WORLDPAY_GOOGLE_PAY_FEATURE } from './worldpay-feature-name';
 
 /**
@@ -69,7 +69,7 @@ export abstract class WorldpayGooglepayFacade {
    * @param savePaymentMethod Whether to save the payment method for future use.
    * @since 2211.43.0
    */
-  abstract authoriseOrder(paymentRequest: GooglePayPaymentRequest, savePaymentMethod: boolean): void;
+  abstract authoriseOrder(paymentRequest: GooglePayPaymentResponse, savePaymentMethod: boolean): void;
 
   /**
    * Returns an observable of the checkout preconditions (userId and cartId).
