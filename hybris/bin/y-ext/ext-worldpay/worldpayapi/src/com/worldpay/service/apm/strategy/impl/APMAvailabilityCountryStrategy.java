@@ -6,8 +6,7 @@ import com.worldpay.strategy.WorldpayDeliveryAddressStrategy;
 import de.hybris.platform.core.model.c2l.C2LItemModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.servicelayer.exceptions.ConfigurationException;
-import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Required;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * {@see APMAvailabilityStrategy}
@@ -16,7 +15,11 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class APMAvailabilityCountryStrategy implements APMAvailabilityStrategy {
 
-    private WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy;
+    protected final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy;
+
+    public APMAvailabilityCountryStrategy(final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy) {
+        this.worldpayDeliveryAddressStrategy = worldpayDeliveryAddressStrategy;
+    }
 
     /**
      * {@inheritDoc}
@@ -53,8 +56,4 @@ public class APMAvailabilityCountryStrategy implements APMAvailabilityStrategy {
                 .anyMatch(shippingCountryIsoCode::equals);
     }
 
-    @Required
-    public void setWorldpayDeliveryAddressStrategy(final WorldpayDeliveryAddressStrategy worldpayDeliveryAddressStrategy) {
-        this.worldpayDeliveryAddressStrategy = worldpayDeliveryAddressStrategy;
-    }
 }

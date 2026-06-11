@@ -1,30 +1,25 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { I18nModule } from '@spartacus/core';
-import { FormErrorsModule, SpinnerModule } from '@spartacus/storefront';
-import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
-import { WorldpayApmSubmitButtonsModule } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.module';
 import { WorldpayApmAchComponent } from './worldpay-apm-ach.component';
 
+/**
+ * Angular module for the Worldpay APM ACH feature.
+ *
+ * Since 221121.11.0, this module is maintained for backward compatibility.
+ * It is recommended to use the standalone approach for new implementations.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayApmAchComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) if needed.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically exports the standalone component.
+ *
+ * @since 221121.11.0
+ * - `WorldpayApmAchComponent` is now a standalone component.
+ */
 @NgModule({
-  declarations: [
-    WorldpayApmAchComponent
-  ],
-  exports: [
-    WorldpayApmAchComponent
-  ],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormErrorsModule,
-    I18nModule,
-    WorldpayBillingAddressModule,
-    NgSelectModule,
-    SpinnerModule,
-    WorldpayApmSubmitButtonsModule
-  ]
+  exports: [WorldpayApmAchComponent],
+  imports: [WorldpayApmAchComponent]
 })
 export class WorldpayApmAchModule {
 }

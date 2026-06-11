@@ -1,14 +1,14 @@
 {
   "name": "@worldpay2020/sap-composable",
-  "version": "2211.43.0",
+  "version": "221121.11.0",
   "description": "Worldpay payment integration for SAP Composable Storefront",
   "dependencies": {
     "tslib": "^2.4.0"
   },
   "peerDependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/core": "^19.2.0",
-    "@angular/cdk": "^19.2.0",
-    "@angular/animations": "^19.2.0"
+    "@angular/common": "~21.2.0",
+    "@angular/core": "~21.2.0",
+    "@angular/cdk": "~21.2.0",
+    "@angular/animations": "~21.2.0"
   }
 }

@@ -95,7 +95,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
                 .findAny()
                 .map(reference -> {
                     final RedirectReference redirectReference = new RedirectReference();
-                    redirectReference.setValue(reference.getvalue());
+                    redirectReference.setValue(reference.getValue());
                     redirectReference.setId(reference.getId());
                     return redirectReference;
                 })
@@ -119,7 +119,7 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
                 .filter(EchoData.class::isInstance)
                 .map(EchoData.class::cast)
                 .findAny()
-                .map(EchoData::getvalue)
+                .map(EchoData::getValue)
                 .ifPresent(authResponse::setEchoData);
 
         intOrderStatuses.stream()
@@ -137,10 +137,10 @@ public class DirectAuthoriseResponseTransformer extends AbstractServiceResponseT
     private Request3DInfo build3DInfoForChallenge(final ThreeDSChallengeDetails threeDSChallengeDetails) {
         final Request3DInfo req3dInfo = new Request3DInfo();
         if (threeDSChallengeDetails != null) {
-            req3dInfo.setMajor3DSVersion(threeDSChallengeDetails.getThreeDSVersion().getvalue());
+            req3dInfo.setMajor3DSVersion(threeDSChallengeDetails.getThreeDSVersion().getValue());
             req3dInfo.setIssuerUrl(threeDSChallengeDetails.getAcsURL());
             req3dInfo.setIssuerPayload(threeDSChallengeDetails.getPayload());
-            req3dInfo.setTransactionId3DS(threeDSChallengeDetails.getTransactionId3DS().getvalue());
+            req3dInfo.setTransactionId3DS(threeDSChallengeDetails.getTransactionId3DS().getValue());
         }
         return req3dInfo;
 

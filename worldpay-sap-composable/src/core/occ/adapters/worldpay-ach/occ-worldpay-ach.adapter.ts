@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { backOff, ConverterService, HttpErrorModel, isJaloError, LoggerService, OccEndpointsService, tryNormalizeHttpError } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { Observable, throwError } from 'rxjs';
@@ -9,20 +9,11 @@ import { AccountTypes, ACHPaymentForm } from '../../../interfaces';
 
 @Injectable()
 export class OccWorldpayACHAdapter implements WorldpayACHAdapter {
-  /**
-   * Constructor for OccWorldpayACHAdapter
-   * @param {HttpClient} http - The HTTP client for making requests
-   * @param {OccEndpointsService} occEndpoints - Service for building OCC endpoint URLs
-   * @param {ConverterService} converter - Service for converting data
-   * @param {LoggerService} loggerService - Service for logging errors
-   */
-  constructor(
-    protected http: HttpClient,
-    protected occEndpoints: OccEndpointsService,
-    protected converter: ConverterService,
-    protected loggerService: LoggerService
-  ) {
-  }
+
+  protected http: HttpClient = inject(HttpClient);
+  protected occEndpoints: OccEndpointsService = inject(OccEndpointsService);
+  protected converter: ConverterService = inject(ConverterService);
+  protected loggerService: LoggerService = inject(LoggerService);
 
   /**
    * Get ACH Bank Account Types

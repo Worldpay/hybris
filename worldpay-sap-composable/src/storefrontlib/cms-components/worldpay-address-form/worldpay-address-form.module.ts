@@ -1,28 +1,25 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { I18nModule } from '@spartacus/core';
-import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, NgSelectA11yModule } from '@spartacus/storefront';
 import { WorldpayAddressFormComponent } from './worldpay-address-form.component';
 
+/**
+ * Angular module for the Worldpay Address Form feature.
+ *
+ * Since 221121.11.0, this module is maintained for backward compatibility.
+ * It is recommended to use the standalone approach for new implementations.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayAddressFormComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) if needed.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically exports the standalone component.
+ *
+ * @since 221121.11.0
+ * - `WorldpayAddressFormComponent` is now a standalone component.
+ */
 @NgModule({
-  declarations: [
-    WorldpayAddressFormComponent
-  ],
-  exports: [
-    WorldpayAddressFormComponent
-  ],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    I18nModule,
-    NgSelectModule,
-    NgSelectA11yModule,
-    FormErrorsModule,
-    FormRequiredLegendComponent,
-    FormRequiredAsterisksComponent
-  ],
+  exports: [WorldpayAddressFormComponent],
+  imports: [WorldpayAddressFormComponent]
 })
 export class WorldpayAddressFormModule {
 }

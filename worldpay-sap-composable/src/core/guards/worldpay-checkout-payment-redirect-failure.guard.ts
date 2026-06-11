@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Params } from '@angular/router';
 import { GlobalMessageService, GlobalMessageType } from '@spartacus/core';
 import { Observable, of } from 'rxjs';
@@ -12,15 +12,7 @@ export type TypeOfReason =
   providedIn: 'root'
 })
 export class WorldpayCheckoutPaymentRedirectFailureGuard {
-
-  /**
-   * Constructor
-   * @since 4.3.6
-   * @param globalMessageService GlobalMessageService
-   */
-  constructor(
-    protected globalMessageService: GlobalMessageService) {
-  }
+  protected globalMessageService: GlobalMessageService = inject(GlobalMessageService);
 
   /**
    * Method used to activate guard

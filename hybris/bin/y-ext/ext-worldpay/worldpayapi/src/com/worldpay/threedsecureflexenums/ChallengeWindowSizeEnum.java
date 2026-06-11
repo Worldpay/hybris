@@ -1,6 +1,6 @@
 package com.worldpay.threedsecureflexenums;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public enum ChallengeWindowSizeEnum {
     R_250_400("250x400"),

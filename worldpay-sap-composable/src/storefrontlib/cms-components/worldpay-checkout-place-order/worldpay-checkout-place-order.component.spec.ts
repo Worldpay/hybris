@@ -3,9 +3,11 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { PaymentType } from '@spartacus/cart/base/root';
 import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import {
   Address,
+  ConfigModule,
   CurrencyService,
   GlobalMessageService,
   GlobalMessageType,
@@ -16,6 +18,7 @@ import {
   PaymentDetails,
   QueryState,
   RoutingService,
+  UrlPipe,
   WindowRef
 } from '@spartacus/core';
 import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
@@ -26,7 +29,6 @@ import {
   MockGlobalMessageService,
   MockLaunchDialogService,
   MockRoutingService,
-  MockUrlPipe,
   MockWorldpayACHFacade,
   MockWorldpayApmService,
   MockWorldpayCheckoutPaymentService,
@@ -34,7 +36,8 @@ import {
   MockWorldpayOrderService
 } from 'worldpay-sap-composable-tests';
 import {
-  ACHPaymentForm, ApmNormalizer,
+  ACHPaymentForm,
+  ApmNormalizer,
   ApmPaymentDetails,
   OccWorldpayApmAdapter,
   OccWorldpayCheckoutPaymentAdapter,
@@ -142,8 +145,16 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
           RouterLink,
           I18nTestingModule,
           FormErrorsModule,
+          WorldpayCheckoutPlaceOrderComponent,
+          UrlPipe,
+          ConfigModule.withConfig({
+            routing: {
+              routes: {
+                termsAndConditions: { paths: ['terms-and-conditions'] }
+              }
+            }
+          })
         ],
-        declarations: [MockUrlPipe, WorldpayCheckoutPlaceOrderComponent],
         providers: [
           ApmNormalizer,
           {
@@ -369,7 +380,10 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
   });
 
   it('should place Worldpay order', () => {
-    spyOn(worldpayApmFacade, 'getSelectedAPMFromState').and.callThrough();
+    spyOn(worldpayApmFacade, 'getSelectedAPMFromState').and.returnValue(of({
+      code: PaymentMethod.Card,
+      name: 'Visa',
+    }));
     spyOn(worldpayCheckoutPaymentFacade, 'getPaymentDetailsState').and.callThrough();
     component.placeWorldpayOrder().subscribe((data) => {
       expect(data[0].code).toEqual(PaymentMethod.Card);
@@ -595,6 +609,19 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
       expect(worldpayApmFacade.getAPMRedirectUrl).toHaveBeenCalledWith(mockPaypal);
       expect(component.executeDDC3dsJwtCommand).not.toHaveBeenCalled();
     });
+
+    it('should get OOTB place order if Account payment is selected', () => {
+      const mockAccount: PaymentType = {
+        code: 'ACCOUNT',
+        displayName: 'Account Payment',
+      };
+      component.checkoutSubmitForm.setValue({ termsAndConditions: true });
+      component.placeWorldpayOrder = jasmine.createSpy().and.returnValue(of([mockAccount, { data: mockAccount }, null]));
+      component.submitForm();
+
+      expect(orderFacade.placeOrder).toHaveBeenCalledWith(true);
+      expect(globalMessageService.remove).toHaveBeenCalledWith(GlobalMessageType.MSG_TYPE_INFO);
+    });
   });
 
   describe('placeACHOrder', () => {
@@ -807,6 +834,28 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
 
       expect(logger.error).toHaveBeenCalledWith('Failed to process challenge event data', jasmine.any(Error));
       expect(orderFacade.challengeFailed).toHaveBeenCalled();
+    });
+  });
+
+  describe('placeAccountOrder', () => {
+    it('should call placeOrder on orderFacade', () => {
+      const achPaymentFormValue = { accountType: 'checking' } as ACHPaymentForm;
+      spyOn(orderFacade, 'placeACHOrder').and.callThrough();
+
+      component['placeACHOrder'](achPaymentFormValue);
+
+      expect(orderFacade.placeACHOrder).toHaveBeenCalledWith(achPaymentFormValue);
+    });
+
+    it('should clear loading on error when completed', () => {
+      const achPaymentFormValue = { accountType: 'checking' } as ACHPaymentForm;
+      const mockError = new Error('Error');
+      spyOn(orderFacade, 'placeACHOrder').and.returnValue(throwError(() => mockError));
+      spyOn(orderFacade, 'clearLoading').and.callThrough();
+
+      component['placeACHOrder'](achPaymentFormValue);
+
+      expect(orderFacade.clearLoading).toHaveBeenCalled();
     });
   });
 });

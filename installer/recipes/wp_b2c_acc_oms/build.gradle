@@ -2,239 +2,228 @@ apply plugin: 'installer-platform-plugin'
 apply plugin: 'installer-addon2-plugin'
 
 buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
 
-    dependencies {
-    }
+  dependencies {
+  }
 }
 
 ext {
-    workDir = "./work"
+  workDir = "./work"
 }
 
 def platform = platform {
-    localProperties {
-        '# place your custom properties into this file instead of modifying the project.properties'
-        '# all properties in this file have higher priority and will overwrite the platform/project.properties settings.'
+  localProperties {
+    '# place your custom properties into this file instead of modifying the project.properties'
+    '# all properties in this file have higher priority and will overwrite the platform/project.properties settings.'
 
-        property '#mykey', '#myvalue'
-        property '#hac.webroot', '/hac'
+    property '#mykey', '#myvalue'
+    property '#hac.webroot', '/hac'
 
-        property 'googleApiKey', ''
+    property 'googleApiKey', ''
 
-        property 'website.electronics.http', 'http://electronics.local:9001/yacceleratorstorefront'
-        property 'website.electronics.https', 'https://electronics.local:9002/yacceleratorstorefront'
-        property 'website.apparel-de.http', 'http://apparel-de.local:9001/yacceleratorstorefront'
-        property 'website.apparel-de.https', 'https://apparel-de.local:9002/yacceleratorstorefront'
-        property 'website.apparel-uk.http', 'http://apparel-uk.local:9001/yacceleratorstorefront'
-        property 'website.apparel-uk.https', 'https://apparel-uk.local:9002/yacceleratorstorefront'
-        property 'multicountrysampledataaddon.import.active', 'false'
-        property 'ansi.colors', 'true'
-        property 'testclasses.addonname', 'yacceleratorstorefront'
+    property 'website.electronics.http', 'http://electronics.local:9001/yacceleratorstorefront'
+    property 'website.electronics.https', 'https://electronics.local:9002/yacceleratorstorefront'
+    property 'website.apparel-de.http', 'http://apparel-de.local:9001/yacceleratorstorefront'
+    property 'website.apparel-de.https', 'https://apparel-de.local:9002/yacceleratorstorefront'
+    property 'website.apparel-uk.http', 'http://apparel-uk.local:9001/yacceleratorstorefront'
+    property 'website.apparel-uk.https', 'https://apparel-uk.local:9002/yacceleratorstorefront'
+    property 'multicountrysampledataaddon.import.active', 'false'
+    property 'ansi.colors', 'true'
+    property 'testclasses.addonname', 'yacceleratorstorefront'
 
-        property 'worldpay.config.web.merchant.code.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.password.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.macSecret.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.web.googlePay.gatewayMerchantId.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.installationId.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.statementNarrative.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.code.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.password.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.macSecret.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.installationId.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.statementNarrative.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.code.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.password.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.macSecret.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.installationId.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.statementNarrative.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.iss.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.electronics', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.orgunitid.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.code.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.password.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.cse.public.key.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.macSecret.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.googlePay.gatewayMerchantId.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.installationId.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.statementNarrative.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.code.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.password.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.cse.public.key.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.macSecret.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.installationId.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.statementNarrative.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.iss.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.jwtmackey.electronics', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.orgunitid.electronics', '<CHANGE_ME>'
 
-        property 'worldpay.config.web.merchant.code.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.password.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.installationId.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.code.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.password.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.installationId.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.code.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.password.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.installationId.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_uk', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.code.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.password.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.cse.public.key.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.installationId.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.code.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.password.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.cse.public.key.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.macSecret.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.installationId.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.statementNarrative.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.iss.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_uk', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_uk', '<CHANGE_ME>'
 
-        property 'worldpay.config.web.merchant.code.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.password.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.macSecret.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.installationId.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.web.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.code.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.password.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.macSecret.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.installationId.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.asm.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.code.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.password.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.macSecret.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.installationId.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.replenishment.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.iss.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_de', '<CHANGE_ME>'
-        property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.code.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.password.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.cse.public.key.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.macSecret.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.googlePay.gatewayMerchantId.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.installationId.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.web.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.code.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.password.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.cse.public.key.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.macSecret.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.installationId.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.asm.merchant.statementNarrative.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.iss.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.jwtmackey.apparel_de', '<CHANGE_ME>'
+    property 'worldpay.config.3dsecureflex.jwt.orgunitid.apparel_de', '<CHANGE_ME>'
+  }
+
+  afterSetup {
+    ensureAdminPasswordSet()
+  }
+
+  extensions {
+    extensionNames 'ordermanagementaddon',
+            'orderselfserviceaddon',
+            'ordermanagementwebservices',
+
+            'warehousing',
+            'warehousingbackoffice',
+            'warehousingwebservices',
+
+            'adaptivesearchsolr',
+            'adaptivesearchbackoffice',
+            'adaptivesearchsamplesaddon',
+            'commerceservicesbackoffice',
+            'solrfacetsearchbackoffice',
+
+            'yacceleratorbackoffice',
+            'yacceleratorinitialdata',
+            'yacceleratorordermanagement',
+            'yacceleratorstorefront',
+            'yaddon',
+            'ycommercewebservices',
+
+            'apparelstore',
+            'electronicsstore',
+            'solrserver',
+
+            'acceleratorwebservicesaddon',
+            'commerceorgaddon',
+            'commerceorgsamplesaddon',
+
+            'assistedservicestorefront',
+            'assistedservicewebservices',
+            'customerticketingaddon',
+            'customersupportbackoffice',
+            'ticketsystembackoffice',
+            'consignmenttrackingbackoffice',
+
+            'rulebuilderbackoffice',
+            'couponbackoffice',
+            'droolsruleengineservices',
+            'couponfacades',
+            'promotionenginesamplesaddon',
+            'consignmenttrackingaddon',
+
+            'commercewebservices',
+            'cmsfacades',
+
+            'pcmbackofficesamplesaddon',
+
+            'consignmenttrackingocc',
+
+            'outboundservices',
+            'outboundsync',
+            'odata2webservices',
+            'integrationbackoffice',
+            'integrationmonitoringbackoffice',
+            'outboundsyncbackoffice',
+
+            'kymaintegrationbackoffice',
+
+            'xyformsbackoffice',
+            'xyformsstorefrontcommons',
+            'xyformssamples',
+            'xyformsweb',
+            'orbeonweb',
+
+            'entitlementfacades',
+            'entitlementbackoffice',
+
+            'cmswebservices',
+            'smarteditwebservices',
+            'cmssmarteditwebservices',
+            'permissionswebservices',
+            'previewwebservices',
+            'smarteditaddon',
+            'cmssmartedit',
+            'cmsbackoffice',
+            'cmsocc',
+            'multicountrysampledataaddon',
+
+            'worldpayaddon',
+            'worldpayaddonbackoffice',
+            'worldpayapi',
+            'worldpaynotifications',
+            'worldpaysampledataaddon',
+            'worldpayhac',
+            'worldpayoms'
+  }
+
+  addons {
+    forStoreFronts('yacceleratorstorefront') {
+      names 'worldpayaddon', 'worldpaysampledataaddon', 'commerceorgsamplesaddon', 'customerticketingaddon', 'promotionenginesamplesaddon', 'adaptivesearchsamplesaddon',
+              'pcmbackofficesamplesaddon', 'ordermanagementaddon', 'orderselfserviceaddon', 'consignmenttrackingaddon', 'assistedservicestorefront',
+              'xyformssamples', 'xyformsstorefrontcommons', 'smarteditaddon', 'multicountrysampledataaddon'
+      template 'yacceleratorstorefront'
 
     }
-
-    afterSetup {
-        ensureAdminPasswordSet()
-    }
-
-    extensions {
-        extensionNames 'ordermanagementaddon',
-                'orderselfserviceaddon',
-                'ordermanagementwebservices',
-
-                'warehousing',
-                'warehousingbackoffice',
-                'warehousingwebservices',
-
-                'adaptivesearchsolr',
-                'adaptivesearchbackoffice',
-                'adaptivesearchsamplesaddon',
-                'commerceservicesbackoffice',
-                'solrfacetsearchbackoffice',
-
-                'yacceleratorbackoffice',
-                'yacceleratorinitialdata',
-                'yacceleratorordermanagement',
-                'yacceleratorstorefront',
-                'yaddon',
-                'ycommercewebservices',
-
-                'apparelstore',
-                'electronicsstore',
-                'solrserver',
-
-                'acceleratorwebservicesaddon',
-                'commerceorgaddon',
-                'commerceorgsamplesaddon',
-
-                'assistedservicestorefront',
-                'assistedservicewebservices',
-                'customerticketingaddon',
-                'customersupportbackoffice',
-                'ticketsystembackoffice',
-                'consignmenttrackingbackoffice',
-
-                'rulebuilderbackoffice',
-                'couponbackoffice',
-                'droolsruleengineservices',
-                'couponfacades',
-                'promotionenginesamplesaddon',
-                'consignmenttrackingaddon',
-
-                'commercewebservices',
-                'cmsfacades',
-
-                'pcmbackofficesamplesaddon',
-
-                'consignmenttrackingocc',
-
-                'outboundservices',
-		        'outboundsync',
-                'odata2webservices',
-                'integrationbackoffice',
-                'integrationmonitoringbackoffice',
-                'outboundsyncbackoffice',
-
-                'kymaintegrationbackoffice',
-
-                'xyformsbackoffice',
-                'xyformsstorefrontcommons',
-                'xyformssamples',
-                'xyformsweb',
-                'orbeonweb',
-
-                'entitlementfacades',
-                'entitlementbackoffice',
-
-                'cmswebservices',
-                'smarteditwebservices',
-                'cmssmarteditwebservices',
-                'permissionswebservices',
-                'previewwebservices',
-                'smarteditaddon',
-                'cmssmartedit',
-                'cmsbackoffice',
-                'cmsocc',
-                'multicountrysampledataaddon',
-
-                'worldpayaddon',
-                'worldpayaddonbackoffice',
-                'worldpayapi',
-                'worldpaynotifications',
-                'worldpaysampledataaddon',
-                'worldpayextocc',
-                'worldpayhac',
-                'worldpayoms'
-    }
-
-    addons {
-        forStoreFronts('yacceleratorstorefront') {
-            names 'worldpayaddon', 'worldpaysampledataaddon','commerceorgsamplesaddon', 'customerticketingaddon', 'promotionenginesamplesaddon', 'adaptivesearchsamplesaddon',
-                    'pcmbackofficesamplesaddon', 'ordermanagementaddon', 'orderselfserviceaddon', 'consignmenttrackingaddon', 'assistedservicestorefront',
-                    'xyformssamples', 'xyformsstorefrontcommons', 'smarteditaddon', 'multicountrysampledataaddon'
-            template 'yacceleratorstorefront'
-
-        }
-    }
+  }
 }
 
 task setup() {
-    doLast {
-        platform.setup()
-    }
+  doLast {
+    platform.setup()
+  }
 }
 
 task buildSystem(dependsOn: setup) {
-    doLast {
-        platform.build()
-    }
+  doLast {
+    platform.build()
+  }
 }
 
 task initialize(dependsOn: buildSystem) {
-    doLast {
-        platform.initialize()
-    }
+  doLast {
+    platform.initialize()
+  }
 }
 
 task start {
-    doLast {
-        platform.start()
-    }
+  doLast {
+    platform.start()
+  }
 }
 
 task startInBackground {
-    doLast {
-        pl.startInBackground()
-    }
+  doLast {
+    pl.startInBackground()
+  }
 }
 
 task stopInBackground {
-    doLast {
-        pl.stopInBackground()
-    }
+  doLast {
+    pl.stopInBackground()
+  }
 }
 

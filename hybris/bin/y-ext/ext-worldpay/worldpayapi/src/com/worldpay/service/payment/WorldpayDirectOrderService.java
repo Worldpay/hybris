@@ -1,10 +1,15 @@
 package com.worldpay.service.payment;
 
-import com.worldpay.data.*;
+import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
+import com.worldpay.data.AdditionalAuthInfo;
+import com.worldpay.data.ApplePayAdditionalAuthInfo;
+import com.worldpay.data.BankTransferAdditionalAuthInfo;
+import com.worldpay.data.CSEAdditionalAuthInfo;
+import com.worldpay.data.GooglePayAdditionalAuthInfo;
+import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
-import com.worldpay.data.MerchantInfo;
 import com.worldpay.service.request.DirectAuthoriseServiceRequest;
 import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
@@ -73,7 +78,7 @@ public interface WorldpayDirectOrderService {
      * @param worldpayAdditionalInfoData Object that contains information about the current session, browser used, and cookies.
      */
     void createToken(final CartModel cartModel, final CSEAdditionalAuthInfo cseAdditionalAuthInfo, final WorldpayAdditionalInfoData worldpayAdditionalInfoData)
-        throws WorldpayException;
+            throws WorldpayException;
 
     /**
      * Builds the deleteTokenRequest.
@@ -84,7 +89,7 @@ public interface WorldpayDirectOrderService {
      * @param subscriptionId   String containing the subscriptionId.
      */
     void deleteToken(final MerchantInfo merchantInfo, final PaymentInfoModel paymentInfoModel, final String subscriptionId)
-        throws WorldpayException;
+            throws WorldpayException;
 
     /**
      * Recovers the original {@link DirectAuthoriseServiceRequest} and adds the paResponse from the 3dSecure issuer.
@@ -97,11 +102,11 @@ public interface WorldpayDirectOrderService {
      */
     DirectAuthoriseServiceResponse authorise3DSecure(final String worldpayOrderCode,
                                                      final WorldpayAdditionalInfoData worldpayAdditionalInfoData, final String paResponse)
-        throws WorldpayException;
+            throws WorldpayException;
 
     /**
-     * Updates/Creates the PaymentTransaction associated to the authorisation received from Worldpay. Updates/Creates a non-pending paymentTransactionEntry of type AUTHORISATION.
-     * Updates/Creates the paymentInfo associated to the transaction and the order.
+     * Updates/Creates the PaymentTransaction associated with the authorisation received from Worldpay. Updates/Creates a non-pending paymentTransactionEntry of type AUTHORISATION.
+     * Updates/Creates the paymentInfo associated with the transaction and the order.
      *
      * @param serviceResponse    {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
      * @param abstractOrderModel The cart or order used in the current checkout.
@@ -119,18 +124,11 @@ public interface WorldpayDirectOrderService {
     /**
      * See {@see completeAuthorise}. Completes the authorization after being validated by the 3D Secure issuer.
      *
-     * @param abstractOrderModel The cart or order to authorise
-     * @param serviceResponse    {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
-     */
-    void completeAuthorise3DSecure(final AbstractOrderModel abstractOrderModel, final DirectAuthoriseServiceResponse serviceResponse) throws WorldpayConfigurationException;
-
-    /**
-     * See {@see completeAuthorise}. Completes the authorization after being validated by the 3D Secure issuer.
-     *
-     * @param cartModel The cart to authorise
-     * @param serviceResponse    {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
+     * @param cartModel       The cart to authorise
+     * @param serviceResponse {@link DirectAuthoriseServiceResponse} contains the response information from Worldpay.
      */
     void completeAuthoriseACHDirectDebit(final DirectAuthoriseServiceResponse serviceResponse, final CartModel cartModel, String merchantCode);
+
     /**
      * Builds the directAuthoriseRequest containing the token identifier and the cvv.
      * The request is then sent to Worldpay for processing resulting in either an authorised, refused or error response.
@@ -172,7 +170,7 @@ public interface WorldpayDirectOrderService {
     DirectAuthoriseServiceResponse authorise3DSecureAgain(final String worldpayOrderCode) throws WorldpayException;
 
     /**
-     * @param cartModel                   {@link CartModel} used in the current checkout.
+     * @param cartModel                        {@link CartModel} used in the current checkout.
      * @param achDirectDebitAdditionalAuthInfo Contains the necessary information to authorise the transaction in Worldpay with ACH Direct Debit payment parameters.
      * @return the {@link DirectAuthoriseServiceResponse} from Worldpay.
      */

@@ -1,19 +1,38 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveCartFacade, CartItemComponentOptions, ConsignmentEntry, MultiCartFacade, OrderEntry, PromotionLocation, SelectiveCartFacade, } from '@spartacus/cart/base/root';
-import { FeaturesConfigModule, I18nTestingModule, UserIdService, } from '@spartacus/core';
-import { OutletContextData, OutletModule, PromotionsModule } from '@spartacus/storefront';
-import { of } from 'rxjs';
-import { MockActivatedRoute, mockUserId, MockUserIdService } from 'worldpay-sap-composable-tests';
+import {
+  CxDatePipe,
+  FeatureConfigService,
+  I18nTestingModule,
+  MockDatePipe,
+  MockTranslatePipe,
+  Product,
+  ProductCatalogService,
+  TranslatePipe,
+  UserIdService,
+} from '@spartacus/core';
+import { OutletContextData, PromotionsModule } from '@spartacus/storefront';
+import { Observable, of, Subject } from 'rxjs';
+import { WorldpayCartItemComponent } from '../worldpay-cart-item/worldpay-cart-item.component';
+import { WorldpayCartItemListRowComponent } from '../worldpay-cart-item-list-row/worldpay-cart-item-list-row.component';
 import { WorldpayCartItemListComponent } from './worldpay-cart-item-list.component';
+
+const mockCartId = 'test-cart';
+const mockUserId = 'test-user';
 
 class MockActiveCartService {
   updateEntry() {
   }
 
   removeEntry() {
+  }
+}
+
+class MockUserIdService implements Partial<UserIdService> {
+  getUserId(): Observable<string> {
+    return of(mockUserId);
   }
 }
 
@@ -70,14 +89,13 @@ const mockConsignmentItems: ConsignmentEntry[] = [
   },
 ];
 
-const mockCartId = 'test-cart';
-
 @Component({
   template: '',
   selector: '[y-worldpay-cart-item-list-row], y-worldpay-cart-item-list-row',
-  standalone: false
+  imports: [ReactiveFormsModule, PromotionsModule, I18nTestingModule],
 })
 class MockCartItemComponent {
+  @Input() items: any;
   @Input() item: any;
   @Input() readonly: any;
   @Input() quantityControl: any;
@@ -100,6 +118,16 @@ const mockContext = {
 };
 const context$ = of(mockContext);
 
+class MockFeatureConfigService {
+  isEnabled() {
+    return true;
+  }
+}
+
+const mockProductCatalogService = {
+  isProductInCatalog: (_product?: Product) => true,
+};
+
 describe('WorldpayCartItemListComponent', () => {
   let component: WorldpayCartItemListComponent;
   let fixture: ComponentFixture<WorldpayCartItemListComponent>;
@@ -113,23 +141,8 @@ describe('WorldpayCartItemListComponent', () => {
 
   function configureTestingModule(): TestBed {
     return TestBed.configureTestingModule({
-      imports: [
-        ReactiveFormsModule,
-        RouterLink,
-        PromotionsModule,
-        I18nTestingModule,
-        FeaturesConfigModule,
-        OutletModule,
-      ],
-      declarations: [
-        WorldpayCartItemListComponent,
-        MockCartItemComponent
-      ],
+      imports: [ReactiveFormsModule, PromotionsModule, WorldpayCartItemListComponent],
       providers: [
-        {
-          provide: ActivatedRoute,
-          useClass: MockActivatedRoute
-        },
         {
           provide: ActiveCartFacade,
           useClass: MockActiveCartService
@@ -146,7 +159,27 @@ describe('WorldpayCartItemListComponent', () => {
           provide: UserIdService,
           useClass: MockUserIdService
         },
+        {
+          provide: FeatureConfigService,
+          useClass: MockFeatureConfigService
+        },
+        {
+          provide: ProductCatalogService,
+          useValue: mockProductCatalogService,
+        },
       ],
+    }).overrideComponent(WorldpayCartItemListComponent, {
+      remove: {
+        imports: [
+          TranslatePipe,
+          CxDatePipe,
+          WorldpayCartItemComponent,
+          WorldpayCartItemListRowComponent,
+        ],
+      },
+      add: {
+        imports: [MockTranslatePipe, MockDatePipe, MockCartItemComponent],
+      },
     });
   }
 
@@ -394,24 +427,23 @@ describe('WorldpayCartItemListComponent', () => {
       expect(component.form.controls[removedObjectEntryName]).toBeUndefined();
     });
 
-    it('should call cartService with an updated entry when is save for later', () => {
-      component.options.isSaveForLater = true;
-      const item = mockItems[0];
-      component
-        .getControl(item)
-        .subscribe((control) => {
-          control.get('quantity').setValue(2);
-          expect(mockSelectiveCartService.updateEntry).toHaveBeenCalledWith(
-            item.entryNumber as any,
-            2
-          );
-        })
-        .unsubscribe();
+    it('should disable item link only if product is not in catalog', () => {
+      component.options = mockContext.options;
+      expect(component.getOptions(mockItem0)).toBe(component.options);
+      mockProductCatalogService.isProductInCatalog = (_product?: Product) =>
+        false;
+      expect(component.getOptions(mockItem0)).toEqual({
+        ...component.options,
+        disableItemLink: true,
+      });
     });
   });
 
   describe('Use outlet with outlet context data', () => {
     it('should be able to get inputs from outlet context data', () => {
+      const newContext = structuredClone(mockContext);
+      newContext.items = [mockItem0];
+      const context$ = new Subject();
       configureTestingModule().overrideProvider(OutletContextData, {
         useValue: { context$ },
       });
@@ -421,18 +453,54 @@ describe('WorldpayCartItemListComponent', () => {
       spyOn(<any>component, '_setItems').and.callThrough();
       const setLoading = spyOnProperty(component, 'setLoading', 'set');
       component.ngOnInit();
-
-      expect(component.cartId).toEqual(mockContext.cartId);
-      expect(component.hasHeader).toEqual(mockContext.hasHeader);
-      expect(component['_setItems']).toHaveBeenCalledWith(mockContext.items, {
-        forceRerender: false,
+      context$.next(newContext);
+      expect(component.cartId).toEqual(newContext.cartId);
+      expect(component.hasHeader).toEqual(newContext.hasHeader);
+      expect(component['_setItems']).toHaveBeenCalledWith(newContext.items, {
+        forceRerender: true,
       });
-      expect(component.options).toEqual(mockContext.options);
-      expect(component.promotionLocation).toEqual(
-        mockContext.promotionLocation
+      expect(component.options).toEqual(newContext.options);
+      expect(component.promotionLocation).toEqual(newContext.promotionLocation);
+      expect(component.readonly).toEqual(newContext.readonly);
+      expect(setLoading).toHaveBeenCalledWith(newContext.cartIsLoading);
+    });
+
+    it('should mark view for check and force re-creation of item controls when outlet context emits with changed read-only flag', () => {
+      const secondMockContext = structuredClone(mockContext);
+      secondMockContext.readonly = false;
+      const context$ = of(mockContext, secondMockContext);
+      configureTestingModule().overrideProvider(OutletContextData, {
+        useValue: { context$ },
+      });
+      TestBed.compileComponents();
+      stubSeviceAndCreateComponent();
+      const control0 = component.form.get(mockItem0.entryNumber.toString());
+      const control1 = component.form.get(mockItem1.entryNumber.toString());
+      spyOn(component['cd'], 'markForCheck').and.callThrough();
+
+      component.ngOnInit();
+
+      expect(component['cd'].markForCheck).toHaveBeenCalled();
+      expect(control0).not.toBe(
+        component.form.get(mockItem0.entryNumber.toString())
       );
-      expect(component.readonly).toEqual(mockContext.readonly);
-      expect(setLoading).toHaveBeenCalledWith(mockContext.cartIsLoading);
+      expect(control1).not.toBe(
+        component.form.get(mockItem1.entryNumber.toString())
+      );
+    });
+
+    it('should not call _setItems when neither contextRequiresRerender nor isItemsChanged are true', () => {
+      configureTestingModule().overrideProvider(OutletContextData, {
+        useValue: { context$ },
+      });
+      TestBed.compileComponents();
+      stubSeviceAndCreateComponent();
+
+      spyOn(<any>component, '_setItems').and.callThrough();
+      component.ngOnInit();
+
+      // context$ emits mockContext which has the same items that were set in stubSeviceAndCreateComponent
+      expect(component['_setItems']).not.toHaveBeenCalled();
     });
   });
 });

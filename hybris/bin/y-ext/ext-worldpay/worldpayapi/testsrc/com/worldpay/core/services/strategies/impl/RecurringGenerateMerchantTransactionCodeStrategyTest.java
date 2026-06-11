@@ -24,7 +24,7 @@ public class RecurringGenerateMerchantTransactionCodeStrategyTest {
 
     @Spy
     @InjectMocks
-    private DefaultRecurringGenerateMerchantTransactionCodeStrategy testObj = new DefaultRecurringGenerateMerchantTransactionCodeStrategy();
+    private DefaultRecurringGenerateMerchantTransactionCodeStrategy testObj;
 
     @Mock
     private CartModel cartModelMock;

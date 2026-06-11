@@ -5,139 +5,151 @@
       [cxOutlet]="CartOutlets.ITEM_CONFIGURATOR_ISSUES"
     ></ng-template>
 
-  <cx-cart-item-validation-warning
-    [code]="item.product?.code"
-  ></cx-cart-item-validation-warning>
-  <div class="cx-table-item-container">
-    <!-- Item Image -->
-    <a
-      *ngIf="!options.disableItemLink"
-      [routerLink]="{ cxRoute: 'product', params: item.product } | cxUrl"
-      tabindex="0"
-    >
-      <cx-media
-        [container]="item.product?.images?.['PRIMARY'] || item.product?.images"
-        format="cartIcon"
-      ></cx-media>
-      <cx-media
-        *ngIf="options.disableItemLink"
-        [container]="item.product?.images?.['PRIMARY'] || item.product?.images"
-        format="cartIcon"
-      ></cx-media>
-    </a>
-    <div class="cx-info">
-      <div
-        *ngIf="item.product?.name"
-        class="cx-name"
-      >
+    <cx-cart-item-validation-warning
+      [code]="item.product?.code"
+    ></cx-cart-item-validation-warning>
+
+    <div class="cx-table-item-container">
+      <!-- Item Image -->
+      @if (!options.disableItemLink) {
         <a
-          *ngIf="!options.disableItemLink"
-          class="cx-link"
           [routerLink]="{ cxRoute: 'product', params: item.product } | cxUrl"
-        >{{ item.product?.name }}</a
+          tabindex="0"
         >
-        <span *ngIf="options.disableItemLink">{{ item.product?.name }}</span>
-      </div>
-      <div
-        *ngIf="item.product?.code"
-        class="cx-code"
-      >
-        {{ 'cartItems.id' | cxTranslate }} {{ item.product?.code }}
-      </div>
-      <!-- Item Price -->
-      <ng-container *ngIf="isFlagQuote">
-        <div *ngIf="item.basePrice" class="cx-price">
-          <div *ngIf="item.basePrice" class="cx-value">
-            {{ item.basePrice?.formattedValue }}
+          <cx-media
+            [container]="item.product?.images?.['PRIMARY'] || item.product?.images"
+            format="cartIcon"
+          ></cx-media>
+        </a>
+      } @else {
+        <cx-media
+          [container]="item.product?.images?.['PRIMARY'] || item.product?.images"
+          format="cartIcon"
+        ></cx-media>
+      }
+
+      <div class="cx-info">
+        @if (item.product?.name) {
+          <div class="cx-name">
+            @if (!options.disableItemLink) {
+              <a
+                class="cx-link"
+                [routerLink]="{ cxRoute: 'product', params: item.product } | cxUrl"
+              >
+                {{ item.product?.name }}
+              </a>
+            } @else {
+              <span>{{ item.product?.name }}</span>
+            }
           </div>
-        </div></ng-container
-      >
-      <ng-template
-        role="columnheader"
-        [cxOutlet]="CartOutlets.CPQ_QUOTE"
-        [cxOutletContext]="{
-            items: item,
-          }"
-      ></ng-template>
-    </div>
-  </div>
-  <div class="cx-cart-addons">
-    <!-- Item Details Outlet -->
-    <ng-template [cxOutlet]="CartOutlets.ITEM_DETAILS"></ng-template>
+        }
 
-    <!-- Item Bundle Details Outlet -->
-    <ng-template [cxOutlet]="CartOutlets.ITEM_BUNDLE_DETAILS"></ng-template>
+        @if (item.product?.code) {
+          <div class="cx-code">
+            {{ 'cartItems.id' | cxTranslate }} {{ item.product?.code }}
+          </div>
+        }
 
-    <!-- Promotion -->
-    <cx-promotions [promotions]="item.promotions"></cx-promotions>
+        <!-- Item Price -->
+        @if (isFlagQuote && item.basePrice) {
+          <div class="cx-price">
+            <div class="cx-value">
+              {{ item.basePrice?.formattedValue }}
+            </div>
+          </div>
+        }
 
-    <!-- Item Delivery Details Outlet -->
-    <ng-template
-      *ngIf="!readonly"
-      [cxOutlet]="CartOutlets.ITEM_DELIVERY_DETAILS"
-      [cxOutletContext]="{ item, cartType: options.cartType }"
-    ></ng-template>
-  </div>
-
-  <!-- Variants -->
-  <ng-container *ngIf="item.product?.baseOptions?.length">
-    <div
-      *ngFor="let variant of item.product?.baseOptions[0]?.selected?.variantOptionQualifiers"
-      class="cx-property"
-    >
-      <!-- cx-mobile-header -->
-      <div
-        *ngIf="variant.name && variant.value"
-        class="cx-label"
-      >
-        {{ variant.name }}: {{ variant.value }}
+        <ng-template
+          role="columnheader"
+          [cxOutlet]="CartOutlets.CPQ_QUOTE"
+          [cxOutletContext]="{ items: item }"
+        ></ng-template>
       </div>
     </div>
-  </ng-container>
-</td>
-<!-- Mobile Item Price -->
-<td
-  *ngIf="item.basePrice"
-  class="cx-price cx-mobile-only"
-  role="cell"
->
-  <div class="cx-mobile-header">
-    {{ 'cartItems.itemPrice' | cxTranslate }}
-  </div>
-  <div
-    *ngIf="item.basePrice"
-    class="cx-value"
-  >
-    {{ item.basePrice?.formattedValue }}
-  </div>
-</td>
-<!-- item price with discount -->
+
+    <div class="cx-cart-addons">
+      <!-- Item Details Outlet -->
+      <ng-template [cxOutlet]="CartOutlets.ITEM_DETAILS"></ng-template>
+
+      <!-- Item Bundle Details Outlet -->
+      <ng-template [cxOutlet]="CartOutlets.ITEM_BUNDLE_DETAILS"></ng-template>
+
+      <!-- Promotion -->
+      <cx-promotions [promotions]="item.promotions"></cx-promotions>
+
+      <!-- Item Delivery Details Outlet -->
+      @if (!readonly) {
+        <ng-template
+          [cxOutlet]="CartOutlets.ITEM_DELIVERY_DETAILS"
+          [cxOutletContext]="{ item, cartType: options.cartType }"
+        ></ng-template>
+      }
+    </div>
+
+    <!-- Variants -->
+    @if (item.product?.baseOptions?.length) {
+      @for (
+        variant of item.product?.baseOptions[0]?.selected?.variantOptionQualifiers;
+        track variant) {
+        <div class="cx-property">
+          @if (variant.name && variant.value) {
+            <div class="cx-label">
+              {{ variant.name }}: {{ variant.value }}
+            </div>
+          }
+        </div>
+      }
+    }
+  </td>
+
+  <!-- Mobile Item Price -->
+  @if (item.basePrice) {
+    <td
+      class="cx-price cx-mobile-only"
+      role="cell"
+    >
+      <div class="cx-mobile-header">
+        {{ 'cartItems.itemPrice' | cxTranslate }}
+      </div>
+      <div class="cx-value">
+        {{ item.basePrice?.formattedValue }}
+      </div>
+    </td>
+  }
+
+  <!-- Subscription Charges -->
   <ng-template
-    role="cell"
-    [cxOutlet]="CartOutlets.CPQ_QUOTE_MODULE"
+    [cxOutlet]="CartOutlets.SUBSCRIPTION_PRICE_BODY"
     [cxOutletContext]="{
-      items: item,
+      items,
+      item,
+      parent: 'cart'
     }"
   ></ng-template>
-<!-- Item Quantity -->
-  <td role="cell" class="cx-quantity">
+
+  <!-- CPQ -->
+  <ng-template
+    [cxOutlet]="CartOutlets.CPQ_QUOTE_MODULE"
+    [cxOutletContext]="{ items: item }"
+  ></ng-template>
+
+  <!-- Quantity -->
+  <td
+    role="cell"
+    class="cx-quantity"
+  >
     <div
-      *cxFeature="'a11yQTY2Quantity'"
       class="cx-mobile-header"
       placement="left"
       title="{{ 'cartItems.quantityTitle' | cxTranslate }}"
     >
       {{ 'cartItems.quantityFull' | cxTranslate }}
     </div>
+
     <div
-      *cxFeature="'!a11yQTY2Quantity'"
-      class="cx-mobile-header"
-      placement="left"
-      title="{{ 'cartItems.quantityTitle' | cxTranslate }}"
+      class="cx-value"
+      [class.readonly-value]="readonly"
     >
-      {{ 'cartItems.quantity' | cxTranslate }}
-    </div>
-    <div class="cx-value" [class.readonly-value]="readonly">
       <cx-item-counter
         [control]="quantityControl"
         [readonly]="!item.updateable || readonly || options.isSaveForLater"
@@ -147,75 +159,85 @@
       </cx-item-counter>
     </div>
   </td>
-<!-- Total -->
-  <ng-container *ngIf="options.isSaveForLater; else total">
-    <td role="cell" class="cx-total">
+
+  <!-- Total / Save For Later -->
+  @if (options.isSaveForLater) {
+    <td
+      role="cell"
+      class="cx-total"
+    >
       <div class="cx-mobile-header">
         {{ 'saveForLaterItems.stock' | cxTranslate }}
       </div>
-      <div
-        *ngIf="item.product?.stock?.stockLevel >= 0; else forceInstock"
-        class="cx-value"
-      >
-        {{ item.product?.stock.stockLevel }}
-      </div>
-      <ng-template #forceInstock>
+
+      @if (item.product?.stock?.stockLevel >= 0) {
+        <div class="cx-value">
+          {{ item.product?.stock?.stockLevel }}
+        </div>
+      } @else {
         <div class="cx-value">
           {{ 'saveForLaterItems.forceInStock' | cxTranslate }}
         </div>
-      </ng-template>
+      }
     </td>
-  </ng-container>
+  } @else {
+    @if (item.totalPrice) {
+      <td
+        role="cell"
+        class="cx-total"
+      >
+        <div class="cx-mobile-header">
+          {{ 'cartItems.total' | cxTranslate }}
+        </div>
+        <div class="cx-value">
+          {{ item.totalPrice.formattedValue }}
+        </div>
+      </td>
+    }
+  }
 
-<td
-  *ngIf="(!readonly || options.isSaveForLater || options.displayAddToCart) && item.updateable"
-  class="cx-actions"
-  role="cell"
->
-  <ng-container *ngIf="!isProductOutOfStock(item.product)">
-    <ng-container
-      *ngTemplateOutlet="
-			options.optionalBtn;
-			context: {
-				$implicit: {
-					loading: quantityControl.disabled,
-					item: this.item,
-					options: this.options
-				}
-			}"
-    ></ng-container>
-  </ng-container>
+  <!-- Actions -->
+  @if ((!readonly || options.isSaveForLater || options.displayAddToCart) && item.updateable) {
+    <td
+      role="cell"
+      class="cx-actions"
+    >
 
-  <!-- Availability -->
-  <span
-    *ngIf="isProductOutOfStock(item.product)"
-    class="cx-availability"
-    role="cell"
-  >
-      {{ 'addToCart.outOfStock' | cxTranslate }}
-    </span>
+      @if (!isProductOutOfStock(item.product)) {
+        <ng-container
+          *ngTemplateOutlet="
+            options.optionalBtn;
+            context: {
+              $implicit: {
+                loading: quantityControl.disabled,
+                item: this.item,
+                options: this.options
+              }
+            }
+          "
+        ></ng-container>
+      }
 
-  <button
-    (click)="removeItem()"
-    *ngIf="!readonly"
-    [cxAtMessage]="'cartItems.itemRemoved' | cxTranslate"
-    [disabled]="quantityControl.disabled"
-    attr.aria-label="{{ 'addToCart.removeFromCart' | cxTranslate }}"
-    class="btn btn-tertiary cx-remove-btn"
-  >
-    {{ 'common.remove' | cxTranslate }}
-  </button>
-</td>
+      @if (isProductOutOfStock(item.product)) {
+        <span
+          class="cx-availability"
+          role="cell"
+        >
+          {{ 'addToCart.outOfStock' | cxTranslate }}
+        </span>
+      }
 
-<ng-template #total>
-  <td
-    role="cell"
-    *ngIf="item.totalPrice"
-    class="cx-total"
-  >
-    <div class="cx-mobile-header">
-      {{ 'cartItems.total' | cxTranslate }}
-    </div>
-    <div class="cx-value">{{ item.totalPrice.formattedValue }}</div>
-  </td>
+      @if (!readonly) {
+        <button
+          (click)="removeItem()"
+          [cxAtMessage]="'cartItems.itemRemoved' | cxTranslate"
+          [disabled]="quantityControl.disabled"
+          attr.aria-label="{{ 'addToCart.removeFromCart' | cxTranslate }}"
+          class="btn btn-tertiary cx-remove-btn"
+        >
+          {{ 'common.remove' | cxTranslate }}
+        </button>
+      }
+    </td>
+  }
 </ng-template>

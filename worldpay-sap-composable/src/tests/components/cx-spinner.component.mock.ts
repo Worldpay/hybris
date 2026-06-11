@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { I18nTestingModule } from '@spartacus/core';
 
 @Component({
   selector: 'cx-spinner',
   template: '',
-  standalone: false,
+  imports: [I18nTestingModule],
 })
 export class MockCxSpinnerComponent {
 }

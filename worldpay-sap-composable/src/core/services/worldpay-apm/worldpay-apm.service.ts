@@ -1,5 +1,5 @@
 import { APP_BASE_HREF, KeyValue, PlatformLocation } from '@angular/common';
-import { DestroyRef, inject, Inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
 import { CheckoutDeliveryAddressCreatedEvent, CheckoutDeliveryAddressSetEvent, CheckoutPaymentDetailsSetEvent } from '@spartacus/checkout/base/root';
@@ -47,6 +47,20 @@ export class WorldpayApmService implements WorldpayApmFacade {
   protected destroyRef: DestroyRef = inject(DestroyRef);
   protected logger: LoggerService = inject(LoggerService);
   protected save$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  protected activeCartFacade: ActiveCartFacade = inject(ActiveCartFacade);
+  protected userIdService: UserIdService = inject(UserIdService);
+  protected commandService: CommandService = inject(CommandService);
+  protected queryService: QueryService = inject(QueryService);
+  protected eventService: EventService = inject(EventService);
+  protected cmsService: CmsService = inject(CmsService);
+  protected convertService: ConverterService = inject(ConverterService);
+  protected globalMessageService: GlobalMessageService = inject(GlobalMessageService);
+  protected winRef: WindowRef = inject(WindowRef);
+  protected worldpayOrderFacade: WorldpayOrderFacade = inject(WorldpayOrderFacade);
+  protected worldpayApmConnector: WorldpayApmConnector = inject(WorldpayApmConnector);
+  protected worldpayCheckoutPaymentFacade: WorldpayCheckoutPaymentFacade = inject(WorldpayCheckoutPaymentFacade);
+  protected platformLocation: PlatformLocation = inject(PlatformLocation);
+  protected appBaseHref: string = inject(APP_BASE_HREF);
   /**
    * Command used to get available APMs
    * @since 6.4.0
@@ -129,39 +143,7 @@ export class WorldpayApmService implements WorldpayApmFacade {
       }
     );
 
-  /**
-   * Constructor
-   * @param activeCartFacade ActiveCartFacade
-   * @param userIdService UserIdService
-   * @param commandService CommandService
-   * @param queryService QueryService
-   * @param eventService EventService
-   * @param cmsService  CmsService
-   * @param convertService ConverterService
-   * @param globalMessageService GlobalMessageService
-   * @param winRef WindowRef
-   * @param worldpayOrderFacade WorldpayOrderFacade
-   * @param worldpayApmConnector WorldpayApmConnector
-   * @param worldpayCheckoutPaymentFacade WorldpayCheckoutPaymentFacade
-   * @param platformLocation PlatformLocation
-   * @param appBaseHref string
-   */
-  constructor(
-    protected activeCartFacade: ActiveCartFacade,
-    protected userIdService: UserIdService,
-    protected commandService: CommandService,
-    protected queryService: QueryService,
-    protected eventService: EventService,
-    protected cmsService: CmsService,
-    protected convertService: ConverterService,
-    protected globalMessageService: GlobalMessageService,
-    protected winRef: WindowRef,
-    protected worldpayOrderFacade: WorldpayOrderFacade,
-    protected worldpayApmConnector: WorldpayApmConnector,
-    protected worldpayCheckoutPaymentFacade: WorldpayCheckoutPaymentFacade,
-    protected platformLocation: PlatformLocation,
-    @Inject(APP_BASE_HREF) protected appBaseHref: string
-  ) {
+  constructor() {
     this.baseHref = getBaseHref(this.platformLocation);
 
     if (!this.baseHref && this.appBaseHref?.length) {
@@ -429,8 +411,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   setWorldpaySavedCreditCardEvent(): void {
     this.eventService.get(SetWorldpaySavedCreditCardEvent).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      tap((event: SetWorldpaySavedCreditCardEvent): void => this.worldpayCheckoutPaymentFacade.setSaveCreditCardValue(event.saved))
+      tap((event: SetWorldpaySavedCreditCardEvent): void => this.worldpayCheckoutPaymentFacade.setSaveCreditCardValue(event.saved)),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -441,8 +423,8 @@ export class WorldpayApmService implements WorldpayApmFacade {
    */
   setWorldpaySaveAsDefaultCreditCardEvent(): void {
     this.eventService.get(SetWorldpaySaveAsDefaultCreditCardEvent).pipe(
-      takeUntilDestroyed(this.destroyRef),
-      tap((event: SetWorldpaySaveAsDefaultCreditCardEvent): void => this.worldpayCheckoutPaymentFacade.setSaveAsDefaultCardValue(event.saved))
+      tap((event: SetWorldpaySaveAsDefaultCreditCardEvent): void => this.worldpayCheckoutPaymentFacade.setSaveAsDefaultCardValue(event.saved)),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 

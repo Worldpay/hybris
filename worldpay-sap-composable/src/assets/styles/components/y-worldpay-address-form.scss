@@ -1,8 +1,3 @@
-@import "../../../assets/styles/mixins";
-@import "@spartacus/user/profile/styles/address-form";
-@import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
-@import "@spartacus/checkout/base/styles/components/steps/delivery-address";
-
-y-worldpay-address-form {
+y-worldpay-address-form, y-worldpay-b2b-address-form {
   @extend %cx-address-form !optional
 }

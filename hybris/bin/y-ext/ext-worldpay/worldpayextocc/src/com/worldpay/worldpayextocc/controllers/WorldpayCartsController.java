@@ -53,9 +53,11 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static de.hybris.platform.webservicescommons.mapping.FieldSetLevelHelper.DEFAULT_LEVEL;
@@ -222,7 +224,7 @@ public class WorldpayCartsController extends AbstractWorldpayController {
                 request, cseAdditionalAuthInfo, cartId, paymentDetails.getBrowserInfo());
         worldpayAdditionalInfoData.setDeviceSession(paymentDetails.getDeviceSession());
         Optional.ofNullable(paymentDetails.getDateOfBirth())
-                .map(this::convertStringToDate)
+                .map(this::convertStringToLocalDate)
                 .ifPresent(worldpayAdditionalInfoData::setDateOfBirth);
 
         final DirectResponseData directResponseData = worldpayDirectOrderFacade.executeFirstPaymentAuthorisation3DSecure(cseAdditionalAuthInfo, worldpayAdditionalInfoData);

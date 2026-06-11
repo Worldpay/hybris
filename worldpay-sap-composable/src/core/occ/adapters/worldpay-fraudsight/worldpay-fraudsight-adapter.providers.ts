@@ -8,3 +8,5 @@ export const worldpayFraudsightAdapterProvider: Provider[] = [
     useClass: OccWorldpayFraudsightAdapter,
   },
 ];
+
+export const worldpayFraudsightAdapterProviders: () => Provider[] = (): Provider[] => worldpayFraudsightAdapterProvider;

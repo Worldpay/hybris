@@ -42,11 +42,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.*;
 
 import static com.worldpay.enums.order.AuthorisedStatus.REFUSED;
 import static com.worldpay.payment.TransactionStatus.AUTHORISED;
@@ -77,7 +75,7 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
 
     @Resource(name = "cartLoaderStrategy")
     private CartLoaderStrategy cartLoaderStrategy;
-    
+
     @Resource
     private WorldpayCartService worldpayCartService;
     @Resource
@@ -193,7 +191,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "placeRedirectOrder", summary = "Place an order for redirect APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    
     public OrderWsDTO placeRedirectOrder(
             @RequestBody final Map<String, String> requestParams,
             @RequestParam(defaultValue = FieldSetLevelHelper.FULL_LEVEL) final String fields) throws WorldpayException, InvalidCartException {
@@ -234,7 +231,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @PostMapping(value = "/users/{userId}/carts/{cartId}/worldpayorders/place-banktransfer-redirect-order")
     @Operation(operationId = "PlaceBankTransferRedirectOrder", summary = "Place an order for redirect Bank APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    
     public OrderWsDTO placeBankTransferRedirectOrder(
             final HttpServletRequest request,
             @RequestParam(value = "orderId") final String orderId,
@@ -263,7 +259,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "placeACHDirectOrder", summary = "Place an order for redirect APMs.", description = "Place the order after APM success redirect. The response contains the new order data.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    
     public OrderWsDTO placeACHDirectOrder(
             final HttpServletRequest request,
             @RequestBody final AchDirectDebitPaymentWsDTO achDirectDebitPayment,
@@ -297,7 +292,6 @@ public class WorldpayOrdersController extends AbstractWorldpayController {
      */
     @Secured({"ROLE_CUSTOMERGROUP", "ROLE_CLIENT", "ROLE_CUSTOMERMANAGERGROUP", "ROLE_TRUSTED_CLIENT", "ROLE_GUEST", "ROLE_ANONYMOUS"})
     @GetMapping(value = "/orders/{orderCode}/user/{userId}")
-    
     @Operation(operationId = "getUserOrders", summary = "Get an order.", description = "Returns specific order details based on a specific order code. The response contains detailed order information.")
     @ApiBaseSiteIdParam
     public OrderWsDTO getUserOrders(

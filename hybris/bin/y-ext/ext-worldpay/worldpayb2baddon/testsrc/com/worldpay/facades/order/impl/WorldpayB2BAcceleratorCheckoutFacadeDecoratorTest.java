@@ -44,7 +44,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -186,7 +186,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecoratorTest {
 
         testObj.placeOrder(placeOrderData);
 
-        verify(b2BAcceleratorCheckoutFacade, times(1)).scheduleOrder(Matchers.any());
+        verify(b2BAcceleratorCheckoutFacade, times(1)).scheduleOrder(any());
     }
 
 

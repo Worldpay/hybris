@@ -3,8 +3,7 @@ import { ICON_TYPE } from '@spartacus/storefront';
 
 @Component({
   selector: 'cx-icon',
-  template: '',
-  standalone: false,
+  template: ''
 })
 export class MockCxIconComponent {
   @Input() type: ICON_TYPE;

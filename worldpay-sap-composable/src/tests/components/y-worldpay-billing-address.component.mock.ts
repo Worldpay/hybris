@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'y-worldpay-billing-address',
-  template: '',
+  template: ''
 })
 export class MockWorldpayBillingAddressComponent {
   @Output() sameAsShippingAddressChange: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);

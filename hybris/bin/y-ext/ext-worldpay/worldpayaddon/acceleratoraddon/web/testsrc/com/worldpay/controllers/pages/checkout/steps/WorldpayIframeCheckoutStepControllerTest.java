@@ -1,5 +1,20 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import java.time.LocalDate;
+
+import static java.util.Collections.singleton;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.core.services.APMConfigurationLookupService;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.exception.WorldpayException;
@@ -15,6 +30,7 @@ import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.acceleratorservices.payment.data.PaymentData;
 import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,14 +42,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Calendar;
-import java.util.Date;
-
-import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -48,7 +56,7 @@ public class WorldpayIframeCheckoutStepControllerTest {
     private static final String SHOW_NGPP_IFRAME = "showNGPPIframe";
     private static final String REDIRECT_PREFIX = "redirect:";
     private static final String REDIRECT_CHECKOUT_MULTI_WORLDPAY_IFRAME_ADD_PAYMENT_DETAILS = REDIRECT_PREFIX + "/checkout/multi/worldpay/iframe/add-payment-details";
-    private static final Date BIRTHDAY_DATE_VALUE = new Date(1990, Calendar.MAY, 17);
+    private static final LocalDate BIRTHDAY_DATE_VALUE = LocalDate.of(1990, 5, 17);
 
     private static final String PAYMENT_DATA = "paymentData";
     private static final String SHOPPER_BANK_CODE = "shopperBankCode";

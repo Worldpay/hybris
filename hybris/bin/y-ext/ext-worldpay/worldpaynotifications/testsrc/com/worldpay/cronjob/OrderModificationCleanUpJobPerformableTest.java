@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 public class OrderModificationCleanUpJobPerformableTest {
 
     @InjectMocks
-    private OrderModificationCleanUpJobPerformable testObj = new OrderModificationCleanUpJobPerformable();
+    private OrderModificationCleanUpJobPerformable testObj;
     @Mock
     private WorldpayOrderModificationCleanUpStrategy worldpayOrderModificationCleanUpStrategy;
     @Mock

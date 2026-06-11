@@ -1,5 +1,8 @@
 package com.worldpay.converters.populators;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.model.WorldpayAPMConfigurationModel;
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.commercefacades.order.data.CCPaymentInfoData;
@@ -7,26 +10,24 @@ import de.hybris.platform.commercefacades.user.data.AddressData;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.core.model.user.AddressModel;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class DefaultWorldpayAPMPaymentInfoPopulatorTest {
+@ExtendWith(MockitoExtension.class)
+class DefaultWorldpayAPMPaymentInfoPopulatorTest {
 
-    private static final String APM_NAME = "apmName";
-    private static final String SUBSCRIPTION_ID = "subscriptionId";
-    private static final long PK = 1234L;
-    private static final String OBFUSCATED_CART_NUMBER = "obfuscatedCartNumber";
     private static final String EXPIRY_MONTH = "1";
+    private static final String APM_NAME = "apmName";
     private static final String EXPIRY_YEAR = "2025";
     private static final String APM_CODE = "APM_CODE";
+    private static final String SUBSCRIPTION_ID = "subscriptionId";
+    private static final String OBFUSCATED_CARD_NUMBER = "obfuscatedCardNumber";
+    private static final long PK = 1234L;
 
     @InjectMocks
     private DefaultWorldpayAPMPaymentInfoPopulator testObj;
@@ -46,12 +47,12 @@ public class DefaultWorldpayAPMPaymentInfoPopulatorTest {
     private AddressData addressDataMock;
 
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         when(sourceMock.getApmConfiguration()).thenReturn(apmConfigurationMock);
         when(sourceMock.getSubscriptionId()).thenReturn(SUBSCRIPTION_ID);
         when(sourceMock.getPk()).thenReturn(de.hybris.platform.core.PK.fromLong(PK));
-        when(sourceMock.getObfuscatedCardNumber()).thenReturn(OBFUSCATED_CART_NUMBER);
+        when(sourceMock.getObfuscatedCardNumber()).thenReturn(OBFUSCATED_CARD_NUMBER);
         when(sourceMock.getExpiryMonth()).thenReturn(EXPIRY_MONTH);
         when(sourceMock.getExpiryYear()).thenReturn(EXPIRY_YEAR);
         when(apmConfigurationMock.getName()).thenReturn(APM_NAME);
@@ -62,63 +63,63 @@ public class DefaultWorldpayAPMPaymentInfoPopulatorTest {
     }
 
     @Test
-    public void populate_ShouldSetCartType() {
+    void populate_ShouldSetCartType() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setCardType(APM_CODE);
     }
 
     @Test
-    public void populate_ShouldMarkTargetAsSaved() {
+    void populate_ShouldMarkTargetAsSaved() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setSaved(true);
     }
 
     @Test
-    public void populate_ShouldAddAddressData() {
+    void populate_ShouldAddAddressData() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setBillingAddress(addressDataMock);
     }
 
     @Test
-    public void populate_ShouldMarkTargetAsAPM() {
+    void populate_ShouldMarkTargetAsAPM() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setIsAPM(true);
     }
 
     @Test
-    public void populate_ShouldAddIdUsingPK() {
+    void populate_ShouldAddIdUsingPK() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setId(String.valueOf(PK));
     }
 
     @Test
-    public void populate_ShouldAddAPMName() {
+    void populate_ShouldAddAPMName() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setApmName(APM_NAME);
     }
 
     @Test
-    public void populate_ShouldAddSubscriptionId() {
+    void populate_ShouldAddSubscriptionId() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setSubscriptionId(SUBSCRIPTION_ID);
     }
 
     @Test
-    public void populate_ShouldAddCreditCardNumber() {
+    void populate_ShouldAddCreditCardNumber() {
         testObj.populate(sourceMock, targetMock);
 
-        verify(targetMock).setCardNumber(OBFUSCATED_CART_NUMBER);
+        verify(targetMock).setCardNumber(OBFUSCATED_CARD_NUMBER);
     }
 
     @Test
-    public void populate_ShouldAddExpiryDateAndYear() {
+    void populate_ShouldAddExpiryDateAndYear() {
         testObj.populate(sourceMock, targetMock);
 
         verify(targetMock).setExpiryMonth(EXPIRY_MONTH);

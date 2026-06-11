@@ -1,7 +1,6 @@
 package com.worldpay.service.payment.impl;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -44,8 +43,8 @@ public class DefaultWorldpayFraudSightStrategyTest {
 
     private static final String SHOPPER_ID = "shopper_id";
     private static final String CUSTOMER_NAME = "Customer Name";
-    private static final Date BIRTHDAY_DATE = new Date(1990, Calendar.MAY, 17);
     private static final String DEVICE_SESSION = "deviceSession";
+    private static final LocalDate BIRTHDAY_DATE = LocalDate.of(1990, 5, 17);
 
     @Spy
     @InjectMocks

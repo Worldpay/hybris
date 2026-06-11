@@ -11,7 +11,7 @@ import de.hybris.platform.ordercancel.OrderCancelService;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.user.UserService;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static com.hybris.cockpitng.actions.ActionResult.SUCCESS;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;

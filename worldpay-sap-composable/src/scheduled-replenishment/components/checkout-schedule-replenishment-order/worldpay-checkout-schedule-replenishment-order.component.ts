@@ -1,7 +1,9 @@
+import { AsyncPipe, KeyValuePipe, TitleCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit, ViewEncapsulation, } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CheckoutScheduleReplenishmentOrderComponent } from '@spartacus/checkout/scheduled-replenishment/components';
-import { QueryState } from '@spartacus/core';
+import { QueryState, TranslatePipe } from '@spartacus/core';
+import { IconComponent } from '@spartacus/storefront';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { WorldpayApmPaymentInfo, WorldpayCheckoutPaymentFacade } from '../../../core';
@@ -10,8 +12,14 @@ import { WorldpayApmPaymentInfo, WorldpayCheckoutPaymentFacade } from '../../../
   selector: 'y-worldpay-schedule-replenishment-order',
   templateUrl: './worldpay-checkout-schedule-replenishment-order.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    IconComponent,
+    AsyncPipe,
+    TitleCasePipe,
+    KeyValuePipe,
+    TranslatePipe
+  ]
 })
 export class WorldpayCheckoutScheduleReplenishmentOrderComponent extends CheckoutScheduleReplenishmentOrderComponent implements OnInit, OnDestroy {
 

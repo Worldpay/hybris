@@ -1,8 +1,22 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.beans.PropertyEditorSupport;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.IntStream;
+
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
-import com.worldpay.data.*;
+import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
+import com.worldpay.data.Additional3DS2Info;
+import com.worldpay.data.AdditionalAuthInfo;
+import com.worldpay.data.BankTransferAdditionalAuthInfo;
+import com.worldpay.data.CSEAdditionalAuthInfo;
 import com.worldpay.enums.AchDirectDebitAccountType;
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.facades.order.impl.WorldpayCheckoutFacadeDecorator;
@@ -19,19 +33,14 @@ import de.hybris.platform.commercefacades.user.data.CountryData;
 import de.hybris.platform.commerceservices.enums.CountryType;
 import de.hybris.platform.enumeration.EnumerationService;
 import de.hybris.platform.servicelayer.type.TypeService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.annotation.Resource;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
 
 @Controller
 @RequestMapping(value = "/checkout/multi/payment-method")
@@ -66,6 +75,18 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     @Resource
     protected TypeService typeService;
 
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(LocalDate.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String text) {
+                if (text != null && !text.isEmpty()) {
+                    setValue(LocalDate.parse(text));
+                }
+            }
+        });
+    }
+
     @ModelAttribute("billingCountries")
     public Collection<CountryData> getBillingCountries() {
         return getCheckoutFacade().getCountries(CountryType.BILLING);
@@ -98,8 +119,8 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
     public List<SelectOption> getExpiryYears() {
         final LocalDate localDate = LocalDate.now();
         return IntStream.range(localDate.getYear(), localDate.getYear() + PLUS_YEARS)
-            .mapToObj(i -> new SelectOption(String.valueOf(i), String.valueOf(i)))
-            .collect(Collectors.toList());
+                .mapToObj(i -> new SelectOption(String.valueOf(i), String.valueOf(i)))
+                .toList();
     }
 
     protected void setupAddPaymentPage(final Model model) throws CMSItemNotFoundException {
@@ -107,7 +128,7 @@ public abstract class AbstractWorldpayPaymentMethodCheckoutStepController extend
         model.addAttribute("hasNoPaymentInfo", worldpayCheckoutFacadeDecorator.hasNoPaymentInfo());
         prepareDataForPage(model);
         model.addAttribute(WebConstants.BREADCRUMBS_KEY,
-            getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.paymentMethod.breadcrumb"));
+                getResourceBreadcrumbBuilder().getBreadcrumbs("checkout.multi.paymentMethod.breadcrumb"));
 
         final ContentPageModel contentPage = getContentPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL);
         storeCmsPageInModel(model, contentPage);

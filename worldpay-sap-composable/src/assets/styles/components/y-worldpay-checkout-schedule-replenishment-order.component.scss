@@ -1,5 +1,3 @@
-@import "@spartacus/checkout/scheduled-replenishment";
-
 y-worldpay-schedule-replenishment-order {
   @extend %cx-schedule-replenishment-order !optional;
 }
@@ -11,20 +9,20 @@ y-worldpay-schedule-replenishment-order {
         @include media-breakpoint-down(md) {
           width: 50%;
         }
+
         @include media-breakpoint-down(sm) {
           width: 100%;
         }
       }
 
       y-worldpay-schedule-replenishment-order {
-        flex: unset;
-        padding-top: 1rem;
-        padding-inline-start: 2.5rem;
         padding-bottom: 0;
-        padding-inline-end: 0;
+        padding-top: 1rem;
+        flex: unset;
+        padding-inline: 2.5rem 0;
 
         @include media-breakpoint-down(md) {
-          padding: 1rem 0 0 0;
+          padding: 1rem 0 0;
         }
       }
     }

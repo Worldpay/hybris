@@ -4,6 +4,7 @@ import { PaymentDetails } from '@spartacus/core';
 import { Observable } from 'rxjs';
 import { WorldpayCheckoutPaymentAdapter } from './worldpay-checkout-payment.adapter';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Injectable({
   providedIn: 'root'
 })

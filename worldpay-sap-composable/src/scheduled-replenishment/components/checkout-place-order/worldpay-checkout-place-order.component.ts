@@ -1,22 +1,34 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { CheckoutReplenishmentFormService } from '@spartacus/checkout/scheduled-replenishment/components';
-import { GlobalMessageType, HttpErrorModel } from '@spartacus/core';
-import { ORDER_TYPE, recurrencePeriod, ScheduledReplenishmentOrderFacade, ScheduleReplenishmentForm, } from '@spartacus/order/root';
+import { GlobalMessageType, HttpErrorModel, TranslatePipe, UrlPipe } from '@spartacus/core';
+import { ORDER_TYPE, recurrencePeriod, ScheduleReplenishmentForm, } from '@spartacus/order/root';
+import { AtMessageDirective } from '@spartacus/storefront';
 import { BehaviorSubject } from 'rxjs';
+import { WorldpayReplenishmentOrderFacade } from '../../../b2b/core/facade/worldpay-replenishment-order.facade';
 import { WorldpayCheckoutPlaceOrderComponent } from '../../../storefrontlib';
 
 @Component({
-  selector: 'y-worldpay-checkout-place-order',
+  selector: 'y-worldpay-b2b-checkout-place-order',
   templateUrl: './worldpay-checkout-place-order.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    AtMessageDirective,
+    AsyncPipe,
+    UrlPipe,
+    TranslatePipe,
+  ]
 })
 export class WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent extends WorldpayCheckoutPlaceOrderComponent implements OnInit, OnDestroy {
   currentOrderType: ORDER_TYPE;
   daysOfWeekNotChecked$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   protected checkoutReplenishmentFormService: CheckoutReplenishmentFormService = inject(CheckoutReplenishmentFormService);
-  protected scheduledReplenishmentOrderFacade: ScheduledReplenishmentOrderFacade = inject(ScheduledReplenishmentOrderFacade);
+  protected scheduledReplenishmentOrderFacade: WorldpayReplenishmentOrderFacade = inject(WorldpayReplenishmentOrderFacade);
 
   /**
    * Initializes the component by invoking the parent class's `ngOnInit` method

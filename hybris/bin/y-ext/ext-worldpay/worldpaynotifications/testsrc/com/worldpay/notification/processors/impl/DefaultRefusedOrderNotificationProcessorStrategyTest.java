@@ -25,7 +25,7 @@ import org.springframework.transaction.support.TransactionOperations;
 import java.util.Collections;
 
 import static de.hybris.platform.payment.dto.TransactionStatus.REJECTED;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @UnitTest
@@ -96,6 +96,10 @@ public class DefaultRefusedOrderNotificationProcessorStrategyTest {
         verify(paymentTransactionModelMock).getOrder();
         verify(worldpayPaymentInfoServiceMock, never()).setPaymentInfoModel(any(PaymentTransactionModel.class), any(AbstractOrderModel.class), any(OrderNotificationMessage.class));
         verify(modelServiceMock, never()).save(paymentTransactionModelMock);
-        verify(worldpayPaymentTransactionServiceMock, never()).updateEntriesStatus(anyListOf(PaymentTransactionEntryModel.class), anyString());
+        verify(worldpayPaymentTransactionServiceMock, never())
+                .updateEntriesStatus(
+                        anyList(),
+                        anyString()
+                );
     }
 }

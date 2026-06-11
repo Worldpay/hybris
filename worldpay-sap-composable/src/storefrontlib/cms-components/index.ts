@@ -58,7 +58,7 @@ export * from './worldpay-checkout-payment-method/worldpay-checkout-payment-meth
 export * from './worldpay-payment-methods/worldpay-payment-methods.component';
 export * from './worldpay-payment-methods/worldpay-payment-methods.module';
 // payment form
-export * from './worldpay-checkout-payment-method/payment-form/worldpay-payment-form.component';
+export * from './worldpay-checkout-payment-method/payment-form/worldpay-checkout-payment-form.component';
 /**
  * Checkout place order
  */
@@ -74,11 +74,13 @@ export * from './worldpay-checkout-review/worldpay-checkout-review-payment/world
  */
 export * from './worldpay-fraudsight-risk/worldpay-fraudsight-risk.component';
 export * from './worldpay-fraudsight-risk/worldpay-fraudsight-risk-component.module';
+// TODO: REMOVE export * from './worldpay-fraudsight-risk/worldpay-fraudsight-risk-feature.module';
 /**
  * Checkout guaranteed payments
  */
 export * from './worldpay-guaranteed-payments/worldpay-guaranteed-payments.component';
 export * from './worldpay-guaranteed-payments/worldpay-guaranteed-payments-component.module';
+// TODO: REMOVE export * from './worldpay-guaranteed-payments/worldpay-guaranteed-payments-feature.module';
 // order confirmation
 export * from './worldpay-order-confirmation/worldpay-order-confirmation.module';
 // order confirmation items
@@ -87,8 +89,6 @@ export * from './worldpay-order-confirmation/worldpay-order-confirmation-items/w
 export * from './worldpay-order-confirmation/worldpay-order-confirmation-shipping/worldpay-order-confirmation-shipping.component';
 // order-confirmation-thank-you-message
 export * from './worldpay-order-confirmation/worldpay-order-confirmation-thank-you-message/worldpay-order-confirmation-thank-you-message.component';
-// order guest register form
-export * from './worldpay-order-confirmation/worldpay-order-guest-register-form/worldpay-order-guest-register-form.component';
 /**
  * Order details
  */
@@ -97,3 +97,6 @@ export * from './worldpay-order-details/worldpay-order-details.module';
 export * from './worldpay-order-details/worldpay-order-details-billing/worldpay-order-details-billing.component';
 // order overview
 export * from './worldpay-order-details/worldpay-order-overview/worldpay-order-overview.component';
+
+// components Module
+export * from './worldpay-components.module';

@@ -5,15 +5,20 @@ import de.hybris.platform.core.model.order.AbstractOrderModel;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 /**
  * Strategy to generate the WorldpayOrderCode to send to Worldpay. Identifies an order in Worldpay.
  */
 public class DefaultRecurringGenerateMerchantTransactionCodeStrategy implements RecurringGenerateMerchantTransactionCodeStrategy {
 
-    private ModelService modelService;
-    private CartService cartService;
+    protected final ModelService modelService;
+    protected final CartService cartService;
+
+    public DefaultRecurringGenerateMerchantTransactionCodeStrategy(final ModelService modelService, final CartService cartService) {
+        this.modelService = modelService;
+        this.cartService = cartService;
+    }
 
     @Override
     public String generateCode(final CartModel cartModel) {
@@ -38,15 +43,5 @@ public class DefaultRecurringGenerateMerchantTransactionCodeStrategy implements 
 
     protected long getTime() {
         return System.currentTimeMillis();
-    }
-
-    @Required
-    public void setModelService(final ModelService modelService) {
-        this.modelService = modelService;
-    }
-
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
     }
 }

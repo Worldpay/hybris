@@ -17,7 +17,8 @@ import { SetPaymentAddressEvent } from './checkout-payment.events';
 })
 export class WorldpayBillingAddressFormEventsListener {
   protected destroyRef: DestroyRef = inject(DestroyRef);
-
+  protected eventService: EventService = inject(EventService);
+  protected worldpayBillingAddressFormService: WorldpayBillingAddressFormService = inject(WorldpayBillingAddressFormService);
   /**
    * Initializes the `WorldpayBillingAddressFormEventsListener` by setting up event listeners.
    *
@@ -27,13 +28,10 @@ export class WorldpayBillingAddressFormEventsListener {
    * - `WorldpayClearBillingAddressFormEvent`: Handles clearing the billing address form.
    * - `CurrencySetEvent`: Handles changes to the currency.
    *
-   * @param {EventService} eventService - The event service used to handle events.
-   * @param {WorldpayBillingAddressFormService} worldpayBillingAddressFormService - Service for managing the billing address form.
    * @since 2211.43.0
    */
   constructor(
-    protected eventService: EventService,
-    protected worldpayBillingAddressFormService: WorldpayBillingAddressFormService
+
   ) {
     this.onSameAsBillingAddressChange();
     this.onWorldpayBillingAddressUpdatedEvent();

@@ -8,7 +8,7 @@ import de.hybris.platform.ordercancel.OrderCancelDenialStrategy;
 import de.hybris.platform.ordercancel.impl.denialstrategies.AbstractCancelDenialStrategy;
 import de.hybris.platform.ordercancel.model.OrderCancelConfigModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -47,7 +47,7 @@ public class PaymentTokenCreatePopulator implements Populator<CardTokenRequest, 
 
         Optional.ofNullable(source.getAuthenticatedShopperId()).ifPresent(shopperId -> {
             final AuthenticatedShopperID internalAuthenticatedShopperID = new AuthenticatedShopperID();
-            internalAuthenticatedShopperID.setvalue(shopperId);
+            internalAuthenticatedShopperID.setValue(shopperId);
             target.setAuthenticatedShopperID(internalAuthenticatedShopperID);
         });
 

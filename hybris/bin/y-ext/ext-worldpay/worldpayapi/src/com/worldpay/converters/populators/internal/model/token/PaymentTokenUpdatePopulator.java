@@ -41,13 +41,13 @@ public class PaymentTokenUpdatePopulator implements Populator<UpdateTokenRequest
             Optional.ofNullable(source.getAuthenticatedShopperID())
                 .ifPresent(shopperId -> {
                     final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-                    intAuthenticatedShopperID.setvalue(shopperId);
+                    intAuthenticatedShopperID.setValue(shopperId);
                     target.setAuthenticatedShopperID(intAuthenticatedShopperID);
                 });
         }
 
         final PaymentTokenID intPaymentTokenIDWrapper = new PaymentTokenID();
-        intPaymentTokenIDWrapper.setvalue(source.getPaymentTokenId());
+        intPaymentTokenIDWrapper.setValue(source.getPaymentTokenId());
         target.setPaymentTokenID(intPaymentTokenIDWrapper);
 
         Optional.ofNullable(source.getTokenRequest())
@@ -67,7 +67,7 @@ public class PaymentTokenUpdatePopulator implements Populator<UpdateTokenRequest
             .map(TokenRequest::getTokenReason)
             .ifPresent(tokenReason -> {
                 final TokenReason intTokenReason = new TokenReason();
-                intTokenReason.setvalue(tokenReason);
+                intTokenReason.setValue(tokenReason);
                 target.setTokenReason(intTokenReason);
             });
     }

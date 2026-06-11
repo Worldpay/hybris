@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-  ~ [y] hybris Platform
-  ~
-  ~ Copyright (c) 2000-2015 hybris AG
-  ~ All rights reserved.
-  ~
-  ~ This software is the confidential and proprietary information of hybris
-  ~ ("Confidential Information"). You shall not disclose such Confidential
-  ~ Information and shall use it only in accordance with the terms of the
-  ~ license agreement you entered into with hybris.
-  --><!--
  All hybris buildcallbacks.xml macrodefinitions:
 
  Build/Documentation
@@ -87,51 +77,51 @@
 		 <macrodef name="worldpayaddonbackoffice_before_compile_backoffice"/>
 		 <macrodef name="worldpayaddonbackoffice_after_compile_backoffice"/>
 
---><project name="worldpayaddonbackoffice_buildcallbacks">
-	<property name="worldpayaddonbackofficeWebFragmentSrc" value="${ext.worldpayaddonbackoffice.path}/resources/web-fragment.xml"/>
-	<property name="worldpayaddonbackofficeWebFragmentDestJar" value="${ext.backoffice.path}/web/webroot/WEB-INF/lib/webfragmentExt_worldpayaddonbackoffice.jar"/>
+-->
+<project name="worldpayaddonbackoffice_buildcallbacks">
+    <property name="worldpayaddonbackofficeWebFragmentSrc"
+              value="${ext.worldpayaddonbackoffice.path}/resources/web-fragment.xml"/>
 
+    <property name="worldpayaddonbackofficeWebFragmentDestJar"
+              value="${ext.backoffice.path}/web/webroot/WEB-INF/lib/webfragmentExt_worldpayaddonbackoffice.jar"/>
 
+    <macrodef name="worldpayaddonbackoffice_after_clean">
+        <sequential>
+            <worldpayaddonbackoffice_remove_web_fragment/>
+        </sequential>
+    </macrodef>
 
+    <macrodef name="worldpayaddonbackoffice_after_build">
+        <sequential>
+            <worldpayaddonbackoffice_remove_web_fragment/>
+            <worldpayaddonbackoffice_create_web_fragment/>
+        </sequential>
+    </macrodef>
 
+    <macrodef name="worldpayaddonbackoffice_remove_web_fragment">
+        <sequential>
+            <if>
+                <available file="${worldpayaddonbackofficeWebFragmentDestJar}"/>
+                <then>
+                    <delete file="${worldpayaddonbackofficeWebFragmentDestJar}"/>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
 
-	<macrodef name="worldpayaddonbackoffice_after_clean">
-		<sequential>
-			<worldpayaddonbackoffice_remove_web_fragment/>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="worldpayaddonbackoffice_after_build">
-		<sequential>
-			<worldpayaddonbackoffice_remove_web_fragment/>
-			<worldpayaddonbackoffice_create_web_fragment/>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="worldpayaddonbackoffice_remove_web_fragment">
-		<sequential>
-			<if>
-				<available file="${worldpayaddonbackofficeWebFragmentDestJar}"/>
-				<then>
-					<delete file="${worldpayaddonbackofficeWebFragmentDestJar}"/>
-				</then>
-			</if>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="worldpayaddonbackoffice_create_web_fragment">
-		<sequential>
-			<if>
-				<available file="${worldpayaddonbackofficeWebFragmentSrc}"/>
-				<then>
-					<sequential>
-						<jar destfile="${worldpayaddonbackofficeWebFragmentDestJar}">
-							<metainf file="${worldpayaddonbackofficeWebFragmentSrc}"/>
-						</jar>
-					</sequential>
-				</then>
-			</if>
-		</sequential>
-	</macrodef>
+    <macrodef name="worldpayaddonbackoffice_create_web_fragment">
+        <sequential>
+            <if>
+                <available file="${worldpayaddonbackofficeWebFragmentSrc}"/>
+                <then>
+                    <sequential>
+                        <jar destfile="${worldpayaddonbackofficeWebFragmentDestJar}">
+                            <metainf file="${worldpayaddonbackofficeWebFragmentSrc}"/>
+                        </jar>
+                    </sequential>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
 
 </project>

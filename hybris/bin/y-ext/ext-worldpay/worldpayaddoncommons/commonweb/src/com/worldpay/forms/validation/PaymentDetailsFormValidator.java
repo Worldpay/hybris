@@ -8,13 +8,15 @@ import com.worldpay.service.apm.APMAvailabilityService;
 import com.worldpay.service.model.payment.PaymentType;
 import de.hybris.platform.acceleratorfacades.order.AcceleratorCheckoutFacade;
 import de.hybris.platform.order.CartService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
+
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 
@@ -158,12 +160,12 @@ public class PaymentDetailsFormValidator implements Validator {
         }
     }
 
-    protected boolean isValidDate(final Date birthdayDate) {
+    protected boolean isValidDate(final LocalDate birthdayDate) {
         if (birthdayDate == null) {
             return false;
         }
 
-        return birthdayDate.before(new Date());
+        return birthdayDate.isBefore(LocalDate.now());
     }
 
     protected void validateTermsCheck(final Errors errors, final PaymentDetailsForm form) {

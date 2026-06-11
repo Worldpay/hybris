@@ -1,15 +1,10 @@
-/*
- * SPDX-FileCopyrightText: 2025 SAP Spartacus team <spartacus-team@sap.com>
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { Injectable } from '@angular/core';
 import { UserPaymentConnector } from '@spartacus/core';
 import { Observable } from 'rxjs';
 import { ApmPaymentDetails } from '../../interfaces';
 import { WorldpayUserPaymentAdapter } from './worldpay-user-payment.adapter';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Injectable({
   providedIn: 'root',
 })

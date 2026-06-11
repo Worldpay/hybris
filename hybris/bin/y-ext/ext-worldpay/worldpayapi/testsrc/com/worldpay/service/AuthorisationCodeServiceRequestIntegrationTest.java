@@ -1,23 +1,23 @@
 package com.worldpay.service;
 
-import javax.annotation.Resource;
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.request.AuthorisationCodeServiceRequest;
 import com.worldpay.service.response.AuthorisationCodeServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
-import de.hybris.platform.servicelayer.ServicelayerBaseTest;
-import org.junit.Before;
-import org.junit.Test;
+import de.hybris.platform.servicelayer.ServicelayerJUnit5BaseTest;
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-public class AuthorisationCodeServiceRequestIntegrationTest extends ServicelayerBaseTest {
+class AuthorisationCodeServiceRequestIntegrationTest extends ServicelayerJUnit5BaseTest {
 
     private static final String AUTHORISATION_CODE = "AC-1234567890";
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
@@ -29,27 +29,26 @@ public class AuthorisationCodeServiceRequestIntegrationTest extends Servicelayer
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway gateway;
 
-    @Before
-    public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+    @BeforeEach
+    void setUp() {
+        this.merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
     }
 
     /**
      * Test method for {@link WorldpayServiceGateway#authorisationCode(AuthorisationCodeServiceRequest)}.
      */
     @Test
-    public void testAuthorisationCode() throws WorldpayException {
+    void testAuthorisationCode() throws WorldpayException {
         WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
 
         final AuthorisationCodeServiceRequest request = AuthorisationCodeServiceRequest.createAuthorisationCodeRequest(merchantInfo, ORDER_CODE, AUTHORISATION_CODE);
         final AuthorisationCodeServiceResponse authorisationCode = gateway.authorisationCode(request);
 
-        assertNotNull("Authorisation code response is null!", authorisationCode);
-        assertFalse("Errors returned from authorisation code request", authorisationCode.isError());
-        assertEquals("Order code returned is incorrect", ORDER_CODE, authorisationCode.getOrderCode());
-        assertEquals("Authorisation code returned is incorrect", AUTHORISATION_CODE, authorisationCode.getAuthorisationCode());
+        assertNotNull(authorisationCode, "Authorisation code response is null!");
+        assertFalse(authorisationCode.isError(), "Errors returned from authorisation code request");
+        assertEquals(ORDER_CODE, authorisationCode.getOrderCode(), "Order code returned is incorrect");
+        assertEquals(AUTHORISATION_CODE, authorisationCode.getAuthorisationCode(), "Authorisation code returned is incorrect");
     }
 }

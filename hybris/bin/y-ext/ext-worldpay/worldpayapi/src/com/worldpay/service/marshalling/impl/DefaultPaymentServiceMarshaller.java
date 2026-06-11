@@ -6,13 +6,13 @@ import com.worldpay.exception.WorldpayValidationException;
 import com.worldpay.internal.model.PaymentService;
 import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.util.WorldpayConstants;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.xml.sax.*;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXSource;

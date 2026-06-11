@@ -1,5 +1,21 @@
 package com.worldpay.worldpayocccommons.controllers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.worldpay.payment.TransactionStatus.AUTHENTICATION_REQUIRED;
+import static com.worldpay.payment.TransactionStatus.CANCELLED;
+import static org.apache.http.HttpHeaders.USER_AGENT;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
 import com.worldpay.data.Additional3DS2Info;
@@ -42,26 +58,19 @@ import de.hybris.platform.servicelayer.i18n.I18NService;
 import de.hybris.platform.webservicescommons.errors.exceptions.WebserviceValidationException;
 import de.hybris.platform.webservicescommons.mapping.DataMapper;
 import de.hybris.platform.webservicescommons.validators.CompositeValidator;
-import org.apache.commons.lang.StringUtils;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
+import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.worldpay.payment.TransactionStatus.AUTHENTICATION_REQUIRED;
-import static com.worldpay.payment.TransactionStatus.CANCELLED;
-import static org.apache.http.HttpHeaders.USER_AGENT;
 
 /**
  * Abstract controller with common Worldpay functionality
@@ -186,7 +195,7 @@ public class AbstractWorldpayController {
             worldpayAdditionalInfo.setAdditional3DS2(cseAdditionalAuthInfo.getAdditional3DS2());
         }
 
-        if(browserInfo != null) {
+        if (browserInfo != null) {
             setBrowserInfo(browserInfo, worldpayAdditionalInfo);
         }
 
@@ -196,18 +205,19 @@ public class AbstractWorldpayController {
     protected String getSessionId(final HttpServletRequest request) {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return Optional.ofNullable(auth)
-            .map(Authentication::getDetails)
-            .map(OAuth2AuthenticationDetails.class::cast)
-            .map(OAuth2AuthenticationDetails::getTokenValue)
-            .map(String::hashCode)
-            .map(hash -> hash == Integer.MIN_VALUE ? 0 : hash)
-            .map(Math::abs)
-            .map(String::valueOf)
-            .orElse((String) request.getAttribute("javax.servlet.request.ssl_session_id"));
+                .filter(JwtAuthenticationToken.class::isInstance)
+                .map(JwtAuthenticationToken.class::cast)
+                .map(JwtAuthenticationToken::getToken)
+                .map(OAuth2Token::getTokenValue)
+                .map(String::hashCode)
+                .map(hash -> hash == Integer.MIN_VALUE ? 0 : hash)
+                .map(Math::abs)
+                .map(String::valueOf)
+                .orElse((String) request.getAttribute("jakarta.servlet.request.ssl_session_id"));
     }
 
     protected PlaceOrderResponseWsDTO handleDirectResponse(final DirectResponseData directResponseData, final String fields) {
-        PlaceOrderResponseWsDTO placeOrderResponseWsDTO = new PlaceOrderResponseWsDTO();
+        final PlaceOrderResponseWsDTO placeOrderResponseWsDTO = new PlaceOrderResponseWsDTO();
 
         if (AUTHENTICATION_REQUIRED == directResponseData.getTransactionStatus()) {
             ThreeDSecureInfoWsDTO threeDSecureInfoWsDTO = new ThreeDSecureInfoWsDTO();
@@ -426,15 +436,15 @@ public class AbstractWorldpayController {
     }
 
     /**
-     * Convert yyyy-MM-dd string to a Java Date
+     * Convert yyyy-MM-dd string to a LocalDate
      *
      * @param dateString
      * @return
      */
-    protected Date convertStringToDate(final String dateString) {
+    protected LocalDate convertStringToLocalDate(final String dateString) {
         try {
-            return new SimpleDateFormat(DATE_OF_BIRTH_FORMAT).parse(dateString);
-        } catch (ParseException e) {
+            return LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
             LOG.error("failed parsing date of birth", e);
         }
         return null;
@@ -449,8 +459,7 @@ public class AbstractWorldpayController {
                         RequestParameterException.UNKNOWN_IDENTIFIER, "paymentDetailsId");
             }
             return paymentInfoData;
-        }
-        catch (final PK.PKException e) {
+        } catch (final PK.PKException e) {
             throw new RequestParameterException("Payment details [" + paymentDetailsId + "] not found.",
                     RequestParameterException.UNKNOWN_IDENTIFIER, "paymentDetailsId", e);
         }

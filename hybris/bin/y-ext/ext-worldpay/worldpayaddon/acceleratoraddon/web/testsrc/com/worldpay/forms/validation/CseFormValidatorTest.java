@@ -1,28 +1,28 @@
 package com.worldpay.forms.validation;
 
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
 import com.worldpay.forms.CSEPaymentForm;
 import de.hybris.bootstrap.annotations.UnitTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class CseFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class CseFormValidatorTest {
 
     private static final String CSE_TOKEN = "cseToken";
-    private static final String BIRTH_DAY_DATE_FORMAT = "dd/MM/yyyy";
     private static final String CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY = "checkout.error.fraudSight.dob.mandatory";
 
     @InjectMocks
@@ -35,14 +35,22 @@ public class CseFormValidatorTest {
     @Mock
     private WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacadeMock;
 
-    @Before
-    public void setUp() {
-        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
-        when(csePaymentFormMock.isDobRequired()).thenReturn(true);
+    @Test
+    void supports_WhenClassIsCsePaymentForm_ShouldReturnTrue() {
+        final boolean result = testObj.supports(CSEPaymentForm.class);
+
+        assertTrue(result);
     }
 
     @Test
-    public void shouldNotRejectIfCseIsSet() throws Exception {
+    void supports_WhenClassIsNotB2BCsePaymentForm_ShouldReturnFalse() {
+        final boolean result = testObj.supports(String.class);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void validate_ShouldNotRejectIfCseIsSet() {
         when(csePaymentFormMock.getCseToken()).thenReturn(CSE_TOKEN);
 
         testObj.validate(csePaymentFormMock, errorsMock);
@@ -51,7 +59,7 @@ public class CseFormValidatorTest {
     }
 
     @Test
-    public void shouldRejectIfCseIsNotSet() throws Exception {
+    void validate_ShouldRejectIfCseIsNotSet() {
         when(csePaymentFormMock.getCseToken()).thenReturn("");
 
         testObj.validate(csePaymentFormMock, errorsMock);
@@ -60,7 +68,7 @@ public class CseFormValidatorTest {
     }
 
     @Test
-    public void shouldNotRejectIfTermsIsChecked() throws Exception {
+    void validate_ShouldNotRejectIfTermsIsChecked() {
         when(csePaymentFormMock.isTermsCheck()).thenReturn(true);
 
         testObj.validate(csePaymentFormMock, errorsMock);
@@ -69,7 +77,7 @@ public class CseFormValidatorTest {
     }
 
     @Test
-    public void shouldRejectIfTermsIsNotChecked() throws Exception {
+    void validate_ShouldRejectIfTermsIsNotChecked() {
         when(csePaymentFormMock.isTermsCheck()).thenReturn(false);
 
         testObj.validate(csePaymentFormMock, errorsMock);
@@ -78,7 +86,29 @@ public class CseFormValidatorTest {
     }
 
     @Test
-    public void validate_WhenFSIsEnabledAndBirthdayDateNull_ShouldAddTheError() {
+    void validate_WhenFsIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
+
+        testObj.validate(csePaymentFormMock, errorsMock);
+
+        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
+
+    @Test
+    void validate_WhenFsIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+        when(csePaymentFormMock.isDobRequired()).thenReturn(false);
+
+        testObj.validate(csePaymentFormMock, errorsMock);
+
+        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
+    }
+
+    @Test
+    void validate_WhenFsIsEnabledAndBirthdayDateNull_ShouldAddTheError() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+        when(csePaymentFormMock.isDobRequired()).thenReturn(true);
+
         when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
 
         testObj.validate(csePaymentFormMock, errorsMock);
@@ -87,29 +117,11 @@ public class CseFormValidatorTest {
     }
 
     @Test
-    public void validate_WhenFSIsDisabledAndBirthdayDateNull_ShouldNotAddTheError() {
-        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(false);
-        lenient().when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
+    void validate_WhenFsIsEnabledAndBirthdayDateNotInThePast_ShouldAddTheError() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+        when(csePaymentFormMock.isDobRequired()).thenReturn(true);
 
-        testObj.validate(csePaymentFormMock, errorsMock);
-
-        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
-    }
-
-    @Test
-    public void validate_WhenFSIsEnabledAndBirthdayDateNullAndDobNotRequired_ShouldNotAddTheError() {
-        when(csePaymentFormMock.isDobRequired()).thenReturn(false);
-        lenient().when(csePaymentFormMock.getDateOfBirth()).thenReturn(null);
-
-        testObj.validate(csePaymentFormMock, errorsMock);
-
-        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
-    }
-
-    @Test
-    public void validate_WhenFSIsEnabledAndBirthdayDateNotInThePast_ShouldAddTheError() throws ParseException {
-        final SimpleDateFormat df = new SimpleDateFormat(BIRTH_DAY_DATE_FORMAT);
-        when(csePaymentFormMock.getDateOfBirth()).thenReturn(df.parse("21/10/2100"));
+        when(csePaymentFormMock.getDateOfBirth()).thenReturn(LocalDate.of(2100, 10, 21));
 
         testObj.validate(csePaymentFormMock, errorsMock);
 
@@ -117,16 +129,13 @@ public class CseFormValidatorTest {
     }
 
     @Test
-    public void support_WhenClassIsCSEPaymentForm_ShouldReturnTrue() {
-        final boolean result = testObj.supports(CSEPaymentForm.class);
+    void validate_WhenFsIsEnabledAndBirthdayDateIsInThePast_ShouldNotAddTheError() {
+        when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+        when(csePaymentFormMock.isDobRequired()).thenReturn(true);
+        when(csePaymentFormMock.getDateOfBirth()).thenReturn(LocalDate.now().minusYears(18));
 
-        assertThat(result).isTrue();
-    }
+        testObj.validate(csePaymentFormMock, errorsMock);
 
-    @Test
-    public void support_WhenClassIsNotB2BCSEPaymentForm_ShouldReturnFalse() {
-        final boolean result = testObj.supports(String.class);
-
-        assertThat(result).isFalse();
+        verify(errorsMock, never()).reject(CHECKOUT_ERROR_FRAUDSIGHT_DOB_MANDATORY);
     }
 }

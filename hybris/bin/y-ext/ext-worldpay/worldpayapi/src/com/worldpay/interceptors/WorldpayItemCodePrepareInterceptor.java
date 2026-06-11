@@ -7,7 +7,7 @@ import de.hybris.platform.servicelayer.interceptor.PrepareInterceptor;
 import de.hybris.platform.servicelayer.keygenerator.KeyGenerator;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.servicelayer.type.TypeService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 
 /**
@@ -16,9 +16,15 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class WorldpayItemCodePrepareInterceptor implements PrepareInterceptor<ItemModel> {
 
-    private KeyGenerator keyGenerator;
-    private TypeService typeService;
-    private String fieldName;
+    protected final KeyGenerator keyGenerator;
+    protected final TypeService typeService;
+    protected final String fieldName;
+
+    public WorldpayItemCodePrepareInterceptor(final KeyGenerator keyGenerator, final TypeService typeService, final String fieldName) {
+        this.keyGenerator = keyGenerator;
+        this.typeService = typeService;
+        this.fieldName = fieldName;
+    }
 
     /**
      * Adds a unique code to model before save if model.save is called on object
@@ -38,18 +44,4 @@ public class WorldpayItemCodePrepareInterceptor implements PrepareInterceptor<It
         }
     }
 
-    @Required
-    public void setKeyGenerator(final KeyGenerator keyGenerator) {
-        this.keyGenerator = keyGenerator;
-    }
-
-    @Required
-    public void setTypeService(final TypeService typeService) {
-        this.typeService = typeService;
-    }
-
-    @Required
-    public void setFieldName(final String fieldName) {
-        this.fieldName = fieldName;
-    }
 }

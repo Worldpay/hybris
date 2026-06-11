@@ -1,9 +1,12 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { AbstractOrderContextDirective } from '@spartacus/cart/base/components';
 import { DeliveryMode } from '@spartacus/cart/base/root';
-import { Address, Country, I18nTestingModule } from '@spartacus/core';
+import { Address, Country, CxDatePipe, I18nTestingModule, MockDatePipe, MockTranslatePipe, MockTranslationService, TranslatePipe, TranslationService } from '@spartacus/core';
 import { OrderFacade } from '@spartacus/order/root';
-import { CardModule, OutletContextData, OutletModule, PromotionsModule } from '@spartacus/storefront';
+import { CardComponent, OutletContextData, OutletModule, PromotionsModule } from '@spartacus/storefront';
 import { of } from 'rxjs';
+import { MockCxCardComponent } from 'worldpay-sap-composable-tests';
+import { MockAbstractOrderContextDirective } from '../../../../tests/directives/cx-abstract-oreder-context.directive.mock';
 import { WorldpayOrderConfirmationShippingComponent } from './worldpay-order-confirmation-shipping.component';
 import createSpy = jasmine.createSpy;
 
@@ -44,17 +47,33 @@ describe('WorldpayOrderConfirmationShippingComponent', () => {
 
   function configureTestingModule(): TestBed {
     return TestBed.configureTestingModule({
-      imports: [
-        I18nTestingModule,
-        PromotionsModule,
-        CardModule,
-        OutletModule
+      providers: [
+        {
+          provide: OrderFacade,
+          useClass: MockOrderFacade
+        },
+        {
+          provide: TranslationService,
+          useClass: MockTranslationService,
+        }
       ],
-      declarations: [WorldpayOrderConfirmationShippingComponent],
-      providers: [{
-        provide: OrderFacade,
-        useClass: MockOrderFacade
-      }],
+    }).overrideComponent(WorldpayOrderConfirmationShippingComponent, {
+      remove: {
+        imports: [
+          TranslatePipe,
+          CxDatePipe,
+          CardComponent,
+          AbstractOrderContextDirective
+        ],
+      },
+      add: {
+        imports: [
+          MockTranslatePipe,
+          MockDatePipe,
+          MockCxCardComponent,
+          MockAbstractOrderContextDirective
+        ],
+      },
     });
   }
 
@@ -73,11 +92,12 @@ describe('WorldpayOrderConfirmationShippingComponent', () => {
       expect(component).toBeTruthy();
     });
 
-    it('should get order entries, delivery address and delivery mode', () => {
+    it('should get order entries, delivery address and delivery mode', fakeAsync(() => {
       fixture.detectChanges();
+      tick();
 
       expect(component.entries?.length).toEqual(1);
-    });
+    }));
 
     it('should call getDeliveryAddressCard(deliveryAddress, countryName) to get address card data', () => {
       component
@@ -112,6 +132,67 @@ describe('WorldpayOrderConfirmationShippingComponent', () => {
     });
   });
 
+  describe('use Order with different deliveryPointOfService value', () => {
+    class MockOrderFacade implements Partial<OrderFacade> {
+      getOrderDetails = createSpy().and.returnValue(
+        of({
+          entries: [
+            {
+              entryNumber: 1,
+              quantity: 1,
+              deliveryPointOfService: null,
+            },
+          ],
+          deliveryAddress: { id: 'testAddress' },
+          deliveryMode: { code: 'testCode' },
+        })
+      );
+    }
+
+    function configureTestingModule(): TestBed {
+      return TestBed.configureTestingModule({
+        imports: [
+          PromotionsModule,
+          OutletModule,
+          WorldpayOrderConfirmationShippingComponent,
+          I18nTestingModule
+        ],
+        providers: [{
+          provide: OrderFacade,
+          useClass: MockOrderFacade
+        }],
+      }).overrideComponent(WorldpayOrderConfirmationShippingComponent, {
+        remove: {
+          imports: [
+            TranslatePipe,
+            CxDatePipe,
+            CardComponent,
+            AbstractOrderContextDirective
+          ],
+        },
+        add: {
+          imports: [
+            MockTranslatePipe,
+            MockDatePipe,
+            MockCxCardComponent,
+            MockAbstractOrderContextDirective
+          ],
+        },
+      });
+    }
+
+    beforeEach(() => {
+      configureTestingModule();
+      stubSeviceAndCreateComponent();
+    });
+
+    it('should get entries when deliveryPointOfService is null', fakeAsync(() => {
+      fixture.detectChanges();
+      tick();
+      expect(component.entries?.length).toEqual(1);
+    }));
+  });
+
   describe('Use outlet with outlet context data', () => {
     const context$ = of({
       showItemList: false,
@@ -119,9 +200,18 @@ describe('WorldpayOrderConfirmationShippingComponent', () => {
     });
 
     beforeEach(() => {
-      configureTestingModule().overrideProvider(OutletContextData, {
-        useValue: { context$ },
-      });
+      configureTestingModule()
+        .overrideComponent(WorldpayOrderConfirmationShippingComponent, {
+          remove: {
+            imports: [TranslatePipe, CxDatePipe, CardComponent],
+          },
+          add: {
+            imports: [MockTranslatePipe, MockDatePipe, MockCxCardComponent],
+          },
+        })
+        .overrideProvider(OutletContextData, {
+          useValue: { context$ },
+        });
       TestBed.compileComponents();
       stubSeviceAndCreateComponent();
     });

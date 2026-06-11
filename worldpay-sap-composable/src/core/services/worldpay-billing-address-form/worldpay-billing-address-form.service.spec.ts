@@ -211,7 +211,7 @@ describe('WorldpayBillingAddressFormService', () => {
     });
 
     it('returns false when region is missing in either billingAddress or deliveryAddress', () => {
-      const address1 = {
+      const address1: Address = {
         ...mockAddress,
         id: '100',
         region: undefined
@@ -365,7 +365,7 @@ describe('WorldpayBillingAddressFormService', () => {
     });
 
     it('sets the delivery address as billing address when delivery address is provided', (done) => {
-      const billingAddress = {
+      const billingAddress: Partial<Address> = {
         firstName: null,
         lastName: null,
         line1: null,
@@ -512,5 +512,205 @@ describe('WorldpayBillingAddressFormService', () => {
       expect(() => service.resetBillingAddressForm()).not.toThrow();
     });
   });
-})
-;
+
+  describe('updateSameAsDeliveryAddressFormData', () => {
+    const mockBillingAddress: Address = {
+      firstName: 'John',
+      lastName: 'Doe',
+      line1: '123 Main St',
+      line2: '',
+      town: 'Anytown',
+      region: { isocodeShort: 'CA' },
+      country: { isocode: 'US' },
+      postalCode: '12345',
+    };
+
+    const mockDeliveryAddress: Address = {
+      firstName: 'John',
+      lastName: 'Doe',
+      line1: '123 Main St',
+      line2: '',
+      town: 'Anytown',
+      region: { isocodeShort: 'CA' },
+      country: { isocode: 'US' },
+      postalCode: '12345',
+    };
+
+    it('should compare addresses and set same as delivery address to true when addresses are identical', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(true);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, mockDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(mockBillingAddress, mockDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(true);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(mockBillingAddress, mockDeliveryAddress);
+    });
+
+    it('should compare addresses and set same as delivery address to false when addresses are different', () => {
+      const differentDeliveryAddress: Address = {
+        ...mockDeliveryAddress,
+        line1: '456 Different St'
+      };
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, differentDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(mockBillingAddress, differentDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(mockBillingAddress, differentDeliveryAddress);
+    });
+
+    it('should set billing address after comparing addresses', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(true);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, mockDeliveryAddress);
+
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledBefore(service.setBillingAddress as jasmine.Spy);
+    });
+
+    it('should handle null billing address', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(null, mockDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(null, mockDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(null, mockDeliveryAddress);
+    });
+
+    it('should handle null delivery address', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, null);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(mockBillingAddress, null);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(mockBillingAddress, null);
+    });
+
+    it('should handle undefined billing address', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(undefined, mockDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(undefined, mockDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(undefined, mockDeliveryAddress);
+    });
+
+    it('should handle undefined delivery address', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, undefined);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(mockBillingAddress, undefined);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(mockBillingAddress, undefined);
+    });
+
+    it('should handle both addresses being null', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(null, null);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(null, null);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(null, null);
+    });
+
+    it('should handle both addresses being undefined', () => {
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(undefined, undefined);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(undefined, undefined);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(undefined, undefined);
+    });
+
+    it('should handle addresses with different regions', () => {
+      const differentRegionDeliveryAddress: Address = {
+        ...mockDeliveryAddress,
+        region: { isocodeShort: 'NY' }
+      };
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, differentRegionDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(mockBillingAddress, differentRegionDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+    });
+
+    it('should handle addresses with different countries', () => {
+      const differentCountryDeliveryAddress: Address = {
+        ...mockDeliveryAddress,
+        country: { isocode: 'CA' }
+      };
+      spyOn(service, 'compareAddresses').and.returnValue(false);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(mockBillingAddress, differentCountryDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(mockBillingAddress, differentCountryDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(false);
+    });
+
+    it('should handle addresses with minimal properties', () => {
+      const minimalBillingAddress: Address = { line1: '123 Main St' };
+      const minimalDeliveryAddress: Address = { line1: '123 Main St' };
+      spyOn(service, 'compareAddresses').and.returnValue(true);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(minimalBillingAddress, minimalDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(minimalBillingAddress, minimalDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(true);
+      expect(service.setBillingAddress).toHaveBeenCalledWith(minimalBillingAddress, minimalDeliveryAddress);
+    });
+
+    it('should handle addresses with additional properties', () => {
+      const extendedBillingAddress: Address = {
+        ...mockBillingAddress,
+        id: '123',
+        defaultAddress: true,
+        email: 'john@example.com'
+      };
+      const extendedDeliveryAddress: Address = {
+        ...mockDeliveryAddress,
+        id: '123',
+        defaultAddress: true,
+        email: 'john@example.com'
+      };
+      spyOn(service, 'compareAddresses').and.returnValue(true);
+      spyOn(service, 'setSameAsDeliveryAddress');
+      spyOn(service, 'setBillingAddress');
+
+      service.updateSameAsDeliveryAddressFormData(extendedBillingAddress, extendedDeliveryAddress);
+
+      expect(service.compareAddresses).toHaveBeenCalledWith(extendedBillingAddress, extendedDeliveryAddress);
+      expect(service.setSameAsDeliveryAddress).toHaveBeenCalledWith(true);
+    });
+  });
+});

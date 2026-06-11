@@ -12,7 +12,7 @@ import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayMacValidationException;
 import com.worldpay.service.mac.MacValidator;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Implementation of the Mac validator supporting the HMAC256 algorithm.

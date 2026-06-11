@@ -1,7 +1,25 @@
-import { Observable, of } from 'rxjs';
+import { PaymentDetails } from '@spartacus/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { ApmPaymentDetails, APMRedirectResponse, PaymentMethod, WorldpayApmService } from '../../core';
 
+export const worlpayApmServicePaymentDetails: PaymentDetails = {
+  id: 'mock payment id',
+  accountHolderName: 'Name',
+  cardNumber: '123456789',
+  cardType: {
+    code: 'Visa',
+    name: 'Visa',
+  },
+  expiryMonth: '01',
+  expiryYear: '2022',
+  cvn: '123',
+  code: PaymentMethod.Card,
+  save: true
+};
+
 export class MockWorldpayApmService implements Partial<WorldpayApmService> {
+  selectedApm$: BehaviorSubject<ApmPaymentDetails> = new BehaviorSubject<ApmPaymentDetails>(undefined);
+
   getWorldpayAPMRedirectUrlFromState(): Observable<APMRedirectResponse> {
     return of({
       postUrl: 'https://postURL.com',
@@ -20,8 +38,8 @@ export class MockWorldpayApmService implements Partial<WorldpayApmService> {
 
   }
 
-  selectAPM(): void {
-
+  selectAPM(value: PaymentDetails): void {
+    this.selectedApm$.next(value);
   }
 
   checkoutPreconditions(): Observable<[string, string]> {
@@ -29,10 +47,7 @@ export class MockWorldpayApmService implements Partial<WorldpayApmService> {
   }
 
   getSelectedAPMFromState(): Observable<ApmPaymentDetails> {
-    return of({
-      code: PaymentMethod.Card,
-      name: 'Visa',
-    });
+    return this.selectedApm$.asObservable();
   }
 
   showErrorMessage(): void {
@@ -44,5 +59,17 @@ export class MockWorldpayApmService implements Partial<WorldpayApmService> {
   }
 
   setSaveApm(value: boolean): void {
+  }
+
+  getWorldpayAvailableApms(): Observable<any> {
+    return of([]);
+  }
+
+  getPublicKey(): Observable<string> {
+    return of('');
+  }
+
+  setApmPaymentDetails(): Observable<ApmPaymentDetails> {
+    return of(worlpayApmServicePaymentDetails);
   }
 }

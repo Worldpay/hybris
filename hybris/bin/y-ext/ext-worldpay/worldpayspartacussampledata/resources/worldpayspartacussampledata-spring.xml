@@ -32,6 +32,6 @@
     </bean>
 
     <bean id="worldpaySpaSampleDataImportService" parent="defaultAddonSampleDataImportService"
-          class="de.hybris.platform.worldpayspartacussampledata.setup.impl.WorldpaySpaSampleDataImportService"/>
+          class="com.worldpay.setup.impl.WorldpaySpaSampleDataImportService"/>
 
 </beans>

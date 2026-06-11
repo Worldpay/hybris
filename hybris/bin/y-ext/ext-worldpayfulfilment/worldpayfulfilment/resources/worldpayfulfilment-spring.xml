@@ -1,16 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- [y] hybris Platform
-
- Copyright (c) 2000-2013 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
--->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -18,32 +6,38 @@
 
     <!-- Process definition -->
     <alias name="worldpayVoidProcessDefinitionResource" alias="voidProcessDefinitionResource"/>
-    <bean id="worldpayVoidProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <bean id="worldpayVoidProcessDefinitionResource"
+          class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayfulfilment/process/worldpay-void-process.xml"/>
     </bean>
 
     <alias name="worldpayOrderProcessDefinitionResource" alias="orderProcessDefinitionResource"/>
-    <bean id="worldpayOrderProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <bean id="worldpayOrderProcessDefinitionResource"
+          class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayfulfilment/process/order-process.xml"/>
     </bean>
 
     <alias name="worldpayConsignmentProcessDefinitionResource" alias="consignmentProcessDefinitionResource"/>
-    <bean id="worldpayConsignmentProcessDefinitionResource" class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
+    <bean id="worldpayConsignmentProcessDefinitionResource"
+          class="de.hybris.platform.processengine.definition.ProcessDefinitionResource">
         <property name="resource" value="classpath:/worldpayfulfilment/process/consignment-process.xml"/>
     </bean>
 
-    <bean id="worldpayCancelOrderAction" class="com.worldpay.voidprocess.actions.order.WorldpayVoidOrderAction" parent="abstractAction">
-        <property name="paymentService" ref="paymentService"/>
+    <bean id="worldpayCancelOrderAction" class="com.worldpay.voidprocess.actions.order.WorldpayVoidOrderAction"
+          parent="abstractAction">
+        <constructor-arg name="paymentService" ref="paymentService"/>
     </bean>
 
-    <bean id="worldpayCancelFinishedEventListener" class="com.worldpay.voidprocess.listener.WorldpayCancelFinishedEventListener" parent="abstractEventListener">
+    <bean id="worldpayCancelFinishedEventListener"
+          class="com.worldpay.voidprocess.listener.WorldpayCancelFinishedEventListener" parent="abstractEventListener">
         <constructor-arg name="businessProcessService" ref="businessProcessService"/>
         <constructor-arg name="modelService" ref="modelService"/>
         <constructor-arg name="processDefinitionDao" ref="processDefinitionDao"/>
     </bean>
 
     <alias name="worldpayImmediateCancelRequestExecutor" alias="immediateCancelRequestExecutor"/>
-    <bean id="worldpayImmediateCancelRequestExecutor" class="de.hybris.platform.ordercancel.impl.executors.ImmediateCancelRequestExecutor"
+    <bean id="worldpayImmediateCancelRequestExecutor"
+          class="de.hybris.platform.ordercancel.impl.executors.ImmediateCancelRequestExecutor"
           scope="prototype">
         <property name="modelService" ref="modelService"/>
         <property name="orderCancelRecordsHandler" ref="orderCancelRecordsHandler"/>
@@ -52,14 +46,20 @@
         <property name="calculationService" ref="calculationService"/>
     </bean>
 
-    <bean id="worldpayOrderCancelNotificationServiceAdapter" class="com.worldpay.voidprocess.adapters.WorldpayOrderCancelNotificationServiceAdapter">
-        <property name="eventService" ref="eventService"/>
+    <bean id="worldpayOrderCancelNotificationServiceAdapter"
+          class="com.worldpay.voidprocess.adapters.WorldpayOrderCancelNotificationServiceAdapter">
+        <constructor-arg name="eventService" ref="eventService"/>
     </bean>
 
-    <alias name="defaultWorldpayAddShippingTrackingInfoToConsignmentStrategy" alias="addShippingTrackingInfoToConsignmentStrategy"/>
-    <bean id="defaultWorldpayAddShippingTrackingInfoToConsignmentStrategy" class="com.worldpay.consignmentprocess.strategies.consigment.impl.DefaultWorldpayAddShippingTrackingInfoToConsignmentStrategy"/>
+    <alias name="defaultWorldpayAddShippingTrackingInfoToConsignmentStrategy"
+           alias="addShippingTrackingInfoToConsignmentStrategy"/>
+    <bean id="defaultWorldpayAddShippingTrackingInfoToConsignmentStrategy"
+          class="com.worldpay.consignmentprocess.strategies.consigment.impl.DefaultWorldpayAddShippingTrackingInfoToConsignmentStrategy"/>
 
-    <bean id="addShippingTrackingInfoAction" class="com.worldpay.consignmentprocess.actions.consigment.AddShippingTrackingInfoAction" parent="abstractAction">
-        <constructor-arg name="addShippingTrackingInfoToConsignmentStrategy" ref="addShippingTrackingInfoToConsignmentStrategy"/>
+    <bean id="addShippingTrackingInfoAction"
+          class="com.worldpay.consignmentprocess.actions.consigment.AddShippingTrackingInfoAction"
+          parent="abstractAction">
+        <constructor-arg name="addShippingTrackingInfoToConsignmentStrategy"
+                         ref="addShippingTrackingInfoToConsignmentStrategy"/>
     </bean>
 </beans>

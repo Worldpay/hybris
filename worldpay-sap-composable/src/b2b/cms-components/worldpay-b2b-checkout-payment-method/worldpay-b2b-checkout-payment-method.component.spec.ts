@@ -9,7 +9,6 @@ import { CheckoutDeliveryAddressFacade, CheckoutStep, CheckoutStepType, } from '
 import {
   Address,
   FeatureConfigService,
-  FeaturesConfig,
   FeaturesConfigModule,
   GlobalMessageService,
   GlobalMessageType,
@@ -18,20 +17,19 @@ import {
   QueryState,
   UserPaymentService,
 } from '@spartacus/core';
-import { CardComponent, FormErrorsModule } from '@spartacus/storefront';
+import { CardComponent, FormErrorsModule, IconComponent, SpinnerComponent } from '@spartacus/storefront';
 import { BehaviorSubject, EMPTY, Observable, of, Subject, throwError } from 'rxjs';
 import {
   MockActiveCartService,
   MockCheckoutStepService,
-  MockCxFeatureDirective,
-  MockCxIconComponent,
-  MockCxSpinnerComponent,
-  MockGlobalMessageService,
+  MockGlobalMessageService, MockWorldpayApmService,
   MockWorldpayBillingAddressFormService
 } from 'worldpay-sap-composable-tests';
 import { ApmData, ApmNormalizer, ApmPaymentDetails, createCreditCardCard, PaymentMethod, WorldpayCheckoutPaymentFacade } from '../../../core';
-import { WorldpayApmService, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService, WorldpayUserPaymentService } from '../../../core';
-import { MockWorldpayApmComponent } from '../../../tests/components/worldpay-apm-component.mock';
+import { WorldpayApmService, WorldpayBillingAddressFormService, WorldpayCheckoutPaymentService, WorldpayUserPaymentService } from '../../../core/services';
+import { WorldpayCheckoutPaymentFormComponent } from '../../../storefrontlib';
+import { MockWorldpayB2bApmComponent } from '../../../tests/components/worldpay-apm.component.mock';
+import { WorldpayB2bApmComponent } from '../worldpay-b2b-apm-component';
 import { WorldpayB2bCheckoutPaymentMethodComponent } from './worldpay-b2b-checkout-payment-method.component';
 import createSpy = jasmine.createSpy;
 
@@ -185,7 +183,10 @@ const mockActivatedRoute = {
 @Component({
   selector: 'wp-payment-form',
   template: '',
-  standalone: false
+  imports: [I18nTestingModule,
+    FeaturesConfigModule,
+    ReactiveFormsModule,
+    FormErrorsModule]
 })
 class MockPaymentFormComponent {
   @Output() setPaymentDetails = new EventEmitter<any>;
@@ -197,38 +198,13 @@ class MockPaymentFormComponent {
   @Input() paymentDetails: PaymentDetails;
 }
 
-class MockWorldpayApmService implements Partial<WorldpayApmService> {
-  selectedApm$: BehaviorSubject<ApmPaymentDetails> = new BehaviorSubject<ApmPaymentDetails>(null);
-
-  getWorldpayAvailableApms(): Observable<any> {
-    return of([]);
-  }
-
-  getPublicKey(): Observable<string> {
-    return EMPTY;
-  }
-
-  getSelectedAPMFromState(): Observable<any> {
-    return EMPTY;
-  }
-
-  setApmPaymentDetails(): Observable<ApmPaymentDetails> {
-    return of(mockPaymentDetails);
-  }
-
-  selectAPM(): void {
-
-  }
-
-}
-
 class MockFeatureConfigService implements Partial<FeatureConfigService> {
   isEnabled(_feature: string) {
     return true;
   }
 }
 
-describe('WorldpayCheckoutPaymentMethodComponent', () => {
+describe('WorldpayB2bCheckoutPaymentMethodComponent', () => {
   let component: WorldpayB2bCheckoutPaymentMethodComponent;
   let fixture: ComponentFixture<WorldpayB2bCheckoutPaymentMethodComponent>;
   let userPaymentService: WorldpayUserPaymentService;
@@ -239,24 +215,17 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
   let worldpayApmService: WorldpayApmService;
   let worldpayBillingAddressFormService: WorldpayBillingAddressFormService;
 
-  
   beforeEach(
     waitForAsync(() => {
       TestBed.configureTestingModule({
         imports: [
           I18nTestingModule,
-          FeaturesConfigModule,
           ReactiveFormsModule,
           FormErrorsModule,
-        ],
-        declarations: [
-          WorldpayB2bCheckoutPaymentMethodComponent,
-          MockPaymentFormComponent,
           CardComponent,
-          MockCxSpinnerComponent,
-          MockCxIconComponent,
-          MockWorldpayApmComponent,
-          MockCxFeatureDirective,
+          IconComponent,
+          SpinnerComponent,
+          WorldpayB2bCheckoutPaymentMethodComponent,
         ],
         providers: [
           ApmNormalizer,
@@ -293,13 +262,6 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
             useClass: MockGlobalMessageService
           },
           {
-            // eslint-disable-next-line deprecation/deprecation
-            provide: FeaturesConfig,
-            useValue: {
-              features: { level: '6.3' },
-            },
-          },
-          {
             provide: WorldpayApmService,
             useClass: MockWorldpayApmService
           },
@@ -312,6 +274,19 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
             useClass: MockWorldpayBillingAddressFormService
           }
         ],
+      }).overrideComponent(WorldpayB2bCheckoutPaymentMethodComponent, {
+        remove: {
+          imports: [
+            WorldpayCheckoutPaymentFormComponent,
+            WorldpayB2bApmComponent,
+          ]
+        },
+        add: {
+          imports: [
+            MockPaymentFormComponent,
+            MockWorldpayB2bApmComponent,
+          ]
+        }
       }).compileComponents();
 
       userPaymentService = TestBed.inject(WorldpayUserPaymentService);
@@ -521,7 +496,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
           expiryTranslation: 'Expires 02/24'
         },
       ];
-      const mockSelectedMethod = undefined;
+      const mockSelectedMethod: ApmPaymentDetails = undefined;
 
       component.selectDefaultPaymentMethod(mockPaymentMethods, mockSelectedMethod);
 
@@ -545,7 +520,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
           expiryTranslation: 'Expires 02/24'
         },
       ];
-      const mockSelectedMethod = undefined;
+      const mockSelectedMethod: ApmPaymentDetails = undefined;
 
       component['doneAutoSelect'] = true;
       component.selectDefaultPaymentMethod(mockPaymentMethods, mockSelectedMethod);
@@ -634,11 +609,12 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
       component.isUpdating$ = of(false);
       spyOn(userPaymentService, 'getPaymentMethods').and.returnValue(of([mockPaymentDetails]));
       spyOn(checkoutPaymentFacade, 'getPaymentDetailsState').and.returnValue(selectedPaymentMethod$);
+
       component.ngOnInit();
       fixture.detectChanges();
 
       expect(getContinueButton().nativeElement.disabled).toBeTruthy();
-      worldpayApmService.selectedApm$.next(mockPaymentDetails);
+      worldpayApmService.selectAPM(mockPaymentDetails);
       fixture.detectChanges();
 
       component.cvnForm.setValue({ cvn: '1' });
@@ -651,7 +627,6 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
 
     it('should have enabled button when there is selected method', () => {
       const getContinueButton = () => fixture.debugElement.queryAll(By.css('.btn-primary')).filter((btn) => btn.nativeElement.innerText === 'Common.Continue')[0];
-
       const selectedPaymentMethod$ = new BehaviorSubject<QueryState<PaymentDetails | undefined>>({
         loading: false,
         error: false,
@@ -666,7 +641,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
       fixture.detectChanges();
 
       expect(getContinueButton().nativeElement.disabled).toBeTruthy();
-      worldpayApmService.selectedApm$.next(mockPaymentDetails);
+      worldpayApmService.selectAPM(mockPaymentDetails);
       component.cvnForm.setValue({ cvn: '123' });
       fixture.detectChanges();
       expect(getContinueButton().nativeElement.disabled).toBeFalse();
@@ -745,7 +720,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
       fixture.detectChanges();
       fixture.debugElement
         .queryAll(By.css('cx-card'))[1]
-        .query(By.css('.link'))
+        .query(By.css('.btn-tertiary'))
         .nativeElement.click();
 
       expect(checkoutPaymentFacade.useExistingPaymentDetails).toHaveBeenCalledWith({
@@ -833,8 +808,8 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
     });
 
     it('should NOT be able to select payment method if the selection is the same as the currently set payment details', () => {
-      const paymentDetails = {
-        ...mockPaymentDetails[0],
+      const paymentDetails: ApmPaymentDetails = {
+        ...mockPaymentDetails,
         billingAddress: mockAddress
       };
       spyOn(worldpayBillingAddressFormService, 'updateSameAsDeliveryAddressFormData').and.callThrough();
@@ -922,7 +897,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
     it('should use delivery address if billing address is not provided', () => {
       const mockEvent = {
         paymentDetails: { id: 'mockId' } as ApmPaymentDetails,
-        billingAddress: null
+        billingAddress: null as Address
       };
       component['deliveryAddress'] = { id: 'deliveryAddressId' } as Address;
       spyOn(checkoutPaymentFacade, 'setPaymentAddress').and.returnValue(of({}));
@@ -951,6 +926,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
 
     it('should not show credit card info', () => {
       spyOn(userPaymentService, 'getPaymentMethods').and.returnValue(of([]));
+      spyOn(worldpayApmService, 'getSelectedAPMFromState').and.returnValue(of({ code: PaymentMethod.ACH }));
       spyOn(checkoutPaymentFacade, 'getPaymentDetailsState').and.returnValue(of({
         loading: false,
         error: false,
@@ -961,7 +937,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
       const creditCardForm = fixture.debugElement.query(By.css('wp-payment-form'));
       const cards = fixture.debugElement.query(By.css('cx-card'));
       const cvvForm = fixture.debugElement.query(By.css('.cVVNumber'));
-      const apmComponent = fixture.debugElement.query(By.directive(MockWorldpayApmComponent));
+      const apmComponent = fixture.debugElement.query(By.directive(MockWorldpayB2bApmComponent));
 
       expect(creditCardForm).toBeFalsy();
       expect(cvvForm).toBeFalsy();
@@ -988,7 +964,7 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
           expiryTranslation: 'Expires 02/24'
         },
       ];
-      const mockSelectedMethod = undefined;
+      const mockSelectedMethod: ApmPaymentDetails = undefined;
       component.selectDefaultPaymentMethod(mockPaymentMethods, mockSelectedMethod);
 
       expect(component.selectPaymentMethod).toHaveBeenCalledWith(mockPaymentMethods[1].payment);
@@ -1137,13 +1113,14 @@ describe('WorldpayCheckoutPaymentMethodComponent', () => {
 
     it('should return true when no selected method or payment is provided', (done) => {
       component['isUpdating$'] = of(false);
-      spyOn(userPaymentService, 'getPaymentMethods').and.returnValue(of(mockPayments));
+      spyOn(userPaymentService, 'getPaymentMethods').and.returnValue(of([]));
       spyOn(checkoutPaymentFacade, 'getPaymentDetailsState').and.returnValue(of({
         loading: false,
         error: false,
         data: null
       }));
       spyOn(worldpayApmService, 'getSelectedAPMFromState').and.returnValue(of(null));
+      worldpayApmService.selectAPM(null);
       component.cvnForm.patchValue({ cvn: '123' });
 
       component.ngOnInit();

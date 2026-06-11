@@ -1,5 +1,20 @@
 package com.worldpay.worldpayoms.fulfilmentprocess.actions.order;
 
+import java.math.BigDecimal;
+
+import static de.hybris.platform.basecommerce.enums.ReturnStatus.PAYMENT_REVERSAL_FAILED;
+import static de.hybris.platform.basecommerce.enums.ReturnStatus.PAYMENT_REVERSAL_PENDING;
+import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition.NOK;
+import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition.OK;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import de.hybris.bootstrap.annotations.UnitTest;
 import de.hybris.platform.payment.AdapterException;
 import de.hybris.platform.payment.PaymentService;
@@ -10,29 +25,16 @@ import de.hybris.platform.returns.model.ReturnProcessModel;
 import de.hybris.platform.returns.model.ReturnRequestModel;
 import de.hybris.platform.servicelayer.model.ModelService;
 import de.hybris.platform.warehousing.returns.service.RefundAmountCalculationService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.math.BigDecimal;
-
-import static de.hybris.platform.basecommerce.enums.ReturnStatus.PAYMENT_REVERSAL_FAILED;
-import static de.hybris.platform.basecommerce.enums.ReturnStatus.PAYMENT_REVERSAL_PENDING;
-import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition.NOK;
-import static de.hybris.platform.processengine.action.AbstractSimpleDecisionAction.Transition.OK;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.jgroups.util.Util.assertEquals;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WorldpayCaptureRefundActionTest {
 
     private static final BigDecimal CUSTOM_REFUND_AMOUNT = new BigDecimal(19);
@@ -57,7 +59,7 @@ public class WorldpayCaptureRefundActionTest {
     @Mock
     private RefundAmountCalculationService refundAmountCalculationServiceMock;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(returnProcessModelMock.getReturnRequest()).thenReturn(returnRequestMock);
         when(testObj.getModelService()).thenReturn(modelServiceMock);

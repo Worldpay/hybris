@@ -42,7 +42,7 @@ public class CardDetailsPopulator implements Populator<CardDetails, com.worldpay
 
         Optional.ofNullable(source.getCvcNumber()).ifPresent(cvcNumber -> {
             final Cvc internalCvc = new Cvc();
-            internalCvc.setvalue(cvcNumber);
+            internalCvc.setValue(cvcNumber);
             target.setCvc(internalCvc);
         });
 
@@ -54,7 +54,7 @@ public class CardDetailsPopulator implements Populator<CardDetails, com.worldpay
 
         Optional.ofNullable(source.getCardHolderName()).ifPresent(cardHolderName -> {
             final CardHolderName internalCardHolderName = new CardHolderName();
-            internalCardHolderName.setvalue(cardHolderName);
+            internalCardHolderName.setValue(cardHolderName);
             target.setCardHolderName(internalCardHolderName);
         });
 

@@ -1,15 +1,23 @@
+import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { GlobalMessageService, TranslationService } from '@spartacus/core';
-import { OrderConfirmationThankYouMessageComponent } from '@spartacus/order/components';
+import { GlobalMessageService, TranslatePipe, TranslationService } from '@spartacus/core';
+import { OrderConfirmationThankYouMessageComponent, OrderGuestRegisterFormComponent } from '@spartacus/order/components';
 import { Order, OrderFacade } from '@spartacus/order/root';
+import { AddToHomeScreenBannerComponent } from '@spartacus/storefront';
 import { Observable } from 'rxjs';
 import { filter, withLatestFrom } from 'rxjs/operators';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Component({
   selector: 'y-worldpay-order-confirmation-thank-you-message-component',
   templateUrl: './worldpay-order-confirmation-thank-you-message.component.html',
-  standalone: false
+  imports: [
+    OrderGuestRegisterFormComponent,
+    AddToHomeScreenBannerComponent,
+    AsyncPipe,
+    TranslatePipe,
+  ]
 })
 export class WorldpayOrderConfirmationThankYouMessageComponent extends OrderConfirmationThankYouMessageComponent {
 

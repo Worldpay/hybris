@@ -1,19 +1,18 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.ACH_ACCOUNT_TYPES;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.UK;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,15 +46,15 @@ import de.hybris.platform.commercefacades.user.data.RegionData;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.servicelayer.i18n.I18NService;
 import de.hybris.platform.servicelayer.session.SessionService;
-import org.apache.commons.lang.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -63,8 +62,8 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
-public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
+@ExtendWith(MockitoExtension.class)
+class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
     private static final String TOWN = "town";
     private static final String TEST = "test";
@@ -86,7 +85,6 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     private static final String PHONE_NUMBER = "+44 (0) 123-123-123";
     private static final String PAYMENT_METHOD_ID = "paymentMethodId";
     private static final String ERROR_MESSAGES_HOLDER = "accErrorMsgs";
-    private static final String WORLDPAY_ORDER_CODE = "worldpayOrderCode";
     private static final String PAYMENT_DETAILS_FORM = "paymentDetailsForm";
     private static final String ISO_CODE_ADDRESS_FORM = "isoCodeAddressForm";
     private static final String PAYMENT_STATUS_PARAMETER_NAME = "paymentStatus";
@@ -103,7 +101,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     private SessionService sessionServiceMock;
     @Mock
     private UserFacade userFacadeMock;
-    @Mock
+    @Mock(name = "checkoutFlowFacade")
     private CheckoutFlowFacade checkoutFlowFacadeMock;
     @Mock
     private SiteConfigService siteConfigServiceMock;
@@ -169,26 +167,10 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
 
     private List<RegionData> regionDataList;
 
-    @Before
-    public void setUp() throws CMSItemNotFoundException {
-        regionDataList = singletonList(regionDataMock);
-        doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
-        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaDataMock);
-        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaDataMock)).thenReturn(contentPageModelMock);
-        lenient().when(checkoutFlowFacadeMock.hasNoPaymentInfo()).thenReturn(false);
-        when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(singletonList(ccPaymentInfoMock));
-        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
-        lenient().when(cartDataMock.getWorldpayOrderCode()).thenReturn(WORLDPAY_ORDER_CODE);
-        when(i18NFacadeMock.getRegionsForCountryIso(ISO_CODE_ADDRESS_FORM)).thenReturn(regionDataList);
-        when(addressFormMock.getCountryIso()).thenReturn(ISO_CODE_ADDRESS_FORM);
-        when(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail()).thenReturn(EMAIL);
-        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
-        when(addressDataUtilMock.convertToAddressData(addressFormMock)).thenReturn(addressDataMock);
-        doReturn(List.of(Pair.of(TEST, TEST))).when(testObj).getACHDirectDebitValues();
-    }
-
     @Test
-    public void testPopulateAddressDataWithoutRegion() {
+    void testPopulateAddressDataWithoutRegion() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(addressDataUtilMock.convertToAddressData(addressFormMock)).thenReturn(addressDataMock);
 
         when(addressDataUtilMock.convertToAddressData(addressFormMock)).thenReturn(addressDataMock);
 
@@ -198,7 +180,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testPopulateAddressFormWithRegionDataNull() {
+    void testPopulateAddressFormWithRegionDataNull() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(addressDataMock.getRegion()).thenReturn(null);
 
         when(addressDataMock.getTitle()).thenReturn(TITLE);
@@ -226,7 +210,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testPopulateAddressFormWithRegionDataEmptyString() {
+    void testPopulateAddressFormWithRegionDataEmptyString() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(addressDataMock.getRegion().getIsocodeShort()).thenReturn(StringUtils.EMPTY);
 
         when(addressDataMock.getTitle()).thenReturn(TITLE);
@@ -254,7 +240,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testPopulateAddressFormWithRegionData() {
+    void testPopulateAddressFormWithRegionData() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
 
         when(addressDataMock.getRegion()).thenReturn(regionDataMock);
         when(addressDataMock.getRegion().getIsocodeShort()).thenReturn(REGION_ISO_CODE);
@@ -284,7 +271,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testGetDeclineMessageShouldReturnEmptyStringWhenDeclineCodeIsZERO() {
+    void testGetDeclineMessageShouldReturnEmptyStringWhenDeclineCodeIsZERO() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn("0");
 
         final String result = testObj.getDeclineMessage();
@@ -293,7 +282,8 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testGetDeclineMessageShouldReturnEmptyStringWhenDeclineCodeIsNull() {
+    void testGetDeclineMessageShouldReturnEmptyStringWhenDeclineCodeIsNull() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
         when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn(null);
 
         final String result = testObj.getDeclineMessage();
@@ -302,7 +292,7 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void testGetDeclineMessageShouldReturnDeclineMessageWhenDeclineCodeIsNotZERO() {
+    void testGetDeclineMessageShouldReturnDeclineMessageWhenDeclineCodeIsNotZERO() {
         when(checkoutFacadeMock.getCheckoutCart().getWorldpayDeclineCode()).thenReturn("1");
         when(i18NServiceMock.getCurrentLocale()).thenReturn(UK);
         when(themeSourceMock.getMessage(anyString(), eq(null), eq(UK))).thenReturn(DECLINE_MESSAGE);
@@ -313,7 +303,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldReturnTheTermsAndConditionsUrl() {
+    void shouldReturnTheTermsAndConditionsUrl() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(httpServletRequestMock.getContextPath()).thenReturn("");
 
         final String termsAndConditions = testObj.getTermsAndConditionsUrl(httpServletRequestMock);
@@ -322,9 +314,18 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void enterStep_WhenNoPaymentStatusInTheModel_shouldSetupAndRedirectToChoosePaymentPage() throws CMSItemNotFoundException {
+    void enterStep_WhenNoPaymentStatusInTheModel_shouldSetupAndRedirectToChoosePaymentPage() throws CMSItemNotFoundException {
+        regionDataList = singletonList(regionDataMock);
+        doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaDataMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaDataMock)).thenReturn(contentPageModelMock);
+        when(checkoutFacadeMock.getBillingAddress()).thenReturn(addressDataMock);
+        when(addressDataMock.getCountry().getIsocode()).thenReturn(ISO_CODE_ADDRESS_FORM);
+        when(i18NFacadeMock.getRegionsForCountryIso(ISO_CODE_ADDRESS_FORM)).thenReturn(regionDataList);
+
         when(modelMock.asMap().get(PAYMENT_STATUS_PARAMETER_NAME)).thenReturn(null);
         when(worldpayPaymentCheckoutFacadeMock.isFSEnabled()).thenReturn(true);
+        doReturn(List.of(Pair.of(TEST, TEST))).when(testObj).getACHDirectDebitValues();
 
         testObj.enterStep(modelMock, redirectAttrsMock);
 
@@ -332,20 +333,39 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
         verify(modelMock).addAttribute(eq(PAYMENT_DETAILS_FORM), any(PaymentDetailsForm.class));
         verify(modelMock).addAttribute(IS_FS_ENABLED, true);
         verify(modelMock).addAttribute(eq(CURRENT_DATE), any(String.class));
+        verify(modelMock).addAttribute(REGIONS, regionDataList);
+        verify(modelMock).addAttribute(ACH_ACCOUNT_TYPES, List.of(Pair.of(TEST, TEST)));
         verify(modelMock, never()).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
+
+        verify(checkoutFacadeMock).setDeliveryModeIfAvailable();
     }
 
     @Test
-    public void enterStep_WhenThereIsAPaymentStatusInTheModel_ShouldAddError() throws CMSItemNotFoundException {
+    void enterStep_WhenThereIsAPaymentStatusInTheModel_ShouldAddError() throws CMSItemNotFoundException {
+        regionDataList = singletonList(regionDataMock);
+        doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaDataMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaDataMock)).thenReturn(contentPageModelMock);
+        when(checkoutFacadeMock.getBillingAddress()).thenReturn(addressDataMock);
+        when(addressDataMock.getCountry().getIsocode()).thenReturn(ISO_CODE_ADDRESS_FORM);
+        when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(singletonList(ccPaymentInfoMock));
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(i18NFacadeMock.getRegionsForCountryIso(ISO_CODE_ADDRESS_FORM)).thenReturn(regionDataList);
+        doReturn(List.of(Pair.of(TEST, TEST))).when(testObj).getACHDirectDebitValues();
+
         when(modelMock.asMap().get(PAYMENT_STATUS_PARAMETER_NAME)).thenReturn(PAYMENT_STATUS);
 
         testObj.enterStep(modelMock, redirectAttrsMock);
 
         verify(modelMock).addAttribute(eq(ERROR_MESSAGES_HOLDER), any());
+        verify(modelMock).addAttribute(ACH_ACCOUNT_TYPES, List.of(Pair.of(TEST, TEST)));
     }
 
     @Test
-    public void doSelectPaymentMethod_WhenPaymentIdValidAndPopulated_shouldRedirectToNextStep() throws CMSItemNotFoundException {
+    void doSelectPaymentMethod_WhenPaymentIdValidAndPopulated_shouldRedirectToNextStep() throws CMSItemNotFoundException {
+        doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(checkoutStepMock.nextStep()).thenReturn(NEXT_PAGE);
 
         final String result = testObj.doSelectPaymentMethod(SELECTED_PAYMENT_METHOD_ID, modelMock, redirectAttrsMock);
@@ -357,17 +377,30 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void doSelectPaymentMethod_WhenPaymentIdNotValid_shouldRedirectToNextStepAndNotSetPaymentMethod() throws CMSItemNotFoundException {
-        when(checkoutStepMock.nextStep()).thenReturn(NEXT_PAGE);
+    void doSelectPaymentMethod_WhenPaymentIdNotValid_shouldEnterStep_NotSetPaymentMethod() throws CMSItemNotFoundException {
+        doReturn("viewForPage").when(testObj).enterStep(modelMock, redirectAttrsMock);
 
         testObj.doSelectPaymentMethod("", modelMock, redirectAttrsMock);
 
         verify(checkoutFacadeMock, never()).setPaymentDetails(any());
+        verify(checkoutStepMock, never()).nextStep();
+        verify(worldpayCartFacadeMock, never()).setBillingAddressFromPaymentInfo();
+        verify(sessionServiceMock, never()).setAttribute(eq(SAVED_CARD_SELECTED_ATTRIBUTE), any());
         verify(testObj).enterStep(modelMock, redirectAttrsMock);
     }
 
     @Test
-    public void shouldAddRegionsAndSetupPageOnError() throws CMSItemNotFoundException {
+    void shouldAddRegionsAndSetupPageOnError() throws CMSItemNotFoundException {
+        regionDataList = singletonList(regionDataMock);
+        doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
+        when(cmsPreviewServiceMock.getPagePreviewCriteria()).thenReturn(pagePreviewCriteriaDataMock);
+        when(cmsPageServiceMock.getPageForLabelOrId(WORLDPAY_PAYMENT_AND_BILLING_CHECKOUT_STEP_CMS_PAGE_LABEL, pagePreviewCriteriaDataMock)).thenReturn(contentPageModelMock);
+        when(userFacadeMock.getCCPaymentInfos(true)).thenReturn(singletonList(ccPaymentInfoMock));
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(i18NFacadeMock.getRegionsForCountryIso(ISO_CODE_ADDRESS_FORM)).thenReturn(regionDataList);
+        when(addressFormMock.getCountryIso()).thenReturn(ISO_CODE_ADDRESS_FORM);
+        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
+
         testObj.handleFormErrors(modelMock, paymentDetailsFormMock);
 
         verify(modelMock).addAttribute(REGIONS, regionDataList);
@@ -375,7 +408,11 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldNotSaveDeliveryAddress() {
+    void shouldNotSaveDeliveryAddress() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail()).thenReturn(EMAIL);
+        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
+
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(true);
         when(cartDataMock.getDeliveryAddress()).thenReturn(addressDataMock);
 
@@ -386,7 +423,13 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldSaveBillingAddress() {
+    void shouldSaveBillingAddress() {
+        regionDataList = singletonList(regionDataMock);
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail()).thenReturn(EMAIL);
+        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
+        when(addressDataUtilMock.convertToAddressData(addressFormMock)).thenReturn(addressDataMock);
+
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(false);
 
         testObj.handleAndSaveAddresses(paymentDetailsFormMock);
@@ -396,9 +439,13 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldSaveAddressForAnonymous() {
+    void shouldSaveAddressForAnonymous() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+        when(checkoutCustomerStrategy.getCurrentUserForCheckout().getContactEmail()).thenReturn(EMAIL);
+        when(paymentDetailsFormMock.getBillingAddress()).thenReturn(addressFormMock);
+        when(addressDataUtilMock.convertToAddressData(addressFormMock)).thenReturn(addressDataMock);
+
         when(paymentDetailsFormMock.getUseDeliveryAddress()).thenReturn(false);
-        lenient().when(userFacadeMock.isAnonymousUser()).thenReturn(true);
 
         testObj.handleAndSaveAddresses(paymentDetailsFormMock);
 
@@ -407,7 +454,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddGlobalError() {
+    void shouldAddGlobalError() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(bindingResultMock.hasGlobalErrors()).thenReturn(true);
         when(bindingResultMock.getGlobalErrors()).thenReturn(singletonList(objectErrorMock));
 
@@ -418,7 +467,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldAddError() {
+    void shouldAddError() {
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
+
         when(bindingResultMock.hasErrors()).thenReturn(true);
 
         final boolean result = testObj.addGlobalErrors(modelMock, bindingResultMock);
@@ -428,7 +479,9 @@ public class WorldpayChoosePaymentMethodCheckoutStepControllerTest {
     }
 
     @Test
-    public void shouldRemovePaymentInfo() {
+    void shouldRemovePaymentInfo() {
+        doReturn(checkoutStepMock).when(testObj).getCheckoutStep();
+        when(checkoutFacadeMock.getCheckoutCart()).thenReturn(cartDataMock);
 
         testObj.remove(PAYMENT_METHOD_ID, redirectAttrsMock);
 

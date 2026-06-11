@@ -1,34 +1,33 @@
 package com.worldpay.service;
 
-import com.evanlennick.retry4j.CallExecutorBuilder;
-import com.evanlennick.retry4j.Status;
-import com.evanlennick.retry4j.config.RetryConfig;
-import com.evanlennick.retry4j.config.RetryConfigBuilder;
-import com.evanlennick.retry4j.exception.RetriesExhaustedException;
-import com.evanlennick.retry4j.exception.UnexpectedException;
+import java.time.Duration;
+import java.util.Date;
+import java.util.concurrent.Callable;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.service.request.AbstractServiceRequest;
 import com.worldpay.service.request.OrderInquiryServiceRequest;
+import com.worldpay.service.response.DirectAuthoriseServiceResponse;
 import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.bootstrap.annotations.IntegrationTest;
-import de.hybris.platform.servicelayer.ServicelayerBaseTest;
+import de.hybris.platform.servicelayer.ServicelayerJUnit5BaseTest;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import javax.annotation.Resource;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.concurrent.Callable;
-
-import static org.junit.Assert.*;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseTest {
+class OrderInquiryServiceRequestIntegrationTest extends ServicelayerJUnit5BaseTest {
 
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASS = "3l3ph4nt_&_c4st!3";
@@ -44,21 +43,33 @@ public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseT
     @Resource(name = "configurationService")
     private ConfigurationService configurationService;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         configurationService.getConfiguration().setProperty(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE.toString());
         configurationService.getConfiguration().setProperty(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE.toString());
     }
 
     @Test
-    @Ignore("Ignored because taking to much time to pass")
-    public void testOrderInquiry() throws WorldpayException {
+    @Disabled("Ignored because it is taking too much time to pass")
+    void testOrderInquiry() throws WorldpayException {
 
         final MerchantInfo merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASS);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
 
-        WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+        final DirectAuthoriseServiceResponse directAuthoriseResponse =
+                WPSGTestHelper.directAuthorise(gateway, merchantInfo, ORDER_CODE);
+
+        assertNotNull(directAuthoriseResponse, "Direct authorise response is null!");
+        assertFalse(
+                directAuthoriseResponse.isError(),
+                () -> "Errors returned from direct authorise request: " +
+                        (directAuthoriseResponse.getErrorDetail() != null
+                                ? directAuthoriseResponse.getErrorDetail().getMessage()
+                                : "No error detail")
+        );
+        assertEquals(ORDER_CODE, directAuthoriseResponse.getOrderCode(), "Order code returned from direct authorise is incorrect");
+        assertNotNull(directAuthoriseResponse.getRedirectReference(), "Direct authorise redirect reference is null");
 
         final OrderInquiryServiceRequest request = OrderInquiryServiceRequest.createOrderInquiryRequest(merchantInfo, ORDER_CODE);
         final Callable<OrderInquiryServiceResponse> callable = getOrderInquiryServiceResponseCallable(request);
@@ -66,31 +77,38 @@ public class OrderInquiryServiceRequestIntegrationTest extends ServicelayerBaseT
         final RetryConfig config = buildRetryConfig();
 
         try {
-            final Status<OrderInquiryServiceResponse> status = executeInquiryCallable(callable, config);
-            final OrderInquiryServiceResponse orderInquiry = status.getResult();
-            assertNotNull("Order inquiry response is null!", orderInquiry);
-            assertFalse("Errors returned from order inquiry request", orderInquiry.isError());
-            assertEquals("Order code returned is incorrect", ORDER_CODE, orderInquiry.getOrderCode());
+            final OrderInquiryServiceResponse orderInquiry = executeInquiryCallable(callable, config);
+
+            assertEquals(ORDER_CODE, orderInquiry.getOrderCode(), "Order code returned is incorrect");
+
             final PaymentReply paymentReply = orderInquiry.getPaymentReply();
-            assertNotNull("Payment reply in the order inquiry is null!", paymentReply);
+            assertNotNull(paymentReply, "Payment reply in the order inquiry is null!");
+
             final AuthorisedStatus authStatus = paymentReply.getAuthStatus();
-            assertNotNull("Auth status in the order inquiry is null!", authStatus);
-        } catch (RetriesExhaustedException | UnexpectedException e) {
+            assertNotNull(authStatus, "Auth status in the order inquiry is null!");
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new WorldpayException("Unable to retrieve order status", e);
+        } catch (final Exception e) {
             throw new WorldpayException("Unable to retrieve order status", e);
         }
     }
 
     private RetryConfig buildRetryConfig() {
-        return new RetryConfigBuilder()
-            .retryOnSpecificExceptions(WorldpayException.class)
-            .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
-            .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
-            .withFixedBackoff()
-            .build();
+        return RetryConfig.custom()
+                .retryExceptions(WorldpayException.class)
+                .maxAttempts(configurationService.getConfiguration().getInt(
+                        WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES,
+                        DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
+                .waitDuration(Duration.ofSeconds(configurationService.getConfiguration().getInt(
+                        WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES,
+                        DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE)))
+                .build();
     }
 
-    private Status<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {
-        return new CallExecutorBuilder<OrderInquiryServiceResponse>().config(config).build().execute(callable);
+    private OrderInquiryServiceResponse executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) throws Exception {
+        final Retry retry = Retry.of("worldpayOrderInquiryIntegrationTest", config);
+        return Retry.decorateCallable(retry, callable).call();
     }
 
     private Callable<OrderInquiryServiceResponse> getOrderInquiryServiceResponseCallable(final AbstractServiceRequest orderInquiryServiceRequest) {

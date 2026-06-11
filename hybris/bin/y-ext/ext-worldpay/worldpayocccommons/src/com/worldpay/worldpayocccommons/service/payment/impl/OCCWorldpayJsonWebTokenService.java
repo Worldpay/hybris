@@ -1,23 +1,21 @@
 package com.worldpay.worldpayocccommons.service.payment.impl;
 
-import com.google.common.collect.ImmutableMap;
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.payment.WorldpayJsonWebTokenService;
 import com.worldpay.service.payment.impl.DefaultWorldpayJsonWebTokenService;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.MacAlgorithm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.security.Key;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 
 public class OCCWorldpayJsonWebTokenService extends DefaultWorldpayJsonWebTokenService implements WorldpayJsonWebTokenService {
 
@@ -34,26 +32,25 @@ public class OCCWorldpayJsonWebTokenService extends DefaultWorldpayJsonWebTokenS
 
     @Override
     public String createJsonWebTokenFor3DSecureFlexChallengeIframe(final WorldpayMerchantConfigData worldpayMerchantConfigData, final DirectResponseData directResponseData) throws WorldpayConfigurationException {
-        final Key signingKey = retrieveSigningKey(worldpayMerchantConfigData);
+        final SecretKey signingKey = retrieveSigningKey(worldpayMerchantConfigData);
 
         String jwt = null;
         if (Objects.nonNull(signingKey)) {
-            final Map<String, String> payload = ImmutableMap.of(ACS_URL, directResponseData.getIssuerURL(),
+            final Map<String, String> payload = Map.of(ACS_URL, directResponseData.getIssuerURL(),
                 PAYLOAD, directResponseData.getIssuerPayload(),
                 TRANSACTION_ID, directResponseData.getTransactionId3DS());
             final String alg = worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getAlg();
             jwt = Jwts.builder()
-                .setHeaderParam(TYP, JWT)
-                .setHeaderParam(ALG, alg)
-                .setIssuedAt(callSuperGetAt())
-                .setIssuer(worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getIss())
-                .claim(Claims.ID, UUID.randomUUID())
-                .claim(ORG_UNIT_ID, worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getOrgUnitId())
-                .claim(RETURN_URL, worldpayUrlService.getFullThreeDSecureFlexFlowReturnUrl())
-                .claim(PAYLOAD, payload)
-                .claim(OBJECTIFY_PAYLOAD, true)
-                .signWith(signingKey, SignatureAlgorithm.forName(alg))
-                .compact();
+                    .header().type(JWT).and()
+                    .issuedAt(callSuperGetAt())
+                    .issuer(worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getIss())
+                    .id(UUID.randomUUID().toString())
+                    .claim(ORG_UNIT_ID, worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getOrgUnitId())
+                    .claim(RETURN_URL, worldpayUrlService.getFullThreeDSecureFlexFlowReturnUrl())
+                    .claim(PAYLOAD, payload)
+                    .claim(OBJECTIFY_PAYLOAD, true)
+                    .signWith(signingKey, (MacAlgorithm) Jwts.SIG.get().get(alg))
+                    .compact();
         }
 
         LOG.debug("Challenge JWT: [{}]", jwt);

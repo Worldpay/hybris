@@ -1,6 +1,6 @@
 package com.worldpay.core.dao.impl;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;

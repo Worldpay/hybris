@@ -4,13 +4,18 @@ import de.hybris.platform.ordercancel.OrderCancelNotificationServiceAdapter;
 import de.hybris.platform.ordercancel.events.CancelFinishedEvent;
 import de.hybris.platform.ordercancel.model.OrderCancelRecordEntryModel;
 import de.hybris.platform.servicelayer.event.EventService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 /**
  * Sends cancel notifications
  */
 public class WorldpayOrderCancelNotificationServiceAdapter implements OrderCancelNotificationServiceAdapter {
-    private EventService eventService;
+
+    protected final EventService eventService;
+
+    public WorldpayOrderCancelNotificationServiceAdapter(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @Override
     public void sendCancelFinishedNotifications(final OrderCancelRecordEntryModel orderCancelRecordEntryModel) {
@@ -22,8 +27,4 @@ public class WorldpayOrderCancelNotificationServiceAdapter implements OrderCance
         //Deliberately does nothing...
     }
 
-    @Required
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
 }

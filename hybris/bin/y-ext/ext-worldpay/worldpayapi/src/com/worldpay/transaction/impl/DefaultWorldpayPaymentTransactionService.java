@@ -1,13 +1,29 @@
 package com.worldpay.transaction.impl;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
+import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CANCEL;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.CAPTURE;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.REFUND_FOLLOW_ON;
+import static de.hybris.platform.payment.enums.PaymentTransactionType.SETTLED;
+import static java.text.MessageFormat.format;
+
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.core.services.WorldpayBankConfigurationLookupService;
-import com.worldpay.model.WorldpayAavResponseModel;
-import com.worldpay.model.WorldpayBankConfigurationModel;
-import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.data.Amount;
 import com.worldpay.data.PaymentReply;
 import com.worldpay.data.RiskScore;
+import com.worldpay.model.WorldpayAavResponseModel;
+import com.worldpay.model.WorldpayBankConfigurationModel;
+import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.service.notification.OrderNotificationMessage;
 import com.worldpay.service.payment.WorldpayExemptionStrategy;
 import com.worldpay.service.payment.WorldpayFraudSightStrategy;
@@ -28,19 +44,6 @@ import de.hybris.platform.servicelayer.exceptions.ModelNotFoundException;
 import de.hybris.platform.servicelayer.model.ModelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
-import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
-import static de.hybris.platform.payment.enums.PaymentTransactionType.*;
-import static java.text.MessageFormat.format;
 
 /**
  * {@inheritDoc}
@@ -104,8 +107,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public boolean isAnyPaymentTransactionApmOpenForOrder(final OrderModel order) {
         return order.getPaymentTransactions().stream()
-            .filter(Objects::nonNull)
-            .anyMatch(PaymentTransactionModel::getApmOpen);
+                .filter(Objects::nonNull)
+                .anyMatch(PaymentTransactionModel::getApmOpen);
     }
 
     /**
@@ -114,8 +117,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public boolean isPaymentTransactionPending(final PaymentTransactionModel paymentTransaction, final PaymentTransactionType paymentTransactionType) {
         return paymentTransaction.getEntries().stream()
-            .filter(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()))
-            .anyMatch(PaymentTransactionEntryModel::getPending);
+                .filter(paymentTransactionEntry -> paymentTransactionType.equals(paymentTransactionEntry.getType()))
+                .anyMatch(PaymentTransactionEntryModel::getPending);
     }
 
     /**
@@ -125,8 +128,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public List<PaymentTransactionEntryModel> filterPaymentTransactionEntriesOfType(final PaymentTransactionModel paymentTransaction,
                                                                                     final PaymentTransactionType paymentTransactionType) {
         return paymentTransaction.getEntries().stream()
-            .filter(entry -> entry.getType().equals(paymentTransactionType))
-            .collect(Collectors.toList());
+                .filter(entry -> entry.getType().equals(paymentTransactionType))
+                .toList();
     }
 
     /**
@@ -136,8 +139,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public List<PaymentTransactionEntryModel> getPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
                                                                                          final PaymentTransactionType paymentTransactionType) {
         return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream()
-            .filter(PaymentTransactionEntryModel::getPending)
-            .collect(Collectors.toList());
+                .filter(PaymentTransactionEntryModel::getPending)
+                .toList();
     }
 
     /**
@@ -147,8 +150,8 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     public List<PaymentTransactionEntryModel> getNotPendingPaymentTransactionEntriesForType(final PaymentTransactionModel paymentTransactionModel,
                                                                                             final PaymentTransactionType paymentTransactionType) {
         return filterPaymentTransactionEntriesOfType(paymentTransactionModel, paymentTransactionType).stream()
-            .filter(entry -> !entry.getPending())
-            .collect(Collectors.toList());
+                .filter(entry -> !entry.getPending())
+                .toList();
     }
 
     /**
@@ -164,7 +167,7 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
         for (final PaymentTransactionModel paymentTransactionModel : orderModel.getPaymentTransactions()) {
             if (paymentTransactionModel.getRequestId().equals(worldpayOrderCode)) {
                 completed = !getNotPendingPaymentTransactionEntriesForType(paymentTransactionModel, dependingTransactionType).isEmpty()
-                    || isRefundForVoidOrder(paymentTransactionType, paymentTransactionModel);
+                        || isRefundForVoidOrder(paymentTransactionType, paymentTransactionModel);
             }
         }
         return completed;
@@ -281,12 +284,12 @@ public class DefaultWorldpayPaymentTransactionService implements WorldpayPayment
     @Override
     public void addRiskScore(final PaymentTransactionModel paymentTransactionModel, final PaymentReply paymentReply) {
         Optional.ofNullable(paymentReply.getRiskScore())
-            .map(worldpayRiskScoreConverter::convert)
-            .map(riskScore -> {
-                paymentTransactionModel.setRiskScore(riskScore);
-                return paymentTransactionModel;
-            })
-            .ifPresent(modelService::save);
+                .map(worldpayRiskScoreConverter::convert)
+                .map(riskScore -> {
+                    paymentTransactionModel.setRiskScore(riskScore);
+                    return paymentTransactionModel;
+                })
+                .ifPresent(modelService::save);
     }
 
     /**

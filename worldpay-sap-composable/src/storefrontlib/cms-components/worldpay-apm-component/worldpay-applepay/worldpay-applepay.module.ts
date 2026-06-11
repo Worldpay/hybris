@@ -1,21 +1,25 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { I18nModule } from '@spartacus/core';
-import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
 import { WorldpayApplepayComponent } from './worldpay-applepay.component';
 
+/**
+ * Angular module for the Worldpay Apple Pay feature.
+ *
+ * since 221121.11.0, this module is maintained for backward compatibility.
+ * It is recommended to use the standalone approach for new implementations.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayApplepayComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) if needed.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically exports the standalone component.
+ *
+ * @since 221121.11.0
+ * - `WorldpayApplepayComponent` is now a standalone component.
+ */
 @NgModule({
-  declarations: [
-    WorldpayApplepayComponent
-  ],
-  exports: [
-    WorldpayApplepayComponent
-  ],
-  imports: [
-    CommonModule,
-    I18nModule,
-    WorldpayBillingAddressModule,
-  ],
+  exports: [WorldpayApplepayComponent],
+  imports: [WorldpayApplepayComponent]
 })
 export class WorldpayApplepayModule {
 }

@@ -1,9 +1,13 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import java.time.LocalDate;
+
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
+import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
+
 import com.worldpay.data.ACHDirectDebitAdditionalAuthInfo;
 import com.worldpay.data.AdditionalAuthInfo;
 import com.worldpay.data.BankTransferAdditionalAuthInfo;
-import com.worldpay.enums.order.AuthorisedStatus;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.exception.WorldpayException;
 import com.worldpay.facades.WorldpayBankConfigurationFacade;
@@ -11,7 +15,6 @@ import com.worldpay.facades.WorldpayDirectResponseFacade;
 import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.facades.payment.direct.WorldpayDirectOrderFacade;
 import com.worldpay.facades.payment.hosted.WorldpayHostedOrderFacade;
-import com.worldpay.internal.model.ACHDIRECTDEBITSSL;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayAddonEndpointService;
@@ -24,6 +27,8 @@ import de.hybris.platform.acceleratorstorefrontcommons.controllers.util.GlobalMe
 import de.hybris.platform.cms2.exceptions.CMSItemNotFoundException;
 import de.hybris.platform.cms2.model.pages.ContentPageModel;
 import de.hybris.platform.order.InvalidCartException;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -31,15 +36,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.util.Map;
-
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.BIRTHDAY_DATE;
-import static de.hybris.platform.acceleratorstorefrontcommons.constants.WebConstants.BREADCRUMBS_KEY;
 
 @Controller
 @RequestMapping(value = "/checkout/multi/worldpay/payment-method")
@@ -113,7 +109,7 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     protected PaymentData redirectAuthorise(final Model model, final String paymentMethod) throws WorldpayException {
         final Boolean savePaymentInfo = getSavePaymentInfo(model);
 
-        final AdditionalAuthInfo  additionalAuthInfo = createAdditionalAuthInfo(savePaymentInfo, paymentMethod);
+        final AdditionalAuthInfo additionalAuthInfo = createAdditionalAuthInfo(savePaymentInfo, paymentMethod);
 
         final PaymentData hostedOrderPageData = worldpayHostedOrderFacade.redirectAuthorise(additionalAuthInfo, createWorldpayAdditionalInfo(model));
 
@@ -187,7 +183,7 @@ public class WorldpayPaymentMethodCheckoutStepController extends AbstractWorldpa
     protected WorldpayAdditionalInfoData createWorldpayAdditionalInfo(final Model model) {
         final WorldpayAdditionalInfoData worldpayAdditionalInfoData = worldpayAdditionalInfoFacade.createWorldpayAdditionalInfoData((HttpServletRequest) model.asMap().get(REQUEST));
         if (worldpayPaymentCheckoutFacade.isFSEnabled()) {
-            worldpayAdditionalInfoData.setDateOfBirth((Date) model.asMap().get(BIRTHDAY_DATE));
+            worldpayAdditionalInfoData.setDateOfBirth((LocalDate) model.asMap().get(BIRTHDAY_DATE));
         }
         return worldpayAdditionalInfoData;
     }

@@ -1,5 +1,30 @@
 package com.worldpay.controllers.pages.checkout.steps;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
+import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.*;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.CSE_PAYMENT_FORM;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.CSE_PUBLIC_KEY;
+import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.REDIRECT_TO_CSE_PAGE;
+import static com.worldpay.service.model.payment.PaymentType.ONLINE;
+import static com.worldpay.service.model.payment.PaymentType.PAYPAL_EXPRESS;
+import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
+import static de.hybris.platform.acceleratorstorefrontcommons.controllers.pages.AbstractPageController.CMS_PAGE_MODEL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.data.Additional3DS2Info;
 import com.worldpay.data.CSEAdditionalAuthInfo;
@@ -33,6 +58,8 @@ import de.hybris.platform.commercefacades.order.data.CartData;
 import de.hybris.platform.commercefacades.user.UserFacade;
 import de.hybris.platform.commerceservices.strategies.CheckoutCustomerStrategy;
 import de.hybris.platform.order.InvalidCartException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,25 +72,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayDirectCheckoutStepController.CMS_PAGE_MODEL;
-import static com.worldpay.controllers.pages.checkout.steps.AbstractWorldpayPaymentMethodCheckoutStepController.*;
-import static com.worldpay.controllers.pages.checkout.steps.WorldpayCseCheckoutStepController.*;
-import static com.worldpay.service.model.payment.PaymentType.ONLINE;
-import static com.worldpay.service.model.payment.PaymentType.PAYPAL_EXPRESS;
-import static de.hybris.platform.acceleratorstorefrontcommons.controllers.AbstractController.REDIRECT_PREFIX;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @UnitTest
 @RunWith(MockitoJUnitRunner.class)
@@ -85,7 +93,7 @@ public class WorldpayCseCheckoutStepControllerTest {
     private static final String THREDSFLEX_DDC_PAGE = "ddcIframePage";
     private static final String THREEDS_FLEX_CHALLENGE_IFRAME = "threeDSFlexIframePage";
     private static final String THREEDSECURE_FLEX_DDC_URL_VALUE = "threeDSecureDDCUrlValue";
-    private static final Date CURRENT_DATE_VALUE = new Date();
+    private static final LocalDate CURRENT_DATE_VALUE = LocalDate.now();
     private static final String DEVICE_SESSION = "device_session";
     private static final String CURRENT_DATE = "currentDate";
     private static final String TEST = "test";

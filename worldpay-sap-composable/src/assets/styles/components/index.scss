@@ -1,8 +1,10 @@
+@import "./cdk-accordion";
 @import "./worldpay-checkout-payment-method.component.scss";
 @import "./worldpay-checkout-place-order.component.scss";
 @import "./worldpay-order-confirmation-thank-you-message.component.scss";
 @import "./wp-payment-form.scss";
 @import "./y-worldpay-address-form";
+@import "./y-worldpay-b2b-review-submit";
 @import "./y-worldpay-billing-address.scss";
 @import "./y-worldpay-cart-item-list";
 @import "./y-worldpay-checkout-delivery-address";
@@ -13,4 +15,3 @@
 @import "./y-worldpay-order-detail-billing";
 @import "./y-worldpay-order-guest-register-form.scss";
 @import "./y-worldpay-order-overview";
-@import "./cdk-accordion";

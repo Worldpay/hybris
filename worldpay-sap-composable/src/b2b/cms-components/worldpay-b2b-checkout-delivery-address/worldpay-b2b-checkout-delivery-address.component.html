@@ -1,0 +1,97 @@
+<h2 class="cx-checkout-title d-none d-lg-block d-xl-block">
+  {{ 'checkoutAddress.shippingAddress' | cxTranslate }}
+</h2>
+
+@if (cards$ | async; as cards) {
+  @if (!(isUpdating$ | async)) {
+
+    @if (isAccountPayment || (cards?.length && !addressFormOpened)) {
+
+      <p class="cx-checkout-text">
+        {{ 'checkoutAddress.selectYourDeliveryAddress' | cxTranslate }}
+      </p>
+
+      @if (!isAccountPayment) {
+        <div class="cx-checkout-btns row">
+          <div class="col-sm-12 col-md-12 col-lg-6">
+            <button
+              class="btn btn-block btn-secondary"
+              (click)="showNewAddressForm()"
+            >
+              {{ 'checkoutAddress.addNewAddress' | cxTranslate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <div class="cx-checkout-body row">
+        @for (card of cards; track card.address?.id; let i = $index) {
+          <div class="cx-delivery-address-card col-md-12 col-lg-6">
+            <div
+              class="cx-delivery-address-card-inner"
+              (click)="selectAddress(card.address)"
+            >
+              <cx-card
+                [border]="true"
+                [index]="i"
+                [fitToContainer]="true"
+                [content]="card.card"
+                (sendCard)="selectAddress(card.address)"
+                role="group"
+              />
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="cx-checkout-btns row">
+        <div class="col-md-12 col-lg-6">
+          <button
+            class="cx-btn btn btn-block btn-secondary"
+            [attr.data-test]="'btn-back'"
+            (click)="back()"
+          >
+            {{ backBtnText | cxTranslate }}
+          </button>
+        </div>
+
+        <div class="col-md-12 col-lg-6">
+          <button
+            class="cx-btn btn btn-block btn-primary"
+            [disabled]="!(selectedAddress$ | async)?.id"
+            [attr.data-test]="'btn-next'"
+            (click)="next()"
+          >
+            {{ 'common.continue' | cxTranslate }}
+          </button>
+        </div>
+      </div>
+
+    } @else {
+
+      @if (cards.length) {
+        <y-worldpay-address-form
+          [showTitleCode]="true"
+          (backToAddress)="hideNewAddressForm(false)"
+          (submitAddress)="addAddress($event)"
+        />
+      } @else {
+        <y-worldpay-address-form
+          [showTitleCode]="true"
+          [setAsDefaultField]="!isGuestCheckout"
+          [cancelBtnLabel]="backBtnText | cxTranslate"
+          (backToAddress)="hideNewAddressForm(true)"
+          (submitAddress)="addAddress($event)"
+        />
+      }
+
+    }
+
+  } @else {
+
+    <div class="cx-spinner">
+      <cx-spinner />
+    </div>
+
+  }
+}

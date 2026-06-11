@@ -1,11 +1,5 @@
 package com.worldpay.core.services.impl;
 
-import com.evanlennick.retry4j.CallExecutorBuilder;
-import com.evanlennick.retry4j.Status;
-import com.evanlennick.retry4j.config.RetryConfig;
-import com.evanlennick.retry4j.config.RetryConfigBuilder;
-import com.evanlennick.retry4j.exception.RetriesExhaustedException;
-import com.evanlennick.retry4j.exception.UnexpectedException;
 import com.worldpay.core.services.OrderInquiryService;
 import com.worldpay.core.services.WorldpayPaymentInfoService;
 import com.worldpay.exception.WorldpayConfigurationException;
@@ -19,10 +13,12 @@ import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.core.model.order.payment.WorldpayAPMPaymentInfoModel;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.concurrent.Callable;
 
 /**
@@ -103,9 +99,11 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
         final RetryConfig config = buildRetryConfig();
 
         try {
-            final Status<OrderInquiryServiceResponse> orderInquiryServiceResponseCallResults = executeInquiryCallable(callable, config);
-            return orderInquiryServiceResponseCallResults.getResult();
-        } catch (final RetriesExhaustedException | UnexpectedException e) {
+            return executeInquiryCallable(callable, config);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new WorldpayException("Unable to retrieve order status", e);
+        } catch (final Exception e) {
             throw new WorldpayException("Unable to retrieve order status", e);
         }
     }
@@ -123,16 +121,21 @@ public class DefaultOrderInquiryService implements OrderInquiryService {
     }
 
     private RetryConfig buildRetryConfig() {
-        return new RetryConfigBuilder()
-            .retryOnSpecificExceptions(WorldpayException.class)
-            .withMaxNumberOfTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
-            .withDelayBetweenTries(configurationService.getConfiguration().getInt(WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES, DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE), ChronoUnit.SECONDS)
-            .withFixedBackoff()
-            .build();
+        return RetryConfig.custom()
+                .maxAttempts(configurationService.getConfiguration().getInt(
+                        WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES,
+                        DEFAULT_WORLDPAYAPI_INQUIRY_MAX_NUMBER_OF_RETRIES_VALUE))
+                .waitDuration(Duration.ofSeconds(configurationService.getConfiguration().getInt(
+                        WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES,
+                        DEFAULT_WORLDPAYAPI_INQUIRY_DELAY_BETWEEN_RETRIES_VALUE)))
+                .retryExceptions(WorldpayException.class)
+                .build();
     }
 
-    protected Status<OrderInquiryServiceResponse> executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) {
-        return new CallExecutorBuilder<OrderInquiryServiceResponse>().config(config).build().execute(callable);
+    protected OrderInquiryServiceResponse executeInquiryCallable(final Callable<OrderInquiryServiceResponse> callable, final RetryConfig config) throws Exception {
+        final Retry retry = Retry.of("wordplayOrderInquiry", config);
+        return Retry.decorateCallable(retry, callable).call();
+
     }
 
     protected OrderInquiryServiceRequest createOrderInquiryServiceRequest(final MerchantInfo merchantInfo, final String orderCode) {

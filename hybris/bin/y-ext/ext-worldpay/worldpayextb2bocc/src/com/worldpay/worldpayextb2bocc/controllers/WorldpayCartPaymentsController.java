@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2025 SAP SE or an SAP affiliate company. All rights reserved.
- */
 package com.worldpay.worldpayextb2bocc.controllers;
 
 import com.worldpay.facades.order.impl.WorldpayB2BAcceleratorCheckoutFacadeDecorator;
@@ -14,8 +11,7 @@ import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdUserIdAndCartI
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -23,8 +19,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import javax.annotation.Resource;
 
 
 @Controller
@@ -42,8 +36,7 @@ public class WorldpayCartPaymentsController extends AbstractWorldpayController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(operationId = "replaceCartPaymentDetails", summary = "Sets credit card payment details for the cart.", description = "Sets credit card payment details for the specified cart.")
     @ApiBaseSiteIdUserIdAndCartIdParam
-    public void replaceCartPaymentDetails(
-            @Parameter(description = "Payment details identifier.", required = true) @RequestParam final String paymentDetailsId) throws WorldpayInvalidPaymentInfoException {
+    public void replaceCartPaymentDetails(@Parameter(description = "Payment details identifier.", required = true) @RequestParam final String paymentDetailsId) throws WorldpayInvalidPaymentInfoException {
         setPaymentDetailsInternal(paymentDetailsId);
     }
 

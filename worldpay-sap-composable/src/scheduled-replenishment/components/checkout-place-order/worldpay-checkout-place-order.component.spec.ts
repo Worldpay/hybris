@@ -7,6 +7,7 @@ import { CheckoutStepService } from '@spartacus/checkout/base/components';
 import { CheckoutReplenishmentFormService } from '@spartacus/checkout/scheduled-replenishment/components';
 import {
   Address,
+  ConfigModule,
   CurrencyService,
   GlobalMessageService,
   GlobalMessageType,
@@ -17,9 +18,9 @@ import {
   PaymentDetails,
   QueryState,
   RoutingService,
-  WindowRef,
+  WindowRef
 } from '@spartacus/core';
-import { DaysOfWeek, ORDER_TYPE, recurrencePeriod, ScheduledReplenishmentOrderFacade, ScheduleReplenishmentForm, } from '@spartacus/order/root';
+import { DaysOfWeek, ORDER_TYPE, recurrencePeriod, ScheduleReplenishmentForm, } from '@spartacus/order/root';
 import { AtMessageModule, FormErrorsModule, LaunchDialogService, } from '@spartacus/storefront';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import {
@@ -28,13 +29,13 @@ import {
   MockGlobalMessageService,
   MockLaunchDialogService,
   MockRoutingService,
-  MockUrlPipe,
   MockWorldpayACHFacade,
   MockWorldpayApmService,
   MockWorldpayCheckoutPaymentService,
   MockWorldpayFraudsightService,
   MockWorldpayOrderService
 } from 'worldpay-sap-composable-tests';
+import { WorldpayReplenishmentOrderFacade } from '../../../b2b/core/facade/worldpay-replenishment-order.facade';
 import {
   ACHPaymentForm, ApmNormalizer,
   ApmPaymentDetails,
@@ -133,7 +134,7 @@ const MockWindowRef = {
 class MockRenderer2 {
 }
 
-class MockScheduledReplenishmentOrderFacade implements Partial<ScheduledReplenishmentOrderFacade> {
+class MockScheduledReplenishmentOrderFacade implements Partial<WorldpayReplenishmentOrderFacade> {
   scheduleReplenishmentOrder() {
     return of({});
   }
@@ -153,7 +154,7 @@ describe('WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent', () => {
   let worldpayACHFacade: WorldpayACHFacade;
   let globalMessageService: GlobalMessageService;
   let logger: LoggerService;
-  let scheduledReplenishmentOrderFacade: ScheduledReplenishmentOrderFacade;
+  let scheduledReplenishmentOrderFacade: WorldpayReplenishmentOrderFacade;
 
   let checkoutReplenishmentFormService: CheckoutReplenishmentFormService;
 
@@ -172,9 +173,16 @@ describe('WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent', () => {
           RouterLink,
           I18nTestingModule,
           FormErrorsModule,
-          AtMessageModule
+          AtMessageModule,
+          WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent,
+          ConfigModule.withConfig({
+            routing: {
+              routes: {
+                termsAndConditions: { paths: ['terms-and-conditions'] }
+              }
+            }
+          })
         ],
-        declarations: [MockUrlPipe, WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent],
         providers: [
           ApmNormalizer,
           {
@@ -259,7 +267,7 @@ describe('WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent', () => {
             useClass: MockCheckoutReplenishmentFormService,
           },
           {
-            provide: ScheduledReplenishmentOrderFacade,
+            provide: WorldpayReplenishmentOrderFacade,
             useClass: MockScheduledReplenishmentOrderFacade
           }
         ],
@@ -284,7 +292,7 @@ describe('WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent', () => {
     placeOrderSpy.and.callThrough();
     spyOn(orderFacade, 'executeDDC3dsJwtCommand').and.callThrough();
     checkoutReplenishmentFormService = TestBed.inject(CheckoutReplenishmentFormService);
-    scheduledReplenishmentOrderFacade = TestBed.inject(ScheduledReplenishmentOrderFacade);
+    scheduledReplenishmentOrderFacade = TestBed.inject(WorldpayReplenishmentOrderFacade);
   });
 
   function submitForm(orderType: ORDER_TYPE, isTermsCondition: boolean): void {
@@ -365,8 +373,12 @@ describe('WorldpayCheckoutScheduledReplenishmentPlaceOrderComponent', () => {
   });
 
   it('should place Worldpay order', () => {
-    spyOn(worldpayApmFacade, 'getSelectedAPMFromState').and.callThrough();
+    spyOn(worldpayApmFacade, 'getSelectedAPMFromState').and.returnValue(of({
+      code: PaymentMethod.Card,
+      name: 'Visa',
+    }));
     spyOn(worldpayCheckoutPaymentFacade, 'getPaymentDetailsState').and.callThrough();
+
     component.placeWorldpayOrder().subscribe((data) => {
       expect(data[0].code).toEqual(PaymentMethod.Card);
       expect(data[1].data).toEqual(mockCreditCard);

@@ -1,12 +1,10 @@
 package com.worldpay.core.dao.impl;
 
-import com.worldpay.core.dao.WorldpayIntegrationVersionDao;
-import com.worldpay.model.IntegrationVersionModel;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import com.worldpay.core.dao.WorldpayIntegrationVersionDao;
+import com.worldpay.model.IntegrationVersionModel;
 import de.hybris.platform.servicelayer.internal.dao.AbstractItemDao;
 import de.hybris.platform.servicelayer.search.FlexibleSearchQuery;
 import de.hybris.platform.servicelayer.search.SearchResult;
@@ -48,7 +46,7 @@ public class DefaultWorldpayIntegrationVersionDao extends AbstractItemDao implem
                 .stream()
                 .skip(1)
                 .limit(3)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 }

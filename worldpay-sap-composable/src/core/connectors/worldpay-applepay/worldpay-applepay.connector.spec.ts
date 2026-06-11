@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApmData, PaymentMethod } from '../../interfaces';
+import { ApplePayPayment } from '../../models';
 import { WorldpayApplepayAdapter } from './worldpay-applepay.adapter';
 import { WorldpayApplepayConnector } from './worldpay-applepay.connector';
 import createSpy = jasmine.createSpy;
@@ -19,8 +20,20 @@ const apms: ApmData[] = [
   {
     code: PaymentMethod.Card,
     name: 'Credit'
-  },
+  }
 ];
+
+const payment: ApplePayPayment = {
+  token: {
+    transactionIdentifier: '100',
+    paymentMethod: {
+      displayName: 'Payment Method'
+    }
+  },
+  shippingContact: {
+    familyName: 'Shipping Contact'
+  }
+};
 
 class MockWorldpayApplepayAdapter implements WorldpayApplepayAdapter {
   requestApplePayPaymentRequest = createSpy('WorldpayAdapter.authoriseApmRedirect').and.callFake(() => of(null));
@@ -66,10 +79,10 @@ describe('WorldpayApplepayConnector', () => {
   });
 
   it('should call authorizeApplePayPayment', () => {
-    service.authorizeApplePayPayment('userId', 'cartId', { foo: 'bar' })
+    service.authorizeApplePayPayment('userId', 'cartId', payment)
       .pipe(takeUntil(drop)).subscribe(response => response);
 
-    expect(adapter.authorizeApplePayPayment).toHaveBeenCalledWith('userId', 'cartId', { foo: 'bar' });
+    expect(adapter.authorizeApplePayPayment).toHaveBeenCalledWith('userId', 'cartId', payment);
   });
 
 });

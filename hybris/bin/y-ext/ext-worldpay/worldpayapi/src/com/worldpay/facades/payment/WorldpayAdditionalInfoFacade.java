@@ -2,7 +2,7 @@ package com.worldpay.facades.payment;
 
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Exposes methods to create additional information required to make worldpay requests

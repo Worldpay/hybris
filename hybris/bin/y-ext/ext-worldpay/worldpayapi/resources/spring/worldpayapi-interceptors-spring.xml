@@ -13,9 +13,9 @@
     </bean>
 
     <bean id="worldpayItemCodePrepareInterceptor" class="com.worldpay.interceptors.WorldpayItemCodePrepareInterceptor">
-        <property name="keyGenerator" ref="worldpayTxDataCodeGenerator"/>
-        <property name="typeService" ref="typeService"/>
-        <property name="fieldName" value="code"/>
+        <constructor-arg name="keyGenerator" ref="worldpayTxDataCodeGenerator"/>
+        <constructor-arg name="typeService" ref="typeService"/>
+        <constructor-arg name="fieldName" value="code"/>
     </bean>
 
     <bean id="worldpayPaymentInfoRemoveInterceptor"

@@ -32,13 +32,16 @@ import de.hybris.platform.servicelayer.search.SearchResult;
 import de.hybris.platform.servicelayer.user.UserService;
 import de.hybris.platform.site.BaseSiteService;
 import de.hybris.platform.store.BaseStoreModel;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
+
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @IntegrationTest
 public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTransactionalTest {
@@ -48,7 +51,7 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
     public static final String WAIT_FOR_CAPTURE = "waitFor_CAPTURE";
     public static final String TASK_RUNNER = "taskRunner";
 
-    private DefaultProcessDefinitionDao testObj = new DefaultProcessDefinitionDao();
+    private final DefaultProcessDefinitionDao testObj = new DefaultProcessDefinitionDao();
 
     @Resource
     private CartService cartService;
@@ -106,7 +109,7 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
         baseSite.setChannel(SiteChannel.B2C);
         addBaseStore(baseSite);
 
-        order = createOrder(testProduct);
+        createOrder(testProduct);
         serOrderProcess(order);
     }
 
@@ -120,7 +123,7 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
     private void addBaseStore(BaseSiteModel baseSite) {
         final SearchResult<BaseStoreModel> search = flexibleSearchService.search("select {PK} from {BaseStore}");
         final List<BaseStoreModel> result = search.getResult();
-        final BaseStoreModel baseStoreModel = result.iterator().next();
+        final BaseStoreModel baseStoreModel = result.getFirst();
         baseStoreModel.setSubmitOrderProcessCode("order-process");
         baseSite.setStores(Collections.singletonList(baseStoreModel));
     }
@@ -171,7 +174,7 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
         testUnit.setUnitType("test");
     }
 
-    private OrderModel createOrder(ProductModel testProduct) throws InvalidCartException {
+    private void createOrder(ProductModel testProduct) throws InvalidCartException {
         final CartModel cart = cartService.getSessionCart();
         final AbstractOrderEntryModel testEntry = modelService.create(CartEntryModel.class);
         testEntry.setBasePrice((double) 0);
@@ -180,17 +183,16 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
         cart.setDeliveryAddress(deliveryAddress);
         cart.setPaymentInfo(paymentInfo);
 
-        final OrderModel order = orderService.createOrderFromCart(cart);
+        order = orderService.createOrderFromCart(cart);
 
         orderService.submitOrder(order);
         orderService.saveOrder(order);
-        return order;
     }
 
     @Test
-    public void testFindWaitingProcessForTransactionTypeAUTHORIZATION() throws Exception {
+    public void testFindWaitingProcessForTransactionTypeAUTHORIZATION() {
 
-        // put in our wait for auth task as the current (we're just checking that the DAO works) 
+        // put in our wait for auth task as the current (we're just checking that the DAO works)
 
         final ProcessTaskModel authorizeTask = new ProcessTaskModel();
         authorizeTask.setAction(WAIT_FOR_AUTHORIZATION);
@@ -207,9 +209,9 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
     }
 
     @Test
-    public void testFindWaitingProcessForTransactionTypeCAPTURE() throws Exception {
+    public void testFindWaitingProcessForTransactionTypeCAPTURE() {
 
-        // put in our wait for capture task as the current (we're just checking that the DAO works) 
+        // put in our wait for capture task as the current (we're just checking that the DAO works)
 
         final ProcessTaskModel authorizeTask = new ProcessTaskModel();
         authorizeTask.setAction(WAIT_FOR_CAPTURE);
@@ -226,8 +228,8 @@ public class DefaultProcessDefinitionDaoIntegrationTest extends ServicelayerTran
     }
 
     private void assertResults(ProcessTaskModel authorizeTask, List<BusinessProcessModel> result) {
-        Assert.assertTrue(!result.isEmpty());
-        Assert.assertTrue(!result.get(0).getCurrentTasks().isEmpty());
-        Assert.assertEquals(authorizeTask.getPk(), result.get(0).getCurrentTasks().iterator().next().getPk());
+        assertFalse(result.isEmpty());
+        assertFalse(result.getFirst().getCurrentTasks().isEmpty());
+        assertEquals(authorizeTask.getPk(), result.getFirst().getCurrentTasks().iterator().next().getPk());
     }
 }

@@ -1,72 +1,29 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { AuthGuard, CmsConfig, FeaturesConfigModule, I18nModule, provideConfig, UrlModule } from '@spartacus/core';
-import { OrderDetailActionsComponent, OrderDetailItemsComponent, OrderDetailReorderComponent, OrderDetailsModule, OrderDetailTotalsComponent } from '@spartacus/order/components';
-import { CardModule, OutletModule, SpinnerModule } from '@spartacus/storefront';
-import { WorldpayOrderDetailsBillingComponent } from './worldpay-order-details-billing/worldpay-order-details-billing.component';
+import { WORLDPAY_ORDER_DETAILS_FEATURE_PROVIDERS } from './worldpay-order-details.providers';
 import { WorldpayOrderOverviewComponent } from './worldpay-order-overview/worldpay-order-overview.component';
 
+/**
+ * Angular module for the Worldpay Order Details feature.
+ *
+ * Since 221121.11.0, this module is maintained for backward compatibility.
+ * It is recommended to use the standalone approach for new implementations.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayOrderOverviewComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) using `provideWorldpayOrderDetails()`.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically registers the required
+ * CMS configuration and exports the standalone components.
+ *
+ * @since 221121.11.0
+ * - `WorldpayOrderOverviewComponent` is now standalone components.
+ * - All feature-specific providers and CMS mappings have been moved to `provideWorldpayOrderDetails()`.
+ */
 @NgModule({
-  declarations: [
-    WorldpayOrderOverviewComponent,
-    WorldpayOrderDetailsBillingComponent
-  ],
-  imports: [
-    CommonModule,
-    OutletModule,
-    CardModule,
-    I18nModule,
-    OrderDetailsModule,
-    FeaturesConfigModule,
-    SpinnerModule,
-    RouterLink,
-    UrlModule
-  ],
-  providers: [
-    provideConfig(<CmsConfig>{
-      cmsComponents: {
-        AccountOrderDetailsActionsComponent: {
-          component: OrderDetailActionsComponent,
-          guards: [AuthGuard],
-        },
-        AccountOrderDetailsItemsComponent: {
-          component: OrderDetailItemsComponent,
-          guards: [AuthGuard],
-          data: {
-            enableAddToCart: true,
-          },
-        },
-        AccountOrderDetailsGroupedItemsComponent: {
-          component: OrderDetailItemsComponent,
-          guards: [AuthGuard],
-          data: {
-            enableAddToCart: true,
-            groupCartItems: true,
-          },
-        },
-        AccountOrderDetailsTotalsComponent: {
-          component: OrderDetailTotalsComponent,
-          guards: [AuthGuard],
-        },
-        AccountOrderDetailsOverviewComponent: {
-          component: WorldpayOrderOverviewComponent,
-          guards: [AuthGuard],
-        },
-        AccountOrderDetailsSimpleOverviewComponent: {
-          component: WorldpayOrderOverviewComponent,
-          guards: [AuthGuard],
-          data: {
-            simple: true,
-          },
-        },
-        AccountOrderDetailsReorderComponent: {
-          component: OrderDetailReorderComponent,
-          guards: [AuthGuard],
-        },
-      },
-    }),
-  ],
+  imports: [WorldpayOrderOverviewComponent,],
+  exports: [WorldpayOrderOverviewComponent,],
+  providers: WORLDPAY_ORDER_DETAILS_FEATURE_PROVIDERS
 })
 export class WorldpayOrderDetailsModule {
 }

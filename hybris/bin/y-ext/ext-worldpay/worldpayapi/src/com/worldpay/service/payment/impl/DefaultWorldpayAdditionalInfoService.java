@@ -5,7 +5,7 @@ import com.worldpay.service.payment.WorldpayAdditionalInfoService;
 import com.worldpay.strategy.WorldpayCustomerIpAddressStrategy;
 import de.hybris.platform.servicelayer.session.SessionService;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.apache.http.HttpHeaders.ACCEPT;
 import static org.apache.http.HttpHeaders.USER_AGENT;

@@ -4,10 +4,6 @@
     "outDir": "../../out-tsc/lib",
     "declaration": true,
     "inlineSources": true,
-    "lib": [
-      "dom",
-      "ES2022"
-    ],
     "strict": true,
     "strictNullChecks": false,
     "types": [

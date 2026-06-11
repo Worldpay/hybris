@@ -2,8 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'cx-guest-register-form',
-  template: '',
-  standalone: false,
+  template: ''
 })
 export class MockCxGuestRegisterFormComponent {
   @Input() guid: string;

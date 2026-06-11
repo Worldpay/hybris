@@ -172,7 +172,7 @@ describe('WorldpayGuaranteedPaymentsService', () => {
     });
 
     it('should return empty string if session id is null', () => {
-      const event = { sessionId: null };
+      const event: SetGuaranteedPaymentsSessionIdEvent = { sessionId: null };
       spyOn(eventService, 'get').and.returnValue(of(event));
       eventService.dispatch(event, SetGuaranteedPaymentsSessionIdEvent);
       const result = eventService.get(SetGuaranteedPaymentsSessionIdEvent).pipe(
@@ -222,7 +222,6 @@ describe('WorldpayGuaranteedPaymentsService', () => {
       attributes: { 'data-order-session-id': sessionId },
     });
   });
-
 
   it('should update existing script if node is found', () => {
     const mockNode = winRef.document.createElement('script');

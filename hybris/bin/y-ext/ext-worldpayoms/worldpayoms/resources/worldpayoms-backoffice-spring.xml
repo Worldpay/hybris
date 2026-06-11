@@ -4,7 +4,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="worldpayomsLabelLocator" class="com.hybris.cockpitng.util.labels.ResourcesLabelLocator" init-method="init" lazy-init="false">
+    <bean id="worldpayomsLabelLocator" class="com.hybris.cockpitng.util.labels.ResourcesLabelLocator" init-method="init"
+          lazy-init="false">
         <property name="location" value="/worldpayoms-backoffice-labels/"/>
         <property name="name" value="labels"/>
     </bean>

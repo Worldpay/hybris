@@ -1,5 +1,5 @@
 import { CxEvent } from '@spartacus/core';
-import { GooglePayMerchantConfiguration } from '../interfaces';
+import { GooglePayMerchantConfiguration } from '../models';
 
 /**
  * GooglePayMerchantConfigurationSetEvent is triggered when setGooglePayMerchantConfiguration is called

@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Image, OccConfig } from '@spartacus/core';
+import { inject, Injectable } from '@angular/core';
+import { Image } from '@spartacus/core';
 import { filter, take, tap } from 'rxjs/operators';
 import { WorldpayACHFacade } from '../facade/worldpay-ach.facade';
 import { ACHPaymentForm, ApmData, ApmPaymentDetails, OccApmData, OccApmDataConfiguration, PaymentMethod, WorldpayApmPaymentInfo } from '../interfaces';
@@ -9,18 +9,7 @@ import { BaseImageNormalizer } from './base-image.normalizer';
   providedIn: 'root'
 })
 export class ApmNormalizer extends BaseImageNormalizer<OccApmData, ApmData> {
-  /**
-   * Constructor
-   *
-   * @param config - The OccConfig object used to configure the backend URLs for media and OCC.
-   * @param worldpayACHFacade
-   */
-  constructor(
-    protected override config: OccConfig,
-    protected worldpayACHFacade: WorldpayACHFacade
-  ) {
-    super(config);
-  }
+  protected worldpayACHFacade: WorldpayACHFacade = inject(WorldpayACHFacade);
 
   /**
    * Converts OccApmData to ApmData

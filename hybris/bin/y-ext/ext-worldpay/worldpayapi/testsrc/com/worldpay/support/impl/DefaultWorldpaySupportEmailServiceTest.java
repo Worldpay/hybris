@@ -6,25 +6,28 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @UnitTest
-@RunWith (MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultWorldpaySupportEmailServiceTest {
 
+    @Spy
     @InjectMocks
-    private DefaultWorldpaySupportEmailService testObj = new DefaultWorldpaySupportEmailService();
+    private DefaultWorldpaySupportEmailService testObj;
 
     @Mock
     private WorldpaySupportEmailAppender worldpaySupportEmailAppenderMock1, worldpaySupportEmailAppenderMock2, worldpaySupportEmailAppenderMock3;
 
     @Test
     public void createEmailBodyShouldAppendContentFromAppenders() {
-        testObj.setEmailAppenders(Arrays.asList(worldpaySupportEmailAppenderMock1, worldpaySupportEmailAppenderMock2, worldpaySupportEmailAppenderMock3));
+        when(testObj.getEmailAppenders()).thenReturn(Arrays.asList(worldpaySupportEmailAppenderMock1, worldpaySupportEmailAppenderMock2, worldpaySupportEmailAppenderMock3));
 
         testObj.createEmailBody();
 

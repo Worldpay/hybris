@@ -1,7 +1,0 @@
-@import "../../../assets/styles/mixins";
-@import "@spartacus/checkout/base/styles/mixins/checkout-media-style";
-@import "@spartacus/checkout/base/styles/components/steps/review";
-
-y-worldpay-b2b-review-submit {
-  @extend %cx-review-submit !optional;
-}

@@ -9,7 +9,7 @@ import de.hybris.platform.omsbackoffice.renderers.NestedAttributeUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Required;
+
 import org.zkoss.zul.Listcell;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,8 +22,14 @@ import java.util.List;
 public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Listcell, ListColumn, Object> {
 
     private static final Logger LOG = LogManager.getLogger(WorldpayNullSafeCellRenderer.class);
-    private WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer;
-    private NestedAttributeUtils nestedAttributeUtils;
+    protected final WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer;
+    protected final NestedAttributeUtils nestedAttributeUtils;
+
+    public WorldpayNullSafeCellRenderer(final WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer,
+                                        final NestedAttributeUtils nestedAttributeUtils) {
+        this.defaultListCellRenderer = defaultListCellRenderer;
+        this.nestedAttributeUtils = nestedAttributeUtils;
+    }
 
     /**
      * Null safe rendering of a cell in a list
@@ -73,18 +79,9 @@ public class WorldpayNullSafeCellRenderer implements WidgetComponentRenderer<Lis
         return object instanceof Collection && CollectionUtils.isEmpty((Collection) object);
     }
 
-    @Required
-    public void setDefaultListCellRenderer(final WidgetComponentRenderer<Listcell, ListColumn, Object> defaultListCellRenderer) {
-        this.defaultListCellRenderer = defaultListCellRenderer;
-    }
-
     protected NestedAttributeUtils getNestedAttributeUtils() {
         return this.nestedAttributeUtils;
     }
 
-    @Required
-    public void setNestedAttributeUtils(final NestedAttributeUtils nestedAttributeUtils) {
-        this.nestedAttributeUtils = nestedAttributeUtils;
-    }
 }
 

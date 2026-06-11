@@ -10,10 +10,9 @@ import de.hybris.platform.commercewebservicescommons.errors.exceptions.RequestPa
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.exceptions.UnknownIdentifierException;
 import de.hybris.platform.webservicescommons.util.YSanitizer;
-import org.apache.commons.lang.StringUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -64,7 +63,6 @@ public class HttpRequestAddressWsDTOPopulator extends AbstractHttpRequestWsDTOPo
     private String addressPrefix;
 
     private final I18NFacade i18NFacade;
-
 
     public HttpRequestAddressWsDTOPopulator(final I18NFacade i18NFacade) {
         this.i18NFacade = i18NFacade;

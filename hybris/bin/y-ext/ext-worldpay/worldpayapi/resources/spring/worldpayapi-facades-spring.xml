@@ -25,23 +25,23 @@
     <alias name="defaultWorldpayApplePayPaymentCheckoutFacade" alias="worldpayApplePayPaymentCheckoutFacade"/>
     <bean id="defaultWorldpayApplePayPaymentCheckoutFacade"
           class="com.worldpay.facades.order.impl.DefaultWorldpayApplePayPaymentCheckoutFacade">
-        <property name="i18NFacade" ref="i18NFacade"/>
-        <property name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
-        <property name="userFacade" ref="userFacade"/>
-        <property name="worldpayPaymentCheckoutFacade" ref="worldpayPaymentCheckoutFacade"/>
-        <property name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
-        <property name="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"
+        <constructor-arg name="i18NFacade" ref="i18NFacade"/>
+        <constructor-arg name="checkoutCustomerStrategy" ref="checkoutCustomerStrategy"/>
+        <constructor-arg name="userFacade" ref="userFacade"/>
+        <constructor-arg name="worldpayPaymentCheckoutFacade" ref="worldpayPaymentCheckoutFacade"/>
+        <constructor-arg name="worldpayMerchantConfigDataFacade" ref="worldpayMerchantConfigDataFacade"/>
+        <constructor-arg name="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"
                   ref="applePayConfigDataToValidateMerchantRequestDTOPopulatingConverter"/>
     </bean>
 
     <alias name="defaultWorldpayKlarnaPaymentCheckoutFacade" alias="worldpayKlarnaPaymentCheckoutFacade"/>
     <bean id="defaultWorldpayKlarnaPaymentCheckoutFacade"
           class="com.worldpay.facades.order.impl.DefaultWorldpayKlarnaPaymentCheckoutFacade">
-        <property name="checkoutFacade" ref="checkoutFacade"/>
-        <property name="cartService" ref="cartService"/>
-        <property name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
-        <property name="orderInquiryService" ref="orderInquiryService"/>
-        <property name="worldpayOrderService" ref="worldpayOrderService"/>
+        <constructor-arg name="checkoutFacade" ref="checkoutFacade"/>
+        <constructor-arg name="cartService" ref="cartService"/>
+        <constructor-arg name="worldpayMerchantInfoService" ref="worldpayMerchantInfoService"/>
+        <constructor-arg name="orderInquiryService" ref="orderInquiryService"/>
+        <constructor-arg name="worldpayOrderService" ref="worldpayOrderService"/>
     </bean>
 
     <alias name="worldpayCheckoutFacadeDecorator" alias="worldpayCheckoutFacade"/>

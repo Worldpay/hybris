@@ -1,7 +1,6 @@
 package com.worldpay.service;
 
 import com.worldpay.exception.WorldpayException;
-import com.worldpay.data.Date;
 import com.worldpay.data.MerchantInfo;
 import com.worldpay.data.token.CardDetails;
 import com.worldpay.data.token.TokenRequest;
@@ -9,21 +8,22 @@ import com.worldpay.service.response.CreateTokenResponse;
 import com.worldpay.service.response.UpdateTokenResponse;
 import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.bootstrap.annotations.IntegrationTest;
-import de.hybris.platform.servicelayer.ServicelayerBaseTest;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import de.hybris.platform.servicelayer.ServicelayerJUnit5BaseTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @IntegrationTest
-public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTest {
+class UpdateTokenServiceRequestIntegrationTest extends ServicelayerJUnit5BaseTest {
 
     private static final String MERCHANT_CODE = "MERCHANT1ECOM";
     private static final String MERCHANT_PASSWORD = "3l3ph4nt_&_c4st!3";
@@ -35,16 +35,15 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
     @Resource(name = "worldpayServiceGateway")
     private WorldpayServiceGateway gateway;
 
-    @Before
-    public void setUp() throws Exception {
-        final MerchantInfo merchantInfo = new MerchantInfo();
+    @BeforeEach
+    void setUp() {
+        merchantInfo = new MerchantInfo();
         merchantInfo.setMerchantPassword(MERCHANT_PASSWORD);
         merchantInfo.setMerchantCode(MERCHANT_CODE);
-        this.merchantInfo = merchantInfo;
     }
 
     @Test
-    public void testUpdateTokenWithoutOrderWithShopperScope() throws WorldpayException {
+    void testUpdateTokenWithoutOrderWithShopperScope() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setMerchantToken(false);
         tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -57,18 +56,18 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
 
         final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithShopperScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails, authenticatedShopperId);
 
-        assertNotNull("updateTokenResponse is null!", updateTokenResponse);
-        assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());
-        assertNotNull("updateTokenResponse.getUpdateTokenReply is null!", updateTokenResponse.getUpdateTokenReply());
-        assertNotNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
+        assertNotNull(updateTokenResponse, "updateTokenResponse is null!");
+        assertFalse(updateTokenResponse.isError(), "Errors returned from authorisation code request");
+        assertNotNull(updateTokenResponse.getUpdateTokenReply(), "updateTokenResponse.getUpdateTokenReply is null!");
+        assertNotNull(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId(), "tokenId is null");
         assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
     }
 
     // This test may fail with the following error:
     // <paymentService version="1.4" merchantCode="MERCHANT1ECOM"><reply><error code="5">Maximum number of updates exceeded for this token</error></reply></paymentService>
     @Test
-    @Ignore("ignored because its unstable")
-    public void testUpdateTokenWithoutOrderWithMerchantScope() throws WorldpayException {
+    @Disabled("ignored because its unstable")
+    void testUpdateTokenWithoutOrderWithMerchantScope() throws WorldpayException {
         final TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setMerchantToken(true);
         tokenRequest.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -79,10 +78,10 @@ public class UpdateTokenServiceRequestIntegrationTest extends ServicelayerBaseTe
 
         final UpdateTokenResponse updateTokenResponse = WPSGTestHelper.updateTokenWithMerchantScope(gateway, merchantInfo, tokenRequest, paymentTokenId, cardDetails);
 
-        assertNotNull("updateTokenResponse is null!", updateTokenResponse);
-        assertFalse("Errors returned from authorisation code request", updateTokenResponse.isError());
-        assertNotNull("updateTokenResponse.getUpdateTokenReply is null!", updateTokenResponse.getUpdateTokenReply());
-        assertNotNull("tokenId is null", updateTokenResponse.getUpdateTokenReply().getPaymentTokenId());
+        assertNotNull(updateTokenResponse, "updateTokenResponse is null!");
+        assertFalse(updateTokenResponse.isError(), "Errors returned from authorisation code request");
+        assertNotNull(updateTokenResponse.getUpdateTokenReply(), "updateTokenResponse.getUpdateTokenReply is null!");
+        assertNotNull(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId(), "tokenId is null");
         assertThat(updateTokenResponse.getUpdateTokenReply().getPaymentTokenId()).isNotEmpty();
     }
 

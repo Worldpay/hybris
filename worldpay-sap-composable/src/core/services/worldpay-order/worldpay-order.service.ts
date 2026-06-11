@@ -32,8 +32,9 @@ import { WorldpayOrderFacade } from '../../facade';
 import { ACHPaymentForm, BrowserInfo, CSEPaymentForm, KeyValuePair, PlaceOrderResponse, ThreeDsDDCInfo, WorldpayChallengeResponse } from '../../interfaces';
 import { WorldpayCheckoutPaymentService } from '../worldpay-checkout/worldpay-checkout-payment.service';
 
+/* eslint-disable @angular-eslint/prefer-inject */
 @Injectable()
-export class WorldpayOrderService extends OrderService implements  WorldpayOrderFacade{
+export class WorldpayOrderService extends OrderService implements WorldpayOrderFacade {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   placedOrder: void | Observable<ComponentRef<any> | undefined>;

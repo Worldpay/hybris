@@ -34,9 +34,8 @@ import { WORLDPAY_GUARANTEED_PAYMENTS_FEATURE } from './worldpay-feature-name';
 export abstract class WorldpayGuaranteedPaymentsFacade {
 
   /**
-   * Returns the state of the Guaranteed Payments feature as a QueryState.
-   *
-   * @returns Observable<QueryState<boolean>>
+   * Returns the state of whether Guaranteed Payments is enabled, as a QueryState observable.
+   * @returns Observable of QueryState<boolean>
    * @since 6.4.0
    */
   abstract isGuaranteedPaymentsEnabledState(): Observable<QueryState<boolean>>;
@@ -50,18 +49,18 @@ export abstract class WorldpayGuaranteedPaymentsFacade {
   abstract isGuaranteedPaymentsEnabled(): Observable<boolean>;
 
   /**
-   * Sets the enabled state for Guaranteed Payments and emits an event.
+   * Sets the event for enabling/disabling Guaranteed Payments.
    *
-   * @param enabled boolean
+   * @param enabled - true to enable, false to disable
    * @since 2211.43.0
    */
   abstract setGuaranteedPaymentsEnabledEvent(enabled: boolean): void;
 
   /**
-   * Returns an observable for the Guaranteed Payments enabled event.
+   * Gets the event state for Guaranteed Payments enabled/disabled.
    *
    * @returns Observable<boolean>
-   * @since 2211.43.0
+   *   @since 2211.43.0
    */
   abstract getGuaranteedPaymentsEnabledEvent(): Observable<boolean>
 
@@ -76,13 +75,13 @@ export abstract class WorldpayGuaranteedPaymentsFacade {
   /**
    * Sets the session ID for Guaranteed Payments.
    *
-   * @param sessionId string
+   * @param sessionId - The session ID string
    * @since 2211.43.0
    */
   abstract setSessionId(sessionId: string): void
 
   /**
-   * Returns an observable for the session ID event.
+   * Gets the event state for the session ID.
    *
    * @returns Observable<string>
    * @since 2211.43.0

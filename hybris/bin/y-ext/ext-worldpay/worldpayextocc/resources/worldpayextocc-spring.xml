@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved.
--->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -13,7 +10,8 @@
     <context:annotation-config/>
 
     <alias name="defaultOCCWorldpayOrderFacade" alias="occWorldpayOrderFacade"/>
-    <bean id="defaultOCCWorldpayOrderFacade" class="com.worldpay.worldpayocccommons.facade.impl.DefaultOCCWorldpayOrderFacade"
+    <bean id="defaultOCCWorldpayOrderFacade"
+          class="com.worldpay.worldpayocccommons.facade.impl.DefaultOCCWorldpayOrderFacade"
           parent="defaultOrderFacade">
         <constructor-arg name="orderConverter" ref="orderConverter"/>
         <constructor-arg name="redirectAuthoriseResultConverter" ref="redirectAuthoriseResultConverter"/>

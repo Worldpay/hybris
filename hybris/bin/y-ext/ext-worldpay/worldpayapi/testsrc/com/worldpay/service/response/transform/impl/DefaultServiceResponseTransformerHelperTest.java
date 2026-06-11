@@ -178,7 +178,7 @@ public class DefaultServiceResponseTransformerHelperTest {
             exemptionResponseReverseConverterMock, cardBrandFactoryMock);
 
         cardHolderName = new CardHolderName();
-        cardHolderName.setvalue(CARD_HOLDER_NAME);
+        cardHolderName.setValue(CARD_HOLDER_NAME);
         cardBrand = new CardBrand();
 
         when(amountMock.getValue()).thenReturn(AMOUNT_VALUE);
@@ -303,9 +303,9 @@ public class DefaultServiceResponseTransformerHelperTest {
         fraudSightResponse.setScore(SCORE);
         fraudSightResponse.setMessage(LOW_RISK_LEVEL);
         final ReasonCode reasonCode1 = new ReasonCode();
-        reasonCode1.setvalue(REASON_CODE_1);
+        reasonCode1.setValue(REASON_CODE_1);
         final ReasonCode reasonCode2 = new ReasonCode();
-        reasonCode2.setvalue(REASON_CODE_2);
+        reasonCode2.setValue(REASON_CODE_2);
         when(reasonCodesMock.getReasonCode()).thenReturn(Arrays.asList(reasonCode1, reasonCode2));
         fraudSightResponse.setReasonCodes(reasonCodesMock);
     }
@@ -313,9 +313,9 @@ public class DefaultServiceResponseTransformerHelperTest {
     private void createScheme() {
         schemeResponse = new SchemeResponse();
         ResponseCode responseCode = new ResponseCode();
-        responseCode.setvalue(RESPONSE_CODE);
+        responseCode.setValue(RESPONSE_CODE);
         ActionCode actionCode = new ActionCode();
-        actionCode.setvalue(ACTION_CODE);
+        actionCode.setValue(ACTION_CODE);
         schemeResponse.setResponseCode(responseCode);
         schemeResponse.setActionCode(actionCode);
         schemeResponse.setTransactionIdentifier(TRANSACTION_ID);
@@ -445,17 +445,17 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void shouldBuildTokenReply() {
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(TOKEN_REASON);
+        tokenReason.setValue(TOKEN_REASON);
         tokenElements.add(tokenReason);
 
         final TokenDetails tokenDetail = new TokenDetails();
@@ -464,7 +464,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
         final PaymentTokenID paymentTokenID = new PaymentTokenID();
-        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        paymentTokenID.setValue(PAYMENT_TOKEN_ID);
         tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -483,7 +483,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final Error error = new Error();
         error.setCode(ERROR_CODE);
-        error.setvalue(ERROR_MESSAGE);
+        error.setValue(ERROR_MESSAGE);
         tokenElements.add(error);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -494,7 +494,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(TOKEN_REASON, tokenReply.getTokenReason());
 
         assertEquals(CARD_NUMBER, tokenReply.getPaymentInstrument().getCardNumber());
-        assertEquals(cardHolderName.getvalue(), tokenReply.getPaymentInstrument().getCardHolderName());
+        assertEquals(cardHolderName.getValue(), tokenReply.getPaymentInstrument().getCardHolderName());
         assertEquals(CVC, tokenReply.getPaymentInstrument().getCvc());
         assertEquals(CITY, tokenReply.getPaymentInstrument().getCardAddress().getCity());
         assertEquals(COUNTRY_CODE, tokenReply.getPaymentInstrument().getCardAddress().getCountryCode());
@@ -529,7 +529,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.CARTE_BLEUE.getMethodCode());
+        cardBrand.setValue(PaymentType.CARTE_BLEUE.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -546,7 +546,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.EFTPOS_AU.getMethodCode());
+        cardBrand.setValue(PaymentType.EFTPOS_AU.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -563,7 +563,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.EFTPOS_AU.getMethodCode());
+        cardBrand.setValue(PaymentType.EFTPOS_AU.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -580,7 +580,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.CARTE_BANCAIRE.getMethodCode());
+        cardBrand.setValue(PaymentType.CARTE_BANCAIRE.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -597,7 +597,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.VISA.getMethodCode());
+        cardBrand.setValue(PaymentType.VISA.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -614,7 +614,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.AIRPLUS.getMethodCode());
+        cardBrand.setValue(PaymentType.AIRPLUS.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -631,7 +631,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.AMERICAN_EXPRESS.getMethodCode());
+        cardBrand.setValue(PaymentType.AMERICAN_EXPRESS.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -648,7 +648,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.DANKORT.getMethodCode());
+        cardBrand.setValue(PaymentType.DANKORT.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -665,7 +665,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.DINERS.getMethodCode());
+        cardBrand.setValue(PaymentType.DINERS.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -682,7 +682,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.DISCOVER.getMethodCode());
+        cardBrand.setValue(PaymentType.DISCOVER.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -699,7 +699,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.JCB.getMethodCode());
+        cardBrand.setValue(PaymentType.JCB.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -716,7 +716,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.MAESTRO.getMethodCode());
+        cardBrand.setValue(PaymentType.MAESTRO.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -733,7 +733,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.UATP.getMethodCode());
+        cardBrand.setValue(PaymentType.UATP.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -750,7 +750,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -766,17 +766,17 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void shouldBuildTokenReplyWithoutCardHolderNameInPaymentInstrument() {
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(TOKEN_REASON);
+        tokenReason.setValue(TOKEN_REASON);
         tokenElements.add(tokenReason);
 
         final TokenDetails tokenDetail = new TokenDetails();
@@ -785,7 +785,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
         final PaymentTokenID paymentTokenID = new PaymentTokenID();
-        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        paymentTokenID.setValue(PAYMENT_TOKEN_ID);
         tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -804,7 +804,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final Error error = new Error();
         error.setCode(ERROR_CODE);
-        error.setvalue(ERROR_MESSAGE);
+        error.setValue(ERROR_MESSAGE);
         tokenElements.add(error);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -848,17 +848,17 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void shouldBuildTokenReplyWithoutCardAddress() {
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(TOKEN_REASON);
+        tokenReason.setValue(TOKEN_REASON);
         tokenElements.add(tokenReason);
 
         final TokenDetails tokenDetail = new TokenDetails();
@@ -867,7 +867,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
         final PaymentTokenID paymentTokenID = new PaymentTokenID();
-        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        paymentTokenID.setValue(PAYMENT_TOKEN_ID);
         tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -883,7 +883,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final Error error = new Error();
         error.setCode(ERROR_CODE);
-        error.setvalue(ERROR_MESSAGE);
+        error.setValue(ERROR_MESSAGE);
         tokenElements.add(error);
 
         final Date date = ((CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0)).getExpiryDate().getDate();
@@ -897,7 +897,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(TOKEN_REASON, tokenReply.getTokenReason());
 
         assertEquals(CARD_NUMBER, tokenReply.getPaymentInstrument().getCardNumber());
-        assertEquals(cardHolderName.getvalue(), tokenReply.getPaymentInstrument().getCardHolderName());
+        assertEquals(cardHolderName.getValue(), tokenReply.getPaymentInstrument().getCardHolderName());
         assertEquals(CVC, tokenReply.getPaymentInstrument().getCvc());
         assertNull(tokenReply.getPaymentInstrument().getCardAddress());
 
@@ -916,17 +916,17 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void shouldBuildTokenReplyWithoutExpiryDate() {
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(TOKEN_REASON);
+        tokenReason.setValue(TOKEN_REASON);
         tokenElements.add(tokenReason);
 
         final TokenDetails tokenDetail = new TokenDetails();
@@ -935,7 +935,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
         final PaymentTokenID paymentTokenID = new PaymentTokenID();
-        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        paymentTokenID.setValue(PAYMENT_TOKEN_ID);
         tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -953,7 +953,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final Error error = new Error();
         error.setCode(ERROR_CODE);
-        error.setvalue(ERROR_MESSAGE);
+        error.setValue(ERROR_MESSAGE);
         tokenElements.add(error);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -964,7 +964,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         assertEquals(TOKEN_REASON, tokenReply.getTokenReason());
 
         assertEquals(CARD_NUMBER, tokenReply.getPaymentInstrument().getCardNumber());
-        assertEquals(cardHolderName.getvalue(), tokenReply.getPaymentInstrument().getCardHolderName());
+        assertEquals(cardHolderName.getValue(), tokenReply.getPaymentInstrument().getCardHolderName());
 
         assertEquals(CVC, tokenReply.getPaymentInstrument().getCvc());
         assertEquals(CITY, tokenReply.getPaymentInstrument().getCardAddress().getCity());
@@ -992,16 +992,16 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void shouldBuildTokenReplyWithoutDerived() {
         final Token token = new Token();
         cardBrand = new CardBrand();
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(TOKEN_EVENT_REFERENCE);
 
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
         final TokenReason tokenReason = new TokenReason();
-        tokenReason.setvalue(TOKEN_REASON);
+        tokenReason.setValue(TOKEN_REASON);
         tokenElements.add(tokenReason);
 
         final TokenDetails tokenDetail = new TokenDetails();
@@ -1010,7 +1010,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         tokenExpiry.setDate(createDate());
         tokenDetail.setPaymentTokenExpiry(tokenExpiry);
         final PaymentTokenID paymentTokenID = new PaymentTokenID();
-        paymentTokenID.setvalue(PAYMENT_TOKEN_ID);
+        paymentTokenID.setValue(PAYMENT_TOKEN_ID);
         tokenDetail.setPaymentTokenID(paymentTokenID);
         tokenDetail.setReportingTokenID(REPORTING_TOKEN);
         tokenDetail.setTokenEventReference(TOKEN_EVENT_REFERENCE);
@@ -1026,7 +1026,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
         final Error error = new Error();
         error.setCode(ERROR_CODE);
-        error.setvalue(ERROR_MESSAGE);
+        error.setValue(ERROR_MESSAGE);
         tokenElements.add(error);
 
         final TokenReply tokenReply = testObj.buildTokenReply(token);
@@ -1081,7 +1081,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsNotInPaymentTypeNameMethods() {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
-        cardBrand.setvalue(PaymentType.MASTERCARD.getMethodCode());
+        cardBrand.setValue(PaymentType.MASTERCARD.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -1097,7 +1097,7 @@ public class DefaultServiceResponseTransformerHelperTest {
     public void buildTokenReply_shouldBuildTokenReplyWithCardContainingAnExistingPaymentTypeWhenCardBrandReceivedIsInPaymentTypeNameMethods() {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
-        cardBrand.setvalue(PaymentType.MASTERCARD.getMethodCode());
+        cardBrand.setValue(PaymentType.MASTERCARD.getMethodCode());
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(createCardDetails("ECMC-SSL", null));
@@ -1113,7 +1113,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final Token token = new Token();
         final List<Object> tokenElements = token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError();
 
-        cardBrand.setvalue(PaymentType.CARD_SSL.getMethodCode());
+        cardBrand.setValue(PaymentType.CARD_SSL.getMethodCode());
         when(cardBrandFactoryMock.createCardBrandWithValue(anyString())).thenReturn(cardBrand);
 
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
@@ -1183,7 +1183,7 @@ public class DefaultServiceResponseTransformerHelperTest {
         final CardAddress cardAddress = new CardAddress();
         final Address address = new Address();
         final CountryCode countryCode = new CountryCode();
-        countryCode.setvalue(COUNTRY_CODE);
+        countryCode.setValue(COUNTRY_CODE);
         address.setFirstName(CARD_HOLDER_NAME);
         address.setCity(CITY);
         address.setCountryCode(countryCode);
@@ -1193,26 +1193,26 @@ public class DefaultServiceResponseTransformerHelperTest {
         address.setTelephoneNumber(TELEPHONE_NUMBER);
         final List<Object> addressElements = address.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3();
         final Street street = new Street();
-        street.setvalue(STREET);
+        street.setValue(STREET);
         addressElements.add(street);
 
         final HouseName houseName = new HouseName();
-        houseName.setvalue(HOUSE_NAME);
+        houseName.setValue(HOUSE_NAME);
         addressElements.add(houseName);
         final HouseNumber houseNumber = new HouseNumber();
-        houseNumber.setvalue(HOUSE_NUMBER);
+        houseNumber.setValue(HOUSE_NUMBER);
         addressElements.add(houseNumber);
         final HouseNumberExtension houseNumberExtension = new HouseNumberExtension();
-        houseNumberExtension.setvalue(HOUSE_NUMBER_EXTENSION);
+        houseNumberExtension.setValue(HOUSE_NUMBER_EXTENSION);
         addressElements.add(houseNumberExtension);
         final Address1 address1 = new Address1();
-        address1.setvalue(ADDRESS_1);
+        address1.setValue(ADDRESS_1);
         addressElements.add(address1);
         final Address2 address2 = new Address2();
-        address2.setvalue(ADDRESS_2);
+        address2.setValue(ADDRESS_2);
         addressElements.add(address2);
         final Address3 address3 = new Address3();
-        address3.setvalue(ADDRESS_3);
+        address3.setValue(ADDRESS_3);
         addressElements.add(address3);
 
         cardAddress.setAddress(address);
@@ -1256,7 +1256,7 @@ public class DefaultServiceResponseTransformerHelperTest {
 
     private Cvc createCVC() {
         final Cvc cvc = new Cvc();
-        cvc.setvalue(CVC);
+        cvc.setValue(CVC);
         return cvc;
     }
 
@@ -1269,14 +1269,14 @@ public class DefaultServiceResponseTransformerHelperTest {
     private Derived createDerived(final String cardBrand, final String cardCoBrand) {
         final Derived derived = new Derived();
         this.cardBrand = new CardBrand();
-        this.cardBrand.setvalue(cardBrand);
+        this.cardBrand.setValue(cardBrand);
         derived.setCardBrand(this.cardBrand);
         derived.setCardCoBrand(cardCoBrand);
         derived.setCardSubBrand(CARD_SUB_BRAND);
         derived.setIssuerCountryCode(ISSUER_COUNTRY_CODE);
         derived.setObfuscatedPAN(CARD_NUMBER);
         final Bin bin = new Bin();
-        bin.setvalue(BIN);
+        bin.setValue(BIN);
         derived.setBin(bin);
         return derived;
     }

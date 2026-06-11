@@ -95,7 +95,7 @@ public class CardDetailsPopulatorTest {
 
     @Test
     public void populate_ShouldPopulateCardDetails() {
-        cardBrand.setvalue(CARD_BRAND);
+        cardBrand.setValue(CARD_BRAND);
         when(sourceMock.getCardAddress()).thenReturn(cardAddressMock);
         when(sourceMock.getCardBrand()).thenReturn(CARD_BRAND);
         when(sourceMock.getCardHolderName()).thenReturn(CARD_HOLDER_NAME);
@@ -112,8 +112,8 @@ public class CardDetailsPopulatorTest {
         testObj.populate(sourceMock, targetMock);
 
         assertThat(targetMock.getCardAddress().getAddress()).isEqualTo(internalAddressMock);
-        assertThat(targetMock.getCardHolderName().getvalue()).isEqualTo(CARD_HOLDER_NAME);
-        assertThat(targetMock.getCvc().getvalue()).isEqualTo(CVC_NUMBER);
+        assertThat(targetMock.getCardHolderName().getValue()).isEqualTo(CARD_HOLDER_NAME);
+        assertThat(targetMock.getCvc().getValue()).isEqualTo(CVC_NUMBER);
         assertThat(targetMock.getDerived().getObfuscatedPAN()).isEqualTo(CARD_NUMBER);
         assertThat(targetMock.getExpiryDate().getDate()).isEqualTo(internalDateMock);
     }

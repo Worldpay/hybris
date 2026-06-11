@@ -9,10 +9,9 @@ import de.hybris.platform.fraud.model.FraudReportModel;
 import de.hybris.platform.orderhistory.model.OrderHistoryEntryModel;
 import de.hybris.platform.orderprocessing.model.OrderProcessModel;
 import de.hybris.platform.servicelayer.util.ServicesUtil;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 
 import static de.hybris.platform.basecommerce.enums.FraudStatus.CHECK;
 
@@ -63,7 +62,6 @@ public class WorldpayFraudCheckOrderInternalAction extends WorldpayAbstractFraud
         return fraudService;
     }
 
-    @Required
     public void setFraudService(final FraudService fraudService) {
         this.fraudService = fraudService;
     }
@@ -72,7 +70,6 @@ public class WorldpayFraudCheckOrderInternalAction extends WorldpayAbstractFraud
         return providerName;
     }
 
-    @Required
     public void setProviderName(final String providerName) {
         this.providerName = providerName;
     }

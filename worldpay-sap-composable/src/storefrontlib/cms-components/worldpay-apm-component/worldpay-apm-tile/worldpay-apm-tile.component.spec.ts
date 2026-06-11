@@ -31,11 +31,9 @@ describe('WorldpayApmTileComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayApmTileComponent,
-      ],
       imports: [
-        MediaModule
+        MediaModule,
+        WorldpayApmTileComponent
       ],
       providers: [
         {
@@ -43,8 +41,7 @@ describe('WorldpayApmTileComponent', () => {
           useClass: MockWorldpayApmService
         },
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <extensioninfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="extensioninfo.xsd">
-       
-    <extension abstractclassprefix="Generated" classprefix="WorldpayHac" managername="WorldpayHacManager" managersuperclass="de.hybris.platform.jalo.extension.Extension" name="worldpayhac" usemaven="false">
-              
+        
+    <extension abstractclassprefix="Generated" classprefix="WorldpayHac" description="worldpayhac extension" jaloLogicFree="true" name="worldpayhac">
+                
         <requires-extension name="worldpayapi"/>
-              
+                
         <coremodule generated="true" manager="worldpayhac.jalo.WorldpayHacManager" packageroot="worldpayhac"/>
-              
+                
         <meta key="hac-module" value="true"/>
-           
+            
     </extension>
     
 </extensioninfo>

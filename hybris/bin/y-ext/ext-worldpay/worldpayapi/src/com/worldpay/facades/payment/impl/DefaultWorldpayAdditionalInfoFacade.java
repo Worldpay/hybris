@@ -4,7 +4,7 @@ import com.worldpay.facades.payment.WorldpayAdditionalInfoFacade;
 import com.worldpay.order.data.WorldpayAdditionalInfoData;
 import com.worldpay.service.payment.WorldpayAdditionalInfoService;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * {@inheritDoc}

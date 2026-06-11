@@ -36,9 +36,7 @@ describe('WorldpayFraudsightRiskComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayFraudsightRiskComponent,
-      ],
+      imports: [WorldpayFraudsightRiskComponent],
       providers: [
         WindowRef,
         {

@@ -42,7 +42,7 @@ import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.builders.WebformRefundBuilder;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import com.worldpay.worldpayresponsemock.responses.WorldpayNotificationResponseBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,7 +57,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
     private static final String IN_PROCESS_AUTHORISED = "IN_PROCESS_AUTHORISED";
     private static final String NO_TOKEN = "NoToken";
     private static final String TOKEN_SELECTED_TYPE_PAYPAL = "Paypal";
-    public static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
+    private static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
 
     protected final PaymentServiceMarshaller paymentServiceMarshaller;
 
@@ -170,7 +170,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
             responseForm.getFraudSightReasonCodes()
                 .forEach(reasonCodeValue -> {
                     final ReasonCode reasonCode = new ReasonCode();
-                    reasonCode.setvalue(reasonCodeValue);
+                    reasonCode.setValue(reasonCodeValue);
                     reasonCodes.getReasonCode().add(reasonCode);
                 });
 

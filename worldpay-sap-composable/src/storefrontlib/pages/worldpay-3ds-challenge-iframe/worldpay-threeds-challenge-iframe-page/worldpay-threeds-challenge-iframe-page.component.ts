@@ -3,10 +3,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService, WindowRef } from '@spartacus/core';
 
-@Component({
-  templateUrl: './worldpay-threeds-challenge-iframe-page.component.html',
-  standalone: false
-})
+@Component({ templateUrl: './worldpay-threeds-challenge-iframe-page.component.html' })
 export class WorldpayThreedsChallengeIframePageComponent implements OnInit, AfterViewInit {
   action: SafeResourceUrl;
   md: string;
@@ -16,13 +13,9 @@ export class WorldpayThreedsChallengeIframePageComponent implements OnInit, Afte
   private readonly JWT_ROUTE_PARAM: string = 'jwt';
   private readonly FORM_SELECTOR: string = '#challengeForm';
   private logger: LoggerService = inject(LoggerService);
-
-  constructor(
-    private sanitizer: DomSanitizer,
-    private route: ActivatedRoute,
-    private winRef: WindowRef
-  ) {
-  }
+  private sanitizer: DomSanitizer = inject(DomSanitizer);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private winRef: WindowRef = inject(WindowRef);
 
   ngOnInit(): void {
     this.action = this.sanitizer.bypassSecurityTrustResourceUrl(

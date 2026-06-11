@@ -26,8 +26,8 @@ import com.worldpay.threedsecureflexenums.ChallengeWindowSizeEnum;
 import com.worldpay.util.WorldpayInternalModelTransformerUtil;
 import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.core.model.user.AddressModel;
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.lang.StringUtils;
+import de.hybris.platform.servicelayer.dto.converter.ConversionException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;

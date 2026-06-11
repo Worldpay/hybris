@@ -2,7 +2,7 @@ package com.worldpay.support.appender.impl;
 
 import com.worldpay.support.appender.WorldpaySupportEmailAppender;
 import de.hybris.platform.servicelayer.config.ConfigurationService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static java.text.MessageFormat.format;
 

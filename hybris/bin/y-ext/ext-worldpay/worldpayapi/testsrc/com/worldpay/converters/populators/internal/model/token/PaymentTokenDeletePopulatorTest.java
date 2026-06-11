@@ -46,9 +46,9 @@ public class PaymentTokenDeletePopulatorTest {
         final com.worldpay.internal.model.PaymentTokenDelete targetMock = new com.worldpay.internal.model.PaymentTokenDelete();
         testObj.populate(sourceMock, targetMock);
 
-        assertThat(targetMock.getAuthenticatedShopperID().getvalue()).isEqualTo(SHOPPER_ID);
-        assertThat(targetMock.getPaymentTokenID().getvalue()).isEqualTo(TOKEN_ID);
+        assertThat(targetMock.getAuthenticatedShopperID().getValue()).isEqualTo(SHOPPER_ID);
+        assertThat(targetMock.getPaymentTokenID().getValue()).isEqualTo(TOKEN_ID);
         assertThat(targetMock.getTokenEventReference()).isEqualTo(tokenRequestMock.getTokenEventReference());
-        assertThat(targetMock.getTokenReason().getvalue()).isEqualTo(tokenRequestMock.getTokenReason());
+        assertThat(targetMock.getTokenReason().getValue()).isEqualTo(tokenRequestMock.getTokenReason());
     }
 }

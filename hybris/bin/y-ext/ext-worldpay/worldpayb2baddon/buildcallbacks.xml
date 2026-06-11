@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
- [y] hybris Platform
-
- Copyright (c) 2000-2016 hybris AG
- All rights reserved.
-
- This software is the confidential and proprietary information of hybris
- ("Confidential Information"). You shall not disclose such Confidential
- Information and shall use it only in accordance with the terms of the
- license agreement you entered into with hybris.
-
-
---><!--
  All hybris buildcallbacks.xml macrodefinitions:
 
  Build/Documentation
@@ -106,9 +94,10 @@
     <macrodef name="_after_yunitweb">
         <sequential>
             <echo level="info" message="# worldpayb2baddon - Renaming generated test report"/>
-            <move file="${HYBRIS_LOG_DIR}/junit/TESTS-TestSuites.xml" tofile="${HYBRIS_LOG_DIR}/junit/WEBTESTS-TestSuites.xml"/>
-            <delete dir="${ext.worldpayaddonbackoffice.path}/web" />
-            <echo message="${ext.worldpayaddonbackoffice.path}/web deleted - used during allwebtests" />
+            <move file="${HYBRIS_LOG_DIR}/junit/TESTS-TestSuites.xml"
+                  tofile="${HYBRIS_LOG_DIR}/junit/WEBTESTS-TestSuites.xml"/>
+            <delete dir="${ext.worldpayaddonbackoffice.path}/web"/>
+            <echo message="${ext.worldpayaddonbackoffice.path}/web deleted - used during allwebtests"/>
         </sequential>
     </macrodef>
 </project>

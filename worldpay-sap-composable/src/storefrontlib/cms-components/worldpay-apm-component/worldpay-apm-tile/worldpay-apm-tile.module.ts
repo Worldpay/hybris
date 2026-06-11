@@ -1,15 +1,12 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { MediaModule } from '@spartacus/storefront';
 import { WorldpayApmTileComponent } from './worldpay-apm-tile.component';
 
+/**
+ * @since 221121.11.0  `WorldpayApmTileComponent` configured as standalone component.
+ */
 @NgModule({
-  declarations: [WorldpayApmTileComponent],
   exports: [WorldpayApmTileComponent],
-  imports: [
-    CommonModule,
-    MediaModule
-  ]
+  imports: [WorldpayApmTileComponent]
 })
 export class WorldpayApmTileModule {
 }

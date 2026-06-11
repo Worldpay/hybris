@@ -1,9 +1,9 @@
 package com.worldpay.forms;
 
+import java.time.LocalDate;
+
 import de.hybris.platform.acceleratorstorefrontcommons.forms.AddressForm;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 public class PaymentDetailsForm {
 
@@ -13,8 +13,8 @@ public class PaymentDetailsForm {
     private String paymentMethod;
     private AddressForm billingAddress;
     private String shopperBankCode;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateOfBirth;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dateOfBirth;
     private boolean dobRequired;
     private ACHForm achForm;
 
@@ -67,11 +67,11 @@ public class PaymentDetailsForm {
         this.shopperBankCode = shopperBankCode;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(final Date dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

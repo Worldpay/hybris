@@ -14,7 +14,7 @@ public class DefaultWorldpayCardBrandFactory implements CardBrandFactory {
         }
 
         final CardBrand newCardBrand = new CardBrand();
-        newCardBrand.setvalue(inputCode);
+        newCardBrand.setValue(inputCode);
         return newCardBrand;
     }
 }

@@ -19,8 +19,9 @@ import de.hybris.platform.payment.dto.TransactionStatus;
 import de.hybris.platform.payment.enums.PaymentTransactionType;
 import de.hybris.platform.payment.model.PaymentTransactionModel;
 import de.hybris.platform.servicelayer.i18n.L10NService;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNullStandardMessage;
-import static de.hybris.platform.util.localization.Localization.getLocalizedString;
 
 /**
  * A decorator for the DefaultB2BAcceleratorCheckoutFacade in order to modify the placeOrder(PlaceOrderData) method.
@@ -57,7 +57,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
     public <T extends AbstractOrderData> T placeOrder(final PlaceOrderData placeOrderData) throws InvalidCartException {
         // term must be checked
         if (!placeOrderData.getTermsCheck().equals(Boolean.TRUE)) {
-            throw new EntityValidationException(getLocalizedString(CART_CHECKOUT_TERM_UNCHECKED));
+            throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_TERM_UNCHECKED));
         }
         isAuthorisedNow(placeOrderData);
 
@@ -168,19 +168,19 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
         final boolean valid = true;
 
         if (!cartData.isCalculated()) {
-            throw new EntityValidationException(getLocalizedString(CART_CHECKOUT_NOT_CALCULATED));
+            throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_NOT_CALCULATED));
         }
 
         if (cartData.getDeliveryAddress() == null) {
-            throw new EntityValidationException(getLocalizedString(CART_CHECKOUT_DELIVERYADDRESS_INVALID));
+            throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_DELIVERYADDRESS_INVALID));
         }
 
         if (cartData.getDeliveryMode() == null) {
-            throw new EntityValidationException(getLocalizedString(CART_CHECKOUT_DELIVERYMODE_INVALID));
+            throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_DELIVERYMODE_INVALID));
         }
 
         if (Boolean.TRUE.equals(placeOrderData.getNegotiateQuote()) && !cartData.getQuoteAllowed()) {
-            throw new EntityValidationException(getLocalizedString(CART_CHECKOUT_QUOTE_REQUIREMENTS_NOT_SATISFIED));
+            throw new EntityValidationException(l10NService.getLocalizedString(CART_CHECKOUT_QUOTE_REQUIREMENTS_NOT_SATISFIED));
         }
 
         return valid;
@@ -192,7 +192,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
 
     public void setL10NService(L10NService l10NService) {
         this.l10NService = l10NService;
-        }
+    }
 
     public DefaultB2BAcceleratorCheckoutFacade getB2BAcceleratorCheckoutFacade() {
         return b2BAcceleratorCheckoutFacade;
@@ -200,7 +200,7 @@ public class WorldpayB2BAcceleratorCheckoutFacadeDecorator extends DefaultB2BAcc
 
     public void setB2BAcceleratorCheckoutFacade(DefaultB2BAcceleratorCheckoutFacade b2BAcceleratorCheckoutFacade) {
         this.b2BAcceleratorCheckoutFacade = b2BAcceleratorCheckoutFacade;
-        }
+    }
 
     @Override
     public CommerceCheckoutService getCommerceCheckoutService() {

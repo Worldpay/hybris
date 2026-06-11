@@ -9,6 +9,7 @@ import { FormErrorsModule } from '@spartacus/storefront';
 import { BehaviorSubject, of } from 'rxjs';
 import { MockActiveCartFacade, MockUserIdService, MockWorldpayBillingAddressComponent, MockWorldpayConnector } from 'worldpay-sap-composable-tests';
 import { AccountTypes, PaymentMethod, WorldpayACHFacade, WorldpayBillingAddressFormService, WorldpayConnector } from '../../../../core';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 import { WorldpayApmSubmitButtonsComponent } from '../worldpay-apm-submit-buttons/worldpay-apm-submit-buttons.component';
 import { WorldpayApmAchComponent } from './worldpay-apm-ach.component';
 import SpyObj = jasmine.SpyObj;
@@ -58,16 +59,13 @@ describe('WorldpayApmAchComponent', () => {
     worldpayACHFacade = jasmine.createSpyObj('WorldpayACHFacade', ['getACHBankAccountTypesState', 'getACHPaymentFormValue', 'setACHPaymentFormValue']);
 
     await TestBed.configureTestingModule({
-      declarations: [
-        WorldpayApmAchComponent,
-        MockWorldpayBillingAddressComponent,
-        WorldpayApmSubmitButtonsComponent
-      ],
       imports: [
         I18nTestingModule,
         FormErrorsModule,
         ReactiveFormsModule,
         NgSelectModule,
+        WorldpayApmAchComponent,
+        WorldpayApmSubmitButtonsComponent,
       ],
       providers: [
         EventService,
@@ -92,6 +90,13 @@ describe('WorldpayApmAchComponent', () => {
           useClass: MockWorldpayConnector
         },
       ],
+    }).overrideComponent(WorldpayApmAchComponent, {
+      remove: {
+        imports: [WorldpayBillingAddressComponent]
+      },
+      add: {
+        imports: [MockWorldpayBillingAddressComponent]
+      }
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorldpayApmAchComponent);

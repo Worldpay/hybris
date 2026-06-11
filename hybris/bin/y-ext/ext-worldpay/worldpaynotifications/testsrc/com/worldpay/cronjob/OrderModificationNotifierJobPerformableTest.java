@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class OrderModificationNotifierJobPerformableTest {
     @InjectMocks
-    private OrderModificationNotifierJobPerformable testObj = new OrderModificationNotifierJobPerformable();
+    private OrderModificationNotifierJobPerformable testObj;
     @Mock
     private NotifyUnprocessedOrderModificationsCronJobModel notifyUnprocessedOrderModificationsCronJobModelMock;
     @Mock

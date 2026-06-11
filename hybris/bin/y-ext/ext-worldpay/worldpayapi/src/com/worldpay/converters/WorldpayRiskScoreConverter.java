@@ -4,7 +4,7 @@ import com.worldpay.model.WorldpayRiskScoreModel;
 import com.worldpay.data.RiskScore;
 import de.hybris.platform.converters.impl.AbstractConverter;
 import de.hybris.platform.servicelayer.model.ModelService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.util.Optional;
 
@@ -46,7 +46,6 @@ public class WorldpayRiskScoreConverter extends AbstractConverter<RiskScore, Wor
         Optional.ofNullable(riskScore.getScore()).map(Double::valueOf).ifPresent(worldpayRiskScoreModel::setScore);
     }
 
-    @Required
     public void setModelService(final ModelService modelService) {
         this.modelService = modelService;
     }

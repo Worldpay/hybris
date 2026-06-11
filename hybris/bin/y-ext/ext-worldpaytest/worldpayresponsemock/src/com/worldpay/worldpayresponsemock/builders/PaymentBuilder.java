@@ -2,11 +2,11 @@ package com.worldpay.worldpayresponsemock.builders;
 
 
 import com.worldpay.internal.model.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 /**
  * Builder for the internal Payment model generated from the Worldpay DTD
@@ -289,7 +289,7 @@ public final class PaymentBuilder {
             payment.setAVSResultCode(avsResultCode);
 
             final CardHolderName cardHolderName = new CardHolderName();
-            cardHolderName.setvalue(this.cardHolderNameValue);
+            cardHolderName.setValue(this.cardHolderNameValue);
             payment.setCardHolderName(cardHolderName);
 
             payment.setIssuerCountryCode("CH");

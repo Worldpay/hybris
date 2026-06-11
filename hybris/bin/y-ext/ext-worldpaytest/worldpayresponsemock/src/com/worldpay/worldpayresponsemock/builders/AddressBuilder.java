@@ -115,20 +115,20 @@ public final class AddressBuilder {
 
         final List<Object> addressDetails = address.getStreetOrHouseNameOrHouseNumberOrHouseNumberExtensionOrAddress1OrAddress2OrAddress3();
         final Address1 addressDetailsAddress1 = new Address1();
-        addressDetailsAddress1.setvalue(this.address1);
+        addressDetailsAddress1.setValue(this.address1);
         addressDetails.add(addressDetailsAddress1);
         final Address2 addressDetailsAddress2 = new Address2();
-        addressDetailsAddress2.setvalue(this.address2);
+        addressDetailsAddress2.setValue(this.address2);
         addressDetails.add(addressDetailsAddress2);
         final Address3 addressDetailsAddress3 = new Address3();
-        addressDetailsAddress3.setvalue(this.address3);
+        addressDetailsAddress3.setValue(this.address3);
         addressDetails.add(addressDetailsAddress3);
         address.setLastName(this.lastName);
         address.setPostalCode(this.postalCode);
         address.setCity(this.city);
 
         final CountryCode internalCountryCode = new CountryCode();
-        internalCountryCode.setvalue(this.countryCode);
+        internalCountryCode.setValue(this.countryCode);
         address.setCountryCode(internalCountryCode);
         return address;
     }

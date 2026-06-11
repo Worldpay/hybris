@@ -241,7 +241,7 @@
 
     <alias name="defaultWorldpaySupportEmailService" alias="worldpaySupportEmailService"/>
     <bean id="defaultWorldpaySupportEmailService" class="com.worldpay.support.impl.DefaultWorldpaySupportEmailService">
-        <property name="emailAppenders">
+        <constructor-arg name="emailAppenders">
             <list>
                 <ref bean="hybrisVersionAppender"/>
                 <ref bean="hybrisAddonVersionAppender"/>
@@ -253,7 +253,7 @@
                 <ref bean="extensionListAppender"/>
                 <ref bean="clusterInformationAppender"/>
             </list>
-        </property>
+        </constructor-arg>
     </bean>
 
     <alias name="defaultWorldpayPrimeRoutingService" alias="worldpayPrimeRoutingService"/>
@@ -332,7 +332,7 @@
     <alias name="defaultWorldpayDynamicInteractionResolverService" alias="worldpayDynamicInteractionResolverService"/>
     <bean id="defaultWorldpayDynamicInteractionResolverService"
           class="com.worldpay.service.interaction.impl.DefaultWorldpayDynamicInteractionResolverService">
-        <property name="assistedServiceService" ref="assistedServiceService"/>
+        <constructor-arg name="assistedServiceService" ref="assistedServiceService"/>
     </bean>
 
     <alias name="defaultWorldpayJsonWebTokenService" alias="worldpayJsonWebTokenService"/>

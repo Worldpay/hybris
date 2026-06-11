@@ -1,5 +1,10 @@
 package com.worldpay.cronjob;
 
+import java.util.Collection;
+import java.util.List;
+
+import static de.hybris.platform.payment.dto.TransactionStatus.REVIEW;
+
 import com.worldpay.core.dao.WorldpayPaymentTransactionDao;
 import com.worldpay.transaction.WorldpayPaymentTransactionService;
 import de.hybris.platform.core.model.order.OrderModel;
@@ -14,32 +19,35 @@ import de.hybris.platform.servicelayer.cronjob.AbstractJobPerformable;
 import de.hybris.platform.servicelayer.cronjob.PerformResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.support.TransactionOperations;
-
-import java.util.Collection;
-import java.util.List;
-
-import static de.hybris.platform.payment.dto.TransactionStatus.REVIEW;
 
 /**
  * The APM Order Timeout Job Performable that sets the Payment Transaction Entries status to REVIEW for all timed out pending orders with APM as the payment type
  * and awakens the order process of the orders.
  */
-public class APMOrderTimeoutJobPerformable extends AbstractJobPerformable {
+public class APMOrderTimeoutJobPerformable extends AbstractJobPerformable<CronJobModel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(APMOrderTimeoutJobPerformable.class);
 
-    private WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
-    private BusinessProcessService businessProcessService;
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
-    private TransactionOperations transactionTemplate;
+    protected final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao;
+    protected final BusinessProcessService businessProcessService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final TransactionOperations transactionTemplate;
+
+    public APMOrderTimeoutJobPerformable(final WorldpayPaymentTransactionDao worldpayPaymentTransactionDao,
+                                         final BusinessProcessService businessProcessService,
+                                         final WorldpayPaymentTransactionService worldpayPaymentTransactionService,
+                                         final TransactionOperations transactionTemplate) {
+        this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
+        this.businessProcessService = businessProcessService;
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+        this.transactionTemplate = transactionTemplate;
+    }
 
     @Override
     public PerformResult perform(final CronJobModel cronJobModel) {
         LOG.debug("Executing Order Timeout cronjob for timed out pending payment transactions");
         final List<PaymentTransactionModel> cancellablePendingAPMPaymentTransactions = worldpayPaymentTransactionDao.findCancellablePendingAPMPaymentTransactions();
-        CronJobResult cronJobResult = CronJobResult.SUCCESS;
         for (final PaymentTransactionModel paymentTransactionModel : cancellablePendingAPMPaymentTransactions) {
             transactionTemplate.execute(transactionStatus -> {
                 worldpayPaymentTransactionService.updateEntriesStatus(paymentTransactionModel.getEntries(), REVIEW.name());
@@ -54,27 +62,6 @@ public class APMOrderTimeoutJobPerformable extends AbstractJobPerformable {
                 businessProcessService.triggerEvent(eventName);
             }
         }
-        return new PerformResult(cronJobResult, CronJobStatus.FINISHED);
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionDao(WorldpayPaymentTransactionDao worldpayPaymentTransactionDao) {
-        this.worldpayPaymentTransactionDao = worldpayPaymentTransactionDao;
-    }
-
-    @Required
-    public void setBusinessProcessService(final BusinessProcessService businessProcessService) {
-        this.businessProcessService = businessProcessService;
-    }
-
-    @Required
-    public void setWorldpayPaymentTransactionService(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
-
-    @Required
-    public void setTransactionTemplate(final TransactionOperations transactionTemplate) {
-        this.transactionTemplate = transactionTemplate;
+        return new PerformResult(CronJobResult.SUCCESS, CronJobStatus.FINISHED);
     }
 }
-

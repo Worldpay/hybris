@@ -1,62 +1,56 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
-  ~ [y] hybris Platform
-  ~ 
-  ~ Copyright (c) 2000-2016 SAP SE
-  ~ All rights reserved.
-  ~ 
-  ~ This software is the confidential and proprietary information of SAP 
-  ~ Hybris ("Confidential Information"). You shall not disclose such 
-  ~ Confidential Information and shall use it only in accordance with the 
-  ~ terms of the license agreement you entered into with SAP Hybris.
-  -->
-<items 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xsi:noNamespaceSchemaLocation="items.xsd">
-	<itemtypes>
-		<typegroup name="cms">
-			<itemtype code="WorldpayCCComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayCCComponent">
-				<attributes>
-					<attribute type="localized:Media" qualifier="media">
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
+<items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="items.xsd">
+    <itemtypes>
+        <typegroup name="cms">
+            <itemtype code="WorldpayCCComponent" autocreate="true" generate="true"
+                      jaloclass="com.worldpay.jalo.WorldpayCCComponent"
+                      extends="SimpleCMSComponent">
+                <attributes>
+                    <attribute type="localized:Media" qualifier="media">
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
 
-			<itemtype code="WorldpayGooglePayComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayGooglePayComponent">
-				<attributes>
-					<attribute type="localized:Media" qualifier="media">
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
+            <itemtype code="WorldpayGooglePayComponent" autocreate="true" generate="true"
+                      jaloclass="com.worldpay.jalo.WorldpayGooglePayComponent"
+                      extends="SimpleCMSComponent">
+                <attributes>
+                    <attribute type="localized:Media" qualifier="media">
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
 
-			<itemtype code="WorldpayApplePayComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayApplePayComponent">
-				<attributes>
-					<attribute type="localized:Media" qualifier="media">
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
+            <itemtype code="WorldpayApplePayComponent" autocreate="true" generate="true"
+                      jaloclass="com.worldpay.jalo.WorldpayApplePayComponent"
+                      extends="SimpleCMSComponent">
+                <attributes>
+                    <attribute type="localized:Media" qualifier="media">
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
 
-			<itemtype code="WorldpayAPMComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayAPMComponent">
-				<attributes>
-					<attribute qualifier="apmConfiguration" type="WorldpayAPMConfiguration">
-						<persistence type="property"/>
-					</attribute>
-					<attribute type="localized:Media" qualifier="media">
-						<persistence type="property" />
-					</attribute>
-				</attributes>
-			</itemtype>
+            <itemtype code="WorldpayAPMComponent" autocreate="true" generate="true"
+                      jaloclass="com.worldpay.jalo.WorldpayAPMComponent"
+                      extends="SimpleCMSComponent">
+                <attributes>
+                    <attribute qualifier="apmConfiguration" type="WorldpayAPMConfiguration">
+                        <persistence type="property"/>
+                    </attribute>
+                    <attribute type="localized:Media" qualifier="media">
+                        <persistence type="property"/>
+                    </attribute>
+                </attributes>
+            </itemtype>
 
-			<itemtype code="WorldpayGuaranteedPaymentsComponent" autocreate="true" generate="true"
-					  extends="SimpleCMSComponent" jaloclass="com.worldpay.jalo.WorldpayGuaranteedPaymentsComponent">
-			</itemtype>
+            <itemtype code="WorldpayGuaranteedPaymentsComponent" autocreate="true" generate="true"
+                      jaloclass="com.worldpay.jalo.WorldpayGuaranteedPaymentsComponent"
+                      extends="SimpleCMSComponent">
+            </itemtype>
 
-		</typegroup>
-	</itemtypes>
+        </typegroup>
+    </itemtypes>
 </items>

@@ -1,5 +1,5 @@
 /* eslint-disable no-prototype-builtins */
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Params, Router, UrlTree } from '@angular/router';
 import { GlobalMessageService, GlobalMessageType, SemanticPathService } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
@@ -11,21 +11,10 @@ import { WorldpayOrderFacade } from '../facade';
   providedIn: 'root',
 })
 export class WorldpayCheckoutPaymentRedirectGuard {
-
-  /**
-   * Constructor for WorldpayCheckoutPaymentRedirectGuard.
-   * @param {Router} router - The Angular Router service.
-   * @param {WorldpayOrderFacade} worldpayOrderFacade - The service for handling Worldpay orders.
-   * @param {SemanticPathService} semanticPathService - The service for handling semantic paths.
-   * @param {GlobalMessageService} globalMessageService - The service for displaying global messages.
-   */
-  constructor(
-    protected router: Router,
-    protected worldpayOrderFacade: WorldpayOrderFacade,
-    protected semanticPathService: SemanticPathService,
-    protected globalMessageService: GlobalMessageService,
-  ) {
-  }
+  protected router: Router = inject(Router);
+  protected worldpayOrderFacade: WorldpayOrderFacade = inject(WorldpayOrderFacade);
+  protected semanticPathService: SemanticPathService = inject(SemanticPathService);
+  protected globalMessageService: GlobalMessageService = inject(GlobalMessageService);
 
   /**
    * Determines if the route can be activated based on the query parameters.

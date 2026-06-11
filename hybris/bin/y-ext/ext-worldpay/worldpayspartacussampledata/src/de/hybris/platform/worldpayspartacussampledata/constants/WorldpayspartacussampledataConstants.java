@@ -1,6 +1,6 @@
 /*
  *  
- * Copyright (c) 2021 SAP SE or an SAP affiliate company. All rights reserved.
+ * Copyright (c) 2026 SAP SE or an SAP affiliate company. All rights reserved.
  */
 package de.hybris.platform.worldpayspartacussampledata.constants;
 

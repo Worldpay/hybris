@@ -2,32 +2,31 @@ import { Component, DebugElement, Directive, Input } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import {
+  CxDatePipe,
+  FeatureDirective,
   FeaturesConfig,
   GlobalMessageService,
   I18nTestingModule,
+  MockDatePipe,
+  MockTranslatePipe,
   PaymentDetails,
+  TranslatePipe,
   UserPaymentService,
 } from '@spartacus/core';
-import { CardComponent, FocusDirective, ICON_TYPE } from '@spartacus/storefront';
+import { AtMessageDirective, CardComponent, FocusDirective, ICON_TYPE, IconComponent, SpinnerComponent } from '@spartacus/storefront';
 import { EMPTY, Observable, of } from 'rxjs';
-import { MockCxFeatureDirective, MockFormRequiredLegendComponent } from 'worldpay-sap-composable-tests';
+import { MockFormRequiredLegendComponent, MockGlobalMessageService } from 'worldpay-sap-composable-tests';
 import { WorldpayPaymentMethodsComponent } from './worldpay-payment-methods.component';
-
-class MockGlobalMessageService {
-  add = jasmine.createSpy();
-}
 
 @Component({
   template: '<div>Spinner</div>',
   selector: 'cx-spinner',
-  standalone: false,
+  imports: [I18nTestingModule],
 })
-class MockCxSpinnerComponent {}
+class MockCxSpinnerComponent {
+}
 
-@Directive({
-  selector: '[cxAtMessage]',
-  standalone: false,
-})
+@Directive({ selector: '[cxAtMessage]', })
 class MockAtMessageDirective {
   @Input() cxAtMessage: string | string[] | undefined;
 }
@@ -47,7 +46,7 @@ const mockPayment: PaymentDetails = {
 @Component({
   selector: 'cx-icon',
   template: '',
-  standalone: false,
+  imports: [I18nTestingModule],
 })
 class MockCxIconComponent {
   @Input() type: ICON_TYPE;
@@ -57,15 +56,22 @@ class MockUserPaymentService {
   getPaymentMethodsLoading(): Observable<boolean> {
     return EMPTY;
   }
+
   getPaymentMethods(): Observable<PaymentDetails[]> {
     return of([mockPayment]);
   }
-  loadPaymentMethods(): void {}
-  deletePaymentMethod(_paymentMethodId: string): void {}
-  setPaymentMethodAsDefault(_paymentMethodId: string): void {}
+
+  loadPaymentMethods(): void {
+  }
+
+  deletePaymentMethod(_paymentMethodId: string): void {
+  }
+
+  setPaymentMethodAsDefault(_paymentMethodId: string): void {
+  }
 }
 
-describe('PaymentMethodsComponent', () => {
+describe('WorldpayPaymentMethodsComponent', () => {
   let component: WorldpayPaymentMethodsComponent;
   let fixture: ComponentFixture<WorldpayPaymentMethodsComponent>;
   let userService: UserPaymentService;
@@ -73,28 +79,53 @@ describe('PaymentMethodsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [I18nTestingModule],
-      declarations: [
+      imports: [
+        I18nTestingModule,
         WorldpayPaymentMethodsComponent,
-        MockCxSpinnerComponent,
+        SpinnerComponent,
         CardComponent,
-        MockCxIconComponent,
+        IconComponent,
         MockAtMessageDirective,
         FocusDirective,
-        MockCxFeatureDirective,
-        MockFormRequiredLegendComponent
+        MockFormRequiredLegendComponent,
       ],
       providers: [
-        { provide: UserPaymentService, useClass: MockUserPaymentService },
-        { provide: GlobalMessageService, useClass: MockGlobalMessageService },
         {
-          // eslint-disable-next-line deprecation/deprecation
+          provide: UserPaymentService,
+          useClass: MockUserPaymentService
+        },
+        {
+          provide: GlobalMessageService,
+          useClass: MockGlobalMessageService
+        },
+        {
+          // eslint-disable-next-line deprecation/deprecation,@typescript-eslint/no-deprecated
           provide: FeaturesConfig,
           useValue: {
             features: { level: '5.1' },
           },
         },
       ],
+    }).overrideComponent(WorldpayPaymentMethodsComponent, {
+      remove: {
+        imports: [
+          TranslatePipe,
+          CxDatePipe,
+          SpinnerComponent,
+          IconComponent,
+          AtMessageDirective,
+          FeatureDirective,
+        ],
+      },
+      add: {
+        imports: [
+          MockTranslatePipe,
+          MockDatePipe,
+          MockCxSpinnerComponent,
+          MockCxIconComponent,
+          MockAtMessageDirective,
+        ],
+      },
     }).compileComponents();
   }));
 
@@ -120,9 +151,11 @@ describe('PaymentMethodsComponent', () => {
     function getTitle(elem: DebugElement) {
       return elem.query(By.css('.cx-header')).nativeElement.textContent;
     }
+
     function getBodyMessage(elem: DebugElement) {
       return elem.query(By.css('.cx-msg')).nativeElement.textContent;
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     expect(getTitle(el)).toContain('paymentMethods.paymentMethods');
@@ -137,6 +170,7 @@ describe('PaymentMethodsComponent', () => {
     function getSpinner(elem: DebugElement) {
       return elem.query(By.css('cx-spinner'));
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     expect(getSpinner(el)).toBeTruthy();
@@ -144,9 +178,11 @@ describe('PaymentMethodsComponent', () => {
 
   it('should show payment methods after loading', () => {
     spyOn(userService, 'getPaymentMethodsLoading').and.returnValue(of(false));
+
     function getCard(elem: DebugElement) {
       return elem.query(By.css('cx-card'));
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     expect(getCard(el)).toBeTruthy();
@@ -155,12 +191,13 @@ describe('PaymentMethodsComponent', () => {
   it('should render all payment methods', () => {
     spyOn(userService, 'getPaymentMethodsLoading').and.returnValue(of(false));
     spyOn(userService, 'getPaymentMethods').and.returnValue(
-      of([mockPayment, mockPayment])
+      of([mockPayment, {...mockPayment, id: '3'}])
     );
 
     function getCards(elem: DebugElement): DebugElement[] {
       return elem.queryAll(By.css('cx-card'));
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     expect(getCards(el).length).toEqual(2);
@@ -169,28 +206,37 @@ describe('PaymentMethodsComponent', () => {
   it('should render correct content in card', () => {
     spyOn(userService, 'getPaymentMethodsLoading').and.returnValue(of(false));
     spyOn(userService, 'getPaymentMethods').and.returnValue(
-      of([mockPayment, { ...mockPayment, defaultPayment: false }])
+      of([mockPayment, {
+        ...mockPayment,
+        id: '3',
+        defaultPayment: false
+      }])
     );
 
     function getCardHeader(elem: DebugElement): string {
       return elem.query(By.css('cx-card .card-header')).nativeElement
         .textContent;
     }
+
     function getTextBold(elem: DebugElement): string {
       return elem.query(By.css('cx-card .cx-card-label-bold')).nativeElement
         .textContent;
     }
+
     function getCardNumber(elem: DebugElement): string {
       return elem.queryAll(By.css('cx-card .cx-card-label'))[0].nativeElement
         .textContent;
     }
+
     function getExpiration(elem: DebugElement): string {
       return elem.queryAll(By.css('cx-card .cx-card-label'))[1].nativeElement
         .textContent;
     }
+
     function getCardIcon(elem: DebugElement): any {
       return elem.query(By.css('.cx-card-img-container cx-icon'));
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     expect(getCardHeader(el)).toContain('paymentCard.defaultPaymentMethod');
@@ -209,12 +255,15 @@ describe('PaymentMethodsComponent', () => {
       return elem.query(By.css('cx-card .cx-card-delete-msg')).nativeElement
         .textContent;
     }
+
     function getDeleteButton(elem: DebugElement): any {
       return elem.query(By.css('cx-card .btn')).nativeElement;
     }
+
     function getCancelButton(elem: DebugElement): DebugElement {
       return elem.query(By.css('cx-card .btn-secondary'));
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     getDeleteButton(el).click();
@@ -232,9 +281,11 @@ describe('PaymentMethodsComponent', () => {
     function getDeleteButton(elem: DebugElement): any {
       return elem.query(By.css('cx-card .btn')).nativeElement;
     }
+
     function getConfirmButton(elem: DebugElement): DebugElement {
       return elem.query(By.css('cx-card .btn-primary'));
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     getDeleteButton(el).click();
@@ -249,18 +300,23 @@ describe('PaymentMethodsComponent', () => {
   it('should successfully set card as default', () => {
     spyOn(userService, 'getPaymentMethodsLoading').and.returnValue(of(false));
     spyOn(userService, 'getPaymentMethods').and.returnValue(
-      of([mockPayment, { ...mockPayment, defaultPayment: false }])
+      of([mockPayment, {
+        ...mockPayment,
+        id: '3',
+        defaultPayment: false
+      }])
     );
     spyOn(userService, 'setPaymentMethodAsDefault').and.stub();
 
     function getSetDefaultButton(elem: DebugElement): any {
       return elem.queryAll(By.css('cx-card .btn'))[1].nativeElement;
     }
+
     component.ngOnInit();
     fixture.detectChanges();
     getSetDefaultButton(el).click();
     expect(userService.setPaymentMethodAsDefault).toHaveBeenCalledWith(
-      mockPayment.id
+      '3'
     );
   });
 

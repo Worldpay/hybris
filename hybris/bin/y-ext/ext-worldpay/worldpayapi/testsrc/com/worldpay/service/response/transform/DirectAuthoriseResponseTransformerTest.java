@@ -102,7 +102,7 @@ public class DirectAuthoriseResponseTransformerTest {
         intOrderStatuses.add(token);
 
         final EchoData echoData = new EchoData();
-        echoData.setvalue(ECHO_DATA);
+        echoData.setValue(ECHO_DATA);
         intOrderStatuses.add(echoData);
 
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
@@ -154,10 +154,10 @@ public class DirectAuthoriseResponseTransformerTest {
         threeDSChallengeDetails.setAcsURL(ISSUER_URL);
         threeDSChallengeDetails.setPayload(ISSUER_PAYLOAD);
         ThreeDSVersion threeDSVersion = new ThreeDSVersion();
-        threeDSVersion.setvalue(MAJOR_3DS_VERSION);
+        threeDSVersion.setValue(MAJOR_3DS_VERSION);
         threeDSChallengeDetails.setThreeDSVersion(threeDSVersion);
         final TransactionId3DS transactionId3DS = new TransactionId3DS();
-        transactionId3DS.setvalue(TRANSACTION_ID_3DS);
+        transactionId3DS.setValue(TRANSACTION_ID_3DS);
         threeDSChallengeDetails.setTransactionId3DS(transactionId3DS);
 
         challengeRequired.getThreeDSChallengeDetailsOrThreeDSSessionIdOrThreeDSVersionOrIssuerName().add(threeDSChallengeDetails);
@@ -166,12 +166,12 @@ public class DirectAuthoriseResponseTransformerTest {
 
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         token.setTokenEventReference(REFERENCE_VALUE);
         orderStatusType.add(token);
         final EchoData intEchoData = new EchoData();
-        intEchoData.setvalue(ECHO_DATA);
+        intEchoData.setValue(ECHO_DATA);
         orderStatusType.add(intEchoData);
 
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
@@ -214,7 +214,7 @@ public class DirectAuthoriseResponseTransformerTest {
         orderStatusType.add(token);
 
         final EchoData echoData = new EchoData();
-        echoData.setvalue(ECHO_DATA);
+        echoData.setValue(ECHO_DATA);
         orderStatusType.add(echoData);
 
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
@@ -251,7 +251,7 @@ public class DirectAuthoriseResponseTransformerTest {
         orderStatusType.add(token);
 
         final EchoData echoData = new EchoData();
-        echoData.setvalue(ECHO_DATA);
+        echoData.setValue(ECHO_DATA);
         orderStatusType.add(echoData);
 
         final ExemptionResponse exemptionResponse = new ExemptionResponse();
@@ -291,12 +291,12 @@ public class DirectAuthoriseResponseTransformerTest {
 
         final Token token = new Token();
         final AuthenticatedShopperID intAuthenticatedShopperID = new AuthenticatedShopperID();
-        intAuthenticatedShopperID.setvalue(AUTHENTICATED_SHOPPER_ID);
+        intAuthenticatedShopperID.setValue(AUTHENTICATED_SHOPPER_ID);
         token.setAuthenticatedShopperID(intAuthenticatedShopperID);
         orderStatusType.add(token);
 
         final EchoData echoData = new EchoData();
-        echoData.setvalue(ECHO_DATA);
+        echoData.setValue(ECHO_DATA);
         orderStatusType.add(echoData);
 
         paymentServiceReply.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().add(reply);
@@ -328,14 +328,14 @@ public class DirectAuthoriseResponseTransformerTest {
         orderStatusType.add(payment);
         final Reference reference = new Reference();
         reference.setId(REFERENCE_ID);
-        reference.setvalue(REFERENCE_VALUE);
+        reference.setValue(REFERENCE_VALUE);
         orderStatusType.add(reference);
 
         final Token token = new Token();
         orderStatusType.add(token);
 
         final EchoData echoData = new EchoData();
-        echoData.setvalue(ECHO_DATA);
+        echoData.setValue(ECHO_DATA);
         orderStatusType.add(echoData);
 
         final ExemptionResponse exemptionResponse = new ExemptionResponse();

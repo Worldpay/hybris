@@ -23,8 +23,8 @@ public class DefaultWorldpayCardBrandFactoryTest {
     public void createCardBrandWithValue_WhenCodeIsAWellFormedString_ShouldReturnACardBrandWithThatCode() {
         final CardBrand testCardBrand = testObj.createCardBrandWithValue(CARD_BRAND);
         assertThat(testCardBrand).isNotNull();
-        assertThat(testCardBrand.getvalue()).isNotEmpty();
-        assertThat(testCardBrand.getvalue()).isEqualTo(CARD_BRAND);
+        assertThat(testCardBrand.getValue()).isNotEmpty();
+        assertThat(testCardBrand.getValue()).isEqualTo(CARD_BRAND);
     }
 
     @Test(expected = IllegalArgumentException.class)

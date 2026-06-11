@@ -13,7 +13,7 @@ import com.worldpay.service.response.OrderInquiryServiceResponse;
 import de.hybris.platform.commercefacades.order.CheckoutFacade;
 import de.hybris.platform.core.model.order.CartModel;
 import de.hybris.platform.order.CartService;
-import org.springframework.beans.factory.annotation.Required;
+
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -23,11 +23,23 @@ import java.util.Base64;
  */
 public class DefaultWorldpayKlarnaPaymentCheckoutFacade implements WorldpayKlarnaPaymentCheckoutFacade {
 
-    private CheckoutFacade checkoutFacade;
-    private CartService cartService;
-    private WorldpayMerchantInfoService worldpayMerchantInfoService;
-    private OrderInquiryService orderInquiryService;
-    private WorldpayOrderService worldpayOrderService;
+    protected final CheckoutFacade checkoutFacade;
+    protected final CartService cartService;
+    protected final WorldpayMerchantInfoService worldpayMerchantInfoService;
+    protected final OrderInquiryService orderInquiryService;
+    protected final WorldpayOrderService worldpayOrderService;
+
+    public DefaultWorldpayKlarnaPaymentCheckoutFacade(final CheckoutFacade checkoutFacade,
+                                                      final CartService cartService,
+                                                      final WorldpayMerchantInfoService worldpayMerchantInfoService,
+                                                      final OrderInquiryService orderInquiryService,
+                                                      final WorldpayOrderService worldpayOrderService) {
+        this.checkoutFacade = checkoutFacade;
+        this.cartService = cartService;
+        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
+        this.orderInquiryService = orderInquiryService;
+        this.worldpayOrderService = worldpayOrderService;
+    }
 
     /**
      * {@inheritDoc}
@@ -56,28 +68,4 @@ public class DefaultWorldpayKlarnaPaymentCheckoutFacade implements WorldpayKlarn
         return checkoutFacade.hasCheckoutCart() ? cartService.getSessionCart() : null;
     }
 
-    @Required
-    public void setCheckoutFacade(final CheckoutFacade checkoutFacade) {
-        this.checkoutFacade = checkoutFacade;
-    }
-
-    @Required
-    public void setCartService(final CartService cartService) {
-        this.cartService = cartService;
-    }
-
-    @Required
-    public void setWorldpayMerchantInfoService(final WorldpayMerchantInfoService worldpayMerchantInfoService) {
-        this.worldpayMerchantInfoService = worldpayMerchantInfoService;
-    }
-
-    @Required
-    public void setOrderInquiryService(DefaultOrderInquiryService orderInquiryService) {
-        this.orderInquiryService = orderInquiryService;
-    }
-
-    @Required
-    public void setWorldpayOrderService(final WorldpayOrderService worldpayOrderService) {
-        this.worldpayOrderService = worldpayOrderService;
-    }
 }

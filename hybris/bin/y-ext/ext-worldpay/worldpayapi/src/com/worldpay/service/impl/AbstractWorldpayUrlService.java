@@ -2,7 +2,6 @@ package com.worldpay.service.impl;
 
 
 import com.worldpay.service.WorldpayUrlService;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Abstract implementation of the {@link WorldpayUrlService} allowing for success, pending, failure and cancel paths to
@@ -24,7 +23,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return successPath;
     }
 
-    @Required
     public void setSuccessPath(final String successPath) {
         this.successPath = successPath;
     }
@@ -33,7 +31,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return pendingPath;
     }
 
-    @Required
     public void setPendingPath(final String pendingPath) {
         this.pendingPath = pendingPath;
     }
@@ -42,7 +39,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return failurePath;
     }
 
-    @Required
     public void setFailurePath(final String failurePath) {
         this.failurePath = failurePath;
     }
@@ -51,12 +47,10 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return cancelPath;
     }
 
-    @Required
     public void setCancelPath(final String cancelPath) {
         this.cancelPath = cancelPath;
     }
 
-    @Required
     public void setThreeDSecureTermPath(final String threeDSecureTermPath) {
         this.threeDSecureTermPath = threeDSecureTermPath;
     }
@@ -69,7 +63,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return threeDSecureQuoteTermPath;
     }
 
-    @Required
     public void setThreeDSecureQuoteTermPath(final String threeDSecureQuoteTermPath) {
         this.threeDSecureQuoteTermPath = threeDSecureQuoteTermPath;
     }
@@ -78,7 +71,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return errorPath;
     }
 
-    @Required
     public void setErrorPath(final String errorPath) {
         this.errorPath = errorPath;
     }
@@ -87,7 +79,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return termsPath;
     }
 
-    @Required
     public void setTermsPath(final String termsPath) {
         this.termsPath = termsPath;
     }
@@ -96,7 +87,6 @@ public abstract class AbstractWorldpayUrlService implements WorldpayUrlService {
         return klarnaConfirmationPath;
     }
 
-    @Required
     public void setKlarnaConfirmationPath(final String klarnaConfirmationPath) {
         this.klarnaConfirmationPath = klarnaConfirmationPath;
     }

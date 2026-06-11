@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -15,14 +16,17 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
-import { EventService, GlobalMessageService, GlobalMessageType, LoggerService, RoutingService, WindowRef } from '@spartacus/core';
+import { EventService, GlobalMessageService, GlobalMessageType, LoggerService, RoutingService, TranslatePipe, WindowRef } from '@spartacus/core';
 import { Order } from '@spartacus/order/root';
 import { BehaviorSubject, EMPTY, finalize, forkJoin, from, Observable } from 'rxjs';
 import { catchError, filter, first, map, switchMap, take, tap } from 'rxjs/operators';
 import {
+  GooglePayIsReadyToPayRequest,
+  GooglePayIsReadyToPayResponse,
+  GooglePaymentsClient,
   GooglePayMerchantConfiguration,
-  GooglePayPaymentRequest,
-  GooglepayPaymentRequest,
+  GooglePayPaymentDataRequest,
+  GooglePayPaymentResponse,
   LoadScriptService,
   makeFormErrorsVisible,
   OCCResponse,
@@ -32,6 +36,7 @@ import {
   WorldpayOrderFacade
 } from '../../../../core';
 import { ClearGooglepayEvent, GooglePayMerchantConfigurationSetEvent } from '../../../../core/events';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 
 /**
  * Google Pay APM component.
@@ -47,7 +52,11 @@ import { ClearGooglepayEvent, GooglePayMerchantConfigurationSetEvent } from '../
   selector: 'y-worldpay-apm-googlepay',
   templateUrl: './worldpay-apm-googlepay.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false
+  imports: [
+    AsyncPipe,
+    WorldpayBillingAddressComponent,
+    TranslatePipe
+  ],
 })
 export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
   @ViewChild('gpayBtn', { static: false }) gpayBtn: ElementRef = null;
@@ -61,7 +70,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
   protected winRef: WindowRef = inject(WindowRef);
   public nativeWindow: Window = this.winRef.nativeWindow;
   protected vcr: ViewContainerRef = inject(ViewContainerRef);
-  protected worldpayOrderService: WorldpayOrderFacade = inject(WorldpayOrderFacade);
+  protected worldpayOrderFacade: WorldpayOrderFacade = inject(WorldpayOrderFacade);
   protected worldpayCheckoutPaymentFacade: WorldpayCheckoutPaymentFacade = inject(WorldpayCheckoutPaymentFacade);
   protected worldpayGooglePayService: WorldpayGooglepayService = inject(WorldpayGooglepayService);
   protected destroyRef: DestroyRef = inject(DestroyRef);
@@ -74,8 +83,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
    */
   protected billingAddressFormService: WorldpayBillingAddressFormService = inject(WorldpayBillingAddressFormService);
   private ngZone: NgZone = inject(NgZone);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private paymentsClient: any;
+  private paymentsClient: GooglePaymentsClient | null;
   private logger: LoggerService = inject(LoggerService);
   private isProcessingPayment: boolean = false;
 
@@ -85,7 +93,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
    * @since 4.3.6
    */
   ngOnInit(): void {
-    this.worldpayOrderService.getOrderDetails().pipe(
+    this.worldpayOrderFacade.getOrderDetails().pipe(
       filter((order: Order): boolean => order && Object.keys(order).length !== 0),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -172,7 +180,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
           if (this.paymentsClient) {
             return;
           }
-          // @ts-expect-error Property google does not exist on type Window
+          // @ts-ignore
           if (this.nativeWindow?.google?.payments?.api?.PaymentsClient) {
             this.initPaymentsClient(merchantConfiguration);
           } else {
@@ -206,13 +214,11 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
   private initPaymentsClient(merchantConfiguration: GooglePayMerchantConfiguration): void {
     // @ts-expect-error Property google does not exist on type Window
     this.paymentsClient = new google.payments.api.PaymentsClient(merchantConfiguration.clientSettings);
-    const isReadyToPayRequest: GooglepayPaymentRequest = this.worldpayGooglePayService.createInitialPaymentRequest(merchantConfiguration);
+    const isReadyToPayRequest: GooglePayIsReadyToPayRequest = this.worldpayGooglePayService.createInitialPaymentRequest(merchantConfiguration);
     this.paymentsClient.isReadyToPay(isReadyToPayRequest)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .then(({ result }: any): void => {
+      .then(({ result }: GooglePayIsReadyToPayResponse): void => {
         if (result) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const button: any = this.paymentsClient.createButton({
+          const button: Partial<HTMLButtonElement> = this.paymentsClient.createButton({
             onClick: (): void => {
               this.ngZone.run((): void => {
                 this.authorisePayment();
@@ -262,20 +268,20 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
       map(({
         cart,
         merchantConfig
-      }: { cart: Cart, merchantConfig: GooglePayMerchantConfiguration }): GooglePayPaymentRequest => {
+      }: { cart: Cart, merchantConfig: GooglePayMerchantConfiguration }): GooglePayPaymentDataRequest => {
         if (!cart || !merchantConfig) {
           throw new Error('Checkout conditions not met');
         }
         return this.worldpayGooglePayService.createFullPaymentRequest(merchantConfig, cart);
       }),
-      switchMap((paymentDataRequest: GooglePayPaymentRequest): Observable<GooglePayPaymentRequest> => {
+      switchMap((paymentDataRequest: GooglePayPaymentDataRequest): Observable<GooglePayPaymentResponse> => {
         if (!paymentDataRequest || this.isProcessingPayment) {
           return EMPTY;
         }
         this.isProcessingPayment = true;
         return from(this.paymentsClient.loadPaymentData(paymentDataRequest)).pipe(
-          tap((paymentRequest: GooglePayPaymentRequest): void => {
-            this.worldpayOrderService.startLoading(this.vcr);
+          tap((paymentRequest: GooglePayPaymentResponse): void => {
+            this.worldpayOrderFacade.startLoading(this.vcr);
             this.worldpayGooglePayService.authoriseOrder(paymentRequest, false);
           }),
           catchError((error: unknown): Observable<never> => {
@@ -287,7 +293,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
             return EMPTY;
           }),
           finalize((): void => {
-            this.worldpayOrderService.clearLoading();
+            this.worldpayOrderFacade.clearLoading();
             this.isProcessingPayment = false;
           })
         );
@@ -295,7 +301,7 @@ export class WorldpayApmGooglepayComponent implements OnInit, AfterViewInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       error: (error: unknown): void => {
-        this.worldpayOrderService.clearLoading();
+        this.worldpayOrderFacade.clearLoading();
         this.logger.error('authorisePayment with errors', { error });
       }
     });

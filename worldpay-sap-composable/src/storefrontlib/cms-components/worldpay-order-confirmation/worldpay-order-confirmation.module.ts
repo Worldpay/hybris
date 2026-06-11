@@ -1,163 +1,41 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { AbstractOrderContextModule } from '@spartacus/cart/base/components';
-import { CmsConfig, FeaturesConfigModule, I18nModule, provideConfig } from '@spartacus/core';
-import { OrderConfirmationOrderEntriesContext, OrderConfirmationTotalsComponent, OrderDetailBillingComponent, OrderDetailsService } from '@spartacus/order/components';
-import { OrderConfirmationOrderEntriesContextToken, OrderFacade } from '@spartacus/order/root';
-import {
-  CardModule,
-  FormErrorsModule,
-  FormRequiredAsterisksComponent,
-  FormRequiredLegendComponent,
-  OutletModule,
-  PasswordVisibilityToggleModule,
-  PromotionsModule,
-  PwaModule
-} from '@spartacus/storefront';
-import { WorldpayCheckoutPaymentRedirectGuard, WorldpayOrderService } from '../../../core';
-import { WorldpayOrderOverviewComponent } from '../worldpay-order-details/worldpay-order-overview/worldpay-order-overview.component';
 import { WorldpayOrderConfirmationItemsComponent } from './worldpay-order-confirmation-items/worldpay-order-confirmation-items.component';
 import { WorldpayOrderConfirmationShippingComponent } from './worldpay-order-confirmation-shipping/worldpay-order-confirmation-shipping.component';
 import { WorldpayOrderConfirmationThankYouMessageComponent } from './worldpay-order-confirmation-thank-you-message/worldpay-order-confirmation-thank-you-message.component';
-import { WorldpayOrderGuestRegisterFormComponent } from './worldpay-order-guest-register-form/worldpay-order-guest-register-form.component';
+import { WORLDPAY_ORDER_CONFIRMATION_FEATURE_PROVIDERS } from './worldpay-order-confirmation.providers';
 
-const orderConfirmationComponents: (
-  typeof WorldpayOrderConfirmationItemsComponent |
+const orderConfirmationComponents: (typeof WorldpayOrderConfirmationItemsComponent |
   typeof WorldpayOrderConfirmationThankYouMessageComponent |
-  typeof WorldpayOrderGuestRegisterFormComponent |
   typeof WorldpayOrderConfirmationShippingComponent
   )[] = [
     WorldpayOrderConfirmationItemsComponent,
     WorldpayOrderConfirmationThankYouMessageComponent,
-    WorldpayOrderGuestRegisterFormComponent,
     WorldpayOrderConfirmationShippingComponent,
   ];
 
+/**
+ * Angular module for the Worldpay Order Confirmation feature.
+ *
+ * Since 221121.11.0, this module is maintained for backward compatibility.
+ * It is recommended to use the standalone approach for new implementations.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayOrderConfirmationItemsComponent`, `WorldpayOrderConfirmationThankYouMessageComponent`,
+ *    `WorldpayOrderConfirmationShippingComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) using `provideWorldpayOrderConfirmation()`.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically registers the required
+ * CMS configuration and exports the standalone components.
+ *
+ * @since 221121.11.0
+ * - All order confirmation components are now standalone components.
+ * - All feature-specific providers and CMS mappings have been moved to `provideWorldpayOrderConfirmation()`.
+ */
 @NgModule({
-  declarations: [...orderConfirmationComponents],
-  exports: [...orderConfirmationComponents],
-  imports: [
-    CommonModule,
-    CardModule,
-    PwaModule,
-    PromotionsModule,
-    I18nModule,
-    ReactiveFormsModule,
-    FormErrorsModule,
-    OutletModule,
-    PasswordVisibilityToggleModule,
-    FeaturesConfigModule,
-    PasswordVisibilityToggleModule,
-    AbstractOrderContextModule,
-    FeaturesConfigModule,
-    FormRequiredAsterisksComponent,
-    FormRequiredLegendComponent,
-  ],
-  providers: [
-    provideConfig({
-      cmsComponents: {
-        OrderConfirmationThankMessageComponent: {
-          component: WorldpayOrderConfirmationThankYouMessageComponent,
-          providers: [
-            {
-              provide: OrderFacade,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-        ReplenishmentConfirmationMessageComponent: {
-          component: WorldpayOrderConfirmationThankYouMessageComponent,
-          providers: [
-            {
-              provide: OrderFacade,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-
-        OrderConfirmationItemsComponent: {
-          component: WorldpayOrderConfirmationItemsComponent,
-          providers: [
-            {
-              provide: OrderFacade,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-        ReplenishmentConfirmationItemsComponent: {
-          component: WorldpayOrderConfirmationItemsComponent,
-          providers: [
-            {
-              provide: OrderFacade,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-
-        OrderConfirmationTotalsComponent: {
-          component: OrderConfirmationTotalsComponent,
-          providers: [
-            {
-              provide: OrderFacade,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-        ReplenishmentConfirmationTotalsComponent: {
-          component: OrderConfirmationTotalsComponent,
-          providers: [
-            {
-              provide: OrderFacade,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-
-        OrderConfirmationOverviewComponent: {
-          component: WorldpayOrderOverviewComponent,
-          providers: [
-            {
-              provide: OrderDetailsService,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-
-        OrderConfirmationShippingComponent: {
-          component: WorldpayOrderConfirmationShippingComponent,
-          providers: [
-            {
-              provide: OrderDetailsService,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-        OrderConfirmationBillingComponent: {
-          component: OrderDetailBillingComponent,
-          providers: [
-            {
-              provide: OrderDetailsService,
-              useExisting: WorldpayOrderService,
-            },
-          ],
-          guards: [WorldpayCheckoutPaymentRedirectGuard],
-        },
-      }
-    } as CmsConfig),
-    {
-      provide: OrderConfirmationOrderEntriesContextToken,
-      useExisting: OrderConfirmationOrderEntriesContext,
-    },
-  ],
+  exports: orderConfirmationComponents,
+  imports: orderConfirmationComponents,
+  providers: WORLDPAY_ORDER_CONFIRMATION_FEATURE_PROVIDERS,
 })
 export class WorldpayOrderConfirmationModule {
 }

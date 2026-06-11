@@ -1,6 +1,3 @@
-@import "../../../assets/styles/mixins";
-@import "@spartacus/order/styles/components/order-overview/index";
-
 y-worldpay-order-overview {
   @extend %cx-order-overview !optional;
 

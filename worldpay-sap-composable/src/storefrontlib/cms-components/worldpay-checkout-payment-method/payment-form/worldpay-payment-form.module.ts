@@ -1,28 +1,26 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { NgSelectComponent } from '@ng-select/ng-select';
-import { I18nModule } from '@spartacus/core';
-import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, IconModule, NgSelectA11yModule, SpinnerModule } from '@spartacus/storefront';
-import { WorldpayBillingAddressModule } from '../../worldpay-billing-address/worldpay-billing-address.module';
-import { WorldpayPaymentFormComponent } from './worldpay-payment-form.component';
+import { WorldpayCheckoutPaymentFormComponent } from './worldpay-checkout-payment-form.component';
 
+/**
+ * Angular module for the Worldpay Checkout Payment Form feature.
+ *
+ * Since 221121.11.0, this module is maintained for backward compatibility.
+ * It is recommended to use the standalone approach for new implementations.
+ *
+ * ### Standalone Usage:
+ * 1. Import `WorldpayCheckoutPaymentFormComponent` directly into your standalone components.
+ * 2. Register providers in your `app.config.ts` (or equivalent) if needed.
+ *
+ * ### Module Usage:
+ * Simply import this module as usual. It automatically registers the required
+ * configuration and exports the standalone component.
+ *
+ * @since 221121.11.0
+ * - `WorldpayCheckoutPaymentFormComponent` is now a standalone component.
+ */
 @NgModule({
-  declarations: [WorldpayPaymentFormComponent],
-  exports: [WorldpayPaymentFormComponent],
-  imports: [
-    CommonModule,
-    SpinnerModule,
-    I18nModule,
-    WorldpayBillingAddressModule,
-    FormErrorsModule,
-    FormRequiredAsterisksComponent,
-    NgSelectComponent,
-    FormRequiredLegendComponent,
-    ReactiveFormsModule,
-    NgSelectA11yModule,
-    IconModule
-  ]
+  exports: [WorldpayCheckoutPaymentFormComponent],
+  imports: [WorldpayCheckoutPaymentFormComponent]
 })
 export class WorldpayPaymentFormModule {
 }

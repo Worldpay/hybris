@@ -10,7 +10,7 @@
 
     <context merge-by="type" parent="GenericItem" type="PaymentTransaction" component="cs-editor-area">
         <editorArea:editorArea>
-            <editorArea:tab name="customersupportbackoffice.tab.general" >
+            <editorArea:tab name="customersupportbackoffice.tab.general">
                 <editorArea:section name="customersupportbackoffice.section.order.general.properties">
                     <editorArea:attribute qualifier="riskScore"/>
                     <editorArea:attribute qualifier="exemptionPlacement"/>
@@ -25,10 +25,13 @@
         </editorArea:editorArea>
     </context>
 
-    <context type="WorldpayAavResponse" component="base" merge-by="type" principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
+    <context type="WorldpayAavResponse" component="base" merge-by="type"
+             principal="customersupportadministratorrole,customersupportmanagerrole,customersupportagentrole">
         <y:base>
             <y:labels>
-                <y:label>aavAddressResultCode + ', ' + aavCardholderNameResultCode + ', ' + aavEmailResultCode + ', ' + aavPostcodeResultCode + ', ' + aavTelephoneResultCode</y:label>
+                <y:label>aavAddressResultCode + ', ' + aavCardholderNameResultCode + ', ' + aavEmailResultCode + ', ' +
+                    aavPostcodeResultCode + ', ' + aavTelephoneResultCode
+                </y:label>
             </y:labels>
         </y:base>
     </context>
@@ -36,7 +39,9 @@
     <context type="WorldpayRiskScore" component="base" merge-by="type">
         <y:base>
             <y:labels>
-                <y:label>(provider!=null ? 'provider=' +  provider  : '') + (message!=null ? ' message=' + message : '') + (finalScore!=null ? ' finalScore=' + finalScore : '') + (score!=null ? ' score=' +  score  : '')</y:label>
+                <y:label>(provider!=null ? 'provider=' + provider : '') + (message!=null ? ' message=' + message : '') +
+                    (finalScore!=null ? ' finalScore=' + finalScore : '') + (score!=null ? ' score=' + score : '')
+                </y:label>
             </y:labels>
         </y:base>
     </context>
@@ -44,7 +49,7 @@
     <context type="WorldpayBankConfiguration" component="base" merge-by="type">
         <y:base>
             <y:labels>
-                <y:label> description </y:label>
+                <y:label>description</y:label>
             </y:labels>
         </y:base>
     </context>
@@ -57,20 +62,28 @@
         </y:base>
     </context>
 
-    <context merge-by="type" parent="GenericItem" type="PaymentTransactionEntry" component="referenceListViewPaymentTransactionEntries">
+    <context merge-by="type" parent="GenericItem" type="PaymentTransactionEntry"
+             component="referenceListViewPaymentTransactionEntries">
         <list-view:list-view>
-            <list-view:column qualifier="aavResponse.aavAddressResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
-            <list-view:column qualifier="aavResponse.aavCardholderNameResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
-            <list-view:column qualifier="aavResponse.aavEmailResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
-            <list-view:column qualifier="aavResponse.aavPostcodeResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
-            <list-view:column qualifier="aavResponse.aavTelephoneResultCode" spring-bean="worldpayNullSafeListCellRenderer" />
-            <list-view:column qualifier="amount" spring-bean="paymentTransactionEntryAmountRenderer" label="customersupportbackoffice.order.paymenttransaction.amount"/>
+            <list-view:column qualifier="aavResponse.aavAddressResultCode"
+                              spring-bean="worldpayNullSafeListCellRenderer"/>
+            <list-view:column qualifier="aavResponse.aavCardholderNameResultCode"
+                              spring-bean="worldpayNullSafeListCellRenderer"/>
+            <list-view:column qualifier="aavResponse.aavEmailResultCode"
+                              spring-bean="worldpayNullSafeListCellRenderer"/>
+            <list-view:column qualifier="aavResponse.aavPostcodeResultCode"
+                              spring-bean="worldpayNullSafeListCellRenderer"/>
+            <list-view:column qualifier="aavResponse.aavTelephoneResultCode"
+                              spring-bean="worldpayNullSafeListCellRenderer"/>
+            <list-view:column qualifier="amount" spring-bean="paymentTransactionEntryAmountRenderer"
+                              label="customersupportbackoffice.order.paymenttransaction.amount"/>
         </list-view:list-view>
     </context>
 
-    <context merge-by="type" parent="GenericItem" type="PaymentTransaction" component="referenceListViewPaymentTransactions">
+    <context merge-by="type" parent="GenericItem" type="PaymentTransaction"
+             component="referenceListViewPaymentTransactions">
         <list-view:list-view xmlns:list-view="http://www.hybris.com/cockpitng/component/listView">
-            <list-view:column qualifier="riskScore" />
+            <list-view:column qualifier="riskScore"/>
         </list-view:list-view>
     </context>
 
@@ -108,7 +121,9 @@
     <context type="WorldpayCurrencyRange" component="base" merge-by="type" parent="GenericItem">
         <y:base>
             <y:labels>
-                <y:label>currency.isocode + (min != null ? ' &gt;= ' + min : '') + (max != null ? ' &lt;= ' + max : '')</y:label>
+                <y:label>currency.isocode + (min != null ? ' &gt;= ' + min : '') + (max != null ? ' &lt;= ' + max :
+                    '')
+                </y:label>
             </y:labels>
         </y:base>
     </context>
@@ -224,7 +239,7 @@
     <!-- WorldpayAPMConfiguration -->
 
     <context merge-by="type" type="WorldpayAPMConfiguration" component="advanced-search">
-        <advanced-search:advanced-search >
+        <advanced-search:advanced-search>
             <advanced-search:field-list>
                 <advanced-search:field name="code" selected="true"/>
                 <advanced-search:field name="name" selected="true"/>
@@ -244,7 +259,7 @@
     </context>
 
     <context type="WorldpayAPMConfiguration" component="editor-area" merge-by="type" parent="GenericItem">
-        <editorArea:editorArea name="" >
+        <editorArea:editorArea name="">
             <editorArea:essentials>
                 <editorArea:essentialSection name="hmc.essential">
                     <editorArea:attribute qualifier="code"/>
@@ -275,7 +290,7 @@
     <!-- WorldpayBankConfiguration -->
 
     <context merge-by="type" type="WorldpayBankConfiguration" component="advanced-search">
-        <advanced-search:advanced-search >
+        <advanced-search:advanced-search>
             <advanced-search:field-list>
                 <advanced-search:field name="code" selected="true"/>
                 <advanced-search:field name="name" selected="true"/>
@@ -314,7 +329,7 @@
     <!-- WorldpayOrderModification -->
 
     <context merge-by="type" type="WorldpayOrderModification" component="advanced-search">
-        <advanced-search:advanced-search >
+        <advanced-search:advanced-search>
             <advanced-search:field-list>
                 <advanced-search:field name="worldpayOrderCode" selected="true"/>
                 <advanced-search:field name="type" selected="true"/>

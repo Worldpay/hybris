@@ -14,7 +14,7 @@ import java.util.List;
 import static de.hybris.platform.payment.dto.TransactionStatus.ACCEPTED;
 import static de.hybris.platform.payment.dto.TransactionStatusDetails.SUCCESFULL;
 import static de.hybris.platform.payment.enums.PaymentTransactionType.AUTHORIZATION;
-import static org.fest.util.Collections.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * Action that cancels the payment in Worldpay

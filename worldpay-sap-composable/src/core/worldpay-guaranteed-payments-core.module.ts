@@ -1,12 +1,8 @@
 import { NgModule } from '@angular/core';
-import { worldpayGuaranteedPaymentsConnectorProvider } from './connectors';
-import { worldpayGuaranteedPaymentsFacadeProviders } from './facade';
+import { worldpayGuaranteedPaymentsCoreProviders } from '../providers/worldpay-guaranteed-payment-core.provider';
 
 @NgModule({
-  providers: [
-    ...worldpayGuaranteedPaymentsConnectorProvider,
-    ...worldpayGuaranteedPaymentsFacadeProviders
-  ]
+  providers: worldpayGuaranteedPaymentsCoreProviders()
 })
 export class WorldpayGuaranteedPaymentsCoreModule {
 }

@@ -1,10 +1,12 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, DestroyRef, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EventService, RoutingService } from '@spartacus/core';
+import { EventService, RoutingService, TranslatePipe } from '@spartacus/core';
 import { Order, OrderFacade, OrderPlacedEvent } from '@spartacus/order/root';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, WorldpayApplepayService } from '../../../../core';
+import { ApplePayAuthorization, ApplePayMerchantSession, ApplePayPaymentRequest, WorldpayApplepayService } from '../../../../core';
+import { WorldpayBillingAddressComponent } from '../../worldpay-billing-address/worldpay-billing-address.component';
 
 /**
  * Component for handling Apple Pay functionality within the Worldpay APM module.
@@ -20,7 +22,11 @@ import { ApplePayAuthorization, ApplePayPaymentRequest, PlaceOrderResponse, Worl
   selector: 'worldpay-applepay',
   templateUrl: './worldpay-applepay.component.html',
   styleUrls: ['worldpay-applepay.component.scss'],
-  standalone: false
+  imports: [
+    AsyncPipe,
+    TranslatePipe,
+    WorldpayBillingAddressComponent
+  ]
 })
 export class WorldpayApplepayComponent implements OnInit {
   @Output() back: EventEmitter<void> = new EventEmitter<void>();
@@ -30,10 +36,8 @@ export class WorldpayApplepayComponent implements OnInit {
   protected worldpayApplepayService: WorldpayApplepayService = inject(WorldpayApplepayService);
   protected cd: ChangeDetectorRef = inject(ChangeDetectorRef);
   protected eventService: EventService = inject(EventService);
-  private paymentRequest$: Subscription;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private applePaySession: any;
-  private enableApplePayButton$: Subscription;
   private destroyRef: DestroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
@@ -42,7 +46,7 @@ export class WorldpayApplepayComponent implements OnInit {
   }
 
   placeApplePayOrder(): void {
-    this.paymentRequest$ = this.worldpayApplepayService.getPaymentRequestFromState()
+    this.worldpayApplepayService.getPaymentRequestFromState()
       .pipe(
         filter((paymentRequest: ApplePayPaymentRequest): boolean => !!paymentRequest && Object.keys(paymentRequest).length > 0),
         takeUntilDestroyed(this.destroyRef)
@@ -55,11 +59,11 @@ export class WorldpayApplepayComponent implements OnInit {
 
     this.worldpayApplepayService.getMerchantSessionFromState()
       .pipe(
-        filter((session: PlaceOrderResponse): boolean => !!session && Object.keys(session).length > 0),
+        filter((session: ApplePayMerchantSession): boolean => !!session && Object.keys(session).length > 0),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (session: PlaceOrderResponse): void => {
+        next: (session: ApplePayMerchantSession): void => {
           this.applePaySession.completeMerchantValidation(session);
         }
       });
@@ -108,26 +112,6 @@ export class WorldpayApplepayComponent implements OnInit {
   }
 
   /**
-   * If ApplePay is available, we request the payment request and wait for response.
-   * When the response arrives, we show the ApplePay button
-   */
-  private initializeApplePay(): void {
-    if (this.worldpayApplepayService.applePayButtonAvailable()) {
-      this.enableApplePayButton$ = this.worldpayApplepayService.enableApplePayButton()
-        .pipe(
-          filter((paymentRequest: ApplePayPaymentRequest): boolean => !!paymentRequest && Object.keys(paymentRequest).length > 0),
-          takeUntilDestroyed(this.destroyRef)
-        )
-        .subscribe({
-          next: (): void => {
-            this.isApplePayAvailable$ = of(true);
-            this.cd.detectChanges();
-          }
-        });
-    }
-  }
-
-  /**
    * Resets the Apple Pay session when the `OrderPlacedEvent` is triggered.
    *
    * This method listens for the `OrderPlacedEvent` and clears the Apple Pay
@@ -147,5 +131,25 @@ export class WorldpayApplepayComponent implements OnInit {
         this.worldpayApplepayService.setPaymentAuthorization(null);
       }
     });
+  }
+
+  /**
+   * If ApplePay is available, we request the payment request and wait for response.
+   * When the response arrives, we show the ApplePay button
+   */
+  private initializeApplePay(): void {
+    if (this.worldpayApplepayService.applePayButtonAvailable()) {
+      this.worldpayApplepayService.enableApplePayButton()
+        .pipe(
+          filter((paymentRequest: ApplePayPaymentRequest): boolean => !!paymentRequest && Object.keys(paymentRequest).length > 0),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe({
+          next: (): void => {
+            this.isApplePayAvailable$ = of(true);
+            this.cd.detectChanges();
+          }
+        });
+    }
   }
 }

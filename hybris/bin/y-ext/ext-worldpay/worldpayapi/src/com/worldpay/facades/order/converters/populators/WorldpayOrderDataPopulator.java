@@ -5,14 +5,18 @@ import de.hybris.platform.commercefacades.order.data.OrderData;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.core.model.order.OrderModel;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
-import org.springframework.beans.factory.annotation.Required;
+
 
 /**
  * Worldpay specific populator from OrderModel to OrderData.
  */
 public class WorldpayOrderDataPopulator implements Populator<OrderModel, OrderData> {
 
-    private WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+    protected final WorldpayPaymentTransactionService worldpayPaymentTransactionService;
+
+    public WorldpayOrderDataPopulator(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
+        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
+    }
 
     /**
      * @param source the source object
@@ -24,8 +28,4 @@ public class WorldpayOrderDataPopulator implements Populator<OrderModel, OrderDa
         target.setIsApmOpen(worldpayPaymentTransactionService.isAnyPaymentTransactionApmOpenForOrder(source));
     }
 
-    @Required
-    public void setWorldpayPaymentTransactionService(final WorldpayPaymentTransactionService worldpayPaymentTransactionService) {
-        this.worldpayPaymentTransactionService = worldpayPaymentTransactionService;
-    }
 }
