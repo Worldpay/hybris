@@ -1,6 +1,6 @@
 #Ant properties
-#Wed Jun 10 15:19:25 GMT 2026
-builddate=20260610 1519
+#Fri Jun 19 13:50:59 GMT 2026
+builddate=20260619 1350
 description=worldpayaddoncommons
 group.id=de.hybris.platform
 module.name=platform-module

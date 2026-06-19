@@ -24,6 +24,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/rngom-4.0.9.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/txw2-4.0.9.jar" />
 	<classpathentry exported="true" kind="lib" path="lib/dtd-conversion/xsom-4.0.9.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/jjwt-api-0.13.0.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/jjwt-impl-0.13.0.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/jjwt-jackson-0.13.0.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/resilience4j-core-2.4.0.jar" />
+	<classpathentry exported="true" kind="lib" path="lib/resilience4j-retry-2.4.0.jar" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="testsrc" />
