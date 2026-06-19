@@ -4,6 +4,8 @@
 	<classpathentry kind="output" path="eclipsebin/notused"/>
 
 	<classpathentry exported="true" kind="src" path="/worldpayapi" />
+	<classpathentry exported="true" kind="lib" path="lib/lombok-1.18.46.jar" />
+	<classpathentry exported="false" kind="lib" path="web/webroot/WEB-INF/lib/jakarta.servlet.jsp.jstl-3.0.1.jar" />
 	<classpathentry exported="true" kind="lib" path="resources" />
 	<classpathentry exported="true" output="eclipsebin/classes" kind="src" path="src" />
 	<classpathentry exported="false" output="eclipsebin/web/classes" kind="src" path="web/src" />
