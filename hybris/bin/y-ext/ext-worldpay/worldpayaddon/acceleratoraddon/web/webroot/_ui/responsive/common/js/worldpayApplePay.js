@@ -236,7 +236,7 @@ ACC.applePay = {
 
     performGetCart: function () {
         return new Promise(function (resolve, reject) {
-            $.getJSON(ACC.config.encodedContextPath + '/checkout/worldpay/payment/api/cart/')
+            $.getJSON(ACC.config.encodedContextPath + '/checkout/worldpay/payment/api/cart')
                 .done(resolve)
                 .fail(reject);
         });
