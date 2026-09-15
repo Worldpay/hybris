@@ -37,5 +37,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 
 ## RELEASE NOTES
 
-### Features:
-- Updated SAP Commerce version to 2211-jdk21.11
+### Bugfix:
+- Fix error when try to pay by ApplePay in accelerator
