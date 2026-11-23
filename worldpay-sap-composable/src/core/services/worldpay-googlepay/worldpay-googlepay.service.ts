@@ -2,7 +2,6 @@ import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActiveCartFacade, Cart } from '@spartacus/cart/base/root';
 import {
-  Address,
   Command,
   CommandService,
   CommandStrategy,
@@ -20,7 +19,7 @@ import { WorldpayGooglePayConnector } from '../../connectors/worldpay-googlepay/
 import { GooglePayMerchantConfigurationSetEvent } from '../../events/googlepay.events';
 import { WorldpayGooglepayFacade, WorldpayOrderFacade } from '../../facade';
 import { PlaceOrderResponse } from '../../interfaces';
-import { GooglePayIsReadyToPayRequest, GooglePayMerchantConfiguration, GooglePayPaymentDataRequest, GooglePayPaymentResponse } from '../../models';
+import { GooglePayAddress, GooglePayIsReadyToPayRequest, GooglePayMerchantConfiguration, GooglePayPaymentDataRequest, GooglePayPaymentResponse } from '../../models';
 
 @Injectable()
 export class WorldpayGooglepayService implements WorldpayGooglepayFacade {
@@ -58,7 +57,7 @@ export class WorldpayGooglepayService implements WorldpayGooglepayFacade {
         savePaymentMethod
       }: { paymentRequest: GooglePayPaymentResponse; savePaymentMethod: boolean; }): Observable<PlaceOrderResponse> => this.checkoutPreconditions().pipe(
         switchMap(([userId, cartId]: [string, string]): Observable<PlaceOrderResponse> => {
-          const billingAddress: Address = paymentRequest.paymentMethodData.info.billingAddress;
+          const billingAddress: GooglePayAddress = paymentRequest.paymentMethodData.info.billingAddress;
           const token: string = JSON.parse(paymentRequest.paymentMethodData.tokenizationData.token);
           return this.worldpayGooglePayConnector.authoriseGooglePayPayment(userId, cartId, token, billingAddress, savePaymentMethod).pipe(
             tap((response: PlaceOrderResponse): void => {

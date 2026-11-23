@@ -8,4 +8,10 @@ export abstract class WorldpayFraudsightAdapter {
    * @returns Observable<boolean> - Observable with boolean value
    */
   abstract isFraudSightEnabled(): Observable<boolean>;
+
+  /**
+   * Abstract method used to get FraudSight publishable key
+   * @returns Observable<string> - Observable with publishable key
+   */
+  abstract getFraudPublicKey(): Observable<string>;
 }

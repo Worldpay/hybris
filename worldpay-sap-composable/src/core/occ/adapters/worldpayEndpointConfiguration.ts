@@ -7,6 +7,7 @@ export const worldpayOccConfig: OccConfig = {
         useExistingPaymentDetails: 'users/${userId}/carts/${cartId}/paymentdetails',
         createWorldpayPaymentDetails: 'users/${userId}/carts/${cartId}/worldpaypaymentdetails',
         getPublicKey: 'worldpayapi/cse-public-key',
+        getFraudPublicKey: 'worldpayapi/fraudsight/public-key',
         setPaymentAddress: 'users/${userId}/carts/${cartId}/worldpaybillingaddress',
         setAPMPaymentInfo: '/users/${userId}/carts/${cartId}/worldpayAPMPaymentInfo',
         getDDC3dsJwt: 'worldpayapi/ddc-3ds-jwt',
@@ -71,6 +72,7 @@ declare module '@spartacus/core' {
     getACHBankAccountTypes?: string | OccEndpoint;
     placeACHOrder?: string | OccEndpoint;
     paymentDetailsAllForCart?: string | OccEndpoint;
+    getFraudPublicKey?: string | OccEndpoint;
     // setApmPaymentDetails?: string | OccEndpoint;
   }
 }

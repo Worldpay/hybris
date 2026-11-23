@@ -26,4 +26,12 @@ export class OccWorldpayFraudsightAdapter implements WorldpayFraudsightAdapter {
       options,
     ).pipe(map((str: string): boolean => str === 'true'));
   }
+
+  getFraudPublicKey(): Observable<string> {
+    const url: string = this.occEndpoints.buildUrl('getFraudPublicKey');
+    const options: { responseType: 'json' } = {
+      responseType: 'text' as 'json'
+    };
+    return this.http.get<string>(url, options);
+  }
 }

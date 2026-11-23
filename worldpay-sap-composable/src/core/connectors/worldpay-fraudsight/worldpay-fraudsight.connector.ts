@@ -18,4 +18,8 @@ export class WorldpayFraudsightConnector {
     return this.adapter.isFraudSightEnabled();
   }
 
+  public getFraudPublicKey(): Observable<string> {
+    return this.adapter.getFraudPublicKey();
+  }
+
 }

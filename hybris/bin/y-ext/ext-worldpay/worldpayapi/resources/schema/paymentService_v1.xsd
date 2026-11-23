@@ -59,9 +59,9 @@
   <xs:element name="ABAQOOS-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -81,10 +81,10 @@
   <xs:element name="AFTERPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -93,9 +93,9 @@
   <xs:element name="AGMO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -118,10 +118,10 @@
   <xs:element name="ALIPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -130,10 +130,10 @@
   <xs:element name="ALIPAYMOBILE-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -142,10 +142,12 @@
   <xs:element name="ALIPAY_CN-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="successURL"/>
+          <xs:element ref="cancelURL"/>
+          <xs:element ref="pendingURL"/>
+          <xs:element ref="failureURL"/>
+        </xs:choice>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -154,10 +156,12 @@
   <xs:element name="ALIPAY_HK-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="successURL"/>
+          <xs:element ref="cancelURL"/>
+          <xs:element ref="pendingURL"/>
+          <xs:element ref="failureURL"/>
+        </xs:choice>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
       <xs:attribute name="shopperCountryCode" type="xs:string"/>
@@ -202,10 +206,12 @@
   <xs:element name="APM">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="successURL"/>
+          <xs:element ref="failureURL"/>
+          <xs:element ref="cancelURL"/>
+          <xs:element ref="pendingURL"/>
+        </xs:choice>
       </xs:sequence>
       <xs:attribute name="paymentMethodName" type="xs:string" use="required"/>
       <xs:attribute name="shopperCountryCode" type="xs:string"/>
@@ -245,9 +251,9 @@
         <xs:element name="pan" type="xs:string"/>
         <xs:element name="cvv" type="xs:string"/>
         <xs:element ref="expiryDate"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -256,9 +262,9 @@
   <xs:element name="ATM_ID-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -317,9 +323,9 @@
   <xs:element name="BALOTO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -328,9 +334,9 @@
   <xs:element name="BANCOMATPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL" minOccurs="0"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -340,9 +346,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="rut" type="xs:string"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -351,9 +357,9 @@
   <xs:element name="BANKAXESS-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -362,9 +368,9 @@
   <xs:element name="BANKLINKNORDEA-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -373,10 +379,10 @@
   <xs:element name="BANKTRANSFER-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -398,9 +404,9 @@
   <xs:element name="BILLDESK-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -409,9 +415,9 @@
   <xs:element name="BILLINGPARTNER-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -420,9 +426,9 @@
   <xs:element name="BILLKEY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="cancelURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -430,9 +436,9 @@
   <xs:element name="BLIK-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -452,9 +458,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="cpf" type="xs:string"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -463,12 +469,30 @@
   <xs:element name="BOOST-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="BankAccount_ES">
+    <xs:complexType>
+      <xs:sequence/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="BankAccount_FR">
+    <xs:complexType>
+      <xs:sequence/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="BankAccount_NL">
+    <xs:complexType>
+      <xs:sequence/>
     </xs:complexType>
   </xs:element>
 
@@ -490,7 +514,7 @@
       <xs:sequence>
         <xs:element ref="cardNumber"/>
         <xs:element ref="expiryDate"/>
-        <xs:element ref="cardHolderName"/>
+        <xs:element ref="cardHolderName" minOccurs="0"/>
         <xs:element ref="cvc" minOccurs="0"/>
         <xs:element ref="cardAddress" minOccurs="0"/>
         <xs:element ref="cardSwipe" minOccurs="0"/>
@@ -499,6 +523,9 @@
         <xs:element name="password" type="xs:string" minOccurs="0"/>
         <xs:element name="BRN" type="xs:string" minOccurs="0"/>
       </xs:sequence>
+      <xs:attribute name="relaxCardHolderNameCheck" type="xs:string"/>
+      <xs:attribute name="merchantCode" type="xs:string"/>
+      <xs:attribute name="walletType" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -531,9 +558,9 @@
   <xs:element name="CASHU-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -542,9 +569,9 @@
   <xs:element name="CASH_TH-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -584,10 +611,10 @@
   <xs:element name="CHINAUNIONPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL" minOccurs="0"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
         <xs:element name="errorURL" type="xs:string" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
@@ -596,10 +623,10 @@
   <xs:element name="CLEARPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -678,9 +705,9 @@
   <xs:element name="DINEROMAIL_7ELEVEN-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -689,9 +716,9 @@
   <xs:element name="DINEROMAIL_ONLINE_BT-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -700,9 +727,9 @@
   <xs:element name="DINEROMAIL_OXXO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -711,9 +738,9 @@
   <xs:element name="DINEROMAIL_SERVIPAG-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -764,9 +791,9 @@
   <xs:element name="EKONTO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -838,9 +865,9 @@
   <xs:element name="ENETS_SG-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -988,9 +1015,9 @@
   <xs:element name="EPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -999,9 +1026,9 @@
   <xs:element name="EPS_ENV-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1010,9 +1037,9 @@
   <xs:element name="EUTELLER-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1021,9 +1048,9 @@
   <xs:element name="EWIREDK-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1032,9 +1059,9 @@
   <xs:element name="EWIRENO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1043,9 +1070,9 @@
   <xs:element name="EWIRESE-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1087,10 +1114,10 @@
   <xs:element name="FPX-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -1135,10 +1162,10 @@
   <xs:element name="GIROPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
         <xs:element name="swiftCode" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string"/>
@@ -1156,10 +1183,10 @@
   <xs:element name="GRABPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -1186,9 +1213,9 @@
   <xs:element name="HALCASH-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1216,10 +1243,10 @@
   <xs:element name="IDEAL-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperBankCode" type="xs:string"/>
     </xs:complexType>
@@ -1241,9 +1268,9 @@
   <xs:element name="INIPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="cancelURL"/>
       </xs:sequence>
       <xs:attribute name="goPayMethod" type="xs:string"/>
     </xs:complexType>
@@ -1252,9 +1279,9 @@
   <xs:element name="INSTADEBIT-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1356,6 +1383,18 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="JAYWAN-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="cardNumber"/>
+        <xs:element ref="expiryDate" minOccurs="0"/>
+        <xs:element ref="cardHolderName" minOccurs="0"/>
+        <xs:element ref="cvc" minOccurs="0"/>
+        <xs:element ref="cardAddress" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="JCB-SSL">
     <xs:complexType>
       <xs:sequence>
@@ -1382,9 +1421,9 @@
   <xs:element name="KAKAOPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1403,10 +1442,10 @@
   <xs:element name="KLARNA_PAYLATER-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
         <xs:element ref="customerToken" minOccurs="0"/>
         <xs:element ref="klarnaExtraMerchantData" minOccurs="0"/>
       </xs:sequence>
@@ -1418,10 +1457,10 @@
   <xs:element name="KLARNA_PAYNOW-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
         <xs:element ref="customerToken" minOccurs="0"/>
         <xs:element ref="klarnaExtraMerchantData" minOccurs="0"/>
       </xs:sequence>
@@ -1433,10 +1472,10 @@
   <xs:element name="KLARNA_SLICEIT-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
         <xs:element ref="customerToken" minOccurs="0"/>
         <xs:element ref="klarnaExtraMerchantData" minOccurs="0"/>
       </xs:sequence>
@@ -1448,10 +1487,10 @@
   <xs:element name="KLARNA_V2-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
         <xs:element ref="customerToken" minOccurs="0"/>
         <xs:element ref="klarnaExtraMerchantData" minOccurs="0"/>
       </xs:sequence>
@@ -1465,9 +1504,9 @@
       <xs:sequence>
         <xs:element name="lastName" type="xs:string" minOccurs="0"/>
         <xs:element name="telephoneNumber" type="xs:string" minOccurs="0"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1490,10 +1529,10 @@
   <xs:element name="LINEPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -1502,9 +1541,9 @@
   <xs:element name="LOBANET_AR-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1513,9 +1552,9 @@
   <xs:element name="LOBANET_BR-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1524,9 +1563,9 @@
   <xs:element name="LOBANET_CL-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1535,9 +1574,9 @@
   <xs:element name="LOBANET_MX-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1546,9 +1585,9 @@
   <xs:element name="LOBANET_PE-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1557,9 +1596,9 @@
   <xs:element name="LOBANET_UY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1578,10 +1617,10 @@
   <xs:element name="MAE-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -1606,9 +1645,9 @@
   <xs:element name="MBWAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1617,10 +1656,10 @@
   <xs:element name="MERCADOPAGO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL" minOccurs="0"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
       <xs:attribute name="shopperCountryCode" type="xs:string"/>
@@ -1630,10 +1669,10 @@
   <xs:element name="MISTERCASH-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1644,9 +1683,9 @@
       <xs:sequence>
         <xs:element name="accountNumber" type="xs:string"/>
         <xs:element name="accountPassword" type="xs:string"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1655,9 +1694,9 @@
   <xs:element name="MULTIBANCO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1666,9 +1705,9 @@
   <xs:element name="MYBANK-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1742,9 +1781,9 @@
   <xs:element name="NEOSURF-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1794,8 +1833,8 @@
       <xs:sequence>
         <xs:element name="bankCode" type="xs:string"/>
         <xs:element name="cpf" type="xs:string" minOccurs="0"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1804,9 +1843,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="bankName" type="xs:string"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1815,9 +1854,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="bankName" type="xs:string"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1826,9 +1865,9 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="bankName" type="xs:string" minOccurs="0"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1839,10 +1878,10 @@
         <xs:element ref="bankAccountDetails" minOccurs="0"/>
         <xs:element ref="customerToken" minOccurs="0"/>
         <xs:element name="paymentServiceUsername" type="xs:string" minOccurs="0"/>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL" minOccurs="0"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
       <xs:attribute name="shopperBankCode" type="xs:string"/>
@@ -1852,8 +1891,8 @@
   <xs:element name="OXXO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1862,9 +1901,9 @@
   <xs:element name="PAGA-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1873,9 +1912,9 @@
   <xs:element name="PAGA_VERVE-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1884,9 +1923,9 @@
   <xs:element name="PAYBYBANK_AU-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1901,9 +1940,9 @@
   <xs:element name="PAYPAL-EXPRESS">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="cancelURL"/>
       </xs:sequence>
       <xs:attribute name="firstInBillingRun" type="xs:string"/>
     </xs:complexType>
@@ -1912,10 +1951,10 @@
   <xs:element name="PAYPAL-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL" minOccurs="0"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -1924,9 +1963,9 @@
   <xs:element name="PAYSAFECARD-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1935,9 +1974,9 @@
   <xs:element name="PAYU-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -1987,9 +2026,9 @@
   <xs:element name="PETRONAS-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -1997,9 +2036,9 @@
   <xs:element name="PLUSPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2008,9 +2047,9 @@
   <xs:element name="POLI-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2019,9 +2058,9 @@
   <xs:element name="POLINZ-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2093,9 +2132,9 @@
   <xs:element name="POSTEPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2104,10 +2143,10 @@
   <xs:element name="PROMPTPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -2116,9 +2155,9 @@
   <xs:element name="PRZELEWY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2127,9 +2166,9 @@
   <xs:element name="QIWI-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2144,9 +2183,9 @@
   <xs:element name="SAFETYPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2164,9 +2203,9 @@
   <xs:element name="SATISPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2183,9 +2222,9 @@
   <xs:element name="SEVENELEVEN_MY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -2193,20 +2232,52 @@
   <xs:element name="SID-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SINGLE_SIGNED_DD_ES-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BankAccount_ES"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SINGLE_UNSIGNED_DD_ES-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BankAccount_ES"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SINGLE_UNSIGNED_DD_FR-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BankAccount_FR"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SINGLE_UNSIGNED_DD_NL-SSL">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="BankAccount_NL"/>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="SKRILL-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2215,9 +2286,9 @@
   <xs:element name="SOFORT-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2226,9 +2297,9 @@
   <xs:element name="SOFORT_CH-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2267,9 +2338,9 @@
   <xs:element name="SPEEDCARD-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2278,9 +2349,9 @@
   <xs:element name="SPOROPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2301,9 +2372,9 @@
         <xs:element name="pan" type="xs:string"/>
         <xs:element name="cvv" type="xs:string"/>
         <xs:element ref="expiryDate"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2342,9 +2413,9 @@
   <xs:element name="TELEINGRESO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2353,9 +2424,9 @@
   <xs:element name="TICKETSURF-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2366,9 +2437,9 @@
       <xs:sequence>
         <xs:element name="pan" type="xs:string"/>
         <xs:element name="pin" type="xs:string"/>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2387,16 +2458,17 @@
       <xs:attribute name="tokenType" type="xs:string"/>
       <xs:attribute name="tokenScope" type="xs:string"/>
       <xs:attribute name="captureCvc" type="xs:string"/>
+      <xs:attribute name="isTokenizedRedirect" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="TOUCHNGO-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -2526,10 +2598,10 @@
   <xs:element name="TRUEMONEY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
+        <xs:element ref="failureURL"/>
       </xs:sequence>
       <xs:attribute name="intent" type="xs:string"/>
     </xs:complexType>
@@ -2538,9 +2610,9 @@
   <xs:element name="TRUSTLY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2549,9 +2621,9 @@
   <xs:element name="TRUSTPAY_CZ-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2560,9 +2632,9 @@
   <xs:element name="TRUSTPAY_EE-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2571,9 +2643,9 @@
   <xs:element name="TRUSTPAY_SK-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2670,9 +2742,9 @@
   <xs:element name="WEBMONEY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2681,8 +2753,8 @@
   <xs:element name="WEBPAY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="failureURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="failureURL"/>
         <xs:element ref="cardBrand"/>
       </xs:sequence>
     </xs:complexType>
@@ -2717,9 +2789,9 @@
   <xs:element name="YANDEXMONEY-SSL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string"/>
-        <xs:element name="cancelURL" type="xs:string"/>
-        <xs:element name="pendingURL" type="xs:string"/>
+        <xs:element ref="successURL"/>
+        <xs:element ref="cancelURL"/>
+        <xs:element ref="pendingURL"/>
       </xs:sequence>
       <xs:attribute name="shopperCountryCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -2836,6 +2908,19 @@
     <xs:complexType>
       <xs:sequence/>
       <xs:attribute name="allowRealTimeUpdate" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="achDetails">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="echeckSale"/>
+          <xs:element ref="companyName"/>
+          <xs:element ref="checkNumber"/>
+          <xs:element ref="customIdentifier"/>
+        </xs:choice>
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -4135,6 +4220,8 @@
         <xs:element ref="amount" minOccurs="0"/>
         <xs:element ref="POSReversal" minOccurs="0"/>
         <xs:element ref="e2eIdentity" minOccurs="0"/>
+        <xs:element ref="paymentMethodAttribute" minOccurs="0"/>
+        <xs:element ref="dynamicCurrencyConversionOffer" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="merchantCode" type="xs:string"/>
       <xs:attribute name="reference" type="xs:string"/>
@@ -4167,6 +4254,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="cancelURL">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="captcha">
     <xs:complexType>
       <xs:sequence/>
@@ -4189,6 +4282,9 @@
         <xs:element ref="e2eIdentity" minOccurs="0"/>
         <xs:element ref="processBatchTime" minOccurs="0"/>
         <xs:element ref="occurredAt" minOccurs="0"/>
+        <xs:element ref="paymentMethodAttribute" minOccurs="0"/>
+        <xs:element ref="dynamicCurrencyConversionOffer" minOccurs="0"/>
+        <xs:element ref="massTransitData" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="reference" type="xs:string"/>
       <xs:attribute name="instant" type="xs:string"/>
@@ -4336,7 +4432,10 @@
   <xs:element name="cardDetails">
     <xs:complexType>
       <xs:sequence>
-        <xs:element ref="cardNumber" minOccurs="0"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="cardNumber"/>
+          <xs:element ref="dpan"/>
+        </xs:choice>
         <xs:element ref="expiryDate" minOccurs="0"/>
         <xs:element ref="cardHolderName" minOccurs="0"/>
         <xs:element ref="cvc" minOccurs="0"/>
@@ -4482,6 +4581,8 @@
         <xs:element ref="nameCardHolderResult" minOccurs="0"/>
         <xs:element ref="actionCode" minOccurs="0"/>
         <xs:element ref="responseCode" minOccurs="0"/>
+        <xs:element ref="cvcValidationResult" minOccurs="0"/>
+        <xs:element ref="schemeResponse" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="providerType" type="xs:string"/>
     </xs:complexType>
@@ -4510,6 +4611,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="checkNumber">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="checkOutDate">
     <xs:complexType>
       <xs:sequence>
@@ -4529,6 +4636,12 @@
       <xs:sequence/>
       <xs:attribute name="type" type="xs:string" use="required"/>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="companyName">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="completedAuthentication">
@@ -4636,6 +4749,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="customIdentifier">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="customNumericFields">
     <xs:complexType>
       <xs:sequence>
@@ -4684,6 +4803,16 @@
     <xs:simpleType>
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="cvcValidationResult">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="description" type="xs:string"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="date">
@@ -4810,11 +4939,19 @@
     </xs:simpleType>
   </xs:element>
 
+  <xs:element name="deviceId">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="deviceSession">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="sessionId" type="xs:string"/>
-        <xs:element name="deviceId" type="xs:string" minOccurs="0"/>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element ref="sessionId"/>
+          <xs:element ref="deviceId"/>
+        </xs:choice>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4945,6 +5082,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="dpan">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="dsTransactionId">
     <xs:simpleType>
       <xs:restriction base="xs:string"/>
@@ -5034,13 +5177,13 @@
   <xs:element name="echeckSale">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="companyName" type="xs:string" minOccurs="0"/>
+        <xs:element ref="companyName" minOccurs="0"/>
         <xs:element ref="billingAddress"/>
         <xs:element name="bankAccountType" type="xs:string"/>
         <xs:element name="accountNumber" type="xs:string"/>
         <xs:element name="routingNumber" type="xs:string"/>
-        <xs:element name="checkNumber" type="xs:string" minOccurs="0"/>
-        <xs:element name="customIdentifier" type="xs:string" minOccurs="0"/>
+        <xs:element ref="checkNumber" minOccurs="0"/>
+        <xs:element ref="customIdentifier" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -5049,12 +5192,12 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="amount"/>
-        <xs:element name="companyName" type="xs:string" minOccurs="0"/>
+        <xs:element ref="companyName" minOccurs="0"/>
         <xs:element ref="billingAddress"/>
         <xs:element name="bankAccountType" type="xs:string"/>
         <xs:element name="accountNumber" type="xs:string"/>
         <xs:element name="routingNumber" type="xs:string"/>
-        <xs:element name="checkNumber" type="xs:string" minOccurs="0"/>
+        <xs:element ref="checkNumber" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="orderCode" type="xs:string" use="required"/>
     </xs:complexType>
@@ -5218,6 +5361,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="exemptionCode">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="exemptionResponse">
     <xs:complexType>
       <xs:sequence>
@@ -5307,6 +5456,12 @@
       </xs:sequence>
       <xs:attribute name="id" type="xs:string" use="required"/>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="failureURL">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="fare">
@@ -5809,6 +5964,7 @@
           <xs:element ref="networkScore"/>
           <xs:element ref="cardBrand"/>
           <xs:element ref="cavvAlgorithm"/>
+          <xs:element ref="exemptionCode"/>
         </xs:choice>
       </xs:sequence>
       <xs:attribute name="challengePreference" type="xs:string"/>
@@ -5850,6 +6006,7 @@
           <xs:element ref="balanceCheckInquiry"/>
           <xs:element ref="cardBinInquiry"/>
           <xs:element ref="walletDecryptionInquiry"/>
+          <xs:element ref="routeDiscoveryInquiry"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -6364,6 +6521,15 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="massTransitData">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="transitTransactionTypeIndicator" type="xs:string"/>
+        <xs:element name="transportationModeIndicator" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="maxAmount">
     <xs:complexType>
       <xs:sequence/>
@@ -6386,6 +6552,27 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="membership" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="merchantCapability">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="merchantIdentity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="merchantId" type="xs:string"/>
+        <xs:element name="entityId" type="xs:string"/>
+        <xs:element name="entityRef" type="xs:string"/>
+        <xs:element name="merchantCapability" nillable="true" minOccurs="0" maxOccurs="unbounded">
+          <xs:simpleType>
+            <xs:restriction base="xs:string"/>
+          </xs:simpleType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -6847,6 +7034,7 @@
         <xs:element ref="shopperWebformRefundDetails" minOccurs="0"/>
         <xs:element ref="payAsOrderUseNewOrderCode" minOccurs="0"/>
         <xs:element ref="cardBin" minOccurs="0"/>
+        <xs:element name="walletType" type="xs:string" minOccurs="0"/>
         <xs:element ref="selectedScheme" minOccurs="0"/>
         <xs:element name="fastFunds" type="xs:string" minOccurs="0"/>
       </xs:sequence>
@@ -7197,6 +7385,9 @@
           <xs:element ref="NEXO-SSL"/>
           <xs:element ref="TARJETASHOPPING-SSL"/>
           <xs:element ref="PERMANENT_SIGNED_DD_NL-FAX"/>
+          <xs:element ref="SINGLE_UNSIGNED_DD_NL-SSL"/>
+          <xs:element ref="SINGLE_UNSIGNED_DD_ES-SSL"/>
+          <xs:element ref="SINGLE_UNSIGNED_DD_FR-SSL"/>
           <xs:element ref="PERMANENT_SIGNED_DD_GB-SSL"/>
           <xs:element ref="PERMANENT_UNSIGNED_DD_GB-SSL"/>
           <xs:element ref="PAYOUT-BANK"/>
@@ -7373,6 +7564,7 @@
           <xs:element ref="OXXO-SSL"/>
           <xs:element ref="MBWAY-SSL"/>
           <xs:element ref="PAZE-SSL"/>
+          <xs:element ref="JAYWAN-SSL"/>
           <xs:element ref="cardNumber"/>
           <xs:element ref="expiryDate"/>
           <xs:element ref="cardHolderName"/>
@@ -7399,8 +7591,10 @@
         <xs:element ref="instalmentPlan" minOccurs="0"/>
         <xs:element ref="selectedScheme" minOccurs="0"/>
         <xs:element name="schemeTransactionIdentifier" type="xs:string" minOccurs="0"/>
+        <xs:element ref="massTransitData" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="action" type="xs:string"/>
+      <xs:attribute name="isDeferredAuth" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -7418,6 +7612,7 @@
           <xs:element ref="EMVCO_TOKEN-SSL"/>
           <xs:element ref="obdetails"/>
           <xs:element ref="accountHolder"/>
+          <xs:element ref="achDetails"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -7588,6 +7783,12 @@
   </xs:element>
 
   <xs:element name="paypal">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="pendingURL">
     <xs:simpleType>
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
@@ -8000,6 +8201,8 @@
         <xs:element ref="e2eIdentity" minOccurs="0"/>
         <xs:element ref="processBatchTime" minOccurs="0"/>
         <xs:element ref="occurredAt" minOccurs="0"/>
+        <xs:element ref="paymentMethodAttribute" minOccurs="0"/>
+        <xs:element ref="dynamicCurrencyConversionOffer" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="reference" type="xs:string"/>
       <xs:attribute name="paymentId" type="xs:string"/>
@@ -8206,11 +8409,11 @@
   <xs:element name="resultURL">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="successURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="failureURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="successURL" minOccurs="0"/>
+        <xs:element ref="failureURL" minOccurs="0"/>
         <xs:element name="errorURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="pendingURL" type="xs:string" minOccurs="0"/>
-        <xs:element name="cancelURL" type="xs:string" minOccurs="0"/>
+        <xs:element ref="pendingURL" minOccurs="0"/>
+        <xs:element ref="cancelURL" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -8340,6 +8543,44 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="route">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="routeKey" type="xs:string"/>
+        <xs:element name="routeId" type="xs:string"/>
+        <xs:element name="preferredCurrencyCode" type="xs:string"/>
+        <xs:element name="settlementCurrencyCode" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="routeDiscoveryInquiry">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="merchantIdentity"/>
+        <xs:element name="shopperCountryCode" type="xs:string" minOccurs="0"/>
+        <xs:element ref="order" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="routeDiscoveryResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="merchantCode" type="xs:string"/>
+        <xs:element ref="routeList" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="routeList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="route" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="rsaPublicKey">
     <xs:complexType>
       <xs:sequence>
@@ -8430,6 +8671,7 @@
     <xs:complexType>
       <xs:sequence/>
       <xs:attribute name="shopperSelection" type="xs:string"/>
+      <xs:attribute name="selectedBrand" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 
@@ -8553,6 +8795,12 @@
       <xs:attribute name="shopperIPAddress" type="xs:string"/>
       <xs:attribute name="id" type="xs:string"/>
     </xs:complexType>
+  </xs:element>
+
+  <xs:element name="sessionId">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
   </xs:element>
 
   <xs:element name="setUpPayment">
@@ -8978,6 +9226,12 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="successURL">
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
   <xs:element name="surcharge">
     <xs:complexType>
       <xs:sequence/>
@@ -9036,6 +9290,7 @@
         <xs:element name="terminalModel" type="xs:string" minOccurs="0"/>
         <xs:element name="singleTapEnabled" type="xs:string" minOccurs="0"/>
         <xs:element ref="screenSize" minOccurs="0"/>
+        <xs:element name="terminalMCC" type="xs:string" minOccurs="0"/>
       </xs:sequence>
       <xs:attribute name="type" type="xs:string"/>
     </xs:complexType>
@@ -9051,6 +9306,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="customerId" type="xs:string" minOccurs="0"/>
+        <xs:element name="instalmentType" type="xs:string" minOccurs="0"/>
         <xs:element name="instalments" type="xs:string" minOccurs="0"/>
         <xs:element ref="firstInstalment" minOccurs="0"/>
         <xs:element name="cpf" type="xs:string" minOccurs="0"/>
@@ -9091,6 +9347,7 @@
         <xs:element ref="cardBrand" minOccurs="0"/>
         <xs:element ref="cavvAlgorithm" minOccurs="0"/>
         <xs:element name="acsTransactionId" type="xs:string" minOccurs="0"/>
+        <xs:element ref="exemptionCode" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

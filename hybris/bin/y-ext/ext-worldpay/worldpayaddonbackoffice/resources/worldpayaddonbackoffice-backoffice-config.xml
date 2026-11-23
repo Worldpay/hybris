@@ -205,6 +205,7 @@
                         <editorArea:attribute qualifier="password"/>
                         <editorArea:attribute qualifier="macValidation"/>
                         <editorArea:attribute qualifier="macSecret"/>
+                        <editorArea:attribute qualifier="orderCodeEncryptionKey"/>
                         <editorArea:attribute qualifier="csePublicKey"/>
                         <editorArea:attribute qualifier="installationId"/>
                         <editorArea:attribute qualifier="statementNarrative"/>

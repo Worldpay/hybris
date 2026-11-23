@@ -1,37 +1,34 @@
 package com.worldpay.converters.populators.internal.model.payment;
 
-import com.worldpay.internal.model.IDEALSSL;
 import com.worldpay.data.payment.AlternativeShopperBankCodePayment;
-import de.hybris.platform.converters.Populator;
-import de.hybris.platform.servicelayer.dto.converter.ConversionException;
-
-import java.util.Optional;
-
-import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
+import com.worldpay.internal.model.CancelURL;
+import com.worldpay.internal.model.FailureURL;
+import com.worldpay.internal.model.IDEALSSL;
+import com.worldpay.internal.model.PendingURL;
+import com.worldpay.internal.model.SuccessURL;
 
 /**
  * Populator that fills the necessary details on a {@link com.worldpay.internal.model.IDEALSSL} with the information of a {@link AlternativeShopperBankCodePayment}.
  */
-public class IdealPaymentPopulator implements Populator<AlternativeShopperBankCodePayment, IDEALSSL> {
+public class IdealPaymentPopulator extends AbstractAlternativePaymentPopulator<AlternativeShopperBankCodePayment, IDEALSSL> {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void populate(final AlternativeShopperBankCodePayment source, final IDEALSSL target) throws ConversionException {
-        validateParameterNotNull(source, "Source must not be null!");
-        validateParameterNotNull(target, "Target list must not be null!");
+    protected void setSuccessURL(final IDEALSSL target, final SuccessURL value) {
+        target.setSuccessURL(value);
+    }
 
-        Optional.ofNullable(source.getSuccessURL())
-            .ifPresent(target::setSuccessURL);
+    @Override
+    protected void setFailureURL(final IDEALSSL target, final FailureURL value) {
+        target.setFailureURL(value);
+    }
 
-        Optional.ofNullable(source.getFailureURL())
-            .ifPresent(target::setFailureURL);
+    @Override
+    protected void setCancelURL(final IDEALSSL target, final CancelURL value) {
+        target.setCancelURL(value);
+    }
 
-        Optional.ofNullable(source.getCancelURL())
-            .ifPresent(target::setCancelURL);
-
-        Optional.ofNullable(source.getPendingURL())
-            .ifPresent(target::setPendingURL);
+    @Override
+    protected void setPendingURL(final IDEALSSL target, final PendingURL value) {
+        target.setPendingURL(value);
     }
 }

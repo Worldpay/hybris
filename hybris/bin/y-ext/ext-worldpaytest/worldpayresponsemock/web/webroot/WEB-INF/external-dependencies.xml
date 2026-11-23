@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>worldpayresponsemock</groupId>
     <artifactId>worldpayresponsemock-web</artifactId>
-    <version>2211-jdk21.10</version>
+    <version>2211-jdk21.20</version>
 
     <packaging>jar</packaging>
     <properties>

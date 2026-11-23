@@ -9,14 +9,14 @@
 
     <bean class="de.hybris.platform.commercewebservicescommons.dto.order.PaymentDetailsWsDTO">
         <property name="cseToken" type="String"/>
-        <property name="challengeWindowSize" type="java.lang.String"/>
-        <property name="dfReferenceId" type="java.lang.String"/>
-        <property name="acceptedTermsAndConditions" type="java.lang.Boolean"/>
-        <property name="dateOfBirth" type="java.lang.String"/>
-        <property name="deviceSession" type="java.lang.String"/>
+        <property name="challengeWindowSize" type="String"/>
+        <property name="dfReferenceId" type="String"/>
+        <property name="acceptedTermsAndConditions" type="Boolean"/>
+        <property name="dateOfBirth" type="String"/>
+        <property name="deviceSession" type="String"/>
         <property name="browserInfo" type="com.worldpay.dto.BrowserInfoWsDTO"/>
-        <property name="isAPM" type="java.lang.String"/>
-        <property name="apmName" type="java.lang.String"/>
+        <property name="isAPM" type="String"/>
+        <property name="apmName" type="String"/>
     </bean>
 
     <bean class="com.worldpay.dto.order.PlaceOrderResponseWsDTO">
@@ -32,35 +32,35 @@
         <property name="paRequest" type="String"/>
         <property name="merchantData" type="String"/>
         <property name="issuerURL" type="String"/>
-        <property name="threeDSFlexData" type="java.util.Map&lt;String, String>"/>
+        <property name="threeDSFlexData" type="java.util.Map&lt;String, String&gt;"/>
     </bean>
 
     <bean class="com.worldpay.dto.payment.PaymentRequestData">
-        <property name="paymentMethod" type="java.lang.String"/>
-        <property name="shopperBankCode" type="java.lang.String"/>
+        <property name="paymentMethod" type="String"/>
+        <property name="shopperBankCode" type="String"/>
         <property name="save" type="java.lang.Boolean"/>
     </bean>
 
     <bean class="com.worldpay.dto.payment.PaymentDataWsDTO">
-        <property name="postUrl" type="java.lang.String"/>
-        <property name="parameters" type="java.util.Map&lt;String, String>"/>
-        <property name="mappingLabels" type="java.util.Map&lt;String, String>"/>
+        <property name="postUrl" type="String"/>
+        <property name="parameters" type="java.util.Map&lt;String, String&gt;"/>
+        <property name="mappingLabels" type="java.util.Map&lt;String, String&gt;"/>
     </bean>
 
     <bean class="com.worldpay.dto.apm.BankConfigurationWsDTO">
-        <property name="bankCode" type="java.lang.String"/>
-        <property name="bankName" type="java.lang.String"/>
+        <property name="bankCode" type="String"/>
+        <property name="bankName" type="String"/>
     </bean>
 
     <bean class="com.worldpay.dto.apm.WorldpayAPMConfigurationWsDTO">
-        <property name="code" type="java.lang.String"/>
-        <property name="name" type="java.lang.String"/>
-        <property name="description" type="java.lang.String"/>
-        <property name="autoCancelPendingTimeoutInMinutes" type="java.lang.Integer"/>
-        <property name="bank" type="java.lang.Boolean"/>
-        <property name="automaticRefunds" type="java.lang.Boolean"/>
-        <property name="bankTransferRefunds" type="java.lang.Boolean"/>
-        <property name="bankConfigurations" type="java.util.List&lt;com.worldpay.dto.apm.BankConfigurationWsDTO>"/>
+        <property name="code" type="String"/>
+        <property name="name" type="String"/>
+        <property name="description" type="String"/>
+        <property name="autoCancelPendingTimeoutInMinutes" type="Integer"/>
+        <property name="bank" type="Boolean"/>
+        <property name="automaticRefunds" type="Boolean"/>
+        <property name="bankTransferRefunds" type="Boolean"/>
+        <property name="bankConfigurations" type="java.util.List&lt;com.worldpay.dto.apm.BankConfigurationWsDTO&gt;"/>
     </bean>
 
     <bean class="com.worldpay.dto.cms.WorldpayAPMComponentWsDTO">
@@ -70,32 +70,32 @@
 
     <bean class="com.worldpay.dto.cms.WorldpayAPMComponentsWsDTO">
         <property name="apmComponents"
-                  type="java.util.List&lt;com.worldpay.dto.cms.WorldpayAPMComponentWsDTO>">
+                  type="java.util.List&lt;com.worldpay.dto.cms.WorldpayAPMComponentWsDTO&gt;">
         </property>
     </bean>
 
     <bean class="de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO">
-        <property name="billingAddress" type="java.lang.Boolean"/>
+        <property name="billingAddress" type="Boolean"/>
     </bean>
 
     <bean class="com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO">
-        <property name="apmCode" type="java.lang.String"/>
-        <property name="apmName" type="java.lang.String"/>
+        <property name="apmCode" type="String"/>
+        <property name="apmName" type="String"/>
         <property name="billingAddress" type="de.hybris.platform.commercewebservicescommons.dto.user.AddressWsDTO"/>
         <property name="name" type="String"/>
         <property name="subscriptionId" type="String"/>
     </bean>
 
     <bean class="de.hybris.platform.commercewebservicescommons.dto.order.CartWsDTO">
-        <property name="apmCode" type="java.lang.String"/>
-        <property name="apmName" type="java.lang.String"/>
+        <property name="apmCode" type="String"/>
+        <property name="apmName" type="String"/>
     </bean>
 
     <bean class="de.hybris.platform.commercewebservicescommons.dto.order.AbstractOrderWsDTO">
         <property name="worldpayAPMPaymentInfo" type="com.worldpay.dto.order.WorldpayAPMPaymentInfoWsDTO"/>
-        <property name="isApmOpen" type="java.lang.Boolean"/>
-        <property name="worldpayOrderCode" type="java.lang.String"/>
-        <property name="worldpayDeclineCode" type="java.lang.String"/>
+        <property name="isApmOpen" type="Boolean"/>
+        <property name="worldpayOrderCode" type="String"/>
+        <property name="worldpayDeclineCode" type="String"/>
     </bean>
 
     <bean class="com.worldpay.dto.BrowserInfoWsDTO">
@@ -109,12 +109,12 @@
     </bean>
 
     <bean class="com.worldpay.dto.payment.AchDirectDebitPaymentWsDTO">
-        <property name="accountType" type="java.lang.String"/>
-        <property name="accountNumber" type="java.lang.String"/>
-        <property name="routingNumber" type="java.lang.String"/>
-        <property name="checkNumber" type="java.lang.String"/>
-        <property name="companyName" type="java.lang.String"/>
-        <property name="customIdentifier" type="java.lang.String"/>
+        <property name="accountType" type="String"/>
+        <property name="accountNumber" type="String"/>
+        <property name="routingNumber" type="String"/>
+        <property name="checkNumber" type="String"/>
+        <property name="companyName" type="String"/>
+        <property name="customIdentifier" type="String"/>
     </bean>
 
 </beans>

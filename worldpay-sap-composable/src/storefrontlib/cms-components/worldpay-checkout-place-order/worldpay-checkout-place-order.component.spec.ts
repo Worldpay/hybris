@@ -22,7 +22,7 @@ import {
   WindowRef
 } from '@spartacus/core';
 import { FormErrorsModule, LaunchDialogService } from '@spartacus/storefront';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import {
   MockActivatedRoute,
   MockCheckoutStepService,
@@ -644,6 +644,32 @@ describe('WorldpayCheckoutPlaceOrderComponent', () => {
 
       expect(orderFacade.clearLoading).toHaveBeenCalled();
     });
+  });
+
+  it('should send a device id generated after checkout initialization', () => {
+    const deviceId$ = new BehaviorSubject<string>('');
+    const fraudSightFacade = TestBed.inject(WorldpayFraudsightFacade);
+    spyOn(fraudSightFacade, 'getFraudSightIdFromState').and.returnValue(deviceId$.asObservable());
+    const initialPaymentRequestSpy = spyOn(orderFacade, 'initialPaymentRequest').and.returnValue(of({ order: { code: '00001' } }));
+    component.ngOnInit();
+
+    deviceId$.next('rjs-profiled-device');
+    expect(initialPaymentRequestSpy).not.toHaveBeenCalled();
+    component['processPayment']('ddc-session-id');
+
+    expect(initialPaymentRequestSpy).toHaveBeenCalledOnceWith(
+      component.paymentDetails,
+      'ddc-session-id',
+      component.cseToken,
+      component.checkoutSubmitForm.get('termsAndConditions').value,
+      'rjs-profiled-device',
+      component.browserInfo,
+      component.scheduleReplenishmentFormData
+    );
+
+    fixture.destroy();
+    deviceId$.next('rjs-later-device');
+    expect(component['fraudSightId']).toBe('rjs-profiled-device');
   });
 
   describe('processDdc', () => {

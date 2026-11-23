@@ -1,12 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { EventService, Query, QueryService, QueryState } from '@spartacus/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { WorldpayFraudsightConnector } from '../../connectors';
 import { SetFraudSightEnabledEvent, SetFraudSightIdEvent } from '../../events';
 import { WorldpayFraudsightFacade } from '../../facade/worldpay-fraudsight.facade';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
 
   protected queryService: QueryService = inject(QueryService);
@@ -20,6 +22,10 @@ export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
   protected getIsFraudSightEnabledQuery$: Query<boolean> =
     this.queryService.create<boolean>(
       (): Observable<boolean> => this.worldpayFraudsightConnector.isFraudSightEnabled(),
+    );
+  protected getFraudPublicKeyQuery$: Query<string> =
+    this.queryService.create<string>(
+      (): Observable<string> => this.worldpayFraudsightConnector.getFraudPublicKey(),
     );
   // Fraud Sight
   private fraudSightId$: BehaviorSubject<string> = new BehaviorSubject('');
@@ -40,6 +46,17 @@ export class WorldpayFraudsightService implements WorldpayFraudsightFacade {
     return this.fraudSightId$.asObservable();
   }
 
+  getFraudPublicKey(): Observable<QueryState<string>> {
+    return this.getFraudPublicKeyQuery$.getState();
+  }
+
+  getFraudPublicKeyFromState(): Observable<string> {
+    return this.getFraudPublicKey().pipe(
+      filter((state: QueryState<string>): boolean => !state.loading),
+      map((state: QueryState<string>): string => state.data),
+      filter((key: string): boolean => Boolean(key?.trim())),
+    );
+  }
   /**
    * Method used to set FraudSight Id
    * @since 6.4.0

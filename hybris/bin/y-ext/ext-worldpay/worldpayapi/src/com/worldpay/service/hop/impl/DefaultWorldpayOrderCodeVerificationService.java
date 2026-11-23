@@ -3,10 +3,13 @@ package com.worldpay.service.hop.impl;
 import com.google.common.collect.ImmutableMap;
 import com.worldpay.service.hop.WorldpayOrderCodeVerificationService;
 import de.hybris.platform.core.model.order.AbstractOrderModel;
-import de.hybris.platform.servicelayer.config.ConfigurationService;
 import de.hybris.platform.servicelayer.internal.dao.GenericDao;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.worldpay.model.WorldpayMerchantConfigurationModel;
+import com.worldpay.strategy.WorldpayMerchantStrategy;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -31,17 +34,16 @@ public class DefaultWorldpayOrderCodeVerificationService implements WorldpayOrde
     protected static final String ATTR_ORDER_CODE = "worldpayOrderCode";
     protected static final String CIPHER_TYPE = "AES/GCM/NoPadding";
     protected static final String SECRET_KEY_INSTANCE = "PBKDF2WithHmacSHA1";
-    protected static final String SECRET_KEY = "worldpay.orderCode.encryption.key";
 
     private static final Logger LOG = LogManager.getLogger(DefaultWorldpayOrderCodeVerificationService.class);
 
     protected final GenericDao<AbstractOrderModel> abstractOrderGenericDao;
-    protected final ConfigurationService configurationService;
+    protected final WorldpayMerchantStrategy worldpayMerchantStrategy;
 
     public DefaultWorldpayOrderCodeVerificationService(final GenericDao<AbstractOrderModel> abstractOrderGenericDao,
-                                                       final ConfigurationService configurationService) {
+                                                       final WorldpayMerchantStrategy worldpayMerchantStrategy) {
         this.abstractOrderGenericDao = abstractOrderGenericDao;
-        this.configurationService = configurationService;
+        this.worldpayMerchantStrategy = worldpayMerchantStrategy;
     }
 
     /**
@@ -96,7 +98,12 @@ public class DefaultWorldpayOrderCodeVerificationService implements WorldpayOrde
      * @throws InvalidKeySpecException
      */
     protected SecretKeySpec getSecretKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
-        final String secretKeyString = configurationService.getConfiguration().getString(SECRET_KEY);
+        final WorldpayMerchantConfigurationModel merchantConfigurationModel = worldpayMerchantStrategy.getMerchant();
+
+        if (merchantConfigurationModel == null || StringUtils.isBlank(merchantConfigurationModel.getOrderCodeEncryptionKey())) {
+            throw new InvalidKeySpecException("Order code encryption key is missing from the current Worldpay merchant configuration.");
+        }
+        final String secretKeyString = merchantConfigurationModel.getOrderCodeEncryptionKey();
         final KeySpec spec = new PBEKeySpec(secretKeyString.toCharArray(), new byte[12], 65536, 128);
         final SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(SECRET_KEY_INSTANCE);
         final byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();

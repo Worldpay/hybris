@@ -3,7 +3,7 @@
     class="cx-order-summary"
     >
     @if ((isOrderLoading$ | async) !== true) {
-      @if (!(simple$ | async)) {
+      @if ((simple$ | async) === false) {
         <div class="container">
           @if (order.replenishmentOrderCode) {
             <div class="cx-summary-card">

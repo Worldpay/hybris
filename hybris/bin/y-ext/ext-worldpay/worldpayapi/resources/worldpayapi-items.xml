@@ -775,6 +775,10 @@
                     <persistence type="property"/>
                     <description>Mac Secret provided in the Worldpay console.</description>
                 </attribute>
+                <attribute qualifier="orderCodeEncryptionKey" type="java.lang.String">
+                    <persistence type="property"/>
+                    <description>Encryption key used to encrypt and validate Worldpay order codes.</description>
+                </attribute>
                 <attribute qualifier="csePublicKey" type="java.lang.String">
                     <persistence type="property">
                         <columntype database="oracle">

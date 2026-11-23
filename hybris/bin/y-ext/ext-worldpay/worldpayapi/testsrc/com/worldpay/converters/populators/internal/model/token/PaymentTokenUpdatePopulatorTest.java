@@ -134,7 +134,7 @@ public class PaymentTokenUpdatePopulatorTest {
         assertThat(target.getAuthenticatedShopperID().getValue()).isEqualTo(SHOPPER_ID);
         assertThat(target.getPaymentTokenID().getValue()).isEqualTo(PAYMENT_TOKEN_ID);
         assertThat(target.getTokenEventReference()).isEqualTo(TOKEN_EVENT_REFERENCE);
-        assertThat(target.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0)).isEqualTo(intCardDetailsMock);
+        assertThat(target.getPaymentInstrument().getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolderOrAchDetails().get(0)).isEqualTo(intCardDetailsMock);
         assertThat(target.getTokenReason().getValue()).isEqualTo(TOKEN_REASON);
     }
 }

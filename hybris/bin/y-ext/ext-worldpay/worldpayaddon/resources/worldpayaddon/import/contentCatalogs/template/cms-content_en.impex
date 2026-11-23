@@ -5,11 +5,11 @@
 ##   * addonExtensionName - extension name of the ui addon
 #######
 
-$contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
+$contentCV = catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
 
 # Language
-$lang=en
+$lang = en
 
 # Content Pages
-UPDATE ContentPage;$contentCV[unique=true];uid[unique=true];title[lang=$lang]
-;;worldpayPaymentAndBillingCheckoutPage;"Payment powered by Worldpay"
+UPDATE ContentPage; $contentCV[unique = true]; uid[unique = true]                    ; title[lang = $lang]
+                  ;                          ; worldpayPaymentAndBillingCheckoutPage ; "Payment powered by Worldpay"

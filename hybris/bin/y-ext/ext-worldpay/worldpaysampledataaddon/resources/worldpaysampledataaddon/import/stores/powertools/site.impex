@@ -11,6 +11,7 @@ $webMerchantCode = $config-worldpay.config.web.merchant.code.powertools
 $webMerchantPassword = $config-worldpay.config.web.merchant.password.powertools
 $webMerchantPublicCSEKey = $config-worldpay.config.web.merchant.cse.public.key.powertools
 $webMacSecret = $config-worldpay.config.web.merchant.macSecret.powertools
+$webOrderCodeEncryptionKey = $config-worldpay.config.web.merchant.orderCodeEncryptionKey.powertools
 $googlePayGatewayMerchantId = $config-worldpay.config.web.googlePay.gatewayMerchantId.powertools
 $webInstallationId = $config-worldpay.config.web.merchant.installationId.powertools
 $webStatementNarrative = $config-worldpay.config.web.merchant.statementNarrative.powertools
@@ -19,12 +20,14 @@ $asmMerchantCode = $config-worldpay.config.asm.merchant.code.powertools
 $asmMerchantPassword = $config-worldpay.config.asm.merchant.password.powertools
 $asmMerchantPublicCSEKey = $config-worldpay.config.asm.merchant.cse.public.key.powertools
 $asmMacSecret = $config-worldpay.config.asm.merchant.macSecret.powertools
+$asmOrderCodeEncryptionKey = $config-worldpay.config.asm.merchant.orderCodeEncryptionKey.powertools
 $asmInstallationId = $config-worldpay.config.asm.merchant.installationId.powertools
 $asmStatementNarrative = $config-worldpay.config.asm.merchant.statementNarrative.powertools
 $replenishmentMerchantCode = $config-worldpay.config.replenishment.merchant.code.powertools
 $replenishmentMerchantPassword = $config-worldpay.config.replenishment.merchant.password.powertools
 $replenishmentMerchantPublicCSEKey = $config-worldpay.config.replenishment.merchant.cse.public.key.powertools
 $replenishmentMacSecret = $config-worldpay.config.replenishment.merchant.macSecret.powertools
+$replenishmentOrderCodeEncryptionKey = $config-worldpay.config.replenishment.merchant.orderCodeEncryptionKey.powertools
 $replenishmentInstallationId = $config-worldpay.config.replenishment.merchant.installationId.powertools
 $replenishmentStatementNarrative = $config-worldpay.config.replenishment.merchant.statementNarrative.powertools
 $eventOriginDomain = $config-worldpay.config.3dsecureflex.jwt.eventOriginDomain
@@ -40,21 +43,22 @@ $openBankingMerchantCode = $config-worldpay.config.open.banking.merchant.code.po
 $openBankingMerchantPassword = $config-worldpay.config.open.banking.merchant.password.powertools
 $openBankingMerchantPublicCSEKey = $config-worldpay.config.open.banking.merchant.cse.public.key.powertools
 $openBankingMacSecret = $config-worldpay.config.open.banking.merchant.macSecret.powertools
+$openBankingOrderCodeEncryptionKey = $config-worldpay.config.open.banking.merchant.orderCodeEncryptionKey.powertools
 $openBankingInstallationId = $config-worldpay.config.open.banking.merchant.installationId.powertools
 $openBankingStatementNarrative = $config-worldpay.config.open.banking.merchant.statementNarrative.powertools
 $openBankingCardAcceptorTaxId = $config-worldpay.config.open.banking.merchant.card.acceptor.taxId
 
-INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; csePublicKey             ; installationId; statementNarrative     ; orderContent                   ; threeDSFlexChallengePreference(code)
-                                           ; webMerchantConfiguration-$siteUid ; $webMerchantCode ; $webMerchantPassword ; true         ; $webMacSecret ; $webMerchantPublicCSEKey ; 1048564       ; $webStatementNarrative ; Order Content $webMerchantCode ; noPreference
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; orderCodeEncryptionKey     ; csePublicKey             ; installationId; statementNarrative     ; orderContent                   ; threeDSFlexChallengePreference(code)
+                                           ; webMerchantConfiguration-$siteUid ; $webMerchantCode ; $webMerchantPassword ; true         ; $webMacSecret ; $webOrderCodeEncryptionKey ; $webMerchantPublicCSEKey ; 1048564       ; $webStatementNarrative ; Order Content $webMerchantCode ; noPreference
 
-INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; csePublicKey             ; installationId; statementNarrative     ; orderContent                       ; threeDSFlexChallengePreference(code)
-                                           ; asmMerchantConfiguration-$siteUid ; $asmMerchantCode ; $asmMerchantPassword ; true         ; $asmMacSecret ; $asmMerchantPublicCSEKey ; 1048564       ; $asmStatementNarrative ; Order Content $asmMerchantCode ASM ; noPreference
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]         ; code             ; password             ; macValidation; macSecret     ; orderCodeEncryptionKey     ; csePublicKey             ; installationId; statementNarrative     ; orderContent                       ; threeDSFlexChallengePreference(code)
+                                           ; asmMerchantConfiguration-$siteUid ; $asmMerchantCode ; $asmMerchantPassword ; true         ; $asmMacSecret ; $asmOrderCodeEncryptionKey ; $asmMerchantPublicCSEKey ; 1048564       ; $asmStatementNarrative ; Order Content $asmMerchantCode ASM ; noPreference
 
-INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]                   ; code                       ; password                       ; macValidation; macSecret               ; csePublicKey                       ; installationId               ; statementNarrative               ; orderContent                             ; threeDSFlexChallengePreference(code)
-                                           ; replenishmentMerchantConfiguration-$siteUid ; $replenishmentMerchantCode ; $replenishmentMerchantPassword ; true         ; $replenishmentMacSecret ; $replenishmentMerchantPublicCSEKey ; $replenishmentInstallationId ; $replenishmentStatementNarrative ; Order Content $replenishmentMerchantCode ;
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]                   ; code                       ; password                       ; macValidation; macSecret               ; orderCodeEncryptionKey               ; csePublicKey                       ; installationId               ; statementNarrative               ; orderContent                             ; threeDSFlexChallengePreference(code)
+                                           ; replenishmentMerchantConfiguration-$siteUid ; $replenishmentMerchantCode ; $replenishmentMerchantPassword ; true         ; $replenishmentMacSecret ; $replenishmentOrderCodeEncryptionKey ; $replenishmentMerchantPublicCSEKey ; $replenishmentInstallationId ; $replenishmentStatementNarrative ; Order Content $replenishmentMerchantCode ;
 
-INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]                 ; code                     ; password                     ; macValidation; macSecret             ; installationId; statementNarrative             ; orderContent                           ; threeDSFlexChallengePreference(code)
-                                           ; openBankingMerchantConfiguration-$siteUid ; $openBankingMerchantCode ; $openBankingMerchantPassword ; true         ; $openBankingMacSecret ; 1048564       ; $openBankingStatementNarrative ; Order Content $openBankingMerchantCode ; noPreference
+INSERT_UPDATE WorldpayMerchantConfiguration; identifier[unique = true]                 ; code                     ; password                     ; macValidation; macSecret             ; orderCodeEncryptionKey             ; installationId; statementNarrative             ; orderContent                           ; threeDSFlexChallengePreference(code)
+                                           ; openBankingMerchantConfiguration-$siteUid ; $openBankingMerchantCode ; $openBankingMerchantPassword ; true         ; $openBankingMacSecret ; $openBankingOrderCodeEncryptionKey ; 1048564       ; $openBankingStatementNarrative ; Order Content $openBankingMerchantCode ; noPreference
 
 INSERT_UPDATE WorldpayApplePayConfiguration; identifier[unique = true]; supportedNetworks(code)                        ; countryCode; merchantCapabilities(code)                              ; merchantId             ; merchantName
                                            ; $siteUid-applePayConfig  ; amex, discover, jcb, maestro, masterCard, visa ; ES         ; supportsCredit, supportsDebit, supports3DS, supportsEMV ; merchant.MERCHANT2ECOM ; worldpay merchant2ecom

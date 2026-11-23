@@ -55,10 +55,10 @@ public class OrderInquiryRequestTransformerTest {
 
         assertThat(result.getMerchantCode()).isEqualTo(MERCHANT_CODE);
         assertThat(result.getVersion()).isEqualTo(VERSION);
-        final Object inquiry = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object inquiry = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
         assertThat(inquiry).isInstanceOf(Inquiry.class);
         final Inquiry inquiryObject = (Inquiry) inquiry;
-        final Object orderInquiry = inquiryObject.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiryOrBalanceCheckInquiryOrCardBinInquiryOrWalletDecryptionInquiry().get(0);
+        final Object orderInquiry = inquiryObject.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiryOrBalanceCheckInquiryOrCardBinInquiryOrWalletDecryptionInquiryOrRouteDiscoveryInquiry().getFirst();
         assertThat(orderInquiry).isInstanceOf(OrderInquiry.class);
         final OrderInquiry orderInquiryObject = (OrderInquiry) orderInquiry;
         assertThat(orderInquiryObject.getOrderCode()).isEqualTo(WORLDPAY_ORDER_CODE);
@@ -75,10 +75,10 @@ public class OrderInquiryRequestTransformerTest {
 
         assertThat(result.getMerchantCode()).isEqualTo(MERCHANT_CODE);
         assertThat(result.getVersion()).isEqualTo(VERSION);
-        final Object inquiry = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
+        final Object inquiry = result.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
         assertThat(inquiry).isInstanceOf(Inquiry.class);
         final Inquiry inquiryObject = (Inquiry) inquiry;
-        final Object orderInquiry = inquiryObject.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiryOrBalanceCheckInquiryOrCardBinInquiryOrWalletDecryptionInquiry().get(0);
+        final Object orderInquiry = inquiryObject.getOrderInquiryOrKlarnaConfirmationInquiryOrBatchInquiryOrAccountBatchInquiryOrRefundableAmountInquiryOrShopperAuthenticationOrPriceInquiryOrBankAccountInquiryOrIdentifyMeInquiryOrPaymentOptionsInquiryOrCardAuthenticationCapabilitiesInquiryOrPaymentTokenInquiryOrShopperTokenRetrievalOrCardCheckInquiryOrEcheckInquiryOrBankDetailsInquiryOrRetrieveInstalmentPlansOrCardHolderNameInquiryOrBalanceCheckInquiryOrCardBinInquiryOrWalletDecryptionInquiryOrRouteDiscoveryInquiry().getFirst();
         assertThat(orderInquiry).isInstanceOf(KlarnaConfirmationInquiry.class);
         final KlarnaConfirmationInquiry klarnaConfirmationInquiryObject = (KlarnaConfirmationInquiry) orderInquiry;
         assertThat(klarnaConfirmationInquiryObject.getOrderCode()).isEqualTo(WORLDPAY_ORDER_CODE);

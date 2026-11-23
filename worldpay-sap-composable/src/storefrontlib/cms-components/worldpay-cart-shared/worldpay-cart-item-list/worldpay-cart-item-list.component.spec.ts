@@ -1,15 +1,18 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
+import { provideMockStore } from '@ngrx/store/testing';
 import { ActiveCartFacade, CartItemComponentOptions, ConsignmentEntry, MultiCartFacade, OrderEntry, PromotionLocation, SelectiveCartFacade, } from '@spartacus/cart/base/root';
 import {
   CxDatePipe,
   FeatureConfigService,
   I18nTestingModule,
+  LanguageService,
   MockDatePipe,
   MockTranslatePipe,
   Product,
   ProductCatalogService,
+  provideFeatureToggles,
   TranslatePipe,
   UserIdService,
 } from '@spartacus/core';
@@ -143,6 +146,8 @@ describe('WorldpayCartItemListComponent', () => {
     return TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, PromotionsModule, WorldpayCartItemListComponent],
       providers: [
+        provideMockStore(),
+        provideFeatureToggles({ a11yPreventCartItemsFormRedundantRecreation: true }),
         {
           provide: ActiveCartFacade,
           useClass: MockActiveCartService
@@ -166,6 +171,10 @@ describe('WorldpayCartItemListComponent', () => {
         {
           provide: ProductCatalogService,
           useValue: mockProductCatalogService,
+        },
+        {
+          provide: LanguageService,
+          useValue: { getActive: () => of('en') }
         },
       ],
     }).overrideComponent(WorldpayCartItemListComponent, {

@@ -470,7 +470,6 @@ export class WorldpayCheckoutPlaceOrderComponent extends CheckoutPlaceOrderCompo
    */
   protected initializeFraudSightId(): void {
     this.worldpayFraudsightFacade.getFraudSightIdFromState().pipe(
-      take(1),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (fraudSightId: string): void => {
