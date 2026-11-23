@@ -11,6 +11,8 @@ import { WORLDPAY_FRAUD_SIGHT_FEATURE } from './worldpay-feature-name';
       feature: WORLDPAY_FRAUD_SIGHT_FEATURE,
       methods: [
         'getFraudSightIdFromState',
+        'getFraudPublicKey',
+        'getFraudPublicKeyFromState',
         'isFraudSightEnabled',
         'setFraudSightId',
         'setFraudSightEnabled',
@@ -25,6 +27,18 @@ export abstract class WorldpayFraudsightFacade {
    * @returns Observable emitting the FraudSight session ID as a string.
    */
   abstract getFraudSightIdFromState(): Observable<string>
+
+  /**
+   * Returns an observable of the FraudSight publishable key.
+   * @returns Observable emitting the publishable key as a string.
+   */
+  abstract getFraudPublicKey(): Observable<QueryState<string>>;
+
+  /**
+   * Returns an observable of the FraudSight publishable key from query state.
+   * @returns Observable emitting the publishable key as a string.
+   */
+  abstract getFraudPublicKeyFromState(): Observable<string>;
 
   /**
    * Returns an observable of the FraudSight enabled status as a QueryState.

@@ -1,5 +1,10 @@
 package com.worldpay.worldpayextocc.controllers;
 
+import java.text.MessageFormat;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
@@ -14,18 +19,17 @@ import de.hybris.platform.order.InvalidCartException;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.codehaus.plexus.util.StringUtils;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
-import java.text.MessageFormat;
-import java.util.Map;
-import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/{baseSiteId}/worldpayapi")
@@ -43,6 +47,8 @@ public class WorldpayOccApiController {
     @Resource(name = "occWorldpayDirectOrderFacade")
     protected WorldpayDirectOrderFacade worldpayDirectOrderFacade;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @GetMapping(value = "/cse-public-key", produces = MediaType.TEXT_PLAIN_VALUE)
     @ApiBaseSiteIdParam
     public ResponseEntity<String> getCsePublicKey() {
@@ -53,13 +59,13 @@ public class WorldpayOccApiController {
     @ApiBaseSiteIdParam
     public ResponseEntity<Map<String, String>> getThreeDsDDCInfo() {
         final String ddcUrl = Optional.ofNullable(worldpayMerchantConfigDataFacade.getCurrentSiteMerchantConfigData())
-            .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
-            .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
-            .orElse(null);
+                .map(WorldpayMerchantConfigData::getThreeDSFlexJsonWebTokenSettings)
+                .map(ThreeDSFlexJsonWebTokenCredentials::getDdcUrl)
+                .orElse(null);
 
         return ResponseEntity.ok(Map.of(
-            DDC_URL_ATTR, ddcUrl,
-            DDC_JWT_ATTR, worldpayDDCFacade.createJsonWebTokenForDDC()
+                DDC_URL_ATTR, ddcUrl,
+                DDC_JWT_ATTR, worldpayDDCFacade.createJsonWebTokenForDDC()
         ));
     }
 
@@ -85,7 +91,7 @@ public class WorldpayOccApiController {
 
         if (directResponseData != null &&
                 directResponseData.getOrderData() != null &&
-                Boolean.TRUE.equals(directResponseData.getOrderData().isGuestCustomer())) {
+                directResponseData.getOrderData().isGuestCustomer()) {
             return ResponseEntity.ok().body(createGuestChallengeResponse(status, directResponseData.getOrderData()));
         } else {
             return ResponseEntity.ok().body(createChallengeResponse(status, orderCode));
@@ -96,9 +102,13 @@ public class WorldpayOccApiController {
 
         final String message;
         try {
-            message = new ObjectMapper()
-                    .writeValueAsString(Map.of("accepted", orderCreated,
-                            "orderCode", StringUtils.defaultString(orderCode)));
+            message = objectMapper
+                    .writeValueAsString(
+                            Map.of(
+                                    "accepted", orderCreated,
+                                    "orderCode", Objects.toString(orderCode, "")
+                            )
+                    );
         } catch (JsonProcessingException e) {
             LOG.error("failed creating challenge response", e);
             throw new IllegalStateException(e);
@@ -111,11 +121,15 @@ public class WorldpayOccApiController {
 
         final String message;
         try {
-            message = new ObjectMapper()
-                    .writeValueAsString(Map.of("accepted", orderCreated,
-                            "orderCode", StringUtils.defaultString(orderData.getCode()),
-                            "guestCustomer", orderData.isGuestCustomer(),
-                            "customerID", StringUtils.defaultString(orderData.getUser().getUid())));
+            message = objectMapper
+                    .writeValueAsString(
+                            Map.of(
+                                    "accepted", orderCreated,
+                                    "orderCode", Objects.toString(orderData.getCode(), ""),
+                                    "guestCustomer", orderData.isGuestCustomer(),
+                                    "customerID", Objects.toString(orderData.getUser().getUid(), "")
+                            )
+                    );
         } catch (JsonProcessingException e) {
             LOG.error("failed creating challenge response", e);
             throw new IllegalStateException(e);

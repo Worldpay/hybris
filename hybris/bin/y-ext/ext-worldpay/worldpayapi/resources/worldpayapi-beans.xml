@@ -838,15 +838,11 @@
         <property name="confirmationURL" type="java.lang.String"/>
     </bean>
 
-    <bean class="com.worldpay.data.klarna.KlarnaPayment" extends="com.worldpay.data.payment.Payment">
+    <bean class="com.worldpay.data.klarna.KlarnaPayment"
+          extends="com.worldpay.data.payment.AlternativePayment">
         <property name="purchaseCountry" type="java.lang.String"/>
-        <property name="shopperCountryCode" type="java.lang.String"/>
         <property name="locale" type="java.lang.String"/>
         <property name="shopperLocale" type="java.lang.String"/>
-        <property name="successURL" type="java.lang.String"/>
-        <property name="pendingURL" type="java.lang.String"/>
-        <property name="failureURL" type="java.lang.String"/>
-        <property name="cancelURL" type="java.lang.String"/>
         <property name="merchantUrls" type="com.worldpay.data.klarna.KlarnaMerchantUrls"/>
         <property name="extraMerchantData" type="java.lang.String"/>
     </bean>

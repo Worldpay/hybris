@@ -3,7 +3,7 @@
 </h2>
 
 @if (cards$ | async; as cards) {
-  @if (!(isUpdating$ | async)) {
+  @if ((isUpdating$ | async) === false) {
 
     @if (isAccountPayment || (cards?.length && !addressFormOpened)) {
 

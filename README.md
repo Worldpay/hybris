@@ -37,5 +37,5 @@ In order to install the AddOn using one of the recipes, run the following comman
 
 ## RELEASE NOTES
 
-### Bugfix:
-- Fix error when try to pay by ApplePay in accelerator
+### Features:
+- Replace Threatmetrix with Ravalin

@@ -163,7 +163,7 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
                     final Info3DSecure intInfo3dSecure = new Info3DSecure();
                     final PaResponse intPaResponse = new PaResponse();
                     intPaResponse.setValue(paResponse);
-                    intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrThreeRIOrDelegatedAuthenticationOrTransactionStatusReasonOrTransactionStatusOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithm().add(intPaResponse);
+                    intInfo3dSecure.getPaResponseOrMpiProviderOrMpiResponseOrAttemptedAuthenticationOrCompletedAuthenticationOrThreeDSVersionOrMerchantNameOrXidOrDsTransactionIdOrCavvOrEciOrThreeRIOrDelegatedAuthenticationOrTransactionStatusReasonOrTransactionStatusOrChallengeCancelIndicatorOrNetworkScoreOrCardBrandOrCavvAlgorithmOrExemptionCode().add(intPaResponse);
                     childElements.add(intInfo3dSecure);
                 });
 
@@ -199,9 +199,12 @@ public class OrderPopulator implements Populator<Order, com.worldpay.internal.mo
                 .map(riskEvaluatorConvertersWrapper.internalFraudSightDataConverter::convert)
                 .ifPresent(childElements::add);
 
+
         if (StringUtils.isNotBlank(source.getDeviceSession())) {
             final DeviceSession intDeviceSession = new DeviceSession();
-            intDeviceSession.setSessionId(source.getDeviceSession());
+            final DeviceId deviceId = new DeviceId();
+            deviceId.setValue(source.getDeviceSession());
+            intDeviceSession.getSessionIdOrDeviceId().add(deviceId);
             childElements.add(intDeviceSession);
         }
 

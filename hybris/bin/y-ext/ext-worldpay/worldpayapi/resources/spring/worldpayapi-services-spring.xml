@@ -368,7 +368,7 @@
     <bean id="defaultWorldpayOrderCodeVerificationService"
           class="com.worldpay.service.hop.impl.DefaultWorldpayOrderCodeVerificationService">
         <constructor-arg name="abstractOrderGenericDao" ref="abstractOrderGenericDao"/>
-        <constructor-arg name="configurationService" ref="configurationService"/>
+        <constructor-arg name="worldpayMerchantStrategy" ref="worldpayMerchantStrategy"/>
     </bean>
 
     <alias name="defaultWorldpayAddressService" alias="addressService"/>

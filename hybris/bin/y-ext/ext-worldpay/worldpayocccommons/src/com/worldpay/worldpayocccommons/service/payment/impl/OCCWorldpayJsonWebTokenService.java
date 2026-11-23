@@ -6,14 +6,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
 import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayUrlService;
 import com.worldpay.service.payment.WorldpayJsonWebTokenService;
 import com.worldpay.service.payment.impl.DefaultWorldpayJsonWebTokenService;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.MacAlgorithm;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,21 +40,28 @@ public class OCCWorldpayJsonWebTokenService extends DefaultWorldpayJsonWebTokenS
 
         String jwt = null;
         if (Objects.nonNull(signingKey)) {
-            final Map<String, String> payload = Map.of(ACS_URL, directResponseData.getIssuerURL(),
-                PAYLOAD, directResponseData.getIssuerPayload(),
-                TRANSACTION_ID, directResponseData.getTransactionId3DS());
-            final String alg = worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getAlg();
-            jwt = Jwts.builder()
-                    .header().type(JWT).and()
-                    .issuedAt(callSuperGetAt())
-                    .issuer(worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getIss())
-                    .id(UUID.randomUUID().toString())
-                    .claim(ORG_UNIT_ID, worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getOrgUnitId())
-                    .claim(RETURN_URL, worldpayUrlService.getFullThreeDSecureFlexFlowReturnUrl())
-                    .claim(PAYLOAD, payload)
-                    .claim(OBJECTIFY_PAYLOAD, true)
-                    .signWith(signingKey, (MacAlgorithm) Jwts.SIG.get().get(alg))
-                    .compact();
+            try {
+                final Map<String, String> payload = Map.of(ACS_URL, directResponseData.getIssuerURL(),
+                        PAYLOAD, directResponseData.getIssuerPayload(),
+                        TRANSACTION_ID, directResponseData.getTransactionId3DS());
+                final String alg = worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getAlg();
+                final JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(alg);
+                final JWSHeader header = new JWSHeader.Builder(jwsAlgorithm).type(new JOSEObjectType(JWT)).build();
+                final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                        .issueTime(callSuperGetIssuedAt())
+                        .issuer(worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getIss())
+                        .jwtID(UUID.randomUUID().toString())
+                        .claim(ORG_UNIT_ID, worldpayMerchantConfigData.getThreeDSFlexJsonWebTokenSettings().getOrgUnitId())
+                        .claim(RETURN_URL, worldpayUrlService.getFullThreeDSecureFlexFlowReturnUrl())
+                        .claim(PAYLOAD, payload)
+                        .claim(OBJECTIFY_PAYLOAD, true)
+                        .build();
+                final SignedJWT signedJWT = new SignedJWT(header, claimsSet);
+                signedJWT.sign(new MACSigner(signingKey));
+                jwt = signedJWT.serialize();
+            } catch (final Exception e) {
+                LOG.error("Error creating Challenge JWT", e);
+            }
         }
 
         LOG.debug("Challenge JWT: [{}]", jwt);
@@ -58,8 +69,7 @@ public class OCCWorldpayJsonWebTokenService extends DefaultWorldpayJsonWebTokenS
         return jwt;
     }
 
-    protected Date callSuperGetAt() {
-        return getIssuedAt();
+    protected Date callSuperGetIssuedAt() {
+        return super.getIssuedAt();
     }
-
 }

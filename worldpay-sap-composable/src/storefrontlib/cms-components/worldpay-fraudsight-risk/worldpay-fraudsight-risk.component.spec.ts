@@ -9,6 +9,10 @@ class MockWorldpayFraudsightService implements Partial<WorldpayFraudsightFacade>
     return of(true);
   }
 
+  getFraudPublicKeyFromState(): Observable<string> {
+    return of('publishable_key_test_xxx');
+  }
+
   setFraudSightEnabled = () => {
   };
 
@@ -32,6 +36,7 @@ describe('WorldpayFraudsightRiskComponent', () => {
   let service: WorldpayFraudsightFacade;
   let spyWinRef: jasmine.Spy;
   let enabledSpy: jasmine.Spy;
+  let doProfileSpy: jasmine.Spy;
   let logger: LoggerService;
 
   beforeEach(async () => {
@@ -57,13 +62,8 @@ describe('WorldpayFraudsightRiskComponent', () => {
     spyWinRef = spyOn(windowRef, 'isBrowser');
     enabledSpy = spyOn(service, 'isFraudSightEnabledFromState');
     enabledSpy.and.callThrough();
+    doProfileSpy = spyOn<any>(component, 'doProfile').and.resolveTo();
     spyOn(service, 'setFraudSightId').and.callThrough();
-    spyOnProperty(windowRef, 'nativeWindow', 'get').and.returnValue({
-      // @ts-ignore
-      wprofile: {
-        profile: () => true
-      },
-    });
   });
 
   it('should create', () => {
@@ -108,6 +108,48 @@ describe('WorldpayFraudsightRiskComponent', () => {
       );
 
       expect(enabled).toBeTrue();
+    });
+
+    it('should call doProfile when FraudSight is enabled', () => {
+      doProfileSpy.calls.reset();
+      enabledSpy.and.returnValue(of(true));
+
+      component.ngAfterViewInit();
+
+      expect(doProfileSpy).toHaveBeenCalled();
+    });
+
+    it('should not call doProfile when FraudSight is disabled', () => {
+      doProfileSpy.calls.reset();
+      enabledSpy.and.returnValue(of(false));
+
+      component.ngAfterViewInit();
+
+      expect(doProfileSpy).not.toHaveBeenCalled();
+    });
+
+    it('should log an error when doProfile rejects', async () => {
+      const error = new Error('ravelin exploded');
+      doProfileSpy.and.rejectWith(error);
+      spyOn(logger, 'error');
+      enabledSpy.and.returnValue(of(true));
+
+      component.ngAfterViewInit();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(logger.error).toHaveBeenCalledWith('Failed to run FraudSight profiling', error);
+    });
+
+    it('should propagate the Ravelin device id to the facade via setFraudSightId', async () => {
+      const deviceId = 'device-id-123';
+      doProfileSpy.and.callFake(async () => {
+        service.setFraudSightId(deviceId);
+      });
+
+      await (component as any).doProfile('publishable_key_test_xxx');
+
+      expect(service.setFraudSightId).toHaveBeenCalledWith(deviceId);
     });
   });
 });

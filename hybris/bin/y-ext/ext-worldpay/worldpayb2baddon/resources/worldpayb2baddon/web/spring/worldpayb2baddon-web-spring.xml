@@ -12,6 +12,9 @@
 
     <context:annotation-config/>
 
+    <bean name="checkoutLoginController" class="e2y.worldpay.controllers.pages.CheckoutLoginController"/>
+    <bean name="summaryCheckoutStepController" class="e2y.worldpay.controllers.pages.checkout.steps.SummaryCheckoutStepController"/>
+
     <bean id="worldpayViewChangeBeforeViewHandlerAdaptee"
           class="com.worldpay.interceptors.beforeview.WorldpayViewChangeBeforeViewHandler">
         <constructor-arg name="viewMap">
@@ -35,6 +38,7 @@
           class="com.worldpay.interceptors.beforeview.WorldpayJsVariablesBeforeViewHandler">
         <constructor-arg name="siteConfigService" ref="siteConfigService"/>
         <constructor-arg name="worldpayFraudSightStrategy" ref="worldpayFraudSightStrategy"/>
+        <constructor-arg name="cartService" ref="cartService"/>
     </bean>
 
     <bean id="worldpayJsVariablesBeforeViewHandler" parent="beforeViewHandlerAdapter">

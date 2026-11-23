@@ -270,7 +270,7 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
                 final com.worldpay.data.token.TokenDetails tokenDetails = transformTokenDetails(intTokenDetails);
                 tokenReply.setTokenDetails(tokenDetails);
             } else if (tokenInformationField instanceof PaymentInstrument intPaymentInstrument) {
-                final Object paymentInstrument = intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
+                final Object paymentInstrument = intPaymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolderOrAchDetails().get(0);
                 if (paymentInstrument instanceof CardDetails cardDetails) {
                     final com.worldpay.data.payment.Card card = transformCard(cardDetails);
                     tokenReply.setPaymentInstrument(card);
@@ -459,7 +459,8 @@ public class DefaultServiceResponseTransformerHelper implements ServiceResponseT
         }
 
         final com.worldpay.data.payment.Card card = new com.worldpay.data.payment.Card();
-        card.setPaymentType(PaymentType.getPaymentType(intCard.getType()) != null ? PaymentType.getPaymentType(intCard.getType()).getMethodCode() : null);
+        final PaymentType paymentType = PaymentType.getPaymentType(intCard.getType());
+        card.setPaymentType(paymentType != null ? paymentType.getMethodCode() : null);
         card.setCardNumber(intCard.getNumber());
         card.setExpiryDate(transformedDate);
         card.setCardHolderName(cardHolderNameValue);

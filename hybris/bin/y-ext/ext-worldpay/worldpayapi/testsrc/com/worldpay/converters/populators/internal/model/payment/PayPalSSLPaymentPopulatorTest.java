@@ -58,10 +58,10 @@ public class PayPalSSLPaymentPopulatorTest {
 
         // Verify
         assertThat(target.getIntent()).isEqualTo(PayPalIntent.AUTHORISE.toString().toLowerCase());
-        assertThat(target.getCancelURL()).isEqualTo(CANCEL_URL);
-        assertThat(target.getFailureURL()).isEqualTo(FAILURE_URL);
-        assertThat(target.getPendingURL()).isEqualTo(PENDING_URL);
-        assertThat(target.getSuccessURL()).isEqualTo(SUCCESS_URL);
+        assertThat(target.getCancelURL().getValue()).isEqualTo(CANCEL_URL);
+        assertThat(target.getFailureURL().getValue()).isEqualTo(FAILURE_URL);
+        assertThat(target.getPendingURL().getValue()).isEqualTo(PENDING_URL);
+        assertThat(target.getSuccessURL().getValue()).isEqualTo(SUCCESS_URL);
     }
 
     @Test
@@ -81,10 +81,10 @@ public class PayPalSSLPaymentPopulatorTest {
 
         // Verify
         assertThat(target.getIntent()).isEqualTo(PayPalIntent.CAPTURE.toString().toLowerCase());
-        assertThat(target.getCancelURL()).isEqualTo(CANCEL_URL);
-        assertThat(target.getFailureURL()).isEqualTo(FAILURE_URL);
-        assertThat(target.getPendingURL()).isEqualTo(PENDING_URL);
-        assertThat(target.getSuccessURL()).isEqualTo(SUCCESS_URL);
+        assertThat(target.getCancelURL().getValue()).isEqualTo(CANCEL_URL);
+        assertThat(target.getFailureURL().getValue()).isEqualTo(FAILURE_URL);
+        assertThat(target.getPendingURL().getValue()).isEqualTo(PENDING_URL);
+        assertThat(target.getSuccessURL().getValue()).isEqualTo(SUCCESS_URL);
     }
 
 }

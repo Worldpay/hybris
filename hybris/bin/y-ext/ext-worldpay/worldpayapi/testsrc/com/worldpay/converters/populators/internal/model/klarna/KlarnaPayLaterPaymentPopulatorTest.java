@@ -53,9 +53,9 @@ public class KlarnaPayLaterPaymentPopulatorTest {
 
         assertThat(targetMock.getShopperCountryCode()).isEqualTo(SHOPPER_COUNTRY_CODE);
         assertThat(targetMock.getLocale()).isEqualTo(LOCALE);
-        assertThat(targetMock.getSuccessURL()).isEqualTo(SUCCESS_URL);
-        assertThat(targetMock.getFailureURL()).isEqualTo(FAILURE_URL);
-        assertThat(targetMock.getCancelURL()).isEqualTo(CANCEL_URL);
-        assertThat(targetMock.getPendingURL()).isEqualTo(PENDING_URL);
+        assertThat(targetMock.getSuccessURL().getValue()).isEqualTo(SUCCESS_URL);
+        assertThat(targetMock.getFailureURL().getValue()).isEqualTo(FAILURE_URL);
+        assertThat(targetMock.getCancelURL().getValue()).isEqualTo(CANCEL_URL);
+        assertThat(targetMock.getPendingURL().getValue()).isEqualTo(PENDING_URL);
     }
 }

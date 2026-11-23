@@ -3,23 +3,21 @@ package com.worldpay.service.payment.impl;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.worldpay.config.merchant.ThreeDSFlexJsonWebTokenCredentials;
 import com.worldpay.config.merchant.WorldpayMerchantConfigData;
-import com.worldpay.exception.WorldpayConfigurationException;
 import com.worldpay.payment.DirectResponseData;
 import com.worldpay.service.WorldpayUrlService;
 import de.hybris.bootstrap.annotations.UnitTest;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +34,6 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
     private static final String JWT_MAC_KEY_VALUE = "fa2daee2-1fbb-45ff-4444-52805d5cd9e0";
     private static final String ORG_UNIT_ID_VALUE = "5bd9b55e4444761ac0af1c80";
     private static final String HS_256 = "HS256";
-    private static final String ISS = "iss";
     private static final String ORG_UNIT_ID = "OrgUnitId";
     private static final String ISSUER_PAYLOAD_VALUE = "issuerPayloadValue";
     private static final String TRANSACTION_ID_3DS_VALUE = "transactionId3DSValue";
@@ -74,23 +71,24 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
     }
 
     @Test
-    public void createJsonWebTokenForDDCShouldReturnAValidJsonWebToken() {
+    public void createJsonWebTokenForDDCShouldReturnAValidJsonWebToken() throws Exception {
 
         final String result = testObj.createJsonWebTokenForDDC(merchantConfigDataMock);
 
         assertThat(result).isNotEmpty();
         final SecretKey signingKey = new SecretKeySpec(JWT_MAC_KEY_VALUE.getBytes(), "HmacSHA256");
-        final Jws<Claims> jws = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(result);
-        final Claims claims = jws.getPayload();
-        final JwsHeader headers = jws.getHeader();
-        assertThat(headers.getAlgorithm()).isEqualTo(HS_256);
-        assertThat(claims.get(ISS)).isEqualTo(ISS_VALUE);
-        assertThat(claims.get(ORG_UNIT_ID)).isEqualTo(ORG_UNIT_ID_VALUE);
-        assertThat(claims.getIssuedAt()).isEqualTo(issuedAt);
+        final SignedJWT signedJWT = SignedJWT.parse(result);
+        assertThat(signedJWT.verify(new MACVerifier(signingKey))).isTrue();
+        final JWSHeader header = signedJWT.getHeader();
+        final JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+        assertThat(header.getAlgorithm().getName()).isEqualTo(HS_256);
+        assertThat(claimsSet.getIssuer()).isEqualTo(ISS_VALUE);
+        assertThat(claimsSet.getStringClaim(ORG_UNIT_ID)).isEqualTo(ORG_UNIT_ID_VALUE);
+        assertThat(claimsSet.getIssueTime()).isEqualTo(issuedAt);
     }
 
     @Test
-    public void generateJsonWebTokenFor3DSecureFlexChallengeIframe() throws WorldpayConfigurationException {
+    public void generateJsonWebTokenFor3DSecureFlexChallengeIframe() throws Exception {
         when(directResponseDataMock.getIssuerPayload()).thenReturn(ISSUER_PAYLOAD_VALUE);
         when(directResponseDataMock.getTransactionId3DS()).thenReturn(TRANSACTION_ID_3DS_VALUE);
         when(directResponseDataMock.getIssuerURL()).thenReturn(ISSUER_URL_VALUE);
@@ -99,15 +97,16 @@ public class DefaultWorldpayJsonWebTokenServiceTest {
         final String result = testObj.createJsonWebTokenFor3DSecureFlexChallengeIframe(merchantConfigDataMock, directResponseDataMock);
 
         final SecretKey signingKey = new SecretKeySpec(JWT_MAC_KEY_VALUE.getBytes(), "HmacSHA256");
-        final Jws<Claims> jws = Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(result);
-        final Claims claims = jws.getPayload();
-        final JwsHeader headers = jws.getHeader();
-        assertThat(headers.getAlgorithm()).isEqualTo(HS_256);
-        assertThat(claims.get(ISS)).isEqualTo(ISS_VALUE);
-        assertThat(claims.get(ORG_UNIT_ID)).isEqualTo(ORG_UNIT_ID_VALUE);
-        assertThat(claims.get(RETURN_URL)).isEqualTo(RETURN_URL_VALUE);
-        assertThat(claims.get(PAYLOAD)).isEqualTo(ImmutableMap.of(ACS_URL, ISSUER_URL_VALUE, PAYLOAD, ISSUER_PAYLOAD_VALUE, TRANSACTION_ID, TRANSACTION_ID_3DS_VALUE));
-        assertThat(Boolean.valueOf(String.valueOf(claims.get(OBJECTIFY_PAYLOAD)))).isTrue();
-        assertThat(claims.getIssuedAt()).isEqualTo(issuedAt);
+        final SignedJWT signedJWT = SignedJWT.parse(result);
+        assertThat(signedJWT.verify(new MACVerifier(signingKey))).isTrue();
+        final JWSHeader header = signedJWT.getHeader();
+        final JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+        assertThat(header.getAlgorithm().getName()).isEqualTo(HS_256);
+        assertThat(claimsSet.getIssuer()).isEqualTo(ISS_VALUE);
+        assertThat(claimsSet.getStringClaim(ORG_UNIT_ID)).isEqualTo(ORG_UNIT_ID_VALUE);
+        assertThat(claimsSet.getStringClaim(RETURN_URL)).isEqualTo(RETURN_URL_VALUE);
+        assertThat(claimsSet.getJSONObjectClaim(PAYLOAD)).isEqualTo(ImmutableMap.of(ACS_URL, ISSUER_URL_VALUE, PAYLOAD, ISSUER_PAYLOAD_VALUE, TRANSACTION_ID, TRANSACTION_ID_3DS_VALUE));
+        assertThat(claimsSet.getBooleanClaim(OBJECTIFY_PAYLOAD)).isTrue();
+        assertThat(claimsSet.getIssueTime()).isEqualTo(issuedAt);
     }
 }

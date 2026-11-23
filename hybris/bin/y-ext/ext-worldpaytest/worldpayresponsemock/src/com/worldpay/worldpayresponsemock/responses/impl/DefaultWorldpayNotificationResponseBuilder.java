@@ -23,7 +23,6 @@ import com.worldpay.internal.model.AAVCardholderNameResultCode;
 import com.worldpay.internal.model.AAVEmailResultCode;
 import com.worldpay.internal.model.AAVPostcodeResultCode;
 import com.worldpay.internal.model.AAVTelephoneResultCode;
-import com.worldpay.internal.model.AccountTx;
 import com.worldpay.internal.model.Address;
 import com.worldpay.internal.model.Amount;
 import com.worldpay.internal.model.FraudSight;
@@ -42,7 +41,7 @@ import com.worldpay.service.marshalling.PaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.builders.WebformRefundBuilder;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import com.worldpay.worldpayresponsemock.responses.WorldpayNotificationResponseBuilder;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,7 +53,6 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
     private static final Logger LOG = LogManager.getLogger(DefaultWorldpayNotificationResponseBuilder.class);
 
     private static final String REFUND_WEBFORM_ISSUED = "REFUND_WEBFORM_ISSUED";
-    private static final String IN_PROCESS_AUTHORISED = "IN_PROCESS_AUTHORISED";
     private static final String NO_TOKEN = "NoToken";
     private static final String TOKEN_SELECTED_TYPE_PAYPAL = "Paypal";
     private static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
@@ -77,21 +75,21 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
         // Payment
         orderStatusEvent.setOrderCode(responseForm.getWorldpayOrderCode());
         final Amount amount = anAmountBuilder()
-            .withAmount(responseForm.getTransactionAmount())
-            .withCurrencyCode(responseForm.getCurrencyCode())
-            .build();
+                .withAmount(responseForm.getTransactionAmount())
+                .withCurrencyCode(responseForm.getCurrencyCode())
+                .build();
 
         final Payment payment = createPayment(responseForm);
         orderStatusEvent.setPayment(payment);
         final Journal journal = createJournal(responseForm, amount);
         orderStatusEvent.setJournal(journal);
 
-        if (!StringUtils.equalsIgnoreCase(responseForm.getSelectToken(), NO_TOKEN)) {
+        if (!Strings.CI.equals(responseForm.getSelectToken(), NO_TOKEN)) {
             final Token token = createToken(responseForm);
             orderStatusEvent.setToken(token);
         }
 
-        if (responseForm.getJournalType().equalsIgnoreCase(DefaultWorldpayNotificationResponseBuilder.REFUND_WEBFORM_ISSUED)) {
+        if (Strings.CI.equals(responseForm.getJournalType(), DefaultWorldpayNotificationResponseBuilder.REFUND_WEBFORM_ISSUED)) {
             final ShopperWebformRefundDetails shopperWebformRefundDetails = createShopperWebformRefundDetails(responseForm);
             orderStatusEvent.setShopperWebformRefundDetails(shopperWebformRefundDetails);
         }
@@ -109,7 +107,7 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
             final Source xmlInput = new StreamSource(new StringReader(responseXML));
             final Transformer transformer = TransformerFactory.newDefaultInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty("{https://xml.apache.org/xslt}indent-amount", "2");
             final StreamResult prettyXml = new StreamResult(new StringWriter());
             transformer.transform(xmlInput, prettyXml);
             return prettyXml.getWriter().toString();
@@ -121,36 +119,36 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
 
     protected ShopperWebformRefundDetails createShopperWebformRefundDetails(ResponseForm responseForm) {
         return WebformRefundBuilder.aWebformRefundBuilder().
-            withExponent(String.valueOf(responseForm.getExponent())).
-            withCurrencyCode(responseForm.getCurrencyCode()).
-            withPaymentId(responseForm.getPaymentId()).
-            withRefundId(responseForm.getRefundId()).
-            withTransactionAmount(responseForm.getTransactionAmount()).
-            withRefundReason(responseForm.getRefundReason()).
-            withWebformId(responseForm.getWebformId()).
-            withWebformStatus(responseForm.getWebformStatus()).
-            withWebformURL(responseForm.getWebformURL()).build();
+                withExponent(String.valueOf(responseForm.getExponent())).
+                withCurrencyCode(responseForm.getCurrencyCode()).
+                withPaymentId(responseForm.getPaymentId()).
+                withRefundId(responseForm.getRefundId()).
+                withTransactionAmount(responseForm.getTransactionAmount()).
+                withRefundReason(responseForm.getRefundReason()).
+                withWebformId(responseForm.getWebformId()).
+                withWebformStatus(responseForm.getWebformStatus()).
+                withWebformURL(responseForm.getWebformURL()).build();
     }
 
     protected Payment createPayment(final ResponseForm responseForm) {
         final Payment payment = aPaymentBuilder()
-            .withPaymentMethod(responseForm.getSelectedPaymentMethod())
-            .withApmPaymentMethod(responseForm.getApmPaymentType())
-            .withCreditCardPaymentMethod(responseForm.getCcPaymentType())
-            .withCardHolderName(responseForm.getCardHolderName())
-            .withCardNumber(responseForm.getTestCreditCard())
-            .withCurrencyCode(responseForm.getCurrencyCode())
-            .withExpiryMonth(responseForm.getCardMonth())
-            .withExponent(String.valueOf(responseForm.getExponent()))
-            .withExpiryYear(responseForm.getCardYear())
-            .withTransactionAmount(responseForm.getTransactionAmount())
-            .withSelectedRiskScore(responseForm.getSelectedRiskScore())
-            .withRiskValue(responseForm.getRiskValue())
-            .withFinalScore(responseForm.getFinalScore())
-            .withLastEvent(responseForm.getLastEvent())
-            .withRefundReference(responseForm.getReference())
-            .withTransactionIdentifier(responseForm.getTransactionIdentifier())
-            .build();
+                .withPaymentMethod(responseForm.getSelectedPaymentMethod())
+                .withApmPaymentMethod(responseForm.getApmPaymentType())
+                .withCreditCardPaymentMethod(responseForm.getCcPaymentType())
+                .withCardHolderName(responseForm.getCardHolderName())
+                .withCardNumber(responseForm.getTestCreditCard())
+                .withCurrencyCode(responseForm.getCurrencyCode())
+                .withExpiryMonth(responseForm.getCardMonth())
+                .withExponent(String.valueOf(responseForm.getExponent()))
+                .withExpiryYear(responseForm.getCardYear())
+                .withTransactionAmount(responseForm.getTransactionAmount())
+                .withSelectedRiskScore(responseForm.getSelectedRiskScore())
+                .withRiskValue(responseForm.getRiskValue())
+                .withFinalScore(responseForm.getFinalScore())
+                .withLastEvent(responseForm.getLastEvent())
+                .withRefundReference(responseForm.getReference())
+                .withTransactionIdentifier(responseForm.getTransactionIdentifier())
+                .build();
         populateAavFields(responseForm, payment);
         populateFraudSight(responseForm, payment);
         populateGuaranteedPayments(responseForm, payment);
@@ -168,11 +166,11 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
             final ReasonCodes reasonCodes = new ReasonCodes();
 
             responseForm.getFraudSightReasonCodes()
-                .forEach(reasonCodeValue -> {
-                    final ReasonCode reasonCode = new ReasonCode();
-                    reasonCode.setValue(reasonCodeValue);
-                    reasonCodes.getReasonCode().add(reasonCode);
-                });
+                    .forEach(reasonCodeValue -> {
+                        final ReasonCode reasonCode = new ReasonCode();
+                        reasonCode.setValue(reasonCodeValue);
+                        reasonCodes.getReasonCode().add(reasonCode);
+                    });
 
             fraudSight.setReasonCodes(reasonCodes);
 
@@ -216,60 +214,55 @@ public class DefaultWorldpayNotificationResponseBuilder implements WorldpayNotif
     }
 
     protected Journal createJournal(final ResponseForm responseForm, final Amount amount) {
-        final AccountTx accountTx = new AccountTx();
-        accountTx.setAccountType(IN_PROCESS_AUTHORISED);
-        accountTx.setAmount(amount);
-        accountTx.setBatchId("19");
-
         return aJournalBuilder().withAmount(amount).withJournalType(responseForm.getJournalType())
-            .withBookingDate(responseForm.getCurrentDay(), responseForm.getCurrentMonth(), responseForm.getCurrentYear())
-            .build();
+                .withBookingDate(responseForm.getCurrentDay(), responseForm.getCurrentMonth(), responseForm.getCurrentYear())
+                .build();
     }
 
     protected Token createToken(final ResponseForm responseForm) {
-        if (StringUtils.equals(TOKEN_SELECTED_TYPE_PAYPAL, responseForm.getSelectToken())) {
+        if (Strings.CI.equals(TOKEN_SELECTED_TYPE_PAYPAL, responseForm.getSelectToken())) {
             return aTokenBuilder()
-                .withAuthenticatedShopperId(responseForm.getAuthenticatedShopperId())
-                .withTokenId(responseForm.getPaymentTokenId())
+                    .withAuthenticatedShopperId(responseForm.getAuthenticatedShopperId())
+                    .withTokenId(responseForm.getPaymentTokenId())
+                    .withTokenExpiryDate(responseForm.getTokenExpiryDay(), responseForm.getTokenExpiryMonth(), responseForm.getTokenExpiryYear())
+                    .withTokenDetailsTokenReason(responseForm.getTokenDetailsReason())
+                    .withTokenDetailsTokenEventReference(responseForm.getTokenDetailsEventReference())
+                    .withTokenEvent(responseForm.getTokenEvent())
+                    .withTokenReason(responseForm.getTokenReason())
+                    .withTokenEventReference(responseForm.getTokenEventReference())
+                    .withPaypalToken()
+                    .build();
+        }
+
+        return aTokenBuilder()
+                .withAuthenticatedShopperId(responseForm.isMerchantToken() ? null : responseForm.getAuthenticatedShopperId())
                 .withTokenExpiryDate(responseForm.getTokenExpiryDay(), responseForm.getTokenExpiryMonth(), responseForm.getTokenExpiryYear())
                 .withTokenDetailsTokenReason(responseForm.getTokenDetailsReason())
+                .withTokenId(responseForm.getPaymentTokenId())
                 .withTokenDetailsTokenEventReference(responseForm.getTokenDetailsEventReference())
                 .withTokenEvent(responseForm.getTokenEvent())
                 .withTokenReason(responseForm.getTokenReason())
                 .withTokenEventReference(responseForm.getTokenEventReference())
-                .withPaypalToken()
+                .withCardBrand(responseForm.getCardBrand())
+                .withCardSubBrand(responseForm.getCardSubBrand())
+                .withIssuerCountryCode(responseForm.getIssuerCountry())
+                .withObfuscatedPAN(responseForm.getObfuscatedPAN())
+                .withCardExpiryDate(responseForm.getCardExpiryMonth(), responseForm.getCardExpiryYear())
+                .withCardHolderName(responseForm.getCardHolderName())
+                .withCardAddress(createAddressForCardDetails(responseForm))
                 .build();
-        }
-
-        return aTokenBuilder()
-            .withAuthenticatedShopperId(responseForm.isMerchantToken() ? null : responseForm.getAuthenticatedShopperId())
-            .withTokenExpiryDate(responseForm.getTokenExpiryDay(), responseForm.getTokenExpiryMonth(), responseForm.getTokenExpiryYear())
-            .withTokenDetailsTokenReason(responseForm.getTokenDetailsReason())
-            .withTokenId(responseForm.getPaymentTokenId())
-            .withTokenDetailsTokenEventReference(responseForm.getTokenDetailsEventReference())
-            .withTokenEvent(responseForm.getTokenEvent())
-            .withTokenReason(responseForm.getTokenReason())
-            .withTokenEventReference(responseForm.getTokenEventReference())
-            .withCardBrand(responseForm.getCardBrand())
-            .withCardSubBrand(responseForm.getCardSubBrand())
-            .withIssuerCountryCode(responseForm.getIssuerCountry())
-            .withObfuscatedPAN(responseForm.getObfuscatedPAN())
-            .withCardExpiryDate(responseForm.getCardExpiryMonth(), responseForm.getCardExpiryYear())
-            .withCardHolderName(responseForm.getCardHolderName())
-            .withCardAddress(createAddressForCardDetails(responseForm))
-            .build();
     }
 
     private Address createAddressForCardDetails(final ResponseForm responseForm) {
         return anAddressBuilder()
-            .withAddress1(responseForm.getAddress1())
-            .withAddress2(responseForm.getAddress2())
-            .withAddress3(responseForm.getAddress3())
-            .withLastName(responseForm.getLastName())
-            .withCity(responseForm.getCity())
-            .withPostalCode(responseForm.getPostalCode())
-            .withCountryCode(responseForm.getCountryCode())
-            .build();
+                .withAddress1(responseForm.getAddress1())
+                .withAddress2(responseForm.getAddress2())
+                .withAddress3(responseForm.getAddress3())
+                .withLastName(responseForm.getLastName())
+                .withCity(responseForm.getCity())
+                .withPostalCode(responseForm.getPostalCode())
+                .withCountryCode(responseForm.getCountryCode())
+                .build();
     }
 
     private ISO8583ReturnCode generateReturnCode(final ResponseForm responseForm) {

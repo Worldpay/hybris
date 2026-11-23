@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, Region, Title, UserAddressService } from '@spartacus/core';
+import { Address, AddressValidation, Country, GlobalMessageService, I18nTestingModule, LanguageService, Region, Title, UserAddressService } from '@spartacus/core';
 import { FormErrorsModule, FormRequiredAsterisksComponent, FormRequiredLegendComponent, LaunchDialogService, NgSelectA11yModule } from '@spartacus/storefront';
 import { AddressFormComponent } from '@spartacus/user/profile/components';
 import { UserProfileFacade } from '@spartacus/user/profile/root';
@@ -47,6 +47,7 @@ const mockAddress: Address = {
   line1: 'Toyosaki 2 create on cart',
   line2: 'line2',
   town: 'town',
+  district: 'district',
   region: { isocode: 'JP-27' },
   postalCode: 'zip',
   country: { isocode: 'JP' },
@@ -104,6 +105,10 @@ describe('WorldpayAddressFormComponent', () => {
         {
           provide: GlobalMessageService,
           useClass: MockGlobalMessageService
+        },
+        {
+          provide: LanguageService,
+          useValue: { getActive: () => of('en') }
         },
       ],
     }).overrideComponent(AddressFormComponent, {

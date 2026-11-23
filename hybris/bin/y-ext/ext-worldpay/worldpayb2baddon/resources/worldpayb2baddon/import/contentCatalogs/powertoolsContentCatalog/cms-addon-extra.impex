@@ -1,13 +1,14 @@
 $contentCatalog=powertoolsContentCatalog
 $contentCV=catalogVersion(CatalogVersion.catalog(Catalog.id[default=$contentCatalog]),CatalogVersion.version[default=Staged])[default=$contentCatalog:Staged]
 
-INSERT_UPDATE JspIncludeComponent;$contentCV[unique=true];uid[unique=true];name;page
+INSERT_UPDATE JspIncludeComponent; $contentCV[unique = true]; uid[unique = true]                        ; name                                           ; page
 # This update modifies the existing AccountOrderDetailsShippingComponent jspInclude component (with payment details in order history) by setting a new page existing in the worldpayb2baddon
-;;AccountOrderDetailsShippingComponent;Account Order Details Shipping Info Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountOrderDetailShippingInfo.jsp
-;;OrderConfirmationShippingComponent;Order Confirmation Shipping Info Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountOrderDetailShippingInfo.jsp
-;;OrderConfirmationThankMessageComponent;Order Confirmation Thank You Message Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/checkout/worldpayCheckoutConfirmationThankMessage.jsp
+                                 ;                          ; AccountOrderDetailsShippingComponent      ; Account Order Details Shipping Info Component  ; /WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountOrderDetailShippingInfo.jsp
+                                 ;                          ; OrderConfirmationShippingComponent        ; Order Confirmation Shipping Info Component     ; /WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountOrderDetailShippingInfo.jsp
+                                 ;                          ; OrderConfirmationThankMessageComponent    ; Order Confirmation Thank You Message Component ; /WEB-INF/views/addons/worldpayb2baddon/responsive/pages/checkout/worldpayCheckoutConfirmationThankMessage.jsp
+                                 ;                          ; ReplenishmentConfirmationMessageComponent ; Replenishment Confirmation Message Component   ; /WEB-INF/views/addons/worldpayb2baddon/responsive/pages/checkout/worldpayReplenishmentCheckoutConfirmationMessage.jsp
 # This update modifies the existing CheckoutComponent jspInclude component by setting a new page existing in the worldpayb2baddon
-;;CheckoutComponent;Checkout Display Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/cart/checkoutDisplay.jsp
-;;AccountPaymentDetailsComponent;Account Payment Details Component;/WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountPaymentInfoPage.jsp
-UPDATE ReorderAction;$contentCV[unique=true];uid[unique=true];url
-;;ReorderAction;/checkout/worldpay/summary/reorder
+                                 ;                          ; CheckoutComponent                         ; Checkout Display Component                     ; /WEB-INF/views/addons/worldpayb2baddon/responsive/pages/cart/checkoutDisplay.jsp
+                                 ;                          ; AccountPaymentDetailsComponent            ; Account Payment Details Component              ; /WEB-INF/views/addons/worldpayb2baddon/responsive/pages/account/worldpayAccountPaymentInfoPage.jsp
+UPDATE ReorderAction; $contentCV[unique = true]; uid[unique = true]; url
+                    ;                          ; ReorderAction     ; /checkout/worldpay/summary/reorder

@@ -5,7 +5,7 @@ SAP Commerce Cloud.
 It provides reusable Angular modules and components to enable secure payment processing, 3D Secure, fraud detection, guaranteed payments, and multiple Alternative Payment Methods (
 APMs).
 
-> **Version:** 221121.11.0 | **Status:** ✅ Stable | **Compatible with:** SAP Composable Storefront 2211.x & Angular 21+
+> **Version:** 221121.20.0 | **Status:** ✅ Stable | **Compatible with:** SAP Composable Storefront 221121.20.0 & Angular ^21.2.23
 
 ## Table of Contents
 
@@ -77,15 +77,15 @@ Release information: [https://sap.github.io/spartacus-docs/release-information/]
 
 ## Requirements
 
-Before updating composable storefront to version 221121.11.0, ensure your Angular libraries are up to date. Composable storefront 221121.11.0 requires Angular 21.
+Before updating composable storefront to version 221121.20.0, ensure your Angular libraries are up to date. It requires Angular 21.2.23 or later and Node.js 22.22.x.
 
 | Requirement            | Version     | Notes                                                                                                                                                                             |
 |------------------------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Angular**            | `^21.0.0`   | TypeScript 5.x required                                                                                                                                                           |
-| **Angular CLI**        | `^21.0.0`   | Latest 21.x version recommended                                                                                                                                                   |
-| **Angular Animations** | `^21.0.0`   | Latest 21.x version recommended                                                                                                                                                   |
-| **Angular CDK**        | `^21.0.0`   | Latest 21.x version recommended                                                                                                                                                   |
-| **Node.js**            | `>=22.14.0` | Latest 22.x version recommended                                                                                                                                                   |
+| **Angular**            | `^21.2.23`  | TypeScript 5.x required                                                                                                                                                           |
+| **Angular CLI**        | `^21.2.23`  | Latest compatible 21.x version recommended                                                                                                                                        |
+| **Angular Animations** | `^21.2.23`  | Latest compatible 21.x version recommended                                                                                                                                        |
+| **Angular CDK**        | `^21.2.0`   | Latest compatible 21.x version recommended                                                                                                                                        |
+| **Node.js**            | `^22.22.0`  | Latest compatible 22.x version recommended                                                                                                                                        |
 | **npm**                | `>=10.9.2`  | or yarn 4.x                                                                                                                                                                       |
 | **SAP Commerce Cloud** | `2211+`     | [SAP Help Portal](https://help.sap.com/docs/SAP_COMMERCE_COMPOSABLE_STOREFRONT/cfcf687ce2544bba9799aa6c8314ecd0/bf31098d779f4bdebb7a2d0591917363.html?locale=en-US&version=2211). |
 
@@ -97,9 +97,9 @@ Before updating composable storefront to version 221121.11.0, ensure your Angula
 
 | Package                        | Version       |
 |--------------------------------|---------------|
-| `@worldpay2020/sap-composable` | `221121.11.0` |
-| SAP Composable Storefront      | `221121.11.0` |
-| Angular                        | `^21.0.0`     |
+| `@worldpay2020/sap-composable` | `221121.20.0` |
+| SAP Composable Storefront      | `221121.20.0` |
+| Angular                        | `^21.2.23`    |
 | SAP Commerce Cloud             | `2211+`       |
 
 ---
@@ -121,13 +121,13 @@ yarn add @worldpay2020/sap-composable
 ### Specific Version
 
 ```bash
-npm install @worldpay2020/sap-composable@221121.11.0
+npm install @worldpay2020/sap-composable@221121.20.0
 ```
 
 ### Install dependencies:
 
 ```bash
-npm install @angular/animations@^21.2.0
+npm install @angular/animations@^21.2.23
 npm install @angular/cdk@^21.2.0
 ```
 
@@ -303,7 +303,9 @@ export class WorldpayModule {
 #### Important Notes
 
 - The **FraudSight Risk service** is automatically included in WorldpayFeatureModule and used internally by place-order functionality
-- The `<worldpay-fraudsight-risk>` **component** is optional and only needed if you want to display fraud risk information to users
+- The `<worldpay-fraudsight-risk>` component runs Ravelin profiling when FraudSight is enabled and a publishable key is configured. Include it to collect the device ID.
+- Profiling and checkout share a root-scoped `WorldpayFraudsightService`, including when the component module registers its facade in a standalone injector. Do not re-provide the concrete service in component or feature injectors.
+- Checkout tracks asynchronous device ID updates and sends the ID as `deviceSession` to OCC. The outgoing Worldpay `<deviceSession>` contains only `<deviceId>`, without `<sessionId>`; payment and 3DS session data remain unchanged. This is request data, not an order response field.
 - Optional feature modules (like WorldpayGuaranteedPaymentsFeatureModule) are included by default in WorldpayModule
 
 ---
@@ -630,7 +632,11 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 
 ## Release Notes
 
-### Release 221121.11.0 (Current)
+### Release 221121.20.0 (Current)
+
+* Upgraded SAP Composable Storefront (Spartacus) dependencies to 221121.20.0
+
+### Release 221121.11.0
 
 * Compatible with SAP Commerce Cloud 221121
 * Updated components to be standalone Angular 21

@@ -1,17 +1,20 @@
 package com.worldpay.converters.populators.internal.model.payment;
 
+import java.util.Optional;
+
+import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
+
 import com.worldpay.data.Address;
 import com.worldpay.data.payment.AchDirectDebitPayment;
 import com.worldpay.internal.model.ACHDIRECTDEBITSSL;
 import com.worldpay.internal.model.BillingAddress;
+import com.worldpay.internal.model.CheckNumber;
+import com.worldpay.internal.model.CompanyName;
+import com.worldpay.internal.model.CustomIdentifier;
 import com.worldpay.internal.model.EcheckSale;
 import de.hybris.platform.converters.Populator;
 import de.hybris.platform.servicelayer.dto.converter.ConversionException;
 import de.hybris.platform.servicelayer.dto.converter.Converter;
-
-import java.util.Optional;
-
-import static de.hybris.platform.servicelayer.util.ServicesUtil.validateParameterNotNull;
 
 /**
  * Populator that fills the necessary details on a {@link ACHDIRECTDEBITSSL} with the information of a {@link AchDirectDebitPayment}.
@@ -41,11 +44,23 @@ public class ACHDirectDebitPaymentPopulator implements Populator<AchDirectDebitP
         Optional.ofNullable(source.getRoutingNumber())
                 .ifPresent(echeckSale::setRoutingNumber);
         Optional.ofNullable(source.getCheckNumber())
-                .ifPresent(echeckSale::setCheckNumber);
+                .ifPresent(str -> {
+                    CheckNumber checkNumber = new CheckNumber();
+                    checkNumber.setValue(str);
+                    echeckSale.setCheckNumber(checkNumber);
+                });
         Optional.ofNullable(source.getCompanyName())
-                .ifPresent(echeckSale::setCompanyName);
+                .ifPresent(str -> {
+                    final CompanyName companyName = new CompanyName();
+                    companyName.setValue(str);
+                    echeckSale.setCompanyName(companyName);
+                });
         Optional.ofNullable(source.getCustomIdentifier())
-                .ifPresent(echeckSale::setCustomIdentifier);
+                .ifPresent(str -> {
+                    final CustomIdentifier customIdentifier = new CustomIdentifier();
+                    customIdentifier.setValue(str);
+                    echeckSale.setCustomIdentifier(customIdentifier);
+                });
 
         Optional.ofNullable(source.getAddress())
                 .map(internalAddressConverter::convert)

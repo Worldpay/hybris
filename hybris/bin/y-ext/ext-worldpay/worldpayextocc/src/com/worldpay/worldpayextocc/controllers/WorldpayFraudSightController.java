@@ -1,6 +1,7 @@
 package com.worldpay.worldpayextocc.controllers;
 
 import com.worldpay.facades.order.WorldpayPaymentCheckoutFacade;
+import de.hybris.platform.acceleratorservices.config.SiteConfigService;
 import de.hybris.platform.webservicescommons.cache.CacheControl;
 import de.hybris.platform.webservicescommons.cache.CacheControlDirective;
 import de.hybris.platform.webservicescommons.swagger.ApiBaseSiteIdParam;
@@ -16,12 +17,22 @@ import jakarta.annotation.Resource;
 @ApiBaseSiteIdParam
 public class WorldpayFraudSightController {
 
+    private static final String WORLDPAY_CONFIG_FRAUDSIGHT_PUBLISHABLE_KEY = "worldpay.config.fraudsight.publishableKey";
+
     @Resource
     protected WorldpayPaymentCheckoutFacade worldpayPaymentCheckoutFacade;
+
+    @Resource
+    protected SiteConfigService siteConfigService;
 
     @GetMapping("/enabled")
     public boolean isFraudSightEnabled() {
         return worldpayPaymentCheckoutFacade.isFSEnabled();
+    }
+
+    @GetMapping("/public-key")
+    public String getPublicKey() {
+        return siteConfigService.getProperty(WORLDPAY_CONFIG_FRAUDSIGHT_PUBLISHABLE_KEY);
     }
 
 }

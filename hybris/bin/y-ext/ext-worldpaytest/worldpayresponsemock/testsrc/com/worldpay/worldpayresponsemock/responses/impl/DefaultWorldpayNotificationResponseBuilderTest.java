@@ -1,8 +1,8 @@
 package com.worldpay.worldpayresponsemock.responses.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,18 +32,18 @@ import com.worldpay.service.marshalling.impl.DefaultPaymentServiceMarshaller;
 import com.worldpay.worldpayresponsemock.form.ResponseForm;
 import de.hybris.bootstrap.annotations.UnitTest;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultWorldpayNotificationResponseBuilderTest {
 
     private static final String MERCHANT_CODE = "merchantCode";
@@ -107,6 +107,10 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     private static final double SCORE = 22.0;
     private static final String GUARANTEED_PAYMENTS = "Guaranteed Payments";
 
+    @Spy
+    @InjectMocks
+    private DefaultWorldpayNotificationResponseBuilder testObj;
+
     @Mock
     private ResponseForm responseFormMock;
     @Mock
@@ -114,11 +118,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     @Captor
     private ArgumentCaptor<PaymentService> paymentServiceCaptor;
 
-    @Spy
-    @InjectMocks
-    private DefaultWorldpayNotificationResponseBuilder testObj;
-
-    @Before
+    @BeforeEach
     public void setUp() {
         when(responseFormMock.getSelectedPaymentMethod()).thenReturn(CC);
         when(responseFormMock.getMerchantCode()).thenReturn(MERCHANT_CODE);
@@ -153,8 +153,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -180,8 +180,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -208,8 +208,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -233,8 +233,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(APM_PAYMENT_TYPE, payment.getPaymentMethod());
@@ -252,15 +252,15 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
 
-        assertEquals(AAV_ADDRESS_VALUE, payment.getAAVAddressResultCode().getDescription().get(0));
-        assertEquals(AAV_CARD_HOLDER, payment.getAAVCardholderNameResultCode().getDescription().get(0));
-        assertEquals(AAV_EMAIL, payment.getAAVEmailResultCode().getDescription().get(0));
-        assertEquals(AAV_POSTCODE, payment.getAAVPostcodeResultCode().getDescription().get(0));
-        assertEquals(AAV_TELEPHONE, payment.getAAVTelephoneResultCode().getDescription().get(0));
+        assertEquals(AAV_ADDRESS_VALUE, payment.getAAVAddressResultCode().getDescription().getFirst());
+        assertEquals(AAV_CARD_HOLDER, payment.getAAVCardholderNameResultCode().getDescription().getFirst());
+        assertEquals(AAV_EMAIL, payment.getAAVEmailResultCode().getDescription().getFirst());
+        assertEquals(AAV_POSTCODE, payment.getAAVPostcodeResultCode().getDescription().getFirst());
+        assertEquals(AAV_TELEPHONE, payment.getAAVTelephoneResultCode().getDescription().getFirst());
     }
 
     @Test
@@ -295,8 +295,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
             if (tokenElement instanceof final TokenDetails tokenDetails) {
@@ -311,7 +311,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof final PaymentInstrument paymentInstrument) {
-                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
+                final CardDetails cardDetails = (CardDetails) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolderOrAchDetails().getFirst();
                 assertEquals(CARD_HOLDER_NAME_VALUE, cardDetails.getCardHolderName().getValue());
 
                 final Derived derived = cardDetails.getDerived();
@@ -368,8 +368,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Token token = orderStatusEvent.getToken();
         for (Object tokenElement : token.getTokenReasonOrTokenDetailsOrPaymentInstrumentOrSchemeResponseOrSelectedSchemeOrError()) {
             if (tokenElement instanceof final TokenDetails tokenDetails) {
@@ -384,7 +384,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
                 assertEquals(TOKEN_EVENT_VALUE, tokenDetails.getTokenEvent());
                 assertEquals(TOKEN_EVENT_DETAILS_REFERENCE_VALUE, tokenDetails.getTokenEventReference());
             } else if (tokenElement instanceof final PaymentInstrument paymentInstrument) {
-                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().get(0);
+                final Paypal paypal = (Paypal) paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolderOrAchDetails().getFirst();
                 assertNotNull(paypal);
 
             } else if (tokenElement instanceof final TokenReason tokenReason) {
@@ -405,8 +405,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
 
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Token token = orderStatusEvent.getToken();
         assertNull(token.getAuthenticatedShopperID());
     }
@@ -420,8 +420,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         verify(paymentServiceMarshallerMock).marshal(paymentServiceCaptor.capture());
         final PaymentService paymentService = paymentServiceCaptor.getValue();
 
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
 
         assertNull(orderStatusEvent.getToken());
     }
@@ -436,12 +436,12 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
     }
 
     private void verifyCommonFieldsForAPMAndCreditCards(final PaymentService paymentService) {
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
         final Journal journal = orderStatusEvent.getJournal();
-        final Balance balance = payment.getBalance().get(0);
-        final AccountTx accountTx = journal.getAccountTx().get(0);
+        final Balance balance = payment.getBalance().getFirst();
+        final AccountTx accountTx = journal.getAccountTx().getFirst();
 
         assertEquals(MERCHANT_CODE, paymentService.getMerchantCode());
         assertEquals(WORLDPAY_ORDER_CODE, orderStatusEvent.getOrderCode());
@@ -456,7 +456,7 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         assertEquals(CURRENCY_CODE, payment.getAmount().getCurrencyCode());
         assertEquals(CURRENCY_CODE, balance.getAmount().getCurrencyCode());
         assertEquals(CURRENCY_CODE, accountTx.getAmount().getCurrencyCode());
-        assertEquals(RESPONSE_CODE, Integer.valueOf(payment.getISO8583ReturnCode().getCode()).intValue());
+        assertEquals(RESPONSE_CODE, Integer.parseInt(payment.getISO8583ReturnCode().getCode()));
         assertEquals(RESPONSE_DESCRIPTION, payment.getISO8583ReturnCode().getDescription());
         assertEquals(String.valueOf(EXPONENT), payment.getAmount().getExponent());
         assertEquals(String.valueOf(EXPONENT), balance.getAmount().getExponent());
@@ -480,8 +480,8 @@ public class DefaultWorldpayNotificationResponseBuilderTest {
         final PaymentService paymentService = paymentServiceCaptor.getValue();
         verifyCommonFieldsForAPMAndCreditCards(paymentService);
 
-        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().get(0);
-        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().get(0);
+        final Notify notify = (Notify) paymentService.getSubmitOrModifyOrInquiryOrReplyOrNotifyOrVerify().getFirst();
+        final OrderStatusEvent orderStatusEvent = (OrderStatusEvent) notify.getOrderStatusEventOrEncryptedDataOrReport().getFirst();
         final Payment payment = orderStatusEvent.getPayment();
 
         assertEquals(CC_PAYMENT_TYPE, payment.getPaymentMethod());

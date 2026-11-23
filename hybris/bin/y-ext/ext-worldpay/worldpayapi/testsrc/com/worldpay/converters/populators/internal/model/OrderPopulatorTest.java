@@ -23,6 +23,8 @@ import com.worldpay.data.token.TokenRequest;
 import com.worldpay.enums.order.DynamicInteractionType;
 import com.worldpay.internal.model.BillingAddress;
 import com.worldpay.internal.model.CreateToken;
+import com.worldpay.internal.model.DeviceId;
+import com.worldpay.internal.model.DeviceSession;
 import com.worldpay.internal.model.ExtendedOrderDetail;
 import com.worldpay.internal.model.Mandate;
 import de.hybris.bootstrap.annotations.UnitTest;
@@ -536,6 +538,26 @@ class OrderPopulatorTest {
 
         verify(internalExemptionConverter, never()).convert(any());
         assertThat(target.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrInstalmentProviderOrTypeOfDigitalCurrencyOrRampDataOrServiceLocationDataOrDynamicMCCOrPartialAuthorisationOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrDynamicCurrencyConversionOfferOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession()).isEmpty();
+    }
+
+    @Test
+    void populate_WhenDeviceIdAndPaymentSessionExist_ShouldIncludeOnlyDeviceIdInDeviceSession() {
+        when(sourceMock.getDeviceSession()).thenReturn(DEVICE_SESSION);
+        when(sourceMock.getSession()).thenReturn(sessionMock);
+        when(internalSessionConverterMock.convert(sessionMock)).thenReturn(intSessionMock);
+
+        final com.worldpay.internal.model.Order target = new com.worldpay.internal.model.Order();
+        testObj.populate(sourceMock, target);
+
+        final List<Object> elements = target.getDescriptionOrAmountOrCashbackAmountOrGratuityAmountOrSecondaryAmountOrSurchargeAmountOrDonationAmountOrRiskOrOrderContentOrOrderChannelOrCheckoutIdOrPaymentMethodMaskOrPaymentDetailsOrPayAsOrderOrPaymentTokenIDOrShopperOrShippingAddressOrBillingAddressOrHostPaymentOrderAttributeOrBranchSpecificExtensionOrExtendedOrderDetailOrRedirectPageAttributeOrPaymentMethodAttributeOrEchoDataOrStatementNarrativeOrHcgAdditionalDataOrThirdPartyDataOrResultURLOrShopperAdditionalDataOrApprovedAmountOrMandateOrAuthorisationAmountStatusOrDynamic3DSOrAccountUpdaterRequestOrCreateTokenOrCreateTokenApprovalOrOrderLinesOrSubMerchantDataOrInstalmentProviderOrTypeOfDigitalCurrencyOrRampDataOrServiceLocationDataOrDynamicMCCOrPartialAuthorisationOrDynamicInteractionTypeOrPrimeRoutingRequestOrRiskDataOrAdditional3DSDataOrExemptionOrShippingMethodOrProductSkuOrFraudSightDataOrDeviceSessionOrDynamicCurrencyConversionOrDynamicCurrencyConversionOfferOrOverrideNarrativeOrGuaranteedPaymentsDataOrDeliveryOrFundingTransferOrExternalProcessorOrProcessBatchTimeOrOccurredAtOrInfo3DSecureOrSession();
+        assertThat(elements).contains(intSessionMock);
+        final List<DeviceSession> deviceSessions = elements.stream()
+                .filter(DeviceSession.class::isInstance)
+                .map(DeviceSession.class::cast)
+                .toList();
+        assertThat(deviceSessions).hasSize(1);
+        assertThat(deviceSessions.get(0).getSessionIdOrDeviceId()).singleElement()
+                .isInstanceOfSatisfying(DeviceId.class, deviceId -> assertThat(deviceId.getValue()).isEqualTo(DEVICE_SESSION));
     }
 
     @Test

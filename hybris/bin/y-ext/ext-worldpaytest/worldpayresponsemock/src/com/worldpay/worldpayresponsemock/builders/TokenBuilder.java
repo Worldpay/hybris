@@ -152,7 +152,7 @@ public final class TokenBuilder {
 
         final PaymentTokenExpiry tokenExpiry = new PaymentTokenExpiry();
         if (Objects.isNull(tokenExpiryDate) || StringUtils.isEmpty(tokenExpiryDate.getYear()) || StringUtils.isEmpty(tokenExpiryDate.getDayOfMonth()) || StringUtils.isEmpty(tokenExpiryDate.getMonth())) {
-            tokenExpiryDate = buildDate(String.valueOf(LocalDate.from(DATE_TIME).getDayOfMonth()), String.valueOf(LocalDate.from(DATE_TIME).getMonthValue()), String.valueOf(LocalDate.from(DATE_TIME).plusYears(10).getYear()));
+            tokenExpiryDate = buildDate(String.valueOf(DATE_TIME.getDayOfMonth()), String.valueOf(LocalDate.from(DATE_TIME).getMonthValue()), String.valueOf(LocalDate.from(DATE_TIME).plusYears(10).getYear()));
         }
         tokenExpiry.setDate(tokenExpiryDate);
 
@@ -185,7 +185,7 @@ public final class TokenBuilder {
         final PaymentInstrument paymentInstrument = new PaymentInstrument();
         final Paypal paypal = new Paypal();
         paypal.setValue(StringUtils.EMPTY);
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(paypal);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolderOrAchDetails().add(paypal);
         return paymentInstrument;
     }
 
@@ -219,7 +219,7 @@ public final class TokenBuilder {
 
         cardDetails.setDerived(derived);
 
-        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolder().add(cardDetails);
+        paymentInstrument.getCardDetailsOrPaypalOrSepaOrEmvcoTokenDetailsOrSAMSUNGPAYSSLOrPAYWITHGOOGLESSLOrAPPLEPAYSSLOrEMVCOTOKENSSLOrObdetailsOrAccountHolderOrAchDetails().add(cardDetails);
         return paymentInstrument;
     }
 

@@ -8,6 +8,7 @@ import createSpy = jasmine.createSpy;
 
 class MockWorldpayFraudsightConnector implements Partial<WorldpayFraudsightConnector> {
   isFraudSightEnabled = createSpy().and.returnValue(of(true));
+  getFraudPublicKey = createSpy().and.returnValue(of('publishable_key_test_xxx'));
 }
 
 describe('WorldpayFraudsightService', () => {
